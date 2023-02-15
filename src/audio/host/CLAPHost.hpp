@@ -1,0 +1,9 @@
+#ifndef YADAW_SRC_AUDIO_HOST_CLAPHOST
+#define YADAW_SRC_AUDIO_HOST_CLAPHOST
+
+namespace YADAW::Audio::Host
+{
+
+}
+
+#endif //YADAW_SRC_AUDIO_HOST_CLAPHOST

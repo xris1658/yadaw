@@ -1,0 +1,188 @@
+cmake_minimum_required(VERSION 3.21.1)
+
+project(YADAW VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Prerequisites and dependencies
+find_package(QT NAMES Qt6 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
+find_package(Qt6 6.3 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
+
+find_package(ade CONFIG REQUIRED)
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
+find_package(yaml-cpp 
+                  CONFIG REQUIRED)
+
+include_directories(${PROJECT_SOURCE_DIR}/src
+                    ${ASIOSDK_PATH} # ASIO
+                    ${CLAP_SOURCE_DIR}/include # CLAP
+                    ${CLAP_HELPERS_DIR}/include # CLAP Helpers
+                    ${SQLITE_MODERN_CPP_INCLUDE_DIRS}) # sqlite-modern-cpp
+
+## VST3
+set(SMTG_ADD_VSTGUI OFF)
+set(SMTG_ADD_VST3_PLUGINS_SAMPLES OFF)
+
+add_subdirectory(${VST3SDK_SOURCE_DIR} ${PROJECT_BINARY_DIR}/vst3sdk)
+
+add_subdirectory(content)
+
+add_definitions(-DUNICODE -D_UNICODE)
+
+add_compile_options(/W4 /Zc:wchar_t /Zc:__cplusplus)
+
+qt_add_executable(YADAW
+                  rc/YADAW.rc
+                  src/main.cpp
+                  src/audio/backend/AudioGraphBackend.hpp
+                  src/audio/base/Automation.cpp
+                  src/audio/base/Automation.hpp
+                  src/audio/base/Channel.hpp
+                  src/audio/base/Gain.hpp
+                  src/audio/base/StereoPanning.hpp
+                  src/audio/base/TempoAutomation.hpp
+                  src/audio/device/IChannelGroup.cpp
+                  src/audio/device/IChannelGroup.hpp
+                  src/audio/device/IChannelGroupCollection.hpp
+                  src/audio/device/IDevice.hpp
+                  src/audio/engine/PluginNode.cpp
+                  src/audio/engine/PluginNode.hpp
+                  src/audio/host/CLAPHost.cpp
+                  src/audio/host/CLAPHost.hpp
+                  src/audio/host/VST3AttributeList.cpp
+                  src/audio/host/VST3AttributeList.hpp
+                  src/audio/host/VST3ComponentHandler.cpp
+                  src/audio/host/VST3ComponentHandler.hpp
+                  src/audio/host/VST3Host.cpp
+                  src/audio/host/VST3Host.hpp
+                  src/audio/host/VST3Message.cpp
+                  src/audio/host/VST3Message.hpp
+                  src/audio/plugin/CLAPChannelGroup.cpp
+                  src/audio/plugin/CLAPChannelGroup.hpp
+                  src/audio/plugin/CLAPPlugin.cpp
+                  src/audio/plugin/CLAPPlugin.hpp
+                  src/audio/plugin/CLAPPluginGUI.cpp
+                  src/audio/plugin/CLAPPluginGUI.hpp
+                  src/audio/plugin/CLAPPluginParameter.cpp
+                  src/audio/plugin/CLAPPluginParameter.hpp
+                  src/audio/plugin/IParameter.hpp
+                  src/audio/plugin/IPlugin.hpp
+                  src/audio/plugin/IPluginGUI.hpp
+                  src/audio/plugin/IPluginParameter.hpp
+                  src/audio/plugin/VST3ChannelGroup.cpp
+                  src/audio/plugin/VST3ChannelGroup.hpp
+                  src/audio/plugin/VST3Plugin.cpp
+                  src/audio/plugin/VST3Plugin.hpp
+                  src/audio/plugin/VST3PluginGUI.cpp
+                  src/audio/plugin/VST3PluginGUI.hpp
+                  src/audio/plugin/VST3PluginParameter.cpp
+                  src/audio/plugin/VST3PluginParameter.hpp
+                  src/audio/util/CLAPUtil.hpp
+                  src/audio/util/VST3Util.hpp
+                  src/base/Constants.hpp
+                  src/controller/AppController.cpp
+                  src/controller/AppController.hpp
+                  src/controller/PluginController.cpp
+                  src/controller/PluginController.hpp
+                  src/dao/AssetDirectoryTable.cpp
+                  src/dao/AssetDirectoryTable.hpp
+                  src/dao/Config.cpp
+                  src/dao/Config.hpp
+                  src/dao/DAOBase.cpp
+                  src/dao/DAOBase.hpp
+                  src/dao/Database.cpp
+                  src/dao/Database.hpp
+                  src/dao/Logging.cpp
+                  src/dao/Logging.hpp
+                  src/dao/PluginCacheTable.cpp
+                  src/dao/PluginCacheTable.hpp
+                  src/dao/PluginDirectoryTable.cpp
+                  src/dao/PluginDirectoryTable.hpp
+                  src/dao/PluginTable.cpp
+                  src/dao/PluginTable.hpp
+                  src/event/EventBase.cpp
+                  src/event/EventBase.hpp
+                  src/event/EventHandler.cpp
+                  src/event/EventHandler.hpp
+                  src/midi/MIDIInputDevice.hpp
+                  src/midi/MIDIOutputDevice.hpp
+                  src/native/ASIODriverImpl.cpp
+                  src/native/ASIODriverImpl.hpp
+                  src/native/AudioGraphBackendImpl.cpp
+                  src/native/AudioGraphBackendImpl.hpp
+                  src/native/CLAPNative.cpp
+                  src/native/CLAPNative.hpp
+                  src/native/Library.cpp
+                  src/native/Library.hpp
+                  src/native/LibraryImpl.cpp
+                  src/native/LibraryImpl.hpp
+                  src/native/MIDIInputDevice.cpp
+                  src/native/MIDIInputDeviceImpl.cpp
+                  src/native/MIDIInputDeviceImpl.hpp
+                  src/native/MIDIOutputDevice.cpp
+                  src/native/MIDIOutputDeviceImpl.cpp
+                  src/native/MIDIOutputDeviceImpl.hpp
+                  src/native/Message.cpp
+                  src/native/MessageImpl.cpp
+                  src/native/MessageImpl.hpp
+                  src/native/Native.cpp
+                  src/native/Native.hpp
+                  src/native/VST3Native.cpp
+                  src/native/VST3Native.hpp
+                  src/native/WinRTApartment.cpp
+                  src/native/WinRTApartment.hpp
+                  src/native/WindowsDarkModeSupport.cpp
+                  src/native/WindowsDarkModeSupport.hpp
+                  src/native/winrt/Forward.hpp
+                  src/native/winrt/QStringFromHString.cpp
+                  src/native/winrt/QStringFromHString.hpp
+                  src/ui/MessageDialog.cpp
+                  src/ui/MessageDialog.hpp
+                  src/ui/UI.cpp
+                  src/ui/UI.hpp
+                  src/util/Base.hpp
+                  src/util/Constants.hpp
+                  src/util/Endian.cpp
+                  src/util/Endian.hpp
+                  src/util/FileHash.cpp
+                  src/util/FileHash.hpp
+                  src/util/FixedSizeMemoryBlock.hpp
+                  src/util/Integration.cpp
+                  src/util/Integration.hpp
+                  src/util/Literal.cpp
+                  src/util/Literal.hpp
+                  src/util/QStringUtil.cpp
+                  src/util/QStringUtil.hpp
+                  src/util/QuadraticFunction.cpp
+                  src/util/QuadraticFunction.hpp
+                  src/util/Stopwatch.hpp
+                  src/dao/PluginCategoryTable.cpp src/dao/PluginCategoryTable.hpp)
+
+target_precompile_headers(YADAW PRIVATE src/pch.hpp)
+
+qt_add_qml_module(YADAW
+                  URI "Main"
+                  VERSION 1.0
+                  NO_PLUGIN
+                  QML_FILES YADAW.qml)
+
+if(${CMAKE_BUILD_TYPE} EQUAL Debug OR ${CMAKE_BUILD_TYPE} EQUAL RelWithDebInfo)
+    set_target_properties(YADAW PROPERTIES
+        WIN32_EXECUTABLE TRUE
+    )
+endif()
+
+target_link_libraries(YADAW PRIVATE
+                      Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
+                      contentplugin
+                      ade
+                      version ole32 dwmapi
+                      windowsapp
+                      base pluginterfaces sdk_common sdk_hosting
+                      unofficial::sqlite3::sqlite3
+                      yaml-cpp)

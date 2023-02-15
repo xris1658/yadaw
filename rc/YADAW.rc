@@ -1,0 +1,35 @@
+#include <windows.h>
+
+IDI_ICON1	ICON	DISCARDABLE	".\\Main-icon.ico"
+
+VS_VERSION_INFO VERSIONINFO
+    FILEVERSION 0,0,0,1
+PRODUCTVERSION 0,0,0,1
+FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+FILEFLAGS VS_FF_DEBUG
+#else
+FILEFLAGS 0x0L
+#endif
+FILEOS VOS__WINDOWS32
+FILETYPE VFT_DLL
+FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+BEGIN
+    BLOCK "080404b0"
+BEGIN
+    VALUE "CompanyName", "xris1658\0"
+VALUE "FileDescription", "YADAW\0"
+VALUE "FileVersion", "0.0.0.1\0"
+VALUE "LegalCopyright", "Copyright (c) 2023 xris1658. All rights reserved (for now).\0"
+VALUE "OriginalFilename", "YADAW.exe\0"
+VALUE "ProductName", "YADAW\0"
+VALUE "ProductVersion", "0.0.0.1\0"
+END
+    END
+BLOCK "VarFileInfo"
+BEGIN
+    VALUE "Translation", 0x0804, 1200
+END
+    END

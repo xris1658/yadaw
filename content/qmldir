@@ -1,0 +1,29 @@
+module content
+
+singleton Colors 1.0 Colors.qml
+singleton Constants 1.0 Constants.qml
+singleton EventReceiver 1.0 EventReceiver.qml
+singleton EventSender 1.0 EventSender.qml
+singleton Global 1.0 Global.qml
+singleton Mnemonic 1.0 Mnemonic.qml
+
+AboutWindow 1.0 AboutWindow.qml
+Action 1.0 Action.qml
+ApplicationWindow 1.0 ApplicationWindow.qml
+Assets 1.0 Assets.qml
+AudioHardwareSettings 1.0 AudioHardwareSettings.qml
+Button 1.0 Button.qml
+CheckBox 1.0 CheckBox.qml
+ComboBox 1.0 ComboBox.qml
+GeneralSettings 1.0 GeneralSettings.qml
+MainWindow 1.0 MainWindow.qml
+Menu 1.0 Menu.qml
+MenuBar 1.0 MenuBar.qml
+MenuBarItem 1.0 MenuBarItem.qml
+MenuItem 1.0 MenuItem.qml
+MenuSeparator 1.0 MenuSeparator.qml
+PluginSettings 1.0 PluginSettings.qml
+PreferencesWindow 1.0 PreferencesWindow.qml
+ScrollBar 1.0 ScrollBar.qml
+Splashscreen 1.0 Splashscreen.qml
+TopBar 1.0 TopBar.qml
