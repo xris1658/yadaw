@@ -2,7 +2,7 @@
 
 # YADAW
 
-YADAW stands for **Y**et **A**nother **D**igital **A**udio **W**orkstation. This is intended to be an improved version of my [first attempt](github.com/xris1658/musec-legacy) developing a DAW software.
+YADAW stands for **Y**et **A**nother **D**igital **A**udio **W**orkstation. This is intended to be an improved version of my [first attempt](https://github.com/xris1658/musec-legacy) developing a DAW software.
 
 Major changes include:
 - The name

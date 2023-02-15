@@ -2,7 +2,7 @@
 
 # YADAW
 
-YADAW 意为 **Y**et **A**nother **D**igital **A**udio **W**orkstation. 此项目是本人[初次尝试](github.com/xris1658/musec-legacy)开发的 DAW 软件的改良版本。
+YADAW 意为 **Y**et **A**nother **D**igital **A**udio **W**orkstation. 此项目是本人[初次尝试](https://github.com/xris1658/musec-legacy)开发的 DAW 软件的改良版本。
 
 主要改动包括：
 - 项目名
