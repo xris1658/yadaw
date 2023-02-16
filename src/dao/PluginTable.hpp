@@ -11,6 +11,19 @@
 
 namespace YADAW::DAO
 {
+enum PluginFormat: int
+{
+    PluginFormatVST3,
+    PluginFormatCLAP
+};
+
+enum PluginType: int
+{
+    PluginTypeInstrument,
+    PluginTypeAudioEffect,
+    PluginTypeMIDIEffect
+};
+
 struct PluginInfo
 {
     PluginInfo():

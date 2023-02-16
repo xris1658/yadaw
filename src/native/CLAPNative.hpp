@@ -16,7 +16,7 @@ extern const char* windowAPI;
 
 void setWindow(clap_window& clapWindow, QWindow* window);
 
-std::shared_ptr<YADAW::Audio::Plugin::CLAPPlugin> createCLAPFromLibrary(const QString& path);
+YADAW::Audio::Plugin::CLAPPlugin createCLAPFromLibrary(Library& library);
 }
 
 #endif //YADAW_SRC_NATIVE_CLAPNATIVE

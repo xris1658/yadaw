@@ -50,6 +50,16 @@ CLAPPlugin::~CLAPPlugin()
     }
 }
 
+const clap_plugin_entry* CLAPPlugin::entry()
+{
+    return entry_;
+}
+
+const clap_plugin_factory* CLAPPlugin::factory()
+{
+    return factory_;
+}
+
 bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 {
     if(plugin_)

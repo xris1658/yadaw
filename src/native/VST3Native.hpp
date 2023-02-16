@@ -14,7 +14,7 @@ extern const char* initEntryName;
 extern const char* exitEntryName;
 extern const char* factoryEntryName;
 
-std::shared_ptr<YADAW::Audio::Plugin::VST3Plugin> createVST3FromLibrary(const QString& path);
+YADAW::Audio::Plugin::VST3Plugin createVST3FromLibrary(Library& library);
 }
 
 #endif //YADAW_SRC_NATIVE_VST3NATIVE

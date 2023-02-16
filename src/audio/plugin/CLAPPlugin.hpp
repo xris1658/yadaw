@@ -26,6 +26,9 @@ public:
     bool createPlugin(const char* id);
     ~CLAPPlugin();
 public:
+    const clap_plugin_entry* entry();
+    const clap_plugin_factory* factory();
+public:
     bool initialize(double sampleRate, std::int32_t maxSampleCount) override;
     bool uninitialize() override;
     bool activate() override;

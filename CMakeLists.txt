@@ -81,6 +81,7 @@ qt_add_executable(YADAW
                   src/audio/plugin/VST3PluginParameter.cpp
                   src/audio/plugin/VST3PluginParameter.hpp
                   src/audio/util/CLAPUtil.hpp
+                  src/audio/util/VST3Util.cpp
                   src/audio/util/VST3Util.hpp
                   src/base/Constants.hpp
                   src/controller/AppController.cpp
@@ -97,6 +98,8 @@ qt_add_executable(YADAW
                   src/dao/Database.hpp
                   src/dao/Logging.cpp
                   src/dao/Logging.hpp
+                  src/dao/PluginCategoryTable.cpp
+                  src/dao/PluginCategoryTable.hpp
                   src/dao/PluginDirectoryTable.cpp
                   src/dao/PluginDirectoryTable.hpp
                   src/dao/PluginTable.cpp
@@ -157,7 +160,7 @@ qt_add_executable(YADAW
                   src/util/QuadraticFunction.cpp
                   src/util/QuadraticFunction.hpp
                   src/util/Stopwatch.hpp
-                  src/dao/PluginCategoryTable.cpp src/dao/PluginCategoryTable.hpp)
+                  )
 
 target_precompile_headers(YADAW PRIVATE src/pch.hpp)
 

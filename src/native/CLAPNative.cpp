@@ -15,22 +15,14 @@ void setWindow(clap_window& clapWindow, QWindow* window)
     clapWindow.win32 = reinterpret_cast<decltype(clapWindow.win32)>(window->winId());
 }
 
-std::shared_ptr<YADAW::Audio::Plugin::CLAPPlugin> YADAW::Native::createCLAPFromLibrary(const QString& path)
+YADAW::Audio::Plugin::CLAPPlugin createCLAPFromLibrary(Library& library)
 {
-    auto library = std::make_shared<Library>(path);
-    if(!library)
+    auto entry = library.getExport<const clap_plugin_entry*>("clap_entry");
+    if(entry)
     {
-        return nullptr;
+        return CLAPPlugin(entry);
     }
-    auto plugin = new CLAPPlugin(library->getExport<const clap_plugin_entry*>("clap_entry"));
-    return {
-        plugin,
-        [library = std::move(library)](void* ptr)
-        {
-            auto ptrAsCLAPPlugin = static_cast<CLAPPlugin*>(ptr);
-            delete ptrAsCLAPPlugin;
-        }
-    };
+    return {};
 }
 
 }
