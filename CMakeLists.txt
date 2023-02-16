@@ -50,8 +50,6 @@ qt_add_executable(YADAW
                   src/audio/device/IChannelGroup.hpp
                   src/audio/device/IChannelGroupCollection.hpp
                   src/audio/device/IDevice.hpp
-                  src/audio/engine/PluginNode.cpp
-                  src/audio/engine/PluginNode.hpp
                   src/audio/host/CLAPHost.cpp
                   src/audio/host/CLAPHost.hpp
                   src/audio/host/VST3AttributeList.cpp
@@ -99,8 +97,6 @@ qt_add_executable(YADAW
                   src/dao/Database.hpp
                   src/dao/Logging.cpp
                   src/dao/Logging.hpp
-                  src/dao/PluginCacheTable.cpp
-                  src/dao/PluginCacheTable.hpp
                   src/dao/PluginDirectoryTable.cpp
                   src/dao/PluginDirectoryTable.hpp
                   src/dao/PluginTable.cpp
