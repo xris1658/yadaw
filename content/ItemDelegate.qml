@@ -26,8 +26,8 @@ T.ItemDelegate {
         anchors.leftMargin: root.leftInset
         anchors.rightMargin: root.rightInset
         color: (!root.enabled)? Colors.background:
-            root.down? Colors.pressedControlBackground:
-            root.hovered || root.highlighted? Colors.mouseOverControlBackground: Colors.controlBackground
+            root.highlighted? Colors.highlightControlBackground:
+            root.hovered? Colors.mouseOverControlBackground: Colors.controlBackground
     }
 
     contentItem: Item {

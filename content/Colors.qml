@@ -10,6 +10,7 @@ QtObject {
     readonly property color disabledControlBorder: "#444444"
     readonly property color mouseOverControlBackground: "#505050"
     readonly property color pressedControlBackground: "#1A1A1A"
+    readonly property color highlightControlBackground: "#606060"
     readonly property color content: "#FFFFFF"
     readonly property color secondaryContent: "#CCCCCC"
     readonly property color disabledContent: "#A0A0A0"
