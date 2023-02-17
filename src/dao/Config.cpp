@@ -1,5 +1,7 @@
 #include "Config.hpp"
 
+#include <QFile>
+
 #include <fstream>
 
 namespace YADAW::DAO

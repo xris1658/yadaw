@@ -2,6 +2,7 @@
 #define YADAW_SRC_NATIVE_MIDIINPUTDEVICEIMPL
 
 #include "midi/MIDIInputDevice.hpp"
+#include "native/winrt/Forward.hpp"
 
 #include <winrt/Windows.Devices.Midi.h>
 

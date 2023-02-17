@@ -53,8 +53,6 @@ std::vector<QString> scanDirectory(const QDir& dir, bool includeSymLink)
 
 std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
 {
-    QLatin1StringView vst3Ext("vst3");
-    QLatin1StringView clapExt("clap");
     Library library(path);
     if(library.errorCode() != 0)
     {
@@ -96,6 +94,10 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                             {
                                 isAudioEffect = true;
                             }
+                            else
+                            {
+                                subCategories.emplace_back(subCategoryCollection[j]);
+                            }
                         }
                         std::vector<char> uid(16, 0);
                         std::memcpy(uid.data(), classInfo2.cid, 16);
@@ -112,6 +114,12 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                         {
                             DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
                                 DAO::PluginFormatVST3, DAO::PluginTypeAudioEffect);
+                            ret.push_back({pluginInfo, subCategories});
+                        }
+                        else if(!isInstrument)
+                        {
+                            DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
+                                DAO::PluginFormatVST3, DAO::PluginTypeUnknown);
                             ret.push_back({pluginInfo, subCategories});
                         }
                     }
@@ -176,6 +184,12 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                                             DAO::PluginFormatVST3, DAO::PluginTypeInstrument);
                                         ret.push_back({pluginInfo, {}});
                                     }
+                                    else if(!hasMainAudioInput)
+                                    {
+                                        DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
+                                            DAO::PluginFormatVST3, DAO::PluginTypeUnknown);
+                                        ret.push_back({pluginInfo, {}});
+                                    }
                                 }
                             }
                             if(ai && ao)
@@ -201,7 +215,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
     else if(path.endsWith(clapExt, Qt::CaseSensitivity::CaseInsensitive))
     {
         auto plugin = createCLAPFromLibrary(library);
-        if(auto entry = plugin.entry())
+        if(plugin.entry())
         {
             std::vector<PluginScanResult> ret;
             auto factory = plugin.factory();
@@ -212,50 +226,56 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                 bool isAudioEffect = false;
                 bool isMIDIEffect = false;
                 auto descriptor = factory->get_plugin_descriptor(factory, i);
-                auto features = descriptor->features;
-                std::vector<QString> featureCollection;
-                for(auto pFeature = features; pFeature; ++pFeature)
+                if(descriptor)
                 {
-                    auto feature = *pFeature;
-                    if(std::strcmp(feature, CLAP_PLUGIN_FEATURE_INSTRUMENT) == 0)
+                    auto features = descriptor->features;
+                    std::vector<QString> featureCollection;
+                    for(auto pFeature = features; *pFeature; ++pFeature)
                     {
-                        isInstrument = true;
+                        auto feature = *pFeature;
+                        if(std::strcmp(feature, CLAP_PLUGIN_FEATURE_INSTRUMENT) == 0)
+                        {
+                            isInstrument = true;
+                        }
+                        else if(std::strcmp(feature, CLAP_PLUGIN_FEATURE_AUDIO_EFFECT) == 0)
+                        {
+                            isAudioEffect = true;
+                        }
+                        else if(std::strcmp(feature, CLAP_PLUGIN_FEATURE_NOTE_EFFECT) == 0)
+                        {
+                            isMIDIEffect = true;
+                        }
+                        else
+                        {
+                            featureCollection.emplace_back(QString::fromUtf8(feature));
+                        }
                     }
-                    else if(std::strcmp(feature, CLAP_PLUGIN_FEATURE_AUDIO_EFFECT) == 0)
+                    std::vector<char> uid(std::strlen(descriptor->id) + 1, 0);
+                    std::strcpy(uid.data(), descriptor->id);
+                    auto name = QString::fromUtf8(descriptor->name);
+                    auto vendor = QString::fromUtf8(descriptor->vendor);
+                    auto version = QString::fromUtf8(descriptor->version);
+                    if(isInstrument)
                     {
-                        isAudioEffect = true;
+                        DAO::PluginInfo pluginInfo(
+                            path, uid, name, vendor, version, DAO::PluginFormatCLAP, DAO::PluginTypeInstrument
+                        );
+                        ret.push_back({pluginInfo, featureCollection});
                     }
-                    else if(std::strcmp(feature, CLAP_PLUGIN_FEATURE_NOTE_EFFECT) == 0)
+                    if(isAudioEffect)
                     {
-                        isMIDIEffect = true;
+                        DAO::PluginInfo pluginInfo(
+                            path, uid, name, vendor, version, DAO::PluginFormatCLAP, DAO::PluginTypeAudioEffect
+                        );
+                        ret.push_back({pluginInfo, featureCollection});
                     }
-                    else
+                    if(isMIDIEffect)
                     {
-                        featureCollection.emplace_back(QString::fromUtf8(feature));
+                        DAO::PluginInfo pluginInfo(
+                            path, uid, name, vendor, version, DAO::PluginFormatCLAP, DAO::PluginTypeMIDIEffect
+                        );
+                        ret.push_back({pluginInfo, featureCollection});
                     }
-                }
-                std::vector<char> uid(std::strlen(descriptor->id), 0);
-                std::strcpy(uid.data(), descriptor->id);
-                auto name = QString::fromUtf8(descriptor->name);
-                auto vendor = QString::fromUtf8(descriptor->vendor);
-                auto version = QString::fromUtf8(descriptor->version);
-                if(isInstrument)
-                {
-                    DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                        DAO::PluginFormatCLAP, DAO::PluginTypeInstrument);
-                    ret.push_back({pluginInfo, featureCollection});
-                }
-                if(isAudioEffect)
-                {
-                    DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                        DAO::PluginFormatCLAP, DAO::PluginTypeAudioEffect);
-                    ret.push_back({pluginInfo, featureCollection});
-                }
-                if(isMIDIEffect)
-                {
-                    DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                        DAO::PluginFormatCLAP, DAO::PluginTypeMIDIEffect);
-                    ret.push_back({pluginInfo, featureCollection});
                 }
             }
             return ret;

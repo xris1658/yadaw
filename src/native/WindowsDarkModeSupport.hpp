@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_NATIVE_WINDOWSDARKMODESUPPORT
 #define YADAW_SRC_NATIVE_WINDOWSDARKMODESUPPORT
 
+#include <QWindow>
+
 #include <memory>
 
 namespace YADAW::Native

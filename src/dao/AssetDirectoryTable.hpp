@@ -5,6 +5,8 @@
 
 #include <sqlite_modern_cpp.h>
 
+#include <QString>
+
 #include <vector>
 
 namespace YADAW::DAO

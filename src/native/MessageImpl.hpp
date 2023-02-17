@@ -3,6 +3,7 @@
 
 #include "midi/Message.hpp"
 
+#include "native/winrt/Forward.hpp"
 #include <winrt/Windows.Devices.Midi.h>
 
 namespace YADAW::MIDI

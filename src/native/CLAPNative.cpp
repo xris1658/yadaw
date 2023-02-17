@@ -20,7 +20,7 @@ YADAW::Audio::Plugin::CLAPPlugin createCLAPFromLibrary(Library& library)
     auto entry = library.getExport<const clap_plugin_entry*>("clap_entry");
     if(entry)
     {
-        return CLAPPlugin(entry);
+        return CLAPPlugin(entry, library.path());
     }
     return {};
 }

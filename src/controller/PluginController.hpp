@@ -7,6 +7,11 @@
 #include "dao/PluginCategoryTable.hpp"
 #include "native/Library.hpp"
 
+#include <QDir>
+#include <QString>
+
+#include <vector>
+
 namespace YADAW::Controller
 {
 using namespace YADAW::Audio::Plugin;

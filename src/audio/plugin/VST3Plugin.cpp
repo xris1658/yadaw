@@ -18,7 +18,7 @@ VST3Plugin::VST3Plugin(
 {
     if(initEntry)
     {
-        if(initEntry())
+        if(!initEntry())
         {
             return;
         }

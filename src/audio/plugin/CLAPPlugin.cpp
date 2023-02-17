@@ -6,9 +6,16 @@ namespace YADAW::Audio::Plugin
 {
 CLAPPlugin::CLAPPlugin() {}
 
-CLAPPlugin::CLAPPlugin(const clap_plugin_entry* entry):
+CLAPPlugin::CLAPPlugin(const clap_plugin_entry* entry, const QString& path):
     entry_(entry)
 {
+    auto pathAsUtf8 = path.toUtf8();
+    auto initResult = entry_->init(reinterpret_cast<const char*>(path.data()));
+    if(!initResult)
+    {
+        entry_ = nullptr;
+        return;
+    }
     factory_ = reinterpret_cast<decltype(factory_)>(entry_->get_factory(CLAP_PLUGIN_FACTORY_ID));
 }
 

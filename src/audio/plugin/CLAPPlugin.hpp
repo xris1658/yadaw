@@ -22,7 +22,7 @@ class CLAPPlugin: public YADAW::Audio::Plugin::IPlugin
 {
 public:
     CLAPPlugin();
-    CLAPPlugin(const clap_plugin_entry* entry);
+    CLAPPlugin(const clap_plugin_entry* entry, const QString& path);
     bool createPlugin(const char* id);
     ~CLAPPlugin();
 public:

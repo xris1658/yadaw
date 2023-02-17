@@ -77,7 +77,7 @@ RoleNames PluginDirectoryListModel::roleNames() const
 {
     return
     {
-        std::make_pair(Role::Path, "path");
+        std::make_pair(Role::Path, "path")
     };
 }
 }
