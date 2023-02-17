@@ -1,6 +1,4 @@
-#include "audio/plugin/VST3Plugin.hpp"
 #include "controller/PluginController.hpp"
-#include "native/Library.hpp"
 
 #include <cstdio>
 
@@ -37,6 +35,19 @@ int main(int argc, char** argv)
             else if(pluginInfo.type == YADAW::DAO::PluginTypeAudioEffect)
             {
                 std::printf("MIDI Effect\n");
+            }
+            else
+            {
+                std::printf("Unknown\n");
+            }
+            std::printf(" Format: ");
+            if(pluginInfo.format == YADAW::DAO::PluginFormatVST3)
+            {
+                std::printf("VST3\n");
+            }
+            else if(pluginInfo.format == YADAW::DAO::PluginFormatCLAP)
+            {
+                std::printf("CLAP\n");
             }
             else
             {
