@@ -9,6 +9,7 @@ namespace YADAW::Model
 {
 class AssetDirectoryListModel: public QAbstractListModel
 {
+    Q_OBJECT
 public:
     enum Role
     {
