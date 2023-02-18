@@ -58,6 +58,28 @@ DeviceInformation AudioGraphBackend::Impl::audioOutputDeviceAt(int index) const
     return audioOutputDeviceInformationCollection_.GetAt(index);
 }
 
+bool AudioGraphBackend::Impl::createAudioGraph()
+{
+    AudioGraphSettings settings(AudioRenderCategory::Media);
+    auto encodingProperties = settings.EncodingProperties();
+    settings.EncodingProperties(encodingProperties);
+    auto createGraphResult = AudioGraph::CreateAsync(settings).get();
+    if(createGraphResult.Status() != decltype(createGraphResult.Status())::Success)
+    {
+        return false;
+    }
+    audioGraph_ = createGraphResult.Graph();
+    auto createOutputResult = audioGraph_.CreateDeviceOutputNodeAsync().get();
+    if(createOutputResult.Status() != decltype(createOutputResult.Status())::Success)
+    {
+        return false;
+    }
+    audioDeviceOutputNode_ = createOutputResult.DeviceOutputNode();
+    audioFrameInputNode_ = audioGraph_.CreateFrameInputNode();
+    audioFrameInputNode_.AddOutgoingConnection(audioDeviceOutputNode_);
+    return true;
+}
+
 bool AudioGraphBackend::Impl::createAudioGraph(const DeviceInformation& audioOutputDevice)
 {
     AudioGraphSettings settings(AudioRenderCategory::Media);
@@ -79,6 +101,16 @@ bool AudioGraphBackend::Impl::createAudioGraph(const DeviceInformation& audioOut
     audioFrameInputNode_ = audioGraph_.CreateFrameInputNode();
     audioFrameInputNode_.AddOutgoingConnection(audioDeviceOutputNode_);
     return true;
+}
+
+DeviceInformation AudioGraphBackend::Impl::currentOutputDevice() const
+{
+    auto&& ret1 = audioGraph_.PrimaryRenderDevice();
+    if(ret1)
+    {
+        return ret1;
+    }
+    return audioDeviceOutputNode_.Device();
 }
 
 void AudioGraphBackend::Impl::destroyAudioGraph()
@@ -160,8 +192,18 @@ int AudioGraphBackend::audioOutputDeviceCount() const
 
 AudioGraphBackend::DeviceInfo AudioGraphBackend::audioOutputDeviceAt(int index) const
 {
-    const auto& info = pImpl_->audioOutputDeviceAt(index);
-    return {qStringFromHString(info.Name()), qStringFromHString(info.Id()), info.IsEnabled(), info.IsDefault()};
+    auto&& info = pImpl_->audioOutputDeviceAt(index);
+    return {qStringFromHString(info.Name()), qStringFromHString(info.Id()), info.IsEnabled()};
+}
+
+bool AudioGraphBackend::createAudioGraph()
+{
+    if(pImpl_->createAudioGraph())
+    {
+        status_ = Status::Created;
+        return true;
+    }
+    return false;
 }
 
 bool AudioGraphBackend::createAudioGraph(const QString& id)
@@ -179,6 +221,19 @@ bool AudioGraphBackend::createAudioGraph(const QString& id)
         return true;
     }
     return false;
+}
+
+AudioGraphBackend::DeviceInfo AudioGraphBackend::currentOutputDevice() const
+{
+    const auto& info = pImpl_->currentOutputDevice();
+    if(info)
+    {
+        return {qStringFromHString(info.Name()), qStringFromHString(info.Id()), info.IsEnabled()};
+    }
+    else
+    {
+        return {};
+    }
 }
 
 void AudioGraphBackend::destroyAudioGraph()

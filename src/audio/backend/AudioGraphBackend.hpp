@@ -29,7 +29,6 @@ public:
         QString name;
         QString id;
         bool isEnabled;
-        bool isDefault;
     };
     struct InterleaveAudioBuffer
     {
@@ -60,7 +59,10 @@ public:
 public:
     int audioOutputDeviceCount() const;
     DeviceInfo audioOutputDeviceAt(int index) const;
+    bool createAudioGraph();
     bool createAudioGraph(const QString& id);
+    // This function might fail, in which case returns a blank DeviceInfo
+    DeviceInfo currentOutputDevice() const;
     void destroyAudioGraph();
     void start(AudioCallbackType* callback);
     void stop();

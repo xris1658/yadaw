@@ -43,7 +43,10 @@ public:
 public:
     int audioOutputDeviceCount() const;
     DeviceInformation audioOutputDeviceAt(int index) const;
+    bool createAudioGraph();
     bool createAudioGraph(const DeviceInformation& audioOutputDevice);
+    // This function might fail, in which case returns a invalid DeviceInformation
+    DeviceInformation currentOutputDevice() const;
     void destroyAudioGraph();
     void start(AudioGraphBackend::AudioCallbackType* callback);
     void stop();
