@@ -3,6 +3,9 @@
 #include "base/Constants.hpp"
 #include "native/Native.hpp"
 
+#include <QDir>
+#include <QFileInfo>
+
 namespace YADAW::DAO
 {
 const QString& appDataPath()
