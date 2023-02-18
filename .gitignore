@@ -42,3 +42,5 @@ Makefile.*
 # Windows
 desktop.ini
 Thumbs.db
+# Qt 6 NatVis
+qt6.natvis
