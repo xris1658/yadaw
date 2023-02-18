@@ -16,6 +16,7 @@ void initApplication()
     auto config = loadConfig();
     //
     // TODO: Use config
+    initializeApplicationDatabase();
     auto& database = YADAW::DAO::appDatabase();
     // TODO: Use database
 }
