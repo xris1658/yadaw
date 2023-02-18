@@ -20,6 +20,7 @@
 
 // VST3
 #include <pluginterfaces/base/funknown.h>
+#include <pluginterfaces/base/ipluginbase.h>
 #include <pluginterfaces/vst/ivstattributes.h>
 #include <pluginterfaces/vst/ivstaudioprocessor.h>
 #include <pluginterfaces/vst/ivsteditcontroller.h>
