@@ -1,0 +1,9 @@
+#ifndef YADAW_SRC_CONTROLLER_DATABASECONTROLLER
+#define YADAW_SRC_CONTROLLER_DATABASECONTROLLER
+
+namespace YADAW::Controller
+{
+void initializeApplicationDatabase();
+}
+
+#endif //YADAW_SRC_CONTROLLER_DATABASECONTROLLER

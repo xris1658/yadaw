@@ -22,4 +22,7 @@ QtObject {
     readonly property color scrollBarHandle: "#505050"
     readonly property color scrollBarHandleHighlight: "#606060"
     readonly property color scrollBarHandlePressed: "#202020"
+    readonly property color progressBarRunningColor: "#00C030"
+    readonly property color progressBarPausedColor: "#F0A000"
+    readonly property color progressBarStoppedColor: "#F00000"
 }

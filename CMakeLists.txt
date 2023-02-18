@@ -86,7 +86,13 @@ set(YADAW_COMMON_SOURCES
     src/base/Constants.hpp
     src/controller/AppController.cpp
     src/controller/AppController.hpp
+    src/controller/AudioBackendController.cpp
+    src/controller/AudioBackendController.hpp
     src/controller/AudioEngineController.hpp
+    src/controller/ConfigController.cpp
+    src/controller/ConfigController.hpp
+    src/controller/DatabaseController.cpp
+    src/controller/DatabaseController.hpp
     src/controller/PluginController.cpp
     src/controller/PluginController.hpp
     src/dao/AssetDirectoryTable.cpp
@@ -109,6 +115,8 @@ set(YADAW_COMMON_SOURCES
     src/event/EventBase.hpp
     src/event/EventHandler.cpp
     src/event/EventHandler.hpp
+    src/event/SplashScreenWorkerThread.cpp
+    src/event/SplashScreenWorkerThread.hpp
     src/midi/MIDIInputDevice.hpp
     src/midi/MIDIOutputDevice.hpp
     src/native/ASIODriverImpl.cpp
@@ -160,7 +168,8 @@ set(YADAW_COMMON_SOURCES
     src/util/QStringUtil.hpp
     src/util/QuadraticFunction.cpp
     src/util/QuadraticFunction.hpp
-    src/util/Stopwatch.hpp)
+    src/util/Stopwatch.hpp
+    )
 
 qt_add_executable(YADAW
                   rc/YADAW.rc
@@ -177,7 +186,7 @@ qt_add_qml_module(YADAW
                   URI "Main"
                   VERSION 1.0
                   NO_PLUGIN
-                  QML_FILES YADAW.qml)
+                  QML_FILES Events.qml YADAW.qml)
 
 if(${CMAKE_BUILD_TYPE} EQUAL Debug OR ${CMAKE_BUILD_TYPE} EQUAL RelWithDebInfo)
     set_target_properties(YADAW PROPERTIES

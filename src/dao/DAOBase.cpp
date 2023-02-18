@@ -11,15 +11,36 @@ const QString& appDataPath()
     return ret;
 }
 
+void createAppDataFolder()
+{
+    if(!QFileInfo::exists(appDataPath()))
+    {
+        QDir dir(YADAW::Native::roamingAppDataFolder());
+        dir.mkdir(YADAW::Base::ProductName);
+    }
+}
+
+const QString& appDatabaseFileName()
+{
+    static QString ret(QString(YADAW::Base::ProductName) + ".db");
+    return ret;
+}
+
 const QString& appDatabasePath()
 {
-    static QString ret(appDataPath() + '\\' + YADAW::Base::ProductName + ".db");
+    static QString ret(appDataPath() + '\\' + appDatabaseFileName());
+    return ret;
+}
+
+const QString& appConfigFileName()
+{
+    static QString ret(QString(YADAW::Base::ProductName) + ".yml");
     return ret;
 }
 
 const QString& appConfigPath()
 {
-    static QString ret(appDataPath() + '\\' + YADAW::Base::ProductName + ".yml");
+    static QString ret(appDataPath() + '\\' + appConfigFileName());
     return ret;
 }
 }

@@ -14,10 +14,13 @@ private:
     void connectToEventSender(QObject* eventSender);
     void connectToEventReceiver(QObject* eventReceiver);
 public slots:
+    void onStartInitializingApplication();
+    void onOpenMainWindow();
     void onMainWindowClosing();
 signals:
     void mainWindowCloseAccepted();
     void setQtVersion(const QString& version);
+    void setSplashScreenText(const QString& text);
 };
 }
 

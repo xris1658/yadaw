@@ -7,7 +7,13 @@ namespace YADAW::DAO
 {
 const QString& appDataPath();
 
+void createAppDataFolder();
+
+const QString& appDatabaseFileName();
+
 const QString& appDatabasePath();
+
+const QString& appConfigFileName();
 
 const QString& appConfigPath();
 }

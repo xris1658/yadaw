@@ -2,7 +2,15 @@ import QtQuick
 
 Window {
     id: root
-    property string text: qsTr("Starting...")
+
+    signal setText(text: string)
+    onSetText: (text) => {
+        label.text = text;
+    }
+    signal closeSplashScreen()
+    onCloseSplashScreen: {
+        root.close();
+    }
     flags: Qt.SplashScreen
     visible: true
     width: image.sourceSize.width
@@ -11,10 +19,11 @@ Window {
         id: image
         source: "./images/Splashscreen.png"
         Label {
+            id: label
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.margins: 24
-            text: root.text
+            text: qsTr("Starting...")
             verticalAlignment: Text.AlignLeft
             horizontalAlignment: Text.AlignBottom
         }

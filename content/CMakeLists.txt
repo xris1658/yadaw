@@ -49,8 +49,9 @@ set(CONTENT_QML_FILES
     Mnemonic.qml
     PluginSettings.qml
     PreferencesWindow.qml
+    ProgressBar.qml
     ScrollBar.qml
-    Splashscreen.qml
+    SplashScreen.qml
     SplitView.qml
     Switch.qml
     TopBar.qml)

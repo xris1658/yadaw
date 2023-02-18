@@ -1,5 +1,7 @@
+#include "controller/ConfigController.hpp"
 #include "event/EventBase.hpp"
 #include "event/EventHandler.hpp"
+#include "event/SplashScreenWorkerThread.hpp"
 #include "native/WindowsDarkModeSupport.hpp"
 #include "ui/UI.hpp"
 
@@ -12,10 +14,12 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
     YADAW::UI::qmlApplicationEngine = &engine;
-    const QUrl splashScreenURL(u"qrc:content/Splashscreen.qml"_qs);
+    const QUrl frontendEventsURL(u"qrc:Main/Events.qml"_qs);
+    const QUrl splashScreenURL(u"qrc:content/SplashScreen.qml"_qs);
+    QObject* splashScreen = nullptr;
     const QUrl url(u"qrc:Main/YADAW.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
+                     &app, [&](QObject *obj, const QUrl &objUrl) {
         if (!obj)
         {
 #if(NDEBUG)
@@ -25,15 +29,42 @@ int main(int argc, char *argv[])
 #endif
             QCoreApplication::exit(-1);
         }
-        YADAW::Event::eventSender = obj->property("eventSender").value<QObject*>();
-        YADAW::Event::eventReceiver = obj->property("eventReceiver").value<QObject*>();
-        YADAW::Native::WindowsDarkModeSupport::instance()->addWindow(qobject_cast<QWindow*>(obj));
+        if(objUrl == frontendEventsURL)
+        {
+            YADAW::Event::eventSender = obj->property("eventSender").value<QObject*>();
+            YADAW::Event::eventReceiver = obj->property("eventReceiver").value<QObject*>();
+        }
+        else if(objUrl == splashScreenURL)
+        {
+            splashScreen = obj;
+        }
+        else if(objUrl == url)
+        {
+            YADAW::Native::WindowsDarkModeSupport::instance()->addWindow(qobject_cast<QWindow*>(obj));
+        }
     }, Qt::DirectConnection);
-    QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
-    // engine.load(splashScreenURL);
-    engine.load(url);
-    YADAW::Event::EventHandler eventHandler(YADAW::Event::eventSender, YADAW::Event::eventReceiver);
-    eventHandler.setQtVersion(QString(qVersion()));
+    YADAW::Controller::initializeApplicationConfig();
+    auto config = YADAW::Controller::loadConfig();
+    auto language = config["general"]["language"].as<std::string>();
+    // load translation file using the value above
+    auto systemFontRendering = config["general"]["system-font-rendering"].as<bool>();
+    if(systemFontRendering)
+    {
+        QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
+    }
+    engine.load(frontendEventsURL);
+    YADAW::Event::EventHandler eh(YADAW::Event::eventSender, YADAW::Event::eventReceiver);
+    YADAW::Event::eventHandler = &eh;
+    engine.load(splashScreenURL);
+    YADAW::Event::SplashScreenWorkerThread sswt(splashScreen);
+    YADAW::Event::splashScreenWorkerThread = &sswt;
+    QObject::connect(&sswt, &YADAW::Event::SplashScreenWorkerThread::openMainWindow,
+        &eh, &YADAW::Event::EventHandler::onOpenMainWindow,
+        Qt::ConnectionType::QueuedConnection);
+    sswt.start();
+    // engine.load(url);
+    // eventHandler.setQtVersion(QString(qVersion()));
     auto ret = app.exec();
+    YADAW::Native::WindowsDarkModeSupport::instance().reset();
     return ret;
 }

@@ -5,9 +5,7 @@
 
 namespace YADAW::Controller
 {
-const QString& appDataPath();
-
-void initAppData();
+void initApplication();
 }
 
 #endif //YADAW_SRC_CONTROLLER_APPCONTROLLER
