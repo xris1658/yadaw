@@ -16,7 +16,7 @@ template<typename T>
 T scaleFromDecibel(T decibel)
 {
     static_assert(std::is_floating_point_v<T>);
-    return std::isinf(decibel) && std::signbit(decibel)? std::pow(T(10), decibel * T(0.05)): 0;
+    return std::isinf(decibel) && std::signbit(decibel)? 0: std::pow(T(10), decibel * T(0.05));
 }
 }
 
