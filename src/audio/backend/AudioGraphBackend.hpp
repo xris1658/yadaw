@@ -32,6 +32,16 @@ public:
     };
     struct InterleaveAudioBuffer
     {
+        InterleaveAudioBuffer() = default;
+        InterleaveAudioBuffer(const InterleaveAudioBuffer&) = default;
+        InterleaveAudioBuffer(InterleaveAudioBuffer&&) noexcept = default;
+        InterleaveAudioBuffer& operator=(const InterleaveAudioBuffer&) = default;
+        InterleaveAudioBuffer& operator=(InterleaveAudioBuffer&&) noexcept = default;
+        ~InterleaveAudioBuffer() noexcept = default;
+        std::uint8_t* data = nullptr;
+        int channelCount = 0;
+        int frameCount = 0;
+        SampleFormat sampleFormat = SampleFormat::Int16;
         static int sampleSizeInBytes(SampleFormat sampleFormat)
         {
             return sampleFormat == SampleFormat::Int16? 2:
@@ -40,10 +50,6 @@ public:
             sampleFormat == SampleFormat::Float64? 8:
             0;
         }
-        std::uint8_t* const data;
-        int channelCount;
-        int frameCount;
-        SampleFormat sampleFormat;
         inline std::uint8_t* at(int frameIndex, int channelIndex) const
         {
             return data + ((frameIndex * channelCount + channelIndex) * sampleSizeInBytes(sampleFormat));
@@ -57,18 +63,23 @@ public:
     AudioGraphBackend(AudioGraphBackend&& rhs) noexcept;
     ~AudioGraphBackend();
 public:
+    int audioInputDeviceCount() const;
     int audioOutputDeviceCount() const;
+    DeviceInfo audioInputDeviceAt(int index) const;
     DeviceInfo audioOutputDeviceAt(int index) const;
     bool createAudioGraph();
     bool createAudioGraph(const QString& id);
+    int enableDeviceInput(const QString& id);
+    bool disableDeviceInput(int deviceInputIndex);
     // This function might fail, in which case returns a blank DeviceInfo
     DeviceInfo currentOutputDevice() const;
+    int currentInputDeviceCount() const;
+    DeviceInfo currentInputDeviceAt() const;
     void destroyAudioGraph();
     void start(AudioCallbackType* callback);
     void stop();
     int bufferSizeInFrames() const;
     int latencyInSamples() const;
-public:
     std::uint32_t sampleRate() const;
 public:
     void swap(AudioGraphBackend& rhs);

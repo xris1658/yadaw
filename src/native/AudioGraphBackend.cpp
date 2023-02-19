@@ -25,9 +25,21 @@ AudioGraphBackend::~AudioGraphBackend()
     }
 }
 
+int AudioGraphBackend::audioInputDeviceCount() const
+{
+    return pImpl_->audioInputDeviceCount();
+}
+
 int AudioGraphBackend::audioOutputDeviceCount() const
 {
     return pImpl_->audioOutputDeviceCount();
+}
+
+AudioGraphBackend::DeviceInfo AudioGraphBackend::audioInputDeviceAt(int index) const
+{
+    using YADAW::Native::qStringFromHString;
+    auto&& info = pImpl_->audioInputDeviceAt(index);
+    return {qStringFromHString(info.Name()), qStringFromHString(info.Id()), info.IsEnabled()};
 }
 
 AudioGraphBackend::DeviceInfo AudioGraphBackend::audioOutputDeviceAt(int index) const
@@ -52,16 +64,29 @@ bool AudioGraphBackend::createAudioGraph(const QString& id)
     winrt::hstring idAsHString(reinterpret_cast<const wchar_t*>(id.data()));
     auto async = DeviceInformation::CreateFromIdAsync(idAsHString);
     auto deviceInformation = async.get();
-    if(async.Status() == decltype(async.Status())::Error)
-    {
-        return false;
-    }
-    if(pImpl_->createAudioGraph(deviceInformation))
+    if(deviceInformation && pImpl_->createAudioGraph(deviceInformation))
     {
         status_ = Status::Created;
         return true;
     }
     return false;
+}
+
+int AudioGraphBackend::enableDeviceInput(const QString& id)
+{
+    winrt::hstring idAsHString(reinterpret_cast<const wchar_t*>(id.data()));
+    auto async = DeviceInformation::CreateFromIdAsync(idAsHString);
+    auto deviceInformation = async.get();
+    if(deviceInformation)
+    {
+        return pImpl_->enableDeviceInput(deviceInformation);
+    }
+    return -1;
+}
+
+bool AudioGraphBackend::disableDeviceInput(int deviceInputIndex)
+{
+    return pImpl_->disableDeviceInput(deviceInputIndex);
 }
 
 AudioGraphBackend::DeviceInfo AudioGraphBackend::currentOutputDevice() const
@@ -96,11 +121,6 @@ void AudioGraphBackend::stop()
     status_ = Status::Created;
 }
 
-std::uint32_t YADAW::Audio::Backend::AudioGraphBackend::sampleRate() const
-{
-    return pImpl_->sampleRate();
-}
-
 int YADAW::Audio::Backend::AudioGraphBackend::bufferSizeInFrames() const
 {
     return pImpl_->bufferSizeInFrames();
@@ -109,6 +129,11 @@ int YADAW::Audio::Backend::AudioGraphBackend::bufferSizeInFrames() const
 int YADAW::Audio::Backend::AudioGraphBackend::latencyInSamples() const
 {
     return pImpl_->latencyInSamples();
+}
+
+std::uint32_t YADAW::Audio::Backend::AudioGraphBackend::sampleRate() const
+{
+    return pImpl_->sampleRate();
 }
 
 void YADAW::Audio::Backend::AudioGraphBackend::swap(YADAW::Audio::Backend::AudioGraphBackend& rhs)
