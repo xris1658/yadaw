@@ -66,6 +66,8 @@ public:
     void destroyAudioGraph();
     void start(AudioCallbackType* callback);
     void stop();
+    int bufferSizeInFrames() const;
+    int latencyInSamples() const;
 public:
     std::uint32_t sampleRate() const;
 public:

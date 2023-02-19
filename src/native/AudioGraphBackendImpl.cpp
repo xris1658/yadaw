@@ -6,7 +6,6 @@
 #include <cstdint>
 
 #include "native/winrt/Forward.hpp"
-#include "native/winrt/QStringFromHString.hpp"
 
 #include <MemoryBuffer.h> // Windows::Foundation::IMemoryBufferByteAccess
 #include <winrt/Windows.Foundation.h>
@@ -32,8 +31,6 @@ using namespace winrt::Windows::Media::MediaProperties;
 using namespace winrt::Windows::Media::Render;
 using namespace winrt::Windows::Devices::Enumeration;
 
-using namespace YADAW::Native;
-
 AudioGraphBackend::Impl::Impl():
     audioInputDeviceInformationCollection_(DeviceInformation::FindAllAsync(DeviceClass::AudioCapture).get()),
     audioOutputDeviceInformationCollection_(DeviceInformation::FindAllAsync(DeviceClass::AudioRender).get()),
@@ -51,6 +48,16 @@ AudioGraphBackend::Impl::~Impl()
 int AudioGraphBackend::Impl::audioOutputDeviceCount() const
 {
     return audioOutputDeviceInformationCollection_.Size();
+}
+
+int AudioGraphBackend::Impl::bufferSizeInFrames() const
+{
+    return audioGraph_.SamplesPerQuantum();
+}
+
+int AudioGraphBackend::Impl::latencyInSamples() const
+{
+    return audioGraph_.LatencyInSamples();
 }
 
 DeviceInformation AudioGraphBackend::Impl::audioOutputDeviceAt(int index) const
@@ -137,12 +144,12 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                     if(byteAccess->GetBuffer(&dataInBytes, &capacityInBytes) == S_OK)
                     {
                         InterleaveAudioBuffer interleaveAudioBuffer
-                            {
-                                dataInBytes,
-                                static_cast<int>(properties.ChannelCount()),
-                                requiredSamples,
-                                SampleFormat::Float32
-                            };
+                        {
+                            dataInBytes,
+                            static_cast<int>(properties.ChannelCount()),
+                            requiredSamples,
+                            SampleFormat::Float32
+                        };
                         callback(0, nullptr, 1, &interleaveAudioBuffer);
                     }
                 }
@@ -162,106 +169,5 @@ void AudioGraphBackend::Impl::stop()
 std::uint32_t YADAW::Audio::Backend::AudioGraphBackend::Impl::sampleRate() const
 {
     return audioGraph_.EncodingProperties().SampleRate();
-}
-
-AudioGraphBackend::AudioGraphBackend(): pImpl_(std::make_unique<Impl>())
-{
-}
-
-AudioGraphBackend::AudioGraphBackend(AudioGraphBackend&& rhs) noexcept
-{
-    swap(rhs);
-}
-
-AudioGraphBackend::~AudioGraphBackend()
-{
-    if(status_ == Status::Processing)
-    {
-        stop();
-    }
-    if(status_ == Status::Created)
-    {
-        destroyAudioGraph();
-    }
-}
-
-int AudioGraphBackend::audioOutputDeviceCount() const
-{
-    return pImpl_->audioOutputDeviceCount();
-}
-
-AudioGraphBackend::DeviceInfo AudioGraphBackend::audioOutputDeviceAt(int index) const
-{
-    auto&& info = pImpl_->audioOutputDeviceAt(index);
-    return {qStringFromHString(info.Name()), qStringFromHString(info.Id()), info.IsEnabled()};
-}
-
-bool AudioGraphBackend::createAudioGraph()
-{
-    if(pImpl_->createAudioGraph())
-    {
-        status_ = Status::Created;
-        return true;
-    }
-    return false;
-}
-
-bool AudioGraphBackend::createAudioGraph(const QString& id)
-{
-    winrt::hstring idAsHString(reinterpret_cast<const wchar_t*>(id.data()));
-    auto async = DeviceInformation::CreateFromIdAsync(idAsHString);
-    auto deviceInformation = async.get();
-    if(async.Status() == decltype(async.Status())::Error)
-    {
-        return false;
-    }
-    if(pImpl_->createAudioGraph(deviceInformation))
-    {
-        status_ = Status::Created;
-        return true;
-    }
-    return false;
-}
-
-AudioGraphBackend::DeviceInfo AudioGraphBackend::currentOutputDevice() const
-{
-    const auto& info = pImpl_->currentOutputDevice();
-    if(info)
-    {
-        return {qStringFromHString(info.Name()), qStringFromHString(info.Id()), info.IsEnabled()};
-    }
-    else
-    {
-        return {};
-    }
-}
-
-void AudioGraphBackend::destroyAudioGraph()
-{
-    pImpl_->destroyAudioGraph();
-    status_ = Status::Empty;
-}
-
-void AudioGraphBackend::start(AudioGraphBackend::AudioCallbackType* callback)
-{
-    pImpl_->start(callback);
-    status_ = Status::Processing;
-}
-
-void AudioGraphBackend::stop()
-{
-    pImpl_->stop();
-    status_ = Status::Created;
-}
-
-std::uint32_t YADAW::Audio::Backend::AudioGraphBackend::sampleRate() const
-{
-    return pImpl_->sampleRate();
-}
-
-void YADAW::Audio::Backend::AudioGraphBackend::swap(YADAW::Audio::Backend::AudioGraphBackend& rhs)
-{
-    std::swap(pImpl_, rhs.pImpl_);
-    std::swap(status_, rhs.status_);
 }
 }

@@ -121,6 +121,7 @@ set(YADAW_COMMON_SOURCES
     src/midi/MIDIOutputDevice.hpp
     src/native/ASIODriverImpl.cpp
     src/native/ASIODriverImpl.hpp
+    src/native/AudioGraphBackend.cpp
     src/native/AudioGraphBackendImpl.cpp
     src/native/AudioGraphBackendImpl.hpp
     src/native/CLAPNative.cpp
@@ -180,6 +181,9 @@ qt_add_executable(YADAW
 add_executable(PluginScanTest ${YADAW_COMMON_SOURCES}
     test/PluginScanTest/main.cpp)
 
+add_executable(AudioGraphTest ${YADAW_COMMON_SOURCES}
+    test/AudioGraphTest/main.cpp)
+
 target_precompile_headers(YADAW PRIVATE src/pch.hpp)
 
 qt_add_qml_module(YADAW
@@ -202,6 +206,14 @@ target_link_libraries(YADAW PRIVATE
                       windowsapp
                       base pluginterfaces sdk_common sdk_hosting
                       unofficial::sqlite3::sqlite3
+                      yaml-cpp)
+
+target_link_libraries(AudioGraphTest PRIVATE
+                      Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick
+                      version ole32 dwmapi
+                      base pluginterfaces sdk_common sdk_hosting
+                      unofficial::sqlite3::sqlite3
+                      windowsapp
                       yaml-cpp)
 
 target_link_libraries(PluginScanTest PRIVATE
