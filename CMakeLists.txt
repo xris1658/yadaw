@@ -19,7 +19,6 @@ find_package(yaml-cpp
                   CONFIG REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/src
-                    ${ASIOSDK_PATH} # ASIO
                     ${CLAP_SOURCE_DIR}/include # CLAP
                     ${CLAP_HELPERS_DIR}/include # CLAP Helpers
                     ${SQLITE_MODERN_CPP_INCLUDE_DIRS}) # sqlite-modern-cpp
@@ -119,8 +118,6 @@ set(YADAW_COMMON_SOURCES
     src/event/SplashScreenWorkerThread.hpp
     src/midi/MIDIInputDevice.hpp
     src/midi/MIDIOutputDevice.hpp
-    src/native/ASIODriverImpl.cpp
-    src/native/ASIODriverImpl.hpp
     src/native/AudioGraphBackend.cpp
     src/native/AudioGraphBackendImpl.cpp
     src/native/AudioGraphBackendImpl.hpp
