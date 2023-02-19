@@ -46,6 +46,7 @@ void EventHandler::onOpenMainWindow()
 {
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
+    setQtVersion(qVersion());
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
 }
 
