@@ -22,8 +22,6 @@ T.CheckBox {
     }
     indicator: Rectangle {
         property int padding: 2
-        implicitWidth: implicitHeight
-        implicitHeight: root.contentItem.contentHeight
         width: height
         height: root.height - root.topPadding - root.bottomPadding
         anchors.left: root.left
@@ -70,8 +68,11 @@ T.CheckBox {
         }
     }
     contentItem: Label {
+        padding: 0
         anchors.left: root.indicator.right
         anchors.leftMargin: root.spacing
+        anchors.right: root.right
+        anchors.rightMargin: root.rightPadding
         anchors.verticalCenter: root.verticalCenter
         height: contentHeight
         horizontalAlignment: Text.AlignLeft
