@@ -37,7 +37,7 @@ Item {
             ListView {
                 id: pluginPathListView
                 anchors.fill: parent
-                anchors.margins: 1
+                anchors.margins: parent.border.width
                 clip: true
                 boundsBehavior: ListView.StopAtBounds
                 ScrollBar.vertical: ScrollBar {
