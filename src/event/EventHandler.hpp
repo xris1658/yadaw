@@ -17,10 +17,15 @@ public slots:
     void onStartInitializingApplication();
     void onOpenMainWindow();
     void onMainWindowClosing();
+    void onAddWindowForDarkModeSupport();
+    void onRemoveWindowForDarkModeSupport();
 signals:
     void mainWindowCloseAccepted();
     void setQtVersion(const QString& version);
     void setSplashScreenText(const QString& text);
+private:
+    QObject* eventSender_;
+    QObject* eventReceiver_;
 };
 }
 

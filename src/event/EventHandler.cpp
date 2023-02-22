@@ -10,7 +10,7 @@
 namespace YADAW::Event
 {
 EventHandler::EventHandler(QObject* eventSender, QObject* eventReceiver, QObject* parent):
-    QObject(parent)
+    QObject(parent), eventSender_(eventSender), eventReceiver_(eventReceiver)
 {
     connectToEventSender(eventSender);
     connectToEventReceiver(eventReceiver);
@@ -22,6 +22,8 @@ void EventHandler::connectToEventSender(QObject* eventSender)
         this, SLOT(onStartInitializingApplication()));
     QObject::connect(eventSender, SIGNAL(mainWindowClosing()),
         this, SLOT(onMainWindowClosing()));
+    QObject::connect(eventSender, SIGNAL(addWindowForDarkModeSupport()),
+        this, SLOT(onAddWindowForDarkModeSupport()));
 }
 
 void EventHandler::connectToEventReceiver(QObject* eventReceiver)
@@ -54,5 +56,17 @@ void EventHandler::onMainWindowClosing()
 {
     YADAW::Native::WindowsDarkModeSupport::instance().reset();
     mainWindowCloseAccepted();
+}
+
+void EventHandler::onAddWindowForDarkModeSupport()
+{
+    QObject* object = eventSender_->property("darkModeSupportWindow").value<QObject*>();
+    YADAW::Native::WindowsDarkModeSupport::instance()->addWindow(qobject_cast<QWindow*>(object));
+}
+
+void EventHandler::onRemoveWindowForDarkModeSupport()
+{
+    QObject* object = eventSender_->property("darkModeSupportWindow").value<QObject*>();
+    YADAW::Native::WindowsDarkModeSupport::instance()->removeWindow(qobject_cast<QWindow*>(object));
 }
 }

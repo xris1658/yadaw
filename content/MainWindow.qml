@@ -38,7 +38,8 @@ ApplicationWindow {
                     var component = Qt.createComponent("AboutWindow.qml");
                     if(component.status == Component.Ready) {
                         var aboutWindow = component.createObject(null);
-                        aboutWindow.palette = root.palette;
+                        EventSender.darkModeSupportWindow = aboutWindow;
+                        EventSender.addWindowForDarkModeSupport();
                         aboutWindow.showNormal();
                     }
                 }
@@ -49,7 +50,8 @@ ApplicationWindow {
                     var component = Qt.createComponent("AboutQtWindow.qml");
                     if(component.status == Component.Ready) {
                         var aboutWindow = component.createObject(null);
-                        aboutWindow.palette = root.palette;
+                        EventSender.darkModeSupportWindow = aboutWindow;
+                        EventSender.addWindowForDarkModeSupport();
                         aboutWindow.showNormal();
                     }
                 }
@@ -67,6 +69,8 @@ ApplicationWindow {
                 shortcut: "Ctrl+,"
                 onTriggered: {
                     preferencesWindow.showNormal();
+                    EventSender.darkModeSupportWindow = preferencesWindow;
+                    EventSender.addWindowForDarkModeSupport();
                 }
             }
             MenuSeparator {}
