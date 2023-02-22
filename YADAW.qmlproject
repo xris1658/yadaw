@@ -3,10 +3,6 @@ import QmlProject
 Project {
     mainFile: "content/DS.qml"
 
-    QmlFiles {
-        directory: "."
-    }
-
     /* Include .qml, .js, and image files from current directory and subdirectories */
     QmlFiles {
         directory: "content"
@@ -34,11 +30,12 @@ Project {
 
     Files {
         filter: "qmldir"
-        directory: "."
+        directory: "content"
     }
 
     Files {
         filter: "*.ttf;*.otf"
+        directory: "content"
     }
 
     Files {
