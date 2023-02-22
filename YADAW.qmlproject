@@ -8,24 +8,8 @@ Project {
         directory: "content"
     }
 
-    QmlFiles {
-        directory: "imports"
-    }
-
-    JavaScriptFiles {
-        directory: "content"
-    }
-
-    JavaScriptFiles {
-        directory: "imports"
-    }
-
     ImageFiles {
-        directory: "content"
-    }
-
-    ImageFiles {
-        directory: "asset_imports"
+        directory: "content/images"
     }
 
     Files {
@@ -36,28 +20,6 @@ Project {
     Files {
         filter: "*.ttf;*.otf"
         directory: "content"
-    }
-
-    Files {
-        filter: "*.wav;*.mp3"
-    }
-
-    Files {
-        filter: "*.mp4"
-    }
-
-    Files {
-        filter: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag"
-    }
-
-    Files {
-        filter: "*.mesh"
-        directory: "asset_imports"
-    }
-
-    Files {
-        filter: "*.qml"
-        directory: "asset_imports"
     }
 
     Environment {
