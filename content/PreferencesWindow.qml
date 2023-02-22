@@ -13,6 +13,7 @@ Window {
 
     width: 540
     height: 500
+    minimumWidth: 540
     SplitView {
         id: content
         anchors.fill: parent
