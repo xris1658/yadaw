@@ -28,6 +28,7 @@ set(CONTENT_QML_FILES
     Assets.qml
     AudioGraphSettings.qml
     AudioHardwareSettings.qml
+    BigClock.qml
     Button.qml
     CheckBox.qml
     Colors.qml
@@ -54,6 +55,7 @@ set(CONTENT_QML_FILES
     SplashScreen.qml
     SplitView.qml
     Switch.qml
+    TimeIndicator.qml
     TopBar.qml)
 
 qt_add_qml_module(content
@@ -67,6 +69,8 @@ qt_add_qml_module(content
                     qmldir
                     fonts/FiraSans-Bold.otf
                     fonts/FiraSans-Regular.otf
+                    fonts/FiraSansCondensed-Bold.otf
+                    fonts/FiraSansCondensed-Regular.otf
                     images/Splashscreen.png
                     images/Main-icon.ico
                     images/qtlogo-64.png)

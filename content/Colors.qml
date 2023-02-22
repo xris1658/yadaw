@@ -25,4 +25,6 @@ QtObject {
     readonly property color progressBarRunningColor: "#00C030"
     readonly property color progressBarPausedColor: "#F0A000"
     readonly property color progressBarStoppedColor: "#F00000"
+
+    readonly property color bigClockTextColor: "#00FF00"
 }
