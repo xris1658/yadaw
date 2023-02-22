@@ -5,7 +5,7 @@ import QtQuick.Layouts
 Item {
     id: root
     property alias font: digit.font
-    property color color: Colors.bigClockTextColor
+    property color color: Colors.bigClockText
 
     width: properties.digitWidth * 12
     height: digit.contentHeight
@@ -45,6 +45,7 @@ Item {
     }
 
     StackLayout {
+        z: 2
         width: digit.contentWidth * 12
         height: digit.contentHeight
         currentIndex: root.timeFormat

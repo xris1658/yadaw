@@ -18,7 +18,7 @@ QtObject {
     readonly property color visitedLink: "#C080C0"
     readonly property color menuBarBackground: "#000000"
     readonly property color highlightMenuBarBackground: "#333333"
-    readonly property color scrollBarBackground: Colors.controlBackground
+    readonly property color scrollBarBackground: controlBackground
     readonly property color scrollBarHandle: "#505050"
     readonly property color scrollBarHandleHighlight: "#606060"
     readonly property color scrollBarHandlePressed: "#202020"
@@ -26,5 +26,7 @@ QtObject {
     readonly property color progressBarPausedColor: "#F0A000"
     readonly property color progressBarStoppedColor: "#F00000"
 
-    readonly property color bigClockTextColor: "#00FF00"
+    readonly property color bigClockBackground: background
+    readonly property color bigClockText: content
+    readonly property color topBarBackground: "#606060"
 }

@@ -339,4 +339,21 @@ ApplicationWindow {
         id: preferencesWindow
         color: root.color
     }
+    Rectangle {
+        width: parent.width
+        height: bigClock.height + 20
+        color: Colors.topBarBackground
+        Rectangle {
+            anchors.centerIn: parent
+            width: bigClock.width + 20
+            height: bigClock.height + radius * 2
+            radius: 5
+            color: Colors.bigClockBackground
+            BigClock {
+                id: bigClock
+                anchors.centerIn: parent
+                cpuUsagePercentage: 0
+            }
+        }
+    }
 }
