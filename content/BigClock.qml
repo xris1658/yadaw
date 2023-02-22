@@ -32,13 +32,22 @@ Item {
         Label {
             text: "CPU"
         }
-        Label {
-            text: "   1: 1: 0.   0\n   5: 1: 0.   0"
+        Column {
+            TimeIndicator {
+                color: Colors.content
+            }
+            TimeIndicator {
+                color: Colors.content
+            }
         }
         Label {
             text: "LOOP"
         }
         TimeIndicator {
+            font.bold: false
+            font.family: "Fira Sans Condensed"
+            font.pointSize: Qt.application.font.pointSize * 2.5
+            color: Colors.bigClockTextColor
             id: timeIndicator
         }
         Label {

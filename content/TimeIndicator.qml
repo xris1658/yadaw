@@ -4,9 +4,11 @@ import QtQuick.Layouts
 
 Item {
     id: root
+    property alias font: digit.font
+    property color color: Colors.bigClockTextColor
 
-    width: properties.bigDigitWidth * 12
-    height: bigDigit.contentHeight
+    width: properties.digitWidth * 12
+    height: digit.contentHeight
 
     enum TimeFormat {
         Beat,
@@ -29,40 +31,28 @@ Item {
 
     QtObject {
         id: properties
-        property int bigDigitWidth: bigDigit.contentWidth
-        property int smallDigitWidth: smallDigit.contentWidth
+        property int digitWidth: digit.contentWidth
         property string textOfBeatTime: bar.toString().padStart(4, '0') + ":" + beat.toString().padStart(2, '0') + "." + pulse.toString().padStart(4, '0')
         property string textOfActualTime: hour.toString().padStart(2, '0') + ":" + minute.toString().padStart(2, '0') + ":" + second.toString().padStart(2, '0') + "." + millisecond.toString().padStart(3, '0')
     }
 
     Label {
-        id: smallDigit
+        id: digit
         clip: true
         width: 0
         height: 0
         text: "0"
-    }
-
-    Label {
-        id: bigDigit
-        clip: true
-        width: 0
-        height: 0
-        text: "0"
-        font.bold: false
-        font.family: "Fira Sans Condensed"
-        font.pointSize: Qt.application.font.pointSize * 2.5
     }
 
     StackLayout {
-        width: bigDigit.contentWidth * 12
-        height: bigDigit.contentHeight
+        width: digit.contentWidth * 12
+        height: digit.contentHeight
         currentIndex: root.timeFormat
         anchors.centerIn: parent
         Item {
             id: beatTimeItem
             width: properties.bigClockDigitWidth * 12
-            height: bigDigit.contentHeight
+            height: digit.contentHeight
             Layout.alignment: Layout.AlignVCenter | Layout.AlignHCenter
             ListView {
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -71,20 +61,18 @@ Item {
                 model: 12
                 orientation: Qt.Horizontal
                 delegate: Label {
-                    color: Colors.bigClockTextColor
-                    width: (index === 4 || index === 7)? contentWidth: properties.bigDigitWidth
+                    color: root.color
+                    width: (index === 4 || index === 7)? contentWidth: properties.digitWidth
                     horizontalAlignment: Text.AlignHCenter
                     text: properties.textOfBeatTime.charAt(index)
-                    font.bold: false
-                    font.family: "Fira Sans Condensed"
-                    font.pointSize: Qt.application.font.pointSize * 2.5
+                    font: digit.font
                 }
             }
         }
         Item {
             id: actualTimeItem
             width: properties.bigClockDigitWidth * 12
-            height: bigDigit.contentHeight
+            height: digit.contentHeight
             ListView {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: contentWidth
@@ -92,20 +80,18 @@ Item {
                 model: 12
                 orientation: Qt.Horizontal
                 delegate: Label {
-                    color: Colors.bigClockTextColor
-                    width: (index === 2 || index === 5 || index === 8)? contentWidth: properties.bigDigitWidth
-                    height: bigDigit.height
+                    color: root.color
+                    width: (index === 2 || index === 5 || index === 8)? contentWidth: properties.digitWidth
+                    height: digit.height
                     horizontalAlignment: Text.AlignHCenter
                     text: properties.textOfActualTime.charAt(index)
-                    font.bold: false
-                    font.family: "Fira Sans Condensed"
-                    font.pointSize: Qt.application.font.pointSize * 2.5
+                    font: digit.font
                 }
             }
         }
         Item {
             width: properties.bigClockDigitWidth * sampleAsString.length
-            height: bigDigit.contentHeight
+            height: digit.contentHeight
             ListView {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: contentWidth
@@ -113,14 +99,12 @@ Item {
                 model: sampleAsString.length
                 orientation: Qt.Horizontal
                 delegate: Label {
-                    color: Colors.bigClockTextColor
-                    width: properties.bigDigitWidth
-                    height: bigDigit.height
+                    color: root.color
+                    width: properties.digitWidth
+                    height: digit.height
                     horizontalAlignment: Text.AlignHCenter
                     text: sampleAsString.charAt(index)
-                    font.bold: false
-                    font.family: "Fira Sans Condensed"
-                    font.pointSize: Qt.application.font.pointSize * 2.5
+                    font: digit.font
                 }
             }
         }
