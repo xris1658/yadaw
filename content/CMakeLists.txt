@@ -55,6 +55,8 @@ set(CONTENT_QML_FILES
     SplashScreen.qml
     SplitView.qml
     Switch.qml
+    TabBar.qml
+    TabButton.qml
     TimeIndicator.qml
     TopBar.qml)
 
