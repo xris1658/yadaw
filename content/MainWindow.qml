@@ -339,12 +339,7 @@ ApplicationWindow {
             }
         }
     }
-    PreferencesWindow {
-        id: preferencesWindow
-        color: root.color
-    }
-    Rectangle {
-        width: parent.width
+    header: Rectangle {
         height: bigClock.height + 20
         color: Colors.topBarBackground
         Rectangle {
@@ -359,5 +354,23 @@ ApplicationWindow {
                 cpuUsagePercentage: 0
             }
         }
+    }
+    footer: Label {
+        leftPadding: 5
+        rightPadding: leftPadding
+        topPadding: 3
+        bottomPadding: topPadding
+        id: statusText
+        height: contentHeight + topPadding + bottomPadding
+        elide: Text.ElideRight
+        text: "Ready"
+        background: Rectangle {
+            color: Colors.controlBackground
+        }
+    }
+
+    PreferencesWindow {
+        id: preferencesWindow
+        color: root.color
     }
 }
