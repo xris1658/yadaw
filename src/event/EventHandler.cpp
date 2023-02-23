@@ -24,6 +24,8 @@ void EventHandler::connectToEventSender(QObject* eventSender)
         this, SLOT(onMainWindowClosing()));
     QObject::connect(eventSender, SIGNAL(addWindowForDarkModeSupport()),
         this, SLOT(onAddWindowForDarkModeSupport()));
+    QObject::connect(eventSender, SIGNAL(removeWindowForDarkModeSupport()),
+        this, SLOT(onRemoveWindowForDarkModeSupport()));
 }
 
 void EventHandler::connectToEventReceiver(QObject* eventReceiver)
