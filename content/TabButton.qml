@@ -37,7 +37,7 @@ T.TabButton {
         anchors.topMargin: root.topPadding
         anchors.bottomMargin: root.bottomPadding
         text: root.text
-        horizontalAlignment: Text.AlignLeft
+        horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
     }
