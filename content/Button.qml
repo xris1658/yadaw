@@ -15,8 +15,8 @@ T.Button {
     leftInset: 0
     rightInset: 0
 
-    implicitWidth: contentItem.textWidth + leftPadding + rightPadding
-    implicitHeight: contentItem.textHeight + topPadding + bottomPadding
+    implicitWidth: label.contentWidth + leftPadding + rightPadding
+    implicitHeight: label.contentHeight + topPadding + bottomPadding
 
     background: Rectangle {
         width: root.width
@@ -33,24 +33,18 @@ T.Button {
             root.hovered? Colors.mouseOverControlBackground: Colors.controlBackground
     }
 
-    contentItem: Item {
-        anchors.centerIn: root
-        clip: true
-        property alias textWidth: rootText.contentWidth
-        property alias textHeight: rootText.contentHeight
-        width: root.width - root.leftPadding - root.rightPadding
-        height: rootText.contentHeight
-        Label {
-            id: rootText
-            anchors.centerIn: parent
-            text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? Mnemonic.text(root.text):
-                root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? Mnemonic.textWithUnderline(root.text):
-                root.text
-            font.family: "Fira Sans"
-            color: root.enabled? Colors.content: Colors.disabledContent
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-        }
+    contentItem: Label {
+        id: label
+        text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? Mnemonic.text(root.text):
+            root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? Mnemonic.textWithUnderline(root.text):
+            root.text
+        anchors.fill: root
+        anchors.leftMargin: root.leftPadding
+        anchors.rightMargin: root.rightPadding
+        anchors.topMargin: root.topPadding
+        anchors.bottomMargin: root.bottomPadding
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
     }
 }
