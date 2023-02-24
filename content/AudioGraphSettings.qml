@@ -84,7 +84,7 @@ Rectangle {
                 delegate: CheckBox {
                     padding: 2
                     text: modelData
-                    width: inputDeviceListView.width - scrollBar.width
+                    width: inputDeviceListView.width - (scrollBar.visible? scrollBar.width: 0)
                 }
             }
         }
