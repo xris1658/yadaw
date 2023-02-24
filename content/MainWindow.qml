@@ -368,7 +368,86 @@ ApplicationWindow {
             color: Colors.controlBackground
         }
     }
-
+    SplitView {
+        id: contents
+        anchors.fill: parent
+        anchors.margins: 5
+        orientation: Qt.Horizontal
+        Row {
+            id: assetRow
+            SplitView.minimumWidth: assetTabButton.height
+            SplitView.maximumWidth: contents.width * 0.4
+            SplitView.preferredWidth: assets.preferredWidth + assetTabButton.height
+            Item {
+                width: assetTabButton.height
+                height: parent.height
+                TabButton {
+                    id: assetTabButton
+                    text: qsTr("Assets")
+                    x: -width
+                    transformOrigin: Item.TopRight
+                    rotation: -90
+                }
+            }
+            Rectangle {
+                anchors.right: parent.right
+                width: parent.width - assetTabButton.height
+                height: parent.height
+                color: "transparent"
+                border.color: Colors.controlBorder
+                Assets {
+                    id: assets
+                    anchors.fill: parent
+                }
+            }
+        }
+        SplitView {
+            orientation: Qt.Vertical
+            Column {
+                SplitView.minimumHeight: arrangementTabButton.height
+                SplitView.preferredHeight: contents.height * 0.6
+                TabButton {
+                    id: arrangementTabButton
+                    text: qsTr("Arrangement")
+                }
+                Rectangle {
+                    width: parent.width
+                    height: parent.height - arrangementTabButton.height
+                    color: "transparent"
+                    border.color: Colors.controlBorder
+                    Item {
+                        anchors.fill: parent
+                        anchors.margins: parent.border.width
+                    }
+                }
+            }
+            Column {
+                SplitView.minimumHeight: editorAndMixerTabButtonRow.height
+                Rectangle {
+                    width: parent.width
+                    height: parent.height - editorAndMixerTabButtonRow.height
+                    color: "transparent"
+                    border.color: Colors.controlBorder
+                    Item {
+                        anchors.fill: parent
+                        anchors.margins: parent.border.width
+                    }
+                }
+                Row {
+                    id: editorAndMixerTabButtonRow
+                    width: parent.width
+                    TabButton {
+                        width: implicitWidth
+                        text: qsTr("Editor")
+                    }
+                    TabButton {
+                        width: implicitWidth
+                        text: qsTr("Mixer")
+                    }
+                }
+            }
+        }
+    }
     PreferencesWindow {
         id: preferencesWindow
         color: root.color
