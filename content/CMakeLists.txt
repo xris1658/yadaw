@@ -57,6 +57,7 @@ set(CONTENT_QML_FILES
     Switch.qml
     TabBar.qml
     TabButton.qml
+    TextField.qml
     TimeIndicator.qml
     TopBar.qml)
 

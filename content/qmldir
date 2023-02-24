@@ -30,5 +30,6 @@ ScrollBar 1.0 ScrollBar.qml
 SplashScreen 1.0 SplashScreen.qml
 TabBar 1.0 TabBar.qml
 TabButton 1.0 TabButton.qml
+TextField 1.0 TextField.qml
 TimeIndicator 1.0 TimeIndicator.qml
 TopBar 1.0 TopBar.qml
