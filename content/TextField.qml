@@ -20,6 +20,7 @@ T.TextField {
     verticalAlignment: TextInput.AlignVCenter
 
     background: Rectangle {
+        id: background
         anchors.fill: root
         anchors.leftMargin: root.leftInset
         anchors.rightMargin: root.rightInset
