@@ -37,4 +37,29 @@ Rectangle {
             }
         }
     }
+    SplitView {
+        anchors.top: searchTextBox.bottom
+        anchors.topMargin: -1
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        orientation: Qt.Horizontal
+        handle: Item {
+            implicitWidth: 5
+            implicitHeight: 5
+            Rectangle {
+                width: 1
+                height: parent.height
+                anchors.centerIn: parent
+                color: Colors.controlBorder
+            }
+        }
+        Rectangle {
+            SplitView.preferredWidth: 50 // FIXME
+            color: "transparent"
+        }
+        Rectangle {
+            color: "transparent"
+        }
+    }
 }

@@ -373,31 +373,58 @@ ApplicationWindow {
         anchors.fill: parent
         anchors.margins: 5
         orientation: Qt.Horizontal
-        Row {
-            id: assetRow
+        SplitView {
             SplitView.minimumWidth: assetTabButton.height
-            SplitView.maximumWidth: contents.width * 0.4
+            SplitView.maximumWidth: Math.max(SplitView.minimumWidth, contents.width * 0.4)
             SplitView.preferredWidth: assets.preferredWidth + assetTabButton.height
-            Item {
-                width: assetTabButton.height
-                height: parent.height
-                TabButton {
-                    id: assetTabButton
-                    text: qsTr("Assets")
-                    x: -width
-                    transformOrigin: Item.TopRight
-                    rotation: -90
+            orientation: Qt.Vertical
+            Row {
+                id: assetRow
+                SplitView.minimumHeight: assetTabButton.width
+                SplitView.preferredHeight: Math.max(SplitView.minimumHeight, contents.height * 0.7)
+                Item {
+                    width: assetTabButton.height
+                    height: parent.height
+                    TabButton {
+                        id: assetTabButton
+                        text: qsTr("Assets")
+                        x: -width
+                        y: 0
+                        transformOrigin: Item.TopRight
+                        rotation: -90
+                    }
+                }
+                Rectangle {
+                    width: parent.width - assetTabButton.height
+                    height: parent.height
+                    color: "transparent"
+                    border.color: Colors.controlBorder
+                    Assets {
+                        id: assets
+                        anchors.fill: parent
+                    }
                 }
             }
-            Rectangle {
-                anchors.right: parent.right
-                width: parent.width - assetTabButton.height
-                height: parent.height
-                color: "transparent"
-                border.color: Colors.controlBorder
-                Assets {
-                    id: assets
-                    anchors.fill: parent
+            Row {
+                id: previewRow
+                SplitView.minimumHeight: previewTabButton.width
+                Item {
+                    width: previewTabButton.height
+                    height: parent.height
+                    TabButton {
+                        id: previewTabButton
+                        text: qsTr("Preview")
+                        x: height
+                        y: parent.height - height
+                        transformOrigin: Item.BottomLeft
+                        rotation: -90
+                    }
+                }
+                Rectangle {
+                    width: parent.width - previewTabButton.height
+                    height: parent.height
+                    color: "transparent"
+                    border.color: Colors.controlBorder
                 }
             }
         }
