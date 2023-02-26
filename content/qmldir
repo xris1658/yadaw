@@ -16,6 +16,7 @@ BigClock 1.0 BigClock.qml
 Button 1.0 Button.qml
 CheckBox 1.0 CheckBox.qml
 ComboBox 1.0 ComboBox.qml
+Detail.qml
 GeneralSettings 1.0 GeneralSettings.qml
 MainWindow 1.0 MainWindow.qml
 Menu 1.0 Menu.qml

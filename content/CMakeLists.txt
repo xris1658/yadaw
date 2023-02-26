@@ -34,6 +34,7 @@ set(CONTENT_QML_FILES
     Colors.qml
     ComboBox.qml
     Constants.qml
+    Detail.qml
     DirectoryFontLoader.qml
     EventReceiver.qml
     EventSender.qml

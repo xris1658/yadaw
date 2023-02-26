@@ -1,5 +1,6 @@
 import QtQml
 import QtQuick
+import QtQuick.Controls as QQC2
 
 ApplicationWindow {
     id: root
@@ -374,10 +375,15 @@ ApplicationWindow {
         anchors.margins: 5
         orientation: Qt.Horizontal
         SplitView {
+            id: assetDetailSplitView
             SplitView.minimumWidth: assetTabButton.height
             SplitView.maximumWidth: Math.max(SplitView.minimumWidth, contents.width * 0.4)
             SplitView.preferredWidth: assets.preferredWidth + assetTabButton.height
             orientation: Qt.Vertical
+            handle: Item {
+                implicitWidth: 5
+                implicitHeight: 5
+            }
             Row {
                 id: assetRow
                 SplitView.minimumHeight: assetTabButton.width
@@ -394,37 +400,30 @@ ApplicationWindow {
                         rotation: -90
                     }
                 }
-                Rectangle {
+                Assets {
+                    id: assets
                     width: parent.width - assetTabButton.height
                     height: parent.height
-                    color: "transparent"
-                    border.color: Colors.controlBorder
-                    Assets {
-                        id: assets
-                        anchors.fill: parent
-                    }
                 }
             }
             Row {
-                id: previewRow
-                SplitView.minimumHeight: previewTabButton.width
+                id: detailRow
+                SplitView.minimumHeight: detailTabButton.width
                 Item {
-                    width: previewTabButton.height
+                    width: detailTabButton.height
                     height: parent.height
                     TabButton {
-                        id: previewTabButton
-                        text: qsTr("Preview")
+                        id: detailTabButton
+                        text: qsTr("Detail")
                         x: height
                         y: parent.height - height
                         transformOrigin: Item.BottomLeft
                         rotation: -90
                     }
                 }
-                Rectangle {
-                    width: parent.width - previewTabButton.height
+                Detail {
+                    width: parent.width - detailTabButton.height
                     height: parent.height
-                    color: "transparent"
-                    border.color: Colors.controlBorder
                 }
             }
         }
