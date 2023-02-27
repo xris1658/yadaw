@@ -32,6 +32,7 @@ Rectangle {
                 anchors.margins: 10
                 spacing: Qt.application.font.pixelSize * 0.5
                 Label {
+                    visible: text.length !== 0
                     width: column.width
                     text: root.text
                     color: Colors.content
@@ -40,16 +41,20 @@ Rectangle {
                     wrapMode: Text.Wrap
                 }
                 Label {
+                    visible: text.length !== 0
                     width: column.width
                     text: root.secondaryText
                     color: Colors.content
                     wrapMode: Text.Wrap
                 }
                 Item {
+                    visible: informativeLabel.visible
                     width: column.width
                     height: Qt.application.font.pixelSize * 0.5
                 }
                 Label {
+                    id: informativeLabel
+                    visible: text.length !== 0
                     width: column.width
                     text: root.informativeText
                     color: Colors.secondaryContent
