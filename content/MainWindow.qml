@@ -1,6 +1,6 @@
 import QtQml
 import QtQuick
-import QtQuick.Controls as QQC2
+import QtQuick.Shapes
 
 ApplicationWindow {
     id: root
@@ -343,7 +343,77 @@ ApplicationWindow {
     header: Rectangle {
         height: bigClock.height + 20
         color: Colors.topBarBackground
+        Row {
+            anchors.top: bigClockBackground.top
+            anchors.right: bigClockBackground.left
+            anchors.margins: 10
+            spacing: 5
+            Button {
+                id: playButton
+                width: height * 1.5
+                height: loopButton.height
+                border.width: 0
+                radius: 5
+                layer.enabled: true
+                layer.smooth: true
+                layer.samples: 4
+                PlayIcon {
+                    id: playIcon
+                    anchors.centerIn: parent
+                    scale: playButton.height / originalHeight * 0.5
+                    path.strokeColor: "transparent"
+                    path.fillColor: "#00FF00"
+                    path.capStyle: ShapePath.RoundCap
+                }
+            }
+            Button {
+                id: stopButton
+                width: height
+                height: loopButton.height
+                border.width: 0
+                radius: 5
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: loopIcon.width * loopIcon.scale * 0.9
+                    height: width
+                    color: Colors.content
+                }
+            }
+            Button {
+                id: recordButton
+                width: height
+                height: loopButton.height
+                border.width: 0
+                radius: 5
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: loopIcon.width * loopIcon.scale
+                    height: width
+                    color: "#FF3333"
+                    radius: width / 2
+                }
+            }
+            Button {
+                id: loopButton
+                width: height
+                height: Qt.application.font.pixelSize * 3
+                border.width: 0
+                radius: 5
+                layer.enabled: true
+                layer.smooth: true
+                layer.samples: 4
+                LoopIcon {
+                    id: loopIcon
+                    anchors.centerIn: parent
+                    scale: loopButton.height / originalHeight * 0.6
+                    path.strokeColor: "transparent"
+                    path.fillColor: Colors.secondaryContent
+                    path.joinStyle: ShapePath.MiterJoin
+                }
+            }
+        }
         Rectangle {
+            id: bigClockBackground
             anchors.centerIn: parent
             width: bigClock.width + 20
             height: bigClock.height + radius * 2
@@ -353,6 +423,27 @@ ApplicationWindow {
                 id: bigClock
                 anchors.centerIn: parent
                 cpuUsagePercentage: 0
+            }
+        }
+        Row {
+            anchors.top: bigClockBackground.top
+            anchors.left: bigClockBackground.right
+            anchors.margins: 10
+            spacing: 5
+            Button {
+                width: height
+                height: loopButton.height
+                border.width: 0
+                radius: 5
+                layer.enabled: true
+                layer.smooth: true
+                layer.samples: 4
+                MetronomeIcon {
+                    anchors.centerIn: parent
+                    scale: 20 / originalHeight
+                    path.fillColor: Colors.secondaryContent
+                    path.strokeColor: "transparent"
+                }
             }
         }
     }

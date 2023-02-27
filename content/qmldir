@@ -18,12 +18,15 @@ CheckBox 1.0 CheckBox.qml
 ComboBox 1.0 ComboBox.qml
 Detail 1.0 Detail.qml
 GeneralSettings 1.0 GeneralSettings.qml
+LoopIcon 1.0 LoopIcon.qml
 MainWindow 1.0 MainWindow.qml
 Menu 1.0 Menu.qml
 MenuBar 1.0 MenuBar.qml
 MenuBarItem 1.0 MenuBarItem.qml
 MenuItem 1.0 MenuItem.qml
 MenuSeparator 1.0 MenuSeparator.qml
+MetronomeIcon 1.0 MetronomeIcon.qml
+PlayIcon 1.0 PlayIcon.qml
 PluginSettings 1.0 PluginSettings.qml
 PreferencesWindow 1.0 PreferencesWindow.qml
 ProgressBar 1.0 ProgressBar.qml

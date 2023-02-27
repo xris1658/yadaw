@@ -5,6 +5,8 @@ T.Button {
     id: root
 
     property int mnemonicTextLook: Mnemonic.MnemonicEnabled
+    property alias radius: background.radius
+    property alias border: background.border
 
     topPadding: 3
     bottomPadding: 3
@@ -19,6 +21,7 @@ T.Button {
     implicitHeight: label.contentHeight + topPadding + bottomPadding
 
     background: Rectangle {
+        id: background
         width: root.width
         height: root.height
         anchors.topMargin: root.topInset

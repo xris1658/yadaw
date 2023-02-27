@@ -42,13 +42,16 @@ set(CONTENT_QML_FILES
     Global.qml
     ItemDelegate.qml
     Label.qml
+    LoopIcon.qml
     MainWindow.qml
     Menu.qml
     MenuBar.qml
     MenuBarItem.qml
     MenuItem.qml
     MenuSeparator.qml
+    MetronomeIcon.qml
     Mnemonic.qml
+    PlayIcon.qml
     PluginSettings.qml
     PreferencesWindow.qml
     ProgressBar.qml
