@@ -38,7 +38,9 @@ Window {
                 text: "This program uses Qt version %1.".arg(Global.qtVersion)
                 color: Colors.content
             }
-            // Source: src\widgets\dialogs\qmessagebox.cpp:1843
+            // Source: <Qt install path>\6.4.2\Src\src\widgets\dialogs\qmessagebox.cpp:1843
+            // There seems to be no way to create a "About Qt" dialog without copying
+            // the following text or introducing Qt Widgets.
             Label {
                 text:
                     "<p>Qt is a C++ toolkit for cross-platform application
