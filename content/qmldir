@@ -17,6 +17,7 @@ Button 1.0 Button.qml
 CheckBox 1.0 CheckBox.qml
 ComboBox 1.0 ComboBox.qml
 Detail 1.0 Detail.qml
+FollowIcon 1.0 FollowIcon.qml
 GeneralSettings 1.0 GeneralSettings.qml
 LoopIcon 1.0 LoopIcon.qml
 MainWindow 1.0 MainWindow.qml

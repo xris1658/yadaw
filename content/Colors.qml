@@ -29,4 +29,7 @@ QtObject {
     readonly property color bigClockBackground: background
     readonly property color bigClockText: content
     readonly property color topBarBackground: "#606060"
+    readonly property color playingIcon: "#00FF00"
+    readonly property color recordIcon: "#FF6666"
+    readonly property color recordingIcon: "#FF3333"
 }

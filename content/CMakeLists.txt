@@ -38,6 +38,7 @@ set(CONTENT_QML_FILES
     DirectoryFontLoader.qml
     EventReceiver.qml
     EventSender.qml
+    FollowIcon.qml
     GeneralSettings.qml
     Global.qml
     ItemDelegate.qml

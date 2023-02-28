@@ -206,15 +206,26 @@ ApplicationWindow {
                 text: qsTr("Loop")
                 shortcut: "Ctrl+L"
                 checkable: true
-                checked: false
+                checked: loopButton.checked
+                onTriggered: {
+                    loopButton.checked = checked;
+                }
             }
             Action {
-                text: qsTr("Set Loop In Point")
+                text: qsTr("Jump to Loop In Point")
                 shortcut: "I"
             }
             Action {
-                text: qsTr("Set Loop Out Point")
+                text: qsTr("Jump to Loop Out Point")
                 shortcut: "O"
+            }
+            Action {
+                text: qsTr("Set Loop In Point Here")
+                shortcut: "Alt+I"
+            }
+            Action {
+                text: qsTr("Set Loop Out Point Here")
+                shortcut: "Alt+O"
             }
         }
         Menu {
@@ -269,7 +280,10 @@ ApplicationWindow {
                 text: qsTr("&Follow")
                 shortcut: "Ctrl+Shift+F"
                 checkable: true
-                checked: false
+                checked: followButton.checked
+                onTriggered: {
+                    followButton.checked = checked;
+                }
             }
             Action {
                 id: actionShowKeyScale
@@ -308,7 +322,10 @@ ApplicationWindow {
                 text: qsTr("Metronome")
                 shortcut: "Ctrl+M"
                 checkable: true
-                checked: false
+                checked: metronomeButton.checked
+                onTriggered: {
+                    metronomeButton.checked = checked;
+                }
             }
             Action {
                 id: actionEnableKeyboard
@@ -352,6 +369,7 @@ ApplicationWindow {
                 id: playButton
                 width: height * 1.5
                 height: loopButton.height
+                checkable: true
                 border.width: 0
                 radius: 5
                 layer.enabled: true
@@ -362,7 +380,7 @@ ApplicationWindow {
                     anchors.centerIn: parent
                     scale: playButton.height / originalHeight * 0.5
                     path.strokeColor: "transparent"
-                    path.fillColor: "#00FF00"
+                    path.fillColor: parent.checked? Colors.playingIcon: Colors.content
                     path.capStyle: ShapePath.RoundCap
                 }
             }
@@ -383,13 +401,14 @@ ApplicationWindow {
                 id: recordButton
                 width: height
                 height: loopButton.height
+                checkable: true
                 border.width: 0
                 radius: 5
                 Rectangle {
                     anchors.centerIn: parent
                     width: loopIcon.width * loopIcon.scale
                     height: width
-                    color: "#FF3333"
+                    color: parent.checked? Colors.recordingIcon: Colors.recordIcon
                     radius: width / 2
                 }
             }
@@ -397,6 +416,7 @@ ApplicationWindow {
                 id: loopButton
                 width: height
                 height: Qt.application.font.pixelSize * 3
+                checkable: true
                 border.width: 0
                 radius: 5
                 layer.enabled: true
@@ -407,7 +427,7 @@ ApplicationWindow {
                     anchors.centerIn: parent
                     scale: loopButton.height / originalHeight * 0.6
                     path.strokeColor: "transparent"
-                    path.fillColor: Colors.secondaryContent
+                    path.fillColor: parent.checked? Colors.content: Colors.disabledContent
                     path.joinStyle: ShapePath.MiterJoin
                 }
             }
@@ -431,8 +451,10 @@ ApplicationWindow {
             anchors.margins: 10
             spacing: 5
             Button {
+                id: metronomeButton
                 width: height
                 height: loopButton.height
+                checkable: true
                 border.width: 0
                 radius: 5
                 layer.enabled: true
@@ -441,7 +463,24 @@ ApplicationWindow {
                 MetronomeIcon {
                     anchors.centerIn: parent
                     scale: 20 / originalHeight
-                    path.fillColor: Colors.secondaryContent
+                    path.fillColor: parent.checked? Colors.content: Colors.disabledContent
+                    path.strokeColor: "transparent"
+                }
+            }
+            Button {
+                id: followButton
+                width: height
+                height: loopButton.height
+                checkable: true
+                border.width: 0
+                radius: 5
+                layer.enabled: true
+                layer.smooth: true
+                layer.samples: 4
+                FollowIcon {
+                    anchors.centerIn: parent
+                    scale: loopIcon.width * loopIcon.scale / originalHeight
+                    path.fillColor: parent.checked? Colors.content: Colors.disabledContent
                     path.strokeColor: "transparent"
                 }
             }
