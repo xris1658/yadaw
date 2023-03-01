@@ -223,5 +223,34 @@ ApplicationWindow {
             width: 500
             indeterminate: true
         }
+        Item {
+            width: 60
+            height: 72
+
+            layer.enabled: true
+            layer.smooth: true
+            layer.samples: 4
+            LoopIcon {
+                id: loopIcon
+                anchors.centerIn: parent
+                scale: 0.25
+                path.strokeColor: "transparent"
+                path.fillColor: Colors.secondaryContent
+                path.joinStyle: ShapePath.MiterJoin
+            }
+        }
+        Item {
+            width: 60
+            height: 35
+            PlayIcon {
+                id: playIcon
+                anchors.centerIn: parent
+                scale: 0.25
+                path.strokeColor: "transparent"
+                path.fillColor: "#00FD00"
+                path.joinStyle: ShapePath.MiterJoin
+
+            }
+        }
     }
 }

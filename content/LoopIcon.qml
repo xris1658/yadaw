@@ -3,7 +3,8 @@ import QtQuick.Shapes
 
 Shape {
     readonly property int originalWidth: 100
-    readonly property int originalHeight: 120
+    readonly property int actualHeight: 120
+    readonly property int originalHeight: 140
     width: originalWidth
     height: originalHeight
     property alias path: path

@@ -425,7 +425,7 @@ ApplicationWindow {
                 LoopIcon {
                     id: loopIcon
                     anchors.centerIn: parent
-                    scale: loopButton.height / originalHeight * 0.6
+                    scale: loopButton.height / actualHeight * 0.6
                     path.strokeColor: "transparent"
                     path.fillColor: parent.checked? Colors.content: Colors.disabledContent
                     path.joinStyle: ShapePath.MiterJoin

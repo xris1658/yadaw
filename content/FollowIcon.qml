@@ -46,18 +46,18 @@ Shape {
         strokeColor: path1.strokeColor
         strokeWidth: path1.strokeWidth
         startX: 0
-        startY: 68
+        startY: 76
         PathLine {
             x: 52
-            y: 68
+            y: 76
         }
         PathLine {
             x: 52
-            y: 84
+            y: 92
         }
         PathLine {
             x: 0
-            y: 84
+            y: 92
         }
     }
     ShapePath {
@@ -66,30 +66,30 @@ Shape {
         strokeColor: path1.strokeColor
         strokeWidth: path1.strokeWidth
         startX: 68
-        startY: 68
+        startY: 76
         PathLine {
-            x: 104
-            y: 68
+            x: 96
+            y: 76
         }
         PathLine {
-            x: 104
+            x: 96
             y: 52
         }
         PathLine {
             x: 128
-            y: 76
-        }
-        PathLine {
-            x: 104
-            y: 100
-        }
-        PathLine {
-            x: 104
             y: 84
+        }
+        PathLine {
+            x: 96
+            y: 116
+        }
+        PathLine {
+            x: 96
+            y: 92
         }
         PathLine {
             x: 68
-            y: 84
+            y: 92
         }
     }
 }
