@@ -24,6 +24,7 @@ set(CONTENT_QML_FILES
     Action.qml
     ApplicationWindow.qml
     Assets.qml
+    Audio.qml
     AudioGraphSettings.qml
     AudioHardwareSettings.qml
     BigClock.qml
@@ -36,6 +37,7 @@ set(CONTENT_QML_FILES
     DirectoryFontLoader.qml
     EventReceiver.qml
     EventSender.qml
+    FolderIcon.qml
     FollowIcon.qml
     GeneralSettings.qml
     Global.qml
@@ -49,8 +51,11 @@ set(CONTENT_QML_FILES
     MenuItem.qml
     MenuSeparator.qml
     MetronomeIcon.qml
+    MIDIEffectIcon.qml
     Mnemonic.qml
+    PianoKeysIcon.qml
     PlayIcon.qml
+    PluginIcon.qml
     PluginSettings.qml
     PreferencesWindow.qml
     ProgressBar.qml

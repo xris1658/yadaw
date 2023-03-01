@@ -331,8 +331,21 @@ ApplicationWindow {
                 id: actionEnableKeyboard
                 text: qsTr("Map Keyboard")
                 checkable: true
-                checked: false
+                checked: mapKeyboardIcon.checked
+                onTriggered: {
+                    mapKeyboardIcon.checked = checked;
+                }
             }
+            Action {
+                id: actionCountdown
+                text: qsTr("Record Countdown")
+                checkable: true
+                checked: countdownButton.checked
+                onTriggered: {
+                    countdownButton.checked = checked;
+                }
+            }
+
             MenuSeparator {}
             Action {
                 text: qsTr("Tap Tempo...")
@@ -482,6 +495,35 @@ ApplicationWindow {
                     scale: loopIcon.width * loopIcon.scale / originalHeight
                     path.fillColor: parent.checked? Colors.content: Colors.disabledContent
                     path.strokeColor: "transparent"
+                }
+            }
+            Button {
+                id: mapKeyboardIcon
+                width: height
+                height: loopButton.height
+                checkable: true
+                border.width: 0
+                radius: 5
+                PianoKeysIcon {
+                    anchors.centerIn: parent
+                    scale: loopIcon.width * loopIcon.scale / originalHeight
+                    path.fillColor: parent.checked? Colors.content: Colors.disabledContent
+                    path.strokeColor: "transparent"
+                }
+            }
+            Button {
+                id: countdownButton
+                width: height
+                height: loopButton.height
+                checkable: true
+                border.width: 0
+                radius: 5
+                Label {
+                    anchors.centerIn: parent
+                    text: "3 2 1"
+                    font.family: "Fira Sans Condensed"
+                    font.bold: true
+                    color: parent.checked? Colors.content: Colors.disabledContent
                 }
             }
         }

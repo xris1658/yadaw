@@ -83,6 +83,7 @@ Rectangle {
                         width: parent.width - 3 * 2
                         x: root.border.width + 3
                         text: modelData
+                        leftPadding: height
                         rightPadding: 2
                         topPadding: 2
                         bottomPadding: 2
@@ -96,6 +97,16 @@ Rectangle {
                             color: (!control.enabled)? Colors.background:
                                 control.highlighted? Colors.highlightControlBackground:
                                 control.hovered? Colors.mouseOverControlBackground: Colors.background
+                        }
+                        FolderIcon {
+                            readonly property double effectiveWidth: originalWidth * scale
+                            readonly property double effectiveHeight: originalHeight * scale
+                            x: y
+                            y: (parent.height - effectiveHeight) / 2
+                            transformOrigin: Item.TopLeft
+                            scale: (parent.height - parent.topPadding - parent.bottomPadding) * 0.8 / originalHeight
+                            path.strokeColor: "transparent"
+                            path.fillColor: Colors.secondaryContent
                         }
                     }
                     footer: ItemDelegate {
@@ -130,27 +141,65 @@ Rectangle {
                     elide: Text.ElideRight
                 }
                 ListView {
-                    model: ["Plugins", "MIDI Effects", "Instruments", "Audio Effects"]
+                    model: ListModel {
+                        ListElement {
+                            name: "Plugins"
+                            iconSource: "PluginIcon.qml"
+                        }
+                        ListElement {
+                            name: "MIDI Effects"
+                            iconSource: "MIDIEffectIcon.qml"
+                        }
+                        ListElement {
+                            name: "Instruments"
+                            iconSource: "PianoKeysIcon.qml"
+                        }
+                        ListElement {
+                            name: "Audio Effects"
+                            iconSource: "Audio.qml"
+                        }
+                    }
+
+                    // model: ["Plugins", "MIDI Effects", "Instruments", "Audio Effects", "Audio Files", "MIDI Files"]
                     width: parent.width
                     height: contentHeight
                     delegate: ItemDelegate {
-                        id: control
+                        id: pluginItemDelegate
                         width: parent.width - 3 * 2
+                        height: implicitHeight
                         x: root.border.width + 3
-                        text: modelData
+                        text: name
+                        leftPadding: height
                         rightPadding: 2
                         topPadding: 2
                         bottomPadding: 2
+                        layer.enabled: true
+                        layer.smooth: true
+                        layer.samples: 4
                         background: Rectangle {
-                            width: control.width
-                            height: control.height
+                            width: pluginItemDelegate.width
+                            height: pluginItemDelegate.height
                             anchors.topMargin: root.topInset
                             anchors.bottomMargin: root.bottomInset
                             anchors.leftMargin: root.leftInset
                             anchors.rightMargin: root.rightInset
-                            color: (!control.enabled)? Colors.background:
-                                control.highlighted? Colors.highlightControlBackground:
-                                control.hovered? Colors.mouseOverControlBackground: Colors.background
+                            color: (!pluginItemDelegate.enabled)? Colors.background:
+                                pluginItemDelegate.highlighted? Colors.highlightControlBackground:
+                                pluginItemDelegate.hovered? Colors.mouseOverControlBackground: Colors.background
+                        }
+                        Loader {
+                            id: loader
+                            onLoaded: {
+                                item.transformOrigin = Item.TopLeft;
+                                item.scale = pluginItemDelegate.height * 0.625 / item.originalHeight;
+                                item.x = (pluginItemDelegate.height - item.originalHeight * item.scale) / 2;
+                                item.y = item.x;
+                                item.path.strokeColor = "transparent";
+                                item.path.fillColor = Colors.secondaryContent;
+                            }
+                        }
+                        Component.onCompleted: {
+                            loader.source = iconSource;
                         }
                     }
                 }
