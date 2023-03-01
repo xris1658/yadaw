@@ -21,18 +21,22 @@ Window {
         z: 2
         ListView {
             id: listView
-            property int minWidth: 0
-            SplitView.minimumWidth: minWidth
+            SplitView.minimumWidth: contentWidth
             SplitView.maximumWidth: root.width - firstColumnWidth - secondColumnWidth - 35
             model: ["General", "Audio Hardware", "Plugins"]
             boundsBehavior: ListView.StopAtBounds
             delegate: ItemDelegate {
                 id: itemDelegate
                 text: modelData
-                width: listView.width
                 highlighted: listView.currentIndex == index
                 Component.onCompleted: {
-                    listView.minWidth = Math.max(listView.minWidth, itemDelegate.implicitWidth);
+                    listView.contentWidth = Math.max(listView.contentWidth, itemDelegate.implicitWidth);
+                    if(index === listView.model.length - 1) {
+                        for(let i = 0; i < listView.model.length - 1; ++i) {
+                            listView.itemAtIndex(i).width = listView.contentWidth;
+                        }
+                        width = listView.contentWidth;
+                    }
                 }
                 onClicked: {
                     listView.currentIndex = index;
