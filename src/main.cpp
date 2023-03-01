@@ -2,6 +2,7 @@
 #include "event/EventBase.hpp"
 #include "event/EventHandler.hpp"
 #include "event/SplashScreenWorkerThread.hpp"
+#include "model/ModelInitializer.hpp"
 #include "native/WindowsDarkModeSupport.hpp"
 #include "ui/UI.hpp"
 
@@ -14,6 +15,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
     YADAW::UI::qmlApplicationEngine = &engine;
+    YADAW::Model::initializeModel();
     const QUrl frontendEventsURL(u"qrc:Main/Events.qml"_qs);
     const QUrl splashScreenURL(u"qrc:content/SplashScreen.qml"_qs);
     QObject* splashScreen = nullptr;

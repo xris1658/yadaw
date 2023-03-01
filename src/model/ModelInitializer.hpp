@@ -1,0 +1,9 @@
+#ifndef YADAW_SRC_MODEL_MODELINITIALIZER
+#define YADAW_SRC_MODEL_MODELINITIALIZER
+
+namespace YADAW::Model
+{
+void initializeModel();
+}
+
+#endif //YADAW_SRC_MODEL_MODELINITIALIZER

@@ -15,10 +15,11 @@ find_package(Qt6 6.3 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools
 find_package(ade CONFIG REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
-find_package(yaml-cpp 
+find_package(yaml-cpp
                   CONFIG REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR}/src
+include_directories(${PROJECT_SOURCE_DIR}/content
+                    ${PROJECT_SOURCE_DIR}/src
                     ${CLAP_SOURCE_DIR}/include # CLAP
                     ${CLAP_HELPERS_DIR}/include # CLAP Helpers
                     ${SQLITE_MODERN_CPP_INCLUDE_DIRS}) # sqlite-modern-cpp
@@ -118,6 +119,12 @@ set(YADAW_COMMON_SOURCES
     src/event/SplashScreenWorkerThread.hpp
     src/midi/MIDIInputDevice.hpp
     src/midi/MIDIOutputDevice.hpp
+    src/model/AssetDirectoryListModelImpl.cpp
+    src/model/AssetDirectoryListModelImpl.hpp
+    src/model/ModelInitializer.cpp
+    src/model/ModelInitializer.hpp
+    src/model/PluginDirectoryListModelImpl.cpp
+    src/model/PluginDirectoryListModelImpl.hpp
     src/native/AudioGraphBackend.cpp
     src/native/AudioGraphBackendImpl.cpp
     src/native/AudioGraphBackendImpl.hpp
@@ -164,6 +171,7 @@ set(YADAW_COMMON_SOURCES
     src/util/Literal.hpp
     src/util/QStringUtil.cpp
     src/util/QStringUtil.hpp
+    src/util/QmlUtil.hpp
     src/util/QuadraticFunction.cpp
     src/util/QuadraticFunction.hpp
     src/util/Stopwatch.hpp
