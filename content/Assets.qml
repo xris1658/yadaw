@@ -173,9 +173,6 @@ Rectangle {
                         rightPadding: 2
                         topPadding: 2
                         bottomPadding: 2
-                        layer.enabled: true
-                        layer.smooth: true
-                        layer.samples: 4
                         background: Rectangle {
                             width: pluginItemDelegate.width
                             height: pluginItemDelegate.height
@@ -187,15 +184,24 @@ Rectangle {
                                 pluginItemDelegate.highlighted? Colors.highlightControlBackground:
                                 pluginItemDelegate.hovered? Colors.mouseOverControlBackground: Colors.background
                         }
-                        Loader {
-                            id: loader
-                            onLoaded: {
-                                item.transformOrigin = Item.TopLeft;
-                                item.scale = pluginItemDelegate.height * 0.625 / item.originalHeight;
-                                item.x = (pluginItemDelegate.height - item.originalHeight * item.scale) / 2;
-                                item.y = item.x;
-                                item.path.strokeColor = "transparent";
-                                item.path.fillColor = Colors.secondaryContent;
+                        // Only the icon is smoothed; the text is not affected.
+                        Item {
+                            id: enableLayerForIcons
+                            width: height
+                            height: parent.height
+                            layer.enabled: true
+                            layer.smooth: true
+                            layer.samples: 4
+                            Loader {
+                                id: loader
+                                onLoaded: {
+                                    item.transformOrigin = Item.TopLeft;
+                                    item.scale = enableLayerForIcons.height * 0.625 / item.originalHeight;
+                                    item.x = (enableLayerForIcons.height - item.originalHeight * item.scale) / 2;
+                                    item.y = item.x;
+                                    item.path.strokeColor = "transparent";
+                                    item.path.fillColor = Colors.secondaryContent;
+                                }
                             }
                         }
                         Component.onCompleted: {
