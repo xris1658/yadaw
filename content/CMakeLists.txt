@@ -61,6 +61,7 @@ set(CONTENT_QML_FILES
     PreferencesWindow.qml
     ProgressBar.qml
     ScrollBar.qml
+    Slider.qml
     SplashScreen.qml
     SplitView.qml
     Switch.qml

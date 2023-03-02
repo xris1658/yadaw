@@ -33,6 +33,7 @@ PluginSettings 1.0 PluginSettings.qml
 PreferencesWindow 1.0 PreferencesWindow.qml
 ProgressBar 1.0 ProgressBar.qml
 ScrollBar 1.0 ScrollBar.qml
+Slider 1.0 Slider.qml
 SplashScreen 1.0 SplashScreen.qml
 TabBar 1.0 TabBar.qml
 TabButton 1.0 TabButton.qml

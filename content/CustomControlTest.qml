@@ -4,7 +4,7 @@ import QtQuick.Shapes
 ApplicationWindow {
     id: root
     width: 840
-    height: 640
+    height: 840
     visible: true
 
     menuBar: MenuBar {
@@ -205,51 +205,39 @@ ApplicationWindow {
         ComboBox {
             model: ["a", "b", "c"]
         }
-        ProgressBar {
-            value: 0.5
-        }
-        ProgressBar {
-            progressState: ProgressBar.Paused
-            value: 0.5
-        }
-        ProgressBar {
-            progressState: ProgressBar.Stopped
-            value: 0.5
-        }
-        ProgressBar {
-            indeterminate: true
+        Row {
+            spacing: 5
+            ProgressBar {
+                value: 0.5
+            }
+            ProgressBar {
+                progressState: ProgressBar.Paused
+                value: 0.5
+            }
+            ProgressBar {
+                progressState: ProgressBar.Stopped
+                value: 0.5
+            }
+            ProgressBar {
+                indeterminate: true
+            }
         }
         ProgressBar {
             width: 500
             indeterminate: true
         }
-        Item {
-            width: 60
-            height: 72
-
-            layer.enabled: true
-            layer.smooth: true
-            layer.samples: 4
-            LoopIcon {
-                id: loopIcon
-                anchors.centerIn: parent
-                scale: 0.25
-                path.strokeColor: "transparent"
-                path.fillColor: Colors.secondaryContent
-                path.joinStyle: ShapePath.MiterJoin
-            }
+        Slider {
+            orientation: Qt.Horizontal
+            length: colorPicker.radius * 2
         }
-        Item {
-            width: 60
-            height: 35
-            PlayIcon {
-                id: playIcon
-                anchors.centerIn: parent
-                scale: 0.25
-                path.strokeColor: "transparent"
-                path.fillColor: "#00FD00"
-                path.joinStyle: ShapePath.MiterJoin
-
+        Row {
+            ColorPicker {
+                id: colorPicker
+                color: "#C00000"
+            }
+            Slider {
+                orientation: Qt.Vertical
+                length: colorPicker.radius * 2
             }
         }
     }
