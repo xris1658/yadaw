@@ -30,6 +30,7 @@ set(CONTENT_QML_FILES
     BigClock.qml
     Button.qml
     CheckBox.qml
+    ColorPicker.qml
     Colors.qml
     ComboBox.qml
     Constants.qml

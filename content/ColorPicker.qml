@@ -1,12 +1,44 @@
+import QtQml
 import QtQuick
-import QtQuick.Controls as QC
 import QtQuick.Shapes
 
 Item {
     id: root
-    width: 256
-    height: 288
-    property color color
+
+    property int radius: 128
+    property color color: "#000000"
+
+    width: radius * 2
+    height: radius * 2 + slider.height
+
+    QtObject {
+        id: impl
+        function fromColor(color: color) {
+            let hue = color.hsvHue * 2 * Math.PI;
+            let saturation = color.hsvSaturation;
+            let value = color.hsvValue;
+            let x = root.radius + root.radius * Math.cos(hue) * saturation;
+            let y = root.radius - root.radius * Math.sin(hue) * saturation;
+            locator.centerX = x;
+            locator.centerY = y;
+            slider.value = value;
+        }
+        function toColor() {
+            let pointX = locator.x + Math.floor(locator.width) - root.radius;
+            let pointY = root.radius - locator.y - Math.floor(locator.height);
+            let hueValue = Math.atan(pointY / pointX) / Math.PI;
+            if(pointX < 0) {
+                hueValue = 1 + hueValue;
+            }
+            else if(pointY < 0) {
+                hueValue = 2 + hueValue;
+            }
+            hueValue /= 2.0;
+            let distance = Math.hypot(pointX, pointY);
+            let saturationValue = distance / radius;
+            root.color = Qt.hsva(hueValue, saturationValue, slider.value, 1);
+        }
+    }
 
     Rectangle {
         anchors.right: parent.right
@@ -15,23 +47,39 @@ Item {
         height: width
         color: root.color
     }
+
     MouseArea {
-        width: 256
-        height: 256
+        width: radius * 2
+        height: radius * 2
         acceptedButtons: Qt.LeftButton
         cursorShape: Qt.CrossCursor
         enabled: true
         hoverEnabled: true
+        clip: true
+        Rectangle {
+            property int centerX: root.radius + Math.cos(root.color.hsvHue * 2 * Math.PI) * root.radius * root.color.hsvSaturation
+            property int centerY: -1 * Math.sin(root.color.hsvHue * 2 * Math.PI) * root.radius * root.color.hsvSaturation + root.radius
+            z: 3
+            id: locator
+            width: 11
+            height: width
+            radius: width / 2
+            color: "transparent"
+            border.width: 2
+            border.color: Colors.controlBackground
+            x: centerX - Math.floor(width / 2)
+            y: centerY - Math.floor(width / 2)
+        }
         Shape {
             id: hue
             z: 1
             ShapePath {
-                startX: 128
+                startX: radius
                 startY: 0
                 fillGradient: ConicalGradient {
                     angle: 360
-                    centerX: 128
-                    centerY: 128
+                    centerX: radius
+                    centerY: radius
                     GradientStop {
                         position: 0 / 6.0
                         color: Qt.rgba(slider.value, 0, 0, 1)
@@ -62,15 +110,15 @@ Item {
                     }
                 }
                 PathArc {
-                    radiusX: 128
-                    radiusY: 128
-                    x: 128
-                    y: 256
+                    radiusX: radius
+                    radiusY: radius
+                    x: radius
+                    y: radius * 2
                 }
                 PathArc {
-                    radiusX: 128
-                    radiusY: 128
-                    x: 128
+                    radiusX: radius
+                    radiusY: radius
+                    x: radius
                     y: 0
                 }
             }
@@ -79,12 +127,12 @@ Item {
             id: lightness
             z: 2
             ShapePath {
-                startX: 128
+                startX: radius
                 startY: 0
                 fillGradient: RadialGradient {
-                    centerX: 128
-                    centerY: 128
-                    centerRadius: 128
+                    centerX: radius
+                    centerY: radius
+                    centerRadius: radius
                     focalX: centerX
                     focalY: centerY
                     GradientStop {
@@ -97,42 +145,44 @@ Item {
                     }
                 }
                 PathArc {
-                    radiusX: 128
-                    radiusY: 128
-                    x: 128
-                    y: 256
+                    radiusX: radius
+                    radiusY: radius
+                    x: radius
+                    y: radius * 2
                 }
                 PathArc {
-                    radiusX: 128
-                    radiusY: 128
-                    x: 128
+                    radiusX: radius
+                    radiusY: radius
+                    x: radius
                     y: 0
                 }
             }
         }
         onPositionChanged: (mouse) => {
             if(pressed) {
-                let pointX = mouseX - 128;
-                let pointY = 128 - mouseY;
-                let hueValue = Math.atan(pointY / pointX) * 180 / Math.PI;
-                if(pointX < 0) {
-                    hueValue = 180 + hueValue;
+                let locatorX = mouseX - radius;
+                let locatorY = mouseY - radius;
+                let hypot = Math.hypot(locatorX, locatorY);
+                if(hypot > radius) {
+                    locatorX *= (radius / hypot);
+                    locatorY *= (radius / hypot);
                 }
-                else if(pointY < 0) {
-                    hueValue = 360 + hueValue;
-                }
-                hueValue /= 360.0;
-                let distance = Math.hypot(pointX, pointY);
-                let saturationValue = distance / 128.0;
-                console.log("Hue:       ", hueValue);
-                console.log("Saturation:", saturationValue);
-                root.color = Qt.hsva(hueValue, saturationValue, slider.value, 1);
+                locator.centerX = locatorX + radius;
+                locator.centerY = locatorY + radius;
+                impl.toColor();
             }
         }
     }
-    QC.Slider {
+    Slider {
         id: slider
         anchors.bottom: parent.bottom
         width: parent.width
+        live: true
+        onValueChanged: {
+            impl.toColor();
+        }
+    }
+    Component.onCompleted: {
+        impl.fromColor(root.color);
     }
 }
