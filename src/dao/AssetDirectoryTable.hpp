@@ -24,7 +24,7 @@ public:
 
 void createAssetDirectoryTable(sqlite::database& database = appDatabase());
 
-void addAssetDirectory(const QString& path, const QString& name,
+int addAssetDirectory(const QString& path, const QString& name,
     sqlite::database& database = appDatabase());
 
 std::vector<AssetDirectory> selectAllAssetDirectories(

@@ -77,10 +77,13 @@ void createAssetDirectoryTable(sqlite::database& database)
     database << Impl::createAssetDirectoryTableCommand();
 }
 
-void addAssetDirectory(const QString& path, const QString& name, sqlite::database& database)
+int addAssetDirectory(const QString& path, const QString& name, sqlite::database& database)
 {
     database << Impl::addAssetDirectoryCommand()
         << u16DataFromQString(path) << u16DataFromQString(name);
+    int ret = 0;
+    database << Impl::getAssetDirectoryLastIdCommand() >> ret;
+    return ret;
 }
 
 std::vector<AssetDirectory> selectAllAssetDirectories(sqlite::database& database)
