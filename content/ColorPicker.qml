@@ -24,8 +24,8 @@ Item {
             slider.value = value;
         }
         function toColor() {
-            let pointX = locator.x + Math.floor(locator.width) - root.radius;
-            let pointY = root.radius - locator.y - Math.floor(locator.height);
+            let pointX = locator.x + Math.floor(locator.width / 2) - root.radius;
+            let pointY = root.radius - locator.y - Math.floor(locator.height / 2);
             let hueValue = Math.atan(pointY / pointX) / Math.PI;
             if(pointX < 0) {
                 hueValue = 1 + hueValue;
@@ -68,7 +68,7 @@ Item {
             border.width: 2
             border.color: root.color.hsvValue > 0.5? "#000000": "#FFFFFF"
             x: centerX - Math.floor(width / 2)
-            y: centerY - Math.floor(width / 2)
+            y: centerY - Math.floor(height / 2)
         }
         Shape {
             id: hue
