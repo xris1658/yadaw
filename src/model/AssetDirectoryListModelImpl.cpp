@@ -168,10 +168,4 @@ void AssetDirectoryListModelImpl::remove(int id)
     }
 }
 
-void AssetDirectoryListModelImpl::clear()
-{
-    beginRemoveRows(QModelIndex(), 0, itemCount());
-    data_.clear();
-    endRemoveRows();
-}
 }

@@ -3,6 +3,10 @@
 
 #include "model/AssetDirectoryListModel.hpp"
 
+#include <QAbstractListModel>
+#include <QString>
+#include <QUrl>
+
 #include <vector>
 
 namespace YADAW::Model
@@ -24,7 +28,6 @@ public:
     Q_INVOKABLE void append(const QUrl& url) override;
     Q_INVOKABLE void rename(int id, const QString& name) override;
     Q_INVOKABLE void remove(int id) override;
-    Q_INVOKABLE void clear() override;
 private:
     std::vector<std::tuple<int, QString, QString>> data_;
 };

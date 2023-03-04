@@ -33,7 +33,6 @@ public:
     Q_INVOKABLE virtual void append(const QUrl& url) = 0;
     Q_INVOKABLE virtual void rename(int id, const QString& name) = 0;
     Q_INVOKABLE virtual void remove(int id) = 0;
-    Q_INVOKABLE virtual void clear() = 0;
 protected:
     RoleNames roleNames() const override
     {
