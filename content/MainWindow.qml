@@ -13,6 +13,7 @@ ApplicationWindow {
     property bool canClose: false
 
     property alias assetDirectoryListModel: assets.directoryListModel
+    property alias pluginDirectoryListModel: preferencesWindow.pluginDirectoryListModel
 
     Component.onCompleted: {
         EventReceiver.mainWindow = root;

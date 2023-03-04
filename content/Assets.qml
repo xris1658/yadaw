@@ -189,7 +189,7 @@ Rectangle {
                         id: addLocation
                         width: parent.width - 3 * 2
                         x: root.border.width + 3
-                        text: "Add..."
+                        text: qsTr("Add...")
                         rightPadding: 2
                         background: Rectangle {
                             width: addLocation.width

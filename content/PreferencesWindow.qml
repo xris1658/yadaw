@@ -11,6 +11,8 @@ Window {
     property int firstColumnWidth: 125
     property int secondColumnWidth: 275
 
+    property alias pluginDirectoryListModel: pluginSettings.directoryListModel
+
     width: 540
     height: 500
     minimumWidth: 540
@@ -57,6 +59,7 @@ Window {
                     secondColumnWidth: root.secondColumnWidth
                 }
                 PluginSettings {
+                id: pluginSettings
                     firstColumnWidth: root.firstColumnWidth
                     secondColumnWidth: root.secondColumnWidth
                 }

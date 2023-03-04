@@ -2,6 +2,7 @@
 
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
+#include "controller/PluginDirectoryController.hpp"
 #include "event/EventBase.hpp"
 #include "native/Native.hpp"
 #include "native/WindowsDarkModeSupport.hpp"
@@ -56,6 +57,8 @@ void EventHandler::onOpenMainWindow()
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
     YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAssetDirectoryListModel()));
+    YADAW::UI::mainWindow->setProperty("pluginDirectoryListModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appPluginDirectoryListModel()));
     setQtVersion(qVersion());
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
 }

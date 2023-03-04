@@ -4,6 +4,10 @@
 #include "model/PluginDirectoryListModel.hpp"
 
 #include <QAbstractListModel>
+#include <QString>
+#include <QUrl>
+
+#include <vector>
 
 namespace YADAW::Model
 {
@@ -20,9 +24,9 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 public:
-    Q_INVOKABLE void append(const QString& path);
-    Q_INVOKABLE void remove(int index);
-    Q_INVOKABLE void clear();
+    Q_INVOKABLE void append(const QString& path) override;
+    Q_INVOKABLE void append(const QUrl& url) override;
+    Q_INVOKABLE void remove(int index) override;
 public:
     std::vector<QString> data_;
 };

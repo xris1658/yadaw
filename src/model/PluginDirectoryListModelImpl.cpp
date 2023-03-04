@@ -1,10 +1,19 @@
 #include "PluginDirectoryListModelImpl.hpp"
 
+#include "dao/PluginDirectoryTable.hpp"
+
+#include <QDir>
+
 namespace YADAW::Model
 {
 PluginDirectoryListModelImpl::PluginDirectoryListModelImpl(QObject* parent):
     PluginDirectoryListModel(parent)
 {
+    try
+    {
+        data_ = YADAW::DAO::selectPluginDirectory();
+    }
+    catch(...) {}
 }
 
 PluginDirectoryListModelImpl::~PluginDirectoryListModelImpl()
@@ -63,9 +72,27 @@ void PluginDirectoryListModelImpl::append(const QString& path)
     if(std::find(data_.begin(), data_.end(), path) == data_.end())
     {
         auto size = itemCount();
-        beginInsertRows(QModelIndex(), size, size);
-        data_.emplace_back(path);
-        endInsertRows();
+        try
+        {
+            YADAW::DAO::addPluginDirectory(path);
+            beginInsertRows(QModelIndex(), size, size);
+            data_.emplace_back(path);
+            endInsertRows();
+        }
+        catch(...) {}
+    }
+}
+
+void PluginDirectoryListModelImpl::append(const QUrl& url)
+{
+    if(url.isLocalFile())
+    {
+        const auto& path = url.toLocalFile();
+        QDir dir(path);
+        if(dir.exists())
+        {
+            append(QDir::toNativeSeparators(dir.absolutePath()));
+        }
     }
 }
 
@@ -73,16 +100,15 @@ void PluginDirectoryListModelImpl::remove(int index)
 {
     if(index < itemCount() && index >= 0)
     {
-        beginRemoveRows(QModelIndex(), index, index);
-        data_.erase(data_.begin() + index);
-        endRemoveRows();
+        try
+        {
+            YADAW::DAO::removePluginDirectory(data_[index]);
+            beginRemoveRows(QModelIndex(), index, index);
+            data_.erase(data_.begin() + index);
+            endRemoveRows();
+        }
+        catch(...) {}
     }
 }
 
-void PluginDirectoryListModelImpl::clear()
-{
-    beginRemoveRows(QModelIndex(), 0, itemCount());
-    data_.clear();
-    endRemoveRows();
-}
 }

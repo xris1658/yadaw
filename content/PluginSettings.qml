@@ -1,10 +1,13 @@
 import QtQuick
+import QtQuick.Dialogs
 
 Item {
     id: root
 
     property int firstColumnWidth
     property int secondColumnWidth
+
+    property alias directoryListModel: pluginPathListView.model
 
     Grid {
         id: grid
@@ -43,14 +46,8 @@ Item {
                 ScrollBar.vertical: ScrollBar {
                     visible: pluginPathListView.contentHeight > pluginPathListView.height
                 }
-                model: ["C:\\VST64",
-                    "C:\\Program Files\\VSTPlugins",
-                    "C:\\Program Files\\Steinberg\\VSTPlugins",
-                    "C:\\Program Files\\Common Files\\VST3",
-                    "C:\\Program Files\\Common Files\\CLAP"
-                ]
                 delegate: ItemDelegate {
-                    text: modelData
+                    text: pdlm_path
                     width: pluginPathListView.width
                     highlighted: pluginPathListView.currentIndex === index
                     onClicked: {
@@ -71,12 +68,28 @@ Item {
                 id: buttonAddPath
                 anchors.left: parent.left
                 text: qsTr("&Add...")
+                FolderDialog {
+                    id: folderDialog
+                    onAccepted: {
+                        directoryListModel.append(folderDialog.currentFolder);
+                    }
+                }
+                onClicked: {
+                    folderDialog.open();
+                }
             }
             Button {
                 id: buttonRemovePath
                 anchors.left: buttonAddPath.right
                 anchors.leftMargin: leftPadding
                 text: qsTr("&Remove")
+                onClicked: {
+                    let currentIndex = pluginPathListView.currentIndex;
+                    if(pluginPathListView.currentIndex !== -1) {
+                        directoryListModel.remove(currentIndex);
+                        pluginPathListView.currentIndex = -1;
+                    }
+                }
             }
             Button {
                 id: buttonScan

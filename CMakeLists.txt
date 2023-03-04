@@ -97,6 +97,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/DatabaseController.hpp
     src/controller/PluginController.cpp
     src/controller/PluginController.hpp
+    src/controller/PluginDirectoryController.cpp
+    src/controller/PluginDirectoryController.hpp
     src/dao/AssetDirectoryTable.cpp
     src/dao/AssetDirectoryTable.hpp
     src/dao/Config.cpp

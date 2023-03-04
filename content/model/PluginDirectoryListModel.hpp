@@ -24,8 +24,8 @@ public:
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:
     Q_INVOKABLE virtual void append(const QString& path) = 0;
+    Q_INVOKABLE virtual void append(const QUrl& url) = 0;
     Q_INVOKABLE virtual void remove(int index) = 0;
-    Q_INVOKABLE virtual void clear() = 0;
 protected:
     RoleNames roleNames() const override
     {
