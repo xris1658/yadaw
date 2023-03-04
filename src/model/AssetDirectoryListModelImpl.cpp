@@ -1,10 +1,25 @@
 #include "AssetDirectoryListModelImpl.hpp"
 
+#include "dao/AssetDirectoryTable.hpp"
+
+#include <QDir>
+
 namespace YADAW::Model
 {
 AssetDirectoryListModelImpl::AssetDirectoryListModelImpl(QObject* parent):
     AssetDirectoryListModel(parent)
 {
+    try
+    {
+        const auto& list = YADAW::DAO::selectAllAssetDirectories();
+        for(const auto& [id, path, name]: list)
+        {
+            beginResetModel();
+            data_.emplace_back(id, path, name);
+            endResetModel();
+        }
+    }
+    catch(...) {}
 }
 
 AssetDirectoryListModelImpl::~AssetDirectoryListModelImpl()
@@ -77,34 +92,79 @@ bool AssetDirectoryListModelImpl::setData(const QModelIndex& index, const QVaria
     return false;
 }
 
-void AssetDirectoryListModelImpl::append(int id, const QString& path, const QString& name)
+void AssetDirectoryListModelImpl::append(const QString& path, const QString& name)
 {
     if(std::find_if(data_.begin(), data_.end(),
+        [&path](const auto& tuple)
+        {
+            const auto& [dataId, dataPath, dataName] = tuple;
+            return dataPath == path;
+        }) == data_.end())
+    {
+        auto size = itemCount();
+        try
+        {
+            auto id = YADAW::DAO::addAssetDirectory(path, name);
+            beginInsertRows(QModelIndex(), size, size);
+            data_.emplace_back(id, path, name);
+            endInsertRows();
+        }
+        catch(...) {}
+    }
+}
+
+void AssetDirectoryListModelImpl::append(const QUrl& url)
+{
+    if(url.isLocalFile())
+    {
+        const auto& path = url.toLocalFile();
+        QDir dir(path);
+        if(dir.exists())
+        {
+            append(QDir::toNativeSeparators(dir.absolutePath()), dir.dirName());
+        }
+    }
+}
+
+void AssetDirectoryListModelImpl::rename(int id, const QString& name)
+{
+    if(auto it = std::find_if(data_.begin(), data_.end(),
         [toFind = id](const auto& tuple)
         {
             const auto& [dataId, dataPath, dataName] = tuple;
             return dataId == toFind;
-        }) == data_.end())
+        }); it != data_.end())
     {
-        auto size = itemCount();
-        beginInsertRows(QModelIndex(), size, size);
-        data_.emplace_back(id, path, name);
+        auto row = std::distance(data_.begin(), it);
+        auto& [dataId, dataPath, dataName] = *it;
+        try
+        {
+            YADAW::DAO::updateAssetDirectoryName(id, name);
+        }
+        catch(...) {}
+        dataName = name;
+        dataChanged(index(row), index(row), {Role::Name});
     }
 }
 
 void AssetDirectoryListModelImpl::remove(int id)
 {
     if(auto it = std::find_if(data_.begin(), data_.end(),
-            [toFind = id](const auto& tuple)
-            {
-                const auto& [dataId, dataPath, dataName] = tuple;
-                return dataId == toFind;
-            }); it != data_.end())
+        [toFind = id](const auto& tuple)
+        {
+            const auto& [dataId, dataPath, dataName] = tuple;
+            return dataId == toFind;
+        }); it != data_.end())
     {
-        auto index = std::distance(data_.begin(), it);
-        beginRemoveRows(QModelIndex(), index, index);
-        data_.erase(it);
-        endRemoveRows();
+        try
+        {
+            YADAW::DAO::removeAssetDirectory(id);
+            auto row = std::distance(data_.begin(), it);
+            beginRemoveRows(QModelIndex(), row, row);
+            data_.erase(it);
+            endRemoveRows();
+        }
+        catch(...) {}
     }
 }
 

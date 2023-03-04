@@ -20,7 +20,9 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 public:
-    Q_INVOKABLE void append(int id, const QString& path, const QString& name) override;
+    Q_INVOKABLE void append(const QString& path, const QString& name) override;
+    Q_INVOKABLE void append(const QUrl& url) override;
+    Q_INVOKABLE void rename(int id, const QString& name) override;
     Q_INVOKABLE void remove(int id) override;
     Q_INVOKABLE void clear() override;
 private:

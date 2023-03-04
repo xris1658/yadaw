@@ -2,11 +2,10 @@
 
 #include "native/Native.hpp"
 
-#include <QQuickWindow>
-
 namespace YADAW::UI
 {
 QQmlApplicationEngine* qmlApplicationEngine = nullptr;
+QQuickWindow* mainWindow = nullptr;
 
 void setSystemRender()
 {

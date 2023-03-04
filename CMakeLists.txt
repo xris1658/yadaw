@@ -86,6 +86,8 @@ set(YADAW_COMMON_SOURCES
     src/base/Constants.hpp
     src/controller/AppController.cpp
     src/controller/AppController.hpp
+    src/controller/AssetDirectoryController.cpp
+    src/controller/AssetDirectoryController.hpp
     src/controller/AudioBackendController.cpp
     src/controller/AudioBackendController.hpp
     src/controller/AudioEngineController.hpp

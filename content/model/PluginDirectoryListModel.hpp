@@ -31,7 +31,7 @@ protected:
     {
         static RoleNames ret
         {
-            std::make_pair(Role::Path, "path")
+            std::make_pair(Role::Path, "pdlm_path")
         };
         return ret;
     }

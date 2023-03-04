@@ -359,4 +359,11 @@ std::vector<QString>& defaultPluginDirectoryList()
     }
     return ret;
 }
+
+void locateFileInExplorer(const QString& path)
+{
+    std::wstring arg(L"/select,");
+    arg.append(path.toStdWString());
+    ShellExecuteW(NULL, L"open", L"explorer.exe", arg.data(), NULL, SW_SHOWNORMAL);
+}
 }

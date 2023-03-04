@@ -4,6 +4,8 @@
 #include "ModelBase.hpp"
 
 #include <QAbstractListModel>
+#include <QString>
+#include <QUrl>
 
 #include <utility>
 
@@ -27,7 +29,9 @@ public:
     static constexpr int columnCount() { return RoleCount - Qt::UserRole; }
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:
-    Q_INVOKABLE virtual void append(int id, const QString& path, const QString& name) = 0;
+    Q_INVOKABLE virtual void append(const QString& path, const QString& name) = 0;
+    Q_INVOKABLE virtual void append(const QUrl& url) = 0;
+    Q_INVOKABLE virtual void rename(int id, const QString& name) = 0;
     Q_INVOKABLE virtual void remove(int id) = 0;
     Q_INVOKABLE virtual void clear() = 0;
 protected:
@@ -35,9 +39,9 @@ protected:
     {
         static RoleNames ret
         {
-            std::make_pair(Role::Id, "pathId"),
-            std::make_pair(Role::Path, "path"),
-            std::make_pair(Role::Name, "name")
+            std::make_pair(Role::Id,   "adlm_id"),
+            std::make_pair(Role::Path, "adlm_path"),
+            std::make_pair(Role::Name, "adlm_name")
         };
         return ret;
     }

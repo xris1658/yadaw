@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
         }
         else if(objUrl == url)
         {
+            YADAW::UI::mainWindow = qobject_cast<QQuickWindow*>(obj);
             YADAW::Native::WindowsDarkModeSupport::instance()->addWindow(qobject_cast<QWindow*>(obj));
         }
     }, Qt::DirectConnection);

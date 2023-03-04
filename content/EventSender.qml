@@ -7,4 +7,5 @@ QtObject {
     signal mainWindowClosing()
     signal addWindowForDarkModeSupport()
     signal removeWindowForDarkModeSupport()
+    signal locatePathInExplorer(path: string)
 }

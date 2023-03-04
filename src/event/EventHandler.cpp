@@ -1,7 +1,9 @@
 #include "EventHandler.hpp"
 
 #include "controller/AppController.hpp"
+#include "controller/AssetDirectoryController.hpp"
 #include "event/EventBase.hpp"
+#include "native/Native.hpp"
 #include "native/WindowsDarkModeSupport.hpp"
 #include "ui/UI.hpp"
 
@@ -26,6 +28,8 @@ void EventHandler::connectToEventSender(QObject* eventSender)
         this, SLOT(onAddWindowForDarkModeSupport()));
     QObject::connect(eventSender, SIGNAL(removeWindowForDarkModeSupport()),
         this, SLOT(onRemoveWindowForDarkModeSupport()));
+    QObject::connect(eventSender, SIGNAL(locatePathInExplorer(QString)),
+        this, SLOT(onLocateFileInExplorer(QString)));
 }
 
 void EventHandler::connectToEventReceiver(QObject* eventReceiver)
@@ -50,6 +54,8 @@ void EventHandler::onOpenMainWindow()
 {
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
+    YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appAssetDirectoryListModel()));
     setQtVersion(qVersion());
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
 }
@@ -70,5 +76,10 @@ void EventHandler::onRemoveWindowForDarkModeSupport()
 {
     QObject* object = eventSender_->property("darkModeSupportWindow").value<QObject*>();
     YADAW::Native::WindowsDarkModeSupport::instance()->removeWindow(qobject_cast<QWindow*>(object));
+}
+
+void EventHandler::onLocateFileInExplorer(const QString& path)
+{
+    YADAW::Native::locateFileInExplorer(path);
 }
 }

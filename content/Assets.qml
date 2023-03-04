@@ -1,4 +1,6 @@
+import QtQml
 import QtQuick
+import QtQuick.Dialogs
 
 Rectangle {
     id: root
@@ -7,7 +9,45 @@ Rectangle {
 
     readonly property int preferredWidth: searchTextBox.height * 15
 
+    property alias directoryListModel: directoryList.model
+
     clip: true
+
+    Menu {
+        id: assetDirectoryOptions
+        title: qsTr("Asset directory options")
+        Action {
+            text: qsTr("&Locate in Explorer")
+            onTriggered: {
+                EventSender.locatePathInExplorer(assetDirectoryOptions.parent.pathPath);
+            }
+        }
+        Action {
+            text: qsTr("Rena&me")
+            onTriggered: {
+                assetDirectoryOptions.parent.rename();
+            }
+        }
+        Action {
+            text: qsTr("Remove from &Directories")
+            onTriggered: {
+                assetDirectoryOptions.parent.remove();
+            }
+        }
+    }
+
+    TextField {
+        id: assetDirectoryRenameTextField
+        visible: false
+        padding: 2
+        Keys.onEscapePressed: (event) => {
+            visible = false;
+        }
+        onAccepted: {
+            parent.renameAccepted(text);
+            visible = false;
+        }
+    }
 
     TextField {
         id: searchTextBox
@@ -75,14 +115,17 @@ Rectangle {
                     elide: Text.ElideRight
                 }
                 ListView {
-                    model: ["Assets", "My Samples"]
+                    id: directoryList
                     width: parent.width
                     height: contentHeight
                     delegate: ItemDelegate {
                         id: control
-                        width: parent.width - 3 * 2
+                        property string pathId: adlm_id
+                        property string pathPath: adlm_path
+                        property string pathName: adlm_name
+                        width: parent? parent.width - 3 * 2: 0
                         x: root.border.width + 3
-                        text: modelData
+                        text: pathName
                         leftPadding: height
                         rightPadding: 2
                         topPadding: 2
@@ -98,6 +141,19 @@ Rectangle {
                                 control.highlighted? Colors.highlightControlBackground:
                                 control.hovered? Colors.mouseOverControlBackground: Colors.background
                         }
+                        MouseArea {
+                            id: mouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            acceptedButtons: Qt.RightButton
+                            onClicked: {
+                                assetDirectoryOptions.parent = control;
+                                assetDirectoryOptions.x = mouseX;
+                                assetDirectoryOptions.y = mouseY;
+                                assetDirectoryOptions.open();
+                                assetDirectoryOptions.forceActiveFocus();
+                            }
+                        }
                         FolderIcon {
                             readonly property double effectiveWidth: originalWidth * scale
                             readonly property double effectiveHeight: originalHeight * scale
@@ -107,6 +163,26 @@ Rectangle {
                             scale: (parent.height - parent.topPadding - parent.bottomPadding) * 0.8 / originalHeight
                             path.strokeColor: "transparent"
                             path.fillColor: Colors.secondaryContent
+                        }
+                        signal rename()
+                        onRename: {
+                            assetDirectoryRenameTextField.parent = this;
+                            assetDirectoryRenameTextField.visible = true;
+                            assetDirectoryRenameTextField.x = control.height - assetDirectoryRenameTextField.leftPadding;
+                            assetDirectoryRenameTextField.width = control.width - control.height + assetDirectoryRenameTextField.leftPadding;
+                            assetDirectoryRenameTextField.height = control.height;
+                            assetDirectoryRenameTextField.text = control.pathName;
+                            assetDirectoryRenameTextField.selectAll();
+                            assetDirectoryRenameTextField.forceActiveFocus();
+                            assetDirectoryRenameTextField.visible = true;
+                        }
+                        signal renameAccepted(name: string)
+                        onRenameAccepted: (name) => {
+                            directoryListModel.rename(pathId, name);
+                        }
+                        signal remove()
+                        onRemove: {
+                            directoryListModel.remove(pathId);
                         }
                     }
                     footer: ItemDelegate {
@@ -125,6 +201,15 @@ Rectangle {
                             color: (!addLocation.enabled)? Colors.background:
                                 addLocation.highlighted? Colors.highlightControlBackground:
                                 addLocation.hovered? Colors.mouseOverControlBackground: Colors.background
+                        }
+                        FolderDialog {
+                            id: folderDialog
+                            onAccepted: {
+                                directoryListModel.append(folderDialog.currentFolder);
+                            }
+                        }
+                        onClicked: {
+                            folderDialog.open();
                         }
                     }
                 }

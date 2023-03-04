@@ -13,16 +13,17 @@ public:
 private:
     void connectToEventSender(QObject* eventSender);
     void connectToEventReceiver(QObject* eventReceiver);
+signals:
+    void mainWindowCloseAccepted();
+    void setQtVersion(const QString& version);
+    void setSplashScreenText(const QString& text);
 public slots:
     void onStartInitializingApplication();
     void onOpenMainWindow();
     void onMainWindowClosing();
     void onAddWindowForDarkModeSupport();
     void onRemoveWindowForDarkModeSupport();
-signals:
-    void mainWindowCloseAccepted();
-    void setQtVersion(const QString& version);
-    void setSplashScreenText(const QString& text);
+    void onLocateFileInExplorer(const QString& path);
 private:
     QObject* eventSender_;
     QObject* eventReceiver_;

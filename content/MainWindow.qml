@@ -12,6 +12,8 @@ ApplicationWindow {
 
     property bool canClose: false
 
+    property alias assetDirectoryListModel: assets.directoryListModel
+
     Component.onCompleted: {
         EventReceiver.mainWindow = root;
     }
