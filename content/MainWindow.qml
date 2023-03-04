@@ -21,6 +21,7 @@ ApplicationWindow {
 
     onClosing: (close) => {
         if(!canClose) {
+            preferencesWindow.close();
             close.accepted = false;
             EventSender.mainWindowClosing();
         }
