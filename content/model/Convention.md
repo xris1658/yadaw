@@ -17,13 +17,19 @@ For example, class `AssetDirectoryListModel` has its roles and role names as fol
 - `Name` named `adlm_name`
 
 ## Roles
-- Define roles using nested `enum`.
+- Define roles using nested unscoped `enum`.
   - Always assign the first enumerator with `Qt::UserRole`.
   - Always end the enumerators with `RoleCount`.
+  - With roles defined as such, add a member function
+    ```cpp
+    public:
+        static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
+    ```
 
-With roles defined like this, `columnCount()` and `columnCount(const QModelIndex&)` can be implemented as follows:
+## Some member functions
+Implement `columnCount()` and `columnCount(const QModelIndex&)` as follows:
 ```cpp
 public:
-    static constexpr int columnCount() { return RoleCount - Qt::UserRole; }
+    static constexpr int columnCount() { return 1; }
     int columnCount(const QModelIndex&) const override final { rturn columnCount(); }
 ```

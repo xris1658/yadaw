@@ -20,7 +20,8 @@ public:
     PluginDirectoryListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
     virtual ~PluginDirectoryListModel() override {}
 public:
-    static constexpr int columnCount() { return RoleCount - Qt::UserRole; }
+    static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
+    static constexpr int columnCount() { return 1; }
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:
     Q_INVOKABLE virtual void append(const QString& path) = 0;
