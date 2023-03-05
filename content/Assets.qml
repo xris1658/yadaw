@@ -241,7 +241,7 @@ Rectangle {
                         }
                         ListElement {
                             name: "Audio Effects"
-                            iconSource: "Audio.qml"
+                            iconSource: "AudioIcon.qml"
                         }
                     }
 
