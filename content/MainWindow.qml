@@ -305,9 +305,29 @@ ApplicationWindow {
             Menu {
                 id: menuShowMasterTrack
                 title: qsTr("Master Track")
+                MenuItem {
+                    text: qsTr("&Hide")
+                    checkable: true
+                    showIndicatorAsRadio: true
+                }
+                MenuItem {
+                    text: qsTr("&Top")
+                    checkable: true
+                    showIndicatorAsRadio: true
+                }
+                MenuItem {
+                    text: qsTr("&Bottom")
+                    checkable: true
+                    showIndicatorAsRadio: true
+                }
             }
             Menu {
                 title: qsTr("Arrangement Snap Unit")
+                MenuSeparator {}
+                MenuItem {
+                    text: qsTr("Triplets")
+                    checkable: true
+                }
             }
             Menu {
                 title: qsTr("Editor Snap Unit")

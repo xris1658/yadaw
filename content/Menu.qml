@@ -24,6 +24,10 @@ T.Menu {
         interactive: false // TODO
         highlightMoveDuration: 0
         highlightResizeDuration: 0
+        ScrollBar.vertical: ScrollBar {
+            id: scrollBar
+            visible: listView.contentHeight > listView.height
+        }
     }
     delegate: MenuItem {
         z: 1
@@ -32,6 +36,9 @@ T.Menu {
         for(let i = 0; i < root.count; ++i) {
             let item = root.itemAt(i);
             root.implicitWidth = Math.max(root.implicitWidth, item.implicitWidth);
+        }
+        if(scrollBar.visible) {
+            root.implicitWidth += scrollBar.width;
         }
     }
 }

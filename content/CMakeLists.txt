@@ -16,6 +16,7 @@ set(CONTENT_CPP_FILES
     model/AssetDirectoryListModel.hpp
     model/ModelBase.hpp
     model/PluginDirectoryListModel.hpp
+    model/PluginListModel.hpp
     )
 
 set(CONTENT_QML_FILES
@@ -42,6 +43,7 @@ set(CONTENT_QML_FILES
     FollowIcon.qml
     GeneralSettings.qml
     Global.qml
+    GroupIcon.qml
     ItemDelegate.qml
     Label.qml
     LoopIcon.qml
@@ -62,6 +64,7 @@ set(CONTENT_QML_FILES
     ProgressBar.qml
     ScrollBar.qml
     Slider.qml
+    SortIcon.qml
     SplashScreen.qml
     SplitView.qml
     Switch.qml

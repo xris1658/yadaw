@@ -11,6 +11,8 @@ AboutWindow 1.0 AboutWindow.qml
 Action 1.0 Action.qml
 ApplicationWindow 1.0 ApplicationWindow.qml
 Assets 1.0 Assets.qml
+AudioIcon 1.0 AudioIcon.qml
+AudioGraphSettings 1.0 AudioHardwareSettings.qml
 AudioHardwareSettings 1.0 AudioHardwareSettings.qml
 BigClock 1.0 BigClock.qml
 Button 1.0 Button.qml
@@ -20,6 +22,7 @@ ComboBox 1.0 ComboBox.qml
 Detail 1.0 Detail.qml
 FollowIcon 1.0 FollowIcon.qml
 GeneralSettings 1.0 GeneralSettings.qml
+GroupIcon 1.0 GroupIcon.qml
 LoopIcon 1.0 LoopIcon.qml
 MainWindow 1.0 MainWindow.qml
 Menu 1.0 Menu.qml
@@ -34,6 +37,7 @@ PreferencesWindow 1.0 PreferencesWindow.qml
 ProgressBar 1.0 ProgressBar.qml
 ScrollBar 1.0 ScrollBar.qml
 Slider 1.0 Slider.qml
+SortIcon 1.0 SortIcon.qml
 SplashScreen 1.0 SplashScreen.qml
 TabBar 1.0 TabBar.qml
 TabButton 1.0 TabButton.qml

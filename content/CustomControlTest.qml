@@ -4,7 +4,7 @@ import QtQuick.Shapes
 ApplicationWindow {
     id: root
     width: 840
-    height: 840
+    height: 720
     visible: true
 
     menuBar: MenuBar {
@@ -166,39 +166,59 @@ ApplicationWindow {
             CheckBox {
                 checked: true
                 enabled: false
-                width: 50
                 text: "Checked (disabled)"
             }
+            CheckBox {
+                width: 50
+                text: "Checked (explicit width)"
+            }
+            CheckBox {
+                height: 50
+                text: "Checked (explicit height)"
+            }
         }
-        Rectangle {
-            width: 200
-            height: 200
-            color: "transparent"
-            border.color: Colors.controlBorder
-            Flickable {
-                clip: true
-                width: parent.width
-                height: parent.height
-                contentWidth: item.width
-                contentHeight: item.height
-                interactive: true
-                ScrollBar.vertical: ScrollBar {
-                    policy: ScrollBar.AsNeeded
-                }
-                Rectangle {
-                    id: item
-                    gradient: Gradient {
-                        GradientStop {
-                            position: 0
-                            color: "#6600ff"
-                        }
-                        GradientStop {
-                            position: 1
-                            color: "#ff0066"
-                        }
+        Row {
+            spacing: 16
+            Rectangle {
+                width: colorPicker.width
+                height: colorPicker.height
+                color: "transparent"
+                border.color: Colors.controlBorder
+                Flickable {
+                    clip: true
+                    width: parent.width
+                    height: parent.height
+                    contentWidth: item.width
+                    contentHeight: item.height
+                    interactive: true
+                    ScrollBar.vertical: ScrollBar {
+                        policy: ScrollBar.AsNeeded
                     }
-                    width: 200
-                    height: 300
+                    Rectangle {
+                        id: item
+                        gradient: Gradient {
+                            GradientStop {
+                                position: 0
+                                color: "#6600ff"
+                            }
+                            GradientStop {
+                                position: 1
+                                color: "#ff0066"
+                            }
+                        }
+                        width: 320
+                        height: 320
+                    }
+                }
+            }
+            Row {
+                ColorPicker {
+                    id: colorPicker
+                    color: "#C00000"
+                }
+                Slider {
+                    orientation: Qt.Vertical
+                    length: colorPicker.radius * 2
                 }
             }
         }
@@ -225,20 +245,6 @@ ApplicationWindow {
         ProgressBar {
             width: 500
             indeterminate: true
-        }
-        Slider {
-            orientation: Qt.Horizontal
-            length: colorPicker.radius * 2
-        }
-        Row {
-            ColorPicker {
-                id: colorPicker
-                color: "#C00000"
-            }
-            Slider {
-                orientation: Qt.Vertical
-                length: colorPicker.radius * 2
-            }
         }
     }
 }
