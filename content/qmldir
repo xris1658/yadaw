@@ -12,7 +12,7 @@ Action 1.0 Action.qml
 ApplicationWindow 1.0 ApplicationWindow.qml
 Assets 1.0 Assets.qml
 AudioIcon 1.0 AudioIcon.qml
-AudioGraphSettings 1.0 AudioHardwareSettings.qml
+AudioGraphSettings 1.0 AudioGraphSettings.qml
 AudioHardwareSettings 1.0 AudioHardwareSettings.qml
 BigClock 1.0 BigClock.qml
 Button 1.0 Button.qml
