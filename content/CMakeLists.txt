@@ -25,7 +25,7 @@ set(CONTENT_QML_FILES
     Action.qml
     ApplicationWindow.qml
     Assets.qml
-    Audio.qml
+    AudioIcon.qml
     AudioGraphSettings.qml
     AudioHardwareSettings.qml
     BigClock.qml
