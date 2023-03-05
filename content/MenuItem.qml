@@ -9,6 +9,8 @@ T.MenuItem {
 
     property int minimumSpaceBetweenTextAndShortcut: 30
 
+    property bool showIndicatorAsRadio: false
+
     clip: false
     padding: 2
     implicitWidth: contentItem.implicitWidth + 2 * height
@@ -72,14 +74,52 @@ T.MenuItem {
             }
         }
     }
-    indicator: CheckBox {
-        anchors.left: parent.left
-        anchors.leftMargin: (root.height - height) / 2
-        anchors.verticalCenter: parent.verticalCenter
+    indicator: Item {
         width: height
-        height: contentText.font.pixelSize
-        enabled: root.enabled
-        visible: root.checkable
-        checked: root.checked
+        height: root.height
+        Rectangle {
+            anchors.centerIn: parent
+            width: height
+            height: contentText.font.pixelSize / 2
+            radius: width / 2
+            color: Colors.content
+            visible: root.showIndicatorAsRadio && root.checked
+        }
+        Rectangle {
+            width: height
+            height: contentText.font.pixelSize
+            anchors.left: parent.left
+            anchors.leftMargin: (root.height - height) / 2
+            anchors.verticalCenter: parent.verticalCenter
+            color: "transparent"
+            border.color: Colors.controlBorder
+            visible: root.checkable && (!root.showIndicatorAsRadio)
+            Shape {
+                width: 80
+                height: 80
+                transformOrigin: Item.Center
+                scale: parent.width > parent.height?
+                    (parent.height - 2) / height:
+                    (parent.width - 2) / width
+                anchors.centerIn: parent
+                visible: root.checked
+                layer.enabled: true
+                layer.smooth: true
+                layer.samples: 2
+                ShapePath {
+                    strokeWidth: 1
+                    strokeColor: fillColor
+                    startX: 10; startY: 30
+                    PathLine { x: 30; y: 50 }
+                    PathLine { x: 70; y: 10 }
+                    PathLine { x: 70; y: 30 }
+                    PathLine { x: 30; y: 70 }
+                    PathLine { x: 10; y: 50 }
+                    PathLine { x: 10; y: 30 }
+                    fillColor: root.enabled? Colors.content: Colors.disabledContent
+                    fillRule: ShapePath.WindingFill
+                }
+            }
+        }
     }
 }
