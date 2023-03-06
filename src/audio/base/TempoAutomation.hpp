@@ -3,8 +3,8 @@
 
 #include "Automation.hpp"
 #include "Chrono.hpp"
-#include "src/util/Integration.hpp"
-#include "src/util/QuadraticFunction.hpp"
+#include "util/Integration.hpp"
+#include "util/QuadraticFunction.hpp"
 
 #include <cmath>
 #include <stdexcept>

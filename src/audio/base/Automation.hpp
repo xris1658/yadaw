@@ -1,7 +1,7 @@
 #ifndef YADAW_AUDIO_BASE_AUTOMATION
 #define YADAW_AUDIO_BASE_AUTOMATION
 
-#include "src/util/QuadraticFunction.hpp"
+#include "util/QuadraticFunction.hpp"
 
 #include <algorithm>
 #include <stdexcept>

@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_BASE_STEREOPANNING
 #define YADAW_SRC_AUDIO_BASE_STEREOPANNING
 
-#include "src/util/Constants.hpp"
+#include "util/Constants.hpp"
 
 namespace YADAW::Audio::Base
 {
