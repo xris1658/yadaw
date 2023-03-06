@@ -26,6 +26,13 @@ const char16_t* insertPluginCategoryCommand()
     return ret;
 }
 
+const char16_t* removeAllPluginCategoriesCommand()
+{
+    static char16_t ret[] =
+        u"DELETE FROM plugin_category";
+    return ret;
+}
+
 const char16_t* removePluginByIdCommand()
 {
     static char16_t ret[] =
@@ -77,6 +84,11 @@ void insertPluginCategory(int id, const std::vector<QString>& categories, sqlite
             << id
             << u16DataFromQString(category);
     }
+}
+
+void removeAllPluginCategories(sqlite::database& database)
+{
+    database << Impl::removeAllPluginCategoriesCommand();
 }
 
 void removePluginById(int id, sqlite::database& database)

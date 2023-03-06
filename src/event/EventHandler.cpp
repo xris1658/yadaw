@@ -98,6 +98,8 @@ void EventHandler::onStartPluginScan()
 {
     std::thread([this]()
     {
+        YADAW::DAO::removeAllPluginCategories();
+        YADAW::DAO::removeAllPlugins();
         YADAW::Controller::appPluginListModel().clear();
         YADAW::Controller::appMIDIEffectListModel().clear();
         YADAW::Controller::appInstrumentListModel().clear();
@@ -113,10 +115,11 @@ void EventHandler::onStartPluginScan()
                 libLists.emplace_back(YADAW::Controller::scanDirectory(dir, true, true/*FIXME*/));
             }
         }
-        for(const auto& libList: libLists)
+        for(auto& libList: libLists)
         {
-            for(const auto& lib: libList)
+            for(auto& lib: libList)
             {
+                lib = QDir::toNativeSeparators(lib);
                 const auto& results = YADAW::Controller::scanSingleLibraryFile(lib);
                 for(const auto& result: results)
                 {

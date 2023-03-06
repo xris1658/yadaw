@@ -27,6 +27,8 @@ void createPluginCategoryTable(sqlite::database& database = appDatabase());
 
 void insertPluginCategory(int id, const std::vector<QString>& categories, sqlite::database& database = appDatabase());
 
+void removeAllPluginCategories(sqlite::database& database = appDatabase());
+
 void removePluginById(int id, sqlite::database& database = appDatabase());
 
 std::vector<int> selectByCategoryName(const QString& categoryName, sqlite::database& database = appDatabase());
