@@ -73,6 +73,10 @@ void removeAllPlugins(sqlite::database& database = appDatabase());
 
 std::vector<PluginInfoInDatabase> selectAllPlugin(sqlite::database& database = appDatabase());
 
+std::vector<PluginInfoInDatabase> selectPluginByType(PluginType type, sqlite::database& database = appDatabase());
+
+std::vector<PluginInfoInDatabase> selectPluginByFormat(PluginFormat format, sqlite::database& database = appDatabase());
+
 int getAllPluginCount(sqlite::database& database = appDatabase());
 
 PluginInfoInDatabase selectPluginById(int id, sqlite::database& database = appDatabase());

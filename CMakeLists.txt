@@ -99,6 +99,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/PluginController.hpp
     src/controller/PluginDirectoryController.cpp
     src/controller/PluginDirectoryController.hpp
+    src/controller/PluginListController.cpp
+    src/controller/PluginListController.hpp
     src/dao/AssetDirectoryTable.cpp
     src/dao/AssetDirectoryTable.hpp
     src/dao/Config.cpp
@@ -129,6 +131,8 @@ set(YADAW_COMMON_SOURCES
     src/model/ModelInitializer.hpp
     src/model/PluginDirectoryListModelImpl.cpp
     src/model/PluginDirectoryListModelImpl.hpp
+    src/model/PluginListModelImpl.cpp
+    src/model/PluginListModelImpl.hpp
     src/native/AudioGraphBackend.cpp
     src/native/AudioGraphBackendImpl.cpp
     src/native/AudioGraphBackendImpl.hpp

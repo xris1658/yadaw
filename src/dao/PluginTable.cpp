@@ -62,6 +62,18 @@ const char16_t* selectPluginByIdCommand()
         u"SELECT * FROM plugin WHERE id = ?";
     return ret;
 }
+const char16_t* selectPluginByTypeCommand()
+{
+    static char16_t ret[] =
+        u"SELECT * From plugin WHERE type = ?";
+    return ret;
+}
+const char16_t* selectPluginByFormatCommand()
+{
+    static char16_t ret[] =
+        u"SELECT * From plugin WHERE format = ?";
+    return ret;
+}
 const char16_t* selectCountOfPluginByPathCommand()
 {
     static char16_t ret[] =
@@ -142,6 +154,58 @@ std::vector<PluginInfoInDatabase> selectAllPlugin(sqlite::database& database)
                 format,
                 type);
         };
+    return ret;
+}
+
+std::vector<PluginInfoInDatabase> selectPluginByType(PluginType type, sqlite::database& database)
+{
+    std::vector<PluginInfoInDatabase> ret;
+    ret.reserve(getAllPluginCount());
+    database << Impl::selectPluginByTypeCommand() << int(type)
+        >> [&ret](int id,
+            const std::u16string& path,
+            const std::vector<char>& uid,
+            const std::u16string& name,
+            const std::u16string& vendor,
+            const std::u16string& version,
+            int format,
+            int type)
+        {
+            ret.emplace_back(id,
+                QString::fromStdU16String(path),
+                uid,
+                QString::fromStdU16String(name),
+                QString::fromStdU16String(vendor),
+                QString::fromStdU16String(version),
+                format,
+                type);
+        };
+    return ret;
+}
+
+std::vector<PluginInfoInDatabase> selectPluginByFormat(PluginFormat format, sqlite::database& database)
+{
+    std::vector<PluginInfoInDatabase> ret;
+    ret.reserve(getAllPluginCount());
+    database << Impl::selectPluginByFormatCommand() << int(format)
+        >> [&ret](int id,
+            const std::u16string& path,
+            const std::vector<char>& uid,
+            const std::u16string& name,
+            const std::u16string& vendor,
+            const std::u16string& version,
+            int format,
+            int type)
+        {
+            ret.emplace_back(id,
+                QString::fromStdU16String(path),
+                uid,
+                QString::fromStdU16String(name),
+                QString::fromStdU16String(vendor),
+                QString::fromStdU16String(version),
+                format,
+                type);
+         };
     return ret;
 }
 
