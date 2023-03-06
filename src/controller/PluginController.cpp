@@ -355,6 +355,10 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                         else
                         {
                             featureCollection.emplace_back(QString::fromUtf8(feature));
+                            if(std::strcmp(feature, CLAP_PLUGIN_FEATURE_ANALYZER) == 0)
+                            {
+                                isAudioEffect = true;
+                            }
                         }
                     }
                     std::vector<char> uid(std::strlen(descriptor->id) + 1, 0);
