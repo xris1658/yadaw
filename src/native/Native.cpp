@@ -15,6 +15,7 @@
 #include <charconv>
 #include <chrono>
 #include <cstring>
+#include <mutex>
 #include <stdexcept>
 
 namespace YADAW::Native
@@ -335,28 +336,30 @@ void sleepFor(std::chrono::steady_clock::duration duration)
     WaitForSingleObject(handle, INFINITE);
 }
 
-std::vector<QString>& defaultPluginDirectoryList()
+std::once_flag defaultPluginListFlag;
+
+const std::vector<QString>& defaultPluginDirectoryList()
 {
     static std::vector<QString> ret;
-    if(ret.empty())
+    std::call_once(defaultPluginListFlag, [&list = ret]() mutable
     {
-        ret.reserve(4);
+        list.reserve(4);
         auto programFilesPath = YADAW::Native::programFilesFolder();
         if(!programFilesPath.isEmpty())
         {
             // VST3
-            ret.emplace_back(QString(programFilesPath).append("\\Common Files\\VST3"));
+            list.emplace_back(QString(programFilesPath).append("\\Common Files\\VST3"));
             // CLAP
-            ret.emplace_back(QString(programFilesPath).append("\\Common Files\\CLAP"));
+            list.emplace_back(QString(programFilesPath).append("\\Common Files\\CLAP"));
         }
         auto localAppDataPath = YADAW::Native::localAppDataFolder();
         if(!localAppDataPath.isEmpty())
         {
-            ret.emplace_back(QString(localAppDataPath).append("\\Programs\\Common\\VST3"));
+            list.emplace_back(QString(localAppDataPath).append("\\Programs\\Common\\VST3"));
             // CLAP
-            ret.emplace_back(QString(localAppDataPath).append("\\Programs\\Common\\CLAP"));
+            list.emplace_back(QString(localAppDataPath).append("\\Programs\\Common\\CLAP"));
         }
-    }
+    });
     return ret;
 }
 

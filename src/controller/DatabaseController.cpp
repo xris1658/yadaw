@@ -1,5 +1,6 @@
 #include "DatabaseController.hpp"
 
+#include "controller/PluginDirectoryController.hpp"
 #include "dao/DAOBase.hpp"
 #include "dao/Database.hpp"
 
@@ -13,6 +14,7 @@ void initializeApplicationDatabase()
     if(!QFileInfo::exists(YADAW::DAO::appDatabasePath()))
     {
         YADAW::DAO::initDatabase(YADAW::DAO::appDatabase());
+        YADAW::Controller::initializePluginDirectory();
     }
 }
 }

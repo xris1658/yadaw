@@ -3,9 +3,13 @@
 
 #include "model/PluginDirectoryListModel.hpp"
 
+#include <vector>
+
 namespace YADAW::Controller
 {
 YADAW::Model::PluginDirectoryListModel& appPluginDirectoryListModel();
+
+void initializePluginDirectory();
 }
 
 #endif //YADAW_SRC_CONTROLLER_PLUGINDIRECTORYCONTROLLER
