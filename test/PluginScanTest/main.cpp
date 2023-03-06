@@ -69,4 +69,7 @@ int main(int argc, char** argv)
             std::printf("\n-----------------------------------------------------------------\n");
         }
     }
+    std::wprintf(L"Scan complete. Press any key to continue...");
+    std::getchar();
+    return 0;
 }
