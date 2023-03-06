@@ -1,5 +1,7 @@
 #include "PluginListModelImpl.hpp"
 
+#include <thread>
+
 namespace YADAW::Model
 {
 PluginListModelImpl::PluginListModelImpl(const std::function<List()>& updateListFunc, QObject* parent):
