@@ -182,6 +182,8 @@ set(YADAW_COMMON_SOURCES
     src/util/QmlUtil.hpp
     src/util/QuadraticFunction.cpp
     src/util/QuadraticFunction.hpp
+    src/util/SineFunction.cpp
+    src/util/SineFunction.hpp
     src/util/Stopwatch.hpp
     )
 
