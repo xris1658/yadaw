@@ -83,6 +83,7 @@ Item {
                 anchors.left: buttonAddPath.right
                 anchors.leftMargin: leftPadding
                 text: qsTr("&Remove")
+                enabled: pluginPathListView.currentIndex !== -1
                 onClicked: {
                     let currentIndex = pluginPathListView.currentIndex;
                     if(pluginPathListView.currentIndex !== -1) {

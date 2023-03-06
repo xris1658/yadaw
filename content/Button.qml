@@ -41,6 +41,7 @@ T.Button {
         text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? Mnemonic.text(root.text):
             root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? Mnemonic.textWithUnderline(root.text):
             root.text
+        color: root.enabled? Colors.content: Colors.disabledContent
         anchors.fill: root
         anchors.leftMargin: root.leftPadding
         anchors.rightMargin: root.rightPadding

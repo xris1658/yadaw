@@ -24,7 +24,7 @@ Window {
         ListView {
             id: listView
             SplitView.minimumWidth: contentWidth
-            SplitView.maximumWidth: root.width - firstColumnWidth - secondColumnWidth - 35
+            SplitView.maximumWidth: contentWidth
             model: ["General", "Audio Hardware", "Plugins"]
             boundsBehavior: ListView.StopAtBounds
             delegate: ItemDelegate {
