@@ -23,7 +23,7 @@ struct PluginScanResult
     std::vector<QString> pluginCategories;
 };
 
-std::vector<QString> scanDirectory(const QDir& dir, bool includeSymLink);
+std::vector<QString> scanDirectory(const QDir& dir, bool recursive, bool includeSymLink);
 
 std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path);
 }

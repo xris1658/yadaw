@@ -25,11 +25,11 @@ QLatin1StringView clapExt("clap");
 QString vst3Pattern("*.vst3");
 QString clapPattern("*.clap");
 
-std::vector<QString> scanDirectory(const QDir& dir, bool includeSymLink)
+std::vector<QString> scanDirectory(const QDir& dir, bool recursive, bool includeSymLink)
 {
     QStringList nameFilters({vst3Pattern, clapPattern});
     QDir::Filters filters = QDir::Filter::Files | QDir::Filter::Hidden;
-    auto entryInfoList = dir.entryInfoList(nameFilters,
+    const auto& entryInfoList = dir.entryInfoList(nameFilters,
         includeSymLink? filters: filters | QDir::Filter::NoSymLinks);
     std::vector<QString> ret; ret.reserve(entryInfoList.size());
     for(auto& entryInfo: entryInfoList)
@@ -46,7 +46,26 @@ std::vector<QString> scanDirectory(const QDir& dir, bool includeSymLink)
                 }
             }
         }
-        ret.emplace_back(entryInfo.absoluteFilePath());
+        else if(entryInfo.exists())
+        {
+            ret.emplace_back(entryInfo.absoluteFilePath());
+        }
+    }
+    if(recursive)
+    {
+        const auto& dirList = dir.entryInfoList(QDir::Filter::AllDirs | QDir::Filter::Hidden | QDir::Filter::NoDotAndDotDot);
+        for(auto& dirInfo: dirList)
+        {
+            if(dirInfo.isDir() && dirInfo.exists())
+            {
+                QDir dir(dirInfo.absoluteFilePath());
+                auto result = scanDirectory(dir, true, includeSymLink);
+                for(const auto& item: result)
+                {
+                    ret.emplace_back(std::move(item));
+                }
+            }
+        }
     }
     return ret;
 }
