@@ -9,10 +9,10 @@ class EventHandler: public QObject
 {
     Q_OBJECT
 public:
-    EventHandler(QObject* eventSender, QObject* eventReceiver, QObject* parent = nullptr);
+    EventHandler(QObject* sender, QObject* receiver, QObject* parent = nullptr);
 private:
-    void connectToEventSender(QObject* eventSender);
-    void connectToEventReceiver(QObject* eventReceiver);
+    void connectToEventSender(QObject* sender);
+    void connectToEventReceiver(QObject* receiver);
 signals:
     void mainWindowCloseAccepted();
     void setQtVersion(const QString& version);

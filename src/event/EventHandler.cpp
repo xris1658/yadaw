@@ -12,35 +12,35 @@
 
 namespace YADAW::Event
 {
-EventHandler::EventHandler(QObject* eventSender, QObject* eventReceiver, QObject* parent):
-    QObject(parent), eventSender_(eventSender), eventReceiver_(eventReceiver)
+EventHandler::EventHandler(QObject* sender, QObject* receiver, QObject* parent):
+    QObject(parent), eventSender_(sender), eventReceiver_(receiver)
 {
-    connectToEventSender(eventSender);
-    connectToEventReceiver(eventReceiver);
+    connectToEventSender(sender);
+    connectToEventReceiver(receiver);
 }
 
-void EventHandler::connectToEventSender(QObject* eventSender)
+void EventHandler::connectToEventSender(QObject* sender)
 {
-    QObject::connect(eventSender, SIGNAL(startInitializingApplication()),
+    QObject::connect(sender, SIGNAL(startInitializingApplication()),
         this, SLOT(onStartInitializingApplication()));
-    QObject::connect(eventSender, SIGNAL(mainWindowClosing()),
+    QObject::connect(sender, SIGNAL(mainWindowClosing()),
         this, SLOT(onMainWindowClosing()));
-    QObject::connect(eventSender, SIGNAL(addWindowForDarkModeSupport()),
+    QObject::connect(sender, SIGNAL(addWindowForDarkModeSupport()),
         this, SLOT(onAddWindowForDarkModeSupport()));
-    QObject::connect(eventSender, SIGNAL(removeWindowForDarkModeSupport()),
+    QObject::connect(sender, SIGNAL(removeWindowForDarkModeSupport()),
         this, SLOT(onRemoveWindowForDarkModeSupport()));
-    QObject::connect(eventSender, SIGNAL(locatePathInExplorer(QString)),
+    QObject::connect(sender, SIGNAL(locatePathInExplorer(QString)),
         this, SLOT(onLocateFileInExplorer(QString)));
 }
 
-void EventHandler::connectToEventReceiver(QObject* eventReceiver)
+void EventHandler::connectToEventReceiver(QObject* receiver)
 {
     QObject::connect(this, SIGNAL(mainWindowCloseAccepted()),
-        eventReceiver, SIGNAL(mainWindowClosingAccepted()));
+        receiver, SIGNAL(mainWindowClosingAccepted()));
     QObject::connect(this, SIGNAL(setQtVersion(QString)),
-        eventReceiver, SIGNAL(setQtVersion(QString)));
+        receiver, SIGNAL(setQtVersion(QString)));
     QObject::connect(this, SIGNAL(setSplashScreenText(QString)),
-        eventReceiver, SIGNAL(setSplashScreenText(QString)));
+        receiver, SIGNAL(setSplashScreenText(QString)));
 }
 
 void EventHandler::onStartInitializingApplication()
