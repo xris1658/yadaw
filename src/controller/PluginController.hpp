@@ -15,7 +15,6 @@
 namespace YADAW::Controller
 {
 using namespace YADAW::Audio::Plugin;
-using YADAW::Native::Library;
 
 struct PluginScanResult
 {
@@ -26,6 +25,8 @@ struct PluginScanResult
 std::vector<QString> scanDirectory(const QDir& dir, bool recursive, bool includeSymLink);
 
 std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path);
+
+void savePluginScanResult(const PluginScanResult& result);
 }
 
 #endif //YADAW_SRC_CONTROLLER_PLUGINCONTROLLER

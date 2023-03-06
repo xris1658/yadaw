@@ -1,22 +1,22 @@
-#ifndef YADAW_SRC_MODEL_PLUGINLISTMODELIMPL
-#define YADAW_SRC_MODEL_PLUGINLISTMODELIMPL
+#ifndef YADAW_SRC_MODEL_PLUGINLISTMODEL
+#define YADAW_SRC_MODEL_PLUGINLISTMODEL
 
 #include "dao/PluginTable.hpp"
-#include "model/PluginListModel.hpp"
+#include "model/IPluginListModel.hpp"
 
 #include <functional>
 
 namespace YADAW::Model
 {
-class PluginListModelImpl: public PluginListModel
+class PluginListModel: public IPluginListModel
 {
     Q_OBJECT
 private:
     using List = std::vector<YADAW::DAO::PluginInfoInDatabase>;
 public:
-    PluginListModelImpl(const std::function<List()>& updateListFunc, QObject* parent = nullptr);
-    PluginListModelImpl(std::function<List()>&& updateListFunc, QObject* parent = nullptr);
-    ~PluginListModelImpl() override;
+    PluginListModel(const std::function<List()>& updateListFunc, QObject* parent = nullptr);
+    PluginListModel(std::function<List()>&& updateListFunc, QObject* parent = nullptr);
+    ~PluginListModel() override;
 public:
     int itemCount() const;
 public:
@@ -25,7 +25,7 @@ public:
 public:
     Q_INVOKABLE void clear() override;
     Q_INVOKABLE void asyncUpdate() override;
-private:
+public:
     void update();
 private:
     std::function<List()> updateListFunc_;
@@ -33,4 +33,4 @@ private:
 };
 }
 
-#endif //YADAW_SRC_MODEL_PLUGINLISTMODELIMPL
+#endif //YADAW_SRC_MODEL_PLUGINLISTMODEL

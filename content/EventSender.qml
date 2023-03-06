@@ -8,4 +8,5 @@ QtObject {
     signal addWindowForDarkModeSupport()
     signal removeWindowForDarkModeSupport()
     signal locatePathInExplorer(path: string)
+    signal startPluginScan()
 }

@@ -1,4 +1,4 @@
-#include "AssetDirectoryListModelImpl.hpp"
+#include "AssetDirectoryListModel.hpp"
 
 #include "dao/AssetDirectoryTable.hpp"
 
@@ -6,8 +6,8 @@
 
 namespace YADAW::Model
 {
-AssetDirectoryListModelImpl::AssetDirectoryListModelImpl(QObject* parent):
-    AssetDirectoryListModel(parent)
+AssetDirectoryListModel::AssetDirectoryListModel(QObject* parent):
+    IAssetDirectoryListModel(parent)
 {
     try
     {
@@ -22,21 +22,21 @@ AssetDirectoryListModelImpl::AssetDirectoryListModelImpl(QObject* parent):
     catch(...) {}
 }
 
-AssetDirectoryListModelImpl::~AssetDirectoryListModelImpl()
+AssetDirectoryListModel::~AssetDirectoryListModel()
 {
 }
 
-int AssetDirectoryListModelImpl::itemCount() const
+int AssetDirectoryListModel::itemCount() const
 {
     return data_.size();
 }
 
-int AssetDirectoryListModelImpl::rowCount(const QModelIndex&) const
+int AssetDirectoryListModel::rowCount(const QModelIndex&) const
 {
     return itemCount();
 }
 
-QVariant AssetDirectoryListModelImpl::data(const QModelIndex& index, int role) const
+QVariant AssetDirectoryListModel::data(const QModelIndex& index, int role) const
 {
     int row = index.row();
     if(row >= 0 && row < itemCount())
@@ -57,7 +57,7 @@ QVariant AssetDirectoryListModelImpl::data(const QModelIndex& index, int role) c
     return {};
 }
 
-bool AssetDirectoryListModelImpl::setData(const QModelIndex& index, const QVariant& value, int role)
+bool AssetDirectoryListModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
     int row = index.row();
     if(row >= 0 && row < itemCount())
@@ -92,7 +92,7 @@ bool AssetDirectoryListModelImpl::setData(const QModelIndex& index, const QVaria
     return false;
 }
 
-void AssetDirectoryListModelImpl::append(const QString& path, const QString& name)
+void AssetDirectoryListModel::append(const QString& path, const QString& name)
 {
     if(std::find_if(data_.begin(), data_.end(),
         [&path](const auto& tuple)
@@ -113,7 +113,7 @@ void AssetDirectoryListModelImpl::append(const QString& path, const QString& nam
     }
 }
 
-void AssetDirectoryListModelImpl::append(const QUrl& url)
+void AssetDirectoryListModel::append(const QUrl& url)
 {
     if(url.isLocalFile())
     {
@@ -126,7 +126,7 @@ void AssetDirectoryListModelImpl::append(const QUrl& url)
     }
 }
 
-void AssetDirectoryListModelImpl::rename(int id, const QString& name)
+void AssetDirectoryListModel::rename(int id, const QString& name)
 {
     if(auto it = std::find_if(data_.begin(), data_.end(),
         [toFind = id](const auto& tuple)
@@ -147,7 +147,7 @@ void AssetDirectoryListModelImpl::rename(int id, const QString& name)
     }
 }
 
-void AssetDirectoryListModelImpl::remove(int id)
+void AssetDirectoryListModel::remove(int id)
 {
     if(auto it = std::find_if(data_.begin(), data_.end(),
         [toFind = id](const auto& tuple)

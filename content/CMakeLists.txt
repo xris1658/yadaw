@@ -13,10 +13,10 @@ set_source_files_properties(Colors.qml
 set(QT_QML_IMPORT_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/imports CACHE STRING "" FORCE)
 
 set(CONTENT_CPP_FILES
-    model/AssetDirectoryListModel.hpp
+    model/IAssetDirectoryListModel.hpp
     model/ModelBase.hpp
-    model/PluginDirectoryListModel.hpp
-    model/PluginListModel.hpp
+    model/IPluginDirectoryListModel.hpp
+    model/IPluginListModel.hpp
     )
 
 set(CONTENT_QML_FILES

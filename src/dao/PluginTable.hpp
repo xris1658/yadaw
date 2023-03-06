@@ -67,7 +67,7 @@ struct PluginInfoInDatabase
 
 void createPluginTable(sqlite::database& database = appDatabase());
 
-void insertPlugin(const PluginInfo& pluginWriteInfo, sqlite::database& database = appDatabase());
+int insertPlugin(const PluginInfo& pluginWriteInfo, sqlite::database& database = appDatabase());
 
 void removeAllPlugins(sqlite::database& database = appDatabase());
 

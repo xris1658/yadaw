@@ -1,7 +1,7 @@
-#ifndef YADAW_CONTENT_MODEL_PLUGINDIRECTORYLISTMODELIMPL
-#define YADAW_CONTENT_MODEL_PLUGINDIRECTORYLISTMODELIMPL
+#ifndef YADAW_CONTENT_MODEL_PLUGINDIRECTORYLISTMODEL
+#define YADAW_CONTENT_MODEL_PLUGINDIRECTORYLISTMODEL
 
-#include "model/PluginDirectoryListModel.hpp"
+#include "model/IPluginDirectoryListModel.hpp"
 
 #include <QAbstractListModel>
 #include <QString>
@@ -11,14 +11,16 @@
 
 namespace YADAW::Model
 {
-class PluginDirectoryListModelImpl: public PluginDirectoryListModel
+class PluginDirectoryListModel: public IPluginDirectoryListModel
 {
 Q_OBJECT
 public:
-    explicit PluginDirectoryListModelImpl(QObject* parent = nullptr);
-    ~PluginDirectoryListModelImpl() override;
+    explicit PluginDirectoryListModel(QObject* parent = nullptr);
+    ~PluginDirectoryListModel() override;
 public:
     int itemCount() const;
+    const QString& at(int i) const;
+    const QString& operator[](int i) const;
 public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
@@ -32,4 +34,4 @@ public:
 };
 }
 
-#endif //YADAW_CONTENT_MODEL_PLUGINDIRECTORYLISTMODELIMPL
+#endif //YADAW_CONTENT_MODEL_PLUGINDIRECTORYLISTMODEL

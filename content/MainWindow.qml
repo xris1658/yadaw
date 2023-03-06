@@ -15,6 +15,11 @@ ApplicationWindow {
     property alias assetDirectoryListModel: assets.directoryListModel
     property alias pluginDirectoryListModel: preferencesWindow.pluginDirectoryListModel
 
+    signal pluginScanComplete()
+    onPluginScanComplete: {
+        preferencesWindow.pluginScanComplete();
+    }
+
     Component.onCompleted: {
         EventReceiver.mainWindow = root;
     }
@@ -553,11 +558,11 @@ ApplicationWindow {
         }
     }
     footer: Label {
+        id: statusText
         leftPadding: 5
         rightPadding: leftPadding
         topPadding: 3
         bottomPadding: topPadding
-        id: statusText
         height: contentHeight + topPadding + bottomPadding
         elide: Text.ElideRight
         text: "Ready"
@@ -673,5 +678,9 @@ ApplicationWindow {
     PreferencesWindow {
         id: preferencesWindow
         color: root.color
+        onStartPluginScan: {
+            console.log("startPluginScan");
+            EventSender.startPluginScan();
+        }
     }
 }

@@ -7,7 +7,7 @@
 
 namespace YADAW::Controller
 {
-YADAW::Model::PluginDirectoryListModel& appPluginDirectoryListModel();
+Model::PluginDirectoryListModel& appPluginDirectoryListModel();
 
 void initializePluginDirectory();
 }

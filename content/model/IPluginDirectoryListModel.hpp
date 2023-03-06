@@ -1,5 +1,5 @@
-#ifndef YADAW_CONTENT_MODEL_PLUGINDIRECTORYLISTMODEL
-#define YADAW_CONTENT_MODEL_PLUGINDIRECTORYLISTMODEL
+#ifndef YADAW_CONTENT_MODEL_IPLUGINDIRECTORYLISTMODEL
+#define YADAW_CONTENT_MODEL_IPLUGINDIRECTORYLISTMODEL
 
 #include "ModelBase.hpp"
 
@@ -7,7 +7,7 @@
 
 namespace YADAW::Model
 {
-class PluginDirectoryListModel: public QAbstractListModel
+class IPluginDirectoryListModel: public QAbstractListModel
 {
     Q_OBJECT
 public:
@@ -17,8 +17,8 @@ public:
         RoleCount
     };
 public:
-    PluginDirectoryListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
-    virtual ~PluginDirectoryListModel() override {}
+    IPluginDirectoryListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
+    virtual ~IPluginDirectoryListModel() override {}
 public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
     static constexpr int columnCount() { return 1; }
@@ -39,4 +39,4 @@ protected:
 };
 }
 
-#endif //YADAW_CONTENT_MODEL_PLUGINDIRECTORYLISTMODEL
+#endif //YADAW_CONTENT_MODEL_IPLUGINDIRECTORYLISTMODEL

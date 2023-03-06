@@ -1,5 +1,5 @@
-#ifndef YADAW_CONTENT_MODEL_PLUGINLISTMODEL
-#define YADAW_CONTENT_MODEL_PLUGINLISTMODEL
+#ifndef YADAW_CONTENT_MODEL_IPLUGINLISTMODEL
+#define YADAW_CONTENT_MODEL_IPLUGINLISTMODEL
 
 #include "ModelBase.hpp"
 
@@ -7,7 +7,7 @@
 
 namespace YADAW::Model
 {
-class PluginListModel: public QAbstractListModel
+class IPluginListModel: public QAbstractListModel
 {
     Q_OBJECT
 public:
@@ -24,8 +24,8 @@ public:
         RoleCount
     };
 public:
-    PluginListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
-    virtual ~PluginListModel() {}
+    IPluginListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
+    virtual ~IPluginListModel() {}
 public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
     static constexpr int columnCount() { return 1; }
@@ -52,4 +52,4 @@ protected:
 };
 }
 
-#endif //YADAW_CONTENT_MODEL_PLUGINLISTMODEL
+#endif //YADAW_CONTENT_MODEL_IPLUGINLISTMODEL

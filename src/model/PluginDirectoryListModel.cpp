@@ -1,4 +1,4 @@
-#include "PluginDirectoryListModelImpl.hpp"
+#include "PluginDirectoryListModel.hpp"
 
 #include "dao/PluginDirectoryTable.hpp"
 
@@ -6,8 +6,8 @@
 
 namespace YADAW::Model
 {
-PluginDirectoryListModelImpl::PluginDirectoryListModelImpl(QObject* parent):
-    PluginDirectoryListModel(parent)
+PluginDirectoryListModel::PluginDirectoryListModel(QObject* parent):
+    IPluginDirectoryListModel(parent)
 {
     try
     {
@@ -16,21 +16,31 @@ PluginDirectoryListModelImpl::PluginDirectoryListModelImpl(QObject* parent):
     catch(...) {}
 }
 
-PluginDirectoryListModelImpl::~PluginDirectoryListModelImpl()
+PluginDirectoryListModel::~PluginDirectoryListModel()
 {
 }
 
-int PluginDirectoryListModelImpl::itemCount() const
+int PluginDirectoryListModel::itemCount() const
 {
     return data_.size();
 }
 
-int PluginDirectoryListModelImpl::rowCount(const QModelIndex&) const
+const QString& PluginDirectoryListModel::at(int i) const
+{
+    return data_.at(i);
+}
+
+const QString& PluginDirectoryListModel::operator[](int i) const
+{
+    return data_[i];
+}
+
+int PluginDirectoryListModel::rowCount(const QModelIndex&) const
 {
     return itemCount();
 }
 
-QVariant PluginDirectoryListModelImpl::data(const QModelIndex& index, int role) const
+QVariant PluginDirectoryListModel::data(const QModelIndex& index, int role) const
 {
     auto row = index.row();
     if(row < itemCount() && row >= 0)
@@ -44,7 +54,7 @@ QVariant PluginDirectoryListModelImpl::data(const QModelIndex& index, int role) 
     return {};
 }
 
-bool PluginDirectoryListModelImpl::setData(const QModelIndex& index, const QVariant& value, int role)
+bool PluginDirectoryListModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
     auto row = index.row();
     if(row < itemCount() && row >= 0)
@@ -67,7 +77,7 @@ bool PluginDirectoryListModelImpl::setData(const QModelIndex& index, const QVari
     return false;
 }
 
-void PluginDirectoryListModelImpl::append(const QString& path)
+void PluginDirectoryListModel::append(const QString& path)
 {
     if(std::find(data_.begin(), data_.end(), path) == data_.end())
     {
@@ -83,7 +93,7 @@ void PluginDirectoryListModelImpl::append(const QString& path)
     }
 }
 
-void PluginDirectoryListModelImpl::append(const QUrl& url)
+void PluginDirectoryListModel::append(const QUrl& url)
 {
     if(url.isLocalFile())
     {
@@ -96,7 +106,7 @@ void PluginDirectoryListModelImpl::append(const QUrl& url)
     }
 }
 
-void PluginDirectoryListModelImpl::remove(int index)
+void PluginDirectoryListModel::remove(int index)
 {
     if(index < itemCount() && index >= 0)
     {

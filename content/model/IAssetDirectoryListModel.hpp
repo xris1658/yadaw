@@ -1,5 +1,5 @@
-#ifndef YADAW_CONTENT_MODEL_ASSETDIRECTORYLISTMODEL
-#define YADAW_CONTENT_MODEL_ASSETDIRECTORYLISTMODEL
+#ifndef YADAW_CONTENT_MODEL_IASSETDIRECTORYLISTMODEL
+#define YADAW_CONTENT_MODEL_IASSETDIRECTORYLISTMODEL
 
 #include "ModelBase.hpp"
 
@@ -11,7 +11,7 @@
 
 namespace YADAW::Model
 {
-class AssetDirectoryListModel: public QAbstractListModel
+class IAssetDirectoryListModel: public QAbstractListModel
 {
     Q_OBJECT
 public:
@@ -23,8 +23,8 @@ public:
         RoleCount
     };
 public:
-    AssetDirectoryListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
-    virtual ~AssetDirectoryListModel() {}
+    IAssetDirectoryListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
+    virtual ~IAssetDirectoryListModel() {}
 public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
     static constexpr int columnCount() { return 1; }
@@ -48,4 +48,4 @@ protected:
 };
 }
 
-#endif //YADAW_CONTENT_MODEL_ASSETDIRECTORYLISTMODEL
+#endif //YADAW_CONTENT_MODEL_IASSETDIRECTORYLISTMODEL

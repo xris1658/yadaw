@@ -1,6 +1,8 @@
 #include "PluginController.hpp"
 
 #include "audio/util/VST3Util.hpp"
+#include "dao/PluginCategoryTable.hpp"
+#include "dao/PluginTable.hpp"
 #include "native/CLAPNative.hpp"
 #include "native/VST3Native.hpp"
 #include "util/Base.hpp"
@@ -58,8 +60,8 @@ std::vector<QString> scanDirectory(const QDir& dir, bool recursive, bool include
         {
             if(dirInfo.isDir() && dirInfo.exists())
             {
-                QDir dir(dirInfo.absoluteFilePath());
-                auto result = scanDirectory(dir, true, includeSymLink);
+                QDir subdir(dirInfo.absoluteFilePath());
+                auto result = scanDirectory(subdir, true, includeSymLink);
                 for(const auto& item: result)
                 {
                     ret.emplace_back(std::move(item));
@@ -392,5 +394,13 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             return ret;
         }
     }
+    return {};
+}
+
+void savePluginScanResult(const PluginScanResult& result)
+{
+    const auto& [info, categories] = result;
+    int id = YADAW::DAO::insertPlugin(info);
+    YADAW::DAO::insertPluginCategory(id, categories);
 }
 }

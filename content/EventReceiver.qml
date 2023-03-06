@@ -16,4 +16,8 @@ QtObject {
     onSetSplashScreenText: (text) => {
         splashScreen.text = text;
     }
+    signal pluginScanComplete()
+    onPluginScanComplete: {
+        mainWindow.pluginScanComplete();
+    }
 }

@@ -21,7 +21,7 @@ const char16_t* createPluginCategoryTableCommand()
 const char16_t* insertPluginCategoryCommand()
 {
     static char16_t ret[] =
-        u"INSERT INFO plugin_category (id, category)"
+        u"INSERT INTO plugin_category (id, category)"
         "VALUES (?, ?);";
     return ret;
 }

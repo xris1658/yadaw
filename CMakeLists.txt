@@ -125,14 +125,14 @@ set(YADAW_COMMON_SOURCES
     src/event/SplashScreenWorkerThread.hpp
     src/midi/MIDIInputDevice.hpp
     src/midi/MIDIOutputDevice.hpp
-    src/model/AssetDirectoryListModelImpl.cpp
-    src/model/AssetDirectoryListModelImpl.hpp
+    src/model/AssetDirectoryListModel.cpp
+    src/model/AssetDirectoryListModel.hpp
     src/model/ModelInitializer.cpp
     src/model/ModelInitializer.hpp
-    src/model/PluginDirectoryListModelImpl.cpp
-    src/model/PluginDirectoryListModelImpl.hpp
-    src/model/PluginListModelImpl.cpp
-    src/model/PluginListModelImpl.hpp
+    src/model/PluginDirectoryListModel.cpp
+    src/model/PluginDirectoryListModel.hpp
+    src/model/PluginListModel.cpp
+    src/model/PluginListModel.hpp
     src/native/AudioGraphBackend.cpp
     src/native/AudioGraphBackendImpl.cpp
     src/native/AudioGraphBackendImpl.hpp

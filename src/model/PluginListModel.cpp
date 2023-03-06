@@ -1,38 +1,38 @@
-#include "PluginListModelImpl.hpp"
+#include "PluginListModel.hpp"
 
 #include <thread>
 
 namespace YADAW::Model
 {
-PluginListModelImpl::PluginListModelImpl(const std::function<List()>& updateListFunc, QObject* parent):
-    PluginListModel(parent),
+PluginListModel::PluginListModel(const std::function<List()>& updateListFunc, QObject* parent):
+    IPluginListModel(parent),
     updateListFunc_(updateListFunc)
 {
     update();
 }
 
-PluginListModelImpl::PluginListModelImpl(std::function<List()>&& updateListFunc, QObject* parent):
-    PluginListModel(parent),
+PluginListModel::PluginListModel(std::function<List()>&& updateListFunc, QObject* parent):
+    IPluginListModel(parent),
     updateListFunc_(std::move(updateListFunc))
 {
     update();
 }
 
-PluginListModelImpl::~PluginListModelImpl()
+PluginListModel::~PluginListModel()
 {
 }
 
-int PluginListModelImpl::itemCount() const
+int PluginListModel::itemCount() const
 {
     return data_.size();
 }
 
-int PluginListModelImpl::rowCount(const QModelIndex&) const
+int PluginListModel::rowCount(const QModelIndex&) const
 {
     return itemCount();
 }
 
-QVariant PluginListModelImpl::data(const QModelIndex& index, int role) const
+QVariant PluginListModel::data(const QModelIndex& index, int role) const
 {
     auto row = index.row();
     if(row >= 0 && row < itemCount())
@@ -62,22 +62,29 @@ QVariant PluginListModelImpl::data(const QModelIndex& index, int role) const
     return {};
 }
 
-void PluginListModelImpl::clear()
+void PluginListModel::clear()
 {
-    beginRemoveRows(QModelIndex(), 0, data_.size() - 1);
-    data_.clear();
-    endRemoveRows();
+    if(!data_.empty())
+    {
+        beginRemoveRows(QModelIndex(), 0, data_.size() - 1);
+        data_.clear();
+        endRemoveRows();
+    }
 }
 
-void PluginListModelImpl::asyncUpdate()
+void PluginListModel::asyncUpdate()
 {
-    std::thread(std::mem_fn(&PluginListModelImpl::update), this).detach();
+    std::thread(std::mem_fn(&PluginListModel::update), this).detach();
 }
 
-void PluginListModelImpl::update()
+void PluginListModel::update()
 {
-    data_ = updateListFunc_();
-    beginInsertRows(QModelIndex(), 0, data_.size() - 1);
-    endInsertRows();
+    const auto& list = updateListFunc_();
+    if(!list.empty())
+    {
+        beginInsertRows(QModelIndex(), 0, list.size() - 1);
+        data_ = std::move(list);
+        endInsertRows();
+    }
 }
 }

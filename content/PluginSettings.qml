@@ -6,8 +6,15 @@ Item {
 
     property int firstColumnWidth
     property int secondColumnWidth
+    property bool scanning: false
 
     property alias directoryListModel: pluginPathListView.model
+
+    signal startPluginScan()
+    signal scanPluginComplete()
+    onScanPluginComplete: {
+        scanning = false;
+    }
 
     Grid {
         id: grid
@@ -68,6 +75,7 @@ Item {
                 id: buttonAddPath
                 anchors.left: parent.left
                 text: qsTr("&Add...")
+                enabled: (!root.scanning)
                 FolderDialog {
                     id: folderDialog
                     onAccepted: {
@@ -83,7 +91,7 @@ Item {
                 anchors.left: buttonAddPath.right
                 anchors.leftMargin: leftPadding
                 text: qsTr("&Remove")
-                enabled: pluginPathListView.currentIndex !== -1
+                enabled: (!root.scanning) && pluginPathListView.currentIndex !== -1
                 onClicked: {
                     let currentIndex = pluginPathListView.currentIndex;
                     if(pluginPathListView.currentIndex !== -1) {
@@ -96,6 +104,11 @@ Item {
                 id: buttonScan
                 anchors.right: parent.right
                 text: qsTr("&Scan plugins")
+                enabled: (!root.scanning) && (pluginPathListView.count !== 0)
+                onClicked: {
+                    root.scanning = true;
+                    root.startPluginScan();
+                }
             }
         }
         Label {

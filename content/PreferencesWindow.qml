@@ -13,6 +13,12 @@ Window {
 
     property alias pluginDirectoryListModel: pluginSettings.directoryListModel
 
+    signal startPluginScan()
+    signal pluginScanComplete()
+    onPluginScanComplete: {
+        pluginSettings.scanPluginComplete();
+    }
+
     width: 540
     height: 500
     minimumWidth: 540
@@ -62,6 +68,9 @@ Window {
                 id: pluginSettings
                     firstColumnWidth: root.firstColumnWidth
                     secondColumnWidth: root.secondColumnWidth
+                    onStartPluginScan: {
+                        root.startPluginScan();
+                    }
                 }
             }
         }

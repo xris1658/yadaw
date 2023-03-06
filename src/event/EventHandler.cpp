@@ -2,11 +2,15 @@
 
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
+#include "controller/PluginController.hpp"
 #include "controller/PluginDirectoryController.hpp"
+#include "controller/PluginListController.hpp"
 #include "event/EventBase.hpp"
 #include "native/Native.hpp"
 #include "native/WindowsDarkModeSupport.hpp"
 #include "ui/UI.hpp"
+
+#include <QDir>
 
 #include <thread>
 
@@ -31,6 +35,8 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onRemoveWindowForDarkModeSupport()));
     QObject::connect(sender, SIGNAL(locatePathInExplorer(QString)),
         this, SLOT(onLocateFileInExplorer(QString)));
+    QObject::connect(sender, SIGNAL(startPluginScan()),
+        this, SLOT(onStartPluginScan()));
 }
 
 void EventHandler::connectToEventReceiver(QObject* receiver)
@@ -41,6 +47,8 @@ void EventHandler::connectToEventReceiver(QObject* receiver)
         receiver, SIGNAL(setQtVersion(QString)));
     QObject::connect(this, SIGNAL(setSplashScreenText(QString)),
         receiver, SIGNAL(setSplashScreenText(QString)));
+    QObject::connect(this, SIGNAL(pluginScanComplete()),
+        receiver, SIGNAL(pluginScanComplete()));
 }
 
 void EventHandler::onStartInitializingApplication()
@@ -84,5 +92,43 @@ void EventHandler::onRemoveWindowForDarkModeSupport()
 void EventHandler::onLocateFileInExplorer(const QString& path)
 {
     YADAW::Native::locateFileInExplorer(path);
+}
+
+void EventHandler::onStartPluginScan()
+{
+    std::thread([this]()
+    {
+        YADAW::Controller::appPluginListModel().clear();
+        YADAW::Controller::appMIDIEffectListModel().clear();
+        YADAW::Controller::appInstrumentListModel().clear();
+        YADAW::Controller::appAudioEffectListModel().clear();
+        const auto& model = YADAW::Controller::appPluginDirectoryListModel();
+        auto itemCount = model.itemCount();
+        std::vector<std::vector<QString>> libLists;
+        for(decltype(itemCount) i = 0; i < itemCount; ++i)
+        {
+            QDir dir(model[i]);
+            if(dir.exists())
+            {
+                libLists.emplace_back(YADAW::Controller::scanDirectory(dir, true, true/*FIXME*/));
+            }
+        }
+        for(const auto& libList: libLists)
+        {
+            for(const auto& lib: libList)
+            {
+                const auto& results = YADAW::Controller::scanSingleLibraryFile(lib);
+                for(const auto& result: results)
+                {
+                    YADAW::Controller::savePluginScanResult(result);
+                }
+            }
+        }
+        pluginScanComplete();
+        YADAW::Controller::appPluginListModel().update();
+        YADAW::Controller::appMIDIEffectListModel().update();
+        YADAW::Controller::appInstrumentListModel().update();
+        YADAW::Controller::appAudioEffectListModel().update();
+    }).detach();
 }
 }

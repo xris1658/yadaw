@@ -38,6 +38,12 @@ const char16_t* removeAllPluginsCommand()
         u"DELETE FROM plugin";
     return ret;
 }
+const char16_t* getLastPluginIdCommand()
+{
+    static char16_t ret[] =
+        u"SELECT seq FROM sqlite_sequence WHERE name = 'plugin'";
+    return ret;
+}
 const char16_t* resetPluginIdFromSequenceCommand()
 {
     static char16_t ret[] =
@@ -113,7 +119,7 @@ void createPluginTable(sqlite::database& database)
     database << Impl::createPluginTableCommand();
 }
 
-void insertPlugin(const PluginInfo& pluginInfo, sqlite::database& database)
+int insertPlugin(const PluginInfo& pluginInfo, sqlite::database& database)
 {
     database << Impl::insertPluginCommand()
         << u16DataFromQString(pluginInfo.path)
@@ -123,6 +129,9 @@ void insertPlugin(const PluginInfo& pluginInfo, sqlite::database& database)
         << u16DataFromQString(pluginInfo.version)
         << pluginInfo.format
         << pluginInfo.type;
+    int ret = 0;
+    database << Impl::getLastPluginIdCommand() >> ret;
+    return ret;
 }
 
 void removeAllPlugins(sqlite::database& database)

@@ -1,7 +1,7 @@
-#ifndef YADAW_SRC_MODEL_ASSETDIRECTORYLISTMODELIMPL
-#define YADAW_SRC_MODEL_ASSETDIRECTORYLISTMODELIMPL
+#ifndef YADAW_SRC_MODEL_ASSETDIRECTORYLISTMODEL
+#define YADAW_SRC_MODEL_ASSETDIRECTORYLISTMODEL
 
-#include "model/AssetDirectoryListModel.hpp"
+#include "model/IAssetDirectoryListModel.hpp"
 
 #include <QAbstractListModel>
 #include <QString>
@@ -11,12 +11,12 @@
 
 namespace YADAW::Model
 {
-class AssetDirectoryListModelImpl: public AssetDirectoryListModel
+class AssetDirectoryListModel: public IAssetDirectoryListModel
 {
     Q_OBJECT
 public:
-    AssetDirectoryListModelImpl(QObject* parent = nullptr);
-    ~AssetDirectoryListModelImpl() override;
+    AssetDirectoryListModel(QObject* parent = nullptr);
+    ~AssetDirectoryListModel() override;
 private:
     int itemCount() const;
 public:
@@ -33,4 +33,4 @@ private:
 };
 }
 
-#endif //YADAW_SRC_MODEL_ASSETDIRECTORYLISTMODELIMPL
+#endif //YADAW_SRC_MODEL_ASSETDIRECTORYLISTMODEL

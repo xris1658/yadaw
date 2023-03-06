@@ -1,14 +1,13 @@
 #include "PluginDirectoryController.hpp"
 
 #include "dao/PluginDirectoryTable.hpp"
-#include "model/PluginDirectoryListModelImpl.hpp"
 #include "native/Native.hpp"
 
 namespace YADAW::Controller
 {
 YADAW::Model::PluginDirectoryListModel& appPluginDirectoryListModel()
 {
-    static YADAW::Model::PluginDirectoryListModelImpl ret;
+    static YADAW::Model::PluginDirectoryListModel ret;
     return ret;
 }
 

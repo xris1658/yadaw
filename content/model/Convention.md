@@ -8,10 +8,10 @@
 - Class names: `***ListModel` or `***Model` in PascalCase
 - Roles: PascalCase
 - Role names: `***_xxx` in snake_case, in which
-  - `***` is the upper case letters of the class name, in lower case.
+  - `***` is the upper case letters (without the first letter I) of the class name, in lower case.
   - `xxx` is the role in lower case.
 
-For example, class `AssetDirectoryListModel` has its roles and role names as follows:
+For example, class `IAssetDirectoryListModel` has its roles and role names as follows:
 - `Id` named `adlm_id`
 - `Path` named `adlm_path`
 - `Name` named `adlm_name`
