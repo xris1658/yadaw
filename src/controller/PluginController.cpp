@@ -63,10 +63,81 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
         auto plugin = createVST3FromLibrary(library);
         if(auto factory = plugin.factory())
         {
+            Steinberg::PFactoryInfo factoryInfo {};
             std::vector<PluginScanResult> ret;
             Steinberg::IPluginFactory2* factory2 = nullptr;
+            Steinberg::IPluginFactory3* factory3 = nullptr;
             queryInterface(factory, &factory2);
-            if(factory2)
+            queryInterface(factory, &factory3);
+            if(factory3)
+            {
+                auto classCount = factory3->countClasses();
+                Steinberg::PClassInfoW classInfoW {};
+                for(decltype(classCount) i = 0; i < classCount; ++i)
+                {
+                    bool isInstrument = false;
+                    bool isAudioEffect = false;
+                    std::memset(classInfoW.subCategories, 0, YADAW::Util::stackArraySize(classInfoW.subCategories));
+                    if(factory3->getClassInfoUnicode(i, &classInfoW) == Steinberg::kResultOk
+                    && std::strcmp(classInfoW.category, kVstAudioEffectClass) == 0)
+                    {
+                        char* subCategoryCollection[YADAW::Util::stackArraySize(classInfoW.subCategories)];
+                        auto subCategoryCount = YADAW::Audio::Util::splitSubCategories(
+                            classInfoW.subCategories, subCategoryCollection);
+                        std::vector<QString> subCategories;
+                        subCategories.reserve(subCategoryCount);
+                        for(int j = 0; j < subCategoryCount; ++j)
+                        {
+                            using namespace Steinberg::Vst::PlugType;
+                            if(std::strcmp(subCategoryCollection[j], kInstrument) == 0)
+                            {
+                                isInstrument = true;
+                            }
+                            else if(std::strcmp(subCategoryCollection[j], kFx) == 0)
+                            {
+                                isAudioEffect = true;
+                            }
+                            else
+                            {
+                                subCategories.emplace_back(subCategoryCollection[j]);
+                            }
+                        }
+                        std::vector<char> uid(16, 0);
+                        std::memcpy(uid.data(), classInfoW.cid, 16);
+                        auto name = QString::fromUtf16(classInfoW.name);
+                        QString vendor;
+                        if(classInfoW.vendor[0] != 0)
+                        {
+                            vendor = QString::fromUtf16(classInfoW.vendor);
+                        }
+                        else if(factory3->getFactoryInfo(&factoryInfo) == Steinberg::kResultOk)
+                        {
+                            factory3->getFactoryInfo(&factoryInfo);
+                            vendor = factoryInfo.vendor;
+                        }
+                        auto version = QString::fromUtf16(classInfoW.version);
+                        if(isInstrument)
+                        {
+                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
+                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeInstrument);
+                            ret.push_back({pluginInfo, subCategories});
+                        }
+                        if(isAudioEffect)
+                        {
+                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
+                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeAudioEffect);
+                            ret.push_back({pluginInfo, subCategories});
+                        }
+                        else if(!isInstrument)
+                        {
+                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
+                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeUnknown);
+                            ret.push_back({pluginInfo, subCategories});
+                        }
+                    }
+                }
+            }
+            else if(factory2)
             {
                 auto classCount = factory2->countClasses();
                 Steinberg::PClassInfo2 classInfo2 {};
@@ -102,29 +173,37 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                         std::vector<char> uid(16, 0);
                         std::memcpy(uid.data(), classInfo2.cid, 16);
                         QString name(classInfo2.name);
-                        QString vendor(classInfo2.vendor);
+                        QString vendor;
+                        if(classInfo2.vendor[0] != 0)
+                        {
+                            factory2->getFactoryInfo(&factoryInfo);
+                            vendor = factoryInfo.vendor;
+                        }
+                        else if(factory2->getFactoryInfo(&factoryInfo) == Steinberg::kResultOk)
+                        {
+                            vendor = classInfo2.vendor;
+                        }
                         QString version(classInfo2.version);
                         if(isInstrument)
                         {
-                            DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                                DAO::PluginFormatVST3, DAO::PluginTypeInstrument);
+                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
+                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeInstrument);
                             ret.push_back({pluginInfo, subCategories});
                         }
                         if(isAudioEffect)
                         {
-                            DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                                DAO::PluginFormatVST3, DAO::PluginTypeAudioEffect);
+                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
+                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeAudioEffect);
                             ret.push_back({pluginInfo, subCategories});
                         }
                         else if(!isInstrument)
                         {
-                            DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                                DAO::PluginFormatVST3, DAO::PluginTypeUnknown);
+                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
+                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeUnknown);
                             ret.push_back({pluginInfo, subCategories});
                         }
                     }
                 }
-                factory2->release();
             }
             else
             {
@@ -174,34 +253,34 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                                     }
                                     if(hasMainAudioInput)
                                     {
-                                        DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
-                                            DAO::PluginFormatVST3, DAO::PluginTypeAudioEffect);
+                                        YADAW::DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
+                                            YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeAudioEffect);
                                         ret.push_back({pluginInfo, {}});
                                     }
                                     if(hasMainEventInput)
                                     {
-                                        DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
-                                            DAO::PluginFormatVST3, DAO::PluginTypeInstrument);
+                                        YADAW::DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
+                                            YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeInstrument);
                                         ret.push_back({pluginInfo, {}});
                                     }
                                     else if(!hasMainAudioInput)
                                     {
-                                        DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
-                                            DAO::PluginFormatVST3, DAO::PluginTypeUnknown);
+                                        YADAW::DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
+                                            YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeUnknown);
                                         ret.push_back({pluginInfo, {}});
                                     }
                                 }
                             }
                             if(ai && ao)
                             {
-                                DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
-                                    DAO::PluginFormatVST3, DAO::PluginTypeAudioEffect);
+                                YADAW::DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
+                                    YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeAudioEffect);
                                 ret.push_back({pluginInfo, {}});
                             }
                             if(ei && eo)
                             {
-                                DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
-                                    DAO::PluginFormatVST3, DAO::PluginTypeMIDIEffect);
+                                YADAW::DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
+                                    YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeMIDIEffect);
                                 ret.push_back({pluginInfo, {}});
                             }
                         }
@@ -209,6 +288,15 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                     }
                 }
             }
+            if(factory3)
+            {
+                factory3->release();
+            }
+            if(factory2)
+            {
+                factory2->release();
+            }
+            factory->release();
             return ret;
         }
     }
@@ -257,22 +345,22 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                     auto version = QString::fromUtf8(descriptor->version);
                     if(isInstrument)
                     {
-                        DAO::PluginInfo pluginInfo(
-                            path, uid, name, vendor, version, DAO::PluginFormatCLAP, DAO::PluginTypeInstrument
+                        YADAW::DAO::PluginInfo pluginInfo(
+                            path, uid, name, vendor, version, YADAW::DAO::PluginFormatCLAP, YADAW::DAO::PluginTypeInstrument
                         );
                         ret.push_back({pluginInfo, featureCollection});
                     }
                     if(isAudioEffect)
                     {
-                        DAO::PluginInfo pluginInfo(
-                            path, uid, name, vendor, version, DAO::PluginFormatCLAP, DAO::PluginTypeAudioEffect
+                        YADAW::DAO::PluginInfo pluginInfo(
+                            path, uid, name, vendor, version, YADAW::DAO::PluginFormatCLAP, YADAW::DAO::PluginTypeAudioEffect
                         );
                         ret.push_back({pluginInfo, featureCollection});
                     }
                     if(isMIDIEffect)
                     {
-                        DAO::PluginInfo pluginInfo(
-                            path, uid, name, vendor, version, DAO::PluginFormatCLAP, DAO::PluginTypeMIDIEffect
+                        YADAW::DAO::PluginInfo pluginInfo(
+                            path, uid, name, vendor, version, YADAW::DAO::PluginFormatCLAP, YADAW::DAO::PluginTypeMIDIEffect
                         );
                         ret.push_back({pluginInfo, featureCollection});
                     }
