@@ -68,10 +68,10 @@ VST3Plugin::~VST3Plugin()
     {
         factory_->release();
         factory_ = nullptr;
-        if(exitEntry_)
-        {
-            exitEntry_();
-        }
+    }
+    if(exitEntry_)
+    {
+        exitEntry_();
     }
 }
 
