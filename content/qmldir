@@ -18,6 +18,7 @@ BigClock 1.0 BigClock.qml
 Button 1.0 Button.qml
 CheckBox 1.0 CheckBox.qml
 ColorPicker 1.0 ColorPicker.qml
+ColorPickerWindow 1.0 ColorPickerWindow.qml
 ComboBox 1.0 ComboBox.qml
 Detail 1.0 Detail.qml
 FollowIcon 1.0 FollowIcon.qml

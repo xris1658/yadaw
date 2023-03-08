@@ -32,6 +32,7 @@ set(CONTENT_QML_FILES
     Button.qml
     CheckBox.qml
     ColorPicker.qml
+    ColorPickerWindow.qml
     Colors.qml
     ComboBox.qml
     Constants.qml
