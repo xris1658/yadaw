@@ -30,6 +30,7 @@ set(CONTENT_QML_FILES
     AudioHardwareSettings.qml
     BigClock.qml
     Button.qml
+    CLAPIcon.qml
     CheckBox.qml
     ColorPicker.qml
     ColorPickerWindow.qml
@@ -60,6 +61,7 @@ set(CONTENT_QML_FILES
     PianoKeysIcon.qml
     PlayIcon.qml
     PluginIcon.qml
+    PluginListView.qml
     PluginSettings.qml
     PreferencesWindow.qml
     ProgressBar.qml
@@ -73,7 +75,9 @@ set(CONTENT_QML_FILES
     TabButton.qml
     TextField.qml
     TimeIndicator.qml
-    TopBar.qml)
+    TopBar.qml
+    VST3Icon.qml
+    )
 
 qt_add_qml_module(content
                   URI "content"
