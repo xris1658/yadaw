@@ -9,67 +9,55 @@ Shape {
     property alias path: path
     ShapePath {
         id: path
-        startX: 80
-        startY: 32
-        PathLine {
-            x: 96
-            y: 32
-        }
-        PathLine {
-            x: 176
-            y: 112
-        }
+        startX: 112
+        startY: 48
         PathLine {
             x: 224
-            y: 112
+            y: 48
         }
         PathLine {
-            x: 224
-            y: 144
+            x: 144
+            y: 208
         }
         PathLine {
-            x: 176
-            y: 144
+            x: 32
+            y: 208
         }
         PathLine {
-            x: 96
-            y: 224
-        }
-        PathLine {
-            x: 80
-            y: 224
-        }
-        PathLine {
-            x: 80
+            x: 48
             y: 176
         }
         PathLine {
-            x: 32
+            x: 96
             y: 176
         }
         PathLine {
-            x: 32
-            y: 160
+            x: 112
+            y: 144
+        }
+        PathLine {
+            x: 64
+            y: 144
         }
         PathLine {
             x: 80
-            y: 160
+            y: 112
         }
         PathLine {
-            x: 80
-            y: 96
+            x: 128
+            y: 112
         }
         PathLine {
-            x: 32
-            y: 96
-        }
-        PathLine {
-            x: 32
+            x: 144
             y: 80
         }
         PathLine {
-            x: 80
+            x: 96
             y: 80
+        }
+        PathLine {
+            x: 112
+            y: 48
         }
     }
 }

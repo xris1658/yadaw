@@ -24,6 +24,22 @@ public:
         RoleCount
     };
 public:
+    enum PluginFormat
+    {
+        UnknownFormat,
+        VST3,
+        CLAP
+    };
+    Q_ENUM(PluginFormat)
+    enum PluginType
+    {
+        UnknownType,
+        MIDIEffect,
+        Instrument,
+        AudioEffect
+    };
+    Q_ENUM(PluginType)
+public:
     IPluginListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
     virtual ~IPluginListModel() {}
 public:

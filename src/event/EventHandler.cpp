@@ -67,6 +67,14 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAssetDirectoryListModel()));
     YADAW::UI::mainWindow->setProperty("pluginDirectoryListModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appPluginDirectoryListModel()));
+    YADAW::UI::mainWindow->setProperty("pluginListModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appPluginListModel()));
+    YADAW::UI::mainWindow->setProperty("midiEffectListModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appMIDIEffectListModel()));
+    YADAW::UI::mainWindow->setProperty("instrumentListModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appInstrumentListModel()));
+    YADAW::UI::mainWindow->setProperty("audioEffectListModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioEffectListModel()));
     setQtVersion(qVersion());
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
 }

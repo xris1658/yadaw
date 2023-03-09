@@ -28,7 +28,7 @@ T.ItemDelegate {
         anchors.rightMargin: root.rightInset
         color: (!root.enabled)? Colors.background:
             root.highlighted? Colors.highlightControlBackground:
-            root.hovered? Colors.mouseOverControlBackground: Colors.controlBackground
+            root.hovered? Colors.mouseOverControlBackground: "transparent"
     }
 
     contentItem: Label {

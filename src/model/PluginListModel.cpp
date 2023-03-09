@@ -4,6 +4,37 @@
 
 namespace YADAW::Model
 {
+namespace Impl
+{
+YADAW::Model::IPluginListModel::PluginFormat getPluginFormat(int format)
+{
+    switch(format)
+    {
+    case YADAW::DAO::PluginFormat::PluginFormatVST3:
+        return YADAW::Model::IPluginListModel::PluginFormat::VST3;
+    case YADAW::DAO::PluginFormat::PluginFormatCLAP:
+        return YADAW::Model::IPluginListModel::PluginFormat::CLAP;
+    default:
+        return YADAW::Model::IPluginListModel::PluginFormat::UnknownFormat;
+    }
+}
+
+YADAW::Model::IPluginListModel::PluginType getPluginType(int type)
+{
+    switch(type)
+    {
+    case YADAW::DAO::PluginType::PluginTypeMIDIEffect:
+        return YADAW::Model::IPluginListModel::PluginType::MIDIEffect;
+    case YADAW::DAO::PluginType::PluginTypeInstrument:
+        return YADAW::Model::IPluginListModel::PluginType::Instrument;
+    case YADAW::DAO::PluginType::PluginTypeAudioEffect:
+        return YADAW::Model::IPluginListModel::PluginType::AudioEffect;
+    default:
+        return YADAW::Model::IPluginListModel::PluginType::UnknownType;
+    }
+}
+}
+
 PluginListModel::PluginListModel(const std::function<List()>& updateListFunc, QObject* parent):
     IPluginListModel(parent),
     updateListFunc_(updateListFunc)
@@ -52,9 +83,9 @@ QVariant PluginListModel::data(const QModelIndex& index, int role) const
         case Role::Version:
             return QVariant::fromValue(data.version);
         case Role::Format:
-            return QVariant::fromValue(data.format);
+            return QVariant::fromValue<int>(Impl::getPluginFormat(data.format));
         case Role::Type:
-            return QVariant::fromValue(data.type);
+            return QVariant::fromValue<int>(Impl::getPluginType(data.type));
         default:
             return {};
         }

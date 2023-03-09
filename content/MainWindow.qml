@@ -13,6 +13,10 @@ ApplicationWindow {
     property bool canClose: false
 
     property alias assetDirectoryListModel: assets.directoryListModel
+    property alias pluginListModel: assets.pluginListModel
+    property alias midiEffectListModel: assets.midiEffectListModel
+    property alias instrumentListModel: assets.instrumentListModel
+    property alias audioEffectListModel: assets.audioEffectListModel
     property alias pluginDirectoryListModel: preferencesWindow.pluginDirectoryListModel
 
     signal pluginScanComplete()

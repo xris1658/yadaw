@@ -2,34 +2,34 @@ import QtQuick
 import QtQuick.Shapes
 
 Shape {
-    readonly property int originalWidth: 128
-    readonly property int originalHeight: 128
+    readonly property int originalWidth: 256
+    readonly property int originalHeight: 256
     width: originalWidth
     height: originalHeight
     property alias path: path1
     ShapePath {
         id: path1
-        startX: 4
-        startY: 16
+        startX: 16
+        startY: 32
         PathLine {
-            x: 28
-            y: 16
+            x: 64
+            y: 32
         }
         PathLine {
-            x: 28
-            y: 80
+            x: 64
+            y: 144
         }
         PathLine {
-            x: 36
-            y: 80
+            x: 80
+            y: 144
         }
         PathLine {
-            x: 36
-            y: 118
+            x: 80
+            y: 224
         }
         PathLine {
-            x: 4
-            y: 118
+            x: 16
+            y: 224
         }
     }
     ShapePath {
@@ -37,35 +37,35 @@ Shape {
         fillColor: path1.fillColor
         strokeColor: path1.strokeColor
         strokeWidth: path1.strokeWidth
-        startX: 52
-        startY: 16
+        startX: 112
+        startY: 32
         PathLine {
-            x: 76
-            y: 16
+            x: 144
+            y: 32
         }
         PathLine {
-            x: 76
-            y: 80
+            x: 144
+            y: 144
         }
         PathLine {
-            x: 82
-            y: 80
+            x: 160
+            y: 144
         }
         PathLine {
-            x: 82
-            y: 118
+            x: 160
+            y: 224
         }
         PathLine {
-            x: 46
-            y: 118
+            x: 96
+            y: 224
         }
         PathLine {
-            x: 46
-            y: 80
+            x: 96
+            y: 144
         }
         PathLine {
-            x: 52
-            y: 80
+            x: 112
+            y: 144
         }
     }
     ShapePath {
@@ -73,27 +73,27 @@ Shape {
         fillColor: path1.fillColor
         strokeColor: path1.strokeColor
         strokeWidth: path1.strokeWidth
-        startX: 100
-        startY: 16
+        startX: 192
+        startY: 32
         PathLine {
-            x: 124
-            y: 16
+            x: 240
+            y: 32
         }
         PathLine {
-            x: 124
-            y: 118
+            x: 240
+            y: 224
         }
         PathLine {
-            x: 92
-            y: 118
+            x: 176
+            y: 224
         }
         PathLine {
-            x: 92
-            y: 80
+            x: 176
+            y: 144
         }
         PathLine {
-            x: 100
-            y: 80
+            x: 192
+            y: 144
         }
     }
 }

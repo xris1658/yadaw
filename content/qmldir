@@ -16,6 +16,7 @@ AudioGraphSettings 1.0 AudioGraphSettings.qml
 AudioHardwareSettings 1.0 AudioHardwareSettings.qml
 BigClock 1.0 BigClock.qml
 Button 1.0 Button.qml
+CLAPIcon 1.0 CLAPIcon.qml
 CheckBox 1.0 CheckBox.qml
 ColorPicker 1.0 ColorPicker.qml
 ColorPickerWindow 1.0 ColorPickerWindow.qml
@@ -33,6 +34,7 @@ MenuItem 1.0 MenuItem.qml
 MenuSeparator 1.0 MenuSeparator.qml
 MetronomeIcon 1.0 MetronomeIcon.qml
 PlayIcon 1.0 PlayIcon.qml
+PluginListView 1.0 PluginListView.qml
 PluginSettings 1.0 PluginSettings.qml
 PreferencesWindow 1.0 PreferencesWindow.qml
 ProgressBar 1.0 ProgressBar.qml
@@ -45,3 +47,4 @@ TabButton 1.0 TabButton.qml
 TextField 1.0 TextField.qml
 TimeIndicator 1.0 TimeIndicator.qml
 TopBar 1.0 TopBar.qml
+VST3Icon 1.0 VST3Icon.qml

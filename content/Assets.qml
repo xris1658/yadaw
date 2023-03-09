@@ -1,6 +1,7 @@
 import QtQml
 import QtQuick
 import QtQuick.Dialogs
+import QtQuick.Layouts
 
 Rectangle {
     id: root
@@ -10,6 +11,11 @@ Rectangle {
     readonly property int preferredWidth: searchTextBox.height * 15
 
     property alias directoryListModel: directoryList.model
+
+    property alias pluginListModel: pluginListView.model
+    property alias midiEffectListModel: midiEffectListView.model
+    property alias instrumentListModel: instrumentListView.model
+    property alias audioEffectListModel: audioEffectListView.model
 
     clip: true
 
@@ -90,7 +96,7 @@ Rectangle {
             Rectangle {
                 width: 1
                 height: parent.height
-                anchors.centerIn: parent
+                anchors.right: parent.right
                 color: Colors.controlBorder
             }
         }
@@ -172,6 +178,7 @@ Rectangle {
                             assetDirectoryRenameTextField.width = control.width - control.height + assetDirectoryRenameTextField.leftPadding;
                             assetDirectoryRenameTextField.height = control.height;
                             assetDirectoryRenameTextField.text = control.pathName;
+                            // assetDirectoryRenameTextField.select(assetDirectoryRenameTextField.length, 0);
                             assetDirectoryRenameTextField.selectAll();
                             assetDirectoryRenameTextField.forceActiveFocus();
                             assetDirectoryRenameTextField.visible = true;
@@ -183,6 +190,9 @@ Rectangle {
                         signal remove()
                         onRemove: {
                             directoryListModel.remove(pathId);
+                        }
+                        onClicked: {
+                            // TODO
                         }
                     }
                     footer: ItemDelegate {
@@ -226,6 +236,7 @@ Rectangle {
                     elide: Text.ElideRight
                 }
                 ListView {
+                    id: categoriesLeftColumn
                     model: ListModel {
                         ListElement {
                             name: "Plugins"
@@ -280,10 +291,9 @@ Rectangle {
                             Loader {
                                 id: loader
                                 onLoaded: {
-                                    item.transformOrigin = Item.TopLeft;
-                                    item.scale = enableLayerForIcons.height * 0.625 / item.originalHeight;
-                                    item.x = (enableLayerForIcons.height - item.originalHeight * item.scale) / 2;
-                                    item.y = item.x;
+                                    item.parent = enableLayerForIcons;
+                                    item.scale = 16 / item.originalHeight;
+                                    item.anchors.centerIn = enableLayerForIcons;
                                     item.path.strokeColor = "transparent";
                                     item.path.fillColor = Colors.secondaryContent;
                                 }
@@ -292,12 +302,45 @@ Rectangle {
                         Component.onCompleted: {
                             loader.source = iconSource;
                         }
+                        onClicked: {
+                            rightLayout.currentIndex = 1;
+                            categoriesLeftColumn.currentIndex = index;
+                        }
                     }
                 }
             }
         }
         Rectangle {
-            color: "transparent"
+        color: "transparent"
+            StackLayout {
+                id: rightLayout
+                anchors.fill: parent
+                anchors.rightMargin: 1
+                anchors.topMargin: 1
+                anchors.bottomMargin: 1
+                TreeView {
+                    id: assetListView
+                    // TODO
+                }
+
+                StackLayout {
+                    id: categoriesLayout
+                    currentIndex: categoriesLeftColumn.currentIndex
+                    clip: true
+                    PluginListView {
+                        id: pluginListView
+                    }
+                    PluginListView {
+                        id: midiEffectListView
+                    }
+                    PluginListView {
+                        id: instrumentListView
+                    }
+                    PluginListView {
+                        id: audioEffectListView
+                    }
+                }
+            }
         }
     }
 }
