@@ -27,19 +27,63 @@ Shape {
             x: 40
             y: 80
         }
-    }
-    ShapePath {
-        startX: 64
-        startY: 16
-        fillColor: Colors.background
-        strokeColor: "transparent"
+        PathLine {
+            x: 28
+            y: 112
+        }
+        PathLine {
+            x: 24
+            y: 64
+        }
+        // 1
         PathArc {
-            x: 64
-            y: 32
+            x: 24
+            y: 48
             radiusX: 8
             radiusY: 8
             useLargeArc: true
             direction: PathArc.Clockwise
+        }
+        PathArc {
+            x: 24
+            y: 64
+            radiusX: 8
+            radiusY: 8
+            useLargeArc: true
+            direction: PathArc.Clockwise
+        }
+        PathLine {
+            x: 40
+            y: 64
+        }
+        PathLine {
+            x: 40
+            y: 40
+        }
+        // 2
+        PathArc {
+            x: 40
+            y: 24
+            radiusX: 8
+            radiusY: 8
+            useLargeArc: true
+            direction: PathArc.Clockwise
+        }
+        PathArc {
+            x: 40
+            y: 40
+            radiusX: 8
+            radiusY: 8
+            useLargeArc: true
+            direction: PathArc.Clockwise
+        }
+        PathLine {
+            x: 64
+            y: 40
+        }
+        PathLine {
+            x: 64
+            y: 32
         }
         PathArc {
             x: 64
@@ -49,63 +93,21 @@ Shape {
             useLargeArc: true
             direction: PathArc.Clockwise
         }
-    }
-    ShapePath {
-        startX: 40
-        startY: 24
-        fillColor: Colors.background
-        strokeColor: "transparent"
         PathArc {
-            x: 40
+            x: 64
+            y: 32
+            radiusX: 8
+            radiusY: 8
+            useLargeArc: true
+            direction: PathArc.Clockwise
+        }
+        PathLine {
+            x: 64
             y: 40
-            radiusX: 8
-            radiusY: 8
-            useLargeArc: true
-            direction: PathArc.Clockwise
         }
-        PathArc {
-            x: 40
-            y: 24
-            radiusX: 8
-            radiusY: 8
-            useLargeArc: true
-            direction: PathArc.Clockwise
-        }
-    }
-    ShapePath {
-        startX: 24
-        startY: 48
-        fillColor: Colors.background
-        strokeColor: "transparent"
-        PathArc {
-            x: 24
-            y: 64
-            radiusX: 8
-            radiusY: 8
-            useLargeArc: true
-            direction: PathArc.Clockwise
-        }
-        PathArc {
-            x: 24
-            y: 48
-            radiusX: 8
-            radiusY: 8
-            useLargeArc: true
-            direction: PathArc.Clockwise
-        }
-    }
-    ShapePath {
-        startX: 88
-        startY: 24
-        fillColor: Colors.background
-        strokeColor: "transparent"
-        PathArc {
+        PathLine {
             x: 88
             y: 40
-            radiusX: 8
-            radiusY: 8
-            useLargeArc: true
-            direction: PathArc.Clockwise
         }
         PathArc {
             x: 88
@@ -115,19 +117,21 @@ Shape {
             useLargeArc: true
             direction: PathArc.Clockwise
         }
-    }
-    ShapePath {
-        startX: 104
-        startY: 48
-        fillColor: Colors.background
-        strokeColor: "transparent"
         PathArc {
-            x: 104
-            y: 64
+            x: 88
+            y: 40
             radiusX: 8
             radiusY: 8
             useLargeArc: true
             direction: PathArc.Clockwise
+        }
+        PathLine {
+            x: 88
+            y: 64
+        }
+        PathLine {
+            x: 104
+            y: 64
         }
         PathArc {
             x: 104
@@ -136,6 +140,34 @@ Shape {
             radiusY: 8
             useLargeArc: true
             direction: PathArc.Clockwise
+        }
+        PathArc {
+            x: 104
+            y: 64
+            radiusX: 8
+            radiusY: 8
+            useLargeArc: true
+            direction: PathArc.Clockwise
+        }
+        PathLine {
+            x: 88
+            y: 64
+        }
+        PathLine {
+            x: 88
+            y: 40
+        }
+        PathLine {
+            x: 40
+            y: 40
+        }
+        PathLine {
+            x: 40
+            y: 64
+        }
+        PathLine {
+            x: 24
+            y: 64
         }
     }
 }
