@@ -537,6 +537,9 @@ ApplicationWindow {
                 checkable: true
                 border.width: 0
                 radius: 5
+                layer.enabled: true
+                layer.smooth: true
+                layer.samples: 4
                 PianoKeysIcon {
                     anchors.centerIn: parent
                     scale: loopIcon.width * loopIcon.scale / originalHeight

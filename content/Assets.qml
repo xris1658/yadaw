@@ -136,6 +136,7 @@ Rectangle {
                         rightPadding: 2
                         topPadding: 2
                         bottomPadding: 2
+                        highlighted: rightLayout.currentIndex === 0 && directoryList.currentIndex === index
                         background: Rectangle {
                             width: control.width
                             height: control.height
@@ -192,7 +193,8 @@ Rectangle {
                             directoryListModel.remove(pathId);
                         }
                         onClicked: {
-                            // TODO
+                            rightLayout.currentIndex = 0;
+                            directoryList.currentIndex = index;
                         }
                     }
                     footer: ItemDelegate {
@@ -269,6 +271,7 @@ Rectangle {
                         rightPadding: 2
                         topPadding: 2
                         bottomPadding: 2
+                        highlighted: rightLayout.currentIndex === 1 && categoriesLeftColumn.currentIndex === index
                         background: Rectangle {
                             width: pluginItemDelegate.width
                             height: pluginItemDelegate.height

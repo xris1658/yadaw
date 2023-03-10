@@ -14,6 +14,7 @@ ListView {
         Instrument,
         AudioEffect
     }
+    boundsBehavior: ListView.StopAtBounds
     ScrollBar.vertical: ScrollBar {
         visible: root.contentHeight > root.height
     }
@@ -38,6 +39,7 @@ ListView {
                         PluginIcon {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
+                            path.fillColor: Colors.secondaryContent
                         }
                     }
                     Item {
@@ -48,6 +50,7 @@ ListView {
                         VST3Icon {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
+                            path.fillColor: Colors.secondaryContent
                         }
                     }
                     Item {
@@ -58,6 +61,7 @@ ListView {
                         CLAPIcon {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
+                            path.fillColor: Colors.secondaryContent
                         }
                     }
                 }
@@ -72,6 +76,7 @@ ListView {
                         PluginIcon {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
+                            path.fillColor: Colors.secondaryContent
                         }
                     }
                     Item {
@@ -82,6 +87,7 @@ ListView {
                         MIDIEffectIcon {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
+                            path.fillColor: Colors.secondaryContent
                         }
                     }
                     Item {
@@ -92,6 +98,7 @@ ListView {
                         PianoKeysIcon {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
+                            path.fillColor: Colors.secondaryContent
                         }
                     }
                     Item {
@@ -102,6 +109,7 @@ ListView {
                         AudioIcon {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
+                            path.fillColor: Colors.secondaryContent
                         }
                     }
                 }
