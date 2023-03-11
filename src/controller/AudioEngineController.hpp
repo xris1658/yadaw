@@ -2,7 +2,6 @@
 #define YADAW_SRC_CONTROLLER_AUDIOENGINECONTROLLER
 
 #include "audio/device/IDevice.hpp"
-#include "audio/engine/DeviceNode.hpp"
 
 namespace YADAW::Controller
 {
@@ -16,12 +15,6 @@ void process(YADAW::Audio::Device::IDevice* device,
         && (!std::is_same_v<YADAW::Audio::Device::IDevice, T>));
     static_cast<T*>(device)->process(audioProcessData);
 }
-}
-
-template<typename T>
-YADAW::Audio::Engine::DeviceNode createDeviceNode(T* device)
-{
-    return {static_cast<YADAW::Audio::Device::IDevice*>(device), &Impl::process<T>};
 }
 }
 
