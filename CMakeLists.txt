@@ -165,6 +165,8 @@ set(YADAW_COMMON_SOURCES
     src/ui/UI.cpp
     src/ui/UI.hpp
     src/util/Base.hpp
+    src/util/CircularDeque.hpp
+    src/util/CompilerSpecifics.hpp
     src/util/Constants.hpp
     src/util/Endian.cpp
     src/util/Endian.hpp
@@ -175,6 +177,7 @@ set(YADAW_COMMON_SOURCES
     src/util/Integration.hpp
     src/util/Literal.cpp
     src/util/Literal.hpp
+    src/util/LockFreeCircularQueue.hpp
     src/util/QStringUtil.cpp
     src/util/QStringUtil.hpp
     src/util/QmlUtil.hpp
@@ -208,7 +211,7 @@ qt_add_qml_module(YADAW
                   NO_PLUGIN
                   QML_FILES Events.qml YADAW.qml)
 
-if(${CMAKE_BUILD_TYPE} EQUAL Debug OR ${CMAKE_BUILD_TYPE} EQUAL RelWithDebInfo)
+if(CMAKE_BUILD_TYPE EQUAL Release OR ${CMAKE_BUILD_TYPE} EQUAL MinSizeRel)
     set_target_properties(YADAW PROPERTIES
         WIN32_EXECUTABLE TRUE
     )
