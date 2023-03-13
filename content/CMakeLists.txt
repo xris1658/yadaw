@@ -93,6 +93,11 @@ qt_add_qml_module(content
                     fonts/FiraSans-Regular.otf
                     fonts/FiraSansCondensed-Bold.otf
                     fonts/FiraSansCondensed-Regular.otf
+                    images/check.png
+                    images/error.png
+                    images/info.png
+                    images/question.png
+                    images/warning.png
                     images/Splashscreen.png
                     images/Main-icon.ico
                     images/qtlogo-64.png)

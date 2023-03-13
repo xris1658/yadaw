@@ -18,6 +18,7 @@ ApplicationWindow {
     property alias instrumentListModel: assets.instrumentListModel
     property alias audioEffectListModel: assets.audioEffectListModel
     property alias pluginDirectoryListModel: preferencesWindow.pluginDirectoryListModel
+    property alias systemFontRendering: preferencesWindow.systemFontRendering
 
     signal pluginScanComplete()
     onPluginScanComplete: {

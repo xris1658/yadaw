@@ -39,8 +39,6 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onLocateFileInExplorer(QString)));
     QObject::connect(sender, SIGNAL(startPluginScan()),
         this, SLOT(onStartPluginScan()));
-    QObject::connect(sender, SIGNAL(setSystemFontRendering(bool)),
-        this, SLOT(onSetSystemFontRendering(bool)));
 }
 
 void EventHandler::connectToEventReceiver(QObject* receiver)
@@ -81,6 +79,10 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appInstrumentListModel()));
     YADAW::UI::mainWindow->setProperty("audioEffectListModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioEffectListModel()));
+    YADAW::UI::mainWindow->setProperty("systemFontRendering",
+        QVariant::fromValue<bool>(YADAW::Controller::GeneralSettingsController::systemFontRendering()));
+    QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRendering(bool)),
+        this, SLOT(onSetSystemFontRendering(bool)));
     setQtVersion(qVersion());
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
 }
