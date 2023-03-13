@@ -93,6 +93,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/ConfigController.hpp
     src/controller/DatabaseController.cpp
     src/controller/DatabaseController.hpp
+    src/controller/GeneralSettingsController.cpp
+    src/controller/GeneralSettingsController.hpp
     src/controller/PluginController.cpp
     src/controller/PluginController.hpp
     src/controller/PluginDirectoryController.cpp
