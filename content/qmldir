@@ -32,6 +32,7 @@ MenuBar 1.0 MenuBar.qml
 MenuBarItem 1.0 MenuBarItem.qml
 MenuItem 1.0 MenuItem.qml
 MenuSeparator 1.0 MenuSeparator.qml
+MessageDialog 1.0 MessageDialog.qml
 MetronomeIcon 1.0 MetronomeIcon.qml
 PlayIcon 1.0 PlayIcon.qml
 PluginListView 1.0 PluginListView.qml

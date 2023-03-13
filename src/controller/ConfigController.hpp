@@ -10,6 +10,8 @@ const YAML::Node& defaultConfig();
 void initializeApplicationConfig();
 
 YAML::Node loadConfig();
+
+void saveConfig(const YAML::Node& config);
 }
 
 #endif //YADAW_SRC_CONTROLLER_CONFIGCONTROLLER

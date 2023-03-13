@@ -11,6 +11,7 @@ Window {
     property int firstColumnWidth: 125
     property int secondColumnWidth: 275
 
+    property alias systemFontRendering: generalSettings.systemFontRendering
     property alias pluginDirectoryListModel: pluginSettings.directoryListModel
 
     signal startPluginScan()
@@ -57,6 +58,7 @@ Window {
                 anchors.margins: 10
                 currentIndex: listView.currentIndex
                 GeneralSettings {
+                    id: generalSettings
                     firstColumnWidth: root.firstColumnWidth
                     secondColumnWidth: root.secondColumnWidth
                 }

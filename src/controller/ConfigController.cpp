@@ -55,4 +55,9 @@ YAML::Node loadConfig()
 {
     return YADAW::DAO::loadConfig(YADAW::DAO::appConfigPath());
 }
+
+void saveConfig(const YAML::Node& config)
+{
+    YADAW::DAO::saveConfig(config, YADAW::DAO::appConfigPath());
+}
 }

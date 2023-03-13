@@ -9,4 +9,5 @@ QtObject {
     signal removeWindowForDarkModeSupport()
     signal locatePathInExplorer(path: string)
     signal startPluginScan()
+    signal setSystemFontRendering(enabled: bool)
 }

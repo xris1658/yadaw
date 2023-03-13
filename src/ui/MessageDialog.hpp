@@ -15,7 +15,7 @@ enum IconType
     Info
 };
 
-void messageDialog(const QString& message, const QString& title, IconType icon);
+void messageDialog(const QString& message, const QString& title, IconType icon = IconType::None, bool modal = true);
 }
 
 #endif //YADAW_SRC_UI_MESSAGEDIALOG

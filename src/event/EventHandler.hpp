@@ -18,6 +18,7 @@ signals:
     void setQtVersion(const QString& version);
     void setSplashScreenText(const QString& text);
     void pluginScanComplete();
+    void messageDialog(const QString& message, const QString& title, int icon, bool modal);
 public slots:
     void onStartInitializingApplication();
     void onOpenMainWindow();
@@ -26,6 +27,7 @@ public slots:
     void onRemoveWindowForDarkModeSupport();
     void onLocateFileInExplorer(const QString& path);
     void onStartPluginScan();
+    void onSetSystemFontRendering(bool enabled);
 private:
     QObject* eventSender_;
     QObject* eventReceiver_;

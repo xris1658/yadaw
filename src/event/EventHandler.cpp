@@ -2,12 +2,14 @@
 
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
+#include "controller/GeneralSettingsController.hpp"
 #include "controller/PluginController.hpp"
 #include "controller/PluginDirectoryController.hpp"
 #include "controller/PluginListController.hpp"
 #include "event/EventBase.hpp"
 #include "native/Native.hpp"
 #include "native/WindowsDarkModeSupport.hpp"
+#include "ui/MessageDialog.hpp"
 #include "ui/UI.hpp"
 
 #include <QDir>
@@ -37,6 +39,8 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onLocateFileInExplorer(QString)));
     QObject::connect(sender, SIGNAL(startPluginScan()),
         this, SLOT(onStartPluginScan()));
+    QObject::connect(sender, SIGNAL(setSystemFontRendering(bool)),
+        this, SLOT(onSetSystemFontRendering(bool)));
 }
 
 void EventHandler::connectToEventReceiver(QObject* receiver)
@@ -49,6 +53,8 @@ void EventHandler::connectToEventReceiver(QObject* receiver)
         receiver, SIGNAL(setSplashScreenText(QString)));
     QObject::connect(this, SIGNAL(pluginScanComplete()),
         receiver, SIGNAL(pluginScanComplete()));
+    QObject::connect(this, SIGNAL(messageDialog(QString, QString, int, bool)),
+        receiver, SIGNAL(messageDialog(QString, QString, int, bool)));
 }
 
 void EventHandler::onStartInitializingApplication()
@@ -141,5 +147,11 @@ void EventHandler::onStartPluginScan()
         YADAW::Controller::appInstrumentListModel().update();
         YADAW::Controller::appAudioEffectListModel().update();
     }).detach();
+}
+
+void EventHandler::onSetSystemFontRendering(bool enabled)
+{
+    YADAW::Controller::GeneralSettingsController::setSystemFontRendering(enabled);
+    YADAW::UI::messageDialog("TODO", "TODO", YADAW::UI::IconType::Info);
 }
 }

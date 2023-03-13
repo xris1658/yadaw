@@ -5,6 +5,7 @@ Item {
     id: root
     width: firstColumnWidth + secondColumnWidth + grid.columnSpacing * 3
 
+    property alias systemFontRendering: systemFontRenderingSwitch.checked
     property int firstColumnWidth
     property int secondColumnWidth
 

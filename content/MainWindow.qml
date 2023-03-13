@@ -689,5 +689,8 @@ ApplicationWindow {
             console.log("startPluginScan");
             EventSender.startPluginScan();
         }
+        onSystemFontRenderingChanged: {
+            EventSender.setSystemFontRendering(systemFontRendering);
+        }
     }
 }

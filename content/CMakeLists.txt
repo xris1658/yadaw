@@ -55,6 +55,7 @@ set(CONTENT_QML_FILES
     MenuBarItem.qml
     MenuItem.qml
     MenuSeparator.qml
+    MessageDialog.qml
     MetronomeIcon.qml
     MIDIEffectIcon.qml
     Mnemonic.qml
