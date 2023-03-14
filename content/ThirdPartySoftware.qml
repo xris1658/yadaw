@@ -32,7 +32,7 @@ Window {
                         name: "Qt"
                         website: "qt.io"
                         description: "Cross-platform application development kit"
-                        license: "Commercial / GPL v3"
+                        license: "Commercial / LGPL v3"
                     }
                     ListElement {
                         name: "VST"
