@@ -10,8 +10,8 @@ Window {
     modality: Qt.WindowModal
     color: Colors.background
     width: column.width + 20
-    height: 360
-    minimumHeight: listView.contentHeight + noASIOSupportText.contentHeight + buttonArea.height + 20 + column.spacing * 2 + listRect.border.width * 2
+    height: minimumHeight + 50
+    minimumHeight: listView.contentHeight + noASIOSupportText.height + buttonArea.height + 20 + column.spacing * 2 + listRect.border.width * 2
     Column {
         id: column
         anchors.centerIn: parent
