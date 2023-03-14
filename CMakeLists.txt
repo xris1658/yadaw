@@ -206,6 +206,12 @@ add_executable(PluginScanTest ${YADAW_COMMON_SOURCES}
 add_executable(AudioGraphTest ${YADAW_COMMON_SOURCES}
     test/AudioGraphTest/main.cpp)
 
+add_executable(LockFreeQueueTest
+    src/util/CompilerSpecifics.hpp
+    src/util/LockFreeQueue.hpp
+    src/util/FixedSizeLockFreeQueue.hpp
+    test/LockFreeQueueTest/main.cpp)
+
 target_precompile_headers(YADAW PRIVATE src/pch.hpp)
 
 qt_add_qml_module(YADAW
@@ -246,7 +252,6 @@ target_link_libraries(PluginDirectoryScanTest PRIVATE
                       base pluginterfaces sdk_common sdk_hosting
                       unofficial::sqlite3::sqlite3
                       yaml-cpp)
-
 
 target_link_libraries(PluginScanTest PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
