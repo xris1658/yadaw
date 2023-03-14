@@ -46,6 +46,7 @@ SplashScreen 1.0 SplashScreen.qml
 TabBar 1.0 TabBar.qml
 TabButton 1.0 TabButton.qml
 TextField 1.0 TextField.qml
+ThirdPartySoftware 1.0 ThirdPartySoftware.qml
 TimeIndicator 1.0 TimeIndicator.qml
 TopBar 1.0 TopBar.qml
 VST3Icon 1.0 VST3Icon.qml

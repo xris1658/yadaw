@@ -50,9 +50,9 @@ ApplicationWindow {
             Action {
                 text: qsTr("&About YADAW...")
                 onTriggered: {
-                    var component = Qt.createComponent("AboutWindow.qml");
+                    let component = Qt.createComponent("AboutWindow.qml");
                     if(component.status == Component.Ready) {
-                        var aboutWindow = component.createObject(null);
+                        let aboutWindow = component.createObject(root);
                         EventSender.darkModeSupportWindow = aboutWindow;
                         EventSender.addWindowForDarkModeSupport();
                         aboutWindow.showNormal();
@@ -62,9 +62,9 @@ ApplicationWindow {
             Action {
                 text: qsTr("About &Qt...")
                 onTriggered: {
-                    var component = Qt.createComponent("AboutQtWindow.qml");
+                    let component = Qt.createComponent("AboutQtWindow.qml");
                     if(component.status == Component.Ready) {
-                        var aboutWindow = component.createObject(null);
+                        let aboutWindow = component.createObject(root);
                         EventSender.darkModeSupportWindow = aboutWindow;
                         EventSender.addWindowForDarkModeSupport();
                         aboutWindow.showNormal();

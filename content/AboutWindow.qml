@@ -57,9 +57,25 @@ Window {
             root.close();
         }
     }
+    Button {
+        id: buttonThirdPartySoftware
+        anchors.right: buttonOk.left
+        anchors.rightMargin: content.spacing
+        anchors.verticalCenter: buttonOk.verticalCenter
+        text: qsTr("&Powered by...")
+        onClicked: {
+            let component = Qt.createComponent("ThirdPartySoftware.qml");
+            if(component.status === Component.Ready) {
+                let window = component.createObject(root);
+                EventSender.darkModeSupportWindow = window;
+                EventSender.addWindowForDarkModeSupport();
+                window.showNormal();
+            }
+        }
+    }
     Label {
         text: "<a href=\"https://github.com/xris1658/yadaw\">GitHub</a>"
-        anchors.right: buttonOk.left
+        anchors.right: buttonThirdPartySoftware.left
         anchors.rightMargin: content.spacing
         anchors.verticalCenter: buttonOk.verticalCenter
         onLinkActivated: (link) => {

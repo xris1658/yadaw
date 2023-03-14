@@ -75,6 +75,7 @@ set(CONTENT_QML_FILES
     TabBar.qml
     TabButton.qml
     TextField.qml
+    ThirdPartySoftware.qml
     TimeIndicator.qml
     TopBar.qml
     VST3Icon.qml
