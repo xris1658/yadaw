@@ -55,11 +55,7 @@ public:
         if(!full())
         {
             // 1. Construct at tail
-            auto dest = end_.load(std::memory_order::memory_order_acquire);
-            if(dest == Capacity)
-            {
-                dest = 0;
-            }
+            auto dest = end_.load(std::memory_order::memory_order_acquire) % (Capacity + 1);
             new(data_.data() + dest) T(obj);
             // 2. Incrument tail
             bumpUpEnd();
@@ -72,11 +68,7 @@ public:
         if(!full())
         {
             // 1. Construct at tail
-            auto dest = end_.load(std::memory_order::memory_order_acquire);
-            if(dest == Capacity)
-            {
-                dest = 0;
-            }
+            auto dest = end_.load(std::memory_order::memory_order_acquire) % (Capacity + 1);
             new(data_.data() + dest) T(std::move(obj));
             // 2. Incrument tail
             bumpUpEnd();
@@ -90,11 +82,7 @@ public:
         if(!full())
         {
             // 1. Construct at tail
-            auto dest = end_.load(std::memory_order::memory_order_acquire);
-            if(dest == Capacity)
-            {
-                dest = 0;
-            }
+            auto dest = end_.load(std::memory_order::memory_order_acquire) % (Capacity + 1);
             new(data_.data() + dest) T(std::forward<Args>(args)...);
             // 2. Incrument tail
             bumpUpEnd();
@@ -107,15 +95,15 @@ public:
         if(!empty())
         {
             // 1. Move and destruct at head
-            auto ptr = reinterpret_cast<T*>(data_.data() +
-                (begin_.load(std::memory_order::memory_order_acquire) % Capacity));
+            auto ptr = reinterpret_cast<T*>(data_.data()) +
+                (begin_.load(std::memory_order::memory_order_acquire) % (Capacity + 1));
             if(std::is_move_assignable_v<T>)
             {
                 obj = std::move(*ptr);
             }
             else
             {
-                obj = ptr;
+                obj = *ptr;
             }
             if(!std::is_trivially_destructible_v<T>)
             {
@@ -132,8 +120,8 @@ public:
         if(!empty())
         {
             // 1. Move and destruct at head
-            auto ptr = reinterpret_cast<T*>(data_.data() +
-                (begin_.load(std::memory_order::memory_order_acquire) % Capacity));
+            auto ptr = reinterpret_cast<T*>(data_.data()) +
+                (begin_.load(std::memory_order::memory_order_acquire) % (Capacity + 1));
             if(!std::is_trivially_destructible_v<T>)
             {
                 ptr->~T();
@@ -145,7 +133,7 @@ public:
         return false;
     }
 private:
-    std::array<std::byte[sizeof(T)], Capacity> data_;
+    std::array<std::byte[sizeof(T)], Capacity + 1> data_;
     std::atomic_size_t begin_ = 0;
     std::atomic_size_t end_ = 0;
 };

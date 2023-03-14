@@ -62,12 +62,9 @@ public:
     {
         if(!full())
         {
-            auto dest = end_.load(std::memory_order::memory_order_acquire);
-            if(dest == capacity_ + 1)
-            {
-                dest = 0;
-            }
+            auto dest = end_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1);
             new (data_ + dest) T(obj);
+            bumpUpEnd();
             return true;
         }
         return false;
@@ -76,12 +73,9 @@ public:
     {
         if(!full())
         {
-            auto dest = end_.load(std::memory_order::memory_order_acquire);
-            if(dest == capacity_ + 1)
-            {
-                dest = 0;
-            }
+            auto dest = end_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1);
             new (data_ + dest) T(std::move(obj));
+            bumpUpEnd();
             return true;
         }
         return false;
@@ -89,15 +83,11 @@ public:
     template<typename... Args>
     bool emplace(Args&&... args)
     {
-
         if(!full())
         {
-            auto dest = end_.load(std::memory_order::memory_order_acquire);
-            if(dest == capacity_ + 1)
-            {
-                dest = 0;
-            }
+            auto dest = end_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1);
             new (data_ + dest) T(std::forward<Args>(args)...);
+            bumpUpEnd();
             return true;
         }
         return false;
@@ -113,7 +103,7 @@ public:
             }
             else
             {
-                obj = ptr;
+                obj = *ptr;
             }
             if(!std::is_trivially_destructible_v<T>)
             {
@@ -136,6 +126,7 @@ public:
             bumpUpBegin();
             return true;
         }
+        return false;
     }
 private:
     T* data_;
