@@ -174,6 +174,7 @@ set(YADAW_COMMON_SOURCES
     src/util/Endian.hpp
     src/util/FileHash.cpp
     src/util/FileHash.hpp
+    src/util/FixedSizeCircularDeque.hpp
     src/util/FixedSizeLockFreeQueue.hpp
     src/util/FixedSizeMemoryBlock.hpp
     src/util/Integration.cpp
@@ -205,12 +206,6 @@ add_executable(PluginScanTest ${YADAW_COMMON_SOURCES}
 
 add_executable(AudioGraphTest ${YADAW_COMMON_SOURCES}
     test/AudioGraphTest/main.cpp)
-
-add_executable(LockFreeQueueTest
-    src/util/CompilerSpecifics.hpp
-    src/util/LockFreeQueue.hpp
-    src/util/FixedSizeLockFreeQueue.hpp
-    test/LockFreeQueueTest/main.cpp)
 
 target_precompile_headers(YADAW PRIVATE src/pch.hpp)
 
@@ -261,3 +256,5 @@ target_link_libraries(PluginScanTest PRIVATE
                       base pluginterfaces sdk_common sdk_hosting
                       unofficial::sqlite3::sqlite3
                       yaml-cpp)
+
+add_subdirectory(test)

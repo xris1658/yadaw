@@ -1,35 +1,25 @@
-#ifndef YADAW_SRC_UTIL_CIRCULARDEQUE
-#define YADAW_SRC_UTIL_CIRCULARDEQUE
+#ifndef YADAW_UTIL_CIRCULARDEQUE
+#define YADAW_UTIL_CIRCULARDEQUE
 
+#include <array>
 #include <stdexcept>
 
 namespace YADAW::Util
 {
-template<typename T>
-class CircularDeque
+template<typename T, std::size_t Capacity>
+class FixedSizeCircularDeque
 {
-    using Self = CircularDeque<T>;
+    using Self = FixedSizeCircularDeque<T, Capacity>;
 public:
-    CircularDeque(std::size_t capacity):
-        data_(reinterpret_cast<T*>(std::malloc(capacity * sizeof(T)))),
-        capacity_(capacity),
-        start_(0),
-        count_(0)
+    FixedSizeCircularDeque(): data_()
     {
-        if(!data_)
-        {
-            capacity_ = 0;
-        }
+        //
     }
-    CircularDeque(const Self&) = delete;
-    Self& operator=(const Self&) = delete;
-    CircularDeque(Self&&) = delete;
-    Self& operator=(Self&&) = delete;
-    ~CircularDeque()
-    {
-        clear();
-        std::free(data_);
-    }
+    FixedSizeCircularDeque(const Self& rhs) = default;
+    Self& operator=(const Self& rhs) = default;
+    FixedSizeCircularDeque(Self&& rhs) noexcept = default;
+    Self& operator=(Self&& rhs) noexcept = default;
+    ~FixedSizeCircularDeque() noexcept = default;
 public:
     const T& front() const
     {
@@ -49,7 +39,7 @@ public:
     }
     const T& operator[](std::size_t index) const
     {
-        return data_[(start_ + index) % capacity_];
+        return reinterpret_cast<const T&>(data_[(start_ + index) % Capacity]);
     }
     T& operator[](std::size_t index)
     {
@@ -57,9 +47,9 @@ public:
     }
     const T& at(std::size_t index) const
     {
-        if(index > size())
+        if(index >= count_)
         {
-            throw std::out_of_range("Error: CircularDeque subscript out of range");
+            throw std::out_of_range("Error: FixedSizeCircularDeque subscript out of range");
         }
         return operator[](index);
     }
@@ -67,28 +57,28 @@ public:
     {
         return const_cast<T&>(static_cast<const Self&>(*this).at(index));
     }
-    std::size_t size() const noexcept
+    std::size_t size() const
     {
         return count_;
     }
-    std::size_t capacity() const noexcept
+    std::size_t capacity() const
     {
-        return capacity_;
+        return Capacity;
     }
-    bool empty() const noexcept
+    bool empty() const
     {
         return count_ == 0;
     }
-    bool full() const noexcept
+    bool full() const
     {
-        return count_ == capacity_;
+        return count_ == Capacity;
     }
 private:
     void beforePushFront()
     {
         if(start_ == 0)
         {
-            start_ = capacity_ - 1;
+            start_ = Capacity - 1;
         }
         else
         {
@@ -139,7 +129,7 @@ public:
                 (&front())->~T();
             }
             ++start_;
-            if(start_ == capacity_)
+            if(start_ == Capacity)
             {
                 start_ = 0;
             }
@@ -200,11 +190,10 @@ public:
         }
     }
 private:
-    T* data_;
-    std::size_t capacity_;
-    std::size_t start_;
-    std::size_t count_;
+    std::array<std::byte[sizeof(T)], Capacity> data_;
+    std::size_t start_ = 0;
+    std::size_t count_ = 0;
 };
 }
 
-#endif //YADAW_SRC_UTIL_CIRCULARDEQUE
+#endif //YADAW_UTIL_CIRCULARDEQUE
