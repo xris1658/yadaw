@@ -58,6 +58,10 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VST3Host.hpp
     src/audio/host/VST3Message.cpp
     src/audio/host/VST3Message.hpp
+    src/audio/host/VST3ParameterChanges.cpp
+    src/audio/host/VST3ParameterChanges.hpp
+    src/audio/host/VST3ParameterValueQueue.cpp
+    src/audio/host/VST3ParameterValueQueue.hpp
     src/audio/plugin/CLAPChannelGroup.cpp
     src/audio/plugin/CLAPChannelGroup.hpp
     src/audio/plugin/CLAPPlugin.cpp

@@ -8,6 +8,7 @@ VST3AttributeList::VST3AttributeList()
 
 VST3AttributeList* VST3AttributeList::createAttributeList()
 {
+    // TODO: Use memory pool
     try
     {
         return new VST3AttributeList;

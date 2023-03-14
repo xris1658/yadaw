@@ -11,6 +11,7 @@ VST3Message::VST3Message()
 
 VST3Message* VST3Message::createMessage()
 {
+    // TODO: Use memory pool
     try
     {
         return new VST3Message;
