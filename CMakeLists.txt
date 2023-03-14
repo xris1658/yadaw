@@ -174,12 +174,13 @@ set(YADAW_COMMON_SOURCES
     src/util/Endian.hpp
     src/util/FileHash.cpp
     src/util/FileHash.hpp
+    src/util/FixedSizeLockFreeQueue.hpp
     src/util/FixedSizeMemoryBlock.hpp
     src/util/Integration.cpp
     src/util/Integration.hpp
     src/util/Literal.cpp
     src/util/Literal.hpp
-    src/util/LockFreeCircularQueue.hpp
+    src/util/LockFreeQueue.hpp
     src/util/QStringUtil.cpp
     src/util/QStringUtil.hpp
     src/util/QmlUtil.hpp
