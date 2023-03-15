@@ -52,6 +52,7 @@ private:
     void resetProcessData();
 private:
     IPlugin::Status status_ = IPlugin::Status::Empty;
+    clap_process_status processStatus_;
     const clap_plugin_entry* entry_ = nullptr;
     const clap_plugin_factory* factory_ = nullptr;
     const clap_plugin* plugin_ = nullptr;
@@ -64,7 +65,6 @@ private:
     std::vector<clap_audio_buffer> inputBuffers_;
     std::vector<clap_audio_buffer> outputBuffers_;
     clap_process processData_;
-    clap_process_status processStatus_;
     std::unique_ptr<CLAPPluginGUI> gui_;
     std::unique_ptr<CLAPPluginParameter> parameter_;
 };
