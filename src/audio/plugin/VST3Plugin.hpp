@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_PLUGIN_VST3PLUGIN
 #define YADAW_SRC_AUDIO_PLUGIN_VST3PLUGIN
 
+#include "audio/host/VST3ComponentHandler.hpp"
 #include "audio/plugin/IPlugin.hpp"
 #include "audio/plugin/VST3ChannelGroup.hpp"
 #include "audio/plugin/VST3PluginGUI.hpp"
@@ -75,6 +76,7 @@ private:
     std::vector<Steinberg::Vst::AudioBusBuffers> outputBuffers_;
     std::unique_ptr<VST3PluginGUI> gui_;
     std::unique_ptr<VST3PluginParameter> parameter_;
+    std::unique_ptr<YADAW::Audio::Host::VST3ComponentHandler> componentHandler_;
 };
 }
 

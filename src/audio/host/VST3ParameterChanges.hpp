@@ -12,7 +12,7 @@ using namespace Steinberg;
 class VST3ParameterChanges: public Vst::IParameterChanges
 {
 public:
-    VST3ParameterChanges();
+    VST3ParameterChanges(std::size_t parameterCount);
     ~VST3ParameterChanges() noexcept;
 public:
     tresult queryInterface(const int8* _iid, void** obj) override;
@@ -22,6 +22,8 @@ public:
     int32 getParameterCount() override;
     Vst::IParamValueQueue* getParameterData(int32 index) override;
     Vst::IParamValueQueue* addParameterData(const Vst::ParamID& id, int32& index) override;
+public:
+    void clear();
 private:
     std::deque<YADAW::Audio::Host::VST3ParameterValueQueue> parameterValueQueues_;
 };

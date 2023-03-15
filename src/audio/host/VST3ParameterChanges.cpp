@@ -4,13 +4,13 @@ namespace YADAW::Audio::Host
 {
 using namespace Steinberg;
 
-VST3ParameterChanges::VST3ParameterChanges()
+VST3ParameterChanges::VST3ParameterChanges(std::size_t parameterCount)
 {
+    parameterValueQueues_.resize(parameterCount, 0);
+    parameterValueQueues_.clear();
 }
 
-VST3ParameterChanges::~VST3ParameterChanges() noexcept
-{
-}
+VST3ParameterChanges::~VST3ParameterChanges() noexcept = default;
 
 tresult VST3ParameterChanges::queryInterface(const int8* _iid, void** obj)
 {
@@ -58,5 +58,10 @@ Vst::IParamValueQueue* VST3ParameterChanges::addParameterData(const Vst::ParamID
         index = -1;
         return nullptr;
     }
+}
+
+void VST3ParameterChanges::clear()
+{
+    parameterValueQueues_.clear();
 }
 }

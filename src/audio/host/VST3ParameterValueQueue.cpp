@@ -55,6 +55,7 @@ tresult VST3ParameterValueQueue::addPoint(int32 sampleOffset, Vst::ParamValue va
     {
         index = container_.size();
         container_.emplaceBack(sampleOffset, value);
+        return kResultOk;
     }
     return kOutOfMemory;
 }

@@ -18,7 +18,9 @@ class VST3ParameterValueQueue: public Vst::IParamValueQueue
         Point(const int32& sampleOffset, double paramValue):
             sampleOffset_(sampleOffset), paramValue_(paramValue)
         {}
+        ~Point() = default;
     };
+    static_assert(std::is_trivially_destructible_v<Point>);
 public:
     VST3ParameterValueQueue(Vst::ParamID paramId);
     ~VST3ParameterValueQueue() = default;

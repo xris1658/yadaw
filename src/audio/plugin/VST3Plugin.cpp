@@ -250,6 +250,10 @@ const Device::IChannelGroup& VST3Plugin::audioOutputGroupAt(int index) const
 
 void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData)
 {
+    if(componentHandler_)
+    {
+        componentHandler_->consumeParameterChanges(processData_);
+    }
     processData_.numSamples = audioProcessData.singleBufferSize;
     for(int i = 0; i < processData_.numInputs; ++i)
     {
@@ -329,6 +333,8 @@ bool VST3Plugin::initializeEditController()
     {
         return false;
     }
+    componentHandler_ = std::make_unique<YADAW::Audio::Host::VST3ComponentHandler>(this);
+    editController_->setComponentHandler(componentHandler_.get());
     if(queryInterface(component_, &componentPoint_) == Steinberg::kResultOk
         && queryInterface(editController_, &editControllerPoint_) == Steinberg::kResultOk
     )
@@ -353,6 +359,7 @@ bool VST3Plugin::uninitializeEditController()
     }
     if(editController_)
     {
+        componentHandler_.reset();
         return editController_->terminate() == Steinberg::kResultOk;
     }
     return true;
