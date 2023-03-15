@@ -1,5 +1,6 @@
 #include "VST3Plugin.hpp"
 
+#include "audio/host/VST3Host.hpp"
 #include "audio/plugin/VST3PluginGUI.hpp"
 #include "audio/plugin/VST3PluginParameter.hpp"
 #include "audio/util/VST3Util.hpp"
@@ -103,7 +104,7 @@ const Steinberg::Vst::ProcessSetup& VST3Plugin::processSetup()
 bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 {
     auto createEditControllerResult = createEditController();
-    if(component_->initialize(nullptr) != Steinberg::kResultOk) // FIXME: Use VST3Host here
+    if(component_->initialize(&YADAW::Audio::Host::VST3Host::instance()) != Steinberg::kResultOk)
     {
         return false;
     }
@@ -123,8 +124,17 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
     {
         return false;
     }
+    status_ = IPlugin::Status::Initialized;
     // TODO: negotiate bus arrangement
     prepareAudioRelatedInfo();
+    for(int i = 0; i < audioInputGroupCount(); ++i)
+    {
+        component_->activateBus(MediaTypes::kAudio, BusDirections::kInput, i, true);
+    }
+    for(int i = 0; i < audioOutputGroupCount(); ++i)
+    {
+        component_->activateBus(MediaTypes::kAudio, BusDirections::kOutput, i, true);
+    }
     prepareProcessData(processSetup_.processMode);
     if(createEditControllerResult)
     {
@@ -329,7 +339,7 @@ bool VST3Plugin::createEditController()
 
 bool VST3Plugin::initializeEditController()
 {
-    if(editController_->initialize(nullptr) != Steinberg::kResultOk) // FIXME: Use VST3ComponentHandler
+    if(editController_->initialize(componentHandler_.get()) != Steinberg::kResultOk)
     {
         return false;
     }
@@ -359,8 +369,10 @@ bool VST3Plugin::uninitializeEditController()
     }
     if(editController_)
     {
+        gui_.reset();
+        auto terminateResult = editController_->terminate();
         componentHandler_.reset();
-        return editController_->terminate() == Steinberg::kResultOk;
+        return terminateResult == Steinberg::kResultOk;
     }
     return true;
 }

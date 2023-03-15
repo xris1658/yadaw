@@ -76,6 +76,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/IPluginParameter.hpp
     src/audio/plugin/VST3ChannelGroup.cpp
     src/audio/plugin/VST3ChannelGroup.hpp
+    src/audio/plugin/VST3PlugFrame.cpp
+    src/audio/plugin/VST3PlugFrame.hpp
     src/audio/plugin/VST3Plugin.cpp
     src/audio/plugin/VST3Plugin.hpp
     src/audio/plugin/VST3PluginGUI.cpp
@@ -210,6 +212,11 @@ add_executable(PluginScanTest ${YADAW_COMMON_SOURCES}
 
 add_executable(AudioGraphTest ${YADAW_COMMON_SOURCES}
     test/AudioGraphTest/main.cpp)
+
+add_executable(VST3Test ${YADAW_COMMON_SOURCES}
+    test/VST3Test/PluginWindowThread.hpp
+    test/VST3Test/PluginWindowThread.cpp
+    test/VST3Test/main.cpp)
 
 target_precompile_headers(YADAW PRIVATE src/pch.hpp)
 

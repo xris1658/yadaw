@@ -67,7 +67,7 @@ tresult VST3AttributeList::getInt(IAttributeList::AttrID id, int64& value)
             return kResultOk;
         }
     }
-    return kInvalidArgument;
+    return kNotInitialized;
 }
 
 tresult VST3AttributeList::setFloat(IAttributeList::AttrID id, double value)
@@ -94,7 +94,7 @@ tresult VST3AttributeList::getFloat(IAttributeList::AttrID id, double& value)
             return kResultOk;
         }
     }
-    return kInvalidArgument;
+    return kNotInitialized;
 }
 
 tresult VST3AttributeList::setString(IAttributeList::AttrID id, const TChar* string)
@@ -129,7 +129,7 @@ tresult VST3AttributeList::getString(IAttributeList::AttrID id, TChar* string, u
             return kInvalidArgument;
         }
     }
-    return kInvalidArgument;
+    return kNotInitialized;
 }
 
 tresult VST3AttributeList::setBinary(IAttributeList::AttrID id, const void* data, uint32 sizeInBytes)
@@ -140,7 +140,7 @@ tresult VST3AttributeList::setBinary(IAttributeList::AttrID id, const void* data
     }
     try
     {
-        std::vector<char>& vector = map_[id].emplace<std::vector<char>>();
+        auto& vector = map_[id].emplace<std::vector<char>>();
         vector.resize(sizeInBytes);
         auto dataAsChar = reinterpret_cast<const char*>(data);
         std::copy(dataAsChar, dataAsChar + sizeInBytes, vector.begin());
@@ -156,14 +156,13 @@ tresult VST3AttributeList::getBinary(IAttributeList::AttrID id, const void*& dat
 {
     if(auto it = map_.find(id); it != map_.end())
     {
-        auto ptrToValue = std::get_if<std::vector<char>>(&(it->second));
-        if(ptrToValue)
+        if(const auto& ptrToValue = std::get_if<std::vector<char>>(&(it->second)); ptrToValue)
         {
             data = ptrToValue->data();
             sizeInBytes = ptrToValue->size();
             return kResultOk;
         }
     }
-    return kInvalidArgument;
+    return kNotInitialized;
 }
 }

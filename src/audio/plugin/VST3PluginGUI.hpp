@@ -2,8 +2,12 @@
 #define YADAW_SRC_AUDIO_PLUGIN_VST3PLUGINGUI
 
 #include "audio/plugin/IPluginGUI.hpp"
+#include "audio/plugin/VST3PlugFrame.hpp"
 
 #include <pluginterfaces/gui/iplugview.h>
+
+#include <QObject>
+#include <QWindow>
 
 namespace YADAW::Audio::Plugin
 {
@@ -21,10 +25,16 @@ public:
     QWindow* window() override;
     bool detachWithWindow() override;
 public:
+    void connect();
+    void disconnect();
+public:
     Steinberg::IPlugView* plugView();
+    void onWindowSizeChanged();
 private:
     Steinberg::IPlugView* plugView_ = nullptr;
     QWindow* window_ = nullptr;
+    YADAW::Audio::Plugin::VST3PlugFrame frame_;
+    QMetaObject::Connection connections_[2];
 };
 }
 
