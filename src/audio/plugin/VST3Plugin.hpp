@@ -50,6 +50,10 @@ public:
     const Device::IChannelGroup& audioInputGroupAt(int index) const override;
     const Device::IChannelGroup& audioOutputGroupAt(int index) const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
+public:
+    YADAW::Audio::Host::VST3ComponentHandler* componentHandler();
+    // This function must not be called on the audio thread
+    void consumeOutputParameterChanges(Steinberg::Vst::IParameterChanges* outputParameterChanges);
 private:
     void prepareAudioRelatedInfo();
     void clearAudioRelatedInfo();

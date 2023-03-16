@@ -5,6 +5,10 @@
 #include "audio/plugin/VST3PluginParameter.hpp"
 #include "audio/util/VST3Util.hpp"
 
+// For some reason, memorystream.cpp is not included in sdk_common library, so I have to solve this
+// by `#include`ing the source file in another source: `audio/plugin/VST3MemoryStream.cpp`.
+#include <public.sdk/source/common/memorystream.h>
+
 namespace YADAW::Audio::Plugin
 {
 VST3Plugin::VST3Plugin()
@@ -262,7 +266,7 @@ void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData
 {
     if(componentHandler_)
     {
-        componentHandler_->consumeParameterChanges(processData_);
+        componentHandler_->consumeInputParameterChanges(processData_);
     }
     processData_.numSamples = audioProcessData.singleBufferSize;
     for(int i = 0; i < processData_.numInputs; ++i)
@@ -274,6 +278,32 @@ void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData
         processData_.outputs[i].channelBuffers32 = audioProcessData.outputs[i];
     }
     audioProcessor_->process(processData_);
+}
+
+YADAW::Audio::Host::VST3ComponentHandler* VST3Plugin::componentHandler()
+{
+    return componentHandler_.get();
+}
+
+void VST3Plugin::consumeOutputParameterChanges(Steinberg::Vst::IParameterChanges* outputParameterChanges)
+{
+    auto outputParameterChangeCount = outputParameterChanges->getParameterCount();
+    for(decltype(outputParameterChangeCount) i = 0; i < outputParameterChangeCount; ++i)
+    {
+        if(auto ptr = outputParameterChanges->getParameterData(i); ptr)
+        {
+            auto pointCount = ptr->getPointCount();
+            if(pointCount != 0)
+            {
+                Steinberg::int32 sampleOffset = 0;
+                ParamValue value = 0.0;
+                if(ptr->getPoint(pointCount - 1, sampleOffset, value) == Steinberg::kResultOk)
+                {
+                    editController_->setParamNormalized(ptr->getParameterId(), value);
+                }
+            }
+        }
+    }
 }
 
 void VST3Plugin::prepareAudioRelatedInfo()
@@ -345,6 +375,13 @@ bool VST3Plugin::initializeEditController()
     }
     componentHandler_ = std::make_unique<YADAW::Audio::Host::VST3ComponentHandler>(this);
     editController_->setComponentHandler(componentHandler_.get());
+    // TODO: Replace this with self-implemented `IBStream` (not started yet)
+    Steinberg::MemoryStream stream;
+    if(component_->getState(&stream) == Steinberg::kResultOk)
+    {
+        // component_->setState(&stream);
+        editController_->setComponentState(&stream);
+    }
     if(queryInterface(component_, &componentPoint_) == Steinberg::kResultOk
         && queryInterface(editController_, &editControllerPoint_) == Steinberg::kResultOk
     )

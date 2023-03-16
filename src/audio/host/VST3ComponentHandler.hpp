@@ -17,6 +17,22 @@ namespace YADAW::Audio::Host
 {
 using namespace Steinberg;
 using namespace Steinberg::Vst;
+
+// A VST3 plugin uses a `IParameterChanges` pair for `IAudioProcessor::process`, with one being
+// the input and the other being the output.
+// For consistent processing, this class uses a double-buffering model. The component handler reads
+// the output from plugin, calls `IEditController::setParamNormalized` for plugin GUI playback, and
+// writes the input. In the meantime, the plugin reads the input from component handler by setting
+// `ProcessData::inputParameterChanges` followed by `IAudioProcessor::process`, which fills the
+// output.
+// For lack of a clearer contract, this class can cause severe problems as follows, thus NOT ready
+// for actual use.
+// QUES: Detail of contract: Which end is responsible for clearing the parameter changes?
+//  The component handler or the plugin? Why?
+// QUES: Detail of contract: Which end is responsible for switching buffers?
+// FIXME: Clearing `mappings_` during `beginEdit` and `performEdit` will cause severe error,
+//  like "vector iterators incompatible" on MSVC. We have to make some careful moves in case
+//  `performEdit` appears across the switching and clearing process.
 class VST3ComponentHandler:
     public Steinberg::Vst::IComponentHandler
 {
@@ -29,11 +45,14 @@ public:
     Self& operator=(Self&&) = delete;
     ~VST3ComponentHandler() noexcept;
 public:
-    DECLARE_FUNKNOWN_METHODS
+    tresult queryInterface(const Steinberg::TUID iid, void** obj) override;
+    uint32 addRef() override;
+    uint32 release() override;
 private:
     int32 doBeginEdit(int bufferIndex, ParamID id);
     tresult doPerformEdit(int bufferIndex, int32 index, ParamValue normalizedValue,
         std::int64_t timestamp);
+    tresult doEndEdit(ParamID id);
 public:
     tresult PLUGIN_API beginEdit(ParamID id) override;
     tresult PLUGIN_API performEdit(ParamID id, ParamValue normalizedValue) override;
@@ -41,7 +60,7 @@ public:
     tresult PLUGIN_API restartComponent(int32 flags) override;
 public:
     void switchBuffer(std::int64_t switchTimestampInNanosecond);
-    void consumeParameterChanges(Vst::ProcessData& processData);
+    void consumeInputParameterChanges(Vst::ProcessData& processData);
     double sampleRate() const;
 private:
     YADAW::Audio::Plugin::VST3Plugin* plugin_;
@@ -49,7 +68,8 @@ private:
     int bufferIndex_;
     // Set on switchBuffer
     std::int64_t timestamp_;
-    YADAW::Audio::Host::VST3ParameterChanges parameterChanges_[2];
+    YADAW::Audio::Host::VST3ParameterChanges inputParameterChanges_[2];
+    YADAW::Audio::Host::VST3ParameterChanges outputParameterChanges_[2];
     std::vector<std::pair<ParamID, int32>> mappings_[2];
 };
 

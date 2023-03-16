@@ -76,6 +76,7 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/IPluginParameter.hpp
     src/audio/plugin/VST3ChannelGroup.cpp
     src/audio/plugin/VST3ChannelGroup.hpp
+    src/audio/plugin/VST3MemoryStream.cpp
     src/audio/plugin/VST3PlugFrame.cpp
     src/audio/plugin/VST3PlugFrame.hpp
     src/audio/plugin/VST3Plugin.cpp
