@@ -24,6 +24,8 @@ enum ParameterFlags: std::int32_t
 class IParameter
 {
 public:
+    virtual ~IParameter() = default;
+public:
     virtual std::uint32_t id() const = 0;
     virtual QString name() const = 0;
     virtual double minValue() const = 0;
