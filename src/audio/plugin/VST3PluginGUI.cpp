@@ -41,7 +41,7 @@ bool VST3PluginGUI::attachToWindow(QWindow* window)
         {
             window_->setWidth(rect.getWidth());
             window_->setHeight(rect.getHeight());
-            // connect();
+            connect();
         }
     }
     return attachResult == Steinberg::kResultOk;
@@ -88,18 +88,24 @@ Steinberg::IPlugView* VST3PluginGUI::plugView()
 
 void VST3PluginGUI::onWindowSizeChanged()
 {
-    Steinberg::ViewRect newSize;
-    if(plugView_->onSize(&newSize) != Steinberg::kResultOk)
-    {
-        return;
-    }
-    auto& tweakedNewSize = newSize;
-    if(plugView_->getSize(&newSize) != Steinberg::kResultOk)
+    // https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical+Documentation/Workflow+Diagrams/Resize+View+Call+Sequence.html#initiated-from-host
+    Steinberg::ViewRect oldRect;
+    plugView_->getSize(&oldRect);
+    Steinberg::ViewRect windowRect;
+    windowRect.left = window_->x();
+    windowRect.top = window_->y();
+    windowRect.right = windowRect.left + window_->width();
+    windowRect.bottom = windowRect.top + window_->height();
+    if(plugView_->checkSizeConstraint(&windowRect) == Steinberg::kResultOk)
     {
         disconnect();
-        window_->setWidth(tweakedNewSize.getWidth());
-        window_->setHeight(tweakedNewSize.getHeight());
-        connect();
+        window_->setWidth(windowRect.getWidth());
+        window_->setHeight(windowRect.getHeight());
+        if(plugView_->onSize(&windowRect) != Steinberg::kResultOk)
+        {
+            window_->setWidth(oldRect.getWidth());
+            window_->setHeight(oldRect.getHeight());
+        }
     }
 }
 }
