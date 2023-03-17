@@ -26,8 +26,9 @@ int splitSubCategories(SubCategories& subCategories, SplittedSubCategories& spli
             {
                 splittedSubCategories[splittedSubCategoryCount++] = subCategories + indexToAppend;
             }
-            return splittedSubCategoryCount;
+            break;
         }
     }
+    return splittedSubCategoryCount;
 }
 }
