@@ -45,6 +45,9 @@ public:
     IPluginGUI* gui() override;
     IPluginParameter* parameter() override;
 public:
+    VST3PluginGUI* pluginGUI();
+    VST3PluginParameter* pluginParameter();
+public:
     int audioInputGroupCount() const override;
     int audioOutputGroupCount() const override;
     const Device::IChannelGroup& audioInputGroupAt(int index) const override;

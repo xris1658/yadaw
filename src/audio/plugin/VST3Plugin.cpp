@@ -217,8 +217,18 @@ IPlugin::Status VST3Plugin::status()
     return status_;
 }
 
-// FIXME: Not thread-safe
 IPluginGUI* VST3Plugin::gui()
+{
+    return pluginGUI();
+}
+
+IPluginParameter* VST3Plugin::parameter()
+{
+    return pluginParameter();
+}
+
+// FIXME: Not thread-safe
+VST3PluginGUI* VST3Plugin::pluginGUI()
 {
     if(editController_ && (!gui_))
     {
@@ -229,13 +239,11 @@ IPluginGUI* VST3Plugin::gui()
 }
 
 // FIXME: Not thread-safe
-IPluginParameter* VST3Plugin::parameter()
+VST3PluginParameter* VST3Plugin::pluginParameter()
 {
     if(editController_ && (!parameter_))
     {
-        parameter_ = std::make_unique<VST3PluginParameter>(
-            editController_
-        );
+        parameter_ = std::make_unique<VST3PluginParameter>(editController_);
     }
     return parameter_.get();
 }
