@@ -106,6 +106,7 @@ void VST3PluginGUI::onWindowSizeChanged()
             window_->setWidth(oldRect.getWidth());
             window_->setHeight(oldRect.getHeight());
         }
+        connect();
     }
 }
 }
