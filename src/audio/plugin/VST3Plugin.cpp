@@ -369,7 +369,7 @@ bool VST3Plugin::createEditController()
 
 bool VST3Plugin::initializeEditController()
 {
-    if(editController_->initialize(componentHandler_.get()) != Steinberg::kResultOk)
+    if(editController_->initialize(&YADAW::Audio::Host::VST3Host::instance()) != Steinberg::kResultOk)
     {
         return false;
     }
