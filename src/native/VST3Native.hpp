@@ -10,10 +10,6 @@ namespace YADAW::Native
 {
 extern const Steinberg::FIDString ViewType;
 
-extern const char* initEntryName;
-extern const char* exitEntryName;
-extern const char* factoryEntryName;
-
 YADAW::Audio::Plugin::VST3Plugin createVST3FromLibrary(Library& library);
 }
 
