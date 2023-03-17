@@ -32,6 +32,7 @@ Steinberg::uint32 VST3PlugFrame::release()
 
 Steinberg::tresult VST3PlugFrame::resizeView(Steinberg::IPlugView* view, Steinberg::ViewRect* newSize)
 {
+    // https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical+Documentation/Workflow+Diagrams/Resize+View+Call+Sequence.html#initiated-from-plug-in
     if(auto window = gui_->window())
     {
         Steinberg::ViewRect oldSize;
