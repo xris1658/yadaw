@@ -266,7 +266,7 @@ void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData
 {
     if(componentHandler_)
     {
-        componentHandler_->consumeInputParameterChanges(processData_);
+        componentHandler_->attachToProcessData(processData_);
     }
     processData_.numSamples = audioProcessData.singleBufferSize;
     for(int i = 0; i < processData_.numInputs; ++i)
@@ -283,27 +283,6 @@ void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData
 YADAW::Audio::Host::VST3ComponentHandler* VST3Plugin::componentHandler()
 {
     return componentHandler_.get();
-}
-
-void VST3Plugin::consumeOutputParameterChanges(Steinberg::Vst::IParameterChanges* outputParameterChanges)
-{
-    auto outputParameterChangeCount = outputParameterChanges->getParameterCount();
-    for(decltype(outputParameterChangeCount) i = 0; i < outputParameterChangeCount; ++i)
-    {
-        if(auto ptr = outputParameterChanges->getParameterData(i); ptr)
-        {
-            auto pointCount = ptr->getPointCount();
-            if(pointCount != 0)
-            {
-                Steinberg::int32 sampleOffset = 0;
-                ParamValue value = 0.0;
-                if(ptr->getPoint(pointCount - 1, sampleOffset, value) == Steinberg::kResultOk)
-                {
-                    editController_->setParamNormalized(ptr->getParameterId(), value);
-                }
-            }
-        }
-    }
 }
 
 void VST3Plugin::prepareAudioRelatedInfo()

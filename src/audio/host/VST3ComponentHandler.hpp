@@ -60,7 +60,8 @@ public:
     tresult PLUGIN_API restartComponent(int32 flags) override;
 public:
     void switchBuffer(std::int64_t switchTimestampInNanosecond);
-    void consumeInputParameterChanges(Vst::ProcessData& processData);
+    void attachToProcessData(Vst::ProcessData& processData);
+    void consumeOutputParameterChanges();
     double sampleRate() const;
 private:
     YADAW::Audio::Plugin::VST3Plugin* plugin_;
