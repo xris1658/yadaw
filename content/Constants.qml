@@ -7,6 +7,8 @@ QtObject {
     readonly property string okTextWithMnemonic:        qsTr("&OK")
     readonly property string cancelText:                qsTr("Cancel")
     readonly property string cancelTextWithMnemonic:    qsTr("&Cancel")
+    readonly property string closeText:                 qsTr("Close")
+    readonly property string closeTextWithMnemonic:     qsTr("&Close")
     readonly property string yesText:                   qsTr("Yes")
     readonly property string yesTextWithMnemonic:       qsTr("&Yes")
     readonly property string noText:                    qsTr("No")

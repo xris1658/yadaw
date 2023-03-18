@@ -101,7 +101,7 @@ Rectangle {
             }
         }
         Rectangle {
-            SplitView.preferredWidth: 50 // FIXME
+            SplitView.preferredWidth: 100
             color: "transparent"
             clip: true
             Column {

@@ -226,19 +226,19 @@ ApplicationWindow {
                 }
             }
             Action {
-                text: qsTr("Jump to Loop In Point")
+                text: qsTr("Jump to Loop In")
                 shortcut: "I"
             }
             Action {
-                text: qsTr("Jump to Loop Out Point")
+                text: qsTr("Jump to Loop Out")
                 shortcut: "O"
             }
             Action {
-                text: qsTr("Set Loop In Point Here")
+                text: qsTr("Set Loop In Here")
                 shortcut: "Alt+I"
             }
             Action {
-                text: qsTr("Set Loop Out Point Here")
+                text: qsTr("Set Loop Out Here")
                 shortcut: "Alt+O"
             }
         }

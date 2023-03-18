@@ -33,6 +33,7 @@ ListView {
                     currentIndex: itemDelegate.format
                     Item {
                         layer.enabled: true
+                        layer.smooth: true
                         layer.samples: 4
                         width: height
                         height: itemDelegate.height
@@ -40,10 +41,12 @@ ListView {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
+                            path.strokeColor: "transparent"
                         }
                     }
                     Item {
                         layer.enabled: true
+                        layer.smooth: true
                         layer.samples: 4
                         width: height
                         height: itemDelegate.height
@@ -51,10 +54,12 @@ ListView {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
+                            path.strokeColor: "transparent"
                         }
                     }
                     Item {
                         layer.enabled: true
+                        layer.smooth: true
                         layer.samples: 4
                         width: height
                         height: itemDelegate.height
@@ -62,6 +67,7 @@ ListView {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
+                            path.strokeColor: "transparent"
                         }
                     }
                 }
@@ -70,6 +76,7 @@ ListView {
                     currentIndex: itemDelegate.type
                     Item {
                         layer.enabled: true
+                        layer.smooth: true
                         layer.samples: 4
                         width: height
                         height: itemDelegate.height
@@ -77,10 +84,12 @@ ListView {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
+                            path.strokeColor: "transparent"
                         }
                     }
                     Item {
                         layer.enabled: true
+                        layer.smooth: true
                         layer.samples: 4
                         width: height
                         height: itemDelegate.height
@@ -88,10 +97,12 @@ ListView {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
+                            path.strokeColor: "transparent"
                         }
                     }
                     Item {
                         layer.enabled: true
+                        layer.smooth: true
                         layer.samples: 4
                         width: height
                         height: itemDelegate.height
@@ -99,10 +110,12 @@ ListView {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
+                            path.strokeColor: "transparent"
                         }
                     }
                     Item {
                         layer.enabled: true
+                        layer.smooth: true
                         layer.samples: 4
                         width: height
                         height: itemDelegate.height
@@ -110,6 +123,7 @@ ListView {
                             anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
+                            path.strokeColor: "transparent"
                         }
                     }
                 }
