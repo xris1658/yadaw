@@ -16,6 +16,7 @@ AudioGraphSettings 1.0 AudioGraphSettings.qml
 AudioHardwareSettings 1.0 AudioHardwareSettings.qml
 BigClock 1.0 BigClock.qml
 Button 1.0 Button.qml
+BypassIcon 1.0 BypassIcon.qml
 CLAPIcon 1.0 CLAPIcon.qml
 CheckBox 1.0 CheckBox.qml
 ColorPicker 1.0 ColorPicker.qml
@@ -25,6 +26,7 @@ Detail 1.0 Detail.qml
 FollowIcon 1.0 FollowIcon.qml
 GeneralSettings 1.0 GeneralSettings.qml
 GroupIcon 1.0 GroupIcon.qml
+InsertIcon 1.0 InsertIcon.qml
 LoopIcon 1.0 LoopIcon.qml
 MainWindow 1.0 MainWindow.qml
 Menu 1.0 Menu.qml
@@ -50,3 +52,4 @@ ThirdPartySoftware 1.0 ThirdPartySoftware.qml
 TimeIndicator 1.0 TimeIndicator.qml
 TopBar 1.0 TopBar.qml
 VST3Icon 1.0 VST3Icon.qml
+WindowIcon 1.0 WindowIcon.qml

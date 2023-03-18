@@ -30,6 +30,7 @@ set(CONTENT_QML_FILES
     AudioHardwareSettings.qml
     BigClock.qml
     Button.qml
+    BypassIcon.qml
     CLAPIcon.qml
     CheckBox.qml
     ColorPicker.qml
@@ -46,6 +47,7 @@ set(CONTENT_QML_FILES
     GeneralSettings.qml
     Global.qml
     GroupIcon.qml
+    InsertIcon.qml
     ItemDelegate.qml
     Label.qml
     LoopIcon.qml
@@ -79,6 +81,7 @@ set(CONTENT_QML_FILES
     TimeIndicator.qml
     TopBar.qml
     VST3Icon.qml
+    WindowIcon.qml
     )
 
 qt_add_qml_module(content
