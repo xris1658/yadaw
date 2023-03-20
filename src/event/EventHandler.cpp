@@ -14,6 +14,8 @@
 
 #include <QDir>
 
+#include <algorithm>
+#include <deque>
 #include <thread>
 
 namespace YADAW::Event
@@ -131,18 +133,31 @@ void EventHandler::onStartPluginScan()
                 libLists.emplace_back(YADAW::Controller::scanDirectory(dir, true, true/*FIXME*/));
             }
         }
+        std::deque<YADAW::Controller::PluginScanResult> storeToDatabase;
         for(auto& libList: libLists)
         {
             for(auto& lib: libList)
             {
                 lib = QDir::toNativeSeparators(lib);
-                const auto& results = YADAW::Controller::scanSingleLibraryFile(lib);
-                for(const auto& result: results)
+                if(std::none_of(storeToDatabase.begin(), storeToDatabase.end(),
+                    [&lib](const YADAW::Controller::PluginScanResult& rhs)
+                    {
+                        return rhs.pluginInfo.path == lib;
+                    }))
                 {
-                    YADAW::Controller::savePluginScanResult(result);
+                    const auto& results = YADAW::Controller::scanSingleLibraryFile(lib);
+                    for(const auto& result: results)
+                    {
+                        storeToDatabase.emplace_back(result);
+                    }
                 }
             }
         }
+        for(const auto& result: storeToDatabase)
+        {
+            YADAW::Controller::savePluginScanResult(result);
+        }
+        storeToDatabase.clear();
         pluginScanComplete();
         YADAW::Controller::appPluginListModel().update();
         YADAW::Controller::appMIDIEffectListModel().update();
