@@ -77,6 +77,7 @@ bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         {
             return false;
         }
+        getExtension(plugin_, CLAP_EXT_LATENCY, &latency_);
         // TODO
         status_ = IPlugin::Status::Initialized;
         return true;
@@ -184,6 +185,11 @@ const Device::IChannelGroup& CLAPPlugin::audioInputGroupAt(int index) const
 const Device::IChannelGroup& CLAPPlugin::audioOutputGroupAt(int index) const
 {
     return outputChannelGroups_[index];
+}
+
+std::uint32_t CLAPPlugin::latencyInSamples() const
+{
+    return latency_? latency_->get(plugin_): 0;
 }
 
 void CLAPPlugin::process(const Device::AudioProcessData<float>& audioProcessData)

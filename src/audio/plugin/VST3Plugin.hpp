@@ -52,6 +52,7 @@ public:
     int audioOutputGroupCount() const override;
     const Device::IChannelGroup& audioInputGroupAt(int index) const override;
     const Device::IChannelGroup& audioOutputGroupAt(int index) const override;
+    std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
 public:
     YADAW::Audio::Host::VST3ComponentHandler* componentHandler();

@@ -270,6 +270,11 @@ const Device::IChannelGroup& VST3Plugin::audioOutputGroupAt(int index) const
     return audioOutputChannelGroup_[index];
 }
 
+std::uint32_t VST3Plugin::latencyInSamples() const
+{
+    return audioProcessor_? audioProcessor_->getLatencySamples(): 0;
+}
+
 void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData)
 {
     if(componentHandler_)

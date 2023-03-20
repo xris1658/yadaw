@@ -11,6 +11,7 @@
 #include <clap/audio-buffer.h>
 #include <clap/ext/audio-ports.h>
 #include <clap/ext/gui.h>
+#include <clap/ext/latency.h>
 #include <clap/ext/params.h>
 #include <clap/factory/plugin-factory.h>
 
@@ -44,6 +45,7 @@ public:
     int audioOutputGroupCount() const override;
     const Device::IChannelGroup& audioInputGroupAt(int index) const override;
     const Device::IChannelGroup& audioOutputGroupAt(int index) const override;
+    std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
 private:
     void prepareAudioRelatedInfo();
@@ -57,6 +59,7 @@ private:
     const clap_plugin_factory* factory_ = nullptr;
     const clap_plugin* plugin_ = nullptr;
     const clap_plugin_audio_ports* audioPorts_ = nullptr;
+    const clap_plugin_latency* latency_ = nullptr;
     double sampleRate_ = 0;
     std::int32_t minBlockSize_ = 1;
     std::int32_t maxBlockSize_ = INT32_MAX;
