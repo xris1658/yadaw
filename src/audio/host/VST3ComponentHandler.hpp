@@ -30,9 +30,6 @@ using namespace Steinberg::Vst;
 // QUES: Detail of contract: Which end is responsible for clearing the parameter changes?
 //  The component handler or the plugin? Why?
 // QUES: Detail of contract: Which end is responsible for switching buffers?
-// FIXME: Clearing `mappings_` during `beginEdit` and `performEdit` will cause severe error,
-//  like "vector iterators incompatible" on MSVC. We have to make some careful moves in case
-//  `performEdit` appears across the switching and clearing process.
 class VST3ComponentHandler:
     public Steinberg::Vst::IComponentHandler
 {

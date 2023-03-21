@@ -54,7 +54,7 @@ tresult VST3ComponentHandler::doPerformEdit(int bufferIndex, int32 index,
     ParamValue normalizedValue, std::int64_t timestamp)
 {
     // std::printf("|---doPerformEdit(%d, %lf) ", index, normalizedValue);
-    int32 sampleOffset = (timestamp - timestamp_) / (sampleRate() * nanosecondCount);
+    int32 sampleOffset = std::round((timestamp - timestamp_) / (sampleRate() * nanosecondCount));
     int32 pointIndex = -1;
     auto ret = inputParameterChanges_[bufferIndex].getParameterData(index)->addPoint(sampleOffset, normalizedValue, pointIndex);
     // std::printf("return 0x%x\n", ret);
@@ -189,8 +189,11 @@ void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond
         bufferIndex_ = 0;
     }
     auto bufferIndex = bufferIndex_;
-    inputParameterChanges_[bufferIndex].clear();
-    mappings_[bufferIndex].clear();
+    auto& parameterChanges = inputParameterChanges_[bufferIndex];
+    for(int i = 0; i < parameterChanges.getParameterCount(); ++i)
+    {
+        static_cast<YADAW::Audio::Host::VST3ParameterValueQueue*>(parameterChanges.getParameterData(i))->clear();
+    }
 
 }
 
