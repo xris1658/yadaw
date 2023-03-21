@@ -269,4 +269,13 @@ target_link_libraries(PluginScanTest PRIVATE
                       unofficial::sqlite3::sqlite3
                       yaml-cpp)
 
+target_link_libraries(VST3Test PRIVATE
+                      Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
+                      contentplugin
+                      version ole32 dwmapi
+                      windowsapp
+                      base pluginterfaces sdk_common sdk_hosting
+                      unofficial::sqlite3::sqlite3
+                      yaml-cpp)
+
 add_subdirectory(test)
