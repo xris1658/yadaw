@@ -3,6 +3,7 @@
 
 #include <pluginterfaces/vst/ivstattributes.h>
 
+#include <atomic>
 #include <map>
 #include <string>
 #include <variant>
@@ -38,7 +39,7 @@ public:
     tresult PLUGIN_API setBinary(AttrID id, const void* data, uint32 sizeInBytes) override;
     tresult PLUGIN_API getBinary(AttrID id, const void*& data, uint32& sizeInBytes) override;
 private:
-    uint32 refCount_ = 1;
+    std::atomic<std::uint32_t> refCount_ = 1;
     std::map<std::string, Variant> map_;
 };
 }

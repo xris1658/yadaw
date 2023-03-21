@@ -5,6 +5,7 @@
 
 #include <pluginterfaces/vst/ivstmessage.h>
 
+#include <atomic>
 #include <vector>
 
 namespace YADAW::Audio::Host
@@ -31,7 +32,7 @@ public:
     void PLUGIN_API setMessageID(FIDString id) override;
     IAttributeList* PLUGIN_API getAttributes() override;
 private:
-    uint32 refCount_ = 1;
+    std::atomic<std::uint32_t> refCount_ = 1;
     std::string id_ = "";
     VST3AttributeList* attributeList_ = nullptr;
 };

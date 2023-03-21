@@ -36,7 +36,7 @@ tresult VST3Host::queryInterface(const char* _iid, void** obj)
 tresult VST3Host::getName(TChar* name)
 {
     constexpr char16_t hostName[] = u"YADAW";
-    std::memcpy(name, hostName, YADAW::Util::stackArraySize(hostName));
+    std::memcpy(name, hostName, YADAW::Util::stackArraySize(hostName) * sizeof(char16_t));
     return kResultOk;
 }
 

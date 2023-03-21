@@ -30,14 +30,13 @@ VST3Message::~VST3Message() noexcept
 
 uint32 VST3Message::addRef()
 {
-    return ++refCount_;
+    return refCount_.fetch_add(1, std::memory_order::memory_order_relaxed) + 1;
 }
 
 uint32 VST3Message::release()
 {
-    --refCount_;
-    auto ret = refCount_;
-    if(refCount_ == 0)
+    auto ret = refCount_.fetch_sub(1, std::memory_order::memory_order_acq_rel) - 1;
+    if(ret == 0)
     {
         delete this;
     }
