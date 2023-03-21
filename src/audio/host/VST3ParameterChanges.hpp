@@ -3,7 +3,7 @@
 
 #include "audio/host/VST3ParameterValueQueue.hpp"
 
-#include <deque>
+#include <vector>
 
 namespace YADAW::Audio::Host
 {
@@ -12,7 +12,7 @@ using namespace Steinberg;
 class VST3ParameterChanges: public Vst::IParameterChanges
 {
 public:
-    VST3ParameterChanges(std::size_t parameterCount);
+    VST3ParameterChanges(std::size_t reserveParameterCount = 0);
     ~VST3ParameterChanges() noexcept;
 public:
     tresult queryInterface(const int8* _iid, void** obj) override;
@@ -23,9 +23,10 @@ public:
     Vst::IParamValueQueue* getParameterData(int32 index) override;
     Vst::IParamValueQueue* addParameterData(const Vst::ParamID& id, int32& index) override;
 public:
+    void reserve(std::size_t reserveParameterCount);
     void clear();
 private:
-    std::deque<YADAW::Audio::Host::VST3ParameterValueQueue> parameterValueQueues_;
+    std::vector<YADAW::Audio::Host::VST3ParameterValueQueue> parameterValueQueues_;
 };
 }
 

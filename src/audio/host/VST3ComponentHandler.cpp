@@ -11,12 +11,21 @@ VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin* plu
     plugin_(plugin),
     bufferIndex_(0),
     timestamp_(0),
-    inputParameterChanges_{VST3ParameterChanges(plugin_->parameter()->parameterCount()),
-        VST3ParameterChanges(plugin_->parameter()->parameterCount())},
-    outputParameterChanges_{VST3ParameterChanges(plugin_->parameter()->parameterCount()),
-        VST3ParameterChanges(plugin_->parameter()->parameterCount())},
+    inputParameterChanges_{},
+    outputParameterChanges_{},
     mappings_{{}, {}}
 {
+    if(plugin)
+    {
+        if(auto parameter = plugin->parameter())
+        {
+            auto parameterCount = parameter->parameterCount();
+            inputParameterChanges_[0].reserve(parameterCount);
+            inputParameterChanges_[1].reserve(parameterCount);
+            mappings_[0].reserve(parameterCount);
+            mappings_[1].reserve(parameterCount);
+        }
+    }
 }
 
 VST3ComponentHandler::~VST3ComponentHandler() noexcept
