@@ -47,7 +47,7 @@ public:
     ~VST3PluginParameter() noexcept;
 public:
     int parameterCount() override;
-    IParameter& parameter(int index) override;
+    IParameter* parameter(int index) override;
 public:
     void swap(Self& rhs) noexcept;
 private:

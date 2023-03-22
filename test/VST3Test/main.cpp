@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
     audioProcessData.inputGroupCount = idc1.size();
     for(int i = 0; i < idc1.size(); ++i)
     {
-        idc1[i].resize(plugin.audioInputGroupAt(i).channelCount());
+        idc1[i].resize(plugin.audioInputGroupAt(i)->channelCount());
         idc2[i].resize(idc1[i].size());
         ic[i] = idc1[i].size();
         for(int j = 0; j < idc1[i].size(); ++j)
@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
     audioProcessData.outputGroupCount = odc1.size();
     for(int i = 0; i < odc1.size(); ++i)
     {
-        odc1[i].resize(plugin.audioOutputGroupAt(i).channelCount());
+        odc1[i].resize(plugin.audioOutputGroupAt(i)->channelCount());
         odc2[i].resize(odc1[i].size());
         oc[i] = odc1[i].size();
         for(int j = 0; j < odc1[i].size(); ++j)

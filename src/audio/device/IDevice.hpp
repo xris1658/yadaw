@@ -24,8 +24,8 @@ public:
 public:
     virtual int audioInputGroupCount() const = 0;
     virtual int audioOutputGroupCount() const = 0;
-    virtual const YADAW::Audio::Device::IChannelGroup& audioInputGroupAt(int index) const = 0;
-    virtual const YADAW::Audio::Device::IChannelGroup& audioOutputGroupAt(int index) const = 0;
+    virtual const IChannelGroup* audioInputGroupAt(int index) const = 0;
+    virtual const IChannelGroup* audioOutputGroupAt(int index) const = 0;
     virtual std::uint32_t latencyInSamples() const = 0;
 public:
     virtual void process(const AudioProcessData<float>& audioProcessData) = 0;

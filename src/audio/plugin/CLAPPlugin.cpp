@@ -177,14 +177,14 @@ int CLAPPlugin::audioOutputGroupCount() const
     return audioPorts_->count(plugin_, false);
 }
 
-const Device::IChannelGroup& CLAPPlugin::audioInputGroupAt(int index) const
+const IChannelGroup* CLAPPlugin::audioInputGroupAt(int index) const
 {
-    return inputChannelGroups_[index];
+    return &inputChannelGroups_[index];
 }
 
-const Device::IChannelGroup& CLAPPlugin::audioOutputGroupAt(int index) const
+const IChannelGroup* CLAPPlugin::audioOutputGroupAt(int index) const
 {
-    return outputChannelGroups_[index];
+    return &outputChannelGroups_[index];
 }
 
 std::uint32_t CLAPPlugin::latencyInSamples() const

@@ -11,7 +11,7 @@ public:
     virtual ~IPluginParameter() {}
 public:
     virtual int parameterCount() = 0;
-    virtual IParameter& parameter(int index) = 0;
+    virtual IParameter* parameter(int index) = 0;
 };
 }
 

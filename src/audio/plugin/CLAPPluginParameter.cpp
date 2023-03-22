@@ -118,9 +118,9 @@ int CLAPPluginParameter::parameterCount()
     return params_->count(plugin_);
 }
 
-IParameter& CLAPPluginParameter::parameter(int index)
+IParameter* CLAPPluginParameter::parameter(int index)
 {
-    return parameters_[index];
+    return &parameters_[index];
 }
 
 void CLAPPluginParameter::swap(CLAPPluginParameter::Self& rhs) noexcept

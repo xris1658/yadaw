@@ -260,14 +260,14 @@ int VST3Plugin::audioOutputGroupCount() const
         Steinberg::Vst::BusDirections::kOutput);
 }
 
-const Device::IChannelGroup& VST3Plugin::audioInputGroupAt(int index) const
+const IChannelGroup* VST3Plugin::audioInputGroupAt(int index) const
 {
-    return audioInputChannelGroup_[index];
+    return &audioInputChannelGroup_[index];
 }
 
-const Device::IChannelGroup& VST3Plugin::audioOutputGroupAt(int index) const
+const IChannelGroup* VST3Plugin::audioOutputGroupAt(int index) const
 {
-    return audioOutputChannelGroup_[index];
+    return &audioOutputChannelGroup_[index];
 }
 
 std::uint32_t VST3Plugin::latencyInSamples() const

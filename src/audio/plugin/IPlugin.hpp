@@ -34,7 +34,9 @@ public:
     virtual Format format() = 0;
     virtual Status status() = 0;
 public:
+    // Owned by `IPlugin`
     virtual IPluginGUI* gui() = 0;
+    // Owned by `IPlugin`
     virtual IPluginParameter* parameter() = 0;
 };
 }

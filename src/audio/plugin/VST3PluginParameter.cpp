@@ -161,9 +161,9 @@ int VST3PluginParameter::parameterCount()
     return parameters_.size();
 }
 
-IParameter& VST3PluginParameter::parameter(int index)
+IParameter* VST3PluginParameter::parameter(int index)
 {
-    return parameters_[index];
+    return &(parameters_[index]);
 }
 
 void VST3PluginParameter::swap(VST3PluginParameter& rhs) noexcept
