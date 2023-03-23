@@ -189,14 +189,7 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
 void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond)
 {
     timestamp_ = switchTimestampInNanosecond;
-    if(bufferIndex_ == 0)
-    {
-        bufferIndex_ = 1;
-    }
-    else
-    {
-        bufferIndex_ = 0;
-    }
+    bufferIndex_ ^= 1; // 0 <-> 1
     auto bufferIndex = bufferIndex_;
     auto& parameterChanges = inputParameterChanges_[bufferIndex];
     for(int i = 0; i < parameterChanges.getParameterCount(); ++i)
@@ -208,7 +201,7 @@ void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond
 
 void VST3ComponentHandler::attachToProcessData(Vst::ProcessData& processData)
 {
-    auto bufferIndex = bufferIndex_ == 0? 1: 0;
+    auto bufferIndex = bufferIndex_ ^ 1; // 0 <-> 1
     processData.inputParameterChanges = &(inputParameterChanges_[bufferIndex]);
     processData.outputParameterChanges = &(outputParameterChanges_[bufferIndex]);
 }
