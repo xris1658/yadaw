@@ -157,6 +157,10 @@ bool VST3Plugin::uninitialize()
     if(component_->terminate() == Steinberg::kResultOk)
     {
         status_ = IPlugin::Status::Created;
+        if(componentAndEditControllerUnified_)
+        {
+            componentHandler_.reset();
+        }
         destroyEditController();
         return true;
     }
@@ -356,14 +360,19 @@ bool VST3Plugin::createEditController()
         return factory_->createInstance(uid, Steinberg::Vst::IEditController::iid,
             reinterpret_cast<void**>(&editController_)) == Steinberg::kResultOk;
     }
+    componentAndEditControllerUnified_  = 1;
     return queryInterface(component_, &editController_) == Steinberg::kResultOk;
 }
 
 bool VST3Plugin::initializeEditController()
 {
-    if(editController_->initialize(&YADAW::Audio::Host::VST3Host::instance()) != Steinberg::kResultOk)
+    if(componentAndEditControllerUnified_ == 0)
     {
-        return false;
+        if(auto initializeEditControllerResult = editController_->initialize(&YADAW::Audio::Host::VST3Host::instance());
+            initializeEditControllerResult != Steinberg::kResultOk)
+        {
+            return false;
+        }
     }
     componentHandler_ = std::make_unique<YADAW::Audio::Host::VST3ComponentHandler>(this);
     editController_->setComponentHandler(componentHandler_.get());
@@ -399,9 +408,13 @@ bool VST3Plugin::uninitializeEditController()
     if(editController_)
     {
         gui_.reset();
-        auto terminateResult = editController_->terminate();
-        componentHandler_.reset();
-        return terminateResult == Steinberg::kResultOk;
+        if(!componentAndEditControllerUnified_)
+        {
+            auto terminateEditControllerResult = editController_->terminate();
+            componentHandler_.reset();
+            return terminateEditControllerResult == Steinberg::kResultOk;
+        }
+        componentAndEditControllerUnified_ = 0;
     }
     return true;
 }
