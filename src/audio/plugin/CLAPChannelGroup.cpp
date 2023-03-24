@@ -7,7 +7,7 @@ CLAPChannelGroup::CLAPChannelGroup() {}
 CLAPChannelGroup::CLAPChannelGroup(const clap_plugin* plugin,
     const clap_plugin_audio_ports* audioPorts, bool isInput, int index)
 {
-    audioPorts->get(plugin, index, isInput, &audioPortInfo_);
+    assert(audioPorts->get(plugin, index, isInput, &audioPortInfo_));
 }
 
 QString CLAPChannelGroup::name() const

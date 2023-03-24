@@ -1,9 +1,8 @@
-#include "test/common/PluginWindowThread.hpp"
+#include "../common/PluginWindowThread.hpp"
 
 #include "audio/backend/AudioGraphBackend.hpp"
-#include "audio/plugin/VST3Plugin.hpp"
-#include "native/VST3Native.hpp"
-#include "audio/base/Gain.hpp"
+#include "audio/plugin/CLAPPlugin.hpp"
+#include "native/CLAPNative.hpp"
 #include "native/Native.hpp"
 #include "util/Constants.hpp"
 
@@ -32,7 +31,7 @@ std::uint64_t callbackDuration = 0;
 
 double sampleRate = 0;
 
-YADAW::Audio::Plugin::VST3Plugin* pPlugin;
+YADAW::Audio::Plugin::CLAPPlugin* pPlugin;
 
 YADAW::Audio::Device::AudioProcessData<float> audioProcessData;
 
@@ -40,7 +39,6 @@ void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudio
     int outputCount, const AudioGraphBackend::InterleaveAudioBuffer* outputs)
 {
     auto start = YADAW::Native::currentTimeValueInNanosecond();
-    pPlugin->componentHandler()->switchBuffer(start);
     for(int i = 0; i < audioProcessData.inputGroupCount; ++i)
     {
         for(int j = 0; j < audioProcessData.inputCounts[i]; ++j)
@@ -51,7 +49,7 @@ void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudio
             }
         }
     }
-    pPlugin->process(audioProcessData);
+    // pPlugin->process(audioProcessData);
     int frameCount = 0;
     for(int i = 0; i < outputCount; ++i)
     {
@@ -132,21 +130,18 @@ int main(int argc, char* argv[])
     }
     QGuiApplication application(argc, argv);
     YADAW::Native::Library library(argv[1]);
-    auto plugin = YADAW::Native::createVST3FromLibrary(library);
+    auto plugin = YADAW::Native::createCLAPFromLibrary(library);
     pPlugin = &plugin;
+    std::vector<char> uid(strlen(argv[2]) / 2, '\0');
     char tuid[16];
-    if(std::strlen(argv[2]) == 32)
+    for(int i = 0; i < uid.size(); ++i)
     {
-        for(int i = 0; i < 16; ++i)
-        {
-            tuid[i] = 0;
-            unsigned char value = argv[2][i * 2] > '9'? argv[2][i * 2] - 'A' + 10: argv[2][i * 2] - '0';
-            value *= 16;
-            value += argv[2][i * 2 + 1] > '9'? argv[2][i * 2 + 1] - 'A' + 10: argv[2][i * 2 + 1] - '0';
-            std::memcpy(tuid + i, &value, 1);
-        }
+        unsigned char value = argv[2][i * 2] > '9'? argv[2][i * 2] - 'A' + 10: argv[2][i * 2] - '0';
+        value *= 16;
+        value += argv[2][i * 2 + 1] > '9'? argv[2][i * 2 + 1] - 'A' + 10: argv[2][i * 2 + 1] - '0';
+        std::memcpy(uid.data() + i, &value, 1);
     }
-    assert(plugin.createPlugin(tuid));
+    assert(plugin.createPlugin(uid.data()));
     assert(plugin.initialize(audioGraphBackend.sampleRate(), audioGraphBackend.bufferSizeInFrames()));
     assert(plugin.activate());
     assert(plugin.startProcessing());
@@ -154,20 +149,6 @@ int main(int argc, char* argv[])
     pluginWindowThread.start();
     pluginWindowThread.window()->showNormal();
     auto factory = plugin.factory();
-    auto classCount = plugin.factory()->countClasses();
-    for(int i = 0; i < classCount; ++i)
-    {
-        Steinberg::PClassInfo classInfo;
-        auto result = factory->getClassInfo(i, &classInfo);
-        if(result == Steinberg::kResultOk
-        // TUID is not null-termiated C-style string
-        // do not use std::strcmp; use std::memcmp instead
-        && std::memcmp(tuid, classInfo.cid, 16) == 0)
-        {
-            pluginWindowThread.window()->setTitle(QString::fromLocal8Bit(classInfo.name));
-            break;
-        }
-    }
     // Prepare audio process data {
     audioProcessData.singleBufferSize = audioGraphBackend.bufferSizeInFrames();
     // Inputs
@@ -221,14 +202,13 @@ int main(int argc, char* argv[])
     // } prepare audio process data
     std::atomic_bool stop;
     stop.store(false);
-    plugin.pluginGUI()->attachToWindow(pluginWindowThread.window());
+    plugin.gui()->attachToWindow(pluginWindowThread.window());
     audioGraphBackend.start(&audioGraphCallback);
     std::thread uiThread([&stop, &plugin]()
     {
         while(!stop.load(std::memory_order::memory_order_acquire))
         {
-            plugin.componentHandler()->consumeOutputParameterChanges();
-            std::this_thread::sleep_for(std::chrono::milliseconds(33));
+            //
         }
     });
     auto latencyInMilliseconds =

@@ -8,24 +8,21 @@ CLAPPluginGUI::CLAPPluginGUI(const clap_plugin* plugin, const clap_plugin_gui* g
     plugin_(plugin),
     gui_(gui)
 {
-
+    fetchResizeHints();
 }
 
 CLAPPluginGUI::~CLAPPluginGUI()
 {
-    if(window_)
-    {
-        CLAPPluginGUI::detachWithWindow();
-    }
+    CLAPPluginGUI::detachWithWindow();
     gui_ = nullptr;
     plugin_ = nullptr;
 }
 
 bool CLAPPluginGUI::attachToWindow(QWindow* window)
 {
-    if(window_)
+    if((!window_) && gui_->create(plugin_, YADAW::Native::windowAPI, false))
     {
-        gui_->create(plugin_, YADAW::Native::windowAPI, false);
+        window_ = window;
         gui_->set_scale(plugin_, 1.0);
         std::uint32_t width;
         std::uint32_t height;
@@ -59,6 +56,16 @@ bool CLAPPluginGUI::detachWithWindow()
         window_ = nullptr;
     }
     return true;
+}
+
+void CLAPPluginGUI::fetchResizeHints()
+{
+    gui_->get_resize_hints(plugin_, &resizeHints_);
+}
+
+clap_gui_resize_hints CLAPPluginGUI::resizeHints() const
+{
+    return resizeHints_;
 }
 
 const clap_plugin_gui* CLAPPluginGUI::gui()

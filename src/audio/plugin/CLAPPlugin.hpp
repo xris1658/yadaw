@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_PLUGIN_CLAPPLUGIN
 #define YADAW_SRC_AUDIO_PLUGIN_CLAPPLUGIN
 
+#include "audio/host/CLAPHost.hpp"
 #include "audio/plugin/CLAPChannelGroup.hpp"
 #include "audio/plugin/CLAPPluginGUI.hpp"
 #include "audio/plugin/CLAPPluginParameter.hpp"
@@ -52,7 +53,10 @@ private:
     void clearAudioRelatedInfo();
     void prepareProcessData();
     void resetProcessData();
+public:
+    void calledOnMainThread();
 private:
+    YADAW::Audio::Host::CLAPHost host_ {this};
     IPlugin::Status status_ = IPlugin::Status::Empty;
     clap_process_status processStatus_;
     const clap_plugin_entry* entry_ = nullptr;

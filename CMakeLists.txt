@@ -205,6 +205,11 @@ qt_add_executable(YADAW
                   ${YADAW_COMMON_SOURCES}
                   )
 
+add_executable(CLAPTest ${YADAW_COMMON_SOURCES}
+               test/common/PluginWindowThread.hpp
+               test/common/PluginWindowThread.cpp
+               test/CLAPTest/main.cpp)
+
 add_executable(PluginDirectoryScanTest ${YADAW_COMMON_SOURCES}
     test/PluginDirectoryScanTest/main.cpp)
 
@@ -215,8 +220,8 @@ add_executable(AudioGraphTest ${YADAW_COMMON_SOURCES}
     test/AudioGraphTest/main.cpp)
 
 add_executable(VST3Test ${YADAW_COMMON_SOURCES}
-    test/VST3Test/PluginWindowThread.hpp
-    test/VST3Test/PluginWindowThread.cpp
+               test/common/PluginWindowThread.hpp
+               test/common/PluginWindowThread.cpp
     test/VST3Test/main.cpp)
 
 target_precompile_headers(YADAW PRIVATE src/pch.hpp)
@@ -249,6 +254,15 @@ target_link_libraries(AudioGraphTest PRIVATE
                       base pluginterfaces sdk_common sdk_hosting
                       unofficial::sqlite3::sqlite3
                       windowsapp
+                      yaml-cpp)
+
+target_link_libraries(CLAPTest PRIVATE
+                      Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
+                      contentplugin
+                      version ole32 dwmapi
+                      windowsapp
+                      base pluginterfaces sdk_common sdk_hosting
+                      unofficial::sqlite3::sqlite3
                       yaml-cpp)
 
 target_link_libraries(PluginDirectoryScanTest PRIVATE

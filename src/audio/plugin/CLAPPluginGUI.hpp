@@ -22,12 +22,18 @@ public:
     QWindow* window() override;
     bool detachWithWindow() override;
 public:
+    void fetchResizeHints();
+    clap_gui_resize_hints resizeHints() const;
+public:
     const clap_plugin_gui* gui();
+public:
+
 private:
     const clap_plugin* plugin_ = nullptr;
     const clap_plugin_gui* gui_ = nullptr;
     QWindow* window_ = nullptr;
     clap_window clapWindow_ = {};
+    clap_gui_resize_hints resizeHints_;
 };
 
 }

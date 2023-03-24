@@ -23,7 +23,7 @@ bool CLAPPlugin::createPlugin(const char* id)
 {
     if(factory_)
     {
-        plugin_ = factory_->create_plugin(factory_, nullptr, id); // FIXME: clap_host
+        plugin_ = factory_->create_plugin(factory_, host_.host(), id); // FIXME: clap_host
         if(plugin_)
         {
             status_ = IPlugin::Status::Loaded;
@@ -79,6 +79,8 @@ bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         }
         getExtension(plugin_, CLAP_EXT_LATENCY, &latency_);
         // TODO
+        prepareAudioRelatedInfo();
+        prepareProcessData();
         status_ = IPlugin::Status::Initialized;
         return true;
     }
@@ -87,6 +89,8 @@ bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 
 bool CLAPPlugin::uninitialize()
 {
+    gui_.reset();
+    parameter_.reset();
     if(plugin_)
     {
         plugin_->destroy(plugin_);
@@ -194,6 +198,7 @@ std::uint32_t CLAPPlugin::latencyInSamples() const
 
 void CLAPPlugin::process(const Device::AudioProcessData<float>& audioProcessData)
 {
+    // TODO: Fetch event list from host
     processData_.frames_count = audioProcessData.singleBufferSize;
     for(int i = 0; i < processData_.audio_inputs_count; ++i)
     {
@@ -247,5 +252,10 @@ void CLAPPlugin::prepareProcessData()
 void CLAPPlugin::resetProcessData()
 {
     processData_ = {};
+}
+
+void CLAPPlugin::calledOnMainThread()
+{
+    plugin_->on_main_thread(plugin_);
 }
 }
