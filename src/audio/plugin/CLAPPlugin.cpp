@@ -83,6 +83,8 @@ bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
             return false;
         }
         getExtension(plugin_, CLAP_EXT_LATENCY, &latency_);
+        sampleRate_ = sampleRate;
+        maxBlockSize_ = maxSampleCount;
         // TODO
         prepareAudioRelatedInfo();
         prepareProcessData();
