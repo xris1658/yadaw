@@ -188,6 +188,7 @@ public:
         {
             (&(operator[](i)))->~T();
         }
+        count_ = 0;
     }
 private:
     std::array<std::byte[sizeof(T)], Capacity> data_;

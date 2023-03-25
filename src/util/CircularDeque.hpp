@@ -198,6 +198,7 @@ public:
         {
             (&(operator[](i)))->~T();
         }
+        count_ = 0;
     }
 private:
     T* data_;
