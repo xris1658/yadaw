@@ -67,6 +67,11 @@ const clap_plugin_factory* CLAPPlugin::factory()
     return factory_;
 }
 
+QString CLAPPlugin::name() const
+{
+    return QString::fromUtf8(plugin_->desc->name);
+}
+
 bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 {
     if(plugin_)

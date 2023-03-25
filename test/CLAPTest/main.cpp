@@ -49,7 +49,7 @@ void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudio
             }
         }
     }
-    // pPlugin->process(audioProcessData);
+    pPlugin->process(audioProcessData);
     int frameCount = 0;
     for(int i = 0; i < outputCount; ++i)
     {
@@ -133,7 +133,6 @@ int main(int argc, char* argv[])
     auto plugin = YADAW::Native::createCLAPFromLibrary(library);
     pPlugin = &plugin;
     std::vector<char> uid(strlen(argv[2]) / 2, '\0');
-    char tuid[16];
     for(int i = 0; i < uid.size(); ++i)
     {
         unsigned char value = argv[2][i * 2] > '9'? argv[2][i * 2] - 'A' + 10: argv[2][i * 2] - '0';
@@ -146,9 +145,9 @@ int main(int argc, char* argv[])
     assert(plugin.activate());
     assert(plugin.startProcessing());
     PluginWindowThread pluginWindowThread(nullptr);
-    pluginWindowThread.start();
-    pluginWindowThread.window()->showNormal();
-    auto factory = plugin.factory();
+    QWindow window;
+    window.showNormal();
+    window.setTitle(plugin.name());
     // Prepare audio process data {
     audioProcessData.singleBufferSize = audioGraphBackend.bufferSizeInFrames();
     // Inputs
@@ -202,7 +201,7 @@ int main(int argc, char* argv[])
     // } prepare audio process data
     std::atomic_bool stop;
     stop.store(false);
-    plugin.gui()->attachToWindow(pluginWindowThread.window());
+    plugin.gui()->attachToWindow(&window);
     audioGraphBackend.start(&audioGraphCallback);
     std::thread uiThread([&stop, &plugin]()
     {
