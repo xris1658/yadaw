@@ -43,11 +43,15 @@ private:
 private:
     static bool tryPush(const clap_output_events* list, const clap_event_header* event);
     bool doTryPush(const clap_event_header* event);
-public:
+public: // host-side buffer reads and writes
+    bool pushBackEvent(const clap_event_header* event);
+    std::size_t outputEventCount() const;
+    const clap_event_header* outputEventAt(std::size_t index) const;
+    // Called upon start of audio callback
     void flip();
-    void fillProcessData(clap_process* process);
+    void attachToProcessData(clap_process* process);
 private:
-    static int bufferIndex_;
+    int pluginBufferIndex_ = 0;
     clap_input_events inputEvents_;
     clap_output_events outputEvents_;
     YADAW::Util::FixedSizeCircularDeque<EventUniquePointer, 4096> inputEventLists_[2];

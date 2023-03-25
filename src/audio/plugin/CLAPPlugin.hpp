@@ -71,7 +71,18 @@ private:
     std::vector<CLAPChannelGroup> outputChannelGroups_;
     std::vector<clap_audio_buffer> inputBuffers_;
     std::vector<clap_audio_buffer> outputBuffers_;
-    clap_process processData_;
+    clap_process processData_
+    {
+        0,
+        0,
+        nullptr,
+        nullptr,
+        nullptr,
+        0,
+        0,
+        nullptr,
+        nullptr
+    };
     std::unique_ptr<CLAPPluginGUI> gui_;
     std::unique_ptr<CLAPPluginParameter> parameter_;
 };

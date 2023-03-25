@@ -42,7 +42,8 @@ CLAPHost::CLAPHost(YADAW::Audio::Plugin::CLAPPlugin* plugin):
     params_
     {
         &rescan,
-        &clear
+        &clear,
+        &requestFlush
     }
 {
 }

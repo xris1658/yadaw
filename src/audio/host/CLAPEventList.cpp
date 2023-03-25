@@ -4,8 +4,6 @@
 
 namespace YADAW::Audio::Host
 {
-int CLAPEventList::bufferIndex_ = 0;
-
 CLAPEventList::CLAPEventList():
     inputEvents_{reinterpret_cast<void*>(this), &size, &get},
     outputEvents_{reinterpret_cast<void*>(this), &tryPush}
@@ -30,12 +28,12 @@ const clap_event_header* CLAPEventList::get(const clap_input_events* list, std::
 
 std::uint32_t CLAPEventList::doSize()
 {
-    return inputEventLists_[bufferIndex_].size();
+    return inputEventLists_[pluginBufferIndex_].size();
 }
 
 const clap_event_header* CLAPEventList::doGet(std::uint32_t index)
 {
-    auto& inputEventList = inputEventLists_[bufferIndex_];
+    auto& inputEventList = inputEventLists_[pluginBufferIndex_];
     if(index < inputEventList.size())
     {
         return inputEventList[index].get();
@@ -50,8 +48,7 @@ bool CLAPEventList::tryPush(const clap_output_events* list, const clap_event_hea
 
 bool CLAPEventList::doTryPush(const clap_event_header* event)
 {
-    auto bufferIndex = bufferIndex_;
-    auto& outputEventList = outputEventLists_[bufferIndex];
+    auto& outputEventList = outputEventLists_[pluginBufferIndex_];
     if(outputEventList.full())
     {
         return false;
@@ -61,12 +58,40 @@ bool CLAPEventList::doTryPush(const clap_event_header* event)
     return true;
 }
 
-void CLAPEventList::flip()
+bool CLAPEventList::pushBackEvent(const clap_event_header* event)
 {
-    bufferIndex_ ^= 1;
+    auto& inputEventList = inputEventLists_[pluginBufferIndex_ ^ 1];
+    if(inputEventList.full())
+    {
+        return false;
+    }
+    auto copy = reinterpret_cast<clap_event_header*>(std::malloc(event->size));
+    inputEventList.pushBack(std::move(EventUniquePointer(copy, Impl::EventDeleter())));
+    return true;
 }
 
-void CLAPEventList::fillProcessData(clap_process* process)
+std::size_t CLAPEventList::outputEventCount() const
+{
+    return outputEventLists_[pluginBufferIndex_ ^ 1].size();
+}
+
+const clap_event_header* CLAPEventList::outputEventAt(std::size_t index) const
+{
+    if(index < outputEventCount())
+    {
+        return outputEventLists_[pluginBufferIndex_ ^ 1][index].get();
+    }
+    return nullptr;
+}
+
+void CLAPEventList::flip()
+{
+    outputEventLists_[pluginBufferIndex_ ^ 1].clear();
+    inputEventLists_[pluginBufferIndex_].clear();
+    pluginBufferIndex_ ^= 1;
+}
+
+void CLAPEventList::attachToProcessData(clap_process* process)
 {
     process->in_events = &inputEvents_;
     process->out_events = &outputEvents_;
