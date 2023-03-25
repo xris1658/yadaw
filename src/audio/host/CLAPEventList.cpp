@@ -1,6 +1,6 @@
 #include "CLAPEventList.hpp"
 
-#include <cassert>
+#include <cstdlib>
 
 namespace YADAW::Audio::Host
 {
@@ -8,7 +8,6 @@ CLAPEventList::CLAPEventList():
     inputEvents_{reinterpret_cast<void*>(this), &size, &get},
     outputEvents_{reinterpret_cast<void*>(this), &tryPush}
 {
-    assert(reinterpret_cast<CLAPEventList*>(inputEvents_.ctx) == this);
 }
 
 CLAPEventList::~CLAPEventList()
@@ -66,6 +65,7 @@ bool CLAPEventList::pushBackEvent(const clap_event_header* event)
         return false;
     }
     auto copy = reinterpret_cast<clap_event_header*>(std::malloc(event->size));
+    std::memcpy(copy, event, event->size);
     inputEventList.pushBack(std::move(EventUniquePointer(copy, Impl::EventDeleter())));
     return true;
 }
@@ -91,9 +91,9 @@ void CLAPEventList::flip()
     pluginBufferIndex_ ^= 1;
 }
 
-void CLAPEventList::attachToProcessData(clap_process* process)
+void CLAPEventList::attachToProcessData(clap_process& process)
 {
-    process->in_events = &inputEvents_;
-    process->out_events = &outputEvents_;
+    process.in_events = &inputEvents_;
+    process.out_events = &outputEvents_;
 }
 }

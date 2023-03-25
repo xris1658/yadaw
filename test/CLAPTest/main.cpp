@@ -1,6 +1,7 @@
 #include "../common/PluginWindowThread.hpp"
 
 #include "audio/backend/AudioGraphBackend.hpp"
+#include "audio/host/CLAPEventList.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
 #include "native/CLAPNative.hpp"
 #include "native/Native.hpp"
@@ -33,12 +34,15 @@ double sampleRate = 0;
 
 YADAW::Audio::Plugin::CLAPPlugin* pPlugin;
 
+YADAW::Audio::Host::CLAPEventList eventList;
+
 YADAW::Audio::Device::AudioProcessData<float> audioProcessData;
 
 void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudioBuffer* inputs,
     int outputCount, const AudioGraphBackend::InterleaveAudioBuffer* outputs)
 {
     auto start = YADAW::Native::currentTimeValueInNanosecond();
+    eventList.flip();
     for(int i = 0; i < audioProcessData.inputGroupCount; ++i)
     {
         for(int j = 0; j < audioProcessData.inputCounts[i]; ++j)
@@ -49,6 +53,7 @@ void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudio
             }
         }
     }
+    eventList.attachToProcessData(pPlugin->processData());
     pPlugin->process(audioProcessData);
     int frameCount = 0;
     for(int i = 0; i < outputCount; ++i)

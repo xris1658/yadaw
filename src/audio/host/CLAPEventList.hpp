@@ -6,6 +6,7 @@
 #include <clap/events.h>
 #include <clap/process.h>
 
+#include <cstdlib>
 #include <memory>
 
 namespace YADAW::Audio::Host
@@ -49,7 +50,7 @@ public: // host-side buffer reads and writes
     const clap_event_header* outputEventAt(std::size_t index) const;
     // Called upon start of audio callback
     void flip();
-    void attachToProcessData(clap_process* process);
+    void attachToProcessData(clap_process& process);
 private:
     int pluginBufferIndex_ = 0;
     clap_input_events inputEvents_;

@@ -57,6 +57,7 @@ private:
     void prepareProcessData();
     void resetProcessData();
 public:
+    clap_process& processData();
     void calledOnMainThread();
 private:
     YADAW::Audio::Host::CLAPHost host_ {this};
@@ -76,7 +77,7 @@ private:
     std::vector<clap_audio_buffer> outputBuffers_;
     clap_process processData_
     {
-        0,
+        -1,
         0,
         nullptr,
         nullptr,

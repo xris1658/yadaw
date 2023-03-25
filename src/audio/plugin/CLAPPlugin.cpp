@@ -203,7 +203,6 @@ std::uint32_t CLAPPlugin::latencyInSamples() const
 
 void CLAPPlugin::process(const Device::AudioProcessData<float>& audioProcessData)
 {
-    // TODO: Fetch event list from host
     processData_.frames_count = audioProcessData.singleBufferSize;
     for(int i = 0; i < processData_.audio_inputs_count; ++i)
     {
@@ -213,7 +212,7 @@ void CLAPPlugin::process(const Device::AudioProcessData<float>& audioProcessData
     {
         outputBuffers_[i].data32 = audioProcessData.outputs[i];
     }
-    plugin_->process(plugin_, &processData_);
+    processStatus_ = plugin_->process(plugin_, &processData_);
 }
 
 void CLAPPlugin::prepareAudioRelatedInfo()
@@ -257,6 +256,11 @@ void CLAPPlugin::prepareProcessData()
 void CLAPPlugin::resetProcessData()
 {
     processData_ = {};
+}
+
+clap_process& CLAPPlugin::processData()
+{
+    return processData_;
 }
 
 void CLAPPlugin::calledOnMainThread()
