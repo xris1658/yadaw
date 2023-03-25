@@ -48,6 +48,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/device/IChannelGroup.hpp
     src/audio/device/IChannelGroupCollection.hpp
     src/audio/device/IDevice.hpp
+    src/audio/host/CLAPEventList.cpp
+    src/audio/host/CLAPEventList.hpp
     src/audio/host/CLAPHost.cpp
     src/audio/host/CLAPHost.hpp
     src/audio/host/VST3AttributeList.cpp
