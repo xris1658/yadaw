@@ -6,6 +6,7 @@
 
 #include <pluginterfaces/gui/iplugview.h>
 
+#include <QMetaObject>
 #include <QObject>
 #include <QWindow>
 
@@ -27,8 +28,7 @@ public:
 public:
     void connect();
     void disconnect();
-public:
-    Steinberg::IPlugView* plugView();
+private:
     void onWindowSizeChanged();
 private:
     Steinberg::IPlugView* plugView_ = nullptr;

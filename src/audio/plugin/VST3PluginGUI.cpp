@@ -81,11 +81,6 @@ void VST3PluginGUI::disconnect()
     QObject::disconnect(connections_[1]);
 }
 
-Steinberg::IPlugView* VST3PluginGUI::plugView()
-{
-    return plugView_;
-}
-
 void VST3PluginGUI::onWindowSizeChanged()
 {
     // https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical+Documentation/Workflow+Diagrams/Resize+View+Call+Sequence.html#initiated-from-host
