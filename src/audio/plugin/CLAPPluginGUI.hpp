@@ -6,6 +6,9 @@
 #include <clap/plugin.h>
 #include <clap/ext/gui.h>
 
+#include <QMetaObject>
+#include <QWindow>
+
 namespace YADAW::Audio::Plugin
 {
 class CLAPPluginGUI: public IPluginGUI
@@ -21,11 +24,15 @@ public:
     bool attachToWindow(QWindow* window) override;
     QWindow* window() override;
     bool detachWithWindow() override;
+private:
+    void connect();
+    void disconnect();
 public:
     void fetchResizeHints();
     clap_gui_resize_hints resizeHints() const;
-public:
+private:
     const clap_plugin_gui* gui();
+    void onWindowSizeChanged();
 public:
 
 private:
@@ -34,6 +41,7 @@ private:
     QWindow* window_ = nullptr;
     clap_window clapWindow_ = {};
     clap_gui_resize_hints resizeHints_;
+    QMetaObject::Connection connections_[2];
 };
 
 }

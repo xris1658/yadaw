@@ -22,21 +22,22 @@ bool CLAPPluginGUI::attachToWindow(QWindow* window)
 {
     if((!window_) && gui_->create(plugin_, YADAW::Native::windowAPI, false))
     {
-        window_ = window;
         gui_->set_scale(plugin_, 1.0);
         std::uint32_t width;
         std::uint32_t height;
         auto resizeResult = gui_->get_size(plugin_, &width, &height);
         if(resizeResult)
         {
-            window_->setWidth(width);
-            window_->setHeight(height);
+            window->setWidth(width);
+            window->setHeight(height);
         }
         clapWindow_.api = YADAW::Native::windowAPI;
-        YADAW::Native::setWindow(clapWindow_, window_);
+        YADAW::Native::setWindow(clapWindow_, window);
         if(gui_->set_parent(plugin_, &clapWindow_))
         {
             gui_->show(plugin_);
+            window_ = window;
+            connect();
             return true;
         }
     }
@@ -52,10 +53,25 @@ bool CLAPPluginGUI::detachWithWindow()
 {
     if(gui_ && window_)
     {
+        disconnect();
         gui_->destroy(plugin_);
         window_ = nullptr;
     }
     return true;
+}
+
+void CLAPPluginGUI::connect()
+{
+    connections_[0] = QObject::connect(window_, &QWindow::widthChanged,
+        [this](int) { onWindowSizeChanged(); });
+    connections_[1] = QObject::connect(window_, &QWindow::heightChanged,
+        [this](int) { onWindowSizeChanged(); });
+}
+
+void CLAPPluginGUI::disconnect()
+{
+    QObject::disconnect(connections_[0]);
+    QObject::disconnect(connections_[1]);
 }
 
 void CLAPPluginGUI::fetchResizeHints()
@@ -71,5 +87,28 @@ clap_gui_resize_hints CLAPPluginGUI::resizeHints() const
 const clap_plugin_gui* CLAPPluginGUI::gui()
 {
     return gui_;
+}
+
+void CLAPPluginGUI::onWindowSizeChanged()
+{
+    std::uint32_t oldWidth, oldHeight;
+    gui_->get_size(plugin_, &oldWidth, &oldHeight);
+    std::uint32_t width = window_->width();
+    std::uint32_t height = window_->height();
+    if(gui_->adjust_size(plugin_, &width, &height))
+    {
+        disconnect();
+        if(!gui_->set_size(plugin_, width, height))
+        {
+            gui_->get_size(plugin_, &width, &height);
+            window_->setWidth(width);
+            window_->setHeight(height);
+        }
+        connect();
+        return;
+    }
+    window_->setWidth(oldWidth);
+    window_->setHeight(oldHeight);
+    return;
 }
 }
