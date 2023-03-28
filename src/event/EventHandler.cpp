@@ -1,11 +1,13 @@
 #include "EventHandler.hpp"
 
+#include "base/Constants.hpp"
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
 #include "controller/GeneralSettingsController.hpp"
 #include "controller/PluginController.hpp"
 #include "controller/PluginDirectoryController.hpp"
 #include "controller/PluginListController.hpp"
+#include "controller/LocalizationController.hpp"
 #include "event/EventBase.hpp"
 #include "native/Native.hpp"
 #include "native/WindowsDarkModeSupport.hpp"
@@ -83,8 +85,14 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioEffectListModel()));
     YADAW::UI::mainWindow->setProperty("systemFontRendering",
         QVariant::fromValue<bool>(YADAW::Controller::GeneralSettingsController::systemFontRendering()));
+    YADAW::UI::mainWindow->setProperty("translationModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appLocalizationListModel()));
+    YADAW::UI::mainWindow->setProperty("currentTranslationIndex",
+        QVariant::fromValue<int>(YADAW::Controller::currentTranslationIndex));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRendering(bool)),
         this, SLOT(onSetSystemFontRendering(bool)));
+    QObject::connect(YADAW::Event::eventSender, SIGNAL(setTranslationIndex(int)),
+        this, SLOT(onSetTranslationIndex(int)));
     setQtVersion(qVersion());
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
 }
@@ -169,6 +177,22 @@ void EventHandler::onStartPluginScan()
 void EventHandler::onSetSystemFontRendering(bool enabled)
 {
     YADAW::Controller::GeneralSettingsController::setSystemFontRendering(enabled);
-    YADAW::UI::messageDialog("TODO", "TODO", YADAW::UI::IconType::Info);
+    YADAW::UI::messageDialog("TODO", YADAW::Base::ProductName, YADAW::UI::IconType::Info);
+}
+
+void EventHandler::onSetTranslationIndex(int index)
+{
+    const auto& model = YADAW::Controller::appLocalizationListModel();
+    if(index >= 0 && index < model.itemCount() && index != YADAW::Controller::currentTranslationIndex)
+    {
+        YADAW::Controller::currentTranslationIndex = index;
+        YADAW::Controller::GeneralSettingsController::setTranslation(model.at(index).name);
+        YADAW::UI::messageDialog("TODO", YADAW::Base::ProductName, YADAW::UI::IconType::Info);
+    }
+    else
+    {
+        YADAW::UI::mainWindow->setProperty("currentTranslationIndex",
+            QVariant::fromValue<int>(YADAW::Controller::currentTranslationIndex));
+    }
 }
 }

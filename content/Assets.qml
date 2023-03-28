@@ -241,19 +241,19 @@ Rectangle {
                     id: categoriesLeftColumn
                     model: ListModel {
                         ListElement {
-                            name: "Plugins"
+                            name: qsTr("Plugins")
                             iconSource: "PluginIcon.qml"
                         }
                         ListElement {
-                            name: "MIDI Effects"
+                            name: qsTr("MIDI Effects")
                             iconSource: "MIDIEffectIcon.qml"
                         }
                         ListElement {
-                            name: "Instruments"
+                            name: qsTr("Instruments")
                             iconSource: "PianoKeysIcon.qml"
                         }
                         ListElement {
-                            name: "Audio Effects"
+                            name: qsTr("Audio Effects")
                             iconSource: "AudioIcon.qml"
                         }
                     }

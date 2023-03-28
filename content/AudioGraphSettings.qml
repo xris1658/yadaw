@@ -107,7 +107,7 @@ Rectangle {
         }
         Label {
             width: firstColumnWidth
-            text: qsTr("Buffer Size: ")
+            text: qsTr("Buffer Size") + ": "
             horizontalAlignment: Label.AlignRight
         }
         Label {
@@ -116,7 +116,7 @@ Rectangle {
         }
         Label {
             width: firstColumnWidth
-            text: qsTr("Latency: ")
+            text: qsTr("Latency") + ": "
             horizontalAlignment: Label.AlignRight
         }
         Label {

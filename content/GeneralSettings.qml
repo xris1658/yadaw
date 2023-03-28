@@ -6,6 +6,8 @@ Item {
     width: firstColumnWidth + secondColumnWidth + grid.columnSpacing * 3
 
     property alias systemFontRendering: systemFontRenderingSwitch.checked
+    property alias translationModel: translationComboBox.model
+    property alias currentTranslationIndex: translationComboBox.currentIndex
     property int firstColumnWidth
     property int secondColumnWidth
 
@@ -31,8 +33,10 @@ Item {
             horizontalAlignment: Label.AlignRight
         }
         ComboBox {
+            id: translationComboBox
             width: secondColumnWidth
-            model: ["简体中文", "English"]
+            textRole: "lm_name"
+            valueRole: "lm_name"
         }
         Label {
             width: firstColumnWidth

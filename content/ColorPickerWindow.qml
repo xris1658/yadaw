@@ -31,7 +31,7 @@ Window {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 Label {
-                    text: qsTr("Original")
+                    text: qsTr("Old")
                     height: originalColorRectangle.height
                     verticalAlignment: Label.AlignVCenter
                     rightPadding: 5
@@ -49,7 +49,7 @@ Window {
                     color: root.currentColor
                 }
                 Label {
-                    text: qsTr("Current")
+                    text: qsTr("New")
                     height: currentColorRectangle.height
                     verticalAlignment: Label.AlignVCenter
                     leftPadding: 5

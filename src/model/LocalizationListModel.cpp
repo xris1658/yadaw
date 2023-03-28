@@ -1,0 +1,86 @@
+#include "LocalizationListModel.hpp"
+
+namespace YADAW::Model
+{
+LocalizationListModel::LocalizationListModel(QObject* parent): ILocalizationListModel(parent)
+{
+
+}
+
+LocalizationListModel::~LocalizationListModel()
+{
+
+}
+
+int LocalizationListModel::itemCount() const
+{
+    return data_.size();
+}
+
+const LocalizationListModel::Item& LocalizationListModel::at(int i) const
+{
+    return data_.at(i);
+}
+
+const LocalizationListModel::Item& LocalizationListModel::operator[](int i) const
+{
+    return data_[i];
+}
+
+int LocalizationListModel::rowCount(const QModelIndex&) const
+{
+    return itemCount();
+}
+
+QVariant LocalizationListModel::data(const QModelIndex& index, int role) const
+{
+    auto row = index.row();
+    if(row < itemCount() && row >= 0)
+    {
+        switch(role)
+        {
+        case Role::Name:
+            return QVariant::fromValue(data_[row].name);
+        case Role::Author:
+            return QVariant::fromValue(data_[row].author);
+        case Role::LanguageCode:
+            return QVariant::fromValue(data_[row].languageCode);
+        case Role::TranslationFileName:
+            return QVariant::fromValue(data_[row].translationFileName);
+        case Role::FontFamilyList:
+            return QVariant::fromValue(data_[row].fontFamilyList);
+        case Role::FontList:
+            return QVariant::fromValue(data_[row].fontList);
+        }
+    }
+    return {};
+}
+
+bool LocalizationListModel::append(const LocalizationListModel::Item& item)
+{
+    try
+    {
+        data_.emplace_back(item);
+        return true;
+    }
+    catch(...)
+    {
+        return false;
+    }
+}
+
+bool LocalizationListModel::remove(int index)
+{
+    if(index < itemCount() && index >= 0)
+    {
+        data_.erase(data_.begin() + index);
+        return true;
+    }
+    return false;
+}
+
+void LocalizationListModel::clear()
+{
+    data_.clear();
+}
+}

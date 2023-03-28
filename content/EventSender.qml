@@ -10,4 +10,5 @@ QtObject {
     signal locatePathInExplorer(path: string)
     signal startPluginScan()
     signal setSystemFontRendering(enabled: bool)
+    signal setTranslationIndex(index: int)
 }

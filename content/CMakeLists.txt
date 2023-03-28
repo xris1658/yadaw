@@ -14,6 +14,7 @@ set(QT_QML_IMPORT_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/imports CACHE STR
 
 set(CONTENT_CPP_FILES
     model/IAssetDirectoryListModel.hpp
+    model/ILocalizationListModel.hpp
     model/ModelBase.hpp
     model/IPluginDirectoryListModel.hpp
     model/IPluginListModel.hpp
@@ -106,6 +107,6 @@ qt_add_qml_module(content
                     images/Main-icon.ico
                     images/qtlogo-64.png)
 
-qt_add_translations(content TS_FILES ../i18n/YADAW_zh_CN.ts
+qt_add_translations(content TS_FILES ../l10n/osct/YADAW_zh_CN.ts
                     INCLUDE_DIRECTORIES ./content
                     SOURCES ${CONTENT_QML_FILES})

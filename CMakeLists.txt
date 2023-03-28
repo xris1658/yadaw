@@ -104,6 +104,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/DatabaseController.hpp
     src/controller/GeneralSettingsController.cpp
     src/controller/GeneralSettingsController.hpp
+    src/controller/LocalizationController.cpp
+    src/controller/LocalizationController.hpp
     src/controller/PluginController.cpp
     src/controller/PluginController.hpp
     src/controller/PluginDirectoryController.cpp
@@ -132,10 +134,14 @@ set(YADAW_COMMON_SOURCES
     src/event/EventHandler.hpp
     src/event/SplashScreenWorkerThread.cpp
     src/event/SplashScreenWorkerThread.hpp
+    src/l10n/L10N.cpp
+    src/l10n/L10N.hpp
     src/midi/MIDIInputDevice.hpp
     src/midi/MIDIOutputDevice.hpp
     src/model/AssetDirectoryListModel.cpp
     src/model/AssetDirectoryListModel.hpp
+    src/model/LocalizationListModel.cpp
+    src/model/LocalizationListModel.hpp
     src/model/ModelInitializer.cpp
     src/model/ModelInitializer.hpp
     src/model/PluginDirectoryListModel.cpp
@@ -293,5 +299,13 @@ target_link_libraries(VST3Test PRIVATE
                       base pluginterfaces sdk_common sdk_hosting
                       unofficial::sqlite3::sqlite3
                       yaml-cpp)
+
+file(COPY ${CMAKE_CURRENT_BINARY_DIR}/content/YADAW_zh_CN.qm
+     ./l10n/osct/YADAW_zh_CN_WQY.yml
+     ./l10n/osct/YADAW_zh_CN_NSSC.yml
+     ./l10n/osct/wqy-microhei.ttc
+     ./l10n/osct/NotoSansCJKsc-Regular.otf
+     ./l10n/osct/NotoSansCJKsc-Bold.otf
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/l10n/osct)
 
 add_subdirectory(test)

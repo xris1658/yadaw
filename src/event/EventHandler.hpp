@@ -28,6 +28,7 @@ public slots:
     void onLocateFileInExplorer(const QString& path);
     void onStartPluginScan();
     void onSetSystemFontRendering(bool enabled);
+    void onSetTranslationIndex(int index);
 private:
     QObject* eventSender_;
     QObject* eventReceiver_;

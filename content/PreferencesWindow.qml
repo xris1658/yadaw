@@ -12,6 +12,8 @@ Window {
     property int secondColumnWidth: 275
 
     property alias systemFontRendering: generalSettings.systemFontRendering
+    property alias translationModel: generalSettings.translationModel
+    property alias currentTranslationIndex: generalSettings.currentTranslationIndex
     property alias pluginDirectoryListModel: pluginSettings.directoryListModel
 
     signal startPluginScan()
@@ -32,7 +34,7 @@ Window {
             id: listView
             SplitView.minimumWidth: contentWidth
             SplitView.maximumWidth: contentWidth
-            model: ["General", "Audio Hardware", "Plugins"]
+            model: [qsTr("General"), qsTr("Audio Hardware"), qsTr("Plugins")]
             boundsBehavior: ListView.StopAtBounds
             delegate: ItemDelegate {
                 id: itemDelegate

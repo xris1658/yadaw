@@ -17,7 +17,7 @@ Item {
         horizontalItemAlignment: Grid.AlignHCenter
         Label {
             width: firstColumnWidth
-            text: qsTr("Engine")
+            text: qsTr("Audio Engine")
             color: Colors.secondaryContent
         }
         Item {
@@ -32,7 +32,7 @@ Item {
         ComboBox {
             id: audioEngineSelector
             width: secondColumnWidth
-            model: ["Dummy", "AudioGraph"]
+            model: [qsTr("Dummy"), "AudioGraph"]
         }
     }
     StackLayout {

@@ -1,0 +1,6 @@
+name: "官方简体中文翻译（思源黑体）"
+author: "xris1658"
+language-code: "zh_CN"
+translation-file-name: "YADAW_zh_CN.qm"
+font-family: ["Noto Sans CJK SC"]
+font-list: ["NotoSansCJKsc-Regular.otf", "NotoSansCJKsc-Bold.otf"]

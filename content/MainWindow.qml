@@ -12,6 +12,8 @@ ApplicationWindow {
 
     property bool canClose: false
 
+    property alias translationModel: preferencesWindow.translationModel
+    property alias currentTranslationIndex: preferencesWindow.currentTranslationIndex
     property alias assetDirectoryListModel: assets.directoryListModel
     property alias pluginListModel: assets.pluginListModel
     property alias midiEffectListModel: assets.midiEffectListModel
@@ -19,6 +21,10 @@ ApplicationWindow {
     property alias audioEffectListModel: assets.audioEffectListModel
     property alias pluginDirectoryListModel: preferencesWindow.pluginDirectoryListModel
     property alias systemFontRendering: preferencesWindow.systemFontRendering
+
+    onCurrentTranslationIndexChanged: {
+        EventSender.setTranslationIndex(currentTranslationIndex);
+    }
 
     signal pluginScanComplete()
     onPluginScanComplete: {
@@ -573,7 +579,7 @@ ApplicationWindow {
         bottomPadding: topPadding
         height: contentHeight + topPadding + bottomPadding
         elide: Text.ElideRight
-        text: "Ready"
+        text: qsTr("Ready")
         background: Rectangle {
             color: Colors.controlBackground
         }

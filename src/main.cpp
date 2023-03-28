@@ -1,4 +1,5 @@
 #include "controller/ConfigController.hpp"
+#include "controller/LocalizationController.hpp"
 #include "event/EventBase.hpp"
 #include "event/EventHandler.hpp"
 #include "event/SplashScreenWorkerThread.hpp"
@@ -6,6 +7,8 @@
 #include "native/WindowsDarkModeSupport.hpp"
 #include "ui/UI.hpp"
 
+#include <QFont>
+#include <QFontDatabase>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
@@ -16,6 +19,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
     YADAW::UI::qmlApplicationEngine = &engine;
+    QFont::insertSubstitution("Fira Sans", "WenQuanYi Micro Hei");
     YADAW::Model::initializeModel();
     const QUrl frontendEventsURL(u"qrc:Main/Events.qml"_qs);
     const QUrl splashScreenURL(u"qrc:content/SplashScreen.qml"_qs);
@@ -49,8 +53,32 @@ int main(int argc, char *argv[])
     }, Qt::DirectConnection);
     YADAW::Controller::initializeApplicationConfig();
     auto config = YADAW::Controller::loadConfig();
-    auto language = config["general"]["language"].as<std::string>();
-    // load translation file using the value above
+    auto language = QString::fromStdString(config["general"]["language"].as<std::string>());
+    auto& localizationList = YADAW::Controller::appLocalizationListModel();
+    QTranslator translator;
+    for(int i = 0; i < localizationList.itemCount(); ++i)
+    {
+        const auto& localization = localizationList.at(i);
+        if(localization.name == language && translator.load(localization.translationFileName))
+        {
+            QCoreApplication::installTranslator(&translator);
+            for(const auto& font: localization.fontList)
+            {
+                QFontDatabase::addApplicationFont(font);
+            }
+            QString fontName("Fira Sans");
+            for(const auto& fontFamily: localization.fontFamilyList)
+            {
+                QFont::insertSubstitution(fontName, fontFamily);
+            }
+            YADAW::Controller::currentTranslationIndex = i;
+            break;
+        }
+    }
+    if(YADAW::Controller::currentTranslationIndex == -1)
+    {
+        YADAW::Controller::currentTranslationIndex = 0;
+    }
     auto systemFontRendering = config["general"]["system-font-rendering"].as<bool>();
     if(systemFontRendering)
     {

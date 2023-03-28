@@ -31,74 +31,80 @@ Window {
                     ListElement {
                         name: "Qt"
                         website: "qt.io"
-                        description: "Cross-platform application development kit"
+                        description: qsTr("Cross-platform application development kit")
                         license: "Commercial / LGPL v3"
                     }
                     ListElement {
                         name: "VST"
                         website: "https://www.steinberg.net/developers/"
-                        description: "Audio Plugin API"
+                        description: qsTr("Audio Plugin API")
                         license: "Commercial / GPL v3"
                     }
                     ListElement {
                         name: "CLAP"
                         website: "https://github.com/free-audio/clap"
-                        description: "Audio Plugin API"
+                        description: qsTr("Audio Plugin API")
                         license: "MIT"
                     }
                     ListElement {
                         name: "FFmpeg"
                         website: "http://ffmpeg.org/"
-                        description: "Multimedia codec, resampler, muxer and more"
+                        description: qsTr("Multimedia codec, resampler, muxer and more")
                         license: "GPL v2 / GPL v3 / LGPL v3"
                     }
                     ListElement {
                         name: "Avcpp"
                         website: "https://github.com/h4tr3d/avcpp"
-                        description: "C++ wraper of FFmpeg"
+                        description: qsTr("C++ wraper of FFmpeg")
                         license: "BSD-3-Clause / LGPL v2.1"
                     }
                     ListElement {
                         name: "SQLite"
                         website: "https://sqlite.org/index.html"
-                        description: "Light-weight and fast SQL database engine"
+                        description: qsTr("Light-weight and fast SQL database engine")
                         license: "Public-domain"
                     }
                     ListElement {
                         name: "sqlite-modern-cpp"
                         website: "https://github.com/aminroosta/sqlite_modern_cpp"
-                        description: "Modern C++ wrapper of SQLite"
+                        description: qsTr("Modern C++ wrapper of SQLite")
                         license: "MIT"
                     }
                     ListElement {
                         name: "spdlog"
                         website: "https://github.com/gabime/spdlog"
-                        description: "Logger"
+                        description: qsTr("Logger")
                         license: "MIT"
                     }
                     ListElement {
                         name: "{fmt}"
                         website: "https://github.com/fmtlib/fmt"
-                        description: "Format library which spdlog depends on"
+                        description: qsTr("Format library which spdlog depends on")
                         license: "MIT"
                     }
                     ListElement {
                         name: "yaml-cpp"
                         website: "https://github.com/jbeder/yaml-cpp"
-                        description: "YAML parser and emitter"
+                        description: qsTr("YAML parser and emitter")
                         license: "MIT"
                     }
                     ListElement {
                         name: "Fira Sans"
                         website: "https://github.com/mozilla/Fira"
-                        description: "A low-resolution friendly sans-serif typeface"
+                        description: qsTr("A low-resolution friendly sans-serif typeface")
                         license: "SIL Open Font License"
                     }
                     ListElement {
                         name: "Noto CJK fonts"
                         website: "https://github.com/notofonts/noto-cjk"
-                        description: "Typeface used with Simplified Chinese localization"
+                        description: qsTr("Typeface used with Simplified Chinese localization")
                         license: "SIL Open Font License"
+                    }
+                    ListElement {
+                        name: "WenQuanYi Micro Hei"
+                        website: "http://wenq.org/wqy2/index.cgi?MicroHei"
+                        description: qsTr("Typeface used with Simplified Chinese localization")
+                        license: "GPL v3"
                     }
                 }
                 delegate: Item {
@@ -127,7 +133,7 @@ Window {
         Label {
             id: noASIOSupportText
             wrapMode: Text.WordWrap
-            text: "Due to incompatibility with several open-source licenses, ASIO support is not included."
+            text: qsTr("Due to incompatibility with several open-source licenses, ASIO support is not included.")
             width: listRect.width
         }
         Item {

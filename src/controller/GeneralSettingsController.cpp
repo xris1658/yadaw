@@ -15,4 +15,11 @@ void GeneralSettingsController::setSystemFontRendering(bool enabled)
     config["general"]["system-font-rendering"] = enabled;
     saveConfig(config);
 }
+
+void GeneralSettingsController::setTranslation(const QString& name)
+{
+    auto config = YADAW::Controller::loadConfig();
+    config["general"]["language"] = name.toStdString();
+    saveConfig(config);
+}
 }
