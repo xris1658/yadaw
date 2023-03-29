@@ -95,12 +95,6 @@ Window {
                         license: "SIL Open Font License"
                     }
                     ListElement {
-                        name: "Noto CJK fonts"
-                        website: "https://github.com/notofonts/noto-cjk"
-                        description: qsTr("Typeface used with Simplified Chinese localization")
-                        license: "SIL Open Font License"
-                    }
-                    ListElement {
                         name: "WenQuanYi Micro Hei"
                         website: "http://wenq.org/wqy2/index.cgi?MicroHei"
                         description: qsTr("Typeface used with Simplified Chinese localization")
@@ -115,11 +109,11 @@ Window {
                         anchors.centerIn: parent
                         Label {
                             leftPadding: 3
-                            width: 120
+                            width: 135
                             text: "<a href=\"%1\">%2</a>".arg(website).arg(name)
                         }
                         Label {
-                            width: 300
+                            width: 285
                             text: description
                         }
                         Label {

@@ -1,0 +1,6 @@
+name: "官方简体中文翻译"
+author: "xris1658"
+language-code: "zh_CN"
+translation-file-name: "YADAW_zh_CN.qm"
+font-family: ["WenQuanYi Micro Hei"]
+font-list: ["wqy-microhei.ttc"]

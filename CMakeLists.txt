@@ -301,11 +301,8 @@ target_link_libraries(VST3Test PRIVATE
                       yaml-cpp)
 
 file(COPY ${CMAKE_CURRENT_BINARY_DIR}/content/YADAW_zh_CN.qm
-     ./l10n/osct/YADAW_zh_CN_WQY.yml
-     ./l10n/osct/YADAW_zh_CN_NSSC.yml
+     ./l10n/osct/YADAW_zh_CN.yml
      ./l10n/osct/wqy-microhei.ttc
-     ./l10n/osct/NotoSansCJKsc-Regular.otf
-     ./l10n/osct/NotoSansCJKsc-Bold.otf
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/l10n/osct)
 
 add_subdirectory(test)

@@ -59,19 +59,26 @@ int main(int argc, char *argv[])
     for(int i = 0; i < localizationList.itemCount(); ++i)
     {
         const auto& localization = localizationList.at(i);
-        if(localization.name == language && translator.load(localization.translationFileName))
+        if(localization.name == language && localization.translationFileName != "")
         {
-            QCoreApplication::installTranslator(&translator);
-            for(const auto& font: localization.fontList)
+            if(translator.load(localization.translationFileName))
             {
-                QFontDatabase::addApplicationFont(font);
+                QCoreApplication::installTranslator(&translator);
+                for(const auto& font: localization.fontList)
+                {
+                    QFontDatabase::addApplicationFont(font);
+                }
+                QString fontName("Fira Sans");
+                for(const auto& fontFamily: localization.fontFamilyList)
+                {
+                    QFont::insertSubstitution(fontName, fontFamily);
+                }
+                YADAW::Controller::currentTranslationIndex = i;
             }
-            QString fontName("Fira Sans");
-            for(const auto& fontFamily: localization.fontFamilyList)
+            else
             {
-                QFont::insertSubstitution(fontName, fontFamily);
+                // TODO: Inform the user that translation file cannot be loaded
             }
-            YADAW::Controller::currentTranslationIndex = i;
             break;
         }
     }
