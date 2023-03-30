@@ -10,7 +10,6 @@ T.ComboBox {
     leftPadding: 5
     rightPadding: 5
 
-    implicitWidth: popup.width
     implicitHeight: contentItem.contentHeight + topPadding + bottomPadding
 
     background: Rectangle {
@@ -69,30 +68,24 @@ T.ComboBox {
                 model[root.textRole])
             : modelData
         height: root.height
-        width: root.width - root.height
+        width: root.width
         highlighted: root.highlightedIndex === index
         background: Rectangle {
             color: (menuItem.enabled && menuItem.highlighted)?
                 Colors.mouseOverControlBackground:
                 Colors.controlBackground
         }
-        contentItem: Item {
-            width: contentText.contentWidth + anchors.leftMargin
-            height: contentText.contentHeight
-            anchors.left: menuItem.left
-            anchors.leftMargin: Math.max((parent.height - contentText.contentHeight) / 2, root.leftPadding)
-            anchors.top: parent.top
-            anchors.topMargin: parent.topPadding
-            Label {
-                id: contentText
-                text: menuItem.text
-                anchors.left: parent.left
-                color: root.enabled? Colors.content: Colors.disabledContent
-                anchors.verticalCenter: parent.verticalCenter
-                horizontalAlignment: Text.AlignLeft
-                verticalAlignment: Text.AlignVCenter
-                elide: Text.ElideRight
-            }
+        contentItem: Label {
+            id: contentText
+            leftPadding: 5
+            text: menuItem.text
+            width: menuItem.width - menuItem.height
+            anchors.left: parent.left
+            color: root.enabled? Colors.content: Colors.disabledContent
+            anchors.verticalCenter: parent.verticalCenter
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
         }
         indicator: Item {
             visible: root.currentIndex === index
@@ -110,7 +103,7 @@ T.ComboBox {
         }
         Component.onCompleted: {
             let newWidth = contentItem.width + height;
-            root.popup.width = Math.max(popup.width, newWidth);
+            root.implicitWidth = Math.max(root.implicitWidth, newWidth);
         }
     }
 }
