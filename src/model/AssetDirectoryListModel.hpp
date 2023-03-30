@@ -3,7 +3,6 @@
 
 #include "model/IAssetDirectoryListModel.hpp"
 
-#include <QAbstractListModel>
 #include <QString>
 #include <QUrl>
 
@@ -17,7 +16,7 @@ class AssetDirectoryListModel: public IAssetDirectoryListModel
 public:
     AssetDirectoryListModel(QObject* parent = nullptr);
     ~AssetDirectoryListModel() override;
-private:
+public:
     int itemCount() const;
 public:
     int rowCount(const QModelIndex&) const override;

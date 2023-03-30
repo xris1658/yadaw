@@ -26,31 +26,32 @@ int main(int argc, char *argv[])
     QObject* splashScreen = nullptr;
     const QUrl url(u"qrc:Main/YADAW.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [&](QObject *obj, const QUrl &objUrl) {
-        if (!obj)
+        &app, [&](QObject *obj, const QUrl &objUrl)
         {
+            if (!obj)
+            {
 #if(NDEBUG)
 #else
-            fprintf(stderr, "Press <ENTER> to exit...");
-            getchar();
+                fprintf(stderr, "Press <ENTER> to exit...");
+                getchar();
 #endif
-            QCoreApplication::exit(-1);
-        }
-        if(objUrl == frontendEventsURL)
-        {
-            YADAW::Event::eventSender = obj->property("eventSender").value<QObject*>();
-            YADAW::Event::eventReceiver = obj->property("eventReceiver").value<QObject*>();
-        }
-        else if(objUrl == splashScreenURL)
-        {
-            splashScreen = obj;
-        }
-        else if(objUrl == url)
-        {
-            YADAW::UI::mainWindow = qobject_cast<QQuickWindow*>(obj);
-            YADAW::Native::WindowsDarkModeSupport::instance()->addWindow(qobject_cast<QWindow*>(obj));
-        }
-    }, Qt::DirectConnection);
+                QCoreApplication::exit(-1);
+            }
+            if(objUrl == frontendEventsURL)
+            {
+                YADAW::Event::eventSender = obj->property("eventSender").value<QObject*>();
+                YADAW::Event::eventReceiver = obj->property("eventReceiver").value<QObject*>();
+            }
+            else if(objUrl == splashScreenURL)
+            {
+                splashScreen = obj;
+            }
+            else if(objUrl == url)
+            {
+                YADAW::UI::mainWindow = qobject_cast<QQuickWindow*>(obj);
+                YADAW::Native::WindowsDarkModeSupport::instance()->addWindow(qobject_cast<QWindow*>(obj));
+            }
+        }, Qt::DirectConnection);
     YADAW::Controller::initializeApplicationConfig();
     auto config = YADAW::Controller::loadConfig();
     auto language = QString::fromStdString(config["general"]["language"].as<std::string>());

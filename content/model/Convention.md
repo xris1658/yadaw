@@ -31,5 +31,5 @@ Implement `columnCount()` and `columnCount(const QModelIndex&)` as follows:
 ```cpp
 public:
     static constexpr int columnCount() { return 1; }
-    int columnCount(const QModelIndex&) const override final { rturn columnCount(); }
+    int columnCount(const QModelIndex&) const override final { return columnCount(); }
 ```
