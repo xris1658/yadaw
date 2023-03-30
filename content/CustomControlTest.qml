@@ -222,9 +222,21 @@ ApplicationWindow {
                 }
             }
         }
-        ComboBox {
-            model: ["a", "b", "c"]
+        Row {
+            spacing: 5
+            ComboBox {
+                model: ["a", "b", "c"]
+            }
+            ComboBox {
+                enabled: false
+                model: ["a", "b", "c"]
+            }
+            ComboBox {
+                width: 50
+                model: ["a", "b", "c"]
+            }
         }
+
         Row {
             spacing: 5
             ProgressBar {
