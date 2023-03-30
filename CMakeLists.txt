@@ -140,6 +140,10 @@ set(YADAW_COMMON_SOURCES
     src/midi/MIDIOutputDevice.hpp
     src/model/AssetDirectoryListModel.cpp
     src/model/AssetDirectoryListModel.hpp
+    src/model/AudioGraphInputDeviceListModel.cpp
+    src/model/AudioGraphInputDeviceListModel.hpp
+    src/model/AudioGraphOutputDeviceListModel.cpp
+    src/model/AudioGraphOutputDeviceListModel.hpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
     src/model/ModelInitializer.cpp
