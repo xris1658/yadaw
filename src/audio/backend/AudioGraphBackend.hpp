@@ -14,6 +14,7 @@ public:
     enum Status
     {
         Empty,
+        Initialized,
         Created,
         Processing
     };
@@ -32,12 +33,6 @@ public:
     };
     struct InterleaveAudioBuffer
     {
-        InterleaveAudioBuffer() = default;
-        InterleaveAudioBuffer(const InterleaveAudioBuffer&) = default;
-        InterleaveAudioBuffer(InterleaveAudioBuffer&&) noexcept = default;
-        InterleaveAudioBuffer& operator=(const InterleaveAudioBuffer&) = default;
-        InterleaveAudioBuffer& operator=(InterleaveAudioBuffer&&) noexcept = default;
-        ~InterleaveAudioBuffer() noexcept = default;
         std::uint8_t* data = nullptr;
         int channelCount = 0;
         int frameCount = 0;
@@ -63,6 +58,8 @@ public:
     AudioGraphBackend(AudioGraphBackend&& rhs) noexcept;
     ~AudioGraphBackend();
 public:
+    bool initialize();
+    bool uninitialize();
     int audioInputDeviceCount() const;
     int audioOutputDeviceCount() const;
     DeviceInfo audioInputDeviceAt(int index) const;

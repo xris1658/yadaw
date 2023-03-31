@@ -16,6 +16,8 @@
 #include <winrt/Windows.Media.Render.h>
 #include <winrt/Windows.Devices.Enumeration.h>
 
+#include <future>
+
 namespace YADAW::Audio::Backend
 {
 using namespace ::Windows::Foundation;
@@ -39,8 +41,8 @@ AudioGraphBackend::Impl::DeviceInput::DeviceInput(AudioDeviceInputNode&& deviceI
 }
 
 AudioGraphBackend::Impl::Impl():
-    audioInputDeviceInformationCollection_(DeviceInformation::FindAllAsync(DeviceClass::AudioCapture).get()),
-    audioOutputDeviceInformationCollection_(DeviceInformation::FindAllAsync(DeviceClass::AudioRender).get()),
+    audioInputDeviceInformationCollection_(nullptr),
+    audioOutputDeviceInformationCollection_(nullptr),
     audioGraph_(nullptr),
     audioDeviceOutputNode_(nullptr),
     audioFrameInputNode_(nullptr),
@@ -48,6 +50,12 @@ AudioGraphBackend::Impl::Impl():
     inputAudioBuffer_(),
     eventToken_()
 {
+    // Suppress the `is_sta()` assert failure
+    std::async(std::launch::async, [this]()
+    {
+        audioInputDeviceInformationCollection_ = DeviceInformation::FindAllAsync(DeviceClass::AudioCapture).get();
+        audioOutputDeviceInformationCollection_ = DeviceInformation::FindAllAsync(DeviceClass::AudioRender).get();
+    }).get();
     deviceInputNodes_.reserve(audioInputDeviceInformationCollection_.Size());
     inputAudioBuffer_.reserve(audioInputDeviceInformationCollection_.Size());
 }
@@ -194,11 +202,11 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                         std::uint32_t capacityInBytes = 0;
                         if(byteAccess->GetBuffer(&dataInBytes, &capacityInBytes) == S_OK)
                         {
-                            inputAudioBuffer_[i] = {
-                                dataInBytes,
-                                static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
-                                requiredSamples,
-                                SampleFormat::Float32
+                            inputAudioBuffer_[i] = AudioGraphBackend::InterleaveAudioBuffer {
+                                .data = dataInBytes,
+                                .channelCount = static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
+                                .frameCount = requiredSamples,
+                                .sampleFormat = SampleFormat::Float32
                             };
                         }
                     }

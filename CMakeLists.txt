@@ -174,8 +174,6 @@ set(YADAW_COMMON_SOURCES
     src/native/Native.hpp
     src/native/VST3Native.cpp
     src/native/VST3Native.hpp
-    src/native/WinRTApartment.cpp
-    src/native/WinRTApartment.hpp
     src/native/WindowsDarkModeSupport.cpp
     src/native/WindowsDarkModeSupport.hpp
     src/native/winrt/Forward.hpp

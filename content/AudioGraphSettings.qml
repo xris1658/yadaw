@@ -7,6 +7,10 @@ Rectangle {
     property int firstColumnWidth
     property int secondColumnWidth
 
+    property alias inputDeviceList: inputDeviceListView.model
+    property alias outputDeviceList: outputDeviceComboBox.model
+    property alias sampleRate: sampleRateComboBox.currentValue
+
     property int bufferSize: 512
     property int latency: 512
     Grid {
@@ -35,7 +39,7 @@ Rectangle {
             ComboBox {
                 id: sampleRateComboBox
                 width: parent.width - hertzLabel.width
-                model: ["44100", "48000", "88200", "96000", "176400", "192000"]
+                model: [44100, 48000, 88200, 96000, 176400, 192000]
             }
             Label {
                 id: hertzLabel
@@ -94,6 +98,7 @@ Rectangle {
             horizontalAlignment: Label.AlignRight
         }
         ComboBox {
+            id: outputDeviceComboBox
             width: secondColumnWidth
             textRole: "agdlm_name"
             valueRole: "agdlm_id"

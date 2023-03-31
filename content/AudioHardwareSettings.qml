@@ -8,6 +8,9 @@ Item {
     property int firstColumnWidth
     property int secondColumnWidth
 
+    property alias audioGraphInputDeviceList: audioGraphSettings.inputDeviceList
+    property alias audioGraphOutputDeviceList: audioGraphSettings.outputDeviceList
+
     Grid {
         id: grid
         columns: 2
@@ -41,6 +44,7 @@ Item {
         currentIndex: audioEngineSelector.currentIndex
         Item {}
         AudioGraphSettings {
+            id: audioGraphSettings
             firstColumnWidth: root.firstColumnWidth
             secondColumnWidth: root.secondColumnWidth
         }

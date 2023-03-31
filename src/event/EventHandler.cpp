@@ -3,6 +3,7 @@
 #include "base/Constants.hpp"
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
+#include "controller/AudioBackendController.hpp"
 #include "controller/GeneralSettingsController.hpp"
 #include "controller/PluginController.hpp"
 #include "controller/PluginDirectoryController.hpp"
@@ -69,6 +70,7 @@ void EventHandler::onStartInitializingApplication()
 
 void EventHandler::onOpenMainWindow()
 {
+    YADAW::Controller::appAudioGraphBackend().initialize();
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
     YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",
@@ -89,6 +91,10 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appLocalizationListModel()));
     YADAW::UI::mainWindow->setProperty("currentTranslationIndex",
         QVariant::fromValue<int>(YADAW::Controller::currentTranslationIndex));
+    YADAW::UI::mainWindow->setProperty("audioGraphInputDeviceList",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphInputDeviceListModel()));
+    YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceList",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphOutputDeviceListModel()));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRendering(bool)),
         this, SLOT(onSetSystemFontRendering(bool)));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setTranslationIndex(int)),
@@ -99,6 +105,7 @@ void EventHandler::onOpenMainWindow()
 
 void EventHandler::onMainWindowClosing()
 {
+    YADAW::Controller::appAudioGraphBackend().uninitialize();
     YADAW::Native::WindowsDarkModeSupport::instance().reset();
     mainWindowCloseAccepted();
 }

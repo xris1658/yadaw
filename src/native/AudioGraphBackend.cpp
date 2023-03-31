@@ -4,7 +4,7 @@
 
 namespace YADAW::Audio::Backend
 {
-AudioGraphBackend::AudioGraphBackend(): pImpl_(std::make_unique<Impl>())
+AudioGraphBackend::AudioGraphBackend(): pImpl_()
 {
 }
 
@@ -23,6 +23,32 @@ AudioGraphBackend::~AudioGraphBackend()
     {
         destroyAudioGraph();
     }
+    if(status_ == Status::Initialized)
+    {
+        uninitialize();
+    }
+}
+
+bool AudioGraphBackend::initialize()
+{
+    try
+    {
+        pImpl_ = std::make_unique<Impl>();
+        status_ = Status::Initialized;
+        return true;
+    }
+    catch(...)
+    {
+        pImpl_.reset();
+        return false;
+    }
+}
+
+bool AudioGraphBackend::uninitialize()
+{
+    pImpl_.reset();
+    status_ = Status::Empty;
+    return true;
 }
 
 int AudioGraphBackend::audioInputDeviceCount() const

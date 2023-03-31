@@ -14,6 +14,10 @@ Window {
     property alias systemFontRendering: generalSettings.systemFontRendering
     property alias translationModel: generalSettings.translationModel
     property alias currentTranslationIndex: generalSettings.currentTranslationIndex
+
+    property alias audioGraphInputDeviceList: audioHardwareSettings.audioGraphInputDeviceList
+    property alias audioGraphOutputDeviceList: audioHardwareSettings.audioGraphOutputDeviceList
+
     property alias pluginDirectoryListModel: pluginSettings.directoryListModel
 
     signal startPluginScan()
@@ -65,11 +69,12 @@ Window {
                     secondColumnWidth: root.secondColumnWidth
                 }
                 AudioHardwareSettings {
+                    id: audioHardwareSettings
                     firstColumnWidth: root.firstColumnWidth
                     secondColumnWidth: root.secondColumnWidth
                 }
                 PluginSettings {
-                id: pluginSettings
+                    id: pluginSettings
                     firstColumnWidth: root.firstColumnWidth
                     secondColumnWidth: root.secondColumnWidth
                     onStartPluginScan: {
