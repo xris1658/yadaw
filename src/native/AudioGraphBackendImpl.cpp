@@ -203,10 +203,10 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                         if(byteAccess->GetBuffer(&dataInBytes, &capacityInBytes) == S_OK)
                         {
                             inputAudioBuffer_[i] = AudioGraphBackend::InterleaveAudioBuffer {
-                                .data = dataInBytes,
-                                .channelCount = static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
-                                .frameCount = requiredSamples,
-                                .sampleFormat = SampleFormat::Float32
+                                /*.data = */dataInBytes,
+                                /*.channelCount = */static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
+                                /*.frameCount = */requiredSamples,
+                                /*.sampleFormat = */SampleFormat::Float32
                             };
                         }
                     }
