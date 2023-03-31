@@ -61,6 +61,16 @@ int AudioGraphBackend::audioOutputDeviceCount() const
     return pImpl_->audioOutputDeviceCount();
 }
 
+int AudioGraphBackend::defaultAudioInputDeviceIndex() const
+{
+    return pImpl_->defaultAudioInputDeviceIndex();
+}
+
+int AudioGraphBackend::defaultAudioOutputDeviceIndex() const
+{
+    return pImpl_->defaultAudioOutputDeviceIndex();
+}
+
 AudioGraphBackend::DeviceInfo AudioGraphBackend::audioInputDeviceAt(int index) const
 {
     using YADAW::Native::qStringFromHString;

@@ -259,6 +259,7 @@ target_link_libraries(YADAW PRIVATE
                       yaml-cpp)
 
 target_link_libraries(AudioGraphTest PRIVATE
+                      contentplugin
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick
                       version ole32 dwmapi
                       base pluginterfaces sdk_common sdk_hosting

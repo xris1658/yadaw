@@ -52,6 +52,8 @@ public:
     int audioOutputDeviceCount() const;
     DeviceInformation audioInputDeviceAt(int index) const;
     DeviceInformation audioOutputDeviceAt(int index) const;
+    int defaultAudioInputDeviceIndex() const;
+    int defaultAudioOutputDeviceIndex() const;
     bool createAudioGraph();
     bool createAudioGraph(const DeviceInformation& audioOutputDevice);
     int enableDeviceInput(const DeviceInformation& audioInputDevice);

@@ -62,6 +62,8 @@ public:
     bool uninitialize();
     int audioInputDeviceCount() const;
     int audioOutputDeviceCount() const;
+    int defaultAudioInputDeviceIndex() const;
+    int defaultAudioOutputDeviceIndex() const;
     DeviceInfo audioInputDeviceAt(int index) const;
     DeviceInfo audioOutputDeviceAt(int index) const;
     bool createAudioGraph();

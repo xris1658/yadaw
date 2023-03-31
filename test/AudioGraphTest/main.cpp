@@ -52,7 +52,9 @@ int main()
 {
     std::setlocale(LC_ALL, "en_US.UTF-8");
     AudioGraphBackend audioGraphBackend;
+    audioGraphBackend.initialize();
     auto outputDeviceCount = audioGraphBackend.audioOutputDeviceCount();
+    auto defaultOutputDeviceIndex = audioGraphBackend.defaultAudioOutputDeviceIndex();
     std::vector<QString> ids;
     for(decltype(outputDeviceCount) i = 0; i < outputDeviceCount; ++i)
     {
@@ -64,6 +66,14 @@ int main()
         else
         {
             std::printf("X ");
+        }
+        if(defaultOutputDeviceIndex == i)
+        {
+            std::printf("O ");
+        }
+        else
+        {
+            std::printf("  ");
         }
         std::wprintf(L"%d: %s\n", (i + 1),
             reinterpret_cast<const wchar_t*>(info.name.data()));
@@ -158,5 +168,6 @@ int main()
     std::printf("Cannot create input device!\n");
     audioGraphBackend.destroyAudioGraph();
     std::printf("Destroyed audio graph\n");
+    audioGraphBackend.uninitialize();
     return 0;
 }

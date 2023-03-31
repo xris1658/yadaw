@@ -3,6 +3,9 @@
 
 #include <Unknwn.h>
 
+#include <combaseapi.h>
+#include <mmdeviceapi.h>
+
 #include <cstdint>
 
 #include "native/winrt/Forward.hpp"
@@ -20,6 +23,38 @@
 
 namespace YADAW::Audio::Backend
 {
+namespace Helper
+{
+class IMMDeviceEnumeratorCreator
+{
+private:
+    IMMDeviceEnumeratorCreator()
+    {
+        if(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_INPROC_SERVER,
+            IID_PPV_ARGS(&deviceEnumerator_)) != S_OK)
+        {
+            deviceEnumerator_ = nullptr;
+            throw std::runtime_error("");
+        }
+    }
+public:
+    static IMMDeviceEnumerator* deviceEnumerator()
+    {
+        try
+        {
+            static IMMDeviceEnumeratorCreator instance;
+            return instance.deviceEnumerator_;
+        }
+        catch(...)
+        {
+            return nullptr;
+        }
+        return nullptr;
+    }
+public:
+    IMMDeviceEnumerator* deviceEnumerator_ = nullptr;
+};
+}
 using namespace ::Windows::Foundation;
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -82,6 +117,69 @@ DeviceInformation AudioGraphBackend::Impl::audioInputDeviceAt(int index) const
 DeviceInformation AudioGraphBackend::Impl::audioOutputDeviceAt(int index) const
 {
     return audioOutputDeviceInformationCollection_.GetAt(index);
+}
+
+int AudioGraphBackend::Impl::defaultAudioInputDeviceIndex() const
+{
+    if(auto deviceEnumerator = Helper::IMMDeviceEnumeratorCreator::deviceEnumerator();
+        deviceEnumerator)
+    {
+        IMMDevice* endpoint = nullptr;
+        if(deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture,
+            ERole::eMultimedia, &endpoint) == S_OK)
+        {
+            LPWSTR deviceId = nullptr;
+            if(endpoint->GetId(&deviceId) == S_OK)
+            {
+                int id = -1;
+                for(int i = 0; i < audioInputDeviceInformationCollection_.Size(); ++i)
+                {
+                    // \\?\SWD#MMDEVAPI#{0.0.0.00000000}.{4c2d97cc-7925-4292-9964-6376fd05ffee}#{e6327cad-dcec-4949-ae8a-991e976a79d2}
+                    auto idForCompare = audioInputDeviceInformationCollection_.GetAt(i).Id();
+                    if(std::equal(deviceId, deviceId + std::wcslen(deviceId), idForCompare.c_str() + 17))
+                    {
+                        id = i;
+                        break;
+                    }
+                }
+                CoTaskMemFree(deviceId);
+                return id;
+            }
+        }
+    }
+    return -1;
+}
+
+int AudioGraphBackend::Impl::defaultAudioOutputDeviceIndex() const
+{
+    if(auto deviceEnumerator = Helper::IMMDeviceEnumeratorCreator::deviceEnumerator();
+        deviceEnumerator)
+    {
+        IMMDevice* endpoint = nullptr;
+        if(deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eRender,
+            ERole::eMultimedia, &endpoint) == S_OK)
+        {
+            // {0.0.0.00000000}.{4c2d97cc-7925-4292-9964-6376fd05ffee}
+            LPWSTR deviceId = nullptr;
+            if(endpoint->GetId(&deviceId) == S_OK)
+            {
+                int id = -1;
+                for(int i = 0; i < audioOutputDeviceInformationCollection_.Size(); ++i)
+                {
+                    // \\?\SWD#MMDEVAPI#{0.0.0.00000000}.{4c2d97cc-7925-4292-9964-6376fd05ffee}#{e6327cad-dcec-4949-ae8a-991e976a79d2}
+                    auto idForCompare = audioOutputDeviceInformationCollection_.GetAt(i).Id();
+                    if(std::equal(deviceId, deviceId + std::wcslen(deviceId), idForCompare.c_str() + 17))
+                    {
+                        id = i;
+                        break;
+                    }
+                }
+                CoTaskMemFree(deviceId);
+                return id;
+            }
+        }
+    }
+    return -1;
 }
 
 bool AudioGraphBackend::Impl::createAudioGraph()
