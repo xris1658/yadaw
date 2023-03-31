@@ -131,6 +131,8 @@ int AudioGraphBackend::Impl::defaultAudioInputDeviceIndex() const
             LPWSTR deviceId = nullptr;
             if(endpoint->GetId(&deviceId) == S_OK)
             {
+                // https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdevice-getid#remarks
+                // FIXME: Use IMMDeviceEnumerator::GetDevice to retrieve device ID
                 int id = -1;
                 for(int i = 0; i < audioInputDeviceInformationCollection_.Size(); ++i)
                 {
@@ -163,6 +165,8 @@ int AudioGraphBackend::Impl::defaultAudioOutputDeviceIndex() const
             LPWSTR deviceId = nullptr;
             if(endpoint->GetId(&deviceId) == S_OK)
             {
+                // https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdevice-getid#remarks
+                // FIXME: Use IMMDeviceEnumerator::GetDevice to retrieve device ID
                 int id = -1;
                 for(int i = 0; i < audioOutputDeviceInformationCollection_.Size(); ++i)
                 {
