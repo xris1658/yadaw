@@ -26,8 +26,8 @@ private:
 public:
     static YAMLNodeInitializer& instance()
     {
-        static YAMLNodeInitializer _;
-        return _;
+        static YAMLNodeInitializer ret;
+        return ret;
     }
 
     YAML::Node& node()
