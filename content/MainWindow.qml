@@ -1,5 +1,6 @@
 import QtQml
 import QtQuick
+import QtQuick.Layouts
 import QtQuick.Shapes
 
 ApplicationWindow {
@@ -667,24 +668,35 @@ ApplicationWindow {
             }
             Column {
                 SplitView.minimumHeight: editorAndMixerTabButtonRow.height
+                SplitView.preferredHeight: root.height * 0.4
                 Rectangle {
                     width: parent.width
                     height: parent.height - editorAndMixerTabButtonRow.height
                     color: "transparent"
                     border.color: Colors.controlBorder
-                    Item {
+                    StackLayout {
                         anchors.fill: parent
                         anchors.margins: parent.border.width
+                        currentIndex: mixerButton.checked? 1: 0
+                        Item {
+                            // anchors.fill: parent
+                        }
+                        Mixer {
+                            // anchors.fill: parent
+                        }
                     }
+
                 }
                 Row {
                     id: editorAndMixerTabButtonRow
                     width: parent.width
                     TabButton {
+                        id: editorButton
                         width: implicitWidth
                         text: qsTr("Editor")
                     }
                     TabButton {
+                        id: mixerButton
                         width: implicitWidth
                         text: qsTr("Mixer")
                     }

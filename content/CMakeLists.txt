@@ -44,11 +44,13 @@ set(CONTENT_QML_FILES
     DirectoryFontLoader.qml
     EventReceiver.qml
     EventSender.qml
+    FaderIcon.qml
     FolderIcon.qml
     FollowIcon.qml
     GeneralSettings.qml
     Global.qml
     GroupIcon.qml
+    InputIcon.qml
     InsertIcon.qml
     ItemDelegate.qml
     Label.qml
@@ -62,7 +64,10 @@ set(CONTENT_QML_FILES
     MessageDialog.qml
     MetronomeIcon.qml
     MIDIEffectIcon.qml
+    Mixer.qml
+    MixerChannel.qml
     Mnemonic.qml
+    OutputIcon.qml
     PianoKeysIcon.qml
     PlayIcon.qml
     PluginIcon.qml
@@ -71,6 +76,7 @@ set(CONTENT_QML_FILES
     PreferencesWindow.qml
     ProgressBar.qml
     ScrollBar.qml
+    SendIcon.qml
     Slider.qml
     SortIcon.qml
     SplashScreen.qml
@@ -84,6 +90,8 @@ set(CONTENT_QML_FILES
     VST3Icon.qml
     WindowIcon.qml
     )
+
+message(NOTICE "Close the UI project in Qt Design Studio BEFORE building things. Otherwise fonts cannot be copied.")
 
 qt_add_qml_module(content
                   URI "content"

@@ -291,7 +291,7 @@ target_link_libraries(VST3Test PRIVATE
                       unofficial::sqlite3::sqlite3
                       yaml-cpp)
 
-message(AUTHOR_WARNING "Generate translation files using Qt Linguist BEFORE loading the CMake project")
+message(NOTICE "Generate translation files using Qt Linguist BEFORE loading the CMake project")
 
 file(COPY ${CMAKE_CURRENT_BINARY_DIR}/content/YADAW_zh_CN.qm
      ./l10n/osct/YADAW_zh_CN.yml
