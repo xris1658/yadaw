@@ -27,3 +27,8 @@ add_executable(CircularDequeTest
                ../src/util/CircularDeque.hpp
                ../src/util/FixedSizeCircularDeque.hpp
                CircularDequeTest/main.cpp)
+
+add_executable(QStringConversionTest
+               QStringConversionTest/main.cpp)
+
+target_link_libraries(QStringConversionTest PRIVATE Qt6::Core)
