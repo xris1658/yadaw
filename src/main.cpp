@@ -19,7 +19,6 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
     YADAW::UI::qmlApplicationEngine = &engine;
-    QFont::insertSubstitution("Fira Sans", "WenQuanYi Micro Hei");
     YADAW::Model::initializeModel();
     const QUrl frontendEventsURL(u"qrc:Main/Events.qml"_qs);
     const QUrl splashScreenURL(u"qrc:content/SplashScreen.qml"_qs);
