@@ -2,6 +2,9 @@
 
 #include <dwmapi.h>
 
+// Windows 10 supports dark title bar (as of build 19041), but the following value is not public
+// until Windows 11 build 22000
+// https://learn.microsoft.com/windows/apps/desktop/modernize/apply-windows-themes
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
 #endif
