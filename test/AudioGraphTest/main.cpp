@@ -30,17 +30,42 @@ void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudio
 {
     auto start = YADAW::Native::currentTimeValueInNanosecond();
     int frameCount = 0;
-    const auto& input = inputs[0];
-    for(int i = 0; i < outputCount; ++i)
+    int firstAvailableInput = -1;
+    for(int i = 0; i < inputCount; ++i)
     {
-        const auto& output = outputs[i];
-        frameCount = output.frameCount;
-        for(int j = 0; j < output.channelCount; ++j)
+        if(inputs[i].channelCount == 2)
         {
-            for(int k = 0; k < output.frameCount; ++k)
+            firstAvailableInput = i;
+            break;
+        }
+    }
+    if(firstAvailableInput != -1)
+    {
+        for(int i = 0; i < outputCount; ++i)
+        {
+            const auto& output = outputs[i];
+            frameCount = output.frameCount;
+            for(int j = 0; j < output.channelCount; ++j)
             {
-                *reinterpret_cast<float*>(output.at(k, j)) = std::sinf((samplePosition + k) * 440 * 2 * pi / sampleRate);
-                // *reinterpret_cast<float*>(output.at(k, j)) = *reinterpret_cast<float*>(input.at(k, j));
+                for(int k = 0; k < output.frameCount; ++k)
+                {
+                    *reinterpret_cast<float*>(output.at(k, j)) = std::sinf((samplePosition + k) * 440 * 2 * pi / sampleRate) * 0.5 + *reinterpret_cast<float*>(inputs[firstAvailableInput].at(k, j)) * 0.5;
+                }
+            }
+        }
+    }
+    else
+    {
+        for(int i = 0; i < outputCount; ++i)
+        {
+            const auto& output = outputs[i];
+            frameCount = output.frameCount;
+            for(int j = 0; j < output.channelCount; ++j)
+            {
+                for(int k = 0; k < output.frameCount; ++k)
+                {
+                    *reinterpret_cast<float*>(output.at(k, j)) = std::sinf((samplePosition + k) * 440 * 2 * pi / sampleRate);
+                }
             }
         }
     }
@@ -140,34 +165,26 @@ int main()
         }
         break;
     }
-    inputIndex = audioGraphBackend.enableDeviceInput(ids[output - 1]);
-    if(inputIndex != -1)
+    audioGraphBackend.activateDeviceInput(output - 1, true);
+    audioGraphBackend.start(&audioGraphCallback);
+    auto latencyInMilliseconds = audioGraphBackend.latencyInSamples() * 1000.0 / static_cast<double>(audioGraphBackend.sampleRate());
+    auto bufferDuration = audioGraphBackend.bufferSizeInFrames() * 1000.0 / static_cast<double>(audioGraphBackend.sampleRate());
+    std::printf("Latency: %d samples (%lf millisecond)\n", audioGraphBackend.latencyInSamples(), latencyInMilliseconds);
+    std::printf("Buffer size: %d samples (%lf milliseconds)\n", audioGraphBackend.bufferSizeInFrames(), bufferDuration);
+    std::getchar();
+    std::atomic_bool stop; stop.store(false);
+    std::thread([&stop, bufferDuration]()
     {
-        audioGraphBackend.start(&audioGraphCallback);
-        auto latencyInMilliseconds = audioGraphBackend.latencyInSamples() * 1000.0 / static_cast<double>(audioGraphBackend.sampleRate());
-        auto bufferDuration = audioGraphBackend.bufferSizeInFrames() * 1000.0 / static_cast<double>(audioGraphBackend.sampleRate());
-        std::printf("Latency: %d samples (%lf millisecond)\n", audioGraphBackend.latencyInSamples(), latencyInMilliseconds);
-        std::printf("Buffer size: %d samples (%lf milliseconds)\n", audioGraphBackend.bufferSizeInFrames(), bufferDuration);
-        std::getchar();
-        std::atomic_bool stop; stop.store(false);
-        std::thread([&stop, bufferDuration]()
+        while(!stop.load())
         {
-            while(!stop.load())
-            {
-                std::printf("%lf%%\n", callbackDuration / 1000000.0 / bufferDuration * 100.0);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-        }).detach();
-        std::getchar();
-        stop.store(true);
-        audioGraphBackend.stop();
-        audioGraphBackend.destroyAudioGraph();
-        std::printf("Destroyed audio graph\n");
-        return 0;
-    }
-    std::printf("Cannot create input device!\n");
+            std::printf("%lf%%\n", callbackDuration / 1000000.0 / bufferDuration * 100.0);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    }).detach();
+    std::getchar();
+    stop.store(true);
+    audioGraphBackend.stop();
     audioGraphBackend.destroyAudioGraph();
     std::printf("Destroyed audio graph\n");
-    audioGraphBackend.uninitialize();
     return 0;
 }

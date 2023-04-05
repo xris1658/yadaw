@@ -75,6 +75,9 @@ AudioGraphBackend::Impl::DeviceInput::DeviceInput(AudioDeviceInputNode&& deviceI
     deviceInputNode_.AddOutgoingConnection(frameOutputNode_);
 }
 
+AudioGraphBackend::Impl::DeviceInput::DeviceInput(DeviceInput&& rhs) noexcept = default;
+AudioGraphBackend::Impl::DeviceInput& AudioGraphBackend::Impl::DeviceInput::operator=(DeviceInput&& rhs) noexcept = default;
+
 AudioGraphBackend::Impl::Impl():
     audioInputDeviceInformationCollection_(nullptr),
     audioOutputDeviceInformationCollection_(nullptr),
@@ -91,35 +94,35 @@ AudioGraphBackend::Impl::Impl():
         audioInputDeviceInformationCollection_ = DeviceInformation::FindAllAsync(DeviceClass::AudioCapture).get();
         audioOutputDeviceInformationCollection_ = DeviceInformation::FindAllAsync(DeviceClass::AudioRender).get();
     }).get();
-    deviceInputNodes_.reserve(audioInputDeviceInformationCollection_.Size());
-    inputAudioBuffer_.reserve(audioInputDeviceInformationCollection_.Size());
+    deviceInputNodes_.resize(audioInputDeviceInformationCollection_.Size());
+    inputAudioBuffer_.resize(audioInputDeviceInformationCollection_.Size());
 }
 
 AudioGraphBackend::Impl::~Impl()
 {
 }
 
-int AudioGraphBackend::Impl::audioInputDeviceCount() const
+std::uint32_t AudioGraphBackend::Impl::audioInputDeviceCount() const
 {
     return audioInputDeviceInformationCollection_.Size();
 }
 
-int AudioGraphBackend::Impl::audioOutputDeviceCount() const
+std::uint32_t AudioGraphBackend::Impl::audioOutputDeviceCount() const
 {
     return audioOutputDeviceInformationCollection_.Size();
 }
 
-DeviceInformation AudioGraphBackend::Impl::audioInputDeviceAt(int index) const
+DeviceInformation AudioGraphBackend::Impl::audioInputDeviceAt(std::uint32_t index) const
 {
     return audioInputDeviceInformationCollection_.GetAt(index);
 }
 
-DeviceInformation AudioGraphBackend::Impl::audioOutputDeviceAt(int index) const
+DeviceInformation AudioGraphBackend::Impl::audioOutputDeviceAt(std::uint32_t index) const
 {
     return audioOutputDeviceInformationCollection_.GetAt(index);
 }
 
-int AudioGraphBackend::Impl::defaultAudioInputDeviceIndex() const
+std::uint32_t AudioGraphBackend::Impl::defaultAudioInputDeviceIndex() const
 {
     if(auto deviceEnumerator = Helper::IMMDeviceEnumeratorCreator::deviceEnumerator();
         deviceEnumerator)
@@ -152,7 +155,7 @@ int AudioGraphBackend::Impl::defaultAudioInputDeviceIndex() const
     return -1;
 }
 
-int AudioGraphBackend::Impl::defaultAudioOutputDeviceIndex() const
+std::uint32_t AudioGraphBackend::Impl::defaultAudioOutputDeviceIndex() const
 {
     if(auto deviceEnumerator = Helper::IMMDeviceEnumeratorCreator::deviceEnumerator();
         deviceEnumerator)
@@ -229,48 +232,48 @@ bool AudioGraphBackend::Impl::createAudioGraph(const DeviceInformation& audioOut
     return true;
 }
 
-int AudioGraphBackend::Impl::enableDeviceInput(const DeviceInformation& audioInputDevice)
+AudioGraphBackend::DeviceInputResult
+AudioGraphBackend::Impl::activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled)
 {
-    auto result = audioGraph_.CreateDeviceInputNodeAsync(MediaCategory::Media, audioGraph_.EncodingProperties(), audioInputDevice).get();
-    if(auto status = result.Status(); status != decltype(result.Status())::Success)
+    if(deviceInputIndex < audioInputDeviceCount())
     {
-        return -1;
+        if(enabled)
+        {
+            if(deviceInputNodes_[deviceInputIndex].audioBuffer_)
+            {
+                return DeviceInputResult::AlreadyDone;
+            }
+            auto result = audioGraph_.CreateDeviceInputNodeAsync(
+                MediaCategory::Media, audioGraph_.EncodingProperties(),
+                audioInputDeviceInformationCollection_.GetAt(deviceInputIndex)
+            ).get();
+            if(auto status = result.Status(); status == decltype(status)::Success)
+            {
+                deviceInputNodes_[deviceInputIndex] = {result.DeviceInputNode(), audioGraph_.CreateFrameOutputNode()};
+                return DeviceInputResult::Success;
+            }
+        }
+        else
+        {
+            if(deviceInputNodes_[deviceInputIndex].deviceInputNode_)
+            {
+                deviceInputNodes_[deviceInputIndex] = {};
+                return DeviceInputResult::Success;
+            }
+            return DeviceInputResult::AlreadyDone;
+        }
     }
-    deviceInputNodes_.emplace_back(result.DeviceInputNode(),
-        audioGraph_.CreateFrameOutputNode());
-    inputAudioBuffer_.emplace_back();
-    return deviceInputNodes_.size() - 1;
-}
-
-bool AudioGraphBackend::Impl::disableDeviceInput(int deviceInputIndex)
-{
-    if(deviceInputIndex < deviceInputNodes_.size())
-    {
-        inputAudioBuffer_.erase(inputAudioBuffer_.begin() + deviceInputIndex);
-        deviceInputNodes_.erase(deviceInputNodes_.begin() + deviceInputIndex);
-        return true;
-    }
-    return false;
+    return DeviceInputResult::Failed;
 }
 
 DeviceInformation AudioGraphBackend::Impl::currentOutputDevice() const
 {
-    auto&& ret1 = audioGraph_.PrimaryRenderDevice();
-    if(ret1)
+    auto ret = audioGraph_.PrimaryRenderDevice();
+    if(ret)
     {
-        return ret1;
+        return ret;
     }
     return audioDeviceOutputNode_.Device();
-}
-
-int AudioGraphBackend::Impl::currentInputDeviceCount() const
-{
-    return deviceInputNodes_.size();
-}
-
-DeviceInformation AudioGraphBackend::Impl::currentInputDeviceAt(int index) const
-{
-    return deviceInputNodes_[index].deviceInputNode_.Device();
 }
 
 void AudioGraphBackend::Impl::destroyAudioGraph()
@@ -293,24 +296,31 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                 for(int i = 0; i < inputAudioBuffer_.size(); ++i)
                 {
                     auto& input = deviceInputNodes_[i];
-                    if(auto inputFrame = input.frameOutputNode_.GetFrame();
-                        inputFrame)
+                    if(input.deviceInputNode_)
                     {
-                        // auto discontinuous = inputFrame.IsDiscontinuous();
-                        input.audioBuffer_ = inputFrame.LockBuffer(AudioBufferAccessMode::Read);
-                        auto ref = input.audioBuffer_.CreateReference();
-                        auto byteAccess = ref.as<IMemoryBufferByteAccess>();
-                        std::uint8_t* dataInBytes = nullptr;
-                        std::uint32_t capacityInBytes = 0;
-                        if(byteAccess->GetBuffer(&dataInBytes, &capacityInBytes) == S_OK)
+                        if(auto inputFrame = input.frameOutputNode_.GetFrame();
+                            inputFrame)
                         {
-                            inputAudioBuffer_[i] = AudioGraphBackend::InterleaveAudioBuffer {
-                                /*.data = */dataInBytes,
-                                /*.channelCount = */static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
-                                /*.frameCount = */requiredSamples,
-                                /*.sampleFormat = */SampleFormat::Float32
-                            };
+                            // auto discontinuous = inputFrame.IsDiscontinuous();
+                            input.audioBuffer_ = inputFrame.LockBuffer(AudioBufferAccessMode::Read);
+                            auto ref = input.audioBuffer_.CreateReference();
+                            auto byteAccess = ref.as<IMemoryBufferByteAccess>();
+                            std::uint8_t* dataInBytes = nullptr;
+                            std::uint32_t capacityInBytes = 0;
+                            if(byteAccess->GetBuffer(&dataInBytes, &capacityInBytes) == S_OK)
+                            {
+                                inputAudioBuffer_[i] = AudioGraphBackend::InterleaveAudioBuffer {
+                                    /*.data = */dataInBytes,
+                                    /*.channelCount = */static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
+                                    /*.frameCount = */requiredSamples,
+                                    /*.sampleFormat = */SampleFormat::Float32
+                                };
+                            }
                         }
+                    }
+                    else
+                    {
+                        inputAudioBuffer_[i] = {};
                     }
                 }
                 AudioFrame frame(bufferSize >> 3);

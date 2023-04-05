@@ -51,34 +51,34 @@ bool AudioGraphBackend::uninitialize()
     return true;
 }
 
-int AudioGraphBackend::audioInputDeviceCount() const
+std::uint32_t AudioGraphBackend::audioInputDeviceCount() const
 {
     return pImpl_->audioInputDeviceCount();
 }
 
-int AudioGraphBackend::audioOutputDeviceCount() const
+std::uint32_t AudioGraphBackend::audioOutputDeviceCount() const
 {
     return pImpl_->audioOutputDeviceCount();
 }
 
-int AudioGraphBackend::defaultAudioInputDeviceIndex() const
+std::uint32_t AudioGraphBackend::defaultAudioInputDeviceIndex() const
 {
     return pImpl_->defaultAudioInputDeviceIndex();
 }
 
-int AudioGraphBackend::defaultAudioOutputDeviceIndex() const
+std::uint32_t AudioGraphBackend::defaultAudioOutputDeviceIndex() const
 {
     return pImpl_->defaultAudioOutputDeviceIndex();
 }
 
-AudioGraphBackend::DeviceInfo AudioGraphBackend::audioInputDeviceAt(int index) const
+AudioGraphBackend::DeviceInfo AudioGraphBackend::audioInputDeviceAt(std::uint32_t index) const
 {
     using YADAW::Native::qStringFromHString;
     auto&& info = pImpl_->audioInputDeviceAt(index);
     return {qStringFromHString(info.Name()), qStringFromHString(info.Id()), info.IsEnabled()};
 }
 
-AudioGraphBackend::DeviceInfo AudioGraphBackend::audioOutputDeviceAt(int index) const
+AudioGraphBackend::DeviceInfo AudioGraphBackend::audioOutputDeviceAt(std::uint32_t index) const
 {
     using YADAW::Native::qStringFromHString;
     auto&& info = pImpl_->audioOutputDeviceAt(index);
@@ -108,21 +108,10 @@ bool AudioGraphBackend::createAudioGraph(const QString& id)
     return false;
 }
 
-int AudioGraphBackend::enableDeviceInput(const QString& id)
+AudioGraphBackend::DeviceInputResult
+AudioGraphBackend::activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled)
 {
-    winrt::hstring idAsHString(reinterpret_cast<const wchar_t*>(id.data()));
-    auto async = DeviceInformation::CreateFromIdAsync(idAsHString);
-    auto deviceInformation = async.get();
-    if(deviceInformation)
-    {
-        return pImpl_->enableDeviceInput(deviceInformation);
-    }
-    return -1;
-}
-
-bool AudioGraphBackend::disableDeviceInput(int deviceInputIndex)
-{
-    return pImpl_->disableDeviceInput(deviceInputIndex);
+    return pImpl_->activateDeviceInput(deviceInputIndex, enabled);
 }
 
 AudioGraphBackend::DeviceInfo AudioGraphBackend::currentOutputDevice() const

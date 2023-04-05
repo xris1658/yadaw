@@ -38,6 +38,10 @@ class AudioGraphBackend::Impl
     {
         DeviceInput();
         DeviceInput(AudioDeviceInputNode&& deviceInputNode, AudioFrameOutputNode&& frameOutputNode);
+        DeviceInput(const DeviceInput&) = delete;
+        DeviceInput& operator=(const DeviceInput&) = delete;
+        DeviceInput(DeviceInput&& rhs) noexcept;
+        DeviceInput& operator=(DeviceInput&& rhs) noexcept;
         AudioDeviceInputNode deviceInputNode_;
         AudioFrameOutputNode frameOutputNode_;
         AudioBuffer audioBuffer_;
@@ -48,20 +52,17 @@ public:
     Impl(Impl&&) = delete;
     ~Impl();
 public:
-    int audioInputDeviceCount() const;
-    int audioOutputDeviceCount() const;
-    DeviceInformation audioInputDeviceAt(int index) const;
-    DeviceInformation audioOutputDeviceAt(int index) const;
-    int defaultAudioInputDeviceIndex() const;
-    int defaultAudioOutputDeviceIndex() const;
+    std::uint32_t audioInputDeviceCount() const;
+    std::uint32_t audioOutputDeviceCount() const;
+    DeviceInformation audioInputDeviceAt(std::uint32_t index) const;
+    DeviceInformation audioOutputDeviceAt(std::uint32_t index) const;
+    std::uint32_t defaultAudioInputDeviceIndex() const;
+    std::uint32_t defaultAudioOutputDeviceIndex() const;
     bool createAudioGraph();
     bool createAudioGraph(const DeviceInformation& audioOutputDevice);
-    int enableDeviceInput(const DeviceInformation& audioInputDevice);
-    bool disableDeviceInput(int deviceInputIndex);
+    DeviceInputResult activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
     // This function might fail, in which case returns a invalid DeviceInformation
     DeviceInformation currentOutputDevice() const;
-    int currentInputDeviceCount() const;
-    DeviceInformation currentInputDeviceAt(int index) const;
     void destroyAudioGraph();
     void start(AudioGraphBackend::AudioCallbackType* callback);
     void stop();

@@ -18,6 +18,12 @@ public:
         Created,
         Processing
     };
+    enum DeviceInputResult
+    {
+        Failed,
+        Success,
+        AlreadyDone
+    };
     enum class SampleFormat
     {
         Int16,
@@ -60,20 +66,17 @@ public:
 public:
     bool initialize();
     bool uninitialize();
-    int audioInputDeviceCount() const;
-    int audioOutputDeviceCount() const;
-    int defaultAudioInputDeviceIndex() const;
-    int defaultAudioOutputDeviceIndex() const;
-    DeviceInfo audioInputDeviceAt(int index) const;
-    DeviceInfo audioOutputDeviceAt(int index) const;
+    std::uint32_t audioInputDeviceCount() const;
+    std::uint32_t audioOutputDeviceCount() const;
+    std::uint32_t defaultAudioInputDeviceIndex() const;
+    std::uint32_t defaultAudioOutputDeviceIndex() const;
+    DeviceInfo audioInputDeviceAt(std::uint32_t index) const;
+    DeviceInfo audioOutputDeviceAt(std::uint32_t index) const;
     bool createAudioGraph();
     bool createAudioGraph(const QString& id);
-    int enableDeviceInput(const QString& id);
-    bool disableDeviceInput(int deviceInputIndex);
+    DeviceInputResult activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
     // This function might fail, in which case returns a blank DeviceInfo
     DeviceInfo currentOutputDevice() const;
-    int currentInputDeviceCount() const;
-    DeviceInfo currentInputDeviceAt() const;
     void destroyAudioGraph();
     void start(AudioCallbackType* callback);
     void stop();
