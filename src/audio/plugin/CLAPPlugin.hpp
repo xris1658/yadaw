@@ -58,6 +58,7 @@ private:
     void resetProcessData();
 public:
     clap_process& processData();
+    YADAW::Audio::Host::CLAPHost& host();
     void calledOnMainThread();
 private:
     YADAW::Audio::Host::CLAPHost host_ {this};

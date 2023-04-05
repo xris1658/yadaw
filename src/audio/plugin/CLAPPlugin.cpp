@@ -23,7 +23,7 @@ bool CLAPPlugin::createPlugin(const char* id)
 {
     if(factory_)
     {
-        plugin_ = factory_->create_plugin(factory_, host_.host(), id); // FIXME: clap_host
+        plugin_ = factory_->create_plugin(factory_, host_.host(), id);
         if(plugin_)
         {
             status_ = IPlugin::Status::Loaded;
@@ -263,6 +263,11 @@ void CLAPPlugin::resetProcessData()
 clap_process& CLAPPlugin::processData()
 {
     return processData_;
+}
+
+YADAW::Audio::Host::CLAPHost& CLAPPlugin::host()
+{
+    return host_;
 }
 
 void CLAPPlugin::calledOnMainThread()
