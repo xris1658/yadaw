@@ -5,6 +5,9 @@
 #include <clap/ext/gui.h>
 #include <clap/ext/latency.h>
 #include <clap/ext/params.h>
+#include <clap/ext/thread-check.h>
+
+#include <thread>
 
 namespace YADAW::Audio::Plugin
 {
@@ -19,8 +22,9 @@ public:
     CLAPHost(YADAW::Audio::Plugin::CLAPPlugin* plugin);
 public:
     const clap_host* host();
-private: // clap_host functions
+protected: // clap_host functions
     static const void* getExtension(const clap_host* host, const char* extensionId);
+private:
     static void requestRestart(const clap_host* host);
     static void requestProcess(const clap_host* host);
     static void requestCallback(const clap_host* host);
@@ -36,6 +40,9 @@ private: // clap_host_params functions
     static void rescan(const clap_host* host, clap_param_rescan_flags flags);
     static void clear(const clap_host* host, clap_id paramId, clap_param_clear_flags flags);
     static void requestFlush(const clap_host* host);
+private: // clap_host_thread_check functions
+    static bool isMainThread(const clap_host* host);
+    static bool isAudioThread(const clap_host* host);
 private: // clap_host implementations
     const void* doGetExtension(const char* extensionId);
     void doRequestRestart();
@@ -50,12 +57,19 @@ private: // clap_host implementations
     void doRescan(clap_param_rescan_flags flags);
     void doClear(clap_id paramId, clap_param_clear_flags flags);
     void doRequestFlush();
+public:
+    YADAW::Audio::Plugin::CLAPPlugin* plugin();
+    void setMainThreadId(std::thread::id mainThreadId);
+    void setAudioThreadId(std::thread::id audioThreadId);
 private:
+    static std::thread::id mainThreadId_;
+    static std::thread::id audioThreadId_;
     YADAW::Audio::Plugin::CLAPPlugin* plugin_;
     clap_host host_;
     clap_host_gui gui_;
     clap_host_latency latency_;
     clap_host_params params_;
+    clap_host_thread_check threadCheck_;
 };
 }
 

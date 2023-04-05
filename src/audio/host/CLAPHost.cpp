@@ -8,6 +8,10 @@ CLAPHost* getHost(const clap_host* host)
 {
     return reinterpret_cast<CLAPHost*>(host->host_data);
 }
+
+std::thread::id CLAPHost::mainThreadId_ = {};
+std::thread::id CLAPHost::audioThreadId_ = {};
+
 CLAPHost::CLAPHost(YADAW::Audio::Plugin::CLAPPlugin* plugin):
     plugin_(plugin),
     host_
@@ -44,6 +48,11 @@ CLAPHost::CLAPHost(YADAW::Audio::Plugin::CLAPPlugin* plugin):
         &rescan,
         &clear,
         &requestFlush
+    },
+    threadCheck_
+    {
+        &isMainThread,
+        &isAudioThread
     }
 {
 }
@@ -118,6 +127,16 @@ void CLAPHost::requestFlush(const clap_host* host)
     return getHost(host)->doRequestFlush();
 }
 
+bool CLAPHost::isMainThread(const clap_host* host)
+{
+    return std::this_thread::get_id() == mainThreadId_;
+}
+
+bool CLAPHost::isAudioThread(const clap_host* host)
+{
+    return std::this_thread::get_id() == audioThreadId_;
+}
+
 const void* CLAPHost::doGetExtension(const char* extensionId)
 {
     if(std::strcmp(extensionId, CLAP_EXT_GUI) == 0)
@@ -131,6 +150,10 @@ const void* CLAPHost::doGetExtension(const char* extensionId)
     if(std::strcmp(extensionId, CLAP_EXT_PARAMS) == 0)
     {
         return &params_;
+    }
+    if(std::strcmp(extensionId,CLAP_EXT_THREAD_CHECK) == 0)
+    {
+        return &threadCheck_;
     }
     return nullptr;
 }
@@ -164,6 +187,11 @@ void CLAPHost::doRequestProcess()
 
 void CLAPHost::doRequestCallback()
 {
+    if(std::this_thread::get_id() != mainThreadId_)
+    {
+        // FIXME: If this function is not called on main thread, schedule a separate call
+        return;
+    }
     plugin_->calledOnMainThread();
 }
 
@@ -218,5 +246,20 @@ void CLAPHost::doClear(clap_id paramId, clap_param_clear_flags flags)
 void CLAPHost::doRequestFlush()
 {
     // TODO
+}
+
+YADAW::Audio::Plugin::CLAPPlugin* CLAPHost::plugin()
+{
+    return plugin_;
+}
+
+void CLAPHost::setMainThreadId(std::thread::id mainThreadId)
+{
+    mainThreadId_ = mainThreadId;
+}
+
+void CLAPHost::setAudioThreadId(std::thread::id audioThreadId)
+{
+    audioThreadId_ = audioThreadId;
 }
 }
