@@ -9,6 +9,9 @@ MainWindow {
         ListElement {
             lm_name: "Simplified Chinese"
         }
+        ListElement {
+            lm_name: "Loooooooooooooooooooooooooooooooooooooooooooooooong text"
+        }
     }
 
     canClose: true
