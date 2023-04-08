@@ -139,6 +139,8 @@ set(YADAW_COMMON_SOURCES
     src/midi/MIDIInputDevice.hpp
     src/midi/MIDIOutputDevice.hpp
     src/midi/Message.hpp
+    src/midi/MessageToCLAPEvent.cpp
+    src/midi/MessageToCLAPEvent.hpp
     src/midi/MessageToVST3Event.cpp
     src/midi/MessageToVST3Event.hpp
     src/model/AssetDirectoryListModel.cpp
