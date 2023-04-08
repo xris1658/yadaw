@@ -25,7 +25,6 @@ inline bool isChannelVoiceMessageHeader(std::uint8_t data)
 
 struct NoteOffMessage
 {
-    static constexpr bool isChannelVoiceMessage = true;
     static constexpr std::uint8_t TypeId = 0x08;
     ChannelVoiceMessageHeader header;
     std::int8_t note;
