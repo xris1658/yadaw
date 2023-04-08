@@ -32,3 +32,14 @@ add_executable(QStringConversionTest
                QStringConversionTest/main.cpp)
 
 target_link_libraries(QStringConversionTest PRIVATE Qt6::Core)
+
+add_executable(MIDIInputDeviceTest
+               ../src/native/MIDIInputDevice.cpp
+               ../src/native/MIDIInputDeviceImpl.cpp
+               ../src/native/MIDIInputDeviceImpl.hpp
+               ../src/native/winrt/QStringFromHString.cpp
+               ../src/native/winrt/QStringFromHString.hpp
+               MIDIInputDeviceTest/main.cpp)
+
+target_link_libraries(MIDIInputDeviceTest PRIVATE
+                      Qt6::Core windowsapp)
