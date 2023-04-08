@@ -15,11 +15,17 @@ struct Message
 
 struct ChannelVoiceMessageHeader
 {
-    std::uint8_t channel: 4, type: 4;
+    std::uint8_t channel: 4, type: 4; // FIXME: actual mapping is implementation defined
 };
+
+inline bool isChannelVoiceMessageHeader(std::uint8_t data)
+{
+    return data & 0x80;
+}
 
 struct NoteOffMessage
 {
+    static constexpr bool isChannelVoiceMessage = true;
     static constexpr std::uint8_t TypeId = 0x08;
     ChannelVoiceMessageHeader header;
     std::int8_t note;

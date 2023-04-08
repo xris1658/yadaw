@@ -8,9 +8,9 @@
 void onReceiveMIDIMessage(const YADAW::MIDI::Message& message)
 {
     auto data = message.data;
-    auto header = reinterpret_cast<const YADAW::MIDI::ChannelVoiceMessageHeader*>(data);
-    if(header->type >= 8 && header->type < 15)
+    if(YADAW::MIDI::isChannelVoiceMessageHeader(data[0]))
     {
+        auto header = reinterpret_cast<const YADAW::MIDI::ChannelVoiceMessageHeader*>(data);
         switch(header->type)
         {
         case YADAW::MIDI::NoteOnMessage::TypeId:
