@@ -5,6 +5,7 @@
 #include <winrt/base.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Devices.Midi.h>
 #include <winrt/Windows.Devices.Enumeration.h>
 
@@ -13,7 +14,14 @@ namespace YADAW::MIDI
 using MIDIInputDeviceInfo = MIDIInputDevice::MIDIInputDeviceInfo;
 using namespace winrt::Windows::Devices::Enumeration;
 using winrt::Windows::Devices::Midi::MidiInPort;
+using winrt::Windows::Devices::Midi::MidiMessageReceivedEventArgs;
 using namespace YADAW::Native;
+
+namespace Impl
+{
+template<typename... Args>
+void doNothing(Args&&... args) {}
+}
 
 std::vector<MIDIInputDeviceInfo> MIDIInputDevice::Impl::enumerateDevices()
 {
@@ -39,5 +47,21 @@ MIDIInputDevice::Impl::Impl(const QString& id):
 MIDIInputDevice::Impl::~Impl()
 {
     //
+}
+
+void MIDIInputDevice::Impl::start(ReceiveInputFunc* const func)
+{
+    token_ = midiInPort_.MessageReceived([func](const MidiInPort& port, const MidiMessageReceivedEventArgs& args)
+    {
+        const auto& message = args.Message();
+        const auto& data = message.RawData();
+        func(Message{std::chrono::duration_cast<std::chrono::nanoseconds>(message.Timestamp()).count(),
+            data.Length(), data.data()});
+    });
+}
+
+void MIDIInputDevice::Impl::stop()
+{
+    midiInPort_.MessageReceived(token_);
 }
 }

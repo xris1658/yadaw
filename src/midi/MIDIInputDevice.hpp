@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_MIDI_MIDIINPUTDEVICE
 #define YADAW_SRC_MIDI_MIDIINPUTDEVICE
 
+#include "midi/Message.hpp"
+
 #include <QString>
 
 #include <memory>
@@ -11,6 +13,8 @@ namespace YADAW::MIDI
 class MIDIInputDevice
 {
     class Impl;
+public:
+    using ReceiveInputFunc = void(const YADAW::MIDI::Message& message);
 public:
     struct MIDIInputDeviceInfo
     {
@@ -24,6 +28,9 @@ public:
     MIDIInputDevice(const MIDIInputDevice&) = delete;
     MIDIInputDevice(MIDIInputDevice&&) = delete;
     ~MIDIInputDevice();
+public:
+    void start(ReceiveInputFunc* const func);
+    void stop();
 private:
     std::unique_ptr<Impl> pImpl_;
 };

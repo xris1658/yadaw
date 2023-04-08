@@ -138,6 +138,9 @@ set(YADAW_COMMON_SOURCES
     src/l10n/L10N.hpp
     src/midi/MIDIInputDevice.hpp
     src/midi/MIDIOutputDevice.hpp
+    src/midi/Message.hpp
+    src/midi/MessageToVST3Event.cpp
+    src/midi/MessageToVST3Event.hpp
     src/model/AssetDirectoryListModel.cpp
     src/model/AssetDirectoryListModel.hpp
     src/model/AudioGraphInputDeviceListModel.cpp
@@ -167,9 +170,6 @@ set(YADAW_COMMON_SOURCES
     src/native/MIDIOutputDevice.cpp
     src/native/MIDIOutputDeviceImpl.cpp
     src/native/MIDIOutputDeviceImpl.hpp
-    src/native/Message.cpp
-    src/native/MessageImpl.cpp
-    src/native/MessageImpl.hpp
     src/native/Native.cpp
     src/native/Native.hpp
     src/native/VST3Native.cpp

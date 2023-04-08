@@ -18,4 +18,14 @@ MIDIInputDevice::MIDIInputDevice(const QString& id):
 MIDIInputDevice::~MIDIInputDevice()
 {
 }
+
+void MIDIInputDevice::start(MIDIInputDevice::ReceiveInputFunc* const func)
+{
+    return pImpl_->start(func);
+}
+
+void MIDIInputDevice::stop()
+{
+    return pImpl_->stop();
+}
 }

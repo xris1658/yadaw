@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_NATIVE_MIDIINPUTDEVICEIMPL
 #define YADAW_SRC_NATIVE_MIDIINPUTDEVICEIMPL
 
+#include "midi/Message.hpp"
 #include "midi/MIDIInputDevice.hpp"
 #include "native/winrt/Forward.hpp"
 
@@ -18,8 +19,12 @@ public:
     Impl(const Impl&) = delete;
     Impl(Impl&& rhs) = delete;
     ~Impl();
+public:
+    void start(ReceiveInputFunc* const func);
+    void stop();
 private:
     MidiInPort midiInPort_;
+    winrt::event_token token_;
 };
 }
 
