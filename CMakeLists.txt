@@ -50,7 +50,6 @@ set(YADAW_COMMON_SOURCES
     src/audio/base/TempoAutomation.hpp
     src/audio/device/IChannelGroup.cpp
     src/audio/device/IChannelGroup.hpp
-    src/audio/device/IChannelGroupCollection.hpp
     src/audio/device/IDevice.hpp
     src/audio/host/CLAPEventList.cpp
     src/audio/host/CLAPEventList.hpp
