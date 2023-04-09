@@ -149,6 +149,45 @@ int main(int argc, char* argv[])
         assert(plugin.createPlugin(uid.data()));
         plugin.host().setMainThreadId(std::this_thread::get_id());
         assert(plugin.initialize(audioGraphBackend.sampleRate(), audioGraphBackend.bufferSizeInFrames()));
+        auto audioInputGroupCount = plugin.audioInputGroupCount();
+        std::printf("%d audio input(s)", audioInputGroupCount);
+        if(audioInputGroupCount != 0)
+        {
+            std::printf(":");
+            for(int i = 0; i < audioInputGroupCount; ++i)
+            {
+                const auto& group = plugin.audioInputGroupAt(i);
+                if(group->isMain())
+                {
+                    std::printf("\n> ");
+                }
+                else
+                {
+                    std::printf("\n  ");
+                }
+                std::printf("%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group->name().data()), static_cast<int>(group->channelCount()));
+            }
+        }
+        auto audioOutputGroupCount = plugin.audioOutputGroupCount();
+        std::printf("\n%d audio output(s)", audioOutputGroupCount);
+        if(audioOutputGroupCount != 0)
+        {
+            std::printf(":");
+            for(int i = 0; i < audioOutputGroupCount; ++i)
+            {
+                const auto& group = plugin.audioOutputGroupAt(i);
+                if(group->isMain())
+                {
+                    std::printf("\n> ");
+                }
+                else
+                {
+                    std::printf("\n  ");
+                }
+                std::printf("%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group->name().data()), static_cast<int>(group->channelCount()));
+            }
+        }
+        std::printf("\n");
         assert(plugin.activate());
         assert(plugin.startProcessing());
         PluginWindowThread pluginWindowThread(nullptr);
