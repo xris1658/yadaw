@@ -8,7 +8,6 @@ CLAPPluginGUI::CLAPPluginGUI(const clap_plugin* plugin, const clap_plugin_gui* g
     plugin_(plugin),
     gui_(gui)
 {
-    fetchResizeHints();
 }
 
 CLAPPluginGUI::~CLAPPluginGUI()
@@ -22,6 +21,7 @@ bool CLAPPluginGUI::attachToWindow(QWindow* window)
 {
     if((!window_) && gui_->create(plugin_, YADAW::Native::windowAPI, false))
     {
+        fetchResizeHints();
         gui_->set_scale(plugin_, 1.0);
         std::uint32_t width;
         std::uint32_t height;
