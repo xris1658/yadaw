@@ -52,6 +52,10 @@ public:
     int audioOutputGroupCount() const override;
     const IChannelGroup* audioInputGroupAt(int index) const override;
     const IChannelGroup* audioOutputGroupAt(int index) const override;
+    bool isAudioInputGroupActivated(int index) const;
+    bool activateAudioInputGroup(int index, bool state);
+    bool isAudioOutputGroupActivated(int index) const;
+    bool activateAudioOutputGroup(int index, bool state);
     std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
 public:
@@ -77,6 +81,8 @@ private:
     Steinberg::Vst::IConnectionPoint* editControllerPoint_ = nullptr;
     std::vector<YADAW::Audio::Plugin::VST3ChannelGroup> audioInputChannelGroup_;
     std::vector<YADAW::Audio::Plugin::VST3ChannelGroup> audioOutputChannelGroup_;
+    std::vector<bool> audioInputBusActivated_;
+    std::vector<bool> audioOutputBusActivated_;
     Steinberg::Vst::ProcessSetup processSetup_ = {};
     Steinberg::Vst::ProcessData processData_= {};
     std::vector<Steinberg::Vst::AudioBusBuffers> inputBuffers_;

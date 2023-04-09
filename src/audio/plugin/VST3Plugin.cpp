@@ -131,13 +131,15 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
     status_ = IPlugin::Status::Initialized;
     // TODO: negotiate bus arrangement
     prepareAudioRelatedInfo();
+    audioInputBusActivated_.resize(audioInputGroupCount(), false);
+    audioOutputBusActivated_.resize(audioOutputGroupCount(), false);
     for(int i = 0; i < audioInputGroupCount(); ++i)
     {
-        component_->activateBus(MediaTypes::kAudio, BusDirections::kInput, i, true);
+        activateAudioInputGroup(i, true);
     }
     for(int i = 0; i < audioOutputGroupCount(); ++i)
     {
-        component_->activateBus(MediaTypes::kAudio, BusDirections::kOutput, i, true);
+        activateAudioOutputGroup(i, true);
     }
     prepareProcessData(processSetup_.processMode);
     if(createEditControllerResult)
@@ -157,6 +159,8 @@ bool VST3Plugin::uninitialize()
     if(component_->terminate() == Steinberg::kResultOk)
     {
         status_ = IPlugin::Status::Created;
+        audioInputBusActivated_.clear();
+        audioOutputBusActivated_.clear();
         if(componentAndEditControllerUnified_)
         {
             componentHandler_.reset();
@@ -272,6 +276,52 @@ const IChannelGroup* VST3Plugin::audioInputGroupAt(int index) const
 const IChannelGroup* VST3Plugin::audioOutputGroupAt(int index) const
 {
     return &audioOutputChannelGroup_[index];
+}
+
+bool VST3Plugin::isAudioInputGroupActivated(int index) const
+{
+    if(index >= 0 && index < audioInputGroupCount())
+    {
+        return audioInputBusActivated_[index];
+    }
+    return false;
+}
+
+bool VST3Plugin::activateAudioInputGroup(int index, bool state)
+{
+    if(index >= 0 && index < audioInputGroupCount())
+    {
+        if(component_->activateBus(MediaTypes::kAudio, BusDirections::kInput, index, state) == Steinberg::kResultOk)
+        {
+            audioInputBusActivated_[index] = state;
+            return true;
+        }
+        return false;
+    }
+    return false;
+}
+
+bool VST3Plugin::isAudioOutputGroupActivated(int index) const
+{
+    if(index >= 0 && index < audioOutputGroupCount())
+    {
+        return audioOutputBusActivated_[index];
+    }
+    return false;
+}
+
+bool VST3Plugin::activateAudioOutputGroup(int index, bool state)
+{
+    if(index >= 0 && index < audioOutputGroupCount())
+    {
+        if(component_->activateBus(MediaTypes::kAudio, BusDirections::kOutput, index, state) == Steinberg::kResultOk)
+        {
+            audioOutputBusActivated_[index] = state;
+            return true;
+        }
+        return false;
+    }
+    return false;
 }
 
 std::uint32_t VST3Plugin::latencyInSamples() const
