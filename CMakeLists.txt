@@ -244,7 +244,7 @@ qt_add_qml_module(YADAW
                   NO_PLUGIN
                   QML_FILES Events.qml YADAW.qml)
 
-if(CMAKE_BUILD_TYPE EQUAL Release OR ${CMAKE_BUILD_TYPE} EQUAL MinSizeRel)
+if(${CMAKE_BUILD_TYPE} STREQUAL Release OR ${CMAKE_BUILD_TYPE} STREQUAL MinSizeRel)
     set_target_properties(YADAW PROPERTIES
         WIN32_EXECUTABLE TRUE
     )
