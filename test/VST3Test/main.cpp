@@ -47,7 +47,7 @@ void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudio
         {
             for(int k = 0; k < audioProcessData.singleBufferSize; ++k)
             {
-                audioProcessData.inputs[i][j][k] = std::sinf((samplePosition + k) * 440 * 2 * pi / sampleRate) * 0.125;
+                audioProcessData.inputs[i][j][k] = std::sinf((samplePosition + k) * 440 * (i + 1) * 2 * pi / sampleRate) * 0.125;
             }
         }
     }
