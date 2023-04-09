@@ -19,7 +19,39 @@
 #include <winrt/Windows.Media.Render.h>
 #include <winrt/Windows.Devices.Enumeration.h>
 
+#if __cplusplus <= 201703L
 #include <future>
+#endif
+
+using namespace ::Windows::Foundation;
+using namespace winrt;
+using namespace winrt::Windows::Foundation;
+using namespace winrt::Windows::Foundation::Collections;
+using namespace winrt::Windows::Media;
+using namespace winrt::Windows::Media::Audio;
+using namespace winrt::Windows::Media::Capture;
+using namespace winrt::Windows::Media::MediaProperties;
+using namespace winrt::Windows::Media::Render;
+using namespace winrt::Windows::Devices::Enumeration;
+
+template<typename T>
+inline T asyncResult(winrt::Windows::Foundation::IAsyncOperation<T> asyncOperation)
+{
+// #if __cplusplus > 201703L
+//     co_return asyncOperation; // C2039
+// #else
+    #ifdef NDEBUG
+    return asyncOperation.get();
+#else
+    T ret {nullptr};
+    std::async(
+        std::launch::async, [&ret, &asyncOperation]()
+        { ret = asyncOperation.get(); }
+    ).get();
+    return ret;
+#endif
+// #endif
+}
 
 namespace YADAW::Audio::Backend
 {
@@ -49,22 +81,11 @@ public:
         {
             return nullptr;
         }
-        return nullptr;
     }
 public:
     IMMDeviceEnumerator* deviceEnumerator_ = nullptr;
 };
 }
-using namespace ::Windows::Foundation;
-using namespace winrt;
-using namespace winrt::Windows::Foundation;
-using namespace winrt::Windows::Foundation::Collections;
-using namespace winrt::Windows::Media;
-using namespace winrt::Windows::Media::Audio;
-using namespace winrt::Windows::Media::Capture;
-using namespace winrt::Windows::Media::MediaProperties;
-using namespace winrt::Windows::Media::Render;
-using namespace winrt::Windows::Devices::Enumeration;
 
 AudioGraphBackend::Impl::DeviceInput::DeviceInput():
     deviceInputNode_(nullptr), frameOutputNode_(nullptr), audioBuffer_(nullptr) {}
@@ -89,11 +110,8 @@ AudioGraphBackend::Impl::Impl():
     eventToken_()
 {
     // Suppress the `is_sta()` assert failure
-    std::async(std::launch::async, [this]()
-    {
-        audioInputDeviceInformationCollection_ = DeviceInformation::FindAllAsync(DeviceClass::AudioCapture).get();
-        audioOutputDeviceInformationCollection_ = DeviceInformation::FindAllAsync(DeviceClass::AudioRender).get();
-    }).get();
+    audioInputDeviceInformationCollection_ = asyncResult(DeviceInformation::FindAllAsync(DeviceClass::AudioCapture));
+    audioOutputDeviceInformationCollection_ = asyncResult(DeviceInformation::FindAllAsync(DeviceClass::AudioRender));
     deviceInputNodes_.resize(audioInputDeviceInformationCollection_.Size());
     inputAudioBuffer_.resize(audioInputDeviceInformationCollection_.Size());
 }
@@ -193,13 +211,13 @@ bool AudioGraphBackend::Impl::createAudioGraph()
 {
     AudioGraphSettings settings(AudioRenderCategory::Media);
     settings.DesiredRenderDeviceAudioProcessing(AudioProcessing::Raw);
-    auto createGraphResult = AudioGraph::CreateAsync(settings).get();
+    auto createGraphResult = asyncResult(AudioGraph::CreateAsync(settings));
     if(createGraphResult.Status() != decltype(createGraphResult.Status())::Success)
     {
         return false;
     }
     audioGraph_ = createGraphResult.Graph();
-    auto createOutputResult = audioGraph_.CreateDeviceOutputNodeAsync().get();
+    auto createOutputResult = asyncResult(audioGraph_.CreateDeviceOutputNodeAsync());
     if(createOutputResult.Status() != decltype(createOutputResult.Status())::Success)
     {
         return false;
@@ -215,13 +233,13 @@ bool AudioGraphBackend::Impl::createAudioGraph(const DeviceInformation& audioOut
     AudioGraphSettings settings(AudioRenderCategory::Media);
     settings.DesiredRenderDeviceAudioProcessing(AudioProcessing::Raw);
     settings.PrimaryRenderDevice(audioOutputDevice);
-    auto createGraphResult = AudioGraph::CreateAsync(settings).get();
+    auto createGraphResult = asyncResult(AudioGraph::CreateAsync(settings));
     if(createGraphResult.Status() != decltype(createGraphResult.Status())::Success)
     {
         return false;
     }
     audioGraph_ = createGraphResult.Graph();
-    auto createOutputResult = audioGraph_.CreateDeviceOutputNodeAsync().get();
+    auto createOutputResult = asyncResult(audioGraph_.CreateDeviceOutputNodeAsync());
     if(createOutputResult.Status() != decltype(createOutputResult.Status())::Success)
     {
         return false;
@@ -230,6 +248,15 @@ bool AudioGraphBackend::Impl::createAudioGraph(const DeviceInformation& audioOut
     audioFrameInputNode_ = audioGraph_.CreateFrameInputNode();
     audioFrameInputNode_.AddOutgoingConnection(audioDeviceOutputNode_);
     return true;
+}
+
+bool AudioGraphBackend::Impl::isDeviceInputActivated(std::uint32_t deviceInputIndex) const
+{
+    if(deviceInputIndex < audioInputDeviceCount())
+    {
+        return static_cast<bool>(deviceInputNodes_[deviceInputIndex].deviceInputNode_);
+    }
+    return false;
 }
 
 AudioGraphBackend::DeviceInputResult
@@ -243,10 +270,10 @@ AudioGraphBackend::Impl::activateDeviceInput(std::uint32_t deviceInputIndex, boo
             {
                 return DeviceInputResult::AlreadyDone;
             }
-            auto result = audioGraph_.CreateDeviceInputNodeAsync(
+            auto result = asyncResult(audioGraph_.CreateDeviceInputNodeAsync(
                 MediaCategory::Media, audioGraph_.EncodingProperties(),
                 audioInputDeviceInformationCollection_.GetAt(deviceInputIndex)
-            ).get();
+            ));
             if(auto status = result.Status(); status == decltype(status)::Success)
             {
                 deviceInputNodes_[deviceInputIndex] = {result.DeviceInputNode(), audioGraph_.CreateFrameOutputNode()};
@@ -273,7 +300,7 @@ DeviceInformation AudioGraphBackend::Impl::currentOutputDevice() const
     {
         return ret;
     }
-    return audioDeviceOutputNode_.Device();
+    return audioInputDeviceInformationCollection_.GetAt(defaultAudioOutputDeviceIndex());
 }
 
 void AudioGraphBackend::Impl::destroyAudioGraph()

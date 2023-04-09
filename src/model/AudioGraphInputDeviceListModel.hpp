@@ -10,7 +10,7 @@ class AudioGraphInputDeviceListModel: public IAudioGraphDeviceListModel
 {
     Q_OBJECT
 public:
-    AudioGraphInputDeviceListModel(const YADAW::Audio::Backend::AudioGraphBackend& backend,
+    AudioGraphInputDeviceListModel(YADAW::Audio::Backend::AudioGraphBackend& backend,
         QObject* parent = nullptr);
     ~AudioGraphInputDeviceListModel() override;
 public:
@@ -18,8 +18,9 @@ public:
 public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
+    bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 private:
-    const YADAW::Audio::Backend::AudioGraphBackend* backend_;
+    YADAW::Audio::Backend::AudioGraphBackend* backend_;
 };
 }
 

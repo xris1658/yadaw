@@ -60,6 +60,7 @@ public:
     std::uint32_t defaultAudioOutputDeviceIndex() const;
     bool createAudioGraph();
     bool createAudioGraph(const DeviceInformation& audioOutputDevice);
+    bool isDeviceInputActivated(std::uint32_t deviceInputIndex) const;
     DeviceInputResult activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
     // This function might fail, in which case returns a invalid DeviceInformation
     DeviceInformation currentOutputDevice() const;

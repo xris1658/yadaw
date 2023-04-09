@@ -70,7 +70,9 @@ void EventHandler::onStartInitializingApplication()
 
 void EventHandler::onOpenMainWindow()
 {
-    YADAW::Controller::appAudioGraphBackend().initialize();
+    auto& backend = YADAW::Controller::appAudioGraphBackend();
+    backend.initialize();
+    backend.createAudioGraph(); // TODO: Read settings
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
     YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",

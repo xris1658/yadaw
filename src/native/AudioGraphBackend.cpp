@@ -108,6 +108,11 @@ bool AudioGraphBackend::createAudioGraph(const QString& id)
     return false;
 }
 
+bool AudioGraphBackend::isDeviceInputActivated(std::uint32_t deviceInputIndex) const
+{
+    return pImpl_->isDeviceInputActivated(deviceInputIndex);
+}
+
 AudioGraphBackend::DeviceInputResult
 AudioGraphBackend::activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled)
 {

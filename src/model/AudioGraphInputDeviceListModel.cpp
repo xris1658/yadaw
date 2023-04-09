@@ -2,7 +2,7 @@
 
 namespace YADAW::Model
 {
-AudioGraphInputDeviceListModel::AudioGraphInputDeviceListModel(const Audio::Backend::AudioGraphBackend& backend,
+AudioGraphInputDeviceListModel::AudioGraphInputDeviceListModel(Audio::Backend::AudioGraphBackend& backend,
     QObject* parent):
     IAudioGraphDeviceListModel(parent),
     backend_(&backend)
@@ -36,8 +36,24 @@ QVariant AudioGraphInputDeviceListModel::data(const QModelIndex& index, int role
             return QVariant::fromValue(deviceInfo.id);
         case Role::Name:
             return QVariant::fromValue(deviceInfo.name);
+        case Role::Enabled:
+            return QVariant::fromValue(backend_->isDeviceInputActivated(row));
         }
     }
     return {};
+}
+
+bool AudioGraphInputDeviceListModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+    auto row = index.row();
+    if(row >= 0 && row < itemCount())
+    {
+        switch(role)
+        {
+        case Role::Enabled:
+            return backend_->activateDeviceInput(row, value.value<bool>());
+        }
+    }
+    return false;
 }
 }
