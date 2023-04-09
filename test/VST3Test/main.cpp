@@ -61,7 +61,7 @@ void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudio
         {
             for(int k = 0; k < output.frameCount; ++k)
             {
-                *reinterpret_cast<float*>(output.at(k, j)) = audioProcessData.outputs[0][j][k];
+                *reinterpret_cast<float*>(output.at(k, j)) = audioProcessData.outputs[0][j % audioProcessData.outputCounts[0]][k];
                 // *reinterpret_cast<float*>(output.at(k, j)) = *reinterpret_cast<float*>(input.at(k, j));
             }
         }
