@@ -70,6 +70,10 @@ void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudio
     callbackDuration = YADAW::Native::currentTimeValueInNanosecond() - start;
 }
 
+bool initializePlugin = false;
+bool activatePlugin = false;
+bool processPlugin = false;
+
 int main(int argc, char* argv[])
 {
     if(argc != 3)
@@ -149,142 +153,163 @@ int main(int argc, char* argv[])
             }
         }
         assert(plugin.createPlugin(tuid));
-        assert(plugin.initialize(audioGraphBackend.sampleRate(), audioGraphBackend.bufferSizeInFrames()));
-        auto audioInputGroupCount = plugin.audioInputGroupCount();
-        std::printf("%d audio input(s)", audioInputGroupCount);
-        if(audioInputGroupCount != 0)
+        if(initializePlugin)
         {
-            std::printf(":");
-            for(int i = 0; i < audioInputGroupCount; ++i)
+            assert(plugin.initialize(audioGraphBackend.sampleRate(), audioGraphBackend.bufferSizeInFrames()));
+            auto audioInputGroupCount = plugin.audioInputGroupCount();
+            std::printf("%d audio input(s)", audioInputGroupCount);
+            if(audioInputGroupCount != 0)
             {
-                const auto& group = plugin.audioInputGroupAt(i);
-                if(group->isMain())
+                std::printf(":");
+                for(int i = 0; i < audioInputGroupCount; ++i)
                 {
-                    std::printf("\n> ");
+                    const auto& group = plugin.audioInputGroupAt(i);
+                    if(group->isMain())
+                    {
+                        std::printf("\n> ");
+                    }
+                    else
+                    {
+                        std::printf("\n  ");
+                    }
+                    std::printf(
+                        "%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group->name().data()),
+                        static_cast<int>(group->channelCount()));
                 }
-                else
+            }
+            auto audioOutputGroupCount = plugin.audioOutputGroupCount();
+            std::printf("\n%d audio output(s)", audioOutputGroupCount);
+            if(audioOutputGroupCount != 0)
+            {
+                std::printf(":");
+                for(int i = 0; i < audioOutputGroupCount; ++i)
                 {
-                    std::printf("\n  ");
+                    const auto& group = plugin.audioOutputGroupAt(i);
+                    if(group->isMain())
+                    {
+                        std::printf("\n> ");
+                    }
+                    else
+                    {
+                        std::printf("\n  ");
+                    }
+                    std::printf(
+                        "%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group->name().data()),
+                        static_cast<int>(group->channelCount()));
                 }
-                std::printf("%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group->name().data()), static_cast<int>(group->channelCount()));
             }
-        }
-        auto audioOutputGroupCount = plugin.audioOutputGroupCount();
-        std::printf("\n%d audio output(s)", audioOutputGroupCount);
-        if(audioOutputGroupCount != 0)
-        {
-            std::printf(":");
-            for(int i = 0; i < audioOutputGroupCount; ++i)
+            std::printf("\n");
+            if(activatePlugin)
             {
-                const auto& group = plugin.audioOutputGroupAt(i);
-                if(group->isMain())
+                assert(plugin.activate());
+                if(processPlugin)
                 {
-                    std::printf("\n> ");
+                    assert(plugin.startProcessing());
+                    PluginWindowThread pluginWindowThread(nullptr);
+                    pluginWindowThread.start();
+                    pluginWindowThread.window()->showNormal();
+                    auto factory = plugin.factory();
+                    auto classCount = plugin.factory()->countClasses();
+                    for(int i = 0; i < classCount; ++i)
+                    {
+                        Steinberg::PClassInfo classInfo;
+                        auto result = factory->getClassInfo(i, &classInfo);
+                        if(result == Steinberg::kResultOk
+                           // TUID is not null-termiated C-style string
+                           // do not use std::strcmp; use std::memcmp instead
+                           && std::memcmp(tuid, classInfo.cid, 16) == 0)
+                        {
+                            pluginWindowThread.window()->setTitle(QString::fromLocal8Bit(classInfo.name));
+                            break;
+                        }
+                    }
+                    // Prepare audio process data {
+                    audioProcessData.singleBufferSize = audioGraphBackend.bufferSizeInFrames();
+                    // Inputs
+                    std::vector<std::vector<std::vector<float>>> idc1;
+                    std::vector<std::vector<float*>> idc2;
+                    std::vector<float**> idc3;
+                    std::vector<int> ic;
+                    idc1.resize(plugin.audioInputGroupCount());
+                    idc2.resize(idc1.size());
+                    idc3.resize(idc1.size(), nullptr);
+                    ic.resize(idc1.size(), -1);
+                    audioProcessData.inputGroupCount = idc1.size();
+                    for(int i = 0; i < idc1.size(); ++i)
+                    {
+                        idc1[i].resize(plugin.audioInputGroupAt(i)->channelCount());
+                        idc2[i].resize(idc1[i].size());
+                        ic[i] = idc1[i].size();
+                        for(int j = 0; j < idc1[i].size(); ++j)
+                        {
+                            idc1[i][j].resize(audioProcessData.singleBufferSize, 0.0f);
+                            idc2[i][j] = idc1[i][j].data();
+                        }
+                        idc3[i] = idc2[i].data();
+                    }
+                    audioProcessData.inputs = idc3.data();
+                    audioProcessData.inputCounts = ic.data();
+                    // Outputs
+                    std::vector<std::vector<std::vector<float>>> odc1;
+                    std::vector<std::vector<float*>> odc2;
+                    std::vector<float**> odc3;
+                    std::vector<int> oc;
+                    odc1.resize(plugin.audioOutputGroupCount());
+                    odc2.resize(odc1.size());
+                    odc3.resize(odc1.size(), nullptr);
+                    oc.resize(odc1.size(), -1);
+                    audioProcessData.outputGroupCount = odc1.size();
+                    for(int i = 0; i < odc1.size(); ++i)
+                    {
+                        odc1[i].resize(plugin.audioOutputGroupAt(i)->channelCount());
+                        odc2[i].resize(odc1[i].size());
+                        oc[i] = odc1[i].size();
+                        for(int j = 0; j < odc1[i].size(); ++j)
+                        {
+                            odc1[i][j].resize(audioProcessData.singleBufferSize, 0.0f);
+                            odc2[i][j] = odc1[i][j].data();
+                        }
+                        odc3[i] = odc2[i].data();
+                    }
+                    audioProcessData.outputs = odc3.data();
+                    audioProcessData.outputCounts = oc.data();
+                    // } prepare audio process data
+                    std::atomic_bool stop;
+                    stop.store(false);
+                    plugin.pluginGUI()->attachToWindow(pluginWindowThread.window());
+                    audioGraphBackend.start(&audioGraphCallback);
+                    std::thread uiThread(
+                        [&stop, &plugin]()
+                        {
+                            while(!stop.load(std::memory_order::memory_order_acquire))
+                            {
+                                plugin.componentHandler()->consumeOutputParameterChanges();
+                                std::this_thread::sleep_for(std::chrono::milliseconds(33));
+                            }
+                        }
+                    );
+                    auto latencyInMilliseconds = audioGraphBackend.latencyInSamples() * 1000.0 /
+                                                 static_cast<double>(audioGraphBackend.sampleRate());
+                    auto bufferDuration = audioGraphBackend.bufferSizeInFrames() * 1000.0 /
+                                          static_cast<double>(audioGraphBackend.sampleRate());
+                    std::printf(
+                        "Latency: %d samples (%lf millisecond)\n", audioGraphBackend.latencyInSamples(),
+                        latencyInMilliseconds
+                    );
+                    std::printf(
+                        "Buffer size: %d samples (%lf milliseconds)\n", audioGraphBackend.bufferSizeInFrames(),
+                        bufferDuration
+                    );
+                    QGuiApplication::exec();
+                    stop.store(true, std::memory_order::memory_order_release);
+                    uiThread.join();
+                    audioGraphBackend.stop();
+                    plugin.stopProcessing();
                 }
-                else
-                {
-                    std::printf("\n  ");
-                }
-                std::printf("%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group->name().data()), static_cast<int>(group->channelCount()));
+                plugin.deactivate();
             }
+            plugin.uninitialize();
         }
-        std::printf("\n");
-        assert(plugin.activate());
-        assert(plugin.startProcessing());
-        PluginWindowThread pluginWindowThread(nullptr);
-        pluginWindowThread.start();
-        pluginWindowThread.window()->showNormal();
-        auto factory = plugin.factory();
-        auto classCount = plugin.factory()->countClasses();
-        for(int i = 0; i < classCount; ++i)
-        {
-            Steinberg::PClassInfo classInfo;
-            auto result = factory->getClassInfo(i, &classInfo);
-            if(result == Steinberg::kResultOk
-               // TUID is not null-termiated C-style string
-               // do not use std::strcmp; use std::memcmp instead
-               && std::memcmp(tuid, classInfo.cid, 16) == 0)
-            {
-                pluginWindowThread.window()->setTitle(QString::fromLocal8Bit(classInfo.name));
-                break;
-            }
-        }
-        // Prepare audio process data {
-        audioProcessData.singleBufferSize = audioGraphBackend.bufferSizeInFrames();
-        // Inputs
-        std::vector<std::vector<std::vector<float>>> idc1;
-        std::vector<std::vector<float*>> idc2;
-        std::vector<float**> idc3;
-        std::vector<int> ic;
-        idc1.resize(plugin.audioInputGroupCount());
-        idc2.resize(idc1.size());
-        idc3.resize(idc1.size(), nullptr);
-        ic.resize(idc1.size(), -1);
-        audioProcessData.inputGroupCount = idc1.size();
-        for(int i = 0; i < idc1.size(); ++i)
-        {
-            idc1[i].resize(plugin.audioInputGroupAt(i)->channelCount());
-            idc2[i].resize(idc1[i].size());
-            ic[i] = idc1[i].size();
-            for(int j = 0; j < idc1[i].size(); ++j)
-            {
-                idc1[i][j].resize(audioProcessData.singleBufferSize, 0.0f);
-                idc2[i][j] = idc1[i][j].data();
-            }
-            idc3[i] = idc2[i].data();
-        }
-        audioProcessData.inputs = idc3.data();
-        audioProcessData.inputCounts = ic.data();
-        // Outputs
-        std::vector<std::vector<std::vector<float>>> odc1;
-        std::vector<std::vector<float*>> odc2;
-        std::vector<float**> odc3;
-        std::vector<int> oc;
-        odc1.resize(plugin.audioOutputGroupCount());
-        odc2.resize(odc1.size());
-        odc3.resize(odc1.size(), nullptr);
-        oc.resize(odc1.size(), -1);
-        audioProcessData.outputGroupCount = odc1.size();
-        for(int i = 0; i < odc1.size(); ++i)
-        {
-            odc1[i].resize(plugin.audioOutputGroupAt(i)->channelCount());
-            odc2[i].resize(odc1[i].size());
-            oc[i] = odc1[i].size();
-            for(int j = 0; j < odc1[i].size(); ++j)
-            {
-                odc1[i][j].resize(audioProcessData.singleBufferSize, 0.0f);
-                odc2[i][j] = odc1[i][j].data();
-            }
-            odc3[i] = odc2[i].data();
-        }
-        audioProcessData.outputs = odc3.data();
-        audioProcessData.outputCounts = oc.data();
-        // } prepare audio process data
-        std::atomic_bool stop;
-        stop.store(false);
-        plugin.pluginGUI()->attachToWindow(pluginWindowThread.window());
-        audioGraphBackend.start(&audioGraphCallback);
-        std::thread uiThread([&stop, &plugin]()
-        {
-            while(!stop.load(std::memory_order::memory_order_acquire))
-            {
-                plugin.componentHandler()->consumeOutputParameterChanges();
-                std::this_thread::sleep_for(std::chrono::milliseconds(33));
-            }
-        });
-        auto latencyInMilliseconds =
-            audioGraphBackend.latencyInSamples() * 1000.0 / static_cast<double>(audioGraphBackend.sampleRate());
-        auto bufferDuration =
-            audioGraphBackend.bufferSizeInFrames() * 1000.0 / static_cast<double>(audioGraphBackend.sampleRate());
-        std::printf("Latency: %d samples (%lf millisecond)\n", audioGraphBackend.latencyInSamples(), latencyInMilliseconds);
-        std::printf("Buffer size: %d samples (%lf milliseconds)\n", audioGraphBackend.bufferSizeInFrames(), bufferDuration);
-        QGuiApplication::exec();
-        stop.store(true, std::memory_order::memory_order_release);
-        uiThread.join();
-        audioGraphBackend.stop();
-        plugin.stopProcessing();
-        plugin.deactivate();
-        plugin.uninitialize();
         audioGraphBackend.destroyAudioGraph();
         std::printf("Destroyed audio graph\n");
         audioGraphBackend.uninitialize();
