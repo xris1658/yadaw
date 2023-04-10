@@ -7,7 +7,6 @@ YADAW stands for **Y**et **A**nother **D**igital **A**udio **W**orkstation. This
 
 Major changes include:
 - The name
-- Use Qt 6 instead of Qt 5.15.2 (which will reach EoL in a few months)
-  - Qt 6.5 will be used once the [final release](https://wiki.qt.io/Qt_6.5_Release) arrives on March 30th
+- Use Qt 6.5 instead of Qt 5.15.2
 - Use other audio backends; remove ASIO support ([why?](https://github.com/xris1658/musec-legacy/issues/7))
 - ...

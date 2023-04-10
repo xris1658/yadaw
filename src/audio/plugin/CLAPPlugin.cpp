@@ -17,6 +17,10 @@ CLAPPlugin::CLAPPlugin(const clap_plugin_entry* entry, const QString& path):
         return;
     }
     factory_ = reinterpret_cast<decltype(factory_)>(entry_->get_factory(CLAP_PLUGIN_FACTORY_ID));
+    if(factory_)
+    {
+        status_ = IAudioPlugin::Status::Loaded;
+    }
 }
 
 bool CLAPPlugin::createPlugin(const char* id)
@@ -26,7 +30,7 @@ bool CLAPPlugin::createPlugin(const char* id)
         plugin_ = factory_->create_plugin(factory_, host_.host(), id);
         if(plugin_)
         {
-            status_ = IAudioPlugin::Status::Loaded;
+            status_ = IAudioPlugin::Status::Created;
         }
         return plugin_;
     }
@@ -50,7 +54,7 @@ CLAPPlugin::~CLAPPlugin()
     if(status_ == IAudioPlugin::Status::Created)
     {
     }
-    if(entry_)
+    if(status_ == IAudioPlugin::Status::Loaded)
     {
         entry_->deinit();
         entry_ = nullptr;
