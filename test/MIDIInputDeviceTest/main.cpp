@@ -16,7 +16,7 @@ void onReceiveMIDIMessage(const YADAW::MIDI::Message& message)
         case YADAW::MIDI::NoteOnMessage::TypeId:
         {
             auto* noteOn = reinterpret_cast<const YADAW::MIDI::NoteOnMessage*>(data);
-            std::wprintf(L" Note on: %3hhu; velocity: %3hhu", noteOn->note, noteOn->velocity);
+            std::wprintf(L"       Note on: %3hhu; velocity: %3hhu", noteOn->note, noteOn->velocity);
             if(noteOn->velocity == 0)
             {
                 std::wprintf(L" (treat as note off)");
@@ -26,18 +26,31 @@ void onReceiveMIDIMessage(const YADAW::MIDI::Message& message)
         case YADAW::MIDI::NoteOffMessage::TypeId:
         {
             auto* noteOff = reinterpret_cast<const YADAW::MIDI::NoteOffMessage*>(data);
-            std::wprintf(L"Note off: %3hhu; velocity: %3hhu", noteOff->note, noteOff->velocity);
+            std::wprintf(L"      Note off: %3hhu; velocity: %3hhu", noteOff->note, noteOff->velocity);
+            break;
+        }
+        case YADAW::MIDI::ControlChangeMessage::TypeId:
+        {
+            auto* controlChange = reinterpret_cast<const YADAW::MIDI::ControlChangeMessage*>(data);
+            std::wprintf(L"Control change: %3hhu; value:    %3hhu", controlChange->controlId, controlChange->controlValue);
+            break;
+        }
+        case YADAW::MIDI::PolyKeyPressureMessage::TypeId:
+        {
+            auto* polyKeyPressure = reinterpret_cast<const YADAW::MIDI::PolyKeyPressureMessage*>(data);
+            std::wprintf(L"  Key Pressure: %3hhu; pressure: %3hhu", polyKeyPressure->note, polyKeyPressure->pressure);
+            break;
+        }
+        case YADAW::MIDI::PitchBendChangeMessage::TypeId:
+        {
+            auto* pitchBendChange = reinterpret_cast<const YADAW::MIDI::PitchBendChangeMessage*>(data);
+            std::wprintf(L"    Pitch bend: %hd", pitchBendChange->value());
             break;
         }
         default:
             break;
         }
     }
-    // std::wprintf(L"%d bytes: 0x", static_cast<int>(message.size));
-    // for(int i = 0; i < message.size; ++i)
-    // {
-    //     std::wprintf(L"%.2hhx", message.data[i]);
-    // }
     std::printf("\n");
 }
 
