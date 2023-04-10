@@ -75,6 +75,10 @@ struct PitchBendChangeMessage
     ChannelVoiceMessageHeader header;
     std::int8_t pitchBendChangeLSB;
     std::int8_t pitchBendChangeMSB;
+    inline std::int16_t value() const noexcept
+    {
+        return pitchBendChangeMSB * 128 + pitchBendChangeLSB;
+    }
 };
 }
 
