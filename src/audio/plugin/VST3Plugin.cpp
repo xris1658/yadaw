@@ -31,6 +31,7 @@ VST3Plugin::VST3Plugin(
     if(factoryEntry)
     {
         factory_ = factoryEntry();
+        status_ = IAudioPlugin::Status::Loaded;
     }
 }
 
@@ -42,7 +43,7 @@ bool VST3Plugin::createPlugin(const Steinberg::TUID& uid)
             reinterpret_cast<void**>(&component_))
             == Steinberg::kResultOk)
         {
-            status_ = IAudioPlugin::Status::Loaded;
+            status_ = IAudioPlugin::Status::Created;
             return true;
         }
     }
@@ -163,6 +164,7 @@ bool VST3Plugin::uninitialize()
             componentHandler_.reset();
         }
         destroyEditController();
+        status_ = IAudioPlugin::Status::Created;
         return true;
     }
     return false;
