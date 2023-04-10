@@ -42,7 +42,7 @@ bool VST3Plugin::createPlugin(const Steinberg::TUID& uid)
             reinterpret_cast<void**>(&component_))
             == Steinberg::kResultOk)
         {
-            status_ = IPlugin::Status::Loaded;
+            status_ = IAudioPlugin::Status::Loaded;
             return true;
         }
     }
@@ -51,25 +51,25 @@ bool VST3Plugin::createPlugin(const Steinberg::TUID& uid)
 
 VST3Plugin::~VST3Plugin()
 {
-    if(status_ == IPlugin::Status::Processing)
+    if(status_ == IAudioPlugin::Status::Processing)
     {
         VST3Plugin::stopProcessing();
     }
-    if(status_ == IPlugin::Status::Activated)
+    if(status_ == IAudioPlugin::Status::Activated)
     {
         VST3Plugin::deactivate();
     }
-    if(status_ == IPlugin::Status::Initialized)
+    if(status_ == IAudioPlugin::Status::Initialized)
     {
         VST3Plugin::uninitialize();
     }
-    if(status_ == IPlugin::Status::Created)
+    if(status_ == IAudioPlugin::Status::Created)
     {
         component_->release();
         component_ = nullptr;
-        status_ = IPlugin::Loaded;
+        status_ = IAudioPlugin::Loaded;
     }
-    if(status_ == IPlugin::Status::Loaded)
+    if(status_ == IAudioPlugin::Status::Loaded)
     {
         factory_->release();
         factory_ = nullptr;
@@ -128,7 +128,7 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
     {
         return false;
     }
-    status_ = IPlugin::Status::Initialized;
+    status_ = IAudioPlugin::Status::Initialized;
     // TODO: negotiate bus arrangement
     prepareAudioRelatedInfo();
     audioInputBusActivated_.resize(audioInputGroupCount(), false);
@@ -158,7 +158,7 @@ bool VST3Plugin::uninitialize()
     audioProcessor_ = nullptr;
     if(component_->terminate() == Steinberg::kResultOk)
     {
-        status_ = IPlugin::Status::Created;
+        status_ = IAudioPlugin::Status::Created;
         audioInputBusActivated_.clear();
         audioOutputBusActivated_.clear();
         if(componentAndEditControllerUnified_)
@@ -176,7 +176,7 @@ bool VST3Plugin::activate()
     auto result = component_->setActive(true);
     if(result == Steinberg::kResultOk || result == Steinberg::kNotImplemented)
     {
-        status_ = IPlugin::Status::Activated;
+        status_ = IAudioPlugin::Status::Activated;
         return true;
     }
     return false;
@@ -187,7 +187,7 @@ bool VST3Plugin::deactivate()
     auto result = component_->setActive(false);
     if(result == Steinberg::kResultOk || result == Steinberg::kNotImplemented)
     {
-        status_ = IPlugin::Status::Initialized;
+        status_ = IAudioPlugin::Status::Initialized;
         return true;
     }
     return false;
@@ -198,7 +198,7 @@ bool VST3Plugin::startProcessing()
     auto result = audioProcessor_->setProcessing(true);
     if(result == Steinberg::kResultOk || result == Steinberg::kNotImplemented)
     {
-        status_ = IPlugin::Status::Processing;
+        status_ = IAudioPlugin::Status::Processing;
         return true;
     }
     return false;
@@ -209,18 +209,18 @@ bool VST3Plugin::stopProcessing()
     auto result = audioProcessor_->setProcessing(true);
     if(result == Steinberg::kResultOk || result == Steinberg::kNotImplemented)
     {
-        status_ = IPlugin::Status::Activated;
+        status_ = IAudioPlugin::Status::Activated;
         return true;
     }
     return false;
 }
 
-IPlugin::Format VST3Plugin::format()
+IAudioPlugin::Format VST3Plugin::format()
 {
-    return IPlugin::Format::VST3;
+    return IAudioPlugin::Format::VST3;
 }
 
-IPlugin::Status VST3Plugin::status()
+IAudioPlugin::Status VST3Plugin::status()
 {
     return status_;
 }
@@ -268,12 +268,12 @@ int VST3Plugin::audioOutputGroupCount() const
         Steinberg::Vst::BusDirections::kOutput);
 }
 
-const IChannelGroup* VST3Plugin::audioInputGroupAt(int index) const
+const IAudioChannelGroup* VST3Plugin::audioInputGroupAt(int index) const
 {
     return &audioInputChannelGroup_[index];
 }
 
-const IChannelGroup* VST3Plugin::audioOutputGroupAt(int index) const
+const IAudioChannelGroup* VST3Plugin::audioOutputGroupAt(int index) const
 {
     return &audioOutputChannelGroup_[index];
 }
@@ -354,11 +354,11 @@ YADAW::Audio::Host::VST3ComponentHandler* VST3Plugin::componentHandler()
 
 void VST3Plugin::prepareAudioRelatedInfo()
 {
-    assert(status_ == IPlugin::Status::Initialized);
+    assert(status_ == IAudioPlugin::Status::Initialized);
     auto audioInputGroupCount = this->audioInputGroupCount();
     auto audioOutputGroupCount = this->audioOutputGroupCount();
-    audioInputChannelGroup_ = std::vector<VST3ChannelGroup>(audioInputGroupCount);
-    audioOutputChannelGroup_ = std::vector<VST3ChannelGroup>(audioOutputGroupCount);
+    audioInputChannelGroup_ = std::vector<VST3AudioChannelGroup>(audioInputGroupCount);
+    audioOutputChannelGroup_ = std::vector<VST3AudioChannelGroup>(audioOutputGroupCount);
     inputBuffers_ = std::vector<Steinberg::Vst::AudioBusBuffers>(audioInputGroupCount);
     outputBuffers_ = std::vector<Steinberg::Vst::AudioBusBuffers>(audioOutputGroupCount);
     for(int i = 0; i < audioInputGroupCount; ++i)

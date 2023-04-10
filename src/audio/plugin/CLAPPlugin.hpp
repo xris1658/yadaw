@@ -2,10 +2,10 @@
 #define YADAW_SRC_AUDIO_PLUGIN_CLAPPLUGIN
 
 #include "audio/host/CLAPHost.hpp"
-#include "audio/plugin/CLAPChannelGroup.hpp"
+#include "audio/plugin/CLAPAudioChannelGroup.hpp"
 #include "audio/plugin/CLAPPluginGUI.hpp"
 #include "audio/plugin/CLAPPluginParameter.hpp"
-#include "audio/plugin/IPlugin.hpp"
+#include "audio/plugin/IAudioPlugin.hpp"
 
 #include <clap/entry.h>
 #include <clap/plugin.h>
@@ -22,7 +22,7 @@
 
 namespace YADAW::Audio::Plugin
 {
-class CLAPPlugin: public YADAW::Audio::Plugin::IPlugin
+class CLAPPlugin: public YADAW::Audio::Plugin::IAudioPlugin
 {
 public:
     CLAPPlugin();
@@ -47,8 +47,8 @@ public:
 public:
     int audioInputGroupCount() const override;
     int audioOutputGroupCount() const override;
-    const IChannelGroup* audioInputGroupAt(int index) const override;
-    const IChannelGroup* audioOutputGroupAt(int index) const override;
+    const IAudioChannelGroup* audioInputGroupAt(int index) const override;
+    const IAudioChannelGroup* audioOutputGroupAt(int index) const override;
     std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
 private:
@@ -62,7 +62,7 @@ public:
     void calledOnMainThread();
 private:
     YADAW::Audio::Host::CLAPHost host_ {this};
-    IPlugin::Status status_ = IPlugin::Status::Empty;
+    IAudioPlugin::Status status_ = IAudioPlugin::Status::Empty;
     clap_process_status processStatus_;
     const clap_plugin_entry* entry_ = nullptr;
     const clap_plugin_factory* factory_ = nullptr;
@@ -72,8 +72,8 @@ private:
     double sampleRate_ = 0;
     std::int32_t minBlockSize_ = 1;
     std::int32_t maxBlockSize_ = INT32_MAX;
-    std::vector<CLAPChannelGroup> inputChannelGroups_;
-    std::vector<CLAPChannelGroup> outputChannelGroups_;
+    std::vector<CLAPAudioChannelGroup> inputChannelGroups_;
+    std::vector<CLAPAudioChannelGroup> outputChannelGroups_;
     std::vector<clap_audio_buffer> inputBuffers_;
     std::vector<clap_audio_buffer> outputBuffers_;
     clap_process processData_

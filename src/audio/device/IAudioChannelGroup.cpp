@@ -1,8 +1,8 @@
-#include "IChannelGroup.hpp"
+#include "IAudioChannelGroup.hpp"
 
 namespace YADAW::Audio::Device
 {
-int IChannelGroup::channelCount(YADAW::Audio::Base::ChannelGroupType channelGroupType)
+int IAudioChannelGroup::channelCount(YADAW::Audio::Base::ChannelGroupType channelGroupType)
 {
     switch(channelGroupType)
     {
@@ -17,7 +17,7 @@ int IChannelGroup::channelCount(YADAW::Audio::Base::ChannelGroupType channelGrou
     }
 }
 
-bool IChannelGroup::isChannelInGroup(YADAW::Audio::Base::ChannelType channelType, YADAW::Audio::Base::ChannelGroupType channelGroupType)
+bool IAudioChannelGroup::isChannelInGroup(YADAW::Audio::Base::ChannelType channelType, YADAW::Audio::Base::ChannelGroupType channelGroupType)
 {
     switch(channelGroupType)
     {

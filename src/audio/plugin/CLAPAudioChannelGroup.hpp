@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_PLUGIN_CLAPCHANNELGROUP
 #define YADAW_SRC_AUDIO_PLUGIN_CLAPCHANNELGROUP
 
-#include "audio/device/IChannelGroup.hpp"
+#include "audio/device/IAudioChannelGroup.hpp"
 
 #include <clap/ext/audio-ports.h>
 
@@ -13,15 +13,15 @@ using namespace YADAW::Audio::Device;
 
 class CLAPPlugin;
 
-class CLAPChannelGroup: public IChannelGroup
+class CLAPAudioChannelGroup: public IAudioChannelGroup
 {
     friend CLAPPlugin;
 public:
-    CLAPChannelGroup();
-    CLAPChannelGroup(const clap_plugin* plugin, const clap_plugin_audio_ports* audioPorts, bool isInput, int index);
-    CLAPChannelGroup(const CLAPChannelGroup&) = default;
-    CLAPChannelGroup(CLAPChannelGroup&&) noexcept = default;
-    ~CLAPChannelGroup() noexcept = default;
+    CLAPAudioChannelGroup();
+    CLAPAudioChannelGroup(const clap_plugin* plugin, const clap_plugin_audio_ports* audioPorts, bool isInput, int index);
+    CLAPAudioChannelGroup(const CLAPAudioChannelGroup&) = default;
+    CLAPAudioChannelGroup(CLAPAudioChannelGroup&&) noexcept = default;
+    ~CLAPAudioChannelGroup() noexcept = default;
 public:
     QString name() const override;
     std::uint8_t channelCount() const override;

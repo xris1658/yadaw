@@ -7,10 +7,10 @@
 
 namespace YADAW::Audio::Device
 {
-class IChannelGroup
+class IAudioChannelGroup
 {
 public:
-    virtual ~IChannelGroup() = default;
+    virtual ~IAudioChannelGroup() = default;
 public:
     virtual QString name() const = 0;
     virtual std::uint8_t channelCount() const = 0;

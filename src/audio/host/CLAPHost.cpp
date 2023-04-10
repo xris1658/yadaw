@@ -160,7 +160,7 @@ const void* CLAPHost::doGetExtension(const char* extensionId)
 
 void CLAPHost::doRequestRestart()
 {
-    auto processing = plugin_->status() == YADAW::Audio::Plugin::IPlugin::Status::Processing;
+    auto processing = plugin_->status() == YADAW::Audio::Plugin::IAudioPlugin::Status::Processing;
     if(processing)
     {
         plugin_->stopProcessing();
@@ -175,11 +175,11 @@ void CLAPHost::doRequestRestart()
 
 void CLAPHost::doRequestProcess()
 {
-    if(plugin_->status() == YADAW::Audio::Plugin::IPlugin::Status::Initialized)
+    if(plugin_->status() == YADAW::Audio::Plugin::IAudioPlugin::Status::Initialized)
     {
         plugin_->activate();
     }
-    if(plugin_->status() == YADAW::Audio::Plugin::IPlugin::Status::Activated)
+    if(plugin_->status() == YADAW::Audio::Plugin::IAudioPlugin::Status::Activated)
     {
         plugin_->startProcessing();
     }

@@ -48,9 +48,9 @@ set(YADAW_COMMON_SOURCES
     src/audio/base/Gain.hpp
     src/audio/base/StereoPanning.hpp
     src/audio/base/TempoAutomation.hpp
-    src/audio/device/IChannelGroup.cpp
-    src/audio/device/IChannelGroup.hpp
-    src/audio/device/IDevice.hpp
+    src/audio/device/IAudioChannelGroup.cpp
+    src/audio/device/IAudioChannelGroup.hpp
+    src/audio/device/IAudioDevice.hpp
     src/audio/host/CLAPEventList.cpp
     src/audio/host/CLAPEventList.hpp
     src/audio/host/CLAPHost.cpp
@@ -67,8 +67,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VST3ParameterChanges.hpp
     src/audio/host/VST3ParameterValueQueue.cpp
     src/audio/host/VST3ParameterValueQueue.hpp
-    src/audio/plugin/CLAPChannelGroup.cpp
-    src/audio/plugin/CLAPChannelGroup.hpp
+    src/audio/plugin/CLAPAudioChannelGroup.cpp
+    src/audio/plugin/CLAPAudioChannelGroup.hpp
     src/audio/plugin/CLAPPlugin.cpp
     src/audio/plugin/CLAPPlugin.hpp
     src/audio/plugin/CLAPPluginGUI.cpp
@@ -76,11 +76,11 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/CLAPPluginParameter.cpp
     src/audio/plugin/CLAPPluginParameter.hpp
     src/audio/plugin/IParameter.hpp
-    src/audio/plugin/IPlugin.hpp
+    src/audio/plugin/IAudioPlugin.hpp
     src/audio/plugin/IPluginGUI.hpp
     src/audio/plugin/IPluginParameter.hpp
-    src/audio/plugin/VST3ChannelGroup.cpp
-    src/audio/plugin/VST3ChannelGroup.hpp
+    src/audio/plugin/VST3AudioChannelGroup.cpp
+    src/audio/plugin/VST3AudioChannelGroup.hpp
     src/audio/plugin/VST3MemoryStream.cpp
     src/audio/plugin/VST3PlugFrame.cpp
     src/audio/plugin/VST3PlugFrame.hpp

@@ -26,7 +26,7 @@ bool CLAPPlugin::createPlugin(const char* id)
         plugin_ = factory_->create_plugin(factory_, host_.host(), id);
         if(plugin_)
         {
-            status_ = IPlugin::Status::Loaded;
+            status_ = IAudioPlugin::Status::Loaded;
         }
         return plugin_;
     }
@@ -35,19 +35,19 @@ bool CLAPPlugin::createPlugin(const char* id)
 
 CLAPPlugin::~CLAPPlugin()
 {
-    if(status_ == IPlugin::Status::Processing)
+    if(status_ == IAudioPlugin::Status::Processing)
     {
         CLAPPlugin::stopProcessing();
     }
-    if(status_ == IPlugin::Status::Activated)
+    if(status_ == IAudioPlugin::Status::Activated)
     {
         CLAPPlugin::deactivate();
     }
-    if(status_ == IPlugin::Status::Initialized)
+    if(status_ == IAudioPlugin::Status::Initialized)
     {
         CLAPPlugin::uninitialize();
     }
-    if(status_ == IPlugin::Status::Created)
+    if(status_ == IAudioPlugin::Status::Created)
     {
     }
     if(entry_)
@@ -88,7 +88,7 @@ bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         // TODO
         prepareAudioRelatedInfo();
         prepareProcessData();
-        status_ = IPlugin::Status::Initialized;
+        status_ = IAudioPlugin::Status::Initialized;
         return true;
     }
     return false;
@@ -101,7 +101,7 @@ bool CLAPPlugin::uninitialize()
     if(plugin_)
     {
         plugin_->destroy(plugin_);
-        status_ = IPlugin::Status::Created;
+        status_ = IAudioPlugin::Status::Created;
     }
     return true;
 }
@@ -110,7 +110,7 @@ bool CLAPPlugin::activate()
 {
     if(plugin_->activate(plugin_, sampleRate_, minBlockSize_, maxBlockSize_))
     {
-        status_ = IPlugin::Status::Activated;
+        status_ = IAudioPlugin::Status::Activated;
         return true;
     }
     return false;
@@ -119,7 +119,7 @@ bool CLAPPlugin::activate()
 bool CLAPPlugin::deactivate()
 {
     plugin_->deactivate(plugin_);
-    status_ = IPlugin::Status::Initialized;
+    status_ = IAudioPlugin::Status::Initialized;
     return true;
 }
 
@@ -127,7 +127,7 @@ bool CLAPPlugin::startProcessing()
 {
     if(plugin_->start_processing(plugin_))
     {
-        status_ = IPlugin::Status::Processing;
+        status_ = IAudioPlugin::Status::Processing;
         return true;
     }
     return false;
@@ -136,16 +136,16 @@ bool CLAPPlugin::startProcessing()
 bool CLAPPlugin::stopProcessing()
 {
     plugin_->stop_processing(plugin_);
-    status_ = IPlugin::Status::Activated;
+    status_ = IAudioPlugin::Status::Activated;
     return true;
 }
 
-IPlugin::Format CLAPPlugin::format()
+IAudioPlugin::Format CLAPPlugin::format()
 {
-    return IPlugin::Format::CLAP;
+    return IAudioPlugin::Format::CLAP;
 }
 
-IPlugin::Status CLAPPlugin::status()
+IAudioPlugin::Status CLAPPlugin::status()
 {
     return status_;
 }
@@ -188,12 +188,12 @@ int CLAPPlugin::audioOutputGroupCount() const
     return audioPorts_->count(plugin_, false);
 }
 
-const IChannelGroup* CLAPPlugin::audioInputGroupAt(int index) const
+const IAudioChannelGroup* CLAPPlugin::audioInputGroupAt(int index) const
 {
     return &inputChannelGroups_[index];
 }
 
-const IChannelGroup* CLAPPlugin::audioOutputGroupAt(int index) const
+const IAudioChannelGroup* CLAPPlugin::audioOutputGroupAt(int index) const
 {
     return &outputChannelGroups_[index];
 }

@@ -2,8 +2,8 @@
 #define YADAW_SRC_AUDIO_PLUGIN_VST3PLUGIN
 
 #include "audio/host/VST3ComponentHandler.hpp"
-#include "audio/plugin/IPlugin.hpp"
-#include "audio/plugin/VST3ChannelGroup.hpp"
+#include "audio/plugin/IAudioPlugin.hpp"
+#include "audio/plugin/VST3AudioChannelGroup.hpp"
 #include "audio/plugin/VST3PluginGUI.hpp"
 #include "audio/plugin/VST3PluginParameter.hpp"
 
@@ -16,7 +16,7 @@
 
 namespace YADAW::Audio::Plugin
 {
-class VST3Plugin: public YADAW::Audio::Plugin::IPlugin
+class VST3Plugin: public YADAW::Audio::Plugin::IAudioPlugin
 {
 public:
     using InitEntry = bool(*)();
@@ -50,8 +50,8 @@ public:
 public:
     int audioInputGroupCount() const override;
     int audioOutputGroupCount() const override;
-    const IChannelGroup* audioInputGroupAt(int index) const override;
-    const IChannelGroup* audioOutputGroupAt(int index) const override;
+    const IAudioChannelGroup* audioInputGroupAt(int index) const override;
+    const IAudioChannelGroup* audioOutputGroupAt(int index) const override;
     bool isAudioInputGroupActivated(int index) const;
     bool activateAudioInputGroup(int index, bool state);
     bool isAudioOutputGroupActivated(int index) const;
@@ -70,7 +70,7 @@ private:
     bool uninitializeEditController();
     bool destroyEditController();
 private:
-    IPlugin::Status status_ = IPlugin::Status::Empty;
+    IAudioPlugin::Status status_ = IAudioPlugin::Status::Empty;
     std::int32_t componentAndEditControllerUnified_ = 0;
     ExitEntry exitEntry_ = nullptr;
     Steinberg::IPluginFactory* factory_ = nullptr;
@@ -79,8 +79,8 @@ private:
     Steinberg::Vst::IEditController* editController_ = nullptr;
     Steinberg::Vst::IConnectionPoint* componentPoint_ = nullptr;
     Steinberg::Vst::IConnectionPoint* editControllerPoint_ = nullptr;
-    std::vector<YADAW::Audio::Plugin::VST3ChannelGroup> audioInputChannelGroup_;
-    std::vector<YADAW::Audio::Plugin::VST3ChannelGroup> audioOutputChannelGroup_;
+    std::vector<YADAW::Audio::Plugin::VST3AudioChannelGroup> audioInputChannelGroup_;
+    std::vector<YADAW::Audio::Plugin::VST3AudioChannelGroup> audioOutputChannelGroup_;
     std::vector<bool> audioInputBusActivated_;
     std::vector<bool> audioOutputBusActivated_;
     Steinberg::Vst::ProcessSetup processSetup_ = {};

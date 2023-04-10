@@ -1,13 +1,13 @@
-#ifndef YADAW_SRC_AUDIO_PLUGIN_IPLUGIN
-#define YADAW_SRC_AUDIO_PLUGIN_IPLUGIN
+#ifndef YADAW_SRC_AUDIO_PLUGIN_IAUDIOPLUGIN
+#define YADAW_SRC_AUDIO_PLUGIN_IAUDIOPLUGIN
 
-#include "audio/device/IDevice.hpp"
+#include "audio/device/IAudioDevice.hpp"
 #include "audio/plugin/IPluginGUI.hpp"
 #include "audio/plugin/IPluginParameter.hpp"
 
 namespace YADAW::Audio::Plugin
 {
-class IPlugin: public YADAW::Audio::Device::IDevice
+class IAudioPlugin: public YADAW::Audio::Device::IAudioDevice
 {
 public:
     enum Status
@@ -41,4 +41,4 @@ public:
 };
 }
 
-#endif //YADAW_SRC_AUDIO_PLUGIN_IPLUGIN
+#endif //YADAW_SRC_AUDIO_PLUGIN_IAUDIOPLUGIN

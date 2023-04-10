@@ -1,7 +1,7 @@
-#ifndef YADAW_SRC_AUDIO_DEVICE_IDEVICE
-#define YADAW_SRC_AUDIO_DEVICE_IDEVICE
+#ifndef YADAW_SRC_AUDIO_DEVICE_IAUDIODEVICE
+#define YADAW_SRC_AUDIO_DEVICE_IAUDIODEVICE
 
-#include "audio/device/IChannelGroup.hpp"
+#include "audio/device/IAudioChannelGroup.hpp"
 
 namespace YADAW::Audio::Device
 {
@@ -17,19 +17,19 @@ struct AudioProcessData
     SampleType*** outputs = nullptr;
 };
 
-class IDevice
+class IAudioDevice
 {
 public:
-    virtual ~IDevice() = default;
+    virtual ~IAudioDevice() = default;
 public:
     virtual int audioInputGroupCount() const = 0;
     virtual int audioOutputGroupCount() const = 0;
-    virtual const IChannelGroup* audioInputGroupAt(int index) const = 0;
-    virtual const IChannelGroup* audioOutputGroupAt(int index) const = 0;
+    virtual const IAudioChannelGroup* audioInputGroupAt(int index) const = 0;
+    virtual const IAudioChannelGroup* audioOutputGroupAt(int index) const = 0;
     virtual std::uint32_t latencyInSamples() const = 0;
 public:
     virtual void process(const AudioProcessData<float>& audioProcessData) = 0;
 };
 }
 
-#endif //YADAW_SRC_AUDIO_DEVICE_IDEVICE
+#endif //YADAW_SRC_AUDIO_DEVICE_IAUDIODEVICE

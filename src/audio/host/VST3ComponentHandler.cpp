@@ -138,7 +138,7 @@ tresult VST3ComponentHandler::endEdit(ParamID id)
 
 tresult VST3ComponentHandler::restartComponent(int32 flags)
 {
-    using YADAW::Audio::Plugin::IPlugin;
+    using YADAW::Audio::Plugin::IAudioPlugin;
     if(flags & RestartFlags::kReloadComponent)
     {
         auto status = plugin_->status();
@@ -149,11 +149,11 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
         auto maxSamplesPerBlock = processSetup.maxSamplesPerBlock;
         plugin_->uninitialize();
         plugin_->initialize(sampleRate, maxSamplesPerBlock);
-        if(status >= IPlugin::Status::Activated)
+        if(status >= IAudioPlugin::Status::Activated)
         {
             plugin_->activate();
         }
-        if(status >= IPlugin::Status::Processing)
+        if(status >= IAudioPlugin::Status::Processing)
         {
             plugin_->startProcessing();
         }
@@ -167,7 +167,7 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
         plugin_->deactivate();
         // TODO: Query bus configuration and/or latency according to the flags
         plugin_->activate();
-        if(status >= IPlugin::Status::Processing)
+        if(status >= IAudioPlugin::Status::Processing)
         {
             plugin_->startProcessing();
         }

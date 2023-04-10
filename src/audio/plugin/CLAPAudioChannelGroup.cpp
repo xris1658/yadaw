@@ -1,26 +1,26 @@
-#include "CLAPChannelGroup.hpp"
+#include "CLAPAudioChannelGroup.hpp"
 
 namespace YADAW::Audio::Plugin
 {
-CLAPChannelGroup::CLAPChannelGroup() {}
+CLAPAudioChannelGroup::CLAPAudioChannelGroup() {}
 
-CLAPChannelGroup::CLAPChannelGroup(const clap_plugin* plugin,
+CLAPAudioChannelGroup::CLAPAudioChannelGroup(const clap_plugin* plugin,
     const clap_plugin_audio_ports* audioPorts, bool isInput, int index)
 {
     assert(audioPorts->get(plugin, index, isInput, &audioPortInfo_));
 }
 
-QString CLAPChannelGroup::name() const
+QString CLAPAudioChannelGroup::name() const
 {
     return QString::fromUtf8(audioPortInfo_.name);
 }
 
-std::uint8_t CLAPChannelGroup::channelCount() const
+std::uint8_t CLAPAudioChannelGroup::channelCount() const
 {
     return audioPortInfo_.channel_count;
 }
 
-YADAW::Audio::Base::ChannelGroupType CLAPChannelGroup::type() const
+YADAW::Audio::Base::ChannelGroupType CLAPAudioChannelGroup::type() const
 {
     return
         std::strcmp(audioPortInfo_.port_type, CLAP_PORT_STEREO) == 0? YADAW::Audio::Base::ChannelGroupType::Stereo:
@@ -29,7 +29,7 @@ YADAW::Audio::Base::ChannelGroupType CLAPChannelGroup::type() const
         YADAW::Audio::Base::ChannelGroupType::Custom;
 }
 
-YADAW::Audio::Base::ChannelType CLAPChannelGroup::speakerAt(std::uint8_t index) const
+YADAW::Audio::Base::ChannelType CLAPAudioChannelGroup::speakerAt(std::uint8_t index) const
 {
     if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_STEREO) == 0)
     {
@@ -44,12 +44,12 @@ YADAW::Audio::Base::ChannelType CLAPChannelGroup::speakerAt(std::uint8_t index) 
     return index < channelCount()? YADAW::Audio::Base::ChannelType::Custom: YADAW::Audio::Base::ChannelType::Invalid;
 }
 
-QString CLAPChannelGroup::speakerNameAt(std::uint8_t index) const
+QString CLAPAudioChannelGroup::speakerNameAt(std::uint8_t index) const
 {
     return QString();
 }
 
-bool CLAPChannelGroup::isMain() const
+bool CLAPAudioChannelGroup::isMain() const
 {
     return audioPortInfo_.flags &CLAP_AUDIO_PORT_IS_MAIN;
 }

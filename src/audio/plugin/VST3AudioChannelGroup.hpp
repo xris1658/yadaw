@@ -1,7 +1,7 @@
 #ifndef YADAW_AUDIO_PLUGIN_VST3CHANNELGROUP
 #define YADAW_AUDIO_PLUGIN_VST3CHANNELGROUP
 
-#include "audio/device/IChannelGroup.hpp"
+#include "audio/device/IAudioChannelGroup.hpp"
 
 #include <pluginterfaces/vst/vstspeaker.h>
 #include <pluginterfaces/vst/vsttypes.h>
@@ -17,16 +17,16 @@ using namespace Steinberg::Vst;
 
 class VST3Plugin;
 
-class VST3ChannelGroup: public IChannelGroup
+class VST3AudioChannelGroup: public IAudioChannelGroup
 {
     friend VST3Plugin;
 public:
-    VST3ChannelGroup();
-    VST3ChannelGroup(SpeakerArrangement speakerArrangement, BusInfo busInfo);
-    VST3ChannelGroup(const VST3ChannelGroup&) = default;
-    VST3ChannelGroup(VST3ChannelGroup&&) noexcept = default;
-    VST3ChannelGroup& operator=(VST3ChannelGroup);
-    ~VST3ChannelGroup() noexcept = default;
+    VST3AudioChannelGroup();
+    VST3AudioChannelGroup(SpeakerArrangement speakerArrangement, BusInfo busInfo);
+    VST3AudioChannelGroup(const VST3AudioChannelGroup&) = default;
+    VST3AudioChannelGroup(VST3AudioChannelGroup&&) noexcept = default;
+    VST3AudioChannelGroup& operator=(VST3AudioChannelGroup);
+    ~VST3AudioChannelGroup() noexcept = default;
 public:
     QString name() const override;
     std::uint8_t channelCount() const override;
