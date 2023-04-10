@@ -51,6 +51,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/device/IAudioChannelGroup.cpp
     src/audio/device/IAudioChannelGroup.hpp
     src/audio/device/IAudioDevice.hpp
+    src/audio/event/IEventBusInfo.hpp
+    src/audio/event/IEventProcessor.hpp
     src/audio/host/CLAPEventList.cpp
     src/audio/host/CLAPEventList.hpp
     src/audio/host/CLAPHost.cpp
@@ -81,6 +83,10 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/IPluginParameter.hpp
     src/audio/plugin/VST3AudioChannelGroup.cpp
     src/audio/plugin/VST3AudioChannelGroup.hpp
+    src/audio/plugin/VST3EventBusInfo.cpp
+    src/audio/plugin/VST3EventBusInfo.hpp
+    src/audio/plugin/VST3EventProcessor.cpp
+    src/audio/plugin/VST3EventProcessor.hpp
     src/audio/plugin/VST3MemoryStream.cpp
     src/audio/plugin/VST3PlugFrame.cpp
     src/audio/plugin/VST3PlugFrame.hpp
