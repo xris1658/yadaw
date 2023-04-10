@@ -65,14 +65,12 @@ VST3Plugin::~VST3Plugin()
     }
     if(status_ == IAudioPlugin::Status::Created)
     {
-        component_->release();
-        component_ = nullptr;
+        releasePointer(component_);
         status_ = IAudioPlugin::Loaded;
     }
     if(status_ == IAudioPlugin::Status::Loaded)
     {
-        factory_->release();
-        factory_ = nullptr;
+        releasePointer(factory_);
     }
     if(exitEntry_)
     {
@@ -154,8 +152,7 @@ bool VST3Plugin::uninitialize()
     uninitializeEditController();
     resetProcessData();
     clearAudioRelatedInfo();
-    audioProcessor_->release();
-    audioProcessor_ = nullptr;
+    releasePointer(audioProcessor_);
     if(component_->terminate() == Steinberg::kResultOk)
     {
         status_ = IAudioPlugin::Status::Created;
@@ -450,10 +447,8 @@ bool VST3Plugin::uninitializeEditController()
     {
         componentPoint_->disconnect(editControllerPoint_);
         editControllerPoint_->disconnect(componentPoint_);
-        componentPoint_->release();
-        componentPoint_ = nullptr;
-        editControllerPoint_->release();
-        editControllerPoint_ = nullptr;
+        releasePointer(componentPoint_);
+        releasePointer(editControllerPoint_);
     }
     if(editController_)
     {
@@ -474,8 +469,7 @@ bool VST3Plugin::destroyEditController()
 {
     if(editController_)
     {
-        editController_->release();
-        editController_ = nullptr;
+        releasePointer(editController_);
     }
     return true;
 }

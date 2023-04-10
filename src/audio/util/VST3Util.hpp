@@ -13,6 +13,17 @@ Steinberg::tresult queryInterface(Steinberg::FUnknown* from, To** to)
     return from->queryInterface(To::iid, reinterpret_cast<void**>(to));
 }
 
+template<typename T>
+void releasePointer(T* pointer)
+{
+    static_assert(std::is_base_of_v<Steinberg::FUnknown, T>);
+    if(pointer)
+    {
+        pointer->release();
+        pointer = nullptr;
+    }
+}
+
 namespace YADAW::Audio::Util
 {
 using SubCategories = decltype(Steinberg::PClassInfo2::subCategories);
