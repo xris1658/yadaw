@@ -457,6 +457,7 @@ bool VST3Plugin::uninitializeEditController()
     }
     if(editController_)
     {
+        parameter_.reset();
         gui_.reset();
         if(!componentAndEditControllerUnified_)
         {

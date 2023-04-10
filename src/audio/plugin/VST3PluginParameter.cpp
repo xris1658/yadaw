@@ -17,6 +17,7 @@ VST3Parameter::VST3Parameter(
     editController_(editController),
     index_(index)
 {
+    editController_->addRef();
     editController_->getParameterInfo(index, parameterInfo_);
     if(parameterInfo_.stepCount != 0)
     {
