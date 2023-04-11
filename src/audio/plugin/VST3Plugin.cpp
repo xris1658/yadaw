@@ -44,10 +44,21 @@ bool VST3Plugin::createPlugin(const Steinberg::TUID& uid)
             == Steinberg::kResultOk)
         {
             status_ = IAudioPlugin::Status::Created;
+            createEditController();
             return true;
         }
     }
     return false;
+}
+
+void VST3Plugin::destroyPlugin()
+{
+    if(component_)
+    {
+        destroyEditController();
+        releasePointer(component_);
+        status_ = IAudioPlugin::Loaded;
+    }
 }
 
 VST3Plugin::~VST3Plugin()
@@ -66,8 +77,7 @@ VST3Plugin::~VST3Plugin()
     }
     if(status_ == IAudioPlugin::Status::Created)
     {
-        releasePointer(component_);
-        status_ = IAudioPlugin::Loaded;
+        destroyPlugin();
     }
     if(status_ == IAudioPlugin::Status::Loaded)
     {
@@ -106,7 +116,6 @@ const Steinberg::Vst::ProcessSetup& VST3Plugin::processSetup()
 
 bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 {
-    auto createEditControllerResult = createEditController();
     if(component_->initialize(&YADAW::Audio::Host::VST3Host::instance()) != Steinberg::kResultOk)
     {
         return false;
@@ -141,7 +150,7 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         activateAudioOutputGroup(i, true);
     }
     prepareProcessData(processSetup_.processMode);
-    if(createEditControllerResult)
+    if(editController_)
     {
         initializeEditController();
     }
@@ -163,7 +172,6 @@ bool VST3Plugin::uninitialize()
         {
             componentHandler_.reset();
         }
-        destroyEditController();
         status_ = IAudioPlugin::Status::Created;
         return true;
     }

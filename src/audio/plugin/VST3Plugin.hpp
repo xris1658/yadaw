@@ -26,6 +26,7 @@ public:
     VST3Plugin();
     VST3Plugin(InitEntry initEntry, FactoryEntry factoryEntry, ExitEntry exitEntry);
     bool createPlugin(const Steinberg::TUID& uid);
+    void destroyPlugin();
     ~VST3Plugin();
 public:
     Steinberg::IPluginFactory* factory();
