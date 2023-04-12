@@ -163,7 +163,7 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
     || (flags & RestartFlags::kLatencyChanged))
     {
         auto status = plugin_->status();
-        plugin_->startProcessing();
+        plugin_->stopProcessing();
         plugin_->deactivate();
         // TODO: Query bus configuration and/or latency according to the flags
         plugin_->activate();
