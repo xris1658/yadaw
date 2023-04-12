@@ -72,7 +72,7 @@ private:
     bool destroyEditController();
 private:
     IAudioPlugin::Status status_ = IAudioPlugin::Status::Empty;
-    std::int32_t componentAndEditControllerUnified_ = 0;
+    std::int32_t unified_ = 0;
     ExitEntry exitEntry_ = nullptr;
     Steinberg::IPluginFactory* factory_ = nullptr;
     Steinberg::Vst::IComponent* component_ = nullptr;

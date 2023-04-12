@@ -80,6 +80,7 @@ VST3Plugin::~VST3Plugin()
     if(status_ == IAudioPlugin::Status::Loaded)
     {
         releasePointer(factory_);
+        componentHandler_.reset();
     }
     if(exitEntry_)
     {
@@ -189,10 +190,6 @@ bool VST3Plugin::uninitialize()
         status_ = IAudioPlugin::Status::Created;
         audioInputBusActivated_.clear();
         audioOutputBusActivated_.clear();
-        if(componentAndEditControllerUnified_)
-        {
-            componentHandler_.reset();
-        }
         status_ = IAudioPlugin::Status::Created;
         uninitializeEditController();
         destroyEditController();
@@ -455,7 +452,7 @@ bool VST3Plugin::createEditController()
         if(auto queryInterfaceResult = queryInterface(component_, &editController_);
             queryInterfaceResult == Steinberg::kResultOk)
         {
-            componentAndEditControllerUnified_  = 1;
+            unified_  = 1;
             return true;
         }
         else
@@ -470,7 +467,7 @@ bool VST3Plugin::initializeEditController()
 {
     if(editController_)
     {
-        if(componentAndEditControllerUnified_ == 0)
+        if(unified_ == 0)
         {
             if(auto initializeEditControllerResult = editController_->initialize(
                     &YADAW::Audio::Host::VST3Host::instance());
@@ -493,13 +490,12 @@ bool VST3Plugin::uninitializeEditController()
     {
         parameter_.reset();
         gui_.reset();
-        if(!componentAndEditControllerUnified_)
+        if(!unified_)
         {
             auto terminateEditControllerResult = editController_->terminate();
-            componentHandler_.reset();
             return terminateEditControllerResult == Steinberg::kResultOk;
         }
-        componentAndEditControllerUnified_ = 0;
+        unified_ = 0;
     }
     return true;
 }
