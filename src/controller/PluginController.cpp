@@ -317,7 +317,6 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             {
                 factory2->release();
             }
-            factory->release();
             return ret;
         }
     }
