@@ -43,11 +43,21 @@ int main(int argc, char** argv)
             std::printf(" Format: ");
             if(pluginInfo.format == YADAW::DAO::PluginFormatVST3)
             {
-                std::printf("VST3\n");
+                std::printf("VST3 (");
+                for(int i = 0; i < 16; ++i)
+                {
+                    std::printf("%2hhX", pluginInfo.uid[i]);
+                }
+                std::printf(")\n");
             }
             else if(pluginInfo.format == YADAW::DAO::PluginFormatCLAP)
             {
-                std::printf("CLAP\n");
+                std::printf("CLAP (");
+                for(int i = 0; pluginInfo.uid[i] != 0; ++i)
+                {
+                    std::printf("%c", pluginInfo.uid[i]);
+                }
+                std::printf(")\n");
             }
             else
             {
