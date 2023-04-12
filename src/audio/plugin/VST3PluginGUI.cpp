@@ -87,10 +87,10 @@ void VST3PluginGUI::onWindowSizeChanged()
     Steinberg::ViewRect oldRect;
     plugView_->getSize(&oldRect);
     Steinberg::ViewRect windowRect;
-    windowRect.left = window_->x();
-    windowRect.top = window_->y();
-    windowRect.right = windowRect.left + window_->width();
-    windowRect.bottom = windowRect.top + window_->height();
+    windowRect.left = 0;
+    windowRect.top = 0;
+    windowRect.right = window_->width();
+    windowRect.bottom = window_->height();
     if(plugView_->checkSizeConstraint(&windowRect) == Steinberg::kResultOk)
     {
         disconnect();

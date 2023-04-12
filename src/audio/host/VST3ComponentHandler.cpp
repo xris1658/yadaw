@@ -15,17 +15,6 @@ VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin* plu
     outputParameterChanges_{},
     mappings_{{}, {}}
 {
-    if(plugin)
-    {
-        if(auto parameter = plugin->parameter())
-        {
-            auto parameterCount = parameter->parameterCount();
-            inputParameterChanges_[0].reserve(parameterCount);
-            inputParameterChanges_[1].reserve(parameterCount);
-            mappings_[0].reserve(parameterCount);
-            mappings_[1].reserve(parameterCount);
-        }
-    }
 }
 
 VST3ComponentHandler::~VST3ComponentHandler() noexcept
@@ -232,5 +221,20 @@ void VST3ComponentHandler::consumeOutputParameterChanges()
 double VST3ComponentHandler::sampleRate() const
 {
     return plugin_->processSetup().sampleRate;
+}
+
+void VST3ComponentHandler::reserve()
+{
+    if(plugin_)
+    {
+        if(auto parameter = plugin_->parameter())
+        {
+            auto parameterCount = parameter->parameterCount();
+            inputParameterChanges_[0].reserve(parameterCount);
+            inputParameterChanges_[1].reserve(parameterCount);
+            mappings_[0].reserve(parameterCount);
+            mappings_[1].reserve(parameterCount);
+        }
+    }
 }
 }

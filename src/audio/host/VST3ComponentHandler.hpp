@@ -60,6 +60,8 @@ public:
     void attachToProcessData(Vst::ProcessData& processData);
     void consumeOutputParameterChanges();
     double sampleRate() const;
+public:
+    void reserve();
 private:
     YADAW::Audio::Plugin::VST3Plugin* plugin_;
     // Used by UI thread: beginEdit, performEdit, endEdit, etc.

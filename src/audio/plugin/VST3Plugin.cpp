@@ -55,7 +55,6 @@ void VST3Plugin::destroyPlugin()
 {
     if(component_)
     {
-        destroyEditController();
         releasePointer(component_);
         status_ = IAudioPlugin::Loaded;
     }
@@ -116,6 +115,7 @@ const Steinberg::Vst::ProcessSetup& VST3Plugin::processSetup()
 
 bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 {
+    initializeEditController();
     if(component_->initialize(&YADAW::Audio::Host::VST3Host::instance()) != Steinberg::kResultOk)
     {
         return false;
@@ -123,6 +123,19 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
     if(queryInterface(component_, &audioProcessor_) != Steinberg::kResultOk)
     {
         return false;
+    }
+    if(queryInterface(component_, &componentPoint_) == Steinberg::kResultOk && editController_)
+    {
+        componentPoint_->connect(editControllerPoint_);
+        editControllerPoint_->connect(componentPoint_);
+        componentHandler_->reserve();
+        // TODO: Replace this with self-implemented `IBStream` (not started yet)
+        Steinberg::MemoryStream stream;
+        if(component_->getState(&stream) == Steinberg::kResultOk)
+        {
+            // component_->setState(&stream);
+            editController_->setComponentState(&stream);
+        }
     }
     if(audioProcessor_->canProcessSampleSize(Steinberg::Vst::SymbolicSampleSizes::kSample32) != Steinberg::kResultTrue)
     {
@@ -150,16 +163,24 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         activateAudioOutputGroup(i, true);
     }
     prepareProcessData(processSetup_.processMode);
-    if(editController_)
-    {
-        initializeEditController();
-    }
     return true;
 }
 
 bool VST3Plugin::uninitialize()
 {
-    uninitializeEditController();
+    if(componentPoint_ && editControllerPoint_)
+    {
+        componentPoint_->disconnect(editControllerPoint_);
+        editControllerPoint_->disconnect(componentPoint_);
+    }
+    if(editControllerPoint_)
+    {
+        releasePointer(editControllerPoint_);
+    }
+    if(componentPoint_)
+    {
+        releasePointer(componentPoint_);
+    }
     resetProcessData();
     clearAudioRelatedInfo();
     releasePointer(audioProcessor_);
@@ -173,6 +194,8 @@ bool VST3Plugin::uninitialize()
             componentHandler_.reset();
         }
         status_ = IAudioPlugin::Status::Created;
+        uninitializeEditController();
+        destroyEditController();
         return true;
     }
     return false;
@@ -247,8 +270,15 @@ VST3PluginGUI* VST3Plugin::pluginGUI()
 {
     if(editController_ && (!gui_))
     {
-        gui_ = std::make_unique<VST3PluginGUI>(
-            editController_->createView(Steinberg::Vst::ViewType::kEditor));
+        try
+        {
+            if(auto plugView = editController_->createView(Steinberg::Vst::ViewType::kEditor); plugView)
+            {
+                gui_ = std::make_unique<VST3PluginGUI>(plugView);
+            }
+        }
+        catch(...)
+        {}
     }
     return gui_.get();
 }
@@ -414,38 +444,44 @@ bool VST3Plugin::createEditController()
     Steinberg::TUID uid;
     if(component_->getControllerClassId(uid) == Steinberg::kResultOk)
     {
-        return factory_->createInstance(uid, Steinberg::Vst::IEditController::iid,
-            reinterpret_cast<void**>(&editController_)) == Steinberg::kResultOk;
+        if(factory_->createInstance(uid, Steinberg::Vst::IEditController::iid,
+            reinterpret_cast<void**>(&editController_)) == Steinberg::kResultOk)
+        {
+            return true;
+        }
     }
-    componentAndEditControllerUnified_  = 1;
-    return queryInterface(component_, &editController_) == Steinberg::kResultOk;
-}
-
-bool VST3Plugin::initializeEditController()
-{
-    if(componentAndEditControllerUnified_ == 0)
+    if(!editController_)
     {
-        if(auto initializeEditControllerResult = editController_->initialize(&YADAW::Audio::Host::VST3Host::instance());
-            initializeEditControllerResult != Steinberg::kResultOk)
+        if(auto queryInterfaceResult = queryInterface(component_, &editController_);
+            queryInterfaceResult == Steinberg::kResultOk)
+        {
+            componentAndEditControllerUnified_  = 1;
+            return true;
+        }
+        else
         {
             return false;
         }
     }
-    componentHandler_ = std::make_unique<YADAW::Audio::Host::VST3ComponentHandler>(this);
-    editController_->setComponentHandler(componentHandler_.get());
-    // TODO: Replace this with self-implemented `IBStream` (not started yet)
-    Steinberg::MemoryStream stream;
-    if(component_->getState(&stream) == Steinberg::kResultOk)
+    return false;
+}
+
+bool VST3Plugin::initializeEditController()
+{
+    if(editController_)
     {
-        // component_->setState(&stream);
-        editController_->setComponentState(&stream);
-    }
-    if(queryInterface(component_, &componentPoint_) == Steinberg::kResultOk
-        && queryInterface(editController_, &editControllerPoint_) == Steinberg::kResultOk
-    )
-    {
-        componentPoint_->connect(editControllerPoint_);
-        editControllerPoint_->connect(componentPoint_);
+        if(componentAndEditControllerUnified_ == 0)
+        {
+            if(auto initializeEditControllerResult = editController_->initialize(
+                    &YADAW::Audio::Host::VST3Host::instance());
+                initializeEditControllerResult != Steinberg::kResultOk)
+            {
+                return false;
+            }
+        }
+        componentHandler_ = std::make_unique<YADAW::Audio::Host::VST3ComponentHandler>(this);
+        editController_->setComponentHandler(componentHandler_.get());
+        queryInterface(editController_, &editControllerPoint_);
         return true;
     }
     return false;
@@ -453,13 +489,6 @@ bool VST3Plugin::initializeEditController()
 
 bool VST3Plugin::uninitializeEditController()
 {
-    if(componentPoint_ && editControllerPoint_)
-    {
-        componentPoint_->disconnect(editControllerPoint_);
-        editControllerPoint_->disconnect(componentPoint_);
-        releasePointer(componentPoint_);
-        releasePointer(editControllerPoint_);
-    }
     if(editController_)
     {
         parameter_.reset();
