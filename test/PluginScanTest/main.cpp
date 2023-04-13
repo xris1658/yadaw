@@ -46,7 +46,7 @@ int main(int argc, char** argv)
                 std::printf("VST3 (");
                 for(int i = 0; i < 16; ++i)
                 {
-                    std::printf("%2hhX", pluginInfo.uid[i]);
+                    std::printf("%.2hhX", pluginInfo.uid[i]);
                 }
                 std::printf(")\n");
             }
