@@ -130,13 +130,6 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         componentPoint_->connect(editControllerPoint_);
         editControllerPoint_->connect(componentPoint_);
         componentHandler_->reserve();
-        // TODO: Replace this with self-implemented `IBStream` (not started yet)
-        Steinberg::MemoryStream stream;
-        if(component_->getState(&stream) == Steinberg::kResultOk)
-        {
-            // component_->setState(&stream);
-            editController_->setComponentState(&stream);
-        }
     }
     if(audioProcessor_->canProcessSampleSize(Steinberg::Vst::SymbolicSampleSizes::kSample32) != Steinberg::kResultTrue)
     {
@@ -151,6 +144,13 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         return false;
     }
     status_ = IAudioPlugin::Status::Initialized;
+    // TODO: Replace this with self-implemented `IBStream` (not started yet)
+    Steinberg::MemoryStream stream;
+    if((component_->getState(&stream) == Steinberg::kResultOk) && editController_)
+    {
+        // component_->setState(&stream);
+        editController_->setComponentState(&stream);
+    }
     // TODO: negotiate bus arrangement
     prepareAudioRelatedInfo();
     audioInputBusActivated_.resize(audioInputGroupCount(), false);
