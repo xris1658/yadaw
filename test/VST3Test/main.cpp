@@ -174,7 +174,9 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                             while(!stop.load(std::memory_order::memory_order_acquire))
                             {
                                 if(auto componentHandler = plugin.componentHandler(); componentHandler)
-                                componentHandler->consumeOutputParameterChanges();
+                                {
+                                    componentHandler->consumeOutputParameterChanges();
+                                }
                                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
                             }
                         }
