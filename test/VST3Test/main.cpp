@@ -1,6 +1,7 @@
 #include "test/common/PluginWindowThread.hpp"
 
 #include "audio/plugin/VST3Plugin.hpp"
+#include "native/Native.hpp"
 #include "native/VST3Native.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/Native.hpp"
@@ -186,6 +187,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 std::thread audioThread(
                     [&stop, &plugin]()
                     {
+                        plugin.componentHandler()->switchBuffer(YADAW::Native::currentTimeValueInNanosecond());
                         while(!stop.load(std::memory_order::memory_order_acquire))
                         {
                             auto sleepTo = std::chrono::steady_clock::now() + std::chrono::milliseconds(10);
