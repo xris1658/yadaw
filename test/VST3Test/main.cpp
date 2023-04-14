@@ -111,6 +111,10 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     {
                         idc1[i][j].resize(audioProcessData.singleBufferSize, 0.0f);
                         idc2[i][j] = idc1[i][j].data();
+                        for(int k = 0; k < audioProcessData.singleBufferSize; ++k)
+                        {
+                            idc1[i][j][k] = 0.25 * std::sinf((i + 1) * k * 2 * pi / audioProcessData.singleBufferSize);
+                        }
                     }
                     idc3[i] = idc2[i].data();
                 }
