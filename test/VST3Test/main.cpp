@@ -188,7 +188,10 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                         {
                             auto sleepTo = std::chrono::steady_clock::now() + std::chrono::milliseconds(10);
                             plugin.process(audioProcessData);
-                            std::this_thread::sleep_until(sleepTo);
+                            while(std::chrono::steady_clock::now() < sleepTo)
+                            {
+                                std::this_thread::yield();
+                            }
                         }
                     }
                 );
