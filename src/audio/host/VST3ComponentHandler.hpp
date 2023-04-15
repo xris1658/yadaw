@@ -46,8 +46,8 @@ public:
     uint32 addRef() override;
     uint32 release() override;
 private:
-    int32 doBeginEdit(int bufferIndex, ParamID id);
-    tresult doPerformEdit(int bufferIndex, int32 index, ParamValue normalizedValue,
+    int32 doBeginEdit(int hostBufferIndex, ParamID id);
+    tresult doPerformEdit(int hostBufferIndex, int32 index, ParamValue normalizedValue,
         std::int64_t timestamp);
     tresult doEndEdit(ParamID id);
 public:
@@ -65,8 +65,8 @@ public:
     void reserve();
 private:
     YADAW::Audio::Plugin::VST3Plugin* plugin_;
-    // Used by UI thread: beginEdit, performEdit, endEdit, etc.
-    int bufferIndex_;
+    // Used by host
+    int hostBufferIndex_;
     // Set on switchBuffer
     std::int64_t timestamp_;
     YADAW::Audio::Host::VST3ParameterChanges inputParameterChanges_[2];

@@ -9,7 +9,7 @@ constexpr auto nanosecondCount = 1000000000;
 
 VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin* plugin):
     plugin_(plugin),
-    bufferIndex_(0),
+    hostBufferIndex_(0),
     timestamp_(0),
     inputParameterChanges_{},
     outputParameterChanges_{},
@@ -39,22 +39,22 @@ tresult VST3ComponentHandler::queryInterface(const char* _iid, void** obj)
     return Steinberg::kNoInterface;
 }
 
-int32 VST3ComponentHandler::doBeginEdit(int bufferIndex, ParamID id)
+int32 VST3ComponentHandler::doBeginEdit(int hostBufferIndex, ParamID id)
 {
     // std::printf("|---doBeginEdit(%u) ", id);
     int index = -1;
-    inputParameterChanges_[bufferIndex].addParameterData(id, index);
+    inputParameterChanges_[hostBufferIndex].addParameterData(id, index);
     // std::printf("return %d\n", index);
     return index;
 }
 
-tresult VST3ComponentHandler::doPerformEdit(int bufferIndex, int32 index,
+tresult VST3ComponentHandler::doPerformEdit(int hostBufferIndex, int32 index,
     ParamValue normalizedValue, std::int64_t timestamp)
 {
     // std::printf("|---doPerformEdit(%d, %lf) ", index, normalizedValue);
     int32 sampleOffset = std::round((timestamp - timestamp_) / (sampleRate() * nanosecondCount));
     int32 pointIndex = -1;
-    auto ret = inputParameterChanges_[bufferIndex].getParameterData(index)->addPoint(sampleOffset, normalizedValue, pointIndex);
+    auto ret = inputParameterChanges_[hostBufferIndex].getParameterData(index)->addPoint(sampleOffset, normalizedValue, pointIndex);
     // std::printf("return 0x%x\n", ret);
     return ret;
 }
@@ -69,33 +69,34 @@ tresult VST3ComponentHandler::beginEdit(ParamID id)
 {
     // std::printf("beginEdit(%u)\n", id);
 
-    auto bufferIndex = bufferIndex_;
-    if(auto index = doBeginEdit(bufferIndex, id); index != -1)
+    auto hostBufferIndex = hostBufferIndex_;
+    if(auto index = doBeginEdit(hostBufferIndex, id); index != -1)
     {
-        mappings_[bufferIndex].emplace_back(id, index);
+        mappings_[hostBufferIndex].emplace_back(id, index);
         return kResultOk;
     }
+    return kOutOfMemory;
 }
 
 tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue)
 {
     // std::printf("performEdit(%u, %lf)\n", id, normalizedValue);
-    auto bufferIndex = bufferIndex_;
+    auto hostBufferIndex = hostBufferIndex_;
     auto timestamp = YADAW::Native::currentTimeValueInNanosecond();
     // Is the following operation needed? Seems not.
     // plugin_->editController()->setParamNormalized(id, normalizedValue);
-    auto iterator = std::find_if(mappings_[bufferIndex].begin(), mappings_[bufferIndex].end(),
+    auto iterator = std::find_if(mappings_[hostBufferIndex].begin(), mappings_[hostBufferIndex].end(),
         [id](const auto& mapping)
         {
             const auto& [mappingId, index] = mapping;
             return mappingId == id;
         }
     );
-    if(iterator == mappings_[bufferIndex].end())
+    if(iterator == mappings_[hostBufferIndex].end())
     {
-        if(auto index = doBeginEdit(bufferIndex, id); index != -1)
+        if(auto index = doBeginEdit(hostBufferIndex, id); index != -1)
         {
-            if(auto performEditResult = doPerformEdit(bufferIndex, index, normalizedValue, timestamp);
+            if(auto performEditResult = doPerformEdit(hostBufferIndex, index, normalizedValue, timestamp);
                 performEditResult == kResultOk)
             {
                 return doEndEdit(id);
@@ -104,7 +105,7 @@ tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue
         return kResultFalse;
     }
     const auto& [mappingId, mappingIndex] = *iterator;
-    return doPerformEdit(bufferIndex, mappingIndex, normalizedValue, timestamp);
+    return doPerformEdit(hostBufferIndex, mappingIndex, normalizedValue, timestamp);
 }
 
 tresult VST3ComponentHandler::endEdit(ParamID id)
@@ -167,21 +168,21 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
 void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond)
 {
     timestamp_ = switchTimestampInNanosecond;
-    outputParameterChanges_[bufferIndex_].clearPointsInQueue();
-    bufferIndex_ ^= 1; // 0 <-> 1
-    inputParameterChanges_[bufferIndex_].clearPointsInQueue();
+    outputParameterChanges_[hostBufferIndex_].clearPointsInQueue();
+    hostBufferIndex_ ^= 1; // 0 <-> 1
+    inputParameterChanges_[hostBufferIndex_].clearPointsInQueue();
 }
 
 void VST3ComponentHandler::attachToProcessData(Vst::ProcessData& processData)
 {
-    auto bufferIndex = bufferIndex_; // 0 <-> 1
-    processData.inputParameterChanges = &(inputParameterChanges_[bufferIndex]);
-    processData.outputParameterChanges = &(outputParameterChanges_[bufferIndex]);
+    auto pluginBufferIndex = hostBufferIndex_ ^ 1;
+    processData.inputParameterChanges = &(inputParameterChanges_[pluginBufferIndex]);
+    processData.outputParameterChanges = &(outputParameterChanges_[pluginBufferIndex]);
 }
 
 void VST3ComponentHandler::consumeOutputParameterChanges(std::int64_t timestampInNanosecond)
 {
-    auto& outputParameterChanges = outputParameterChanges_[bufferIndex_];
+    auto& outputParameterChanges = outputParameterChanges_[hostBufferIndex_];
     auto* editController = plugin_->editController();
     auto outputParameterChangeCount = outputParameterChanges.getParameterCount();
     for(decltype(outputParameterChangeCount) i = 0; i < outputParameterChangeCount; ++i)
