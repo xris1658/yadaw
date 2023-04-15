@@ -64,4 +64,10 @@ tresult VST3Host::createInstance(char* cid, char* iid_, void** obj)
     }
     return kNoInterface;
 }
+
+Steinberg::Vst::ProcessContext& VST3Host::processContext()
+{
+    static Steinberg::Vst::ProcessContext ret;
+    return ret;
+}
 }
