@@ -45,6 +45,13 @@ Vst::IParamValueQueue* VST3ParameterChanges::getParameterData(int32 index)
 
 Vst::IParamValueQueue* VST3ParameterChanges::addParameterData(const Vst::ParamID& id, int32& index)
 {
+    auto it = std::find_if(parameterValueQueues_.begin(), parameterValueQueues_.end(),
+        [&id](const VST3ParameterValueQueue& queue) { return queue.paramId() == id; });
+    if(it != parameterValueQueues_.end())
+    {
+        index = it - parameterValueQueues_.begin();
+        return &*it;
+    }
     auto ret = parameterValueQueues_.size();
     try
     {

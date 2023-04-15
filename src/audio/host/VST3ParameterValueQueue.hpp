@@ -36,6 +36,7 @@ public:
     // It's the producer's responsibility to guarantee that `addPoint` call is sorted.
     tresult addPoint(int32 sampleOffset, Vst::ParamValue value, int32& index) override;
 public:
+    Vst::ParamID paramId() const;
     void clear();
 private:
     Vst::ParamID paramId_;

@@ -60,6 +60,11 @@ tresult VST3ParameterValueQueue::addPoint(int32 sampleOffset, Vst::ParamValue va
     return kOutOfMemory;
 }
 
+Vst::ParamID VST3ParameterValueQueue::paramId() const
+{
+    return paramId_;
+}
+
 void VST3ParameterValueQueue::clear()
 {
     container_.clear();

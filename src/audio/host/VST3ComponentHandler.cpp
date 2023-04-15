@@ -68,24 +68,13 @@ tresult VST3ComponentHandler::doEndEdit(ParamID id)
 tresult VST3ComponentHandler::beginEdit(ParamID id)
 {
     // std::printf("beginEdit(%u)\n", id);
+
     auto bufferIndex = bufferIndex_;
-    auto iterator = std::find_if(mappings_[bufferIndex].begin(), mappings_[bufferIndex].end(),
-        [id](const auto& mapping)
-        {
-            const auto& [mappingId, index] = mapping;
-            return mappingId == id;
-        }
-    );
-    if(iterator == mappings_[bufferIndex].end())
+    if(auto index = doBeginEdit(bufferIndex, id); index != -1)
     {
-        if(auto index = doBeginEdit(bufferIndex, id); index != -1)
-        {
-            mappings_[bufferIndex].emplace_back(id, index);
-            return kResultOk;
-        }
-        return kResultFalse;
+        mappings_[bufferIndex].emplace_back(id, index);
+        return kResultOk;
     }
-    return kResultOk;
 }
 
 tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue)
@@ -178,9 +167,9 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
 void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond)
 {
     timestamp_ = switchTimestampInNanosecond;
+    outputParameterChanges_[bufferIndex_].clearPointsInQueue();
     bufferIndex_ ^= 1; // 0 <-> 1
-    auto bufferIndex = bufferIndex_;
-    inputParameterChanges_[bufferIndex].clearPointsInQueue();
+    inputParameterChanges_[bufferIndex_].clearPointsInQueue();
 }
 
 void VST3ComponentHandler::attachToProcessData(Vst::ProcessData& processData)
