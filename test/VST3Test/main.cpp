@@ -1,5 +1,6 @@
 #include "test/common/PluginWindowThread.hpp"
 
+#include "audio/host/VST3Host.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "native/Native.hpp"
 #include "native/VST3Native.hpp"
@@ -90,6 +91,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
             if(processPlugin)
             {
                 assert(plugin.startProcessing());
+                plugin.setProcessContext(&(YADAW::Audio::Host::VST3Host::processContext()));
                 PluginWindowThread pluginWindowThread(nullptr);
                 // Prepare audio process data {
                 audioProcessData.singleBufferSize = 480;
@@ -187,11 +189,19 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 std::thread audioThread(
                     [&stop, &plugin]()
                     {
-                        plugin.componentHandler()->switchBuffer(YADAW::Native::currentTimeValueInNanosecond());
+                        using Steinberg::Vst::ProcessContext;
+                        auto timestamp = YADAW::Native::currentTimeValueInNanosecond();
+                        plugin.componentHandler()->switchBuffer(timestamp);
+                        auto& processContext = YADAW::Audio::Host::VST3Host::processContext();
+                        processContext.state = ProcessContext::StatesAndFlags::kSystemTimeValid | ProcessContext::StatesAndFlags::kPlaying;
+                        processContext.sampleRate = 48000;
+                        processContext.projectTimeSamples = 0;
                         while(!stop.load(std::memory_order::memory_order_acquire))
                         {
                             auto sleepTo = std::chrono::steady_clock::now() + std::chrono::milliseconds(10);
+                            processContext.systemTime = timestamp;
                             plugin.process(audioProcessData);
+                            processContext.projectTimeSamples += audioProcessData.singleBufferSize;
                             while(std::chrono::steady_clock::now() < sleepTo)
                             {
                                 std::this_thread::yield();
