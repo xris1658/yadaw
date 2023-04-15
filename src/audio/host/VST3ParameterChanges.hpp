@@ -24,9 +24,11 @@ public:
     Vst::IParamValueQueue* addParameterData(const Vst::ParamID& id, int32& index) override;
 public:
     void reserve(std::size_t reserveParameterCount);
-    void clear();
+    void reset();
+    void clearPointsInQueue();
 private:
     std::vector<YADAW::Audio::Host::VST3ParameterValueQueue> parameterValueQueues_;
+    std::int64_t timestampInNanosecond_;
 };
 }
 

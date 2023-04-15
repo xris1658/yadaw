@@ -180,12 +180,7 @@ void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond
     timestamp_ = switchTimestampInNanosecond;
     bufferIndex_ ^= 1; // 0 <-> 1
     auto bufferIndex = bufferIndex_;
-    auto& parameterChanges = inputParameterChanges_[bufferIndex];
-    for(int i = 0; i < parameterChanges.getParameterCount(); ++i)
-    {
-        static_cast<YADAW::Audio::Host::VST3ParameterValueQueue*>(parameterChanges.getParameterData(i))->clear();
-    }
-
+    inputParameterChanges_[bufferIndex].clearPointsInQueue();
 }
 
 void VST3ComponentHandler::attachToProcessData(Vst::ProcessData& processData)
@@ -195,7 +190,7 @@ void VST3ComponentHandler::attachToProcessData(Vst::ProcessData& processData)
     processData.outputParameterChanges = &(outputParameterChanges_[bufferIndex]);
 }
 
-void VST3ComponentHandler::consumeOutputParameterChanges()
+void VST3ComponentHandler::consumeOutputParameterChanges(std::int64_t timestampInNanosecond)
 {
     auto& outputParameterChanges = outputParameterChanges_[bufferIndex_];
     auto* editController = plugin_->editController();

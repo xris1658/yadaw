@@ -58,7 +58,8 @@ public:
 public:
     void switchBuffer(std::int64_t switchTimestampInNanosecond);
     void attachToProcessData(Vst::ProcessData& processData);
-    void consumeOutputParameterChanges();
+    // TODO: Use timestamp
+    void consumeOutputParameterChanges(std::int64_t timestampInNanosecond);
     double sampleRate() const;
 public:
     void reserve();

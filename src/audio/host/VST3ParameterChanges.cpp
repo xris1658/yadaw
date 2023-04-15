@@ -64,8 +64,16 @@ void VST3ParameterChanges::reserve(std::size_t reserveParameterCount)
     parameterValueQueues_.reserve(reserveParameterCount);
 }
 
-void VST3ParameterChanges::clear()
+void VST3ParameterChanges::reset()
 {
     parameterValueQueues_.clear();
+}
+
+void VST3ParameterChanges::clearPointsInQueue()
+{
+    for(auto& queue: parameterValueQueues_)
+    {
+        queue.clear();
+    }
 }
 }
