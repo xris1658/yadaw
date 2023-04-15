@@ -33,7 +33,7 @@ public:
     tresult getPoint(int32 index, int32& sampleOffset, Vst::ParamValue& value) override;
     // This function DOES NOT sort: the output index might be used later, but sorting the container
     // might modify the index, resulting in issues with `getPoint`.
-    // It's the producer / consumer's responsibility to guarantee that `addPoint` call is sorted.
+    // It's the producer's responsibility to guarantee that `addPoint` call is sorted.
     tresult addPoint(int32 sampleOffset, Vst::ParamValue value, int32& index) override;
 public:
     void clear();
