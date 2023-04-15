@@ -191,13 +191,14 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     {
                         using Steinberg::Vst::ProcessContext;
                         auto timestamp = YADAW::Native::currentTimeValueInNanosecond();
-                        plugin.componentHandler()->switchBuffer(timestamp);
                         auto& processContext = YADAW::Audio::Host::VST3Host::processContext();
                         processContext.state = ProcessContext::StatesAndFlags::kSystemTimeValid | ProcessContext::StatesAndFlags::kPlaying;
                         processContext.sampleRate = 48000;
                         processContext.projectTimeSamples = 0;
+                        // Audio callback goes here...
                         while(!stop.load(std::memory_order::memory_order_acquire))
                         {
+                            plugin.componentHandler()->switchBuffer(timestamp);
                             auto sleepTo = std::chrono::steady_clock::now() + std::chrono::milliseconds(10);
                             processContext.systemTime = timestamp;
                             plugin.process(audioProcessData);
