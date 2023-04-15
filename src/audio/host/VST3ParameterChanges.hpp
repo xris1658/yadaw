@@ -28,7 +28,6 @@ public:
     void clearPointsInQueue();
 private:
     std::vector<YADAW::Audio::Host::VST3ParameterValueQueue> parameterValueQueues_;
-    std::int64_t timestampInNanosecond_;
 };
 }
 
