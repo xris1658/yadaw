@@ -77,8 +77,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/CLAPPluginGUI.hpp
     src/audio/plugin/CLAPPluginParameter.cpp
     src/audio/plugin/CLAPPluginParameter.hpp
-    src/audio/plugin/IParameter.hpp
     src/audio/plugin/IAudioPlugin.hpp
+    src/audio/plugin/IParameter.hpp
     src/audio/plugin/IPluginGUI.hpp
     src/audio/plugin/IPluginParameter.hpp
     src/audio/plugin/VST3AudioChannelGroup.cpp

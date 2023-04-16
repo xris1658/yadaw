@@ -4,6 +4,7 @@
 #include "audio/host/VST3ComponentHandler.hpp"
 #include "audio/plugin/IAudioPlugin.hpp"
 #include "audio/plugin/VST3AudioChannelGroup.hpp"
+#include "audio/plugin/VST3EventProcessor.hpp"
 #include "audio/plugin/VST3PluginGUI.hpp"
 #include "audio/plugin/VST3PluginParameter.hpp"
 
@@ -61,6 +62,7 @@ public:
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
 public:
     YADAW::Audio::Host::VST3ComponentHandler* componentHandler();
+    YADAW::Audio::Plugin::VST3EventProcessor* eventProcessor();
 private:
     void prepareAudioRelatedInfo();
     void clearAudioRelatedInfo();
@@ -93,6 +95,7 @@ private:
     std::unique_ptr<VST3PluginGUI> gui_;
     std::unique_ptr<VST3PluginParameter> parameter_;
     std::unique_ptr<YADAW::Audio::Host::VST3ComponentHandler> componentHandler_;
+    std::unique_ptr<YADAW::Audio::Plugin::VST3EventProcessor> eventProcessor_;
 };
 }
 

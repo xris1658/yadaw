@@ -144,6 +144,7 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         return false;
     }
     status_ = IAudioPlugin::Status::Initialized;
+    eventProcessor_ = std::make_unique<VST3EventProcessor>(*component_);
     // TODO: Replace this with self-implemented `IBStream` (not started yet)
     Steinberg::MemoryStream stream;
     if((component_->getState(&stream) == Steinberg::kResultOk) && editController_)
@@ -182,6 +183,7 @@ bool VST3Plugin::uninitialize()
     {
         releasePointer(componentPoint_);
     }
+    eventProcessor_.reset();
     resetProcessData();
     clearAudioRelatedInfo();
     releasePointer(audioProcessor_);
@@ -384,6 +386,11 @@ void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData
 YADAW::Audio::Host::VST3ComponentHandler* VST3Plugin::componentHandler()
 {
     return componentHandler_.get();
+}
+
+YADAW::Audio::Plugin::VST3EventProcessor* VST3Plugin::eventProcessor()
+{
+    return eventProcessor_.get();
 }
 
 void VST3Plugin::prepareAudioRelatedInfo()

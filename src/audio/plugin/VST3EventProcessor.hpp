@@ -8,7 +8,7 @@
 namespace YADAW::Audio::Plugin
 {
 using YADAW::Audio::Event::IEventBusInfo;
-class VST3EventProcessor : public YADAW::Audio::Event::IEventProcessor
+class VST3EventProcessor: public YADAW::Audio::Event::IEventProcessor
 {
 public:
 	VST3EventProcessor(Steinberg::Vst::IComponent& component);
