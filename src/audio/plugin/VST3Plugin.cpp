@@ -115,12 +115,12 @@ const Steinberg::Vst::ProcessSetup& VST3Plugin::processSetup()
 
 bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 {
-    createEditController();
-    initializeEditController();
     if(component_->initialize(&YADAW::Audio::Host::VST3Host::instance()) != Steinberg::kResultOk)
     {
         return false;
     }
+    createEditController();
+    initializeEditController();
     if(queryInterface(component_, &audioProcessor_) != Steinberg::kResultOk)
     {
         return false;
