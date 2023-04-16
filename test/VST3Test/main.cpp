@@ -321,7 +321,7 @@ int main(int argc, char* argv[])
         {
             QGuiApplication application(argc, argv);
             const auto& record = YADAW::DAO::selectPluginById(id);
-            std::printf("\nTesting plugin: %ls...\n", reinterpret_cast<const char16_t*>(record.path.data()));
+            std::printf("\nTesting plugin: %ls...\n", reinterpret_cast<const wchar_t*>(record.path.data()));
             library = YADAW::Native::Library(record.path);
             auto plugin = YADAW::Native::createVST3FromLibrary(library);
             std::memcpy(tuid, record.uid.data(), 16);

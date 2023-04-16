@@ -21,7 +21,7 @@ VST3EventProcessor::VST3EventProcessor(Steinberg::Vst::IComponent& component) :
     for(int i = 0; i < outputCount; ++i)
     {
         component_->getBusInfo(MediaTypes::kEvent, BusDirections::kOutput,
-            i, eventInputBusInfoGroup_[i]);
+            i, eventOutputBusInfoGroup_[i]);
         output_.emplace_back(eventOutputBusInfoGroup_[i]);
     }
 }
