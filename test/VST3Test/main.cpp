@@ -198,7 +198,13 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                         // Audio callback goes here...
                         while(!stop.load(std::memory_order::memory_order_acquire))
                         {
-                            plugin.componentHandler()->switchBuffer(timestamp);
+                            auto componentHandler = plugin.componentHandler();
+                            if(!componentHandler)
+                            {
+                                std::wprintf(L"Component handler is not available!\n");
+                                break;
+                            }
+                            componentHandler->switchBuffer(timestamp);
                             auto sleepTo = std::chrono::steady_clock::now() + std::chrono::milliseconds(10);
                             processContext.systemTime = timestamp;
                             plugin.process(audioProcessData);
