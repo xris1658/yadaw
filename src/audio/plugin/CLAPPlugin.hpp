@@ -3,6 +3,7 @@
 
 #include "audio/host/CLAPHost.hpp"
 #include "audio/plugin/CLAPAudioChannelGroup.hpp"
+#include "audio/plugin/CLAPEventProcessor.hpp"
 #include "audio/plugin/CLAPPluginGUI.hpp"
 #include "audio/plugin/CLAPPluginParameter.hpp"
 #include "audio/plugin/IAudioPlugin.hpp"
@@ -11,6 +12,7 @@
 #include <clap/plugin.h>
 #include <clap/audio-buffer.h>
 #include <clap/ext/audio-ports.h>
+#include <clap/ext/note-ports.h>
 #include <clap/ext/gui.h>
 #include <clap/ext/latency.h>
 #include <clap/ext/params.h>
@@ -57,6 +59,7 @@ private:
     void prepareProcessData();
     void resetProcessData();
 public:
+    CLAPEventProcessor* eventProcessor();
     clap_process& processData();
     YADAW::Audio::Host::CLAPHost& host();
     void calledOnMainThread();
@@ -68,6 +71,7 @@ private:
     const clap_plugin_factory* factory_ = nullptr;
     const clap_plugin* plugin_ = nullptr;
     const clap_plugin_audio_ports* audioPorts_ = nullptr;
+    const clap_plugin_note_ports* notePorts_ = nullptr;
     const clap_plugin_latency* latency_ = nullptr;
     double sampleRate_ = 0;
     std::int32_t minBlockSize_ = 1;
@@ -88,6 +92,7 @@ private:
         nullptr,
         nullptr
     };
+    std::unique_ptr<CLAPEventProcessor> eventProcessor_;
     std::unique_ptr<CLAPPluginGUI> gui_;
     std::unique_ptr<CLAPPluginParameter> parameter_;
 };

@@ -71,6 +71,10 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VST3ParameterValueQueue.hpp
     src/audio/plugin/CLAPAudioChannelGroup.cpp
     src/audio/plugin/CLAPAudioChannelGroup.hpp
+    src/audio/plugin/CLAPEventBusInfo.cpp
+    src/audio/plugin/CLAPEventBusInfo.hpp
+    src/audio/plugin/CLAPEventProcessor.cpp
+    src/audio/plugin/CLAPEventProcessor.hpp
     src/audio/plugin/CLAPPlugin.cpp
     src/audio/plugin/CLAPPlugin.hpp
     src/audio/plugin/CLAPPluginGUI.cpp

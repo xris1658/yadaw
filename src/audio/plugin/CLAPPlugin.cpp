@@ -86,6 +86,11 @@ bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         {
             return false;
         }
+        getExtension(plugin_, CLAP_EXT_NOTE_PORTS, &notePorts_);
+        if(notePorts_)
+        {
+            eventProcessor_ = std::make_unique<CLAPEventProcessor>(*plugin_, *notePorts_);
+        }
         getExtension(plugin_, CLAP_EXT_LATENCY, &latency_);
         sampleRate_ = sampleRate;
         maxBlockSize_ = maxSampleCount;
@@ -100,6 +105,7 @@ bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 
 bool CLAPPlugin::uninitialize()
 {
+    eventProcessor_.reset();
     gui_.reset();
     parameter_.reset();
     if(plugin_)
@@ -262,6 +268,11 @@ void CLAPPlugin::prepareProcessData()
 void CLAPPlugin::resetProcessData()
 {
     processData_ = {};
+}
+
+CLAPEventProcessor* CLAPPlugin::eventProcessor()
+{
+    return eventProcessor_.get();
 }
 
 clap_process& CLAPPlugin::processData()

@@ -188,6 +188,51 @@ int main(int argc, char* argv[])
             }
         }
         std::printf("\n");
+        auto eventProcessor = plugin.eventProcessor();
+        if(eventProcessor)
+        {
+            auto eventInputCount = eventProcessor->eventInputBusCount();
+            std::printf("%u event input(s)", eventInputCount);
+            if(eventInputCount != 0)
+            {
+                std::printf(":");
+                for(std::uint32_t i = 0; i < eventInputCount; ++i)
+                {
+                    const auto& busInfo = eventProcessor->eventInputBusAt(i);
+                    if(busInfo->isMain())
+                    {
+                        std::printf("\n> ");
+                    }
+                    else
+                    {
+                        std::printf("\n  ");
+                    }
+                    std::printf("%u: %ls (%u channels)", i + 1, reinterpret_cast<wchar_t*>(busInfo->name().data()),
+                        busInfo->channelCount());
+                }
+            }
+            auto eventOutputCount = eventProcessor->eventOutputBusCount();
+            std::printf("\n%u event output(s)", eventOutputCount);
+            if(eventOutputCount != 0)
+            {
+                std::printf(":");
+                for(std::uint32_t i = 0; i < eventOutputCount; ++i)
+                {
+                    const auto& busInfo = eventProcessor->eventOutputBusAt(i);
+                    if(busInfo->isMain())
+                    {
+                        std::printf("\n> ");
+                    }
+                    else
+                    {
+                        std::printf("\n  ");
+                    }
+                    std::printf("%u: %ls (%u channels)", i + 1, reinterpret_cast<wchar_t*>(busInfo->name().data()),
+                        busInfo->channelCount());
+                }
+            }
+            std::printf("\n");
+        }
         assert(plugin.activate());
         assert(plugin.startProcessing());
         PluginWindowThread pluginWindowThread(nullptr);
