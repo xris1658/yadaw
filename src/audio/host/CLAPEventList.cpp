@@ -1,5 +1,7 @@
 #include "CLAPEventList.hpp"
 
+#include "util/Algorithm.hpp"
+
 #include <cstdlib>
 
 namespace YADAW::Audio::Host
@@ -93,6 +95,13 @@ void CLAPEventList::flip()
 
 void CLAPEventList::attachToProcessData(clap_process& process)
 {
+    auto& inputEventList = inputEventLists_[pluginBufferIndex_];
+    YADAW::Util::insertionSort(inputEventList.begin(), inputEventList.end(),
+        [](const EventUniquePointer& lhs, const EventUniquePointer& rhs)
+        {
+            return lhs->time < rhs->time;
+        }
+    );
     process.in_events = &inputEvents_;
     process.out_events = &outputEvents_;
 }

@@ -30,9 +30,12 @@ public:
 };
 }
 
+
 class CLAPEventList
 {
+public:
     using EventUniquePointer = std::unique_ptr<clap_event_header, Impl::EventDeleter>;
+    using CircularDequeType = YADAW::Util::FixedSizeCircularDeque<EventUniquePointer, 4096>;
 public:
     CLAPEventList();
     ~CLAPEventList();
@@ -55,8 +58,8 @@ private:
     int pluginBufferIndex_ = 0;
     clap_input_events inputEvents_;
     clap_output_events outputEvents_;
-    YADAW::Util::FixedSizeCircularDeque<EventUniquePointer, 4096> inputEventLists_[2];
-    YADAW::Util::FixedSizeCircularDeque<EventUniquePointer, 4096> outputEventLists_[2];
+    CircularDequeType inputEventLists_[2];
+    CircularDequeType outputEventLists_[2];
 };
 }
 

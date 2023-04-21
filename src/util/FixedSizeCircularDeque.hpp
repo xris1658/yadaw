@@ -2,7 +2,10 @@
 #define YADAW_UTIL_CIRCULARDEQUE
 
 #include <array>
+#include <cassert>
+#include <iterator>
 #include <stdexcept>
+#include <type_traits>
 
 namespace YADAW::Util
 {
@@ -10,6 +13,100 @@ template<typename T, std::size_t Capacity>
 class FixedSizeCircularDeque
 {
     using Self = FixedSizeCircularDeque<T, Capacity>;
+public:
+    class ConstIterator;
+    class Iterator
+    {
+        friend class FixedSizeCircularDeque<T, Capacity>;
+        friend class ConstIterator;
+    public:
+        Iterator() : container_(nullptr), index_(0) {}
+    private:
+        Iterator(Self& container, std::size_t index) : container_(&container), index_(index) {}
+    public:
+        Iterator(const Iterator&) = default;
+        Iterator(Iterator&&) noexcept = default;
+        Iterator& operator=(Iterator rhs)
+        {
+            std::swap(container_, rhs.container_);
+            std::swap(index_, rhs.index_);
+            return *this;
+        }
+        ~Iterator() noexcept = default;
+    public:
+        const T& operator*() const { assert(index_ < container_->size()); return (*container_)[index_]; };
+        T& operator*() { return const_cast<T&>(static_cast<const Iterator&>(*this).operator*()); }
+        const T* operator->() const { return &(operator*()); }
+        T* operator->() { return const_cast<T*>(static_cast<const Self&>(*this).operator->()); }
+    public:
+        bool operator==(const Iterator& rhs) const { return container_ == rhs.container_ && index_ == rhs.index_; }
+        bool operator!=(const Iterator& rhs) const { return !(*this == rhs); }
+        bool operator<(const Iterator& rhs) const { assert(container_ == rhs.container_); return index_ < rhs.index_; }
+        bool operator>(const Iterator& rhs) const { return rhs < *this; }
+        bool operator<=(const Iterator& rhs) const { return !(rhs < *this); }
+        bool operator>=(const Iterator& rhs) const { return !(*this < rhs); }
+    public:
+        const Iterator& operator++() { ++index_; return *this; }
+        const Iterator       operator++(int) { auto ret = *this; operator++(); return ret; }
+        const Iterator& operator--() { --index_; return *this; }
+        const Iterator       operator--(int) { auto ret = *this; operator++(); return ret; }
+        const Iterator& operator+=(std::size_t offset) { index_ += offset; return *this; }
+        const Iterator& operator-=(std::size_t offset) { index_ -= offset; return *this; }
+        const Iterator       operator+(std::size_t offset) const { return { container_, index_ + offset }; }
+        const Iterator       operator-(std::size_t offset) const { return { container_, index_ - offset }; }
+        std::ptrdiff_t operator-(const Iterator& rhs) const { return index_ - rhs.index_; } // FIXME: Deal with overflow
+    private:
+        Self* container_;
+        std::size_t index_;
+    };
+    class ConstIterator
+    {
+        friend class FixedSizeCircularDeque<T, Capacity>;
+    public:
+        ConstIterator() : container_(nullptr), index_(0) {}
+    private:
+        ConstIterator(Self& container, std::size_t index) : container_(&container), index_(index) {}
+    public:
+        ConstIterator(const ConstIterator&) = default;
+        ConstIterator(const Iterator& rhs): container_(rhs.container_), index_(rhs.index_) {}
+        ConstIterator(ConstIterator&&) noexcept = default;
+        ConstIterator& operator=(ConstIterator rhs)
+        {
+            std::swap(container_, rhs.container_);
+            std::swap(index_, rhs.index_);
+            return *this;
+        }
+        ConstIterator& operator=(Iterator rhs)
+        {
+            std::swap(container_, rhs.container_);
+            std::swap(index_, rhs.index_);
+            return *this;
+        }
+        ~ConstIterator() noexcept = default;
+    public:
+        const T& operator*() const { return (*container_)[index_]; };
+        const T* operator->() const { return &(operator*()); }
+    public:
+        bool operator==(const ConstIterator& rhs) const { return container_ == rhs.container_ && index_ == rhs.index_; }
+        bool operator!=(const ConstIterator& rhs) const { return !(*this == rhs); }
+        bool operator<(const ConstIterator& rhs) const { assert(container_ == rhs.container_); return index_ < rhs.index_; }
+        bool operator>(const ConstIterator& rhs) const { return rhs < *this; }
+        bool operator<=(const ConstIterator& rhs) const { return !(rhs < *this); }
+        bool operator>=(const ConstIterator& rhs) const { return !(*this < rhs); }
+    public:
+        const ConstIterator&      operator++() { ++index_; return *this; }
+        const ConstIterator       operator++(int) { auto ret = *this; operator++(); return ret; }
+        const ConstIterator&      operator--() { --index_; return *this; }
+        const ConstIterator       operator--(int) { auto ret = *this; operator++(); return ret; }
+        const ConstIterator&      operator-=(std::size_t offset) { index_ -= offset; return *this; }
+        const ConstIterator&      operator+=(std::size_t offset) { index_ += offset; return *this; }
+        const ConstIterator       operator+(std::size_t offset) const { return { container_, index_ + offset }; }
+        const ConstIterator       operator-(std::size_t offset) const { return { container_, index_ - offset }; }
+        std::ptrdiff_t operator-(const Iterator& rhs) const { return index_ - rhs.index_; } // FIXME: Deal with overflow
+    private:
+        Self* container_;
+        std::size_t index_;
+    };
 public:
     FixedSizeCircularDeque(): data_()
     {
@@ -21,6 +118,22 @@ public:
     Self& operator=(Self&& rhs) noexcept = default;
     ~FixedSizeCircularDeque() noexcept = default;
 public:
+    Iterator begin() noexcept
+    {
+        return Iterator(*this, 0);
+    }
+    Iterator end() noexcept
+    {
+        return Iterator(*this, count_);
+    }
+    ConstIterator cbegin() const noexcept
+    {
+        return ConstIterator(*this, 0);
+    }
+    ConstIterator cend() const noexcept
+    {
+        return ConstIterator(*this, count_);
+    }
     const T& front() const
     {
         return operator[](0);
@@ -184,9 +297,12 @@ public:
     }
     void clear()
     {
-        for(decltype(count_) i = 0; i < count_; ++i)
+        if constexpr(!std::is_trivially_destructible_v<T>)
         {
-            (&(operator[](i)))->~T();
+            for(decltype(count_) i = 0; i < count_; ++i)
+            {
+                (&(operator[](i)))->~T();
+            }
         }
         count_ = 0;
     }

@@ -1,6 +1,8 @@
+#include "util/Algorithm.hpp"
 #include "util/CircularDeque.hpp"
 #include "util/FixedSizeCircularDeque.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdio>
 
@@ -64,9 +66,21 @@ void fixedSizeCircularDequeTest()
     }
 }
 
+void insertionSortFSCQ()
+{
+    YADAW::Util::FixedSizeCircularDeque<int, 32> fscq;
+    for(int i = 0; i < 16; ++i)
+    {
+        fscq.emplaceBack((i * 13) % 16);
+    }
+    YADAW::Util::insertionSort(fscq.begin(), fscq.end(), [](const int& a, const int& b) { return a < b; });
+    assert(std::is_sorted(fscq.begin(), fscq.end()));
+}
+
 int main()
 {
     circularDequeTest();
     std::printf("\n\n");
     fixedSizeCircularDequeTest();
+    insertionSortFSCQ();
 }
