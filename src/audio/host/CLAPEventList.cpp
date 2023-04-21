@@ -54,6 +54,7 @@ bool CLAPEventList::doTryPush(const clap_event_header* event)
     {
         return false;
     }
+    // TODO: Use memory pool
     auto copy = reinterpret_cast<clap_event_header*>(std::malloc(event->size));
     outputEventList.pushBack(std::move(EventUniquePointer(copy, Impl::EventDeleter())));
     return true;
@@ -66,6 +67,7 @@ bool CLAPEventList::pushBackEvent(const clap_event_header* event)
     {
         return false;
     }
+    // TODO: Use memory pool
     auto copy = reinterpret_cast<clap_event_header*>(std::malloc(event->size));
     std::memcpy(copy, event, event->size);
     inputEventList.pushBack(std::move(EventUniquePointer(copy, Impl::EventDeleter())));

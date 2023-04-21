@@ -30,7 +30,9 @@ public:
 };
 }
 
-
+// QUES: Triple buffer is probably a better choice:
+//  Input buffer  (host):   Enqueue events -> attach to process data -> GC
+//  Output buffer (plugin): Enqueue events -> read queue             -> GC
 class CLAPEventList
 {
 public:
