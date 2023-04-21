@@ -1,6 +1,8 @@
 #ifndef YADAW_PCH_WINDOWSAPI
 #define YADAW_PCH_WINDOWSAPI
 
+#define NOMINMAX
+
 // Windows API
 #if(WIN32)
 #include <Windows.h>
