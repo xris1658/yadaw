@@ -44,8 +44,8 @@ public:
 private:
     static std::uint32_t size(const clap_input_events* list);
     static const clap_event_header* get(const clap_input_events* list, std::uint32_t index);
-    std::uint32_t doSize();
-    const clap_event_header* doGet(std::uint32_t index);
+    std::uint32_t doSize() const;
+    const clap_event_header* doGet(std::uint32_t index) const;
 private:
     static bool tryPush(const clap_output_events* list, const clap_event_header* event);
     bool doTryPush(const clap_event_header* event);

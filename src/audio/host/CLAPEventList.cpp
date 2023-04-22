@@ -27,12 +27,12 @@ const clap_event_header* CLAPEventList::get(const clap_input_events* list, std::
     return reinterpret_cast<CLAPEventList*>(list->ctx)->doGet(index);
 }
 
-std::uint32_t CLAPEventList::doSize()
+std::uint32_t CLAPEventList::doSize() const
 {
     return inputEventLists_[pluginBufferIndex_].size();
 }
 
-const clap_event_header* CLAPEventList::doGet(std::uint32_t index)
+const clap_event_header* CLAPEventList::doGet(std::uint32_t index) const
 {
     auto& inputEventList = inputEventLists_[pluginBufferIndex_];
     if(index < inputEventList.size())
