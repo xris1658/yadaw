@@ -189,8 +189,6 @@ set(YADAW_COMMON_SOURCES
     src/native/Native.hpp
     src/native/VST3Native.cpp
     src/native/VST3Native.hpp
-    src/native/WindowsDarkModeSupport.cpp
-    src/native/WindowsDarkModeSupport.hpp
     src/native/winrt/Forward.hpp
     src/native/winrt/QStringFromHString.cpp
     src/native/winrt/QStringFromHString.hpp
@@ -266,7 +264,7 @@ target_link_libraries(YADAW PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
                       ade
-                      version ole32 dwmapi
+                      version ole32
                       windowsapp
                       base pluginterfaces sdk_common sdk_hosting
                       unofficial::sqlite3::sqlite3
@@ -275,7 +273,7 @@ target_link_libraries(YADAW PRIVATE
 target_link_libraries(CLAPTest PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
-                      version ole32 dwmapi
+                      version ole32
                       windowsapp
                       base pluginterfaces sdk_common sdk_hosting
                       unofficial::sqlite3::sqlite3
@@ -284,7 +282,7 @@ target_link_libraries(CLAPTest PRIVATE
 target_link_libraries(PluginDirectoryScanTest PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
-                      version ole32 dwmapi
+                      version ole32
                       windowsapp
                       base pluginterfaces sdk_common sdk_hosting
                       unofficial::sqlite3::sqlite3
@@ -293,7 +291,7 @@ target_link_libraries(PluginDirectoryScanTest PRIVATE
 target_link_libraries(PluginScanTest PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
-                      version ole32 dwmapi
+                      version ole32
                       windowsapp
                       base pluginterfaces sdk_common sdk_hosting
                       unofficial::sqlite3::sqlite3
@@ -302,7 +300,7 @@ target_link_libraries(PluginScanTest PRIVATE
 target_link_libraries(VST3Test PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
-                      version ole32 dwmapi
+                      version ole32
                       windowsapp
                       base pluginterfaces sdk_common sdk_hosting
                       unofficial::sqlite3::sqlite3

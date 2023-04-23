@@ -87,8 +87,4 @@ Window {
     Component.onCompleted: {
         buttonOk.forceActiveFocus();
     }
-    onClosing: {
-        EventSender.darkModeSupportWindow = root;
-        EventSender.removeWindowForDarkModeSupport();
-    }
 }

@@ -5,8 +5,6 @@ QtObject {
     property Window darkModeSupportWindow: null
     signal startInitializingApplication()
     signal mainWindowClosing()
-    signal addWindowForDarkModeSupport()
-    signal removeWindowForDarkModeSupport()
     signal locatePathInExplorer(path: string)
     signal startPluginScan()
     signal setSystemFontRendering(enabled: bool)

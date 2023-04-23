@@ -4,7 +4,6 @@
 #include "event/EventHandler.hpp"
 #include "event/SplashScreenWorkerThread.hpp"
 #include "model/ModelInitializer.hpp"
-#include "native/WindowsDarkModeSupport.hpp"
 #include "ui/UI.hpp"
 
 #include <QFont>
@@ -48,7 +47,6 @@ int main(int argc, char *argv[])
             else if(objUrl == url)
             {
                 YADAW::UI::mainWindow = qobject_cast<QQuickWindow*>(obj);
-                YADAW::Native::WindowsDarkModeSupport::instance()->addWindow(qobject_cast<QWindow*>(obj));
             }
         }, Qt::DirectConnection);
     YADAW::Controller::initializeApplicationConfig();
@@ -104,6 +102,5 @@ int main(int argc, char *argv[])
     // engine.load(url);
     // eventHandler.setQtVersion(QString(qVersion()));
     auto ret = app.exec();
-    YADAW::Native::WindowsDarkModeSupport::instance().reset();
     return ret;
 }

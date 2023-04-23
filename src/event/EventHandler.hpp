@@ -23,8 +23,6 @@ public slots:
     void onStartInitializingApplication();
     void onOpenMainWindow();
     void onMainWindowClosing();
-    void onAddWindowForDarkModeSupport();
-    void onRemoveWindowForDarkModeSupport();
     void onLocateFileInExplorer(const QString& path);
     void onStartPluginScan();
     void onSetSystemFontRendering(bool enabled);

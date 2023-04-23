@@ -67,8 +67,6 @@ Window {
             let component = Qt.createComponent("ThirdPartySoftware.qml");
             if(component.status === Component.Ready) {
                 let window = component.createObject(root);
-                EventSender.darkModeSupportWindow = window;
-                EventSender.addWindowForDarkModeSupport();
                 window.showNormal();
             }
         }
@@ -85,9 +83,5 @@ Window {
 
     Component.onCompleted: {
         buttonOk.forceActiveFocus();
-    }
-    onClosing: {
-        EventSender.darkModeSupportWindow = root;
-        EventSender.removeWindowForDarkModeSupport();
     }
 }

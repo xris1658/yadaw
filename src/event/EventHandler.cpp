@@ -11,7 +11,6 @@
 #include "controller/LocalizationController.hpp"
 #include "event/EventBase.hpp"
 #include "native/Native.hpp"
-#include "native/WindowsDarkModeSupport.hpp"
 #include "ui/MessageDialog.hpp"
 #include "ui/UI.hpp"
 
@@ -36,10 +35,6 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onStartInitializingApplication()));
     QObject::connect(sender, SIGNAL(mainWindowClosing()),
         this, SLOT(onMainWindowClosing()));
-    QObject::connect(sender, SIGNAL(addWindowForDarkModeSupport()),
-        this, SLOT(onAddWindowForDarkModeSupport()));
-    QObject::connect(sender, SIGNAL(removeWindowForDarkModeSupport()),
-        this, SLOT(onRemoveWindowForDarkModeSupport()));
     QObject::connect(sender, SIGNAL(locatePathInExplorer(QString)),
         this, SLOT(onLocateFileInExplorer(QString)));
     QObject::connect(sender, SIGNAL(startPluginScan()),
@@ -108,20 +103,7 @@ void EventHandler::onOpenMainWindow()
 void EventHandler::onMainWindowClosing()
 {
     YADAW::Controller::appAudioGraphBackend().uninitialize();
-    YADAW::Native::WindowsDarkModeSupport::instance().reset();
     mainWindowCloseAccepted();
-}
-
-void EventHandler::onAddWindowForDarkModeSupport()
-{
-    QObject* object = eventSender_->property("darkModeSupportWindow").value<QObject*>();
-    YADAW::Native::WindowsDarkModeSupport::instance()->addWindow(qobject_cast<QWindow*>(object));
-}
-
-void EventHandler::onRemoveWindowForDarkModeSupport()
-{
-    QObject* object = eventSender_->property("darkModeSupportWindow").value<QObject*>();
-    YADAW::Native::WindowsDarkModeSupport::instance()->removeWindow(qobject_cast<QWindow*>(object));
 }
 
 void EventHandler::onLocateFileInExplorer(const QString& path)
