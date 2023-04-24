@@ -57,6 +57,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/CLAPEventList.hpp
     src/audio/host/CLAPHost.cpp
     src/audio/host/CLAPHost.hpp
+    src/audio/host/VestifalCallback.cpp
+    src/audio/host/VestifalCallback.hpp
     src/audio/host/VST3AttributeList.cpp
     src/audio/host/VST3AttributeList.hpp
     src/audio/host/VST3ComponentHandler.cpp
@@ -85,6 +87,10 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/IParameter.hpp
     src/audio/plugin/IPluginGUI.hpp
     src/audio/plugin/IPluginParameter.hpp
+    src/audio/plugin/VestifalPlugin.cpp
+    src/audio/plugin/VestifalPlugin.hpp
+    src/audio/plugin/VestifalPluginGUI.cpp
+    src/audio/plugin/VestifalPluginGUI.hpp
     src/audio/plugin/VST3AudioChannelGroup.cpp
     src/audio/plugin/VST3AudioChannelGroup.hpp
     src/audio/plugin/VST3EventBusInfo.cpp
@@ -222,7 +228,7 @@ set(YADAW_COMMON_SOURCES
     src/util/SineFunction.cpp
     src/util/SineFunction.hpp
     src/util/Stopwatch.hpp
-    )
+    src/audio/plugin/VestifalPlugin.cpp src/audio/plugin/VestifalPlugin.hpp)
 
 qt_add_executable(YADAW
                   rc/YADAW.rc
@@ -240,6 +246,11 @@ add_executable(PluginDirectoryScanTest ${YADAW_COMMON_SOURCES}
 
 add_executable(PluginScanTest ${YADAW_COMMON_SOURCES}
     test/PluginScanTest/main.cpp)
+
+add_executable(VestifalPluginTest ${YADAW_COMMON_SOURCES}
+               test/common/PluginWindowThread.hpp
+               test/common/PluginWindowThread.cpp
+               test/VestifalPluginTest/main.cpp)
 
 add_executable(VST3Test ${YADAW_COMMON_SOURCES}
                test/common/PluginWindowThread.hpp
@@ -289,6 +300,15 @@ target_link_libraries(PluginDirectoryScanTest PRIVATE
                       yaml-cpp)
 
 target_link_libraries(PluginScanTest PRIVATE
+                      Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
+                      contentplugin
+                      version ole32
+                      windowsapp
+                      base pluginterfaces sdk_common sdk_hosting
+                      unofficial::sqlite3::sqlite3
+                      yaml-cpp)
+
+target_link_libraries(VestifalPluginTest PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
                       version ole32

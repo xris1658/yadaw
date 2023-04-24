@@ -22,7 +22,8 @@ public:
     enum class Format
     {
         VST3,
-        CLAP
+        CLAP,
+        Vestifal
     };
 public:
     virtual bool initialize(double sampleRate, std::int32_t maxSampleCount) = 0;
