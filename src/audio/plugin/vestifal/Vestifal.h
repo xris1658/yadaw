@@ -2,6 +2,8 @@
 #define YADAW_SRC_AUDIO_PLUGIN_VESTIFAL_VESTIFAL
 
 // Vestifal: FST and VeSTige combined
+// FST: https://git.iem.at/zmoelnig/FST
+// VeSTige: https://github.com/LMMS/lmms/blob/master/include/aeffectx.h
 
 #ifdef __cplusplus
 extern "C"
