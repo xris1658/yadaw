@@ -42,6 +42,7 @@ bool VestifalPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 
 bool VestifalPlugin::uninitialize()
 {
+    gui_.reset();
     status_ = Status::Created;
     return true;
 }
@@ -90,6 +91,7 @@ IPluginGUI* VestifalPlugin::gui()
     {
         gui_ = std::make_unique<VestifalPluginGUI>(*effect_);
     }
+    return gui_.get();
 }
 
 IPluginParameter* VestifalPlugin::parameter()

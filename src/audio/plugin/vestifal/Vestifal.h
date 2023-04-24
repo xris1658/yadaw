@@ -81,6 +81,23 @@ enum AudioMasterOpcode
     audioMasterGetVendorSpecific = 35,
     audioMasterSetIcon = 36,
 // Input: ptr as char*, return 0 or 1?
+/* The following table shows strings used in `audioMasterCanDo`:
+    | `ptr` as `const char*`                           | related `opcode` guessed from name |
+    |:-------------------------------------------------|:-----------------------------------|
+    | `"sendVstTimeInfo"`<br/>`"receiveVstTimeInfo"`   | `audioMasterGetTime`               |
+    | `"sendVstMidiEvent"`<br/>`"receiveVstMidiEvent"` | `audioMasterProcessEvents`         |
+    | `"sendVstEvents"`<br/>`"receiveVstEvents"`       | `audioMasterProcessEvents`         |
+    | `"offline"`                                      | `audioMasterOffline*`              |
+    | `"sizeWindow"`                                   | `audioMasterSizeWindow`            |
+    | `"openFileSelector"`                             | `audioMasterOpenFileSelector`      |
+    | `"closeFileSelector"`                            | `audioMasterCloseFileSelector`     |
+    | `"supportShell"`                                 | `audioMasterGetCurrentUniqueId`    |
+    | `"supplyIdle"`                                   | `audioMasterIdle`                  |
+    | `"editFile"`                                     | `audioMasterEditFile`              |
+    | `"acceptIOChanges"`                              | `audioMasterIOChanged`             |
+    | `"asyncProcessing"`                              | **unknown**                        |
+    | `"reportConnectionChanges"`                      | **unknown**                        |
+ */
     audioMasterCanDo = 37,
     audioMasterGetLanguage = 38,
     audioMasterOpenWindow = 39,
@@ -245,6 +262,15 @@ enum Language
     LanguageSpanish,
     LanguageJapanese,
     LanguageKorean
+};
+
+enum VestifalProcessLevel
+{
+    ProcessLevelUnknown,
+    ProcessLevel1,
+    ProcessLevelRealtime,
+    ProcessLevel3,
+    ProcessLevelOffline
 };
 
 enum PluginCategory

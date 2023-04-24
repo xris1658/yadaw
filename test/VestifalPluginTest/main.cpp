@@ -6,6 +6,12 @@
 
 #include <cstdint>
 
+std::int32_t uniqueId = 0;
+
+std::thread::id audioThreadId;
+std::thread::id mainThreadId;
+std::thread::id idleThreadId;
+
 std::intptr_t callback(AEffect* effect, std::int32_t opcode, std::int32_t input, std::intptr_t opt, void* ptr, float value)
 {
     std::printf("%d\n", opcode);
@@ -17,7 +23,9 @@ std::intptr_t callback(AEffect* effect, std::int32_t opcode, std::int32_t input,
     case audioMasterVersion:
         return 2400;
     case audioMasterGetCurrentUniqueId:
-        return 0x48454C53;
+        return uniqueId;
+    case audioMasterWantMIDI:
+        return 1;
     case audioMasterGetSampleRate:
         return 48000;
     case audioMasterGetBlockSize:
@@ -29,20 +37,36 @@ std::intptr_t callback(AEffect* effect, std::int32_t opcode, std::int32_t input,
         window->setHeight(opt);
         return 1;
     }
+    case audioMasterGetCurrentProcessLevel:
+    {
+        if(auto threadId = std::this_thread::get_id(); threadId == audioThreadId)
+        {
+            return VestifalProcessLevel::ProcessLevelRealtime;
+        }
+        else
+        {
+            return VestifalProcessLevel::ProcessLevelUnknown;
+        }
+    }
     case audioMasterCanDo:
     {
         std::printf("%s\n", static_cast<const char*>(ptr));
         const auto* canDoString = static_cast<const char*>(ptr);
-        if(std::strcmp(canDoString, "sendVstTimeInfo") == 0
-           || std::strcmp(canDoString, "sendVstMidiEvent") == 0
-           || std::strcmp(canDoString, "receiveVstMidiEvent") == 0
-           || std::strcmp(canDoString, "offline") == 0)
+        if (std::strcmp(canDoString, "sizeWindow") == 0)
         {
-            return 0;
+            return 1;
         }
         return 0;
-
     }
+    case audioMasterGetProductName:
+        std::strcpy(reinterpret_cast<char*>(ptr), "TEST");
+        return 0;
+    case audioMasterGetVendorName:
+        std::strcpy(reinterpret_cast<char*>(ptr), "xris1658");
+        return 0;
+    case audioMasterUpdateDisplay:
+        effect->dispatcher(effect, EffectOpcode::effectEditorIdle, 0, 0, nullptr, 0.0f);
+        return 0;
     }
     return 0;
 }
@@ -50,7 +74,8 @@ std::intptr_t callback(AEffect* effect, std::int32_t opcode, std::int32_t input,
 int main(int argc, char** argv)
 {
     QGuiApplication application(argc, argv);
-    YADAW::Native::Library library("C:\\Program Files\\VstPlugins\\WaveShell1-VST 14.0_x64.dll");
+    mainThreadId = std::this_thread::get_id();
+    YADAW::Native::Library library("C:\\VST64\\VST64\\Grand Piano XXL VST\\Grand Piano XXL.dll");
     auto entry = library.getExport<VestifalEntry>(VESTIFAL_ENTRY_NAME);
     if(!entry)
     {
@@ -91,21 +116,32 @@ int main(int argc, char** argv)
             pOutput[i] = outputs[i].data();
         }
         std::atomic_bool stop{ false };
-        std::thread audioThread([effect, &pInput, &pOutput, &stop]()
+        std::thread idleThread([effect, &stop]()
+        {
+            idleThreadId = std::this_thread::get_id();
+            while(!stop.load(std::memory_order::memory_order_acquire))
             {
-                while (!stop.load(std::memory_order::memory_order_acquire))
+                effect->dispatcher(effect, EffectOpcode::effectEditorIdle, 0, 0, nullptr, 0.0);
+                std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            }
+        });
+        std::thread audioThread([effect, &pInput, &pOutput, &stop]()
+        {
+            audioThreadId = std::this_thread::get_id();
+            while (!stop.load(std::memory_order::memory_order_acquire))
+            {
+                auto sleepUntil = std::chrono::steady_clock::now() + std::chrono::milliseconds(10);
+                effect->processReplacing(effect, pInput.data(), pOutput.data(), 480);
+                while (std::chrono::steady_clock::now() < sleepUntil)
                 {
-                    auto sleepUntil = std::chrono::steady_clock::now() + std::chrono::milliseconds(10);
-                    effect->processReplacing(effect, pInput.data(), pOutput.data(), 480);
-                    while (std::chrono::steady_clock::now() < sleepUntil)
-                    {
-                        std::this_thread::yield();
-                    }
+                    std::this_thread::yield();
                 }
-            });
+            }
+        });
         QGuiApplication::exec();
         stop.store(true, std::memory_order::memory_order_release);
         audioThread.join();
+        idleThread.join();
         effect->dispatcher(effect, EffectOpcode::effectCloseEditor, 0, 0, nullptr, 0.0f);
         effect->dispatcher(effect, EffectOpcode::effectStopProcessing, 0, 0, nullptr, 0.0f);
         effect->dispatcher(effect, EffectOpcode::effectMainsChanges, 0, 0, nullptr, 0.0f);
