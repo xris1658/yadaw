@@ -9,4 +9,5 @@ Major changes include:
 - The name
 - Use Qt 6.5 instead of Qt 5.15.2
 - Use other audio backends; remove ASIO support ([why?](https://github.com/xris1658/musec-legacy/issues/7))
+- Introduce Vestifal: a combination of several reverse-engineered works of VST plugin API
 - ...
