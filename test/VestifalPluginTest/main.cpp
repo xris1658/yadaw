@@ -87,6 +87,9 @@ int main(int argc, char** argv)
         effect->dispatcher(effect, EffectOpcode::effectOpen, 0, 0, nullptr, 0.0f);
         effect->dispatcher(effect, EffectOpcode::effectSetSampleRate, 0, 0, nullptr, 48000.0f);
         effect->dispatcher(effect, EffectOpcode::effectSetBlockSize, 0, 480, nullptr, 0.0f);
+        VestifalSpeakerArrangement* inputSpeakerArrangements;
+        VestifalSpeakerArrangement* outputSpeakerArrangements;
+        effect->dispatcher(effect, EffectOpcode::effectGetSpeakerArrangement, 0, reinterpret_cast<intptr_t>(&inputSpeakerArrangements), &outputSpeakerArrangements, 0.0f);
         PluginWindowThread pluginWindowThread;
         pluginWindowThread.start();
         auto* window = pluginWindowThread.window();

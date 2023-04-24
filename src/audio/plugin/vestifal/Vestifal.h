@@ -167,6 +167,7 @@ enum EffectOpcode
 // 39
 // 40
 // 41
+    // input: opt from VestifalSpeakerArrangement*, ptr from VestifalSpeakerArrangement*
     effectSetSpeakerArrangement = 42,
 // 43
     effectBypass = 44,
@@ -194,6 +195,7 @@ enum EffectOpcode
     effectGetMIDINoteName = 66,
 // 67
 // 68
+    // input: opt from VestifalSpeakerArrangement**, ptr from VestifalSpeakerArrangement**
     effectGetSpeakerArrangement = 69,
     effectShellGetNextPlugin = 70,
     effectStartProcessing = 71,
@@ -388,18 +390,18 @@ struct VestifalParameterProperties
 
 struct VestifalSpeakerProperties
 {
-    float _1;
-    float _2;
-    float _3;
+    float mightBeAzimuth;
+    float mightBeElevation;
+    float mightBeRadius;
     float _4;
     char name[64];
-    uint32_t type;
+    int32_t type;
     char unknown[28];
 };
 
 struct VestifalSpeakerArrangement
 {
-    uint32_t type;
+    uint32_t type; // See `VestifalSpeakerArrangementType`
     int32_t channels;
     VestifalSpeakerProperties speakers[1]; // channels
 };
