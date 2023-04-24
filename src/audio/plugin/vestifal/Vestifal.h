@@ -4,6 +4,7 @@
 // Vestifal: FST and VeSTige combined
 // FST: https://git.iem.at/zmoelnig/FST
 // VeSTige: https://github.com/LMMS/lmms/blob/master/include/aeffectx.h
+// Xaymar/vst2sdk: https://github.com/Xaymar/vst2sdk
 
 #ifdef __cplusplus
 extern "C"
@@ -151,10 +152,11 @@ enum EffectOpcode
     effectCanParameterBeAutomated = 26,
     // Input: index, ptr from char*
     effectStringToParameter = 27,
+// 28
     effectGetProgramNameIndexed = 29,
 // 30
-// 31
-// 32
+    effectInputConnected = 31,
+    effectInputDisconnected = 32,
     effectGetInputProperties = 33,
     effectGetOutputProperties = 34,
     // return PluginCategory
@@ -167,20 +169,20 @@ enum EffectOpcode
 // 41
     effectSetSpeakerArrangement = 42,
 // 43
-// 44
+    effectBypass = 44,
     effectGetEffectName = 45,
-// 46
+    effectGetErrorString = 46,
     effectGetVendorName = 47,
     effectGetProductName = 48,
     effectGetVendorVersion = 49,
     effectGetVendorSpecific = 50,
     effectCanDo = 51,
-// 52
+    effectGetTailSize = 52,
 // 53
 // 54
 // 55
 // 56
-// 57
+    effectGetParameterProperties = 57,
     effectGetVersion = 58,
 // 59
 // 60
@@ -201,6 +203,38 @@ enum EffectOpcode
 // 75
 // 76
     effectSetSamplePrecision = 77
+// 78
+// 79
+};
+
+enum VestifalSpeakerArrangementType
+{
+    SpeakerArrCustom = -2,
+    SpeakerArrUnknown = -1,
+    SpeakerArrMono = 0,
+    SpeakerArrStereo = 1,
+    SpeakerArr51 = 15
+};
+
+enum VestifalSpeakerType
+{
+    SpeakerMono = 0,
+    SpeakerLeft = 1,
+    SpeakerRight = 2,
+    SpeakerCenter = 3,
+    SpeakerLFE = 4,
+    SpeakerLeftSide = 5,
+    SpeakerRightSide = 6
+};
+
+enum VestifalParameterFlag
+{
+    ParameterIsSwitch = 1 << 0,
+    ParameterHasIntegerLimits = 1 << 1,
+    ParameterUsesFloatStepSize = 1 << 2,
+    ParameterUsesIntegerStepSize = 1 << 3,
+    ParameterIndexValid = 1 << 4,
+    ParameterValueAndNameValid = 1 << 5
 };
 
 enum EffectFlag
@@ -331,6 +365,43 @@ struct VestifalRectangle
     int16_t left;
     int16_t bottom;
     int16_t right;
+};
+
+struct VestifalParameterProperties
+{
+    float stepFloat;
+    float stepFloatSmall;
+    float stepFloatLarge;
+    char name[64];
+    uint32_t flags;
+    int32_t minValue;
+    int32_t maxValue;
+    int32_t step;
+    char label[8];
+    uint16_t index;
+    uint16_t category;
+    uint16_t paramCountInCategory;
+    uint16_t parameterPropertiesUnknownFloat;
+    char categoryLabel[24];
+    char parameterPropertiesUnknownBuffer[16];
+};
+
+struct VestifalSpeakerProperties
+{
+    float _1;
+    float _2;
+    float _3;
+    float _4;
+    char name[64];
+    uint32_t type;
+    char unknown[28];
+};
+
+struct VestifalSpeakerArrangement
+{
+    uint32_t type;
+    int32_t channels;
+    VestifalSpeakerProperties speakers[1]; // channels
 };
 
 struct AEffect;
