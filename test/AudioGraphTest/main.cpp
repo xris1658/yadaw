@@ -80,6 +80,7 @@ int main()
     audioGraphBackend.initialize();
     auto outputDeviceCount = audioGraphBackend.audioOutputDeviceCount();
     auto defaultOutputDeviceIndex = audioGraphBackend.defaultAudioOutputDeviceIndex();
+    auto defaultInputDeviceIndex = audioGraphBackend.defaultAudioInputDeviceIndex();
     std::vector<QString> ids;
     for(decltype(outputDeviceCount) i = 0; i < outputDeviceCount; ++i)
     {
@@ -94,7 +95,7 @@ int main()
         }
         if(defaultOutputDeviceIndex == i)
         {
-            std::printf("O ");
+            std::printf("> ");
         }
         else
         {
@@ -150,6 +151,14 @@ int main()
         else
         {
             std::printf("X ");
+        }
+        if(defaultInputDeviceIndex == i)
+        {
+            std::printf("> ");
+        }
+        else
+        {
+            std::printf("  ");
         }
         std::wprintf(L"%d: %s\n", (i + 1),
             reinterpret_cast<const wchar_t*>(info.name.data()));
