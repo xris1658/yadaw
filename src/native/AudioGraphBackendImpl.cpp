@@ -230,8 +230,7 @@ bool AudioGraphBackend::Impl::createAudioGraph()
 
 bool AudioGraphBackend::Impl::createAudioGraph(const DeviceInformation& audioOutputDevice)
 {
-    AudioGraphSettings settings(AudioRenderCategory::Media);
-    settings.DesiredRenderDeviceAudioProcessing(AudioProcessing::Raw);
+    auto settings = createAudioGraphSettings();
     settings.PrimaryRenderDevice(audioOutputDevice);
     auto createGraphResult = asyncResult(AudioGraph::CreateAsync(settings));
     if(createGraphResult.Status() != decltype(createGraphResult.Status())::Success)

@@ -195,7 +195,7 @@ enum EffectOpcode
     effectGetMIDINoteName = 66,
 // 67
 // 68
-    // input: opt from VestifalSpeakerArrangement**, ptr from VestifalSpeakerArrangement**
+    // input: opt from VestifalSpeakerArrangement**, ptr from VestifalSpeakerArrangement**; returns 1 if supported
     effectGetSpeakerArrangement = 69,
     effectShellGetNextPlugin = 70,
     effectStartProcessing = 71,

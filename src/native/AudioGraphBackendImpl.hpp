@@ -62,7 +62,7 @@ public:
     bool createAudioGraph(const DeviceInformation& audioOutputDevice);
     bool isDeviceInputActivated(std::uint32_t deviceInputIndex) const;
     DeviceInputResult activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
-    // This function might fail, in which case returns a invalid DeviceInformation
+    // This function might fail, in which case returns an invalid DeviceInformation
     DeviceInformation currentOutputDevice() const;
     void destroyAudioGraph();
     void start(AudioGraphBackend::AudioCallbackType* callback);
