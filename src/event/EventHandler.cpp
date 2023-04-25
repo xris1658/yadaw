@@ -4,6 +4,7 @@
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
 #include "controller/AudioBackendController.hpp"
+#include "controller/ConfigController.hpp"
 #include "controller/GeneralSettingsController.hpp"
 #include "controller/PluginController.hpp"
 #include "controller/PluginDirectoryController.hpp"
@@ -68,6 +69,11 @@ void EventHandler::onOpenMainWindow()
     auto& backend = YADAW::Controller::appAudioGraphBackend();
     backend.initialize();
     backend.createAudioGraph(); // TODO: Read settings
+    YADAW::Controller::activateDefaultDevice(backend);
+    auto node = YADAW::Controller::deviceStateFromCurrentAudioBackend();
+    auto appConfig = YADAW::Controller::loadConfig();
+    appConfig["audio-hardware"]["audio-graph"] = node;
+    YADAW::Controller::saveConfig(appConfig);
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
     YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",

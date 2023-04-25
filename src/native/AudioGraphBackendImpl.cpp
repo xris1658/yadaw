@@ -53,6 +53,13 @@ inline T asyncResult(winrt::Windows::Foundation::IAsyncOperation<T> asyncOperati
 // #endif
 }
 
+AudioGraphSettings createAudioGraphSettings()
+{
+    AudioGraphSettings ret(AudioRenderCategory::Media);
+    ret.DesiredRenderDeviceAudioProcessing(AudioProcessing::Raw);
+    return ret;
+}
+
 namespace YADAW::Audio::Backend
 {
 namespace Helper
@@ -209,8 +216,7 @@ std::uint32_t AudioGraphBackend::Impl::defaultAudioOutputDeviceIndex() const
 
 bool AudioGraphBackend::Impl::createAudioGraph()
 {
-    AudioGraphSettings settings(AudioRenderCategory::Media);
-    settings.DesiredRenderDeviceAudioProcessing(AudioProcessing::Raw);
+    auto settings = createAudioGraphSettings();
     auto createGraphResult = asyncResult(AudioGraph::CreateAsync(settings));
     if(createGraphResult.Status() != decltype(createGraphResult.Status())::Success)
     {
