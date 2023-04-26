@@ -254,6 +254,16 @@ IAudioPlugin::Status VST3Plugin::status()
     return status_;
 }
 
+std::uint32_t VST3Plugin::tailSizeInSamples()
+{
+    auto ret = audioProcessor_->getTailSamples();
+    if(ret == Steinberg::Vst::kInfiniteTail)
+    {
+        return IAudioPlugin::InfiniteTailSize;
+    }
+    return ret;
+}
+
 IPluginGUI* VST3Plugin::gui()
 {
     return pluginGUI();

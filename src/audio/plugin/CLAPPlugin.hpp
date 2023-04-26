@@ -16,6 +16,7 @@
 #include <clap/ext/gui.h>
 #include <clap/ext/latency.h>
 #include <clap/ext/params.h>
+#include <clap/ext/tail.h>
 #include <clap/factory/plugin-factory.h>
 
 #include <QString>
@@ -44,6 +45,7 @@ public:
     bool stopProcessing() override;
     Format format() override;
     Status status() override;
+    std::uint32_t tailSizeInSamples() override;
     IPluginGUI* gui() override;
     IPluginParameter* parameter() override;
 public:
@@ -73,6 +75,7 @@ private:
     const clap_plugin_audio_ports* audioPorts_ = nullptr;
     const clap_plugin_note_ports* notePorts_ = nullptr;
     const clap_plugin_latency* latency_ = nullptr;
+    const clap_plugin_tail* tail_ = nullptr;
     double sampleRate_ = 0;
     std::int32_t minBlockSize_ = 1;
     std::int32_t maxBlockSize_ = INT32_MAX;

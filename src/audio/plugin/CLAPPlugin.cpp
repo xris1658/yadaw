@@ -92,6 +92,7 @@ bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
             eventProcessor_ = std::make_unique<CLAPEventProcessor>(*plugin_, *notePorts_);
         }
         getExtension(plugin_, CLAP_EXT_LATENCY, &latency_);
+        getExtension(plugin_, CLAP_EXT_TAIL, &tail_);
         sampleRate_ = sampleRate;
         maxBlockSize_ = maxSampleCount;
         // TODO
@@ -158,6 +159,20 @@ IAudioPlugin::Format CLAPPlugin::format()
 IAudioPlugin::Status CLAPPlugin::status()
 {
     return status_;
+}
+
+std::uint32_t CLAPPlugin::tailSizeInSamples()
+{
+    if(tail_)
+    {
+        auto ret = tail_->get(plugin_);
+        if(ret >= INT32_MAX)
+        {
+            return IAudioPlugin::InfiniteTailSize;
+        }
+        return ret;
+    }
+    return 0;
 }
 
 IPluginGUI* CLAPPlugin::gui()

@@ -85,6 +85,11 @@ IAudioPlugin::Status VestifalPlugin::status()
     return status_;
 }
 
+std::uint32_t VestifalPlugin::tailSizeInSamples()
+{
+    return runDispatcher(effect_, EffectOpcode::effectGetTailSize);
+}
+
 IPluginGUI* VestifalPlugin::gui()
 {
     if(effect_ && (effect_->flags & EffectFlag::effectHasEditor))

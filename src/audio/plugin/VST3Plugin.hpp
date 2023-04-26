@@ -44,6 +44,7 @@ public:
     bool stopProcessing() override;
     Format format() override;
     Status status() override;
+    std::uint32_t tailSizeInSamples() override;
     IPluginGUI* gui() override;
     IPluginParameter* parameter() override;
 public:
