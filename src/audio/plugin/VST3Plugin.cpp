@@ -187,13 +187,13 @@ bool VST3Plugin::uninitialize()
     resetProcessData();
     clearAudioRelatedInfo();
     releasePointer(audioProcessor_);
+    uninitializeEditController();
     if(component_->terminate() == Steinberg::kResultOk)
     {
         status_ = IAudioPlugin::Status::Created;
         audioInputBusActivated_.clear();
         audioOutputBusActivated_.clear();
         status_ = IAudioPlugin::Status::Created;
-        uninitializeEditController();
         destroyEditController();
         return true;
     }
