@@ -57,8 +57,6 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/CLAPEventList.hpp
     src/audio/host/CLAPHost.cpp
     src/audio/host/CLAPHost.hpp
-    src/audio/host/VestifalCallback.cpp
-    src/audio/host/VestifalCallback.hpp
     src/audio/host/VST3AttributeList.cpp
     src/audio/host/VST3AttributeList.hpp
     src/audio/host/VST3ComponentHandler.cpp
@@ -71,6 +69,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VST3ParameterChanges.hpp
     src/audio/host/VST3ParameterValueQueue.cpp
     src/audio/host/VST3ParameterValueQueue.hpp
+    src/audio/host/VestifalCallback.cpp
+    src/audio/host/VestifalCallback.hpp
     src/audio/plugin/CLAPAudioChannelGroup.cpp
     src/audio/plugin/CLAPAudioChannelGroup.hpp
     src/audio/plugin/CLAPEventBusInfo.cpp
@@ -87,10 +87,6 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/IParameter.hpp
     src/audio/plugin/IPluginGUI.hpp
     src/audio/plugin/IPluginParameter.hpp
-    src/audio/plugin/VestifalPlugin.cpp
-    src/audio/plugin/VestifalPlugin.hpp
-    src/audio/plugin/VestifalPluginGUI.cpp
-    src/audio/plugin/VestifalPluginGUI.hpp
     src/audio/plugin/VST3AudioChannelGroup.cpp
     src/audio/plugin/VST3AudioChannelGroup.hpp
     src/audio/plugin/VST3EventBusInfo.cpp
@@ -106,6 +102,12 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/VST3PluginGUI.hpp
     src/audio/plugin/VST3PluginParameter.cpp
     src/audio/plugin/VST3PluginParameter.hpp
+    src/audio/plugin/VestifalPlugin.cpp
+    src/audio/plugin/VestifalPlugin.cpp
+    src/audio/plugin/VestifalPlugin.hpp
+    src/audio/plugin/VestifalPlugin.hpp
+    src/audio/plugin/VestifalPluginGUI.cpp
+    src/audio/plugin/VestifalPluginGUI.hpp
     src/audio/util/CLAPUtil.hpp
     src/audio/util/VST3Util.cpp
     src/audio/util/VST3Util.hpp
@@ -195,6 +197,8 @@ set(YADAW_COMMON_SOURCES
     src/native/Native.hpp
     src/native/VST3Native.cpp
     src/native/VST3Native.hpp
+    src/native/VestifalNative.cpp
+    src/native/VestifalNative.hpp
     src/native/winrt/Forward.hpp
     src/native/winrt/QStringFromHString.cpp
     src/native/winrt/QStringFromHString.hpp
@@ -228,7 +232,7 @@ set(YADAW_COMMON_SOURCES
     src/util/SineFunction.cpp
     src/util/SineFunction.hpp
     src/util/Stopwatch.hpp
-    src/audio/plugin/VestifalPlugin.cpp src/audio/plugin/VestifalPlugin.hpp)
+    )
 
 qt_add_executable(YADAW
                   rc/YADAW.rc
