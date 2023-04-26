@@ -60,7 +60,7 @@ bool VST3PluginGUI::detachWithWindow()
     }
     disconnect();
     auto detachResult = plugView_->removed();
-    if(detachResult)
+    if(detachResult == Steinberg::kResultOk)
     {
         window_ = nullptr;
     }
