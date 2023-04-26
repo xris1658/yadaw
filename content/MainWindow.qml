@@ -20,6 +20,7 @@ ApplicationWindow {
     property alias systemFontRendering: preferencesWindow.systemFontRendering
     property alias audioGraphInputDeviceList: preferencesWindow.audioGraphInputDeviceList
     property alias audioGraphOutputDeviceList: preferencesWindow.audioGraphOutputDeviceList
+    property alias audioGraphOutputDeviceIndex: preferencesWindow.audioGraphOutputDeviceIndex
     property alias pluginListModel: assets.pluginListModel
     property alias midiEffectListModel: assets.midiEffectListModel
     property alias instrumentListModel: assets.instrumentListModel

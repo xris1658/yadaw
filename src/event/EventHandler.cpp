@@ -69,9 +69,27 @@ void EventHandler::onOpenMainWindow()
     auto& backend = YADAW::Controller::appAudioGraphBackend();
     backend.initialize();
     backend.createAudioGraph(); // TODO: Read settings
-    YADAW::Controller::activateDefaultDevice(backend);
-    auto node = YADAW::Controller::deviceStateFromCurrentAudioBackend();
     auto appConfig = YADAW::Controller::loadConfig();
+    auto node = appConfig["audio-hardware"]["audio-graph"];
+    if(node.IsNull())
+    {
+        YADAW::Controller::activateDefaultDevice(backend);
+        appConfig["audio-hardware"]["audio-graph"] = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
+        YADAW::Controller::saveConfig(appConfig);
+    }
+    else
+    {
+        YADAW::Controller::createAudioGraphFromConfig(node);
+    }
+    const auto& currentOutputDeviceId = backend.currentOutputDevice().id;
+    int currentOutputDeviceIndex = -1;
+    for(int i = 0; i < backend.audioOutputDeviceCount(); ++i)
+    {
+        if(backend.audioOutputDeviceAt(i).id == currentOutputDeviceId)
+        {
+            currentOutputDeviceIndex = i;
+        }
+    }
     appConfig["audio-hardware"]["audio-graph"] = node;
     YADAW::Controller::saveConfig(appConfig);
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
@@ -98,6 +116,11 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphInputDeviceListModel()));
     YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphOutputDeviceListModel()));
+    if(currentOutputDeviceIndex != -1)
+    {
+        YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceIndex",
+            QVariant::fromValue<int>(currentOutputDeviceIndex));
+    }
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRendering(bool)),
         this, SLOT(onSetSystemFontRendering(bool)));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setTranslationIndex(int)),

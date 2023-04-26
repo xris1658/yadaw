@@ -10,6 +10,7 @@ Item {
 
     property alias audioGraphInputDeviceList: audioGraphSettings.inputDeviceList
     property alias audioGraphOutputDeviceList: audioGraphSettings.outputDeviceList
+    property alias audioGraphOutputDeviceIndex: audioGraphSettings.outputDeviceIndex
 
     Grid {
         id: grid

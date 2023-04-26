@@ -9,12 +9,6 @@
 
 namespace YADAW::Controller
 {
-enum AudioBackend
-{
-    Dummy,
-    AudioGraph
-};
-
 constexpr double defaultSampleRate = 44100.0;
 
 YADAW::Audio::Backend::AudioGraphBackend& appAudioGraphBackend();
@@ -25,7 +19,9 @@ YADAW::Model::AudioGraphOutputDeviceListModel& appAudioGraphOutputDeviceListMode
 
 void activateDefaultDevice(YADAW::Audio::Backend::AudioGraphBackend& backend);
 
-YAML::Node deviceStateFromCurrentAudioBackend();
+bool createAudioGraphFromConfig(const YAML::Node& node);
+
+YAML::Node deviceConfigFromCurrentAudioGraph();
 }
 
 #endif //YADAW_SRC_CONTROLLER_AUDIOBACKENDCONTROLLER

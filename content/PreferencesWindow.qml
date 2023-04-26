@@ -17,6 +17,7 @@ Window {
 
     property alias audioGraphInputDeviceList: audioHardwareSettings.audioGraphInputDeviceList
     property alias audioGraphOutputDeviceList: audioHardwareSettings.audioGraphOutputDeviceList
+    property alias audioGraphOutputDeviceIndex: audioHardwareSettings.audioGraphOutputDeviceIndex
 
     property alias pluginDirectoryListModel: pluginSettings.directoryListModel
 

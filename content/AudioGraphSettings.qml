@@ -9,6 +9,7 @@ Rectangle {
 
     property alias inputDeviceList: inputDeviceListView.model
     property alias outputDeviceList: outputDeviceComboBox.model
+    property alias outputDeviceIndex: outputDeviceComboBox.currentIndex
     property alias sampleRate: sampleRateComboBox.currentValue
 
     property int bufferSize: 512

@@ -36,7 +36,59 @@ void activateDefaultDevice(YADAW::Audio::Backend::AudioGraphBackend& backend)
     }
 }
 
-YAML::Node deviceStateFromCurrentAudioBackend()
+bool createAudioGraphFromConfig(const YAML::Node& node)
+{
+    auto& backend = appAudioGraphBackend();
+    backend.initialize();
+    if(const auto& defaultOutputIdNode = node["default-output-id"];
+        defaultOutputIdNode.IsNull())
+    {
+        if(const auto index = backend.defaultAudioOutputDeviceIndex();
+            index == -1)
+        {
+            if(!backend.createAudioGraph())
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if(!backend.createAudioGraph(backend.audioOutputDeviceAt(index).id))
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        if(!backend.createAudioGraph(
+            QString::fromStdString(defaultOutputIdNode.as<std::string>())))
+        {
+            return false;
+        }
+    }
+    const auto& inputsNode = node["inputs"];
+    auto configInputCount = inputsNode.size();
+    auto deviceInputCount = backend.audioInputDeviceCount();
+    for(decltype(configInputCount) i = 0; i < configInputCount; ++i)
+    {
+        const auto& id = inputsNode[i]["id"].as<std::string>();
+        if(inputsNode[i]["activated"].as<bool>())
+        {
+            for(decltype(deviceInputCount) j = 0; j < deviceInputCount; ++j)
+            {
+                if(const auto& device = backend.audioInputDeviceAt(j);
+                    device.id == id.c_str())
+                {
+                    backend.activateDeviceInput(j, true);
+                }
+            }
+        }
+    }
+    return true;
+}
+
+YAML::Node deviceConfigFromCurrentAudioGraph()
 {
     YAML::Emitter emitter;
     emitter << YAML::BeginMap;
