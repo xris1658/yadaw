@@ -39,8 +39,19 @@ bool VST3PluginGUI::attachToWindow(QWindow* window)
         Steinberg::ViewRect rect;
         if(plugView_->getSize(&rect) == Steinberg::kResultOk)
         {
-            window_->setWidth(rect.getWidth());
-            window_->setHeight(rect.getHeight());
+            // The initial information might be incorrect. In this case,
+            // we give it another try
+            if(rect.getWidth() <= 0 || rect.getHeight() <= 0)
+            {
+                window_->setWidth(200);
+                window_->setHeight(200);
+                onWindowSizeChanged();
+            }
+            else
+            {
+                window_->setWidth(rect.getWidth());
+                window_->setHeight(rect.getHeight());
+            }
             connect();
         }
     }
@@ -70,9 +81,19 @@ bool VST3PluginGUI::detachWithWindow()
 void VST3PluginGUI::connect()
 {
     connections_[0] = QObject::connect(window_, &QWindow::widthChanged,
-        [this](int) { onWindowSizeChanged(); });
+        [this](int)
+        {
+            disconnect();
+            onWindowSizeChanged();
+            connect();
+        });
     connections_[1] = QObject::connect(window_, &QWindow::heightChanged,
-        [this](int) { onWindowSizeChanged(); });
+        [this](int)
+        {
+            disconnect();
+            onWindowSizeChanged();
+            connect();
+        });
 }
 
 void VST3PluginGUI::disconnect()
@@ -93,7 +114,6 @@ void VST3PluginGUI::onWindowSizeChanged()
     windowRect.bottom = window_->height();
     if(plugView_->checkSizeConstraint(&windowRect) == Steinberg::kResultOk)
     {
-        disconnect();
         window_->setWidth(windowRect.getWidth());
         window_->setHeight(windowRect.getHeight());
         if(plugView_->onSize(&windowRect) != Steinberg::kResultOk)
@@ -101,7 +121,6 @@ void VST3PluginGUI::onWindowSizeChanged()
             window_->setWidth(oldRect.getWidth());
             window_->setHeight(oldRect.getHeight());
         }
-        connect();
     }
 }
 }
