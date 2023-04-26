@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
             library = YADAW::Native::Library(argv[argIndex]);
             ++argIndex;
             auto plugin = YADAW::Native::createVST3FromLibrary(library);
-            if(std::strlen(argv[2]) == 32)
+            if(std::strlen(argv[argIndex]) == 32)
             {
                 for(int i = 0; i < 16; ++i)
                 {
