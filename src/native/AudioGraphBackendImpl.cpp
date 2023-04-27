@@ -9,6 +9,7 @@
 #include <cstdint>
 
 #include "native/winrt/Forward.hpp"
+#include "native/winrt/Async.hpp"
 
 #include <MemoryBuffer.h> // Windows::Foundation::IMemoryBufferByteAccess
 #include <winrt/Windows.Foundation.h>
@@ -33,25 +34,6 @@ using namespace winrt::Windows::Media::Capture;
 using namespace winrt::Windows::Media::MediaProperties;
 using namespace winrt::Windows::Media::Render;
 using namespace winrt::Windows::Devices::Enumeration;
-
-template<typename T>
-inline T asyncResult(winrt::Windows::Foundation::IAsyncOperation<T> asyncOperation)
-{
-// #if __cplusplus > 201703L
-//     co_return asyncOperation; // C2039
-// #else
-    #ifdef NDEBUG
-    return asyncOperation.get();
-#else
-    T ret {nullptr};
-    std::async(
-        std::launch::async, [&ret, &asyncOperation]()
-        { ret = asyncOperation.get(); }
-    ).get();
-    return ret;
-#endif
-// #endif
-}
 
 AudioGraphSettings createAudioGraphSettings()
 {

@@ -1,5 +1,6 @@
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "native/AudioGraphBackendImpl.hpp"
+#include "native/winrt/Async.hpp"
 #include "native/winrt/QStringFromHString.hpp"
 
 namespace YADAW::Audio::Backend
@@ -99,7 +100,7 @@ bool AudioGraphBackend::createAudioGraph(const QString& id)
 {
     winrt::hstring idAsHString(reinterpret_cast<const wchar_t*>(id.data()));
     auto async = DeviceInformation::CreateFromIdAsync(idAsHString);
-    auto deviceInformation = async.get();
+    auto deviceInformation = asyncResult(async);
     if(deviceInformation && pImpl_->createAudioGraph(deviceInformation))
     {
         status_ = Status::Created;

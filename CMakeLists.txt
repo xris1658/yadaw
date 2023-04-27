@@ -199,6 +199,7 @@ set(YADAW_COMMON_SOURCES
     src/native/VST3Native.hpp
     src/native/VestifalNative.cpp
     src/native/VestifalNative.hpp
+    src/native/winrt/Async.hpp
     src/native/winrt/Forward.hpp
     src/native/winrt/QStringFromHString.cpp
     src/native/winrt/QStringFromHString.hpp
