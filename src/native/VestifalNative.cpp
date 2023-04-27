@@ -2,13 +2,17 @@
 
 namespace YADAW::Native
 {
-VestifalEntry createVEstifalFromLibrary(Library& library)
+YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(Library& library, std::int32_t uid)
 {
-    auto ret = library.getExport<VestifalEntry>(VESTIFAL_ENTRY_NAME);
-    if(!ret)
+    auto entry = library.getExport<VestifalEntry>(VESTIFAL_ENTRY_NAME);
+    if(!entry)
     {
-        ret = library.getExport<VestifalEntry>("main");
+        entry = library.getExport<VestifalEntry>("main");
     }
-    return ret;
+    if(!entry)
+    {
+        return {};
+    }
+    return {entry, uid};
 }
 }
