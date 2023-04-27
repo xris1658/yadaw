@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_PLUGIN_VESTIFAL_VESTIFAL
 #define YADAW_SRC_AUDIO_PLUGIN_VESTIFAL_VESTIFAL
 
-// Vestifal: FST and VeSTige combined
+// Vestifal: A combination of several reverse-engineered VST plugin API
 // FST: https://git.iem.at/zmoelnig/FST
 // VeSTige: https://github.com/LMMS/lmms/blob/master/include/aeffectx.h
 // Xaymar/vst2sdk: https://github.com/Xaymar/vst2sdk
