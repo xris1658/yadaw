@@ -5,14 +5,20 @@
 
 namespace YADAW::Audio::Plugin
 {
+// Is this needed?
+// See comment of `YADAW::Audio::Host::setUniquePluginIdOnCurrentThread`
+thread_local std::mutex mutex;
 VestifalPlugin::VestifalPlugin()
 {
 }
 
 VestifalPlugin::VestifalPlugin(VestifalEntry entry, std::int32_t uniqueId)
 {
-    YADAW::Audio::Host::setUniquePluginId(uniqueId);
-    effect_ = entry(&YADAW::Audio::Host::vestifalHostCallback);
+    {
+        std::lock_guard<std::mutex> lg(mutex);
+        YADAW::Audio::Host::setUniquePluginIdOnCurrentThread(uniqueId);
+        effect_ = entry(&YADAW::Audio::Host::vestifalHostCallback);
+    }
     if(effect_)
     {
         effect_->user = this;

@@ -9,7 +9,11 @@ namespace YADAW::Audio::Host
 {
 std::intptr_t vestifalHostCallback(AEffect* effect, std::int32_t opcode, std::int32_t input, std::intptr_t opt, void* ptr, float value);
 
-void setUniquePluginId(std::int32_t uniqueId);
+// When creating a plugin from shell, call this to pass the unique ID to the
+// callback.
+// The unique ID is thread_local, meaning that every thread has one instance of
+// unique ID. This makes creating multiple plugins *scale*.
+void setUniquePluginIdOnCurrentThread(std::int32_t uniqueId);
 }
 
 #endif //YADAW_SRC_AUDIO_HOST_VESTIFALCALLBACK
