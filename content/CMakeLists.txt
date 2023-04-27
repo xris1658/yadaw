@@ -87,6 +87,7 @@ set(CONTENT_QML_FILES
     TextField.qml
     ThirdPartySoftware.qml
     TimeIndicator.qml
+    VestifalIcon.qml
     VST3Icon.qml
     WindowIcon.qml
     )
