@@ -10,8 +10,8 @@ class IPluginParameter
 public:
     virtual ~IPluginParameter() {}
 public:
-    virtual int parameterCount() = 0;
-    virtual IParameter* parameter(int index) = 0;
+    virtual std::uint32_t parameterCount() = 0;
+    virtual IParameter* parameter(std::uint32_t index) = 0;
 };
 }
 

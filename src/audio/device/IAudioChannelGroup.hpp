@@ -13,10 +13,10 @@ public:
     virtual ~IAudioChannelGroup() = default;
 public:
     virtual QString name() const = 0;
-    virtual std::uint8_t channelCount() const = 0;
+    virtual std::uint32_t channelCount() const = 0;
     virtual YADAW::Audio::Base::ChannelGroupType type() const = 0;
-    virtual YADAW::Audio::Base::ChannelType speakerAt(std::uint8_t index) const = 0;
-    virtual QString speakerNameAt(std::uint8_t index) const = 0;
+    virtual YADAW::Audio::Base::ChannelType speakerAt(std::uint32_t index) const = 0;
+    virtual QString speakerNameAt(std::uint32_t index) const = 0;
     virtual bool isMain() const = 0;
 protected:
     static int channelCount(YADAW::Audio::Base::ChannelGroupType channelGroupType);

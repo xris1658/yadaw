@@ -210,6 +210,7 @@ set(YADAW_COMMON_SOURCES
     src/ui/UI.hpp
     src/util/Algorithm.hpp
     src/util/Alignment.hpp
+    src/util/ArrayAccess.hpp
     src/util/Base.hpp
     src/util/CircularDeque.hpp
     src/util/CompilerSpecifics.hpp

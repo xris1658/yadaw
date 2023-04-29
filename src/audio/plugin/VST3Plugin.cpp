@@ -4,6 +4,7 @@
 #include "audio/plugin/VST3PluginGUI.hpp"
 #include "audio/plugin/VST3PluginParameter.hpp"
 #include "audio/util/VST3Util.hpp"
+#include "util/ArrayAccess.hpp"
 
 // For some reason, memorystream.cpp is not included in sdk_common library, so I have to solve this
 // by `#include`ing the source file in another source: `audio/plugin/VST3MemoryStream.cpp`.
@@ -302,24 +303,24 @@ VST3PluginParameter* VST3Plugin::pluginParameter()
     return parameter_.get();
 }
 
-int VST3Plugin::audioInputGroupCount() const
+std::uint32_t VST3Plugin::audioInputGroupCount() const
 {
     return component_->getBusCount(Steinberg::Vst::MediaTypes::kAudio,
         Steinberg::Vst::BusDirections::kInput);
 }
 
-int VST3Plugin::audioOutputGroupCount() const
+std::uint32_t VST3Plugin::audioOutputGroupCount() const
 {
     return component_->getBusCount(Steinberg::Vst::MediaTypes::kAudio,
         Steinberg::Vst::BusDirections::kOutput);
 }
 
-const IAudioChannelGroup* VST3Plugin::audioInputGroupAt(int index) const
+const IAudioChannelGroup* VST3Plugin::audioInputGroupAt(std::uint32_t index) const
 {
     return &audioInputChannelGroup_[index];
 }
 
-const IAudioChannelGroup* VST3Plugin::audioOutputGroupAt(int index) const
+const IAudioChannelGroup* VST3Plugin::audioOutputGroupAt(std::uint32_t index) const
 {
     return &audioOutputChannelGroup_[index];
 }

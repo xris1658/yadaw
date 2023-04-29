@@ -27,7 +27,7 @@ QString VST3AudioChannelGroup::name() const
     return QString::fromUtf16(busInfo_.name);
 }
 
-std::uint8_t VST3AudioChannelGroup::channelCount() const
+std::uint32_t VST3AudioChannelGroup::channelCount() const
 {
     // Alternative solution
     // return SpeakerArr::getChannelCount(speakerArrangement_);
@@ -41,7 +41,7 @@ YADAW::Audio::Base::ChannelGroupType VST3AudioChannelGroup::type() const
         YADAW::Audio::Base::ChannelGroupType::Custom;
 }
 
-YADAW::Audio::Base::ChannelType VST3AudioChannelGroup::speakerAt(std::uint8_t index) const
+YADAW::Audio::Base::ChannelType VST3AudioChannelGroup::speakerAt(std::uint32_t index) const
 {
     auto speaker = SpeakerArr::getSpeaker(speakerArrangement_, index);
     if(speaker == Steinberg::Vst::kSpeakerL)
@@ -59,7 +59,7 @@ YADAW::Audio::Base::ChannelType VST3AudioChannelGroup::speakerAt(std::uint8_t in
     return index < channelCount()? YADAW::Audio::Base::ChannelType::Custom: YADAW::Audio::Base::ChannelType::Invalid;
 }
 
-QString VST3AudioChannelGroup::speakerNameAt(std::uint8_t index) const
+QString VST3AudioChannelGroup::speakerNameAt(std::uint32_t index) const
 {
     return SpeakerArr::getSpeakerShortName(speakerArrangement_, index);
 }

@@ -15,7 +15,7 @@ QString CLAPAudioChannelGroup::name() const
     return QString::fromUtf8(audioPortInfo_.name);
 }
 
-std::uint8_t CLAPAudioChannelGroup::channelCount() const
+std::uint32_t CLAPAudioChannelGroup::channelCount() const
 {
     return audioPortInfo_.channel_count;
 }
@@ -29,7 +29,7 @@ YADAW::Audio::Base::ChannelGroupType CLAPAudioChannelGroup::type() const
         YADAW::Audio::Base::ChannelGroupType::Custom;
 }
 
-YADAW::Audio::Base::ChannelType CLAPAudioChannelGroup::speakerAt(std::uint8_t index) const
+YADAW::Audio::Base::ChannelType CLAPAudioChannelGroup::speakerAt(std::uint32_t index) const
 {
     if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_STEREO) == 0)
     {
@@ -44,7 +44,7 @@ YADAW::Audio::Base::ChannelType CLAPAudioChannelGroup::speakerAt(std::uint8_t in
     return index < channelCount()? YADAW::Audio::Base::ChannelType::Custom: YADAW::Audio::Base::ChannelType::Invalid;
 }
 
-QString CLAPAudioChannelGroup::speakerNameAt(std::uint8_t index) const
+QString CLAPAudioChannelGroup::speakerNameAt(std::uint32_t index) const
 {
     return QString();
 }

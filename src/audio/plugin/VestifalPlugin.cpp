@@ -110,22 +110,22 @@ IPluginParameter* VestifalPlugin::parameter()
     return nullptr;
 }
 
-int VestifalPlugin::audioInputGroupCount() const
+std::uint32_t VestifalPlugin::audioInputGroupCount() const
 {
     return effect_->audioInputCount;
 }
 
-int VestifalPlugin::audioOutputGroupCount() const
+std::uint32_t VestifalPlugin::audioOutputGroupCount() const
 {
     return effect_->audioOutputCount;
 }
 
-const Device::IAudioChannelGroup* VestifalPlugin::audioInputGroupAt(int index) const
+const Device::IAudioChannelGroup* VestifalPlugin::audioInputGroupAt(std::uint32_t index) const
 {
     return nullptr;
 }
 
-const Device::IAudioChannelGroup* VestifalPlugin::audioOutputGroupAt(int index) const
+const Device::IAudioChannelGroup* VestifalPlugin::audioOutputGroupAt(std::uint32_t index) const
 {
     return nullptr;
 }

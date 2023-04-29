@@ -51,10 +51,10 @@ public:
     VST3PluginGUI* pluginGUI();
     VST3PluginParameter* pluginParameter();
 public:
-    int audioInputGroupCount() const override;
-    int audioOutputGroupCount() const override;
-    const IAudioChannelGroup* audioInputGroupAt(int index) const override;
-    const IAudioChannelGroup* audioOutputGroupAt(int index) const override;
+    std::uint32_t audioInputGroupCount() const override;
+    std::uint32_t audioOutputGroupCount() const override;
+    const IAudioChannelGroup* audioInputGroupAt(std::uint32_t index) const override;
+    const IAudioChannelGroup* audioOutputGroupAt(std::uint32_t index) const override;
     bool isAudioInputGroupActivated(int index) const;
     bool activateAudioInputGroup(int index, bool state);
     bool isAudioOutputGroupActivated(int index) const;

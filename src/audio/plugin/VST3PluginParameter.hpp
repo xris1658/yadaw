@@ -46,8 +46,8 @@ public:
     Self& operator=(Self&& rhs) = delete;
     ~VST3PluginParameter() noexcept;
 public:
-    int parameterCount() override;
-    IParameter* parameter(int index) override;
+    std::uint32_t parameterCount() override;
+    IParameter* parameter(std::uint32_t index) override;
 public:
     void swap(Self& rhs) noexcept;
 private:

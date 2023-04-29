@@ -29,10 +29,10 @@ public:
     ~VST3AudioChannelGroup() noexcept = default;
 public:
     QString name() const override;
-    std::uint8_t channelCount() const override;
+    std::uint32_t channelCount() const override;
     YADAW::Audio::Base::ChannelGroupType type() const override;
-    YADAW::Audio::Base::ChannelType speakerAt(std::uint8_t index) const override;
-    QString speakerNameAt(std::uint8_t index) const override;
+    YADAW::Audio::Base::ChannelType speakerAt(std::uint32_t index) const override;
+    QString speakerNameAt(std::uint32_t index) const override;
     bool isMain() const override;
 private:
     SpeakerArrangement speakerArrangement_;

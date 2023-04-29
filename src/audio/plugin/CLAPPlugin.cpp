@@ -203,22 +203,22 @@ IPluginParameter* CLAPPlugin::parameter()
     return parameter_.get();
 }
 
-int CLAPPlugin::audioInputGroupCount() const
+std::uint32_t CLAPPlugin::audioInputGroupCount() const
 {
     return audioPorts_->count(plugin_, true);
 }
 
-int CLAPPlugin::audioOutputGroupCount() const
+std::uint32_t CLAPPlugin::audioOutputGroupCount() const
 {
     return audioPorts_->count(plugin_, false);
 }
 
-const IAudioChannelGroup* CLAPPlugin::audioInputGroupAt(int index) const
+const IAudioChannelGroup* CLAPPlugin::audioInputGroupAt(std::uint32_t index) const
 {
     return &inputChannelGroups_[index];
 }
 
-const IAudioChannelGroup* CLAPPlugin::audioOutputGroupAt(int index) const
+const IAudioChannelGroup* CLAPPlugin::audioOutputGroupAt(std::uint32_t index) const
 {
     return &outputChannelGroups_[index];
 }

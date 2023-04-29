@@ -1,4 +1,5 @@
 #include "CLAPPluginParameter.hpp"
+#include "util/ArrayAccess.hpp"
 
 namespace YADAW::Audio::Plugin
 {
@@ -113,13 +114,14 @@ CLAPPluginParameter::~CLAPPluginParameter() noexcept
     params_ = nullptr;
 }
 
-int CLAPPluginParameter::parameterCount()
+std::uint32_t CLAPPluginParameter::parameterCount()
 {
     return params_->count(plugin_);
 }
 
-IParameter* CLAPPluginParameter::parameter(int index)
+IParameter* CLAPPluginParameter::parameter(std::uint32_t index)
 {
+    return YADAW::Util::getOrNull(parameters_, index);
     return &parameters_[index];
 }
 

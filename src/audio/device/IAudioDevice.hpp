@@ -22,10 +22,10 @@ class IAudioDevice
 public:
     virtual ~IAudioDevice() = default;
 public:
-    virtual int audioInputGroupCount() const = 0;
-    virtual int audioOutputGroupCount() const = 0;
-    virtual const IAudioChannelGroup* audioInputGroupAt(int index) const = 0;
-    virtual const IAudioChannelGroup* audioOutputGroupAt(int index) const = 0;
+    virtual std::uint32_t audioInputGroupCount() const = 0;
+    virtual std::uint32_t audioOutputGroupCount() const = 0;
+    virtual const IAudioChannelGroup* audioInputGroupAt(std::uint32_t index) const = 0;
+    virtual const IAudioChannelGroup* audioOutputGroupAt(std::uint32_t index) const = 0;
     virtual std::uint32_t latencyInSamples() const = 0;
 public:
     virtual void process(const AudioProcessData<float>& audioProcessData) = 0;

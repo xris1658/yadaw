@@ -2,6 +2,7 @@
 
 #include "audio/plugin/IParameter.hpp"
 #include "audio/util/VST3Util.hpp"
+#include "util/ArrayAccess.hpp"
 
 #include <pluginterfaces/vst/ivsteditcontroller.h>
 
@@ -157,14 +158,14 @@ VST3PluginParameter::~VST3PluginParameter() noexcept
     editController_ = nullptr;
 }
 
-int VST3PluginParameter::parameterCount()
+std::uint32_t VST3PluginParameter::parameterCount()
 {
     return parameters_.size();
 }
 
-IParameter* VST3PluginParameter::parameter(int index)
+IParameter* VST3PluginParameter::parameter(std::uint32_t index)
 {
-    return &(parameters_[index]);
+    return YADAW::Util::getOrNull(parameters_, index);
 }
 
 void VST3PluginParameter::swap(VST3PluginParameter& rhs) noexcept
