@@ -51,7 +51,7 @@ public:
             sampleFormat == SampleFormat::Float64? 8:
             0;
         }
-        inline std::uint8_t* at(int frameIndex, int channelIndex) const
+        inline std::uint8_t* at(std::uint32_t frameIndex, std::uint32_t channelIndex) const
         {
             return data + ((frameIndex * channelCount + channelIndex) * sampleSizeInBytes(sampleFormat));
         }

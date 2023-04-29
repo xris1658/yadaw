@@ -171,19 +171,19 @@ AutomationPoint::ValueType Automation::maxValue() const noexcept
     return maxValue_;
 }
 
-const Automation::Point& Automation::operator[](const std::size_t index) const
+const Automation::Point& Automation::operator[](std::size_t index) const
 {
     return points_[index];
 }
 
-Automation::Point& Automation::operator[](const std::size_t index)
+Automation::Point& Automation::operator[](std::size_t index)
 {
     return const_cast<Point&>(
         static_cast<const Self&>(*this).operator[](index)
     );
 }
 
-const Automation::Point& Automation::at(const std::size_t index) const
+const Automation::Point& Automation::at(std::size_t index) const
 {
     if(index >= pointCount())
     {
@@ -192,7 +192,7 @@ const Automation::Point& Automation::at(const std::size_t index) const
     return operator[](index);
 }
 
-Automation::Point& Automation::at(const std::size_t index)
+Automation::Point& Automation::at(std::size_t index)
 {
     return const_cast<Point&>(
         static_cast<const Self&>(*this).at(index)

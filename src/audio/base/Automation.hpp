@@ -78,10 +78,10 @@ public:
     bool empty() const noexcept;
     AutomationPoint::ValueType minValue() const noexcept;
     AutomationPoint::ValueType maxValue() const noexcept;
-    const Point& operator[](const std::size_t index) const;
-    Point& operator[](const std::size_t index);
-    const Point& at(const std::size_t index) const;
-    Point& at(const std::size_t index);
+    const Point& operator[](std::size_t index) const;
+    Point& operator[](std::size_t index);
+    const Point& at(std::size_t index) const;
+    Point& at(std::size_t index);
     std::size_t pointCountAtTime(const AutomationPoint::TimeType& time) const;
     std::size_t firstPointIndexAtTime(const AutomationPoint::TimeType& time) const;
     double operator()(const AutomationPoint::TimeType& time, std::size_t index = 0) const;
