@@ -8,11 +8,11 @@ namespace YADAW::Audio::Device
 template<typename SampleType>
 struct AudioProcessData
 {
-    int inputGroupCount = 0;
-    int outputGroupCount = 0;
-    int singleBufferSize = 0;
-    int* inputCounts = nullptr;
-    int* outputCounts = nullptr;
+    std::uint16_t inputGroupCount = 0;
+    std::uint16_t outputGroupCount = 0;
+    std::uint32_t singleBufferSize = 0;
+    std::uint32_t* inputCounts = nullptr;
+    std::uint32_t* outputCounts = nullptr;
     SampleType*** inputs = nullptr;
     SampleType*** outputs = nullptr;
 };

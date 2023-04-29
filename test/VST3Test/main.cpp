@@ -144,7 +144,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 std::vector<std::vector<std::vector<float>>> idc1;
                 std::vector<std::vector<float*>> idc2;
                 std::vector<float**> idc3;
-                std::vector<int> ic;
+                std::vector<std::uint32_t> ic;
                 idc1.resize(plugin.audioInputGroupCount());
                 idc2.resize(idc1.size());
                 idc3.resize(idc1.size(), nullptr);
@@ -172,7 +172,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 std::vector<std::vector<std::vector<float>>> odc1;
                 std::vector<std::vector<float*>> odc2;
                 std::vector<float**> odc3;
-                std::vector<int> oc;
+                std::vector<std::uint32_t> oc;
                 odc1.resize(plugin.audioOutputGroupCount());
                 odc2.resize(odc1.size());
                 odc3.resize(odc1.size(), nullptr);
