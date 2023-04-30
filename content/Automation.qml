@@ -6,9 +6,11 @@ Item {
     id: root
     property double zoom: 1
     property int pointDiameter: 9
-    property alias model: points.model
+    property var model
     Repeater {
+        z: 3
         id: points
+        model: root.model
         Item {
             width: 1
             height: width
@@ -18,38 +20,52 @@ Item {
                 width: root.pointDiameter
                 height: width
                 anchors.centerIn: parent
-                color: "transparent"
-                border.width: 2
-                border.color: Colors.automationColor
+                color: Colors.automationColor
                 radius: width / 2
             }
         }
+        Component.onCompleted: {
+            curves.model = points.model;
+        }
     }
     Repeater {
+        z: 2
         id: curves
-        model: points.model
         Shape {
+            id: shape
+            property int curveIndex: index
+            property alias startX: path.startX
+            property alias startY: path.startY
+            property alias endX: pathQuad.x
+            property alias endY: pathQuad.y
             ShapePath {
-                startX: 0
-                startY: 0
+                id: path
+                startX: shape.curveIndex > 0? points.itemAt(shape.curveIndex - 1).x: 0
+                startY: shape.curveIndex > 0? points.itemAt(shape.curveIndex - 1).y: pathQuad.y
                 strokeColor: Colors.automationColor
                 strokeWidth: 2
                 PathQuad {
+                    id: pathQuad
                     x: zoom * am_time
                     y: root.height * (1 - am_value)
+                    controlX: (path.startX + x) / 2
+                    controlY: shape.curveIndex == 0? y:
+                        0.5 * ((path.startY + y) - am_curve * Math.abs(shape.endY - shape.startY))
                 }
             }
         }
     }
     Shape {
+        z: 1
         ShapePath {
-            startX: 0
-            startY: 0
+            id: endPath
+            startX: points.itemAt(points.count - 1).x
+            startY: points.itemAt(points.count - 1).y
             strokeColor: Colors.automationColor
             strokeWidth: 2
-            PathQuad {
+            PathLine {
                 x: root.width
-                y: parent.startY
+                y: endPath.startY
             }
         }
     }
