@@ -21,7 +21,6 @@ int AutomationModel::rowCount(const QModelIndex&) const
 
 QVariant AutomationModel::data(const QModelIndex& index, int role) const
 {
-    auto automation = *automation_;
     auto row = index.row();
     if(row < pointCount() && row >= 0)
     {
@@ -37,5 +36,24 @@ QVariant AutomationModel::data(const QModelIndex& index, int role) const
         }
     }
     return {};
+}
+
+bool AutomationModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+    auto row = index.row();
+    if(row < pointCount() && row >= 0)
+    {
+        auto& point = automation_->operator[](row);
+        switch(role)
+        {
+        case Role::Value:
+            point.setValue(value.value<double>());
+            return true;
+        case Role::Curve:
+            point.setCurve(value.value<double>());
+            return true;
+        }
+    }
+    return false;
 }
 }
