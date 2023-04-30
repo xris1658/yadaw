@@ -55,7 +55,6 @@ Window {
                     leftPadding: 5
                 }
             }
-
             Row {
                 anchors.right: parent.right
                 spacing: 5
@@ -70,6 +69,9 @@ Window {
                 Button {
                     id: cancelButton
                     text: qsTr("&Cancel")
+                    onClicked: {
+                        root.close();
+                    }
                 }
             }
         }
