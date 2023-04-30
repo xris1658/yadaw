@@ -10,6 +10,8 @@ T.Slider {
     property int handleThickness: 12
     property int handleLength: 16
 
+    property alias groove: groove
+
     width: horizontal? length: thickness
     height: horizontal? thickness: length
 
@@ -30,6 +32,7 @@ T.Slider {
         anchors.topMargin: root.topInset
         anchors.bottomMargin: root.bottomInset
         Rectangle {
+            id: groove
             anchors.centerIn: parent
             width: root.vertical? root.grooveThickness: parent.width
             height: root.vertical? parent.height: root.grooveThickness

@@ -175,6 +175,17 @@ Item {
             id: slider
             width: root.width
             live: true
+            groove.gradient: Gradient {
+                orientation: Qt.Horizontal
+                GradientStop {
+                    position: 0.0
+                    color: "#000000"
+                }
+                GradientStop {
+                    position: 1.0
+                    color: "#FFFFFF"
+                }
+            }
             onValueChanged: {
                 impl.toColor();
             }
