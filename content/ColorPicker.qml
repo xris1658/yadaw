@@ -167,6 +167,9 @@ Item {
                     impl.toColor();
                 }
             }
+            onPressed: (mouse) => {
+                onPositionChanged(mouse);
+            }
         }
         Slider {
             id: slider
