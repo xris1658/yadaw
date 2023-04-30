@@ -15,6 +15,7 @@ set(QT_QML_IMPORT_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/imports CACHE STR
 set(CONTENT_CPP_FILES
     model/IAssetDirectoryListModel.hpp
     model/IAudioGraphDeviceListModel.hpp
+    model/IAutomationModel.hpp
     model/ILocalizationListModel.hpp
     model/ModelBase.hpp
     model/IPluginDirectoryListModel.hpp
@@ -30,6 +31,7 @@ set(CONTENT_QML_FILES
     AudioIcon.qml
     AudioGraphSettings.qml
     AudioHardwareSettings.qml
+    Automation.qml
     BigClock.qml
     Button.qml
     BypassIcon.qml

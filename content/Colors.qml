@@ -32,4 +32,6 @@ QtObject {
     readonly property color playingIcon: "#00FF00"
     readonly property color recordIcon: "#FF6666"
     readonly property color recordingIcon: "#FF3333"
+
+    readonly property color automationColor: "#D06040"
 }

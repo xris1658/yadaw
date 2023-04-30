@@ -171,6 +171,8 @@ set(YADAW_COMMON_SOURCES
     src/model/AudioGraphInputDeviceListModel.hpp
     src/model/AudioGraphOutputDeviceListModel.cpp
     src/model/AudioGraphOutputDeviceListModel.hpp
+    src/model/AutomationModel.cpp
+    src/model/AutomationModel.hpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
     src/model/ModelInitializer.cpp
