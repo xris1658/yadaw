@@ -14,6 +14,16 @@ std::size_t AutomationModel::pointCount() const
     return automation_->pointCount();
 }
 
+double AutomationModel::getMinValue() const
+{
+    return automation_->minValue();
+}
+
+double AutomationModel::getMaxValue() const
+{
+    return automation_->maxValue();
+}
+
 int AutomationModel::rowCount(const QModelIndex&) const
 {
     return pointCount();

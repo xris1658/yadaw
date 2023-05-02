@@ -10,6 +10,8 @@ namespace YADAW::Model
 class IAutomationModel: public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(double minValue)
+    Q_PROPERTY(double maxValue)
 public:
     enum Role
     {
@@ -25,6 +27,9 @@ public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
     static constexpr int columnCount() { return 1; }
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
+public:
+    virtual double minValue() const = 0;
+    virtual double maxValue() const = 0;
 protected:
     RoleNames roleNames() const override
     {

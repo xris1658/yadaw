@@ -7,6 +7,13 @@ Item {
     property double zoom: 1
     property int pointDiameter: 9
     property var model
+    QtObject {
+        id: impl
+        function normalizeValue(automationModel, value: real) {
+            return (value - automationModel.minValue) / (automationModel.maxValue - automationModel.minValue)
+        }
+    }
+
     Repeater {
         z: 3
         id: points
@@ -15,7 +22,7 @@ Item {
             width: 1
             height: width
             x: zoom * am_time
-            y: root.height * (1 - am_value)
+            y: root.height * (1 - impl.normalizeValue(root.model, am_value))
             Rectangle {
                 width: root.pointDiameter
                 height: width
@@ -47,7 +54,7 @@ Item {
                 PathQuad {
                     id: pathQuad
                     x: zoom * am_time
-                    y: root.height * (1 - am_value)
+                    y: root.height * (1 - impl.normalizeValue(root.model, am_value))
                     controlX: (path.startX + x) / 2
                     controlY: shape.curveIndex == 0? y:
                         0.5 * ((path.startY + y) - am_curve * Math.abs(shape.endY - shape.startY))
