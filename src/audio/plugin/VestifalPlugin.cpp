@@ -3,6 +3,8 @@
 #include "audio/host/VestifalCallback.hpp"
 #include "audio/util/VestifalUtil.hpp"
 
+#include <mutex>
+
 namespace YADAW::Audio::Plugin
 {
 // Is this needed?
