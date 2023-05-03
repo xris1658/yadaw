@@ -48,6 +48,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/base/Gain.hpp
     src/audio/base/StereoPanning.hpp
     src/audio/base/TempoAutomation.hpp
+    src/audio/base/TimeSignatureSequence.cpp
+    src/audio/base/TimeSignatureSequence.hpp
     src/audio/device/IAudioChannelGroup.cpp
     src/audio/device/IAudioChannelGroup.hpp
     src/audio/device/IAudioDevice.hpp
