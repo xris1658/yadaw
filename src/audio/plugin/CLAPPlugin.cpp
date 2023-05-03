@@ -213,14 +213,20 @@ std::uint32_t CLAPPlugin::audioOutputGroupCount() const
     return audioPorts_->count(plugin_, false);
 }
 
-const IAudioChannelGroup* CLAPPlugin::audioInputGroupAt(std::uint32_t index) const
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
+CLAPPlugin::audioInputGroupAt(std::uint32_t index) const
 {
-    return &inputChannelGroups_[index];
+    return index < audioInputGroupCount()?
+       std::optional(std::cref(inputChannelGroups_[index])):
+       std::nullopt;
 }
 
-const IAudioChannelGroup* CLAPPlugin::audioOutputGroupAt(std::uint32_t index) const
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
+CLAPPlugin::audioOutputGroupAt(std::uint32_t index) const
 {
-    return &outputChannelGroups_[index];
+    return index < audioOutputGroupCount()?
+        std::optional(std::cref(outputChannelGroups_[index])):
+        std::nullopt;
 }
 
 std::uint32_t CLAPPlugin::latencyInSamples() const

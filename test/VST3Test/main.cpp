@@ -49,8 +49,8 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
             std::printf(":");
             for(int i = 0; i < audioInputGroupCount; ++i)
             {
-                const auto& group = plugin.audioInputGroupAt(i);
-                if(group->isMain())
+                const auto& group = plugin.audioInputGroupAt(i)->get();
+                if(group.isMain())
                 {
                     std::printf("\n> ");
                 }
@@ -59,8 +59,8 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     std::printf("\n  ");
                 }
                 std::printf(
-                    "%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group->name().data()),
-                    static_cast<int>(group->channelCount()));
+                    "%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group.name().data()),
+                    static_cast<int>(group.channelCount()));
             }
         }
         auto audioOutputGroupCount = plugin.audioOutputGroupCount();
@@ -70,8 +70,8 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
             std::printf(":");
             for(int i = 0; i < audioOutputGroupCount; ++i)
             {
-                const auto& group = plugin.audioOutputGroupAt(i);
-                if(group->isMain())
+                const auto& group = plugin.audioOutputGroupAt(i)->get();
+                if(group.isMain())
                 {
                     std::printf("\n> ");
                 }
@@ -80,8 +80,8 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     std::printf("\n  ");
                 }
                 std::printf(
-                    "%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group->name().data()),
-                    static_cast<int>(group->channelCount()));
+                    "%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group.name().data()),
+                    static_cast<int>(group.channelCount()));
             }
         }
         std::printf("\n");
@@ -152,7 +152,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 audioProcessData.inputGroupCount = idc1.size();
                 for(int i = 0; i < idc1.size(); ++i)
                 {
-                    idc1[i].resize(plugin.audioInputGroupAt(i)->channelCount());
+                    idc1[i].resize(plugin.audioInputGroupAt(i)->get().channelCount());
                     idc2[i].resize(idc1[i].size());
                     ic[i] = idc1[i].size();
                     for(int j = 0; j < idc1[i].size(); ++j)
@@ -180,7 +180,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 audioProcessData.outputGroupCount = odc1.size();
                 for(int i = 0; i < odc1.size(); ++i)
                 {
-                    odc1[i].resize(plugin.audioOutputGroupAt(i)->channelCount());
+                    odc1[i].resize(plugin.audioOutputGroupAt(i)->get().channelCount());
                     odc2[i].resize(odc1[i].size());
                     oc[i] = odc1[i].size();
                     for(int j = 0; j < odc1[i].size(); ++j)

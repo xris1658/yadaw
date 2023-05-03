@@ -315,14 +315,20 @@ std::uint32_t VST3Plugin::audioOutputGroupCount() const
         Steinberg::Vst::BusDirections::kOutput);
 }
 
-const IAudioChannelGroup* VST3Plugin::audioInputGroupAt(std::uint32_t index) const
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
+VST3Plugin::audioInputGroupAt(std::uint32_t index) const
 {
-    return &audioInputChannelGroup_[index];
+    return index < audioInputGroupCount()?
+        std::optional(std::cref(audioInputChannelGroup_[index])):
+        std::nullopt;
 }
 
-const IAudioChannelGroup* VST3Plugin::audioOutputGroupAt(std::uint32_t index) const
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
+VST3Plugin::audioOutputGroupAt(std::uint32_t index) const
 {
-    return &audioOutputChannelGroup_[index];
+    return index < audioOutputGroupCount()?
+        std::optional(std::cref(audioOutputChannelGroup_[index])):
+        std::nullopt;
 }
 
 bool VST3Plugin::isAudioInputGroupActivated(int index) const

@@ -53,8 +53,8 @@ public:
 public:
     std::uint32_t audioInputGroupCount() const override;
     std::uint32_t audioOutputGroupCount() const override;
-    const IAudioChannelGroup* audioInputGroupAt(std::uint32_t index) const override;
-    const IAudioChannelGroup* audioOutputGroupAt(std::uint32_t index) const override;
+    IAudioDevice::OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const override;
+    IAudioDevice::OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
     bool isAudioInputGroupActivated(int index) const;
     bool activateAudioInputGroup(int index, bool state);
     bool isAudioOutputGroupActivated(int index) const;

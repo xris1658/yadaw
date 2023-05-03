@@ -3,6 +3,9 @@
 
 #include "audio/device/IAudioChannelGroup.hpp"
 
+#include <functional>
+#include <optional>
+
 namespace YADAW::Audio::Device
 {
 template<typename SampleType>
@@ -20,12 +23,14 @@ struct AudioProcessData
 class IAudioDevice
 {
 public:
+    using OptionalAudioChannelGroup = std::optional<std::reference_wrapper<const IAudioChannelGroup>>;
+public:
     virtual ~IAudioDevice() = default;
 public:
     virtual std::uint32_t audioInputGroupCount() const = 0;
     virtual std::uint32_t audioOutputGroupCount() const = 0;
-    virtual const IAudioChannelGroup* audioInputGroupAt(std::uint32_t index) const = 0;
-    virtual const IAudioChannelGroup* audioOutputGroupAt(std::uint32_t index) const = 0;
+    virtual OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const = 0;
+    virtual OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const = 0;
     virtual std::uint32_t latencyInSamples() const = 0;
 public:
     virtual void process(const AudioProcessData<float>& audioProcessData) = 0;

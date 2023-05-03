@@ -51,8 +51,8 @@ public:
 public:
     std::uint32_t audioInputGroupCount() const override;
     std::uint32_t audioOutputGroupCount() const override;
-    const IAudioChannelGroup* audioInputGroupAt(std::uint32_t index) const override;
-    const IAudioChannelGroup* audioOutputGroupAt(std::uint32_t index) const override;
+    IAudioDevice::OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const override;
+    IAudioDevice::OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
     std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
 private:
