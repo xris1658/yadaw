@@ -5,31 +5,37 @@
 
 #include <type_traits>
 
+#define DECLVAL_FUNCTION(class_name, function_name, data_type) std::declval<class_name>.function_name(std::declval<data_type>())
+
 namespace YADAW::Audio::Engine
 {
-using YADAW::Audio::Device::IAudioDevice;
 using YADAW::Audio::Device::AudioProcessData;
 
-// Why use virtual functions while you can do this?
-// Implementing traits with expression SFINAE might be better.
+// A not-owning version of `std::function`
 class AudioDeviceProcess
 {
+private: // Expression SFINAE
+    template<typename T, typename U = void>
+    struct HasProcessMethodHelper: std::false_type {};
+    template<typename T>
+    struct HasProcessMethodHelper<T,
+        std::void_t<decltype(DECLVAL_FUNCTION(T, process, const AudioProcessData<float>&))>
+    >: std::true_type {};
+    template<typename T>
+    static constexpr bool hasProcess = HasProcessMethodHelper<T>::value;
 public:
     template<typename T>
     explicit AudioDeviceProcess(T& audioDevice):
-        audioDevice_(static_cast<IAudioDevice*>(&audioDevice)),
+        audioDevice_(static_cast<void*>(&audioDevice)),
         func_(&doProcess<T>)
-    {
-    }
+    {}
 private:
     template<typename T>
-    static void doProcess(IAudioDevice* audioDevice,
+    static void doProcess(void* ptr,
         const AudioProcessData<float>& audioProcessData)
     {
-        static_assert(std::is_base_of_v<IAudioDevice, T>
-                      && (!std::is_same_v<IAudioDevice, T>),
-            "Error: T must be derived from IAudioDevice");
-        static_cast<T*>(audioDevice)->process(audioProcessData);
+        static_assert(hasProcess<T>);
+        static_cast<T*>(ptr)->process(audioProcessData);
     }
 public:
     void process(const AudioProcessData<float>& audioProcessData)
@@ -37,8 +43,8 @@ public:
         func_(audioDevice_, audioProcessData);
     }
 private:
-    IAudioDevice* audioDevice_;
-    void(*func_)(IAudioDevice*, const AudioProcessData<float>&);
+    void* audioDevice_ = nullptr;
+    void(*func_)(void*, const AudioProcessData<float>&);
 };
 }
 
