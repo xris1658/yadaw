@@ -42,6 +42,8 @@ add_compile_options(/W4 /Zc:wchar_t /Zc:__cplusplus)
 
 set(YADAW_COMMON_SOURCES
     src/audio/backend/AudioGraphBackend.hpp
+    src/audio/backend/AudioGraphBusConfiguration.cpp
+    src/audio/backend/AudioGraphBusConfiguration.hpp
     src/audio/base/Automation.cpp
     src/audio/base/Automation.hpp
     src/audio/base/Channel.hpp
@@ -50,6 +52,7 @@ set(YADAW_COMMON_SOURCES
     src/audio/base/TempoAutomation.hpp
     src/audio/base/TimeSignatureSequence.cpp
     src/audio/base/TimeSignatureSequence.hpp
+    src/audio/device/IAudioBusConfiguration.hpp
     src/audio/device/IAudioChannelGroup.cpp
     src/audio/device/IAudioChannelGroup.hpp
     src/audio/device/IAudioDevice.hpp
