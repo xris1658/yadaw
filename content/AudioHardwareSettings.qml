@@ -38,6 +38,19 @@ Item {
             width: secondColumnWidth
             model: [qsTr("Dummy"), "AudioGraph"]
         }
+        Item {
+            width: firstColumnWidth
+            height: configureAudioBusButton.height
+        }
+        Item {
+            width: secondColumnWidth
+            height: configureAudioBusButton.height
+            Button {
+                id: configureAudioBusButton
+                anchors.right: parent.right
+                text: qsTr("Configure Audio Bus...")
+            }
+        }
     }
     StackLayout {
         anchors.top: grid.bottom

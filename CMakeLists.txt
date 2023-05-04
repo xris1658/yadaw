@@ -172,6 +172,10 @@ set(YADAW_COMMON_SOURCES
     src/midi/MessageToVST3Event.hpp
     src/model/AssetDirectoryListModel.cpp
     src/model/AssetDirectoryListModel.hpp
+    src/model/AudioBusChannelListModel.cpp
+    src/model/AudioBusChannelListModel.hpp
+    src/model/AudioBusConfigurationModel.cpp
+    src/model/AudioBusConfigurationModel.hpp
     src/model/AudioGraphInputDeviceListModel.cpp
     src/model/AudioGraphInputDeviceListModel.hpp
     src/model/AudioGraphOutputDeviceListModel.cpp

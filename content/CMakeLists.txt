@@ -14,6 +14,8 @@ set(QT_QML_IMPORT_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/imports CACHE STR
 
 set(CONTENT_CPP_FILES
     model/IAssetDirectoryListModel.hpp
+    model/IAudioBusChannelListModel.hpp
+    model/IAudioBusConfigurationModel.hpp
     model/IAudioGraphDeviceListModel.hpp
     model/IAutomationModel.hpp
     model/ILocalizationListModel.hpp
