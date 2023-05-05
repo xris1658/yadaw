@@ -55,6 +55,10 @@ int main(int argc, char** argv)
                 {
                     std::printf("CLAP\n");
                 }
+                else if(pluginInfo.format == YADAW::DAO::PluginFormatVestifal)
+                {
+                    std::printf("Vestifal\n");
+                }
                 else
                 {
                     std::printf("Unknown\n");

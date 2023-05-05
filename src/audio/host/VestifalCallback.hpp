@@ -14,6 +14,8 @@ std::intptr_t vestifalHostCallback(AEffect* effect, std::int32_t opcode, std::in
 // The unique ID is thread_local, meaning that every thread has one instance of
 // unique ID. This makes creating multiple plugins *scale*.
 void setUniquePluginIdOnCurrentThread(std::int32_t uniqueId);
+
+void setUniquePluginShouldBeZeroOnCurrentThread(bool value);
 }
 
 #endif //YADAW_SRC_AUDIO_HOST_VESTIFALCALLBACK

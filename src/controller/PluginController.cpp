@@ -1,10 +1,13 @@
 #include "PluginController.hpp"
 
+#include "audio/host/VestifalCallback.hpp"
 #include "audio/util/VST3Util.hpp"
+#include "audio/util/VestifalUtil.hpp"
 #include "dao/PluginCategoryTable.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/CLAPNative.hpp"
 #include "native/VST3Native.hpp"
+#include "native/VestifalNative.hpp"
 #include "util/Base.hpp"
 
 #include <pluginterfaces/vst/ivstaudioprocessor.h>
@@ -29,7 +32,7 @@ QString clapPattern("*.clap");
 
 std::vector<QString> scanDirectory(const QDir& dir, bool recursive, bool includeSymLink)
 {
-    QStringList nameFilters({vst3Pattern, clapPattern});
+    QStringList nameFilters({vst3Pattern, clapPattern, vestifalPattern});
     QDir::Filters filters = QDir::Filter::Files | QDir::Filter::Hidden;
     const auto& entryInfoList = dir.entryInfoList(nameFilters,
         includeSymLink? filters: filters | QDir::Filter::NoSymLinks);
@@ -42,7 +45,7 @@ std::vector<QString> scanDirectory(const QDir& dir, bool recursive, bool include
             if(fileInfo.exists())
             {
                 auto suffix = fileInfo.suffix();
-                if(suffix == vst3Ext && suffix == clapExt)
+                if(suffix == vst3Ext || suffix == clapExt || suffix == vestifalExt)
                 {
                     ret.emplace_back(fileInfo.absoluteFilePath());
                 }
@@ -370,27 +373,114 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                     if(isInstrument)
                     {
                         YADAW::DAO::PluginInfo pluginInfo(
-                            path, uid, name, vendor, version, YADAW::DAO::PluginFormatCLAP, YADAW::DAO::PluginTypeInstrument
+                            path, uid, name, vendor, version,
+                            YADAW::DAO::PluginFormatCLAP,
+                            YADAW::DAO::PluginTypeInstrument
                         );
                         ret.push_back({pluginInfo, featureCollection});
                     }
                     if(isAudioEffect)
                     {
                         YADAW::DAO::PluginInfo pluginInfo(
-                            path, uid, name, vendor, version, YADAW::DAO::PluginFormatCLAP, YADAW::DAO::PluginTypeAudioEffect
+                            path, uid, name, vendor, version,
+                            YADAW::DAO::PluginFormatCLAP,
+                            YADAW::DAO::PluginTypeAudioEffect
                         );
                         ret.push_back({pluginInfo, featureCollection});
                     }
                     if(isMIDIEffect)
                     {
                         YADAW::DAO::PluginInfo pluginInfo(
-                            path, uid, name, vendor, version, YADAW::DAO::PluginFormatCLAP, YADAW::DAO::PluginTypeMIDIEffect
+                            path, uid, name, vendor, version,
+                            YADAW::DAO::PluginFormatCLAP,
+                            YADAW::DAO::PluginTypeMIDIEffect
                         );
                         ret.push_back({pluginInfo, featureCollection});
                     }
                 }
             }
             return ret;
+        }
+    }
+    else if(path.endsWith(vestifalExt, Qt::CaseSensitivity::CaseInsensitive))
+    {
+        std::vector<PluginScanResult> pluginScanResult;
+        if(auto entry = YADAW::Native::vestifalEntryFromLibrary(library);
+            entry)
+        {
+            YADAW::Audio::Host::setUniquePluginIdOnCurrentThread(0);
+            YADAW::Audio::Host::setUniquePluginShouldBeZeroOnCurrentThread(false);
+            if(auto effect = entry(&YADAW::Audio::Host::vestifalHostCallback);
+                effect)
+            {
+                runDispatcher(effect, EffectOpcode::effectOpen);
+                if(runDispatcher(effect, EffectOpcode::effectGetPlugCategory)
+                    == PluginCategory::PluginUnknown)
+                {
+                    runDispatcher(effect, EffectOpcode::effectClose);
+                    YADAW::Audio::Host::setUniquePluginShouldBeZeroOnCurrentThread(true);
+                    effect = entry(&YADAW::Audio::Host::vestifalHostCallback);
+                    runDispatcher(effect, EffectOpcode::effectOpen);
+                }
+                std::vector<AEffect*> effects;
+                std::vector<PluginScanResult> ret;
+                if(auto category = runDispatcher(effect, EffectOpcode::effectGetPlugCategory);
+                    category == PluginCategory::PluginShell)
+                {
+                    char buffer[128];
+                    buffer[0] = 0;
+                    auto iEffect = effect;
+                    while(true)
+                    {
+                        std::int32_t nextId = runDispatcher(
+                            effect, EffectOpcode::effectShellGetNextPlugin, 0, 0, buffer,
+                            YADAW::Util::stackArraySize(buffer));
+                        if(nextId == 0)
+                        {
+                            break;
+                        }
+                        YADAW::Audio::Host::setUniquePluginIdOnCurrentThread(nextId);
+                        iEffect = entry(&YADAW::Audio::Host::vestifalHostCallback);
+                        if(!iEffect)
+                        {
+                            break;
+                        }
+                        std::int32_t uniqueId = runDispatcher(iEffect, EffectOpcode::effectGetUniqueId);
+                        effects.emplace_back(iEffect);
+                    }
+                }
+                else
+                {
+                    effects.emplace_back(effect);
+                }
+                for(auto effect: effects)
+                {
+                    auto uid = effect->uniqueId;
+                    std::vector<char> uidAsVector(sizeof(uid) + 1, 0);
+                    std::memcpy(uidAsVector.data(), &uid, sizeof(uid));
+                    char name[128];
+                    char vendor[128];
+                    name[0] = 0;
+                    vendor[0] = 0;
+                    auto version = effect->version;
+                    auto type = (effect->flags & EffectFlag::effectIsSynth) != 0
+                                ? YADAW::DAO::PluginType::PluginTypeInstrument
+                                : YADAW::DAO::PluginType::PluginTypeAudioEffect;
+                    runDispatcher(
+                        effect, EffectOpcode::effectGetEffectName, 0, 0, name, YADAW::Util::stackArraySize(name));
+                    runDispatcher(
+                        effect, EffectOpcode::effectGetVendorName, 0, 0, vendor,
+                        YADAW::Util::stackArraySize(vendor));
+                    YADAW::DAO::PluginInfo pluginInfo(
+                        path, uidAsVector, name, vendor,
+                        QString::number(version, 16),
+                        YADAW::DAO::PluginFormat::PluginFormatVestifal, type
+                    );
+                    ret.emplace_back(PluginScanResult {pluginInfo, {}});
+                    runDispatcher(effect, EffectOpcode::effectClose);
+                }
+                return ret;
+            }
         }
     }
     return {};

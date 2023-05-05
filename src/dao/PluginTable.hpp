@@ -15,7 +15,8 @@ enum PluginFormat: int
 {
     PluginFormatUnknown,
     PluginFormatVST3,
-    PluginFormatCLAP
+    PluginFormatCLAP,
+    PluginFormatVestifal
 };
 
 enum PluginType: int

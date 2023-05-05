@@ -4,6 +4,7 @@
 
 namespace YADAW::Audio::Host
 {
+thread_local bool uniquePluginIdShouldBeZero;
 thread_local std::int32_t uniquePluginId;
 
 std::intptr_t vestifalHostCallback(AEffect* effect, std::int32_t opcode, std::int32_t input, std::intptr_t opt, void* ptr,
@@ -15,7 +16,8 @@ std::intptr_t vestifalHostCallback(AEffect* effect, std::int32_t opcode, std::in
         return 2400;
     case audioMasterGetCurrentUniqueId:
     {
-        auto ret = uniquePluginId;
+        auto ret = (uniquePluginId == 0 && (!uniquePluginIdShouldBeZero))?
+            effect->uniqueId: uniquePluginId;
         return ret;
     }
     case audioMasterGetVendorName:
@@ -31,5 +33,10 @@ std::intptr_t vestifalHostCallback(AEffect* effect, std::int32_t opcode, std::in
 void setUniquePluginIdOnCurrentThread(std::int32_t uniqueId)
 {
     uniquePluginId = uniqueId;
+}
+
+void setUniquePluginShouldBeZeroOnCurrentThread(bool value)
+{
+    uniquePluginIdShouldBeZero = value;
 }
 }
