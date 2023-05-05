@@ -12,6 +12,9 @@ Item {
     property alias audioGraphOutputDeviceList: audioGraphSettings.outputDeviceList
     property alias audioGraphOutputDeviceIndex: audioGraphSettings.outputDeviceIndex
 
+    property alias audioInputBusConfigurationModel: audioBusConfigurationWindow.inputConfigModel
+    property alias audioOutputBusConfigurationModel: audioBusConfigurationWindow.outputConfigModel
+
     Grid {
         id: grid
         columns: 2
@@ -49,6 +52,9 @@ Item {
                 id: configureAudioBusButton
                 anchors.right: parent.right
                 text: qsTr("Configure Audio Bus...")
+                onClicked: {
+                    audioBusConfigurationWindow.show();
+                }
             }
         }
     }
@@ -62,5 +68,8 @@ Item {
             firstColumnWidth: root.firstColumnWidth
             secondColumnWidth: root.secondColumnWidth
         }
+    }
+    AudioBusConfigurationWindow {
+        id: audioBusConfigurationWindow
     }
 }

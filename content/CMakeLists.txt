@@ -30,9 +30,11 @@ set(CONTENT_QML_FILES
     Action.qml
     ApplicationWindow.qml
     Assets.qml
-    AudioIcon.qml
+    AudioBusConfiguration.qml
+    AudioBusConfigurationWindow.qml
     AudioGraphSettings.qml
     AudioHardwareSettings.qml
+    AudioIcon.qml
     Automation.qml
     BigClock.qml
     Button.qml

@@ -15,6 +15,9 @@ Window {
     property alias translationModel: generalSettings.translationModel
     property alias currentTranslationIndex: generalSettings.currentTranslationIndex
 
+    property alias audioInputBusConfigurationModel: audioHardwareSettings.audioInputBusConfigurationModel
+    property alias audioOutputBusConfigurationModel: audioHardwareSettings.audioOutputBusConfigurationModel
+
     property alias audioGraphInputDeviceList: audioHardwareSettings.audioGraphInputDeviceList
     property alias audioGraphOutputDeviceList: audioHardwareSettings.audioGraphOutputDeviceList
     property alias audioGraphOutputDeviceIndex: audioHardwareSettings.audioGraphOutputDeviceIndex
