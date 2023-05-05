@@ -70,6 +70,19 @@ ListView {
                             path.strokeColor: "transparent"
                         }
                     }
+                    Item {
+                        layer.enabled: true
+                        layer.smooth: true
+                        layer.samples: 4
+                        width: height
+                        height: itemDelegate.height
+                        VestifalIcon {
+                            anchors.centerIn: parent
+                            scale: 16 / originalHeight
+                            path.fillColor: Colors.secondaryContent
+                            path.strokeColor: "transparent"
+                        }
+                    }
                 }
                 StackLayout {
                     id: typeIcons

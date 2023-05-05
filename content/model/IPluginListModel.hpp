@@ -28,7 +28,8 @@ public:
     {
         UnknownFormat,
         VST3,
-        CLAP
+        CLAP,
+        Vestifal
     };
     Q_ENUM(PluginFormat)
     enum PluginType

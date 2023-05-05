@@ -14,6 +14,8 @@ YADAW::Model::IPluginListModel::PluginFormat getPluginFormat(int format)
         return YADAW::Model::IPluginListModel::PluginFormat::VST3;
     case YADAW::DAO::PluginFormat::PluginFormatCLAP:
         return YADAW::Model::IPluginListModel::PluginFormat::CLAP;
+    case YADAW::DAO::PluginFormat::PluginFormatVestifal:
+        return YADAW::Model::IPluginListModel::PluginFormat::Vestifal;
     default:
         return YADAW::Model::IPluginListModel::PluginFormat::UnknownFormat;
     }
