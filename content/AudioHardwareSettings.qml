@@ -51,7 +51,7 @@ Item {
             Button {
                 id: configureAudioBusButton
                 anchors.right: parent.right
-                text: qsTr("Configure Audio Bus...")
+                text: qsTr("&Configure Audio Bus...")
                 onClicked: {
                     audioBusConfigurationWindow.show();
                 }

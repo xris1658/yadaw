@@ -116,6 +116,14 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphInputDeviceListModel()));
     YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphOutputDeviceListModel()));
+    static YADAW::Model::AudioBusConfigurationModel appAudioBusInputConfigurationModel(
+        YADAW::Controller::appAudioBusConfiguration(), true);
+    static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
+        YADAW::Controller::appAudioBusConfiguration(), false);
+    YADAW::UI::mainWindow->setProperty("audioInputBusConfigurationModel",
+        QVariant::fromValue<QObject*>(&appAudioBusInputConfigurationModel));
+    YADAW::UI::mainWindow->setProperty("audioOutputBusConfigurationModel",
+        QVariant::fromValue<QObject*>(&appAudioBusOutputConfigurationModel));
     if(currentOutputDeviceIndex != -1)
     {
         YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceIndex",

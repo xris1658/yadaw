@@ -86,6 +86,24 @@
     </message>
 </context>
 <context>
+    <name>AudioBusConfiguration</name>
+    <message>
+        <location filename="../../content/AudioBusConfiguration.qml" line="19"/>
+        <source> audio bus</source>
+        <translation> 个音频总线</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioBusConfiguration.qml" line="19"/>
+        <source> audio buses</source>
+        <translation> 个音频总线</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioBusConfiguration.qml" line="31"/>
+        <source>&amp;Add Bus...</source>
+        <translation type="unfinished">添加总线(&amp;A)...</translation>
+    </message>
+</context>
+<context>
     <name>AudioBusConfigurationWindow</name>
     <message>
         <location filename="../../content/AudioBusConfigurationWindow.qml" line="14"/>
@@ -93,12 +111,12 @@
         <translation>配置音频总线</translation>
     </message>
     <message>
-        <location filename="../../content/AudioBusConfigurationWindow.qml" line="25"/>
+        <location filename="../../content/AudioBusConfigurationWindow.qml" line="26"/>
         <source>Input</source>
         <translation>输入</translation>
     </message>
     <message>
-        <location filename="../../content/AudioBusConfigurationWindow.qml" line="30"/>
+        <location filename="../../content/AudioBusConfigurationWindow.qml" line="31"/>
         <source>Output</source>
         <translation>输出</translation>
     </message>
@@ -171,8 +189,8 @@
     </message>
     <message>
         <location filename="../../content/AudioHardwareSettings.qml" line="54"/>
-        <source>Configure Audio Bus...</source>
-        <translation>配置音频总线...</translation>
+        <source>&amp;Configure Audio Bus...</source>
+        <translation>配置音频总线(&amp;C)...</translation>
     </message>
 </context>
 <context>

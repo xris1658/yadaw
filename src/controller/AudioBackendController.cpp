@@ -108,4 +108,10 @@ YAML::Node deviceConfigFromCurrentAudioGraph()
     emitter << YAML::EndMap;
     return YAML::Load(emitter.c_str());
 }
+
+YADAW::Audio::Backend::AudioGraphBusConfiguration& appAudioBusConfiguration()
+{
+    static YADAW::Audio::Backend::AudioGraphBusConfiguration ret(appAudioGraphBackend());
+    return ret;
+}
 }

@@ -2,8 +2,10 @@
 #define YADAW_SRC_CONTROLLER_AUDIOBACKENDCONTROLLER
 
 #include "audio/backend/AudioGraphBackend.hpp"
+#include "audio/backend/AudioGraphBusConfiguration.hpp"
 #include "model/AudioGraphInputDeviceListModel.hpp"
 #include "model/AudioGraphOutputDeviceListModel.hpp"
+#include "model/AudioBusConfigurationModel.hpp"
 
 #include <yaml-cpp/yaml.h>
 
@@ -22,6 +24,8 @@ void activateDefaultDevice(YADAW::Audio::Backend::AudioGraphBackend& backend);
 bool createAudioGraphFromConfig(const YAML::Node& node);
 
 YAML::Node deviceConfigFromCurrentAudioGraph();
+
+YADAW::Audio::Backend::AudioGraphBusConfiguration& appAudioBusConfiguration();
 }
 
 #endif //YADAW_SRC_CONTROLLER_AUDIOBACKENDCONTROLLER
