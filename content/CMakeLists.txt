@@ -4,6 +4,7 @@ set_source_files_properties(Colors.qml
                             Constants.qml
                             EventReceiver.qml
                             EventSender.qml
+                            Functions.qml
                             Global.qml
                             Mnemonic.qml
                             PROPERTIES
@@ -53,6 +54,7 @@ set(CONTENT_QML_FILES
     FaderIcon.qml
     FolderIcon.qml
     FollowIcon.qml
+    Functions.qml
     GeneralSettings.qml
     Global.qml
     GroupIcon.qml

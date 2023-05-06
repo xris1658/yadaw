@@ -2,8 +2,8 @@ import QtQuick
 import QtQuick.Shapes
 
 Shape {
-    readonly property int originalWidth: 256
-    readonly property int originalHeight: 256
+    readonly property int originalWidth: 16
+    readonly property int originalHeight: 16
     width: originalWidth
     height: originalHeight
     property alias path: path
@@ -11,7 +11,7 @@ Shape {
         id: path
         fillRule: ShapePath.OddEvenFill
         PathSvg {
-            path: "M64,32h80V48H112V208h32v16H64V208H96V48H64V32ZM48,80H80V96H64v64H80v16H48V80Zm80,0V96h64v64H128v16h80V80H128Z"
+            path: "M4,2H9V3H7V13H9v1H4V13H6V3H4V2ZM5,5V6H4v4H5v1H3V5H5ZM8,5h5v6H8V10h4V6H8V5Z"
         }
     }
 }

@@ -53,8 +53,15 @@ Rectangle {
                             id: okAddBusButton
                             text: Constants.okTextWithMnemonic
                             onClicked: {
-                                root.model.append(parseInt(channelCountTextField.text));
-                                popup.close();
+                                let value = Functions.parseStringAsInt(channelCountTextField.text);
+                                if(!isNaN(value) && value > 0) {
+                                    root.model.append(value);
+                                    popup.close();
+                                }
+                                else {
+                                    channelCountTextField.selectAll();
+                                    channelCountTextField.forceActiveFocus();
+                                }
                             }
                         }
                     }
@@ -73,6 +80,7 @@ Rectangle {
             width: root.width / 2
             height: root.height - busListHeader.height
             clip: true
+            boundsBehavior: ListView.StopAtBounds
             ScrollBar.vertical: ScrollBar {
                 id: busListScrollBar
                 visible: busList.height < busList.contentHeight
@@ -104,7 +112,6 @@ Rectangle {
                     z: 1
                     RenameIcon {
                         anchors.centerIn: parent
-                        scale: parent.height / originalHeight
                         path.fillColor: Colors.secondaryContent
                         path.strokeColor: "transparent"
                     }
@@ -112,6 +119,7 @@ Rectangle {
                         audioBusNameTextField.visible = true;
                         audioBusNameTextField.text = audioBusButton.text;
                         audioBusNameTextField.forceActiveFocus();
+                        audioBusNameTextField.selectAll();
                     }
                 }
                 ItemDelegate {
@@ -131,10 +139,17 @@ Rectangle {
             }
         }
     }
+    Rectangle {
+        id: separator
+        width: 1
+        height: root.height
+        anchors.right: stackLayout.left
+        color: Colors.controlBorder
+    }
     StackLayout {
         id: stackLayout
         anchors.right: parent.right
-        width: root.minimumWidth - busList.width
+        width: root.minimumWidth - busList.width - separator.width
         height: root.height
         Repeater {
             model: busList.model
@@ -142,16 +157,32 @@ Rectangle {
                 id: channelList
                 width: stackLayout.width
                 model: abcm_channel_list
+                clip: true
+                boundsBehavior: ListView.StopAtBounds
                 ScrollBar.vertical: ScrollBar {
                     id: channelListScrollBar
                     visible: channelList.height < channelList.contentHeight
                 }
-                delegate: ItemDelegate {
-                    text: (abclm_device_index == -1? qsTr("Dummy Device"): ("Device " + (abclm_device_index + 1).toString()))
-                        +
-                        " - "
-                        + (abclm_channel_index == -1? qsTr("Invalid Channel"): ("Channel " + (abclm_channel_index + 1).toString()))
-                    width: busList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0)
+                delegate: Row {
+                    Label {
+                        id: indexIndicator
+                        text: index + 1
+                        width: channelSelector.width
+                        height: channelSelector.height
+                        verticalAlignment: Label.AlignVCenter
+                        horizontalAlignment: Label.AlignLeft
+                        leftPadding: (height - contentHeight) / 2
+                    }
+                    ItemDelegate {
+                        id: deviceSelector
+                        width: channelList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0) - channelSelector.width - indexIndicator.width
+                        text: (abclm_device_index == -1? qsTr("Dummy Device"): ("Device " + (abclm_device_index + 1).toString()))
+                    }
+                    ItemDelegate {
+                        id: channelSelector
+                        width: height
+                        text: (abclm_channel_index == -1? qsTr("Invalid Channel"): ("Channel " + (abclm_channel_index + 1).toString()))
+                    }
                 }
             }
         }
