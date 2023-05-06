@@ -6,7 +6,8 @@ ListView {
     enum PluginFormat {
         Unknown,
         VST3,
-        CLAP
+        CLAP,
+        Vestifal
     }
     enum PluginType {
         Unknown,
