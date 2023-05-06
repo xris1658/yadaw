@@ -9,67 +9,8 @@ Shape {
     property alias path: path
     ShapePath {
         id: path
-        startX: 80
-        startY: 32
-        PathLine {
-            x: 96
-            y: 32
-        }
-        PathLine {
-            x: 176
-            y: 112
-        }
-        PathLine {
-            x: 224
-            y: 112
-        }
-        PathLine {
-            x: 224
-            y: 144
-        }
-        PathLine {
-            x: 176
-            y: 144
-        }
-        PathLine {
-            x: 96
-            y: 224
-        }
-        PathLine {
-            x: 80
-            y: 224
-        }
-        PathLine {
-            x: 80
-            y: 176
-        }
-        PathLine {
-            x: 32
-            y: 176
-        }
-        PathLine {
-            x: 32
-            y: 160
-        }
-        PathLine {
-            x: 80
-            y: 160
-        }
-        PathLine {
-            x: 80
-            y: 96
-        }
-        PathLine {
-            x: 32
-            y: 96
-        }
-        PathLine {
-            x: 32
-            y: 80
-        }
-        PathLine {
-            x: 80
-            y: 80
+        PathSvg {
+            path: "M80,32h32V64h32l48,48h32v32H192l-48,48H112v32H80V176H32V160H80V96H32V80H80V32Z"
         }
     }
 }
