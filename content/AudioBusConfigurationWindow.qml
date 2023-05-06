@@ -31,17 +31,24 @@ Window {
                 text: qsTr("Output")
             }
         }
-        StackLayout {
-            currentIndex: inputButton.checked? 0: 1
-            AudioBusConfiguration {
-                id: inputConfig
-                width: minimumWidth
-                height: minimumHeight
-            }
-            AudioBusConfiguration {
-                id: outputConfig
-                width: minimumWidth
-                height: minimumHeight
+        Rectangle {
+            width: stackLayout.width + border.width * 2
+            height: stackLayout.height + border.width * 2
+            border.color: Colors.controlBorder
+            StackLayout {
+                id: stackLayout
+                anchors.centerIn: parent
+                currentIndex: inputButton.checked? 0: 1
+                AudioBusConfiguration {
+                    id: inputConfig
+                    width: minimumWidth
+                    height: minimumHeight
+                }
+                AudioBusConfiguration {
+                    id: outputConfig
+                    width: minimumWidth
+                    height: minimumHeight
+                }
             }
         }
     }

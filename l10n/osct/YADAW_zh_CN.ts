@@ -88,19 +88,29 @@
 <context>
     <name>AudioBusConfiguration</name>
     <message>
-        <location filename="../../content/AudioBusConfiguration.qml" line="19"/>
+        <location filename="../../content/AudioBusConfiguration.qml" line="20"/>
         <source> audio bus</source>
         <translation> 个音频总线</translation>
     </message>
     <message>
-        <location filename="../../content/AudioBusConfiguration.qml" line="19"/>
+        <location filename="../../content/AudioBusConfiguration.qml" line="20"/>
         <source> audio buses</source>
         <translation> 个音频总线</translation>
     </message>
     <message>
-        <location filename="../../content/AudioBusConfiguration.qml" line="31"/>
+        <location filename="../../content/AudioBusConfiguration.qml" line="29"/>
         <source>&amp;Add Bus...</source>
-        <translation type="unfinished">添加总线(&amp;A)...</translation>
+        <translation>添加总线(&amp;A)...</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioBusConfiguration.qml" line="48"/>
+        <source>Channel count</source>
+        <translation>声道数</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioBusConfiguration.qml" line="82"/>
+        <source>Bus </source>
+        <translation>总线 </translation>
     </message>
 </context>
 <context>

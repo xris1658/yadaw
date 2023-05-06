@@ -75,8 +75,10 @@ bool AudioBusConfigurationModel::append(int channelCount)
         return false;
     }
     beginInsertRows(QModelIndex(), itemCount(), itemCount());
-    configuration_->appendBus(isInput_, channelCount);
-    endInsertColumns();
+    auto newIndex = configuration_->appendBus(isInput_, channelCount);
+    channelList_.emplace_back(*configuration_, isInput_, newIndex);
+    name_.emplace_back();
+    endInsertRows();
     return true;
 }
 
@@ -85,6 +87,7 @@ bool AudioBusConfigurationModel::remove(int index)
     if(index >= 0 && index < itemCount())
     {
         beginRemoveRows(QModelIndex(), index, index);
+        name_.erase(name_.begin() + index);
         configuration_->removeBus(isInput_, index);
         channelList_.clear();
         for(std::uint32_t i = 0; i < itemCount(); ++i)
