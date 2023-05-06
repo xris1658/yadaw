@@ -8,7 +8,6 @@ Rectangle {
     property int minimumWidth: 400
     property int minimumHeight: 300
     property alias model: busList.model
-
     Column {
         Item {
             id: busListHeader
@@ -78,9 +77,57 @@ Rectangle {
                 id: busListScrollBar
                 visible: busList.height < busList.contentHeight
             }
-            delegate: ItemDelegate {
-                width: busList.width - (busListScrollBar.visible? busListScrollBar.width: 0)
-                text: abcm_name == ""? qsTr("Bus ") + (index + 1): abcm_name
+            delegate: Row {
+                id: audioBusRow
+                ItemDelegate {
+                    id: audioBusButton
+                    width: busList.width - (busListScrollBar.visible? busListScrollBar.width: 0) - audioBusRenameButton.width - audioBusRemoveButton.width
+                    text: abcm_name == ""? qsTr("Bus ") + (index + 1): abcm_name
+                    z: 2
+                    TextField {
+                        id: audioBusNameTextField
+                        visible: false
+                        width: audioBusRow.width
+                        height: parent.height
+                        onAccepted: {
+                            visible = false;
+                            abcm_name = text;
+                        }
+                        Keys.onEscapePressed:  {
+                            audioBusNameTextField.visible = false;
+                        }
+                    }
+                }
+                ItemDelegate {
+                    id: audioBusRenameButton
+                    width: height
+                    z: 1
+                    RenameIcon {
+                        anchors.centerIn: parent
+                        scale: parent.height / originalHeight
+                        path.fillColor: Colors.secondaryContent
+                        path.strokeColor: "transparent"
+                    }
+                    onClicked: {
+                        audioBusNameTextField.visible = true;
+                        audioBusNameTextField.text = audioBusButton.text;
+                        audioBusNameTextField.forceActiveFocus();
+                    }
+                }
+                ItemDelegate {
+                    id: audioBusRemoveButton
+                    width: height
+                    z: 1
+                    RemoveIcon {
+                        anchors.centerIn: parent
+                        scale: parent.height / originalHeight
+                        path.fillColor: Colors.secondaryContent
+                        path.strokeColor: "transparent"
+                    }
+                    onClicked: {
+                        root.model.remove(index);
+                    }
+                }
             }
         }
     }
@@ -100,7 +147,10 @@ Rectangle {
                     visible: channelList.height < channelList.contentHeight
                 }
                 delegate: ItemDelegate {
-                    text: "Device " + (abclm_device_index + 1).toString() + ", Channel " + (abclm_channel_index + 1).toString()
+                    text: (abclm_device_index == -1? qsTr("Dummy Device"): ("Device " + (abclm_device_index + 1).toString()))
+                        +
+                        " - "
+                        + (abclm_channel_index == -1? qsTr("Invalid Channel"): ("Channel " + (abclm_channel_index + 1).toString()))
                     width: busList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0)
                 }
             }

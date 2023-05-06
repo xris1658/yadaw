@@ -81,6 +81,8 @@ set(CONTENT_QML_FILES
     PluginSettings.qml
     PreferencesWindow.qml
     ProgressBar.qml
+    RemoveIcon.qml
+    RenameIcon.qml
     ScrollBar.qml
     SendIcon.qml
     Slider.qml

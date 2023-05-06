@@ -40,12 +40,30 @@ QVariant AudioBusChannelListModel::data(const QModelIndex& index, int role) cons
     auto row = index.row();
     if(row >= 0 && row < itemCount())
     {
+        auto channel = (isInput_?
+            configuration_->inputBusAt(index_):
+            configuration_->outputBusAt(index_)
+        )->get().channelAt(row).value();
         switch(role)
         {
         case Role::ChannelIndex:
-            return {};
+        {
+            auto value = channel.channelIndex;
+            if(value == YADAW::Audio::Device::InvalidIndex)
+            {
+                return QVariant::fromValue<int>(-1);
+            }
+            return QVariant::fromValue<int>(value);
+        }
         case Role::DeviceIndex:
-            return {};
+        {
+            auto value = channel.deviceIndex;
+            if(value == YADAW::Audio::Device::InvalidIndex)
+            {
+                return QVariant::fromValue<int>(-1);
+            }
+            return QVariant::fromValue<int>(value);
+        }
         }
     }
     return {};

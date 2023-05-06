@@ -88,29 +88,39 @@
 <context>
     <name>AudioBusConfiguration</name>
     <message>
-        <location filename="../../content/AudioBusConfiguration.qml" line="20"/>
+        <location filename="../../content/AudioBusConfiguration.qml" line="19"/>
         <source> audio bus</source>
         <translation> 个音频总线</translation>
     </message>
     <message>
-        <location filename="../../content/AudioBusConfiguration.qml" line="20"/>
+        <location filename="../../content/AudioBusConfiguration.qml" line="19"/>
         <source> audio buses</source>
         <translation> 个音频总线</translation>
     </message>
     <message>
-        <location filename="../../content/AudioBusConfiguration.qml" line="29"/>
+        <location filename="../../content/AudioBusConfiguration.qml" line="28"/>
         <source>&amp;Add Bus...</source>
         <translation>添加总线(&amp;A)...</translation>
     </message>
     <message>
-        <location filename="../../content/AudioBusConfiguration.qml" line="48"/>
+        <location filename="../../content/AudioBusConfiguration.qml" line="47"/>
         <source>Channel count</source>
         <translation>声道数</translation>
     </message>
     <message>
-        <location filename="../../content/AudioBusConfiguration.qml" line="82"/>
+        <location filename="../../content/AudioBusConfiguration.qml" line="85"/>
         <source>Bus </source>
         <translation>总线 </translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioBusConfiguration.qml" line="150"/>
+        <source>Dummy Device</source>
+        <translation>假设备</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioBusConfiguration.qml" line="153"/>
+        <source>Invalid Channel</source>
+        <translation>无效声道</translation>
     </message>
 </context>
 <context>
