@@ -124,6 +124,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/AssetDirectoryController.hpp
     src/controller/AudioBackendController.cpp
     src/controller/AudioBackendController.hpp
+    src/controller/AudioBusConfigurationController.cpp
+    src/controller/AudioBusConfigurationController.hpp
     src/controller/AudioEngineController.hpp
     src/controller/ConfigController.cpp
     src/controller/ConfigController.hpp
@@ -238,6 +240,7 @@ set(YADAW_COMMON_SOURCES
     src/util/Literal.cpp
     src/util/Literal.hpp
     src/util/LockFreeQueue.hpp
+    src/util/OptionalUtil.hpp
     src/util/QStringUtil.cpp
     src/util/QStringUtil.hpp
     src/util/QmlUtil.hpp
@@ -246,6 +249,7 @@ set(YADAW_COMMON_SOURCES
     src/util/SineFunction.cpp
     src/util/SineFunction.hpp
     src/util/Stopwatch.hpp
+    src/util/YAMLCppUtil.hpp
     )
 
 qt_add_executable(YADAW

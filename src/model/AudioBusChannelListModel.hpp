@@ -14,7 +14,7 @@ class AudioBusChannelListModel: public IAudioBusChannelListModel
 {
     Q_OBJECT
 public:
-    AudioBusChannelListModel(const IAudioBusConfiguration& configuration,
+    AudioBusChannelListModel(IAudioBusConfiguration& configuration,
         bool isInput, std::uint32_t index, QObject* parent = nullptr);
     AudioBusChannelListModel(const AudioBusChannelListModel& rhs);
     ~AudioBusChannelListModel() override;
@@ -24,8 +24,10 @@ public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+public:
+    bool setChannel(std::uint32_t index, std::uint32_t deviceIndex, std::uint32_t channelIndex);
 private:
-    const IAudioBusConfiguration* configuration_;
+    IAudioBusConfiguration* configuration_;
     bool isInput_;
     std::uint32_t index_;
 };

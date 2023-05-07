@@ -20,6 +20,11 @@ std::optional<Channel> AudioGraphBusConfiguration::Bus::channelAt(std::uint32_t 
 
 bool AudioGraphBusConfiguration::Bus::setChannel(std::uint32_t index, Channel channel)
 {
+    if(index < channels_.size())
+    {
+        channels_[index] = channel;
+        return true;
+    }
     return false;
 }
 

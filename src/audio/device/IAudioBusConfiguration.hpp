@@ -1,12 +1,10 @@
 #ifndef YADAW_SRC_AUDIO_DEVICE_IAUDIOBUSCONFIGURATION
 #define YADAW_SRC_AUDIO_DEVICE_IAUDIOBUSCONFIGURATION
 
-#include <cstdint>
-#include <optional>
-#include <vector>
+#include "util/OptionalUtil.hpp"
 
-template<typename T>
-using OptionalRef = std::optional<std::reference_wrapper<T>>;
+#include <cstdint>
+#include <vector>
 
 namespace YADAW::Audio::Device
 {

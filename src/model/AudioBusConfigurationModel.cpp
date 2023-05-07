@@ -104,4 +104,30 @@ void AudioBusConfigurationModel::clear()
 {
     configuration_->clearBus(isInput_);
 }
+
+OptionalRef<const QString> AudioBusConfigurationModel::nameAt(std::uint32_t index) const
+{
+    return index < itemCount()? OptionalRef<const QString>(name_[index]): std::nullopt;
+}
+
+bool AudioBusConfigurationModel::setName(std::uint32_t index, const QString& name)
+{
+    if(index < itemCount())
+    {
+        name_[index] = name;
+        return true;
+    }
+    return false;
+}
+
+bool AudioBusConfigurationModel::setChannel(
+    std::uint32_t index, std::uint32_t busChannelIndex,
+    std::uint32_t deviceIndex, std::uint32_t deviceChannelIndex)
+{
+    if(index < channelList_.size())
+    {
+        return channelList_[index].setChannel(busChannelIndex, deviceIndex, deviceChannelIndex);
+    }
+    return false;
+}
 }

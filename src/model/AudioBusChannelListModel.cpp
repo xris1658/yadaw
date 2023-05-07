@@ -4,8 +4,10 @@ namespace YADAW::Model
 {
 using YADAW::Audio::Device::IAudioBusConfiguration;
 
+
+
 AudioBusChannelListModel::AudioBusChannelListModel(
-    const IAudioBusConfiguration& configuration, bool isInput,
+    IAudioBusConfiguration& configuration, bool isInput,
     std::uint32_t index, QObject* parent):
     IAudioBusChannelListModel(parent),
     configuration_(&configuration),
@@ -74,13 +76,46 @@ bool AudioBusChannelListModel::setData(const QModelIndex& index, const QVariant&
     auto row = index.row();
     if(row >= 0 && row < itemCount())
     {
+        const auto& channel =
+            (isInput_?
+                configuration_->inputBusAt(index_):
+                configuration_->outputBusAt(index_))
+            ->get().channelAt(row).value();
         switch(role)
         {
         case Role::ChannelIndex:
-            return false;
-        case Role::DeviceIndex:
-            return false;
+        {
+            auto ret = setChannel(row, channel.deviceIndex, value.value<int>());
+            if(ret)
+            {
+                dataChanged(index, index, {Role::ChannelIndex});
+            }
+            return ret;
         }
+        case Role::DeviceIndex:
+        {
+            auto ret = setChannel(row, value.value<int>(), channel.channelIndex);
+            if(ret)
+            {
+                dataChanged(index, index, {Role::DeviceIndex});
+            }
+            return ret;
+        }
+        }
+    }
+    return false;
+}
+
+bool AudioBusChannelListModel::setChannel(std::uint32_t index,
+    std::uint32_t deviceIndex, std::uint32_t channelIndex)
+{
+    if(index < itemCount())
+    {
+        auto& bus = (
+            isInput_?
+                configuration_->inputBusAt(index_)->get():
+                configuration_->outputBusAt(index_)->get());
+        return bus.setChannel(index, {deviceIndex, channelIndex});
     }
     return false;
 }

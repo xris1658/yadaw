@@ -4,6 +4,7 @@
 #include "audio/device/IAudioBusConfiguration.hpp"
 #include "model/AudioBusChannelListModel.hpp"
 #include "model/IAudioBusConfigurationModel.hpp"
+#include "util/OptionalUtil.hpp"
 
 namespace YADAW::Model
 {
@@ -25,6 +26,11 @@ public:
     Q_INVOKABLE bool append(int channelCount) override;
     Q_INVOKABLE bool remove(int index) override;
     Q_INVOKABLE void clear() override;
+public:
+    OptionalRef<const QString> nameAt(std::uint32_t index) const;
+    bool setName(std::uint32_t index, const QString& name);
+    bool setChannel(std::uint32_t index, std::uint32_t busChannelIndex,
+        std::uint32_t deviceIndex, std::uint32_t deviceChannelIndex);
 private:
     IAudioBusConfiguration* configuration_;
     std::vector<YADAW::Model::AudioBusChannelListModel> channelList_;

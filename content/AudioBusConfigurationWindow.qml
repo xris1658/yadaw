@@ -9,6 +9,8 @@ Window {
     property int padding: 10
     property alias inputConfigModel: inputConfig.model
     property alias outputConfigModel: outputConfig.model
+    property alias inputDeviceListModel: inputConfig.deviceListModel
+    property alias outputDeviceListModel: outputConfig.deviceListModel
 
     flags: Qt.Dialog
     title: qsTr("Configure Audio Bus")

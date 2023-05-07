@@ -4,6 +4,7 @@
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
 #include "controller/AudioBackendController.hpp"
+#include "controller/AudioBusConfigurationController.hpp"
 #include "controller/ConfigController.hpp"
 #include "controller/GeneralSettingsController.hpp"
 #include "controller/PluginController.hpp"
@@ -70,8 +71,8 @@ void EventHandler::onOpenMainWindow()
     backend.initialize();
     backend.createAudioGraph(); // TODO: Read settings
     auto appConfig = YADAW::Controller::loadConfig();
-    auto node = appConfig["audio-hardware"]["audio-graph"];
-    if(node.IsNull())
+    auto audioGraphNode = appConfig["audio-hardware"]["audio-graph"];
+    if(audioGraphNode.IsNull())
     {
         YADAW::Controller::activateDefaultDevice(backend);
         appConfig["audio-hardware"]["audio-graph"] = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
@@ -79,7 +80,7 @@ void EventHandler::onOpenMainWindow()
     }
     else
     {
-        YADAW::Controller::createAudioGraphFromConfig(node);
+        YADAW::Controller::createAudioGraphFromConfig(audioGraphNode);
     }
     const auto& currentOutputDeviceId = backend.currentOutputDevice().id;
     int currentOutputDeviceIndex = -1;
@@ -90,8 +91,20 @@ void EventHandler::onOpenMainWindow()
             currentOutputDeviceIndex = i;
         }
     }
-    appConfig["audio-hardware"]["audio-graph"] = node;
+    appConfig["audio-hardware"]["audio-graph"] = audioGraphNode;
     YADAW::Controller::saveConfig(appConfig);
+    // audio bus configuration
+    static YADAW::Model::AudioBusConfigurationModel appAudioBusInputConfigurationModel(
+        YADAW::Controller::appAudioBusConfiguration(), true);
+    static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
+        YADAW::Controller::appAudioBusConfiguration(), false);
+    auto audioBusConfigNode = appConfig["audio-bus"];
+    if(!audioBusConfigNode.IsNull())
+    {
+        YADAW::Controller::loadAudioBusConfiguration(audioBusConfigNode,
+            appAudioBusInputConfigurationModel, appAudioBusOutputConfigurationModel);
+    }
+    // TODO: audio bus configuration
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
     YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",
@@ -116,10 +129,6 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphInputDeviceListModel()));
     YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphOutputDeviceListModel()));
-    static YADAW::Model::AudioBusConfigurationModel appAudioBusInputConfigurationModel(
-        YADAW::Controller::appAudioBusConfiguration(), true);
-    static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
-        YADAW::Controller::appAudioBusConfiguration(), false);
     YADAW::UI::mainWindow->setProperty("audioInputBusConfigurationModel",
         QVariant::fromValue<QObject*>(&appAudioBusInputConfigurationModel));
     YADAW::UI::mainWindow->setProperty("audioOutputBusConfigurationModel",

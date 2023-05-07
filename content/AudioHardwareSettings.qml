@@ -71,5 +71,7 @@ Item {
     }
     AudioBusConfigurationWindow {
         id: audioBusConfigurationWindow
+        inputDeviceListModel: audioGraphInputDeviceList
+        outputDeviceListModel: audioGraphOutputDeviceList
     }
 }

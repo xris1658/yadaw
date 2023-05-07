@@ -7,6 +7,7 @@ Rectangle {
     color: Colors.background
     property int minimumWidth: 400
     property int minimumHeight: 300
+    property var deviceListModel: null
     property alias model: busList.model
     Column {
         Item {
@@ -87,6 +88,7 @@ Rectangle {
             }
             delegate: Row {
                 id: audioBusRow
+                property int busIndex: index
                 ItemDelegate {
                     id: audioBusButton
                     width: busList.width - (busListScrollBar.visible? busListScrollBar.width: 0) - audioBusRenameButton.width - audioBusRemoveButton.width
@@ -104,6 +106,9 @@ Rectangle {
                         Keys.onEscapePressed:  {
                             audioBusNameTextField.visible = false;
                         }
+                    }
+                    onClicked: {
+                        stackLayout.currentIndex = audioBusRow.busIndex
                     }
                 }
                 ItemDelegate {
@@ -164,6 +169,14 @@ Rectangle {
                     visible: channelList.height < channelList.contentHeight
                 }
                 delegate: Row {
+                    id: channelRow
+                    property int indexInBus: index
+                    function setDeviceIndex(deviceIndex: int) {
+                        abclm_device_index = deviceIndex;
+                    }
+                    function setChannelIndex(channelIndex: int) {
+                        abclm_channel_index = channelIndex;
+                    }
                     Label {
                         id: indexIndicator
                         text: index + 1
@@ -176,7 +189,44 @@ Rectangle {
                     ItemDelegate {
                         id: deviceSelector
                         width: channelList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0) - channelSelector.width - indexIndicator.width
-                        text: (abclm_device_index == -1? qsTr("Dummy Device"): ("Device " + (abclm_device_index + 1).toString()))
+                        text: (abclm_device_index == -1? qsTr("Dummy Device"): ("Device " + (abclm_device_index + 1).toString())) // TODO: Actual device name
+                        QC.Popup {
+                            id: deviceListPopup
+                            y: parent.height
+                            x: 0
+                            width: deviceListView.width
+                            height: deviceListView.height
+                            background: Rectangle {
+                                color: Colors.background
+                                border.color: Colors.controlBorder
+                            }
+                            padding: 0
+                            ListView {
+                                id: deviceListView
+                                model: root.deviceListModel
+                                width: deviceSelector.width
+                                height: contentHeight
+                                delegate: ItemDelegate {
+                                    width: deviceSelector.width
+                                    Label {
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.leftMargin: (parent.height - height) / 2
+                                        anchors.rightMargin: anchors.leftMargin
+                                        text: agdlm_name + (agdlm_enabled? "": (" (" + qsTr("Disabled") + ")"))
+                                        elide: Label.ElideMiddle
+                                    }
+                                    onClicked: {
+                                        channelRow.setDeviceIndex(index);
+                                        deviceListPopup.close();
+                                    }
+                                }
+                            }
+                        }
+                        onClicked: {
+                            deviceListPopup.open();
+                        }
                     }
                     ItemDelegate {
                         id: channelSelector
