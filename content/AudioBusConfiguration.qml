@@ -90,7 +90,7 @@ Rectangle {
                 ItemDelegate {
                     id: audioBusButton
                     width: busList.width - (busListScrollBar.visible? busListScrollBar.width: 0) - audioBusRenameButton.width - audioBusRemoveButton.width
-                    text: abcm_name == ""? qsTr("Bus ") + (index + 1): abcm_name
+                    text: abcm_name == ""? qsTr("Bus") + " " + (index + 1): abcm_name
                     z: 2
                     TextField {
                         id: audioBusNameTextField

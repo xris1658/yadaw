@@ -10,8 +10,10 @@ Rectangle {
     property bool inputAvailable: true
     property bool outputAvailable: true
     property bool hasInstrument: true
+    property alias inputModel: inputButton.model
+    property alias outputModel: outputButton.model
 
-    width: 100
+    width: 120
     height: 400
 
     QtObject {
@@ -32,11 +34,18 @@ Rectangle {
             ComboBox {
                 id: inputButton
                 width: ioPlaceholder.width - impl.padding * 2
-                // TODO: Set popup and display text
+                valueRole: "abcm_name"
+                textRole: "abcm_name"
+                displayText: count == 0? qsTr("No Bus Available"): currentIndex == -1? qsTr("Select Bus..."): currentText == ""? qsTr("Bus") + " " + (currentIndex + 1): currentText
+                indicator.visible: count != 0
             }
             ComboBox {
                 id: outputButton
                 width: ioPlaceholder.width - impl.padding * 2
+                valueRole: "abcm_name"
+                textRole: "abcm_name"
+                displayText: count == 0? qsTr("No Bus Available"): currentIndex == -1? qsTr("Select Bus..."): currentText == ""? qsTr("Bus") + " " + (currentIndex + 1): currentText
+                indicator.visible: count != 0
             }
         }
     }

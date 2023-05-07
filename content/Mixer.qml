@@ -4,8 +4,10 @@ import QtQuick
 Rectangle {
     id: root
     color: Colors.background
-
     clip: true
+
+    property var inputModel: null
+    property var outputModel: null
     Item {
         id: leftBar
         width: 20
@@ -62,7 +64,6 @@ Rectangle {
                 }
             }
         }
-
         Rectangle {
             border.width: 0
             anchors.right: parent.right
@@ -77,7 +78,10 @@ Rectangle {
         model: 1
         delegate: Row {
             MixerChannel {
+                id: mixerChannel
                 height: root.height
+                inputModel: root.inputModel
+                outputModel: root.outputModel
             }
             Rectangle {
                 width: 1

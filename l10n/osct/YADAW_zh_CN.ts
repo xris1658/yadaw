@@ -108,17 +108,17 @@
         <translation>声道数</translation>
     </message>
     <message>
-        <location filename="../../content/AudioBusConfiguration.qml" line="85"/>
-        <source>Bus </source>
-        <translation>总线 </translation>
+        <location filename="../../content/AudioBusConfiguration.qml" line="93"/>
+        <source>Bus</source>
+        <translation>总线</translation>
     </message>
     <message>
-        <location filename="../../content/AudioBusConfiguration.qml" line="150"/>
+        <location filename="../../content/AudioBusConfiguration.qml" line="179"/>
         <source>Dummy Device</source>
         <translation>假设备</translation>
     </message>
     <message>
-        <location filename="../../content/AudioBusConfiguration.qml" line="153"/>
+        <location filename="../../content/AudioBusConfiguration.qml" line="184"/>
         <source>Invalid Channel</source>
         <translation>无效声道</translation>
     </message>
@@ -398,62 +398,6 @@
         <source>Rena&amp;me</source>
         <translation>重命名(&amp;M)</translation>
     </message>
-    <message>
-        <source>Low latency audio driver</source>
-        <translation type="vanished">低延迟的音频驱动程序</translation>
-    </message>
-    <message>
-        <source>Library for manipulating multimedia files</source>
-        <translation type="vanished">用于操纵多媒体文件的库</translation>
-    </message>
-    <message>
-        <source>C++ wrapper of FFmpeg</source>
-        <translation type="vanished">FFmpeg 的 C++ 封装</translation>
-    </message>
-    <message>
-        <source>Installer framework</source>
-        <translation type="vanished">安装程序框架</translation>
-    </message>
-    <message>
-        <source>MP3 audio encoder</source>
-        <translation type="vanished">MP3 音频编码器</translation>
-    </message>
-    <message>
-        <source>Cross-platform application development toolkit</source>
-        <translation type="vanished">跨平台的应用开发工具</translation>
-    </message>
-    <message>
-        <source>Audio resampler</source>
-        <translation type="vanished">音频重采样程序</translation>
-    </message>
-    <message>
-        <source>Logger</source>
-        <translation type="vanished">日志记录程序</translation>
-    </message>
-    <message>
-        <source>Library for text formatting, dependency of spdlog</source>
-        <translation type="vanished">文本格式化库，spdlog 的依赖</translation>
-    </message>
-    <message>
-        <source>Light-weight, efficient database engine</source>
-        <translation type="vanished">轻量，高效的数据库引擎</translation>
-    </message>
-    <message>
-        <source>Modern C++ wrapper of SQLite</source>
-        <translation type="vanished">SQLite 的现代 C++ 封装</translation>
-    </message>
-    <message>
-        <source>Widely used audio plugin format</source>
-        <translation type="vanished">广泛使用的音频插件格式</translation>
-    </message>
-    <message>
-        <source>Free audio plugin format</source>
-        <translation type="vanished">自由的音频插件格式</translation>
-    </message>
-    <message>
-        <source>YAML parser and emitter</source>
-        <translation type="vanished">YAML 解析与生成程序</translation>
-    </message>
 </context>
 <context>
     <name>GeneralSettings</name>
@@ -636,22 +580,14 @@
         <translation>编排</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="693"/>
+        <location filename="../../content/MainWindow.qml" line="694"/>
         <source>Editor</source>
         <translation>编辑器</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="698"/>
+        <location filename="../../content/MainWindow.qml" line="699"/>
         <source>Mixer</source>
         <translation>混音器</translation>
-    </message>
-    <message>
-        <source>Set Loop In Point</source>
-        <translation type="vanished">设置循环入点</translation>
-    </message>
-    <message>
-        <source>Set Loop Out Point</source>
-        <translation type="vanished">设置循环出点</translation>
     </message>
     <message>
         <location filename="../../content/MainWindow.qml" line="253"/>
@@ -801,6 +737,27 @@
     </message>
 </context>
 <context>
+    <name>MixerChannel</name>
+    <message>
+        <location filename="../../content/MixerChannel.qml" line="39"/>
+        <location filename="../../content/MixerChannel.qml" line="47"/>
+        <source>No Bus Available</source>
+        <translation>无可用总线</translation>
+    </message>
+    <message>
+        <location filename="../../content/MixerChannel.qml" line="39"/>
+        <location filename="../../content/MixerChannel.qml" line="47"/>
+        <source>Bus</source>
+        <translation>总线</translation>
+    </message>
+    <message>
+        <location filename="../../content/MixerChannel.qml" line="39"/>
+        <location filename="../../content/MixerChannel.qml" line="47"/>
+        <source>Select Bus...</source>
+        <translation>选择总线...</translation>
+    </message>
+</context>
+<context>
     <name>PluginSettings</name>
     <message>
         <location filename="../../content/PluginSettings.qml" line="29"/>
@@ -867,13 +824,6 @@
         <location filename="../../content/SplashScreen.qml" line="26"/>
         <source>Starting...</source>
         <translation>正在启动...</translation>
-    </message>
-</context>
-<context>
-    <name>Splashscreen</name>
-    <message>
-        <source>Starting...</source>
-        <translation type="vanished">正在启动...</translation>
     </message>
 </context>
 <context>

@@ -676,10 +676,11 @@ ApplicationWindow {
                         anchors.margins: parent.border.width
                         currentIndex: mixerButton.checked? 1: 0
                         Item {
-                            // anchors.fill: parent
+                            // editor
                         }
                         Mixer {
-                            // anchors.fill: parent
+                            inputModel: audioInputBusConfigurationModel
+                            outputModel: audioOutputBusConfigurationModel
                         }
                     }
 
