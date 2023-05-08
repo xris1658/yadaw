@@ -138,7 +138,7 @@ Rectangle {
             Rectangle {
                 width: 1
                 height: root.height
-                color: Colors.controlBorder
+                color: Colors.secondaryBorder
             }
         }
     }

@@ -30,8 +30,6 @@ Rectangle {
             Column {
                 id: ioComboBoxColumn
                 spacing: impl.padding
-                width: inputButton.width
-                height: inputButton.height + outputButton.height + impl.padding
                 anchors.centerIn: parent
                 ComboBox {
                     id: inputButton
@@ -54,7 +52,7 @@ Rectangle {
         Rectangle {
             width: root.width
             height: impl.borderWidth
-            color: Colors.secondaryBorder
+            color: Colors.border
         }
         Rectangle {
             id: instrumentPlaceholder
@@ -71,7 +69,7 @@ Rectangle {
         Rectangle {
             width: root.width
             height: impl.borderWidth
-            color: Colors.secondaryBorder
+            color: Colors.border
         }
         Rectangle {
             id: insertPlaceholder
@@ -95,7 +93,7 @@ Rectangle {
         Rectangle {
             width: root.width
             height: impl.borderWidth
-            color: Colors.secondaryBorder
+            color: Colors.border
         }
         Rectangle {
             id: sendPlaceholder
@@ -119,7 +117,7 @@ Rectangle {
         Rectangle {
             width: root.width
             height: impl.borderWidth
-            color: Colors.secondaryBorder
+            color: Colors.border
         }
         Rectangle {
             id: controlButtonPlaceholder
@@ -169,7 +167,7 @@ Rectangle {
         Rectangle {
             width: root.width
             height: impl.borderWidth
-            color: Colors.secondaryBorder
+            color: Colors.border
         }
         Rectangle {
             id: faderAndMeterPlaceholder
