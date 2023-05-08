@@ -89,6 +89,12 @@ Rectangle {
             delegate: Row {
                 id: audioBusRow
                 property int busIndex: index
+                 function renameAudioBus() {
+                    audioBusNameTextField.visible = true;
+                    audioBusNameTextField.text = audioBusButton.text;
+                    audioBusNameTextField.forceActiveFocus();
+                    audioBusNameTextField.selectAll();
+                }
                 ItemDelegate {
                     id: audioBusButton
                     width: busList.width - (busListScrollBar.visible? busListScrollBar.width: 0) - audioBusRenameButton.width - audioBusRemoveButton.width
@@ -121,10 +127,7 @@ Rectangle {
                         path.strokeColor: "transparent"
                     }
                     onClicked: {
-                        audioBusNameTextField.visible = true;
-                        audioBusNameTextField.text = audioBusButton.text;
-                        audioBusNameTextField.forceActiveFocus();
-                        audioBusNameTextField.selectAll();
+                        audioBusRow.renameAudioBus();
                     }
                 }
                 ItemDelegate {
@@ -140,6 +143,9 @@ Rectangle {
                     onClicked: {
                         root.model.remove(index);
                     }
+                }
+                ListView.onAdd: {
+                    renameAudioBus();
                 }
             }
         }
@@ -214,7 +220,8 @@ Rectangle {
                                         anchors.verticalCenter: parent.verticalCenter
                                         anchors.leftMargin: (parent.height - height) / 2
                                         anchors.rightMargin: anchors.leftMargin
-                                        text: agdlm_name + (agdlm_enabled? "": (" (" + qsTr("Disabled") + ")"))
+                                        text: agdlm_name
+                                        color: agdlm_enabled? Colors.content: Colors.secondaryContent
                                         elide: Label.ElideMiddle
                                     }
                                     onClicked: {
