@@ -24,6 +24,7 @@ Window {
             anchors.left: parent.left
             anchors.margins: 24
             text: qsTr("Starting...")
+            font.pixelSize: 14
             verticalAlignment: Text.AlignLeft
             horizontalAlignment: Text.AlignBottom
         }
