@@ -34,12 +34,4 @@ T.MenuBarItem {
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
     }
-    onClicked: {
-        if(!menu.opened) {
-            menu.open();
-        }
-        else {
-            menu.close();
-        }
-    }
 }
