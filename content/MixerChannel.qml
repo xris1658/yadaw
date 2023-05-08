@@ -6,12 +6,18 @@ import QtQuick.Layouts
 Rectangle {
     id: root
     color: Colors.background
-    property color channelColor: "#000070"
+    property alias channelColor: infoPlaceholder.color
     property bool inputAvailable: true
     property bool outputAvailable: true
     property bool hasInstrument: true
     property alias inputModel: inputButton.model
     property alias outputModel: outputButton.model
+    property alias name: nameLabel.text
+    property bool showIO: true
+    property bool showInstrumentSlot: true
+    property bool showInsertSlot: true
+    property bool showSendSlot: true
+    property bool showFader: true
 
     width: 120
     height: 400
@@ -27,25 +33,30 @@ Rectangle {
             color: "transparent"
             width: root.width
             height: ioComboBoxColumn.height + impl.padding * 2
+            visible: root.showIO
             Column {
                 id: ioComboBoxColumn
                 spacing: impl.padding
                 anchors.centerIn: parent
                 ComboBox {
                     id: inputButton
+                    opacity: root.inputAvailable? 1: 0
                     width: ioPlaceholder.width - impl.padding * 2
                     valueRole: "abcm_name"
                     textRole: "abcm_name"
                     displayText: count == 0? qsTr("No Bus Available"): currentIndex == -1? qsTr("Select Bus..."): currentText == ""? qsTr("Bus") + " " + (currentIndex + 1): currentText
                     indicator.visible: count != 0
+                    enabled: count != 0
                 }
                 ComboBox {
                     id: outputButton
+                    opacity: root.outputAvailable? 1: 0
                     width: ioPlaceholder.width - impl.padding * 2
                     valueRole: "abcm_name"
                     textRole: "abcm_name"
                     displayText: count == 0? qsTr("No Bus Available"): currentIndex == -1? qsTr("Select Bus..."): currentText == ""? qsTr("Bus") + " " + (currentIndex + 1): currentText
                     indicator.visible: count != 0
+                    enabled: count != 0
                 }
             }
         }
@@ -53,12 +64,15 @@ Rectangle {
             width: root.width
             height: impl.borderWidth
             color: Colors.border
+            visible: ioPlaceholder.visible
         }
         Rectangle {
             id: instrumentPlaceholder
             color: "transparent"
             width: root.width
             height: instrumentButton.height + impl.padding * 2
+            visible: root.showInstrumentSlot
+            opacity: root.hasInstrument? 1: 0
             Button {
                 id: instrumentButton
                 visible: root.hasInstrument
@@ -70,12 +84,14 @@ Rectangle {
             width: root.width
             height: impl.borderWidth
             color: Colors.border
+            visible: instrumentPlaceholder.visible
         }
         Rectangle {
             id: insertPlaceholder
             color: "transparent"
             width: root.width
             height: 60
+            visible: root.showInsertSlot
             clip: true
             Column {
                 anchors.top: parent.top
@@ -94,12 +110,14 @@ Rectangle {
             width: root.width
             height: impl.borderWidth
             color: Colors.border
+            visible: insertPlaceholder.visible
         }
         Rectangle {
             id: sendPlaceholder
             color: "transparent"
             width: root.width
             height: 60
+            visible: root.showSendSlot
             clip: true
             Column {
                 anchors.top: parent.top
@@ -118,6 +136,7 @@ Rectangle {
             width: root.width
             height: impl.borderWidth
             color: Colors.border
+            visible: sendPlaceholder.visible
         }
         Rectangle {
             id: controlButtonPlaceholder
@@ -171,7 +190,12 @@ Rectangle {
         }
         Rectangle {
             id: faderAndMeterPlaceholder
-            height: root.height - ioPlaceholder.height - instrumentPlaceholder.height - insertPlaceholder.height - sendPlaceholder.height - controlButtonPlaceholder.height - infoPlaceholder.height - 4
+            height: root.height - (ioPlaceholder.visible? ioPlaceholder.height + impl.borderWidth: 0)
+                    - (instrumentPlaceholder.visible? instrumentPlaceholder.height + impl.borderWidth: 0)
+                    - (insertPlaceholder.visible? insertPlaceholder.height + impl.borderWidth: 0)
+                    - (sendPlaceholder.visible? sendPlaceholder.height + impl.borderWidth: 0)
+                    - controlButtonPlaceholder.height - infoPlaceholder.height
+            visible: root.showFader
             color: "transparent"
             width: root.width
             clip: true
@@ -225,16 +249,13 @@ Rectangle {
         Rectangle {
             id: infoPlaceholder
             width: root.width
-            height: nameLabel.height + impl.padding * 2
-            color: root.channelColor
+            height: nameLabel.height + impl.padding * 4
             Label {
                 id: nameLabel
                 anchors.centerIn: parent
                 width: parent.width - impl.padding * 2
-                text: "Instrument"
                 horizontalAlignment: Label.AlignHCenter
             }
         }
     }
-
 }

@@ -11,7 +11,7 @@ Shape {
         id: path
         fillRule: ShapePath.OddEvenFill
         PathSvg {
-            path: "M80,64h96a16,16,0,0,1,16,16v96a16,16,0,0,1-16,16H80a16,16,0,0,1-16-16V80A16,16,0,0,1,80,64Zm0,16h96v96H80V80ZM32,120H64v16H32V120Zm160,0h32v16H192V120ZM80"
+            path: "M64,64H192v48h32v32H192v48H64V144H32V112H64V64ZM80,80h96v32H80V80Zm0,64h96v32H80V144Z"
         }
     }
 }

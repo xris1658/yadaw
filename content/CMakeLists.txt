@@ -48,7 +48,6 @@ set(CONTENT_QML_FILES
     ComboBox.qml
     Constants.qml
     Detail.qml
-    DirectoryFontLoader.qml
     EventReceiver.qml
     EventSender.qml
     FaderIcon.qml
@@ -58,7 +57,7 @@ set(CONTENT_QML_FILES
     GeneralSettings.qml
     Global.qml
     GroupIcon.qml
-    InputIcon.qml
+    IOIcon.qml
     InsertIcon.qml
     ItemDelegate.qml
     Label.qml
@@ -75,7 +74,6 @@ set(CONTENT_QML_FILES
     Mixer.qml
     MixerChannel.qml
     Mnemonic.qml
-    OutputIcon.qml
     PianoKeysIcon.qml
     PlayIcon.qml
     PluginIcon.qml

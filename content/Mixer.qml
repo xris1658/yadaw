@@ -1,5 +1,6 @@
 import QtQml
 import QtQuick
+import QtQuick.Controls as QC
 
 Rectangle {
     id: root
@@ -8,8 +9,7 @@ Rectangle {
 
     property var inputModel: null
     property var outputModel: null
-    property alias showInput: inputButton.checked
-    property alias showOutput: outputButton.checked
+    property alias showIO: ioButton.checked
     property alias showInsert: insertButton.checked
     property alias showSend: sendButton.checked
     property alias showFader: faderButton.checked
@@ -22,30 +22,19 @@ Rectangle {
         Column {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
-            anchors.topMargin: (parent.width - inputButton.width) / 2
+            anchors.topMargin: (parent.width - ioButton.width) / 2
             spacing: anchors.topMargin
             Button {
-                id: inputButton
+                id: ioButton
                 checkable: true
                 border.width: 0
                 width: 16
                 height: 16
-                InputIcon {
+                IOIcon {
+                    path.fillColor: parent.contentItem.color
+                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
-                    path.fillColor: parent.checked? Colors.content: Colors.secondaryContent
-                }
-            }
-            Button {
-                id: outputButton
-                checkable: true
-                border.width: 0
-                width: 16
-                height: 16
-                OutputIcon {
-                    anchors.centerIn: parent
-                    scale: parent.width / originalWidth
-                    path.fillColor: parent.checked? Colors.content: Colors.secondaryContent
                 }
             }
             Button {
@@ -55,9 +44,10 @@ Rectangle {
                 width: 16
                 height: 16
                 InsertIcon {
+                    path.fillColor: parent.contentItem.color
+                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
-                    path.fillColor: parent.checked? Colors.content: Colors.secondaryContent
                 }
             }
             Button {
@@ -67,9 +57,10 @@ Rectangle {
                 width: 16
                 height: 16
                 SendIcon {
+                    path.fillColor: parent.contentItem.color
+                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
-                    path.fillColor: parent.checked? Colors.content: Colors.secondaryContent
                 }
             }
             Button {
@@ -79,16 +70,17 @@ Rectangle {
                 width: 16
                 height: 16
                 FaderIcon {
+                    path.fillColor: parent.contentItem.color
+                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
-                    path.fillColor: parent.checked? Colors.content: Colors.secondaryContent
                 }
             }
         }
         Column {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: (parent.width - inputButton.width) / 2
+            anchors.bottomMargin: (parent.width - ioButton.width) / 2
             spacing: anchors.bottomMargin
             Button {
                 id: showInputBusButton
@@ -97,9 +89,10 @@ Rectangle {
                 width: 16
                 height: 16
                 ShowLeftPaneIcon {
+                    path.fillColor: parent.contentItem.color
+                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
-                    path.fillColor: parent.checked? Colors.content: Colors.secondaryContent
                 }
             }
             Button {
@@ -110,9 +103,10 @@ Rectangle {
                 height: 16
                 ShowLeftPaneIcon {
                     rotation: 180
+                    path.fillColor: parent.contentItem.color
+                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
-                    path.fillColor: parent.checked? Colors.content: Colors.secondaryContent
                 }
             }
         }
@@ -125,20 +119,60 @@ Rectangle {
         }
     }
     ListView {
+        visible: showInputBus
         anchors.left: leftBar.right
+        width: contentWidth
         orientation: Qt.Horizontal
-        model: 1
+        model: inputModel
         delegate: Row {
             MixerChannel {
                 id: mixerChannel
                 height: root.height
-                inputModel: root.inputModel
-                outputModel: root.outputModel
+                inputModel: 0
+                outputModel: 0
+                inputAvailable: false
+                outputAvailable: false
+                channelColor: Colors.controlBackground
+                name: abcm_name
+                showIO: root.showIO
+                showInstrumentSlot: true
+                showInsertSlot: root.showInsert
+                showSendSlot: root.showSend
+                showFader: root.showFader
             }
             Rectangle {
                 width: 1
                 height: root.height
                 color: Colors.secondaryBorder
+            }
+        }
+    }
+    ListView {
+        visible: showOutputBus
+        anchors.right: root.right
+        width: contentWidth
+        orientation: Qt.Horizontal
+        model: outputModel
+        delegate: Row {
+            Rectangle {
+                width: 1
+                height: root.height
+                color: Colors.secondaryBorder
+            }
+            MixerChannel {
+                id: mixerChannel
+                height: root.height
+                inputModel: 0
+                outputModel: 0
+                inputAvailable: false
+                outputAvailable: false
+                channelColor: Colors.controlBackground
+                name: abcm_name
+                showIO: root.showIO
+                showInstrumentSlot: true
+                showInsertSlot: root.showInsert
+                showSendSlot: root.showSend
+                showFader: root.showFader
             }
         }
     }

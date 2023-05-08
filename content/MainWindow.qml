@@ -481,7 +481,7 @@ ApplicationWindow {
                     anchors.centerIn: parent
                     scale: loopButton.height / actualHeight * 0.6
                     path.strokeColor: "transparent"
-                    path.fillColor: parent.checked? Colors.content: Colors.disabledContent
+                    path.fillColor: parent.contentItem.color
                     path.joinStyle: ShapePath.MiterJoin
                 }
             }
@@ -517,7 +517,7 @@ ApplicationWindow {
                 MetronomeIcon {
                     anchors.centerIn: parent
                     scale: 20 / originalHeight
-                    path.fillColor: parent.checked? Colors.content: Colors.disabledContent
+                    path.fillColor: parent.contentItem.color
                     path.strokeColor: "transparent"
                 }
             }
@@ -534,7 +534,7 @@ ApplicationWindow {
                 FollowIcon {
                     anchors.centerIn: parent
                     scale: loopIcon.width * loopIcon.scale / originalHeight
-                    path.fillColor: parent.checked? Colors.content: Colors.disabledContent
+                    path.fillColor: parent.contentItem.color
                     path.strokeColor: "transparent"
                 }
             }
@@ -551,7 +551,7 @@ ApplicationWindow {
                 PianoKeysIcon {
                     anchors.centerIn: parent
                     scale: loopIcon.width * loopIcon.scale / originalHeight
-                    path.fillColor: parent.checked? Colors.content: Colors.disabledContent
+                    path.fillColor: parent.contentItem.color
                     path.strokeColor: "transparent"
                 }
             }
@@ -567,7 +567,7 @@ ApplicationWindow {
                     text: "3 2 1"
                     font.family: "Fira Sans Condensed"
                     font.bold: true
-                    color: parent.checked? Colors.content: Colors.disabledContent
+                    color: parent.contentItem.color
                 }
             }
         }

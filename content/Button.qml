@@ -31,9 +31,19 @@ T.Button {
         border.color: root.enabled? Colors.controlBorder:
             Colors.disabledControlBorder
         border.width: root.activeFocus? 2: 1
-        color: (!root.enabled)? Colors.background:
-            root.down? Colors.pressedControlBackground:
-            root.hovered? Colors.mouseOverControlBackground: Colors.controlBackground
+        color: (!root.enabled)?
+            Colors.background:
+            root.checked?
+                root.down?
+                    Colors.pressedCheckedButtonBackground:
+                    root.hovered?
+                        Colors.mouseOverCheckedButtonBackground:
+                        Colors.checkedButtonBackground:
+                root.down?
+                    Colors.pressedControlBackground:
+                    root.hovered?
+                        Colors.mouseOverControlBackground:
+                        Colors.controlBackground
     }
 
     contentItem: Label {
@@ -41,7 +51,10 @@ T.Button {
         text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? Mnemonic.text(root.text):
             root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? Mnemonic.textWithUnderline(root.text):
             root.text
-        color: root.enabled? Colors.content: Colors.disabledContent
+        color: (!root.enabled)? Colors.disabledContent:
+            root.checked?
+                Colors.checkedButtonContent:
+                Colors.content
         anchors.fill: root
         anchors.leftMargin: root.leftPadding
         anchors.rightMargin: root.rightPadding

@@ -27,6 +27,10 @@ QtObject {
     readonly property color progressBarRunningColor: "#00C030"
     readonly property color progressBarPausedColor: "#F0A000"
     readonly property color progressBarStoppedColor: "#F00000"
+    readonly property color checkedButtonBackground: "#DDDDDD"
+    readonly property color mouseOverCheckedButtonBackground: "#CCCCCC"
+    readonly property color pressedCheckedButtonBackground: "#AAAAAA"
+    readonly property color checkedButtonContent: "#202020"
 
     readonly property color bigClockBackground: background
     readonly property color bigClockText: content
