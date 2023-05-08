@@ -35,6 +35,11 @@ QVariant AudioGraphOutputDeviceListModel::data(const QModelIndex& index, int rol
             return QVariant::fromValue(deviceInfo.id);
         case Role::Name:
             return QVariant::fromValue(deviceInfo.name);
+        case Role::Enabled:
+        {
+            const auto& currentOutputDeviceInfo = backend_->currentOutputDevice();
+            return QVariant::fromValue(currentOutputDeviceInfo.id == deviceInfo.id);
+        }
         }
     }
     return {};
