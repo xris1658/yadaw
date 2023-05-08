@@ -87,6 +87,7 @@ set(CONTENT_QML_FILES
     RenameIcon.qml
     ScrollBar.qml
     SendIcon.qml
+    ShowLeftPaneIcon.qml
     Slider.qml
     SortIcon.qml
     SplashScreen.qml

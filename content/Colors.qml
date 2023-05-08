@@ -6,8 +6,10 @@ import QtQuick
 QtObject {
     readonly property color background: "#202020"
     readonly property color controlBackground: "#333333"
-    readonly property color controlBorder: "#666666"
-    readonly property color disabledControlBorder: "#444444"
+    readonly property color border: "#666666"
+    readonly property color secondaryBorder: "#444444"
+    readonly property color controlBorder: border
+    readonly property color disabledControlBorder: secondaryBorder
     readonly property color mouseOverControlBackground: "#505050"
     readonly property color pressedControlBackground: "#1A1A1A"
     readonly property color highlightControlBackground: "#606060"

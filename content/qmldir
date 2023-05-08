@@ -62,6 +62,7 @@ RemoveIcon 1.0 RemoveIcon.qml
 RenameIcon 1.0 RenameIcon.qml
 ScrollBar 1.0 ScrollBar.qml
 SendIcon 1.0 SendIcon.qml
+ShowLeftPaneIcon 1.0 ShowLeftPaneIcon.qml
 Slider 1.0 Slider.qml
 SortIcon 1.0 SortIcon.qml
 SplashScreen 1.0 SplashScreen.qml
