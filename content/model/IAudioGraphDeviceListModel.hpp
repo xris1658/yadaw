@@ -16,6 +16,7 @@ public:
         Id = Qt::UserRole,
         Name,
         Enabled,
+        ChannelCount,
         RoleCount
     };
 public:
@@ -30,9 +31,10 @@ protected:
     {
         static RoleNames ret
         {
-            std::make_pair(Role::Id,      "agdlm_id"),
-            std::make_pair(Role::Name,    "agdlm_name"),
-            std::make_pair(Role::Enabled, "agdlm_enabled")
+            std::make_pair(Role::Id,           "agdlm_id"),
+            std::make_pair(Role::Name,         "agdlm_name"),
+            std::make_pair(Role::Enabled,      "agdlm_enabled"),
+            std::make_pair(Role::ChannelCount, "agdlm_channel_count")
         };
         return ret;
     }

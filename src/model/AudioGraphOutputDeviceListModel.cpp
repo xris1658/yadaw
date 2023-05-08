@@ -40,6 +40,8 @@ QVariant AudioGraphOutputDeviceListModel::data(const QModelIndex& index, int rol
             const auto& currentOutputDeviceInfo = backend_->currentOutputDevice();
             return QVariant::fromValue(currentOutputDeviceInfo.id == deviceInfo.id);
         }
+        case Role::ChannelCount:
+            return QVariant::fromValue<int>(backend_->channelCount(false, row));
         }
     }
     return {};

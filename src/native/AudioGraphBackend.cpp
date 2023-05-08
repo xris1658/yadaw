@@ -167,6 +167,11 @@ std::uint32_t YADAW::Audio::Backend::AudioGraphBackend::sampleRate() const
     return pImpl_->sampleRate();
 }
 
+std::uint32_t AudioGraphBackend::channelCount(bool isInput, std::uint32_t deviceIndex) const
+{
+    return pImpl_->channelCount(isInput, deviceIndex);
+}
+
 void YADAW::Audio::Backend::AudioGraphBackend::swap(YADAW::Audio::Backend::AudioGraphBackend& rhs)
 {
     std::swap(pImpl_, rhs.pImpl_);

@@ -84,6 +84,7 @@ public:
     int bufferSizeInFrames() const;
     int latencyInSamples() const;
     std::uint32_t sampleRate() const;
+    std::uint32_t channelCount(bool isInput, std::uint32_t deviceIndex) const;
 public:
     void swap(AudioGraphBackend& rhs);
 private:

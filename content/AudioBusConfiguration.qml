@@ -10,6 +10,7 @@ Rectangle {
     property var deviceListModel: null
     property alias model: busList.model
     Column {
+        id: busListColumn
         Item {
             id: busListHeader
             width: busList.width
@@ -154,7 +155,7 @@ Rectangle {
         id: separator
         width: 1
         height: root.height
-        anchors.right: stackLayout.left
+        anchors.left: busListColumn.right
         color: Colors.controlBorder
     }
     StackLayout {
@@ -196,6 +197,7 @@ Rectangle {
                         id: deviceSelector
                         width: channelList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0) - channelSelector.width - indexIndicator.width
                         text: (abclm_device_index == -1? qsTr("Dummy Device"): ("Device " + (abclm_device_index + 1).toString())) // TODO: Actual device name
+                        property int channelCount: 0
                         QC.Popup {
                             id: deviceListPopup
                             y: parent.height
@@ -225,8 +227,11 @@ Rectangle {
                                         elide: Label.ElideMiddle
                                     }
                                     onClicked: {
-                                        channelRow.setDeviceIndex(index);
+                                        if(agdlm_enabled) {
+                                            channelRow.setDeviceIndex(index);
+                                        }
                                         deviceListPopup.close();
+                                        deviceSelector.channelCount = agdlm_channel_count;
                                     }
                                 }
                             }
@@ -238,7 +243,37 @@ Rectangle {
                     ItemDelegate {
                         id: channelSelector
                         width: height
-                        text: (abclm_channel_index == -1? qsTr("Invalid Channel"): ("Channel " + (abclm_channel_index + 1).toString()))
+                        text: abclm_channel_index + 1
+                        QC.Popup {
+                            id: channelListPopup
+                            y: parent.height
+                            x: 0
+                            width: channelListView.width
+                            height: channelListView.height
+                            background: Rectangle {
+                                id: channelListPopupRect
+                                color: Colors.background
+                                border.color: Colors.border
+                            }
+                            padding: channelListPopupRect.border.width
+                            ListView {
+                                id: channelListView
+                                width: channelSelector.width
+                                height: contentHeight
+                                model: deviceSelector.channelCount
+                                delegate: ItemDelegate {
+                                    width: parent.width
+                                    text: modelData + 1
+                                    onClicked: {
+                                        abclm_channel_index = index;
+                                        channelListPopup.close();
+                                    }
+                                }
+                            }
+                        }
+                        onClicked: {
+                            channelListPopup.open();
+                        }
                     }
                 }
             }

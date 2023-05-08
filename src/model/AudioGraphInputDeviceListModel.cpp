@@ -38,6 +38,8 @@ QVariant AudioGraphInputDeviceListModel::data(const QModelIndex& index, int role
             return QVariant::fromValue(deviceInfo.name);
         case Role::Enabled:
             return QVariant::fromValue(backend_->isDeviceInputActivated(row));
+        case Role::ChannelCount:
+            return QVariant::fromValue<int>(backend_->channelCount(true, row));
         }
     }
     return {};

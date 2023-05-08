@@ -383,8 +383,31 @@ int AudioGraphBackend::Impl::latencyInSamples() const
     return audioGraph_.LatencyInSamples();
 }
 
-std::uint32_t YADAW::Audio::Backend::AudioGraphBackend::Impl::sampleRate() const
+std::uint32_t AudioGraphBackend::Impl::sampleRate() const
 {
     return audioGraph_.EncodingProperties().SampleRate();
+}
+
+std::uint32_t AudioGraphBackend::Impl::channelCount(bool isInput, std::uint32_t deviceIndex) const
+{
+    if(isInput)
+    {
+        if(deviceIndex < deviceInputNodes_.size() && deviceInputNodes_[deviceIndex].deviceInputNode_)
+        {
+            return deviceInputNodes_[deviceIndex].deviceInputNode_.EncodingProperties().ChannelCount();
+        }
+    }
+    else
+    {
+        if(deviceIndex < audioOutputDeviceCount())
+        {
+            const auto& currentId = currentOutputDevice().Id();
+            if(currentId == audioOutputDeviceInformationCollection_.GetAt(deviceIndex).Id())
+            {
+                return audioDeviceOutputNode_.EncodingProperties().ChannelCount();
+            }
+        }
+    }
+    return 0;
 }
 }
