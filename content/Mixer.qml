@@ -27,6 +27,7 @@ Rectangle {
             Button {
                 id: ioButton
                 checkable: true
+                checked: true
                 border.width: 0
                 width: 16
                 height: 16
@@ -40,6 +41,7 @@ Rectangle {
             Button {
                 id: insertButton
                 checkable: true
+                checked: true
                 border.width: 0
                 width: 16
                 height: 16
@@ -53,6 +55,7 @@ Rectangle {
             Button {
                 id: sendButton
                 checkable: true
+                checked: true
                 border.width: 0
                 width: 16
                 height: 16
@@ -66,6 +69,7 @@ Rectangle {
             Button {
                 id: faderButton
                 checkable: true
+                checked: true
                 border.width: 0
                 width: 16
                 height: 16
