@@ -143,9 +143,13 @@ Rectangle {
                     }
                     onClicked: {
                         root.model.remove(index);
+                        if(stackLayout.currentIndex == index) {
+                            stackLayout.currentIndex = -1;
+                        }
                     }
                 }
                 ListView.onAdd: {
+                    stackLayout.currentIndex = index;
                     renameAudioBus();
                 }
             }
@@ -170,6 +174,7 @@ Rectangle {
                 width: stackLayout.width
                 model: abcm_channel_list
                 clip: true
+                property int busIndex: index
                 boundsBehavior: ListView.StopAtBounds
                 ScrollBar.vertical: ScrollBar {
                     id: channelListScrollBar
@@ -177,7 +182,7 @@ Rectangle {
                 }
                 delegate: Row {
                     id: channelRow
-                    property int indexInBus: index
+                    property int indexInBus: channelList.busIndex
                     function setDeviceIndex(deviceIndex: int) {
                         abclm_device_index = deviceIndex;
                     }
@@ -196,14 +201,14 @@ Rectangle {
                     ItemDelegate {
                         id: deviceSelector
                         width: channelList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0) - channelSelector.width - indexIndicator.width
-                        text: (abclm_device_index == -1? qsTr("Dummy Device"): ("Device " + (abclm_device_index + 1).toString())) // TODO: Actual device name
+                        text: abclm_device_index == -1? qsTr("Dummy Device"): deviceListView.itemAtIndex(abclm_device_index).deviceName // TODO: Actual device name
                         property int channelCount: 0
                         QC.Popup {
                             id: deviceListPopup
                             y: parent.height
                             x: 0
-                            width: deviceListView.width
-                            height: deviceListView.height
+                            width: deviceSelector.width
+                            height: deviceListView.height + background.border.width * 2
                             background: Rectangle {
                                 color: Colors.background
                                 border.color: Colors.controlBorder
@@ -211,18 +216,25 @@ Rectangle {
                             padding: 0
                             ListView {
                                 id: deviceListView
+                                anchors.centerIn: parent
                                 model: root.deviceListModel
-                                width: deviceSelector.width
+                                width: deviceListPopup.width - deviceListPopup.background.border.width * 2
                                 height: contentHeight
                                 delegate: ItemDelegate {
-                                    width: deviceSelector.width
+                                    width: parent.width
+                                    enabled: agdlm_enabled
+                                    clip: true
+                                    visible: agdlm_enabled
+                                    height: agdlm_enabled? implicitHeight: 0
+                                    property string deviceName: agdlm_name
                                     Label {
+                                        id: label
                                         anchors.left: parent.left
                                         anchors.right: parent.right
                                         anchors.verticalCenter: parent.verticalCenter
                                         anchors.leftMargin: (parent.height - height) / 2
                                         anchors.rightMargin: anchors.leftMargin
-                                        text: agdlm_name
+                                        text: deviceName
                                         color: agdlm_enabled? Colors.content: Colors.secondaryContent
                                         elide: Label.ElideMiddle
                                     }
@@ -240,39 +252,16 @@ Rectangle {
                             deviceListPopup.open();
                         }
                     }
-                    ItemDelegate {
+                    ComboBox {
                         id: channelSelector
-                        width: height
-                        text: abclm_channel_index + 1
-                        QC.Popup {
-                            id: channelListPopup
-                            y: parent.height
-                            x: 0
-                            width: channelListView.width
-                            height: channelListView.height
-                            background: Rectangle {
-                                id: channelListPopupRect
-                                color: Colors.background
-                                border.color: Colors.border
-                            }
-                            padding: channelListPopupRect.border.width
-                            ListView {
-                                id: channelListView
-                                width: channelSelector.width
-                                height: contentHeight
-                                model: deviceSelector.channelCount
-                                delegate: ItemDelegate {
-                                    width: parent.width
-                                    text: modelData + 1
-                                    onClicked: {
-                                        abclm_channel_index = index;
-                                        channelListPopup.close();
-                                    }
-                                }
-                            }
-                        }
-                        onClicked: {
-                            channelListPopup.open();
+                        width: height * 1.5
+                        border.width: 0
+                        enabled: !(count == 0)
+                        model: Functions.arrayFromOne(deviceSelector.channelCount)
+                        indicator: Item {}
+                        displayText: count == 0? qsTr("N/A"): model[currentIndex]
+                        onCurrentIndexChanged: {
+                            abclm_channel_index = currentIndex;
                         }
                     }
                 }

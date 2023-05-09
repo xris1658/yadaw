@@ -5,6 +5,9 @@ import QtQuick.Templates as T
 T.ComboBox {
     id: root
 
+    property alias radius: background.radius
+    property alias border: background.border
+
     topPadding: 3
     bottomPadding: 3
     leftPadding: 5
@@ -13,6 +16,7 @@ T.ComboBox {
     implicitHeight: contentItem.contentHeight + topPadding + bottomPadding
 
     background: Rectangle {
+        id: background
         width: root.width
         height: root.height
         border.color: root.enabled? Colors.controlBorder: Colors.disabledControlBorder
