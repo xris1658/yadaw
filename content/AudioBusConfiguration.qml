@@ -7,8 +7,42 @@ Rectangle {
     color: Colors.background
     property int minimumWidth: 400
     property int minimumHeight: 300
-    property var deviceListModel: null
+    property alias deviceListModel: deviceListView.model
     property alias model: busList.model
+    QC.Popup {
+        id: deviceListPopup
+        height: deviceListView.height + background.border.width * 2
+        background: Rectangle {
+            color: Colors.background
+            border.color: Colors.controlBorder
+        }
+        ListView {
+            id: deviceListView
+            anchors.centerIn: parent
+            model: root.deviceListModel
+            width: deviceListPopup.width - deviceListPopup.background.border.width * 2
+            height: contentHeight
+            delegate: ItemDelegate {
+                id: deviceItemDelegate
+                width: parent.width
+                enabled: agdlm_enabled
+                clip: true
+                visible: agdlm_enabled
+                height: agdlm_enabled? implicitHeight: 0
+                property string deviceName: agdlm_name
+                property int deviceIndex: index
+                text: deviceName
+                onClicked: {
+                    if(agdlm_enabled) {
+                        deviceListPopup.parent.parent.setDeviceIndex(index);
+                        deviceListPopup.parent.channelCount = agdlm_channel_count;
+                    }
+                    deviceListPopup.close();
+                }
+            }
+        }
+    }
+
     Column {
         id: busListColumn
         Item {
@@ -207,67 +241,11 @@ Rectangle {
                                 deviceListView.itemAtIndex(abclm_device_index).deviceName:
                                 qsTr("Device") + " " + (abclm_device_index + 1).toString() // FIXME
                         property int channelCount: 0
-                        QC.Popup {
-                            id: deviceListPopup
-                            y: parent.height
-                            x: 0
-                            width: deviceSelector.width
-                            height: deviceListView.height + background.border.width * 2
-                            background: Rectangle {
-                                color: Colors.background
-                                border.color: Colors.controlBorder
-                            }
-                            padding: 0
-                            ListView {
-                                id: deviceListView
-                                anchors.centerIn: parent
-                                model: root.deviceListModel
-                                width: deviceListPopup.width - deviceListPopup.background.border.width * 2
-                                height: contentHeight
-                                delegate: ItemDelegate {
-                                    id: deviceItemDelegate
-                                    width: parent.width
-                                    enabled: agdlm_enabled
-                                    clip: true
-                                    visible: agdlm_enabled
-                                    height: agdlm_enabled? implicitHeight: 0
-                                    property string deviceName: agdlm_name
-                                    property int deviceIndex: index
-                                    Label {
-                                        id: label
-                                        anchors.left: parent.left
-                                        anchors.right: selectedIndicator.visible? selectedIndicator.left: parent.right
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        anchors.leftMargin: (parent.height - height) / 2
-                                        anchors.rightMargin: anchors.leftMargin
-                                        text: deviceName
-                                        color: agdlm_enabled? Colors.content: Colors.secondaryContent
-                                        elide: Label.ElideMiddle
-                                    }
-                                    Item {
-                                        id: selectedIndicator
-                                        visible: deviceSelector.currentDeviceIndex === deviceItemDelegate.deviceIndex
-                                        anchors.right: parent.right
-                                        width: height
-                                        height: parent.height
-                                        Rectangle {
-                                            anchors.centerIn: parent
-                                            width: parent.height / 3
-                                            height: width
-                                            radius: width / 2
-                                        }
-                                    }
-                                    onClicked: {
-                                        if(agdlm_enabled) {
-                                            channelRow.setDeviceIndex(index);
-                                        }
-                                        deviceListPopup.close();
-                                        deviceSelector.channelCount = agdlm_channel_count;
-                                    }
-                                }
-                            }
-                        }
                         onClicked: {
+                            deviceListPopup.parent = deviceSelector;
+                            deviceListPopup.width = channelRow.width;
+                            deviceListPopup.x = -(indexIndicator.width);
+                            deviceListPopup.y = deviceSelector.height;
                             deviceListPopup.open();
                         }
                     }
