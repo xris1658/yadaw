@@ -24,6 +24,19 @@
 
 namespace YADAW::Event
 {
+void saveAudioBusConfiguration(
+    const YADAW::Audio::Device::IAudioBusConfiguration& configuration,
+    const YADAW::Model::AudioBusConfigurationModel& inputModel,
+    const YADAW::Model::AudioBusConfigurationModel& outputModel)
+{
+    using namespace YADAW::Controller;
+    auto config = loadConfig();
+    config["audio-bus"] = exportFromAudioBusConfiguration(
+            configuration, inputModel, outputModel
+    );
+    saveConfig(config);
+}
+
 EventHandler::EventHandler(QObject* sender, QObject* receiver, QObject* parent):
     QObject(parent), eventSender_(sender), eventReceiver_(receiver)
 {
@@ -104,6 +117,33 @@ void EventHandler::onOpenMainWindow()
         YADAW::Controller::loadAudioBusConfiguration(audioBusConfigNode,
             appAudioBusInputConfigurationModel, appAudioBusOutputConfigurationModel);
     }
+    static auto saveAudioBusConfigurationLambda =
+        []()
+        {
+            saveAudioBusConfiguration(
+                YADAW::Controller::appAudioBusConfiguration(),
+                appAudioBusInputConfigurationModel,
+                appAudioBusOutputConfigurationModel);
+        };
+    QObject::connect(&appAudioBusInputConfigurationModel,
+        &QAbstractItemModel::rowsInserted,
+        saveAudioBusConfigurationLambda);
+    QObject::connect(&appAudioBusOutputConfigurationModel,
+        &QAbstractItemModel::rowsInserted,
+        saveAudioBusConfigurationLambda);
+    QObject::connect(&appAudioBusInputConfigurationModel,
+        &QAbstractItemModel::rowsRemoved,
+        saveAudioBusConfigurationLambda);
+    QObject::connect(&appAudioBusOutputConfigurationModel,
+        &QAbstractItemModel::rowsRemoved,
+        saveAudioBusConfigurationLambda);
+    QObject::connect(&appAudioBusInputConfigurationModel,
+        &QAbstractItemModel::dataChanged,
+        saveAudioBusConfigurationLambda);
+    QObject::connect(&appAudioBusOutputConfigurationModel,
+        &QAbstractItemModel::dataChanged,
+        saveAudioBusConfigurationLambda);
+
     // TODO: audio bus configuration
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);

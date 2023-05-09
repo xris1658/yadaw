@@ -15,6 +15,7 @@ class AudioBusChannelListModel: public IAudioBusChannelListModel
     Q_OBJECT
 public:
     AudioBusChannelListModel(IAudioBusConfiguration& configuration,
+        AudioBusConfigurationModel& configurationModel,
         bool isInput, std::uint32_t index, QObject* parent = nullptr);
     AudioBusChannelListModel(const AudioBusChannelListModel& rhs);
     ~AudioBusChannelListModel() override;
@@ -28,6 +29,7 @@ public:
     bool setChannel(std::uint32_t index, std::uint32_t deviceIndex, std::uint32_t channelIndex);
 private:
     IAudioBusConfiguration* configuration_;
+    AudioBusConfigurationModel* configurationModel_;
     bool isInput_;
     std::uint32_t index_;
 };

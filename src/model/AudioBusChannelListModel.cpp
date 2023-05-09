@@ -1,16 +1,19 @@
 #include "AudioBusChannelListModel.hpp"
 
+#include "model/AudioBusConfigurationModel.hpp"
+
 namespace YADAW::Model
 {
 using YADAW::Audio::Device::IAudioBusConfiguration;
 
-
-
 AudioBusChannelListModel::AudioBusChannelListModel(
-    IAudioBusConfiguration& configuration, bool isInput,
+    IAudioBusConfiguration& configuration,
+    AudioBusConfigurationModel& configurationModel,
+    bool isInput,
     std::uint32_t index, QObject* parent):
     IAudioBusChannelListModel(parent),
     configuration_(&configuration),
+    configurationModel_(&configurationModel),
     isInput_(isInput),
     index_(index)
 {}
@@ -18,6 +21,7 @@ AudioBusChannelListModel::AudioBusChannelListModel(
 AudioBusChannelListModel::AudioBusChannelListModel(const AudioBusChannelListModel& rhs):
     IAudioBusChannelListModel(rhs.parent()),
     configuration_(rhs.configuration_),
+    configurationModel_(rhs.configurationModel_),
     isInput_(rhs.isInput_),
     index_(rhs.index_)
 {}
@@ -85,21 +89,11 @@ bool AudioBusChannelListModel::setData(const QModelIndex& index, const QVariant&
         {
         case Role::ChannelIndex:
         {
-            auto ret = setChannel(row, channel.deviceIndex, value.value<int>());
-            if(ret)
-            {
-                dataChanged(index, index, {Role::ChannelIndex});
-            }
-            return ret;
+            return setChannel(row, channel.deviceIndex, value.value<int>());
         }
         case Role::DeviceIndex:
         {
-            auto ret = setChannel(row, value.value<int>(), channel.channelIndex);
-            if(ret)
-            {
-                dataChanged(index, index, {Role::DeviceIndex});
-            }
-            return ret;
+            return setChannel(row, value.value<int>(), channel.channelIndex);
         }
         }
     }
@@ -115,9 +109,18 @@ bool AudioBusChannelListModel::setChannel(std::uint32_t index,
             isInput_?
                 configuration_->inputBusAt(index_)->get():
                 configuration_->outputBusAt(index_)->get());
-        return bus.setChannel(index, {deviceIndex, channelIndex});
+        auto ret = bus.setChannel(index, {deviceIndex, channelIndex});
+        if(ret)
+        {
+            dataChanged(this->index(index, 0), this->index(index, 0),
+                {Role::DeviceIndex, Role::ChannelIndex});
+            configurationModel_->dataChanged(
+                configurationModel_->index(index_, 0),
+                configurationModel_->index(index_, 0),
+                {IAudioBusConfigurationModel::Role::ChannelList});
+            return true;
+        }
     }
     return false;
 }
-
 }

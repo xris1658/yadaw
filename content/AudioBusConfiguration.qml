@@ -200,8 +200,12 @@ Rectangle {
                     }
                     ItemDelegate {
                         id: deviceSelector
+                        property int currentDeviceIndex: abclm_device_index
                         width: channelList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0) - channelSelector.width - indexIndicator.width
-                        text: abclm_device_index == -1? qsTr("Dummy Device"): deviceListView.itemAtIndex(abclm_device_index).deviceName // TODO: Actual device name
+                        text: abclm_device_index == -1? qsTr("Dummy Device"):
+                            deviceListView.itemAtIndex(abclm_device_index)?
+                                deviceListView.itemAtIndex(abclm_device_index).deviceName:
+                                qsTr("Device") + " " + (abclm_device_index + 1).toString() // FIXME
                         property int channelCount: 0
                         QC.Popup {
                             id: deviceListPopup
@@ -221,22 +225,37 @@ Rectangle {
                                 width: deviceListPopup.width - deviceListPopup.background.border.width * 2
                                 height: contentHeight
                                 delegate: ItemDelegate {
+                                    id: deviceItemDelegate
                                     width: parent.width
                                     enabled: agdlm_enabled
                                     clip: true
                                     visible: agdlm_enabled
                                     height: agdlm_enabled? implicitHeight: 0
                                     property string deviceName: agdlm_name
+                                    property int deviceIndex: index
                                     Label {
                                         id: label
                                         anchors.left: parent.left
-                                        anchors.right: parent.right
+                                        anchors.right: selectedIndicator.visible? selectedIndicator.left: parent.right
                                         anchors.verticalCenter: parent.verticalCenter
                                         anchors.leftMargin: (parent.height - height) / 2
                                         anchors.rightMargin: anchors.leftMargin
                                         text: deviceName
                                         color: agdlm_enabled? Colors.content: Colors.secondaryContent
                                         elide: Label.ElideMiddle
+                                    }
+                                    Item {
+                                        id: selectedIndicator
+                                        visible: deviceSelector.currentDeviceIndex === deviceItemDelegate.deviceIndex
+                                        anchors.right: parent.right
+                                        width: height
+                                        height: parent.height
+                                        Rectangle {
+                                            anchors.centerIn: parent
+                                            width: parent.height / 3
+                                            height: width
+                                            radius: width / 2
+                                        }
                                     }
                                     onClicked: {
                                         if(agdlm_enabled) {
