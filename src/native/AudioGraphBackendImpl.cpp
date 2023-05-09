@@ -294,7 +294,10 @@ void AudioGraphBackend::Impl::destroyAudioGraph()
 {
     audioDeviceOutputNode_ = { nullptr };
     audioFrameInputNode_ = { nullptr };
-    deviceInputNodes_.clear();
+    for(auto& deviceInputNode: deviceInputNodes_)
+    {
+        deviceInputNode = {};
+    }
     audioGraph_ = { nullptr };
 }
 

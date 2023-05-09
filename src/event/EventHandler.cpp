@@ -37,6 +37,15 @@ void saveAudioBusConfiguration(
     saveConfig(config);
 }
 
+void saveAudioBackendState()
+{
+    auto appConfig = YADAW::Controller::loadConfig();
+    const auto& audioGraphConfig = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
+    appConfig["audio-hardware"]["audio-graph"] = audioGraphConfig;
+    auto dump = YAML::Dump(audioGraphConfig);
+    YADAW::Controller::saveConfig(appConfig);
+}
+
 EventHandler::EventHandler(QObject* sender, QObject* receiver, QObject* parent):
     QObject(parent), eventSender_(sender), eventReceiver_(receiver)
 {
@@ -82,7 +91,7 @@ void EventHandler::onOpenMainWindow()
 {
     auto& backend = YADAW::Controller::appAudioGraphBackend();
     backend.initialize();
-    backend.createAudioGraph(); // TODO: Read settings
+    backend.createAudioGraph();
     auto appConfig = YADAW::Controller::loadConfig();
     auto audioGraphNode = appConfig["audio-hardware"]["audio-graph"];
     if(audioGraphNode.IsNull())
@@ -104,9 +113,15 @@ void EventHandler::onOpenMainWindow()
             currentOutputDeviceIndex = i;
         }
     }
+    QObject::connect(&YADAW::Controller::appAudioGraphInputDeviceListModel(),
+        &QAbstractItemModel::dataChanged,
+        &saveAudioBackendState);
+    QObject::connect(&YADAW::Controller::appAudioGraphOutputDeviceListModel(),
+        &QAbstractItemModel::dataChanged,
+        &saveAudioBackendState);
     appConfig["audio-hardware"]["audio-graph"] = audioGraphNode;
     YADAW::Controller::saveConfig(appConfig);
-    // audio bus configuration
+    // audio bus configuration {
     static YADAW::Model::AudioBusConfigurationModel appAudioBusInputConfigurationModel(
         YADAW::Controller::appAudioBusConfiguration(), true);
     static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
@@ -143,8 +158,8 @@ void EventHandler::onOpenMainWindow()
     QObject::connect(&appAudioBusOutputConfigurationModel,
         &QAbstractItemModel::dataChanged,
         saveAudioBusConfigurationLambda);
+    // } audio bus configuration
 
-    // TODO: audio bus configuration
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
     YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",
@@ -178,6 +193,8 @@ void EventHandler::onOpenMainWindow()
         YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceIndex",
             QVariant::fromValue<int>(currentOutputDeviceIndex));
     }
+    QObject::connect(YADAW::Event::eventSender, SIGNAL(audioGraphOutputDeviceIndexChanged(int)),
+        this, SLOT(onAudioGraphOutputDeviceIndexChanged(int)));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRendering(bool)),
         this, SLOT(onSetSystemFontRendering(bool)));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setTranslationIndex(int)),
@@ -271,5 +288,10 @@ void EventHandler::onSetTranslationIndex(int index)
         YADAW::UI::mainWindow->setProperty("currentTranslationIndex",
             QVariant::fromValue<int>(YADAW::Controller::currentTranslationIndex));
     }
+}
+
+void EventHandler::onAudioGraphOutputDeviceIndexChanged(int index)
+{
+    YADAW::Controller::appAudioGraphOutputDeviceListModel().setOutputDeviceIndex(index);
 }
 }

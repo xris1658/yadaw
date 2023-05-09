@@ -24,6 +24,7 @@ Window {
 
     property alias pluginDirectoryListModel: pluginSettings.directoryListModel
 
+    signal audioGraphOutputDeviceChanged(deviceIndex: int)
     signal startPluginScan()
     signal pluginScanComplete()
     onPluginScanComplete: {

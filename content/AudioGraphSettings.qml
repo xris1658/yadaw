@@ -14,6 +14,7 @@ Rectangle {
 
     property int bufferSize: 512
     property int latency: 512
+
     Grid {
         columns: 2
         columnSpacing: 10

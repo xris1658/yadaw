@@ -104,7 +104,8 @@ YAML::Node deviceConfigFromCurrentAudioGraph()
         emitter << YAML::Key << "activated" << YAML::Value << activated;
         emitter << YAML::EndMap;
     }
-    emitter << YAML::EndSeq << YAML::Key << "default-output-id" << YAML::Value << backend.audioOutputDeviceAt(backend.defaultAudioOutputDeviceIndex()).id.toStdString();
+
+    emitter << YAML::EndSeq << YAML::Key << "default-output-id" << YAML::Value << backend.currentOutputDevice().id.toStdString();
     emitter << YAML::EndMap;
     return YAML::Load(emitter.c_str());
 }

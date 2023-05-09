@@ -27,6 +27,7 @@ public slots:
     void onStartPluginScan();
     void onSetSystemFontRendering(bool enabled);
     void onSetTranslationIndex(int index);
+    void onAudioGraphOutputDeviceIndexChanged(int index);
 private:
     QObject* eventSender_;
     QObject* eventReceiver_;

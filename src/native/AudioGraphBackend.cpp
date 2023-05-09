@@ -172,6 +172,27 @@ std::uint32_t AudioGraphBackend::channelCount(bool isInput, std::uint32_t device
     return pImpl_->channelCount(isInput, deviceIndex);
 }
 
+bool AudioGraphBackend::setOutputDeviceIndex(std::uint32_t index)
+{
+    if(index < audioOutputDeviceCount())
+    {
+        auto inputDeviceCount = audioInputDeviceCount();
+        std::vector<bool> inputDeviceActivated(inputDeviceCount, false);
+        for(decltype(inputDeviceCount) i = 0; i < inputDeviceCount; ++i)
+        {
+            inputDeviceActivated[i] = isDeviceInputActivated(i);
+        }
+        destroyAudioGraph();
+        createAudioGraph(audioOutputDeviceAt(index).id);
+        for(decltype(inputDeviceCount) i = 0; i < inputDeviceCount; ++i)
+        {
+            activateDeviceInput(i, inputDeviceActivated[i]);
+        }
+        return true;
+    }
+    return false;
+}
+
 void YADAW::Audio::Backend::AudioGraphBackend::swap(YADAW::Audio::Backend::AudioGraphBackend& rhs)
 {
     std::swap(pImpl_, rhs.pImpl_);

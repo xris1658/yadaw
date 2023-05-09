@@ -10,7 +10,7 @@ class AudioGraphOutputDeviceListModel : public IAudioGraphDeviceListModel
 {
     Q_OBJECT
 public:
-    AudioGraphOutputDeviceListModel(const YADAW::Audio::Backend::AudioGraphBackend& backend,
+    AudioGraphOutputDeviceListModel(YADAW::Audio::Backend::AudioGraphBackend& backend,
         QObject* parent = nullptr);
     ~AudioGraphOutputDeviceListModel() override;
 public:
@@ -18,8 +18,10 @@ public:
 public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
+public:
+    bool setOutputDeviceIndex(std::uint32_t index);
 private:
-    const YADAW::Audio::Backend::AudioGraphBackend* backend_;
+    YADAW::Audio::Backend::AudioGraphBackend* backend_;
 };
 }
 

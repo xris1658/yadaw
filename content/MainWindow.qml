@@ -33,6 +33,10 @@ ApplicationWindow {
         EventSender.setTranslationIndex(currentTranslationIndex);
     }
 
+    onAudioGraphOutputDeviceIndexChanged: {
+        EventSender.audioGraphOutputDeviceIndexChanged(audioGraphOutputDeviceIndex);
+    }
+
     signal pluginScanComplete()
     onPluginScanComplete: {
         preferencesWindow.pluginScanComplete();

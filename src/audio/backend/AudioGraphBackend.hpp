@@ -86,6 +86,8 @@ public:
     std::uint32_t sampleRate() const;
     std::uint32_t channelCount(bool isInput, std::uint32_t deviceIndex) const;
 public:
+    bool setOutputDeviceIndex(std::uint32_t index);
+public:
     void swap(AudioGraphBackend& rhs);
 private:
     std::unique_ptr<Impl> pImpl_;
