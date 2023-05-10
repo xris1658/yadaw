@@ -64,12 +64,40 @@ std::uint32_t AudioGraphBackend::audioOutputDeviceCount() const
 
 std::uint32_t AudioGraphBackend::defaultAudioInputDeviceIndex() const
 {
-    return pImpl_->defaultAudioInputDeviceIndex();
+    const auto& id = defaultAudioInputDeviceId();
+    auto inputDeviceCount = audioInputDeviceCount();
+    for(decltype(inputDeviceCount) i = 0; i < inputDeviceCount; ++i)
+    {
+        if(audioInputDeviceAt(i).id == id)
+        {
+            return i;
+        }
+    }
+    return 0;
 }
 
 std::uint32_t AudioGraphBackend::defaultAudioOutputDeviceIndex() const
 {
-    return pImpl_->defaultAudioOutputDeviceIndex();
+    const auto& id = defaultAudioOutputDeviceId();
+    auto outputDeviceCount = audioOutputDeviceCount();
+    for(decltype(outputDeviceCount) i = 0; i < outputDeviceCount; ++i)
+    {
+        if(audioOutputDeviceAt(i).id == id)
+        {
+            return i;
+        }
+    }
+    return 0;
+}
+
+QString AudioGraphBackend::defaultAudioInputDeviceId() const
+{
+    return YADAW::Native::qStringFromHString(pImpl_->defaultAudioInputDeviceId());
+}
+
+QString AudioGraphBackend::defaultAudioOutputDeviceId() const
+{
+    return YADAW::Native::qStringFromHString(pImpl_->defaultAudioOutputDeviceId());
 }
 
 AudioGraphBackend::DeviceInfo AudioGraphBackend::audioInputDeviceAt(std::uint32_t index) const

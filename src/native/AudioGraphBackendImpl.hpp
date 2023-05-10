@@ -56,8 +56,8 @@ public:
     std::uint32_t audioOutputDeviceCount() const;
     DeviceInformation audioInputDeviceAt(std::uint32_t index) const;
     DeviceInformation audioOutputDeviceAt(std::uint32_t index) const;
-    std::uint32_t defaultAudioInputDeviceIndex() const;
-    std::uint32_t defaultAudioOutputDeviceIndex() const;
+    winrt::hstring defaultAudioInputDeviceId() const;
+    winrt::hstring defaultAudioOutputDeviceId() const;
     bool createAudioGraph();
     bool createAudioGraph(const DeviceInformation& audioOutputDevice);
     bool isDeviceInputActivated(std::uint32_t deviceInputIndex) const;

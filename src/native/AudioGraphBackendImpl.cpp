@@ -1,11 +1,6 @@
 #include "AudioGraphBackendImpl.hpp"
 #include "audio/backend/AudioGraphBackend.hpp"
 
-#include <Unknwn.h>
-
-#include <combaseapi.h>
-#include <mmdeviceapi.h>
-
 #include <cstdint>
 
 #include "native/winrt/Forward.hpp"
@@ -16,6 +11,7 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Media.h>
 #include <winrt/Windows.Media.Audio.h>
+#include <winrt/Windows.Media.Devices.h>
 #include <winrt/Windows.Media.MediaProperties.h>
 #include <winrt/Windows.Media.Render.h>
 #include <winrt/Windows.Devices.Enumeration.h>
@@ -30,6 +26,7 @@ using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Foundation::Collections;
 using namespace winrt::Windows::Media;
 using namespace winrt::Windows::Media::Audio;
+using namespace winrt::Windows::Media::Devices;
 using namespace winrt::Windows::Media::Capture;
 using namespace winrt::Windows::Media::MediaProperties;
 using namespace winrt::Windows::Media::Render;
@@ -44,38 +41,6 @@ AudioGraphSettings createAudioGraphSettings()
 
 namespace YADAW::Audio::Backend
 {
-namespace Helper
-{
-class IMMDeviceEnumeratorCreator
-{
-private:
-    IMMDeviceEnumeratorCreator()
-    {
-        if(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_INPROC_SERVER,
-            IID_PPV_ARGS(&deviceEnumerator_)) != S_OK)
-        {
-            deviceEnumerator_ = nullptr;
-            throw std::runtime_error("");
-        }
-    }
-public:
-    static IMMDeviceEnumerator* deviceEnumerator()
-    {
-        try
-        {
-            static IMMDeviceEnumeratorCreator instance;
-            return instance.deviceEnumerator_;
-        }
-        catch(...)
-        {
-            return nullptr;
-        }
-    }
-public:
-    IMMDeviceEnumerator* deviceEnumerator_ = nullptr;
-};
-}
-
 AudioGraphBackend::Impl::DeviceInput::DeviceInput():
     deviceInputNode_(nullptr), frameOutputNode_(nullptr), audioBuffer_(nullptr) {}
 
@@ -129,71 +94,14 @@ DeviceInformation AudioGraphBackend::Impl::audioOutputDeviceAt(std::uint32_t ind
     return audioOutputDeviceInformationCollection_.GetAt(index);
 }
 
-std::uint32_t AudioGraphBackend::Impl::defaultAudioInputDeviceIndex() const
+winrt::hstring AudioGraphBackend::Impl::defaultAudioInputDeviceId() const
 {
-    if(auto deviceEnumerator = Helper::IMMDeviceEnumeratorCreator::deviceEnumerator();
-        deviceEnumerator)
-    {
-        IMMDevice* endpoint = nullptr;
-        if(deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture,
-            ERole::eMultimedia, &endpoint) == S_OK)
-        {
-            LPWSTR deviceId = nullptr;
-            if(endpoint->GetId(&deviceId) == S_OK)
-            {
-                // https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdevice-getid#remarks
-                // FIXME: Use IMMDeviceEnumerator::GetDevice to retrieve device ID
-                int id = -1;
-                for(int i = 0; i < audioInputDeviceInformationCollection_.Size(); ++i)
-                {
-                    // \\?\SWD#MMDEVAPI#{0.0.0.00000000}.{4c2d97cc-7925-4292-9964-6376fd05ffee}#{e6327cad-dcec-4949-ae8a-991e976a79d2}
-                    auto idForCompare = audioInputDeviceInformationCollection_.GetAt(i).Id();
-                    if(std::equal(deviceId, deviceId + std::wcslen(deviceId), idForCompare.c_str() + 17))
-                    {
-                        id = i;
-                        break;
-                    }
-                }
-                CoTaskMemFree(deviceId);
-                return id;
-            }
-        }
-    }
-    return -1;
+    return MediaDevice::GetDefaultAudioCaptureId(AudioDeviceRole::Default);
 }
 
-std::uint32_t AudioGraphBackend::Impl::defaultAudioOutputDeviceIndex() const
+winrt::hstring AudioGraphBackend::Impl::defaultAudioOutputDeviceId() const
 {
-    if(auto deviceEnumerator = Helper::IMMDeviceEnumeratorCreator::deviceEnumerator();
-        deviceEnumerator)
-    {
-        IMMDevice* endpoint = nullptr;
-        if(deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eRender,
-            ERole::eMultimedia, &endpoint) == S_OK)
-        {
-            // {0.0.0.00000000}.{4c2d97cc-7925-4292-9964-6376fd05ffee}
-            LPWSTR deviceId = nullptr;
-            if(endpoint->GetId(&deviceId) == S_OK)
-            {
-                // https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdevice-getid#remarks
-                // FIXME: Use IMMDeviceEnumerator::GetDevice to retrieve device ID
-                int id = -1;
-                for(int i = 0; i < audioOutputDeviceInformationCollection_.Size(); ++i)
-                {
-                    // \\?\SWD#MMDEVAPI#{0.0.0.00000000}.{4c2d97cc-7925-4292-9964-6376fd05ffee}#{e6327cad-dcec-4949-ae8a-991e976a79d2}
-                    auto idForCompare = audioOutputDeviceInformationCollection_.GetAt(i).Id();
-                    if(std::equal(deviceId, deviceId + std::wcslen(deviceId), idForCompare.c_str() + 17))
-                    {
-                        id = i;
-                        break;
-                    }
-                }
-                CoTaskMemFree(deviceId);
-                return id;
-            }
-        }
-    }
-    return -1;
+    return MediaDevice::GetDefaultAudioRenderId(AudioDeviceRole::Default);
 }
 
 bool AudioGraphBackend::Impl::createAudioGraph()
@@ -287,7 +195,7 @@ DeviceInformation AudioGraphBackend::Impl::currentOutputDevice() const
     {
         return ret;
     }
-    return audioInputDeviceInformationCollection_.GetAt(defaultAudioOutputDeviceIndex());
+    return asyncResult(DeviceInformation::CreateFromIdAsync(defaultAudioOutputDeviceId()));
 }
 
 void AudioGraphBackend::Impl::destroyAudioGraph()

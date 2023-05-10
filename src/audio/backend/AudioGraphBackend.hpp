@@ -70,13 +70,14 @@ public:
     std::uint32_t audioOutputDeviceCount() const;
     std::uint32_t defaultAudioInputDeviceIndex() const;
     std::uint32_t defaultAudioOutputDeviceIndex() const;
+    QString defaultAudioInputDeviceId() const;
+    QString defaultAudioOutputDeviceId() const;
     DeviceInfo audioInputDeviceAt(std::uint32_t index) const;
     DeviceInfo audioOutputDeviceAt(std::uint32_t index) const;
     bool createAudioGraph();
     bool createAudioGraph(const QString& id);
     bool isDeviceInputActivated(std::uint32_t deviceInputIndex) const;
     DeviceInputResult activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
-    // This function might fail, in which case returns a blank DeviceInfo
     DeviceInfo currentOutputDevice() const;
     void destroyAudioGraph();
     void start(AudioCallbackType* callback);
