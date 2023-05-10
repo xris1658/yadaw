@@ -7,41 +7,8 @@ Rectangle {
     color: Colors.background
     property int minimumWidth: 400
     property int minimumHeight: 300
-    property alias deviceListModel: deviceListView.model
+    property var deviceListModel: ListModel {}
     property alias model: busList.model
-    QC.Popup {
-        id: deviceListPopup
-        height: deviceListView.height + background.border.width * 2
-        background: Rectangle {
-            color: Colors.background
-            border.color: Colors.controlBorder
-        }
-        ListView {
-            id: deviceListView
-            anchors.centerIn: parent
-            model: root.deviceListModel
-            width: deviceListPopup.width - deviceListPopup.background.border.width * 2
-            height: contentHeight
-            delegate: ItemDelegate {
-                id: deviceItemDelegate
-                width: parent.width
-                enabled: agdlm_enabled
-                clip: true
-                visible: agdlm_enabled
-                height: agdlm_enabled? implicitHeight: 0
-                property string deviceName: agdlm_name
-                property int deviceIndex: index
-                text: deviceName
-                onClicked: {
-                    if(agdlm_enabled) {
-                        deviceListPopup.parent.parent.setDeviceIndex(index);
-                        deviceListPopup.parent.channelCount = agdlm_channel_count;
-                    }
-                    deviceListPopup.close();
-                }
-            }
-        }
-    }
 
     Column {
         id: busListColumn
@@ -232,21 +199,17 @@ Rectangle {
                         horizontalAlignment: Label.AlignLeft
                         leftPadding: (height - contentHeight) / 2
                     }
-                    ItemDelegate {
+                    ComboBox {
                         id: deviceSelector
-                        property int currentDeviceIndex: abclm_device_index
                         width: channelList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0) - channelSelector.width - indexIndicator.width
-                        text: abclm_device_index == -1? qsTr("Dummy Device"):
-                            deviceListView.itemAtIndex(abclm_device_index)?
-                                deviceListView.itemAtIndex(abclm_device_index).deviceName:
-                                qsTr("Device") + " " + (abclm_device_index + 1).toString() // FIXME
                         property int channelCount: 0
-                        onClicked: {
-                            deviceListPopup.parent = deviceSelector;
-                            deviceListPopup.width = channelRow.width;
-                            deviceListPopup.x = -(indexIndicator.width);
-                            deviceListPopup.y = deviceSelector.height;
-                            deviceListPopup.open();
+                        model: deviceListModel
+                        textRole: "agdlm_name"
+                        valueRole: "agdlm_id"
+                        currentIndex: abclm_device_index
+                        onCurrentIndexChanged: {
+                            channelRow.setDeviceIndex(currentIndex);
+                            channelCount = model.data(model.index(currentIndex, 0), Qt.UserRole + 3);
                         }
                     }
                     ComboBox {

@@ -17,8 +17,6 @@ private:
         node_["general"]["language"] = "en_US";
         node_["general"]["system-font-rendering"] = false;
         node_["audio-hardware"]["audio-api"] = "AudioGraph";
-        node_["audio-hardware"]["audiograph"]["sample-rate"] = 44100;
-        node_["audio-hardware"]["audiograph"]["primary-output"] = "";
         node_["plugin"]["scan-shortcuts"] = false;
         node_["plugin"]["scan-on-startup"] = false;
     }

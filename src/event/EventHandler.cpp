@@ -41,7 +41,7 @@ void saveAudioBackendState()
 {
     auto appConfig = YADAW::Controller::loadConfig();
     const auto& audioGraphConfig = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
-    appConfig["audio-hardware"]["audio-graph"] = audioGraphConfig;
+    appConfig["audio-hardware"]["audiograph"] = audioGraphConfig;
     auto dump = YAML::Dump(audioGraphConfig);
     YADAW::Controller::saveConfig(appConfig);
 }
@@ -93,11 +93,11 @@ void EventHandler::onOpenMainWindow()
     backend.initialize();
     backend.createAudioGraph();
     auto appConfig = YADAW::Controller::loadConfig();
-    auto audioGraphNode = appConfig["audio-hardware"]["audio-graph"];
+    auto audioGraphNode = appConfig["audio-hardware"]["audiograph"];
     if(audioGraphNode.IsNull())
     {
         YADAW::Controller::activateDefaultDevice(backend);
-        appConfig["audio-hardware"]["audio-graph"] = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
+        appConfig["audio-hardware"]["audiograph"] = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
         YADAW::Controller::saveConfig(appConfig);
     }
     else
@@ -119,15 +119,16 @@ void EventHandler::onOpenMainWindow()
     QObject::connect(&YADAW::Controller::appAudioGraphOutputDeviceListModel(),
         &QAbstractItemModel::dataChanged,
         &saveAudioBackendState);
-    appConfig["audio-hardware"]["audio-graph"] = audioGraphNode;
+    appConfig["audio-hardware"]["audiograph"] = audioGraphNode;
     YADAW::Controller::saveConfig(appConfig);
     // audio bus configuration {
     static YADAW::Model::AudioBusConfigurationModel appAudioBusInputConfigurationModel(
         YADAW::Controller::appAudioBusConfiguration(), true);
     static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
         YADAW::Controller::appAudioBusConfiguration(), false);
-    auto audioBusConfigNode = appConfig["audio-bus"];
-    if(!audioBusConfigNode.IsNull())
+
+    if(auto audioBusConfigNode = appConfig["audio-bus"];
+        audioBusConfigNode.IsDefined())
     {
         YADAW::Controller::loadAudioBusConfiguration(audioBusConfigNode,
             appAudioBusInputConfigurationModel, appAudioBusOutputConfigurationModel);

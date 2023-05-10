@@ -1,5 +1,7 @@
 #include "AudioBackendController.hpp"
 
+#include "util/YAMLCppUtil.hpp"
+
 #include <yaml-cpp/emitter.h>
 
 namespace YADAW::Controller
@@ -41,7 +43,7 @@ bool createAudioGraphFromConfig(const YAML::Node& node)
     auto& backend = appAudioGraphBackend();
     backend.initialize();
     if(const auto& defaultOutputIdNode = node["default-output-id"];
-        defaultOutputIdNode.IsNull())
+        !defaultOutputIdNode.IsDefined())
     {
         if(const auto index = backend.defaultAudioOutputDeviceIndex();
             index == -1)
@@ -68,45 +70,52 @@ bool createAudioGraphFromConfig(const YAML::Node& node)
         }
     }
     const auto& inputsNode = node["inputs"];
-    auto configInputCount = inputsNode.size();
-    auto deviceInputCount = backend.audioInputDeviceCount();
-    for(decltype(configInputCount) i = 0; i < configInputCount; ++i)
+    if(inputsNode.IsDefined() && inputsNode.IsSequence())
     {
-        const auto& id = inputsNode[i]["id"].as<std::string>();
-        if(inputsNode[i]["activated"].as<bool>())
+        auto configInputCount = inputsNode.size();
+        auto deviceInputCount = backend.audioInputDeviceCount();
+        for(decltype(configInputCount) i = 0; i < configInputCount; ++i)
         {
-            for(decltype(deviceInputCount) j = 0; j < deviceInputCount; ++j)
+            const auto& id = inputsNode[i]["id"].as<std::string>();
+            if(inputsNode[i]["activated"].as<bool>())
             {
-                if(const auto& device = backend.audioInputDeviceAt(j);
-                    device.id == id.c_str())
+                for(decltype(deviceInputCount) j = 0; j < deviceInputCount; ++j)
                 {
-                    backend.activateDeviceInput(j, true);
+                    if(const auto& device = backend.audioInputDeviceAt(j);
+                        device.id == id.c_str())
+                    {
+                        backend.activateDeviceInput(j, true);
+                    }
                 }
             }
         }
+        return true;
     }
-    return true;
+    return false;
 }
 
 YAML::Node deviceConfigFromCurrentAudioGraph()
 {
+    using namespace YADAW::Util;
     YAML::Emitter emitter;
-    emitter << YAML::BeginMap;
-    emitter << YAML::Key << "inputs" << YAML::Value << YAML::BeginSeq;
-    auto& backend = appAudioGraphBackend();
-    auto inputCount = appAudioGraphBackend().audioInputDeviceCount();
-    for(decltype(inputCount) i = 0; i < inputCount; ++i)
     {
-        emitter << YAML::BeginMap;
-        const auto& device = backend.audioInputDeviceAt(i);
-        auto activated = backend.isDeviceInputActivated(i);
-        emitter << YAML::Key << "id" << YAML::Value << device.id.toStdString();
-        emitter << YAML::Key << "activated" << YAML::Value << activated;
-        emitter << YAML::EndMap;
+        YAMLMap map(emitter);
+        auto& backend = appAudioGraphBackend();
+        emitter << YAML::Key << "inputs" << YAML::Value;
+        {
+            YAMLSeq seq(emitter);
+            auto inputCount = appAudioGraphBackend().audioInputDeviceCount();
+            for(decltype(inputCount) i = 0; i < inputCount; ++i)
+            {
+                YAMLMap map(emitter);
+                const auto& device = backend.audioInputDeviceAt(i);
+                auto activated = backend.isDeviceInputActivated(i);
+                emitter << YAML::Key << "id" << YAML::Value << device.id.toStdString();
+                emitter << YAML::Key << "activated" << YAML::Value << activated;
+            }
+        }
+        emitter << YAML::Key << "default-output-id" << YAML::Value << backend.currentOutputDevice().id.toStdString();
     }
-
-    emitter << YAML::EndSeq << YAML::Key << "default-output-id" << YAML::Value << backend.currentOutputDevice().id.toStdString();
-    emitter << YAML::EndMap;
     return YAML::Load(emitter.c_str());
 }
 
