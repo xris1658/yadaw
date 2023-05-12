@@ -92,9 +92,6 @@ Rectangle {
                     text: agdlm_name
                     width: inputDeviceListView.width - (scrollBar.visible? scrollBar.width: 0)
                     checked: agdlm_enabled
-                    onCheckedChanged: {
-                        agdlm_enabled = checked;
-                    }
                 }
             }
         }

@@ -102,6 +102,7 @@ Rectangle {
                     width: busList.width - (busListScrollBar.visible? busListScrollBar.width: 0) - audioBusRenameButton.width - audioBusRemoveButton.width
                     text: abcm_name == ""? qsTr("Bus") + " " + (index + 1): abcm_name
                     z: 2
+                    highlighted: stackLayout.currentIndex === audioBusRow.busIndex
                     TextField {
                         id: audioBusNameTextField
                         visible: false
@@ -202,24 +203,22 @@ Rectangle {
                     ComboBox {
                         id: deviceSelector
                         width: channelList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0) - channelSelector.width - indexIndicator.width
-                        property int channelCount: 0
+                        property int channelCount: model.data(model.index(currentIndex, 0), Qt.UserRole + 3)
                         model: deviceListModel
                         textRole: "agdlm_name"
                         valueRole: "agdlm_id"
+                        enabledRole: "agdlm_enabled"
                         currentIndex: abclm_device_index
-                        onCurrentIndexChanged: {
-                            channelRow.setDeviceIndex(currentIndex);
-                            channelCount = model.data(model.index(currentIndex, 0), Qt.UserRole + 3);
-                        }
+                        hideDisabledItem: true
                     }
                     ComboBox {
                         id: channelSelector
                         width: height * 1.5
-                        border.width: 0
                         enabled: !(count == 0)
+                        indicator.width: 0
+                        indicator.visible: false
                         model: Functions.arrayFromOne(deviceSelector.channelCount)
-                        indicator: Item {}
-                        displayText: count == 0? qsTr("N/A"): model[currentIndex]
+                        displayText: enabled? qsTr("N/A"): model[currentIndex]
                         onCurrentIndexChanged: {
                             abclm_channel_index = currentIndex;
                         }
