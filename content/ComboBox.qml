@@ -7,11 +7,14 @@ T.ComboBox {
 
     property alias radius: background.radius
     property alias border: background.border
+    property string enabledRole
+    property bool hideDisabledItem: false
 
     topPadding: 3
     bottomPadding: 3
     leftPadding: 5
     rightPadding: 5
+    spacing: 3
 
     implicitHeight: contentItem.contentHeight + topPadding + bottomPadding
 
@@ -31,14 +34,17 @@ T.ComboBox {
         color: root.enabled? Colors.content: Colors.disabledContent
         anchors.left: parent.left
         anchors.leftMargin: Math.max((root.height - contentHeight) / 2, root.leftPadding)
+        anchors.right: indicator.left
+        elide: Label.ElideRight
         anchors.verticalCenter: parent.verticalCenter
     }
     indicator: Item {
-        width: height
+        width: indicatorLabel.contentWidth + root.spacing * 2
         height: root.height
         anchors.right: root.right
         anchors.top: root.top
         Label {
+            id: indicatorLabel
             anchors.centerIn: parent
             text: "\u25bc"
             color: root.enabled? Colors.content: Colors.disabledContent
@@ -66,13 +72,20 @@ T.ComboBox {
     delegate: MenuItem {
         id: menuItem
         minimumSpaceBetweenTextAndShortcut: 0
+        enabled: root.enabledRole?
+            (Array.isArray(root.model)?
+                 modelData[root.enabledRole]:
+                 model[root.enabledRole])
+            : true
         text: root.textRole?
             (Array.isArray(root.model)?
                 modelData[root.textRole]:
                 model[root.textRole])
             : modelData
-        height: root.height
+        clip: true
+        visible: ((!enabled) && hideDisabledItem)? false: true
         width: root.width
+        height: visible? root.height: 0
         highlighted: root.highlightedIndex === index
         background: Rectangle {
             color: (menuItem.enabled && menuItem.highlighted)?
@@ -83,9 +96,10 @@ T.ComboBox {
             id: contentText
             leftPadding: 5
             text: menuItem.text
-            width: menuItem.width - menuItem.height
+            // width: menuItem.width - menuItem.height
+            anchors.right: indicator.visible? indicator.left: parent.right
             anchors.left: parent.left
-            color: root.enabled? Colors.content: Colors.disabledContent
+            color: menuItem.enabled? Colors.content: Colors.disabledContent
             anchors.verticalCenter: parent.verticalCenter
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
