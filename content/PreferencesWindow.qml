@@ -5,6 +5,7 @@ import QtQuick.Window
 Window {
     id: root
     title: qsTr("Preferences")
+    color: Colors.background
     flags: Qt.Dialog
     modality: Qt.NonModal
 

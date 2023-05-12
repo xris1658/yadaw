@@ -708,7 +708,6 @@ ApplicationWindow {
     }
     PreferencesWindow {
         id: preferencesWindow
-        color: root.color
         onStartPluginScan: {
             console.log("startPluginScan");
             EventSender.startPluginScan();
