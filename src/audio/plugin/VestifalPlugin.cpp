@@ -31,6 +31,23 @@ VestifalPlugin::VestifalPlugin(VestifalEntry entry, std::int32_t uniqueId)
 
 VestifalPlugin::~VestifalPlugin()
 {
+    if(status_ == Status::Processing)
+    {
+        VestifalPlugin::stopProcessing();
+    }
+    if(status_ == Status::Activated)
+    {
+        VestifalPlugin::deactivate();
+    }
+    if(status_ == Status::Initialized)
+    {
+        VestifalPlugin::uninitialize();
+    }
+    if(status_ == Status::Created)
+    {
+        runDispatcher(effect_, EffectOpcode::effectClose);
+        status_ = Status::Loaded;
+    }
 }
 
 AEffect* VestifalPlugin::effect()
