@@ -185,12 +185,6 @@ Rectangle {
                 delegate: Row {
                     id: channelRow
                     property int indexInBus: channelList.busIndex
-                    function setDeviceIndex(deviceIndex: int) {
-                        abclm_device_index = deviceIndex;
-                    }
-                    function setChannelIndex(channelIndex: int) {
-                        abclm_channel_index = channelIndex;
-                    }
                     Label {
                         id: indexIndicator
                         text: index + 1
@@ -218,7 +212,8 @@ Rectangle {
                         indicator.width: 0
                         indicator.visible: false
                         model: Functions.arrayFromOne(deviceSelector.channelCount)
-                        displayText: enabled? qsTr("N/A"): model[currentIndex]
+                        displayText: enabled? model[currentIndex]: qsTr("N/A")
+                        currentIndex: abclm_channel_index
                         onCurrentIndexChanged: {
                             abclm_channel_index = currentIndex;
                         }
