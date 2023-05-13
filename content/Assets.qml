@@ -16,6 +16,9 @@ Rectangle {
     property alias midiEffectListModel: midiEffectListView.model
     property alias instrumentListModel: instrumentListView.model
     property alias audioEffectListModel: audioEffectListView.model
+    property alias vestifalPluginListModel: vestifalPluginListView.model
+    property alias vst3PluginListModel: vst3PluginListView.model
+    property alias clapPluginListModel: clapPluginListView.model
 
     clip: true
 
@@ -256,6 +259,18 @@ Rectangle {
                             name: qsTr("Audio Effects")
                             iconSource: "AudioIcon.qml"
                         }
+                        ListElement {
+                            name: "Vestifal"
+                            iconSource: "VestifalIcon.qml"
+                        }
+                        ListElement {
+                            name: "VST3"
+                            iconSource: "VST3Icon.qml"
+                        }
+                        ListElement {
+                            name: "CLAP"
+                            iconSource: "CLAPIcon.qml"
+                        }
                     }
 
                     // model: ["Plugins", "MIDI Effects", "Instruments", "Audio Effects", "Audio Files", "MIDI Files"]
@@ -341,6 +356,15 @@ Rectangle {
                     }
                     PluginListView {
                         id: audioEffectListView
+                    }
+                    PluginListView {
+                        id: vestifalPluginListView
+                    }
+                    PluginListView {
+                        id: vst3PluginListView
+                    }
+                    PluginListView {
+                        id: clapPluginListView
                     }
                 }
             }

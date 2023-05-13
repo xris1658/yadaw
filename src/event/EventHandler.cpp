@@ -175,6 +175,12 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appInstrumentListModel()));
     YADAW::UI::mainWindow->setProperty("audioEffectListModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioEffectListModel()));
+    YADAW::UI::mainWindow->setProperty("vestifalPluginListModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appVestifalPluginListModel()));
+    YADAW::UI::mainWindow->setProperty("vst3PluginListModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appVST3PluginListModel()));
+    YADAW::UI::mainWindow->setProperty("clapPluginListModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appCLAPPluginListModel()));
     YADAW::UI::mainWindow->setProperty("systemFontRendering",
         QVariant::fromValue<bool>(YADAW::Controller::GeneralSettingsController::systemFontRendering()));
     YADAW::UI::mainWindow->setProperty("translationModel",
@@ -266,6 +272,9 @@ void EventHandler::onStartPluginScan()
         YADAW::Controller::appMIDIEffectListModel().update();
         YADAW::Controller::appInstrumentListModel().update();
         YADAW::Controller::appAudioEffectListModel().update();
+        YADAW::Controller::appVestifalPluginListModel().update();
+        YADAW::Controller::appVST3PluginListModel().update();
+        YADAW::Controller::appCLAPPluginListModel().update();
     }).detach();
 }
 

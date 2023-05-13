@@ -32,4 +32,25 @@ YADAW::Model::PluginListModel& appAudioEffectListModel()
         []() { return YADAW::DAO::selectPluginByType(YADAW::DAO::PluginTypeAudioEffect); });
     return ret;
 }
+
+YADAW::Model::PluginListModel& appVestifalPluginListModel()
+{
+    static YADAW::Model::PluginListModel ret(
+        []() { return YADAW::DAO::selectPluginByFormat(YADAW::DAO::PluginFormatVestifal); });
+    return ret;
+}
+
+YADAW::Model::PluginListModel& appVST3PluginListModel()
+{
+    static YADAW::Model::PluginListModel ret(
+        []() { return YADAW::DAO::selectPluginByFormat(YADAW::DAO::PluginFormatVST3); });
+    return ret;
+}
+
+YADAW::Model::PluginListModel& appCLAPPluginListModel()
+{
+    static YADAW::Model::PluginListModel ret(
+        []() { return YADAW::DAO::selectPluginByFormat(YADAW::DAO::PluginFormatCLAP); });
+    return ret;
+}
 }
