@@ -202,8 +202,13 @@ Rectangle {
                         textRole: "agdlm_name"
                         valueRole: "agdlm_id"
                         enabledRole: "agdlm_enabled"
+                        displayText: currentIndex == -1? qsTr("Dummy Device"):
+                            currentText
                         currentIndex: abclm_device_index
                         hideDisabledItem: true
+                        onCurrentIndexChanged: {
+                            abclm_device_index = currentIndex;
+                        }
                     }
                     ComboBox {
                         id: channelSelector
