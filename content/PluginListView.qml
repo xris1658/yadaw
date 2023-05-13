@@ -22,9 +22,6 @@ ListView {
     }
     delegate: ItemDelegate {
         id: itemDelegate
-        property string name: plm_name
-        property int format: plm_format
-        property int type: plm_type
         width: root.width
         height: label.contentHeight + label.topPadding + label.bottomPadding
         Row {
@@ -32,7 +29,7 @@ ListView {
             Row {
                 StackLayout {
                     id: formatIcons
-                    currentIndex: itemDelegate.format
+                    currentIndex: plm_format
                     Item {
                         layer.enabled: true
                         layer.smooth: true
@@ -88,7 +85,7 @@ ListView {
                 }
                 StackLayout {
                     id: typeIcons
-                    currentIndex: itemDelegate.type
+                    currentIndex: plm_type
                     Item {
                         layer.enabled: true
                         layer.smooth: true
@@ -147,7 +144,7 @@ ListView {
                 id: label
                 topPadding: 2
                 bottomPadding: 2
-                text: itemDelegate.name
+                text: plm_name
             }
         }
     }
