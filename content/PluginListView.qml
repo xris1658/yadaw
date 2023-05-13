@@ -15,6 +15,7 @@ ListView {
         Instrument,
         AudioEffect
     }
+    reuseItems: true
     boundsBehavior: ListView.StopAtBounds
     ScrollBar.vertical: ScrollBar {
         visible: root.contentHeight > root.height
