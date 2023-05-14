@@ -16,6 +16,10 @@ public:
 public:
     VestifalPlugin();
     VestifalPlugin(VestifalEntry entry, std::int32_t uniqueId = 0);
+    VestifalPlugin(const VestifalPlugin&) = delete;
+    VestifalPlugin(VestifalPlugin&&) noexcept = default;
+    VestifalPlugin& operator=(const VestifalPlugin&) = delete;
+    VestifalPlugin& operator=(VestifalPlugin&&) noexcept = default;
     ~VestifalPlugin();
 public:
     AEffect* effect();

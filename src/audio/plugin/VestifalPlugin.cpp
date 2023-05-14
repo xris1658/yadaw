@@ -24,7 +24,6 @@ VestifalPlugin::VestifalPlugin(VestifalEntry entry, std::int32_t uniqueId)
     if(effect_)
     {
         effect_->user = this;
-        runDispatcher(effect_, EffectOpcode::effectOpen);
         status_ = Status::Created;
     }
 }
@@ -45,7 +44,6 @@ VestifalPlugin::~VestifalPlugin()
     }
     if(status_ == Status::Created)
     {
-        runDispatcher(effect_, EffectOpcode::effectClose);
         status_ = Status::Loaded;
     }
 }
@@ -57,6 +55,7 @@ AEffect* VestifalPlugin::effect()
 
 bool VestifalPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 {
+    runDispatcher(effect_, EffectOpcode::effectOpen);
     runDispatcher(effect_, EffectOpcode::effectSetSampleRate, 0, 0, nullptr, sampleRate);
     runDispatcher(effect_, EffectOpcode::effectSetBlockSize, 0, maxSampleCount);
     status_ = Status::Initialized;
@@ -68,6 +67,7 @@ bool VestifalPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 bool VestifalPlugin::uninitialize()
 {
     gui_.reset();
+    runDispatcher(effect_, EffectOpcode::effectClose);
     status_ = Status::Created;
     return true;
 }

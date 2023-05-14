@@ -92,7 +92,7 @@ enum AudioMasterOpcode
     | `"sizeWindow"`                                   | `audioMasterSizeWindow`            |
     | `"openFileSelector"`                             | `audioMasterOpenFileSelector`      |
     | `"closeFileSelector"`                            | `audioMasterCloseFileSelector`     |
-    | `"supportShell"`                                 | `audioMasterGetCurrentUniqueId`    |
+    | `"supportShell"`<br/>`shellCategory`             | `audioMasterGetCurrentUniqueId`    |
     | `"supplyIdle"`                                   | `audioMasterIdle`                  |
     | `"editFile"`                                     | `audioMasterEditFile`              |
     | `"acceptIOChanges"`                              | `audioMasterIOChanged`             |

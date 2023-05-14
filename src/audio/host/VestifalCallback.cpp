@@ -26,6 +26,9 @@ std::intptr_t vestifalHostCallback(AEffect* effect, std::int32_t opcode, std::in
     case audioMasterGetProductName:
         std::strcpy(static_cast<char*>(ptr), "YADAW");
         return 0;
+    case audioMasterCanDo:
+        return std::strcmp(reinterpret_cast<const char*>(ptr), "shellCategory") == 0
+            || std::strcmp(reinterpret_cast<const char*>(ptr), "supportShell") == 0;
     }
     return 0;
 }
