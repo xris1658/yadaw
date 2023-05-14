@@ -14,7 +14,7 @@
 
 int main(int argc, char *argv[])
 {
-    qputenv("QSG_RENDER_LOOP", "basic");
+    qputenv("QSG_NO_VSYNC", "1");
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
     YADAW::UI::qmlApplicationEngine = &engine;
