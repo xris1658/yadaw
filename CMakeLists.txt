@@ -122,11 +122,11 @@ set(YADAW_COMMON_SOURCES
     src/controller/AppController.hpp
     src/controller/AssetDirectoryController.cpp
     src/controller/AssetDirectoryController.hpp
-    src/controller/AudioBackendController.cpp
-    src/controller/AudioBackendController.hpp
     src/controller/AudioBusConfigurationController.cpp
     src/controller/AudioBusConfigurationController.hpp
     src/controller/AudioEngineController.hpp
+    src/controller/AudioGraphBackendController.cpp
+    src/controller/AudioGraphBackendController.hpp
     src/controller/ConfigController.cpp
     src/controller/ConfigController.hpp
     src/controller/DatabaseController.cpp

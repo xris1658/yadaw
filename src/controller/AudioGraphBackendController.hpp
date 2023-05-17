@@ -1,5 +1,5 @@
-#ifndef YADAW_SRC_CONTROLLER_AUDIOBACKENDCONTROLLER
-#define YADAW_SRC_CONTROLLER_AUDIOBACKENDCONTROLLER
+#ifndef YADAW_SRC_CONTROLLER_AUDIOGRAPHBACKENDCONTROLLER
+#define YADAW_SRC_CONTROLLER_AUDIOGRAPHBACKENDCONTROLLER
 
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "audio/backend/AudioGraphBusConfiguration.hpp"
@@ -28,4 +28,4 @@ YAML::Node deviceConfigFromCurrentAudioGraph();
 YADAW::Audio::Backend::AudioGraphBusConfiguration& appAudioBusConfiguration();
 }
 
-#endif //YADAW_SRC_CONTROLLER_AUDIOBACKENDCONTROLLER
+#endif //YADAW_SRC_CONTROLLER_AUDIOGRAPHBACKENDCONTROLLER
