@@ -10,6 +10,7 @@ YADAW 意为 **Y**et **A**nother **D**igital **A**udio **W**orkstation. 此项�
 - [x] 不再使用 Qt 5.15.2，改用 Qt 6.5
 - [x] 换用其他的音频后端；移除 ASIO 支持（[为什么？](https://github.com/xris1658/musec-legacy/issues/7)）
 - [x] 引入 Vestifal：数个逆向工程的 VST 插件 API 的结合
+- [ ] Linux 支持
 - [ ] 不止立体声：添加多种声道支持
 - [ ] 高级混音器结构：插入编组、发送支持、侧链支持、插件延迟补偿支持等
 - [ ] 内置插件（也许会做）
