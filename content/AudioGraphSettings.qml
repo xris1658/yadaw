@@ -89,9 +89,9 @@ Rectangle {
                 }
                 delegate: CheckBox {
                     padding: 2
-                    text: agdlm_name
+                    text: adlm_name
                     width: inputDeviceListView.width - (scrollBar.visible? scrollBar.width: 0)
-                    checked: agdlm_enabled
+                    checked: adlm_enabled
                 }
             }
         }
@@ -103,8 +103,8 @@ Rectangle {
         ComboBox {
             id: outputDeviceComboBox
             width: secondColumnWidth
-            textRole: "agdlm_name"
-            valueRole: "agdlm_id"
+            textRole: "adlm_name"
+            valueRole: "adlm_id"
         }
         Label {
             width: firstColumnWidth

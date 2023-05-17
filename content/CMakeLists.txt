@@ -17,7 +17,7 @@ set(CONTENT_CPP_FILES
     model/IAssetDirectoryListModel.hpp
     model/IAudioBusChannelListModel.hpp
     model/IAudioBusConfigurationModel.hpp
-    model/IAudioGraphDeviceListModel.hpp
+    model/IAudioDeviceListModel.hpp
     model/IAutomationModel.hpp
     model/ILocalizationListModel.hpp
     model/ModelBase.hpp

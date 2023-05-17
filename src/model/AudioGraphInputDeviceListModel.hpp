@@ -2,11 +2,11 @@
 #define YADAW_SRC_MODEL_AUDIOGRAPHINPUTDEVICELISTMODEL
 
 #include "audio/backend/AudioGraphBackend.hpp"
-#include "model/IAudioGraphDeviceListModel.hpp"
+#include "model/IAudioDeviceListModel.hpp"
 
 namespace YADAW::Model
 {
-class AudioGraphInputDeviceListModel: public IAudioGraphDeviceListModel
+class AudioGraphInputDeviceListModel: public IAudioDeviceListModel
 {
     Q_OBJECT
 public:

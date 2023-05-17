@@ -5,7 +5,7 @@ namespace YADAW::Model
 AudioGraphOutputDeviceListModel::AudioGraphOutputDeviceListModel(
     YADAW::Audio::Backend::AudioGraphBackend& backend,
     QObject* parent):
-    IAudioGraphDeviceListModel(parent),
+    IAudioDeviceListModel(parent),
     backend_(&backend)
 {
 }

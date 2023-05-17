@@ -199,9 +199,9 @@ Rectangle {
                         width: channelList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0) - channelSelector.width - indexIndicator.width
                         property int channelCount: model.data(model.index(currentIndex, 0), Qt.UserRole + 3)
                         model: deviceListModel
-                        textRole: "agdlm_name"
-                        valueRole: "agdlm_id"
-                        enabledRole: "agdlm_enabled"
+                        textRole: "adlm_name"
+                        valueRole: "adlm_id"
+                        enabledRole: "adlm_enabled"
                         displayText: currentIndex == -1? qsTr("Dummy Device"):
                             currentText
                         currentIndex: abclm_device_index

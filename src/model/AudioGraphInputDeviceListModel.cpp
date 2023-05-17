@@ -4,7 +4,7 @@ namespace YADAW::Model
 {
 AudioGraphInputDeviceListModel::AudioGraphInputDeviceListModel(Audio::Backend::AudioGraphBackend& backend,
     QObject* parent):
-    IAudioGraphDeviceListModel(parent),
+    IAudioDeviceListModel(parent),
     backend_(&backend)
 {
     //
