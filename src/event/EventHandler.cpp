@@ -3,7 +3,7 @@
 #include "base/Constants.hpp"
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
-#include "controller/AudioBackendController.hpp"
+#include "controller/AudioGraphBackendController.hpp"
 #include "controller/AudioBusConfigurationController.hpp"
 #include "controller/ConfigController.hpp"
 #include "controller/GeneralSettingsController.hpp"

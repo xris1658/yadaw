@@ -78,7 +78,7 @@ std::vector<QString> scanDirectory(const QDir& dir, bool recursive, bool include
 std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
 {
     Library library(path);
-    if(library.errorCode() != 0)
+    if(!library.loaded())
     {
         return {};
     }
@@ -462,7 +462,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             ret.reserve(uids.size());
             for(auto uid: uids)
             {
-                library = {path};
+                library = Library{path};
                 name[0] = 0;
                 vendor[0] = 0;
                 auto plugin = createVestifalFromLibrary(library, uid);

@@ -1,3 +1,5 @@
+#if(WIN32)
+
 #include "AudioGraphBackendController.hpp"
 
 #include "util/YAMLCppUtil.hpp"
@@ -125,3 +127,5 @@ YADAW::Audio::Backend::AudioGraphBusConfiguration& appAudioBusConfiguration()
     return ret;
 }
 }
+
+#endif

@@ -14,9 +14,13 @@ void setSystemRender()
     // makes text pixelated.
     // See https://github.com/snowie2000/mactype/wiki/Enable-registry-mode-manually
     // on how to make MacType run in registry mode.
+#if(WIN32)
     if(!YADAW::Native::isDebuggerPresent())
     {
+#endif
         QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
+#if(WIN32)
     }
+#endif
 }
 }

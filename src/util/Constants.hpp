@@ -29,13 +29,21 @@ constexpr T sqrt2()
 template<typename T>
 T pi()
 {
+#if(__GNUC__)
+    return std::acos(-1.0l);
+#else
     return std::acosl(-1.0l);
+#endif
 }
 
 template<typename T>
 T sqrt2()
 {
+#if(__GNUC__)
+    return std::sqrt(2.0l);
+#else
     return std::sqrtl(2.0l);
+#endif
 }
 #endif
 }

@@ -13,6 +13,8 @@ class LibraryImpl
 private:
 #if(WIN32)
     using HandleType = HMODULE;
+#elif(__linux__)
+    using HandleType = void*;
 #else
 #error Unknown HandleType
 #endif
@@ -25,6 +27,7 @@ public:
     LibraryImpl& operator=(LibraryImpl&& rhs) noexcept;
     ~LibraryImpl() noexcept;
 public:
+    bool loaded() const;
     ErrorCodeType errorCode() const;
     const QString& path() const;
     YADAW::Native::Library::ExportType getExport(const char* name) const;

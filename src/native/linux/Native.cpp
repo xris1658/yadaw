@@ -1,0 +1,72 @@
+#if(__linux__)
+
+#include "native/Native.hpp"
+
+#include <time.h>
+
+#include <ctime>
+#include <mutex>
+
+namespace YADAW::Native
+{
+void sleepFor(std::chrono::steady_clock::duration duration)
+{
+    std::this_thread::sleep_for(duration);
+    // TODO: Use high-res (e.g. nanosleep) or low-cost solutions
+}
+
+std::once_flag defaultPluginListFlag;
+
+std::int64_t currentTimeValueInNanosecond()
+{
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()
+    ).count();
+}
+
+std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> currentTimePointInNanosecond()
+{
+    return std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now());
+}
+
+const std::vector<QString>& defaultPluginDirectoryList()
+{
+    static std::vector<QString> ret;
+    std::call_once(defaultPluginListFlag,
+        [&list = ret]() mutable
+        {
+        list.reserve(6);
+            // VST3
+            list.emplace_back("$HOME/.vst3");
+            list.emplace_back("/usr/lib/vst3");
+            list.emplace_back("/usr/local/lib/vst3");
+            // CLAP
+            list.emplace_back("$HOME/.clap");
+            list.emplace_back("/usr/lib/clap");
+            auto clapPath = std::getenv("CLAP_PATH");
+            if(clapPath)
+            {
+                QString clapPathAsQString(clapPath);
+                auto results = clapPathAsQString.split(':');
+                for(const auto& result: results)
+                {
+                    if(result.size() != 0)
+                    {
+                        list.emplace_back(result);
+                    }
+                }
+            }
+        }
+    );
+    return ret;
+}
+
+void locateFileInExplorer(const QString& path)
+{
+    // nautilus -s [URI]
+    // thunar [URI]
+    // dolphin [URI] --new-window --select
+}
+}
+
+#endif

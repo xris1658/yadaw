@@ -7,25 +7,23 @@
 #include <QString>
 #include <QtGlobal>
 
+#if(WIN32)
 #include <Windows.h>
+#endif
 
 #include <array>
 #include <chrono>
 
 namespace YADAW::Native
 {
-constexpr auto CLSIDStringLength = 38;
-
-using SystemTimeType = SYSTEMTIME;
-
-using ThreadMaskType = std::uint64_t;
-
-using SystemTimeStringType = std::array<char, 18>;
-
-using WindowType = HWND;
 
 #if(WIN32)
+constexpr auto CLSIDStringLength = 38;
+
+using WindowType = HWND;
 using ErrorCodeType = decltype(GetLastError());
+#elif(__linux__)
+using ErrorCodeType = int;
 #endif
 
 // Usually <User folder>\AppData\Roaming
@@ -37,22 +35,11 @@ const QString& programFilesFolder();
 // Usually <User folder>\AppData\Local
 const QString& localAppDataFolder();
 
-SystemTimeType getCurrentTime();
-
-SystemTimeType getLaunchTime();
-
-// Format systen time to YYYYMMDDHHMMSS
-SystemTimeStringType formatTime(const SystemTimeType& time);
-
 void openSpecialCharacterInput();
 
 void showFileInExplorer(const QString& path);
 
 int getProcessCPUCoreCount();
-
-ThreadMaskType getMIDIClockThreadAffinity();
-
-ThreadMaskType setThreadMask(ThreadMaskType mask);
 
 std::int64_t currentTimeValueInNanosecond();
 

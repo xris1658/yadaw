@@ -1,4 +1,4 @@
-#include "CLAPNative.hpp"
+#include "native/CLAPNative.hpp"
 
 #include <clap/entry.h>
 #include <clap/ext/gui.h>

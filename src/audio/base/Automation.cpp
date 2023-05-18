@@ -11,7 +11,7 @@ AutomationPoint::TimeType AutomationPoint::time() const
     return time_;
 }
 
-void AutomationPoint::setTime(long long int time)
+void AutomationPoint::setTime(AutomationPoint::TimeType time)
 {
     time_ = time;
 }

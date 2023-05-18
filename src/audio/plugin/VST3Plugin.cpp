@@ -22,13 +22,17 @@ VST3Plugin::VST3Plugin(
     VST3Plugin::ExitEntry exitEntry):
     exitEntry_(exitEntry)
 {
+#if(WIN32)
     if(initEntry)
     {
+#endif
         if(!initEntry())
         {
             return;
         }
+#if(WIN32)
     }
+#endif
     if(factoryEntry)
     {
         factory_ = factoryEntry();
@@ -83,10 +87,14 @@ VST3Plugin::~VST3Plugin()
         releasePointer(factory_);
         componentHandler_.reset();
     }
+#if(WIN32)
     if(exitEntry_)
     {
+#endif
         exitEntry_();
+#if(WIN32)
     }
+#endif
 }
 
 Steinberg::IPluginFactory* VST3Plugin::factory()

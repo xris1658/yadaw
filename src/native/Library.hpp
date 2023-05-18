@@ -16,6 +16,8 @@ class Library
 public:
 #if(WIN32)
     using ExportType = FARPROC;
+#elif(__linux__)
+    using ExportType = void* const;
 #else
 #error Unknown ExportType
 #endif
@@ -30,7 +32,7 @@ public:
 private:
     ExportType getExportImpl(const char* name) const;
 public:
-    ErrorCodeType errorCode() const;
+    bool loaded() const;
     QString path() const;
     template<typename T>
     T getExport(const char* name) const

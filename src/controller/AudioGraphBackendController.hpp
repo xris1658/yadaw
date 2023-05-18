@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_CONTROLLER_AUDIOGRAPHBACKENDCONTROLLER
 #define YADAW_SRC_CONTROLLER_AUDIOGRAPHBACKENDCONTROLLER
 
+#if(WIN32)
+
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "audio/backend/AudioGraphBusConfiguration.hpp"
 #include "model/AudioGraphInputDeviceListModel.hpp"
@@ -27,5 +29,7 @@ YAML::Node deviceConfigFromCurrentAudioGraph();
 
 YADAW::Audio::Backend::AudioGraphBusConfiguration& appAudioBusConfiguration();
 }
+
+#endif
 
 #endif //YADAW_SRC_CONTROLLER_AUDIOGRAPHBACKENDCONTROLLER

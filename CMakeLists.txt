@@ -5,8 +5,10 @@ project(YADAW VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-if(MSVC_VERSION GREATER 1929)
-    set(CMAKE_CXX_STANDARD 20)
+if(MSVC)
+    if(MSVC_VERSION GREATER 1929)
+        set(CMAKE_CXX_STANDARD 20)
+    endif()
 else()
     set(CMAKE_CXX_STANDARD 17)
 endif()
@@ -14,10 +16,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Prerequisites and dependencies
 find_package(QT NAMES Qt6 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
-find_package(Qt6 6.3 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
+find_package(Qt6 6.5 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 
 find_package(ade CONFIG REQUIRED)
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
 find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
 find_package(yaml-cpp
                   CONFIG REQUIRED)
@@ -38,9 +39,52 @@ add_subdirectory(content)
 
 add_definitions(-DUNICODE -D_UNICODE)
 
-add_compile_options(/W4 /Zc:wchar_t /Zc:__cplusplus)
+if(MSVC)
+    add_compile_options(/W4 /Zc:wchar_t /Zc:__cplusplus)
+elseif(GCC)
+    add_compile_options(-Wall -std=c++17)
+endif()
+
+set(WIN32_NATIVE_SOURCES
+    src/audio/AudioGraphBackend.hpp
+    src/native/win/AudioGraphBackend.cpp
+    src/native/win/AudioGraphBackendImpl.cpp
+    src/native/win/AudioGraphBackendImpl.hpp
+    src/native/win/LibraryImpl.cpp
+    src/native/win/LibraryImpl.cpp
+    src/native/win/Native.cpp
+    src/native/win/VST3Native.cpp
+    src/native/win/winrt/Async.hpp
+    src/native/win/winrt/Forward.hpp
+    src/native/win/winrt/QStringFromHString.cpp
+    src/native/win/winrt/QStringFromHString.hpp
+    src/native/win/CLAPNative.cpp
+    src/native/win/VestifalNative.cpp7
+)
+
+set(LINUX_NATIVE_SOURCES
+    src/audio/backend/ALSAAudioBackend.hpp
+    src/model/ALSADeviceListModel.cpp
+    src/model/ALSADeviceListModel.hpp
+    src/native/linux/ALSAAudioBackendImpl.cpp
+    src/native/linux/ALSAAudioBackendImpl.hpp
+    src/native/linux/ALSADeviceEnumerator.cpp
+    src/native/linux/ALSADeviceEnumerator.hpp
+    src/native/linux/CLAPNative.cpp
+    src/native/linux/LibraryImpl.cpp
+    src/native/linux/Native.cpp
+    src/native/linux/VST3Native.cpp
+    src/native/linux/VestifalNative.cpp
+    src/native/linux/ALSAHelper.hpp)
+
+if(WIN32)
+    set(NATIVE_SOURCES ${WIN32_NATIVE_SOURCES})
+elseif(LINUX)
+    set(NATIVE_SOURCES ${LINUX_NATIVE_SOURCES})
+endif()
 
 set(YADAW_COMMON_SOURCES
+    ${NATIVE_SOURCES}
     src/audio/backend/AudioGraphBackend.hpp
     src/audio/backend/AudioGraphBusConfiguration.cpp
     src/audio/backend/AudioGraphBusConfiguration.hpp
@@ -192,31 +236,13 @@ set(YADAW_COMMON_SOURCES
     src/model/PluginDirectoryListModel.hpp
     src/model/PluginListModel.cpp
     src/model/PluginListModel.hpp
-    src/native/AudioGraphBackend.cpp
-    src/native/AudioGraphBackendImpl.cpp
-    src/native/AudioGraphBackendImpl.hpp
-    src/native/CLAPNative.cpp
     src/native/CLAPNative.hpp
     src/native/Library.cpp
     src/native/Library.hpp
-    src/native/LibraryImpl.cpp
     src/native/LibraryImpl.hpp
-    src/native/MIDIInputDevice.cpp
-    src/native/MIDIInputDeviceImpl.cpp
-    src/native/MIDIInputDeviceImpl.hpp
-    src/native/MIDIOutputDevice.cpp
-    src/native/MIDIOutputDeviceImpl.cpp
-    src/native/MIDIOutputDeviceImpl.hpp
-    src/native/Native.cpp
     src/native/Native.hpp
-    src/native/VST3Native.cpp
     src/native/VST3Native.hpp
-    src/native/VestifalNative.cpp
     src/native/VestifalNative.hpp
-    src/native/winrt/Async.hpp
-    src/native/winrt/Forward.hpp
-    src/native/winrt/QStringFromHString.cpp
-    src/native/winrt/QStringFromHString.hpp
     src/ui/MessageDialog.cpp
     src/ui/MessageDialog.hpp
     src/ui/UI.cpp
@@ -293,59 +319,65 @@ if(${CMAKE_BUILD_TYPE} STREQUAL Release OR ${CMAKE_BUILD_TYPE} STREQUAL MinSizeR
     )
 endif()
 
+if(WIN32)
+    set(NATIVE_LIBRARY version ole32 windowsapp)
+elif(LINUX)
+    set(NATIVE_LIBRARY asound dl)
+endif()
+
+if(WIN32)
+    set(SQLITE_LIBRARY unofficial::sqlite3::sqlite3)
+elseif(LINUX)
+    set(SQLITE_LIBRARY sqlite3)
+endif()
+
 target_link_libraries(YADAW PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
                       ade
-                      version ole32
-                      windowsapp
+                      ${NATIVE_LIBRARY}
                       base pluginterfaces sdk_common sdk_hosting
-                      unofficial::sqlite3::sqlite3
+                      ${SQLITE_LIBRARY}
                       yaml-cpp)
 
 target_link_libraries(CLAPTest PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
-                      version ole32
-                      windowsapp
+                      ${NATIVE_LIBRARY}
                       base pluginterfaces sdk_common sdk_hosting
-                      unofficial::sqlite3::sqlite3
+                      ${SQLITE_LIBRARY}
                       yaml-cpp)
 
 target_link_libraries(PluginDirectoryScanTest PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
-                      version ole32
-                      windowsapp
+                      ${NATIVE_LIBRARY}
                       base pluginterfaces sdk_common sdk_hosting
-                      unofficial::sqlite3::sqlite3
+                      ${SQLITE_LIBRARY}
                       yaml-cpp)
 
 target_link_libraries(PluginScanTest PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
-                      version ole32
-                      windowsapp
+                      ${NATIVE_LIBRARY}
                       base pluginterfaces sdk_common sdk_hosting
-                      unofficial::sqlite3::sqlite3
+                      ${SQLITE_LIBRARY}
                       yaml-cpp)
 
 target_link_libraries(VestifalPluginTest PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
-                      version ole32
-                      windowsapp
+                      ${NATIVE_LIBRARY}
                       base pluginterfaces sdk_common sdk_hosting
-                      unofficial::sqlite3::sqlite3
+                      ${SQLITE_LIBRARY}
                       yaml-cpp)
 
 target_link_libraries(VST3Test PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
-                      version ole32
-                      windowsapp
+                      ${NATIVE_LIBRARY}
                       base pluginterfaces sdk_common sdk_hosting
-                      unofficial::sqlite3::sqlite3
+                      ${SQLITE_LIBRARY}
                       yaml-cpp)
 
 message(NOTICE "Generate translation files using Qt Linguist BEFORE loading the CMake project")

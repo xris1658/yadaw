@@ -1,4 +1,4 @@
-#include "VST3Native.hpp"
+#include "native/VST3Native.hpp"
 
 #include "native/Library.hpp"
 

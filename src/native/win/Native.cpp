@@ -1,4 +1,6 @@
-#include "Native.hpp"
+#if(WIN32)
+
+#include "native/Native.hpp"
 
 #include "util/Base.hpp"
 #include "util/FixedSizeMemoryBlock.hpp"
@@ -105,77 +107,6 @@ const QString& localAppDataFolder()
     return Impl::getFolderAsWCharArray<CSIDL_LOCAL_APPDATA>();
 }
 
-SystemTimeType getCurrentTime()
-{
-    SystemTimeType ret;
-    GetSystemTime(&ret);
-    return ret;
-}
-
-SystemTimeType getLaunchTime()
-{
-    auto process = GetCurrentProcess();
-    FILETIME processTime[4];
-    auto getTime = GetProcessTimes(process, processTime, processTime + 1, processTime + 2, processTime + 3);
-    if(!getTime)
-    {
-    }
-    SYSTEMTIME ret;
-    if(!FileTimeToSystemTime(processTime, &ret))
-    {
-    }
-    return ret;
-}
-
-SystemTimeStringType formatTime(const SystemTimeType& time)
-{
-    std::array<char, 18> ret = {0};
-    std::to_chars(ret.data(), ret.data() + 4, time.wYear);
-    std::to_chars(ret.data() + 4, ret.data() + 6, time.wMonth);
-    if (ret[5] == 0)
-    {
-        ret[5] = ret[4];
-        ret[4] = '0';
-    }
-    std::to_chars(ret.data() + 6, ret.data() + 8, time.wDay);
-    if (ret[7] == 0)
-    {
-        ret[7] = ret[6];
-        ret[6] = '0';
-    }
-    std::to_chars(ret.data() + 8, ret.data() + 10, time.wHour);
-    if (ret[9] == 0 && ret[8])
-    {
-        ret[9] = ret[8];
-        ret[8] = '0';
-    }
-    std::to_chars(ret.data() + 10, ret.data() + 12, time.wMinute);
-    if (ret[11] == 0 && ret[10])
-    {
-        ret[11] = ret[10];
-        ret[10] = '0';
-    }
-    std::to_chars(ret.data() + 12, ret.data() + 14, time.wSecond);
-    if (ret[13] == 0 && ret[12])
-    {
-        ret[13] = ret[12];
-        ret[12] = '0';
-    }
-    std::to_chars(ret.data() + 14, ret.data() + 17, time.wMilliseconds);
-    if(ret[15] == 0)
-    {
-        ret[16] = ret[15];
-        ret[15] = ret[14] = '0';
-    }
-    else if(ret[16] == 0)
-    {
-        ret[16] = ret[15];
-        ret[15] = ret[14];
-        ret[14] = '0';
-    }
-    return ret;
-}
-
 void openSpecialCharacterInput()
 {
     ShellExecuteW(nullptr, L"open", L"charmap.exe", nullptr, nullptr, SW_NORMAL);
@@ -199,31 +130,6 @@ int getProcessCPUCoreCount()
     auto procMask = Impl::procMask();
     auto bitset = reinterpret_cast<std::bitset<sizeof(procMask) * CHAR_BIT>*>(&procMask);
     return bitset->count();
-}
-
-ThreadMaskType getMIDIClockThreadAffinity()
-{
-    static auto procMask = Impl::procMask();
-    if(procMask == 0)
-    {
-        return 1;
-    }
-    std::uint64_t ret = 1;
-    while((ret & procMask) == 0)
-    {
-        ret <<= 1;
-    }
-    return ret;
-}
-
-ThreadMaskType setThreadMask(ThreadMaskType mask)
-{
-    auto ret = SetThreadAffinityMask(GetCurrentThread(), mask);
-    if(ret == 0)
-    {
-        throw std::runtime_error("");
-    }
-    return ret;
 }
 
 std::int64_t currentTimeValueInNanosecond()
@@ -343,10 +249,13 @@ const std::vector<QString>& defaultPluginDirectoryList()
     static std::vector<QString> ret;
     std::call_once(defaultPluginListFlag, [&list = ret]() mutable
     {
-        list.reserve(4);
+        list.reserve(6);
         auto programFilesPath = YADAW::Native::programFilesFolder();
         if(!programFilesPath.isEmpty())
         {
+            // Vestifal
+            list.emplace_back(QString(programFilesPath).append("\\Steinberg\\VstPlugins"));
+            list.emplace_back(QString(programFilesPath).append("\\VstPlugins"));
             // VST3
             list.emplace_back(QString(programFilesPath).append("\\Common Files\\VST3"));
             // CLAP
@@ -359,6 +268,19 @@ const std::vector<QString>& defaultPluginDirectoryList()
             // CLAP
             list.emplace_back(QString(localAppDataPath).append("\\Programs\\Common\\CLAP"));
         }
+        auto clapPath = std::getenv("CLAP_PATH");
+        if(clapPath)
+        {
+            QString clapPathAsQString(clapPath);
+            auto results = clapPathAsQString.split(';');
+            for(const auto& result: results)
+            {
+                if(result.size() != 0)
+                {
+                    list.emplace_back(result);
+                }
+            }
+        }
     });
     return ret;
 }
@@ -370,3 +292,5 @@ void locateFileInExplorer(const QString& path)
     ShellExecuteW(NULL, L"open", L"explorer.exe", arg.data(), NULL, SW_SHOWNORMAL);
 }
 }
+
+#endif

@@ -1,4 +1,4 @@
-#include "LibraryImpl.hpp"
+#include "native/LibraryImpl.hpp"
 
 #include <libloaderapi.h>
 
@@ -11,12 +11,11 @@ LibraryImpl::LibraryImpl(): handle_(NULL)
 LibraryImpl::LibraryImpl(const QString& path): path_(path)
 {
     auto widePath = path_.toStdWString();
-    handle_ = reinterpret_cast<decltype(handle_)>(
-        LoadLibraryExW(widePath.c_str(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH));
+    handle_ =
+        LoadLibraryExW(widePath.c_str(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
     if(handle_ == NULL)
     {
         errorCode_ = GetLastError();
-        handle_ = NULL;
     }
 }
 
@@ -41,8 +40,13 @@ LibraryImpl::~LibraryImpl() noexcept
     if(handle_)
     {
         path_.clear();
-        FreeLibrary(reinterpret_cast<HMODULE>(handle_));
+        FreeLibrary(handle_);
     }
+}
+
+bool LibraryImpl::loaded() const
+{
+    return handle_ != NULL;
 }
 
 ErrorCodeType LibraryImpl::errorCode() const

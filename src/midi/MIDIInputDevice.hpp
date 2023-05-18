@@ -22,8 +22,6 @@ public:
         QString name;
     };
 public:
-    static std::vector<MIDIInputDeviceInfo> enumerateDevices();
-public:
     MIDIInputDevice(const QString& id);
     MIDIInputDevice(const MIDIInputDevice&) = delete;
     MIDIInputDevice(MIDIInputDevice&&) = delete;

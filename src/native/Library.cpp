@@ -28,9 +28,9 @@ Library::~Library() noexcept
 {
 }
 
-ErrorCodeType Library::errorCode() const
+bool Library::loaded() const
 {
-    return pImpl_? pImpl_->errorCode(): 0;
+    return pImpl_? pImpl_->loaded(): false;
 }
 
 QString Library::path() const
