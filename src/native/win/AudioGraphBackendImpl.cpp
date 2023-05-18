@@ -3,8 +3,8 @@
 
 #include <cstdint>
 
-#include "native/winrt/Forward.hpp"
-#include "native/winrt/Async.hpp"
+#include "native/win/winrt/Forward.hpp"
+#include "native/win/winrt/Async.hpp"
 
 #include <MemoryBuffer.h> // Windows::Foundation::IMemoryBufferByteAccess
 #include <winrt/Windows.Foundation.h>

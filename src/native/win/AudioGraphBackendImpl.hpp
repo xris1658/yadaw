@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-#include "native/winrt/Forward.hpp"
+#include "native/win/winrt/Forward.hpp"
 
 #include <MemoryBuffer.h> // Windows::Foundation::IMemoryBufferByteAccess
 #include <winrt/Windows.Foundation.h>

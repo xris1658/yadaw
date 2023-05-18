@@ -17,7 +17,7 @@
 #include <combaseapi.h>
 
 // C++/WinRT API
-#include "native/winrt/Forward.hpp"
+#include "native/win/winrt/Forward.hpp"
 #include <winrt/base.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>

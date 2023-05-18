@@ -19,6 +19,9 @@ find_package(QT NAMES Qt6 COMPONENTS Core Gui Qml Quick QuickTemplates2 Linguist
 find_package(Qt6 6.5 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 
 find_package(ade CONFIG REQUIRED)
+if(WIN32)
+    find_package(unofficial-sqlite3 CONFIG REQUIRED)
+endif()
 find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
 find_package(yaml-cpp
                   CONFIG REQUIRED)
@@ -46,7 +49,7 @@ elseif(GCC)
 endif()
 
 set(WIN32_NATIVE_SOURCES
-    src/audio/AudioGraphBackend.hpp
+    src/audio/backend/AudioGraphBackend.hpp
     src/native/win/AudioGraphBackend.cpp
     src/native/win/AudioGraphBackendImpl.cpp
     src/native/win/AudioGraphBackendImpl.hpp
@@ -59,7 +62,7 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/winrt/QStringFromHString.cpp
     src/native/win/winrt/QStringFromHString.hpp
     src/native/win/CLAPNative.cpp
-    src/native/win/VestifalNative.cpp7
+    src/native/win/VestifalNative.cpp
 )
 
 set(LINUX_NATIVE_SOURCES
@@ -321,7 +324,7 @@ endif()
 
 if(WIN32)
     set(NATIVE_LIBRARY version ole32 windowsapp)
-elif(LINUX)
+elseif(LINUX)
     set(NATIVE_LIBRARY asound dl)
 endif()
 

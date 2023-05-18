@@ -1,7 +1,7 @@
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "AudioGraphBackendImpl.hpp"
-#include "native/winrt/Async.hpp"
-#include "native/winrt/QStringFromHString.hpp"
+#include "native/win/winrt/Async.hpp"
+#include "native/win/winrt/QStringFromHString.hpp"
 
 namespace YADAW::Audio::Backend
 {
