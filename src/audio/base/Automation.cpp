@@ -51,6 +51,11 @@ bool timeFromPointIsLessThanTime(const AutomationPoint& point, const AutomationP
     return point.time() < time;
 }
 
+bool timeIsLessThanTimeFromPoint(const AutomationPoint::TimeType& time, const AutomationPoint& point)
+{
+    return time < point.time();
+}
+
 Automation::Automation(double minValue, double maxValue): members_{{}, minValue, maxValue} {}
 
 Automation::Automation(const Self& rhs): members_(rhs.members_) {}
@@ -79,17 +84,12 @@ Automation::~Automation() noexcept {}
 
 Automation::PointVectorConstIterator Automation::lowerBound(const AutomationPoint::TimeType& time) const
 {
-    return std::lower_bound(points_.cbegin(), points_.cend(), time, timeFromPointIsLessThanTime);
+    return std::lower_bound(points_.cbegin(), points_.cend(), time, &timeFromPointIsLessThanTime);
 }
 
 Automation::PointVectorConstIterator Automation::upperBound(const AutomationPoint::TimeType& time) const
 {
-    auto ret = lowerBound(time);
-    if (ret != points_.cend() && ret->time() == time)
-    {
-        ++ret;
-    }
-    return ret;
+    return std::upper_bound(points_.cbegin(), points_.cend(), time, &timeIsLessThanTimeFromPoint);
 }
 
 Automation::PointVectorIterator Automation::lowerBound(const AutomationPoint::TimeType& time)

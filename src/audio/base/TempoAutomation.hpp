@@ -1,8 +1,8 @@
 #ifndef YADAW_AUDIO_BASE_TEMPOAUTOMATION
 #define YADAW_AUDIO_BASE_TEMPOAUTOMATION
 
-#include "Automation.hpp"
-#include "Chrono.hpp"
+#include "audio/base/Automation.hpp"
+#include "audio/base/Chrono.hpp"
 #include "util/Integration.hpp"
 #include "util/QuadraticFunction.hpp"
 

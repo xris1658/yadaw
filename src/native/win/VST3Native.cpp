@@ -1,4 +1,4 @@
-#if(WIn32)
+#if(WIN32)
 
 #include "native/VST3Native.hpp"
 

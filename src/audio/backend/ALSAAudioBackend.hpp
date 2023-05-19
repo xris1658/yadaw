@@ -1,9 +1,6 @@
 #ifndef YADAW_ALSAAUDIOBACKEND
 #define YADAW_ALSAAUDIOBACKEND
 
-#include <alsa/asoundlib.h>
-#include <alsa/pcm.h>
-
 #include <cstdint>
 #include <memory>
 

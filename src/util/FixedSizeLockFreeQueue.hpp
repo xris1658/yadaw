@@ -5,6 +5,7 @@
 
 #include <array>
 #include <atomic>
+#include <cstddef>
 
 namespace YADAW::Util
 {
@@ -134,8 +135,8 @@ public:
     }
 private:
     std::array<std::byte[sizeof(T)], Capacity + 1> data_;
-    std::atomic_size_t begin_ = 0;
-    std::atomic_size_t end_ = 0;
+    std::atomic_size_t begin_{0};
+    std::atomic_size_t end_{0};
 };
 }
 

@@ -132,8 +132,8 @@ public:
 private:
     T* data_;
     std::size_t capacity_;
-    std::atomic_size_t begin_ = 0;
-    std::atomic_size_t end_ = 0;
+    std::atomic_size_t begin_{0};
+    std::atomic_size_t end_{0};
 };
 }
 

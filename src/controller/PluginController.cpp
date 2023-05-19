@@ -1,6 +1,7 @@
 #include "PluginController.hpp"
 
 #include "audio/host/VestifalCallback.hpp"
+#include "audio/util/CLAPUtil.hpp"
 #include "audio/util/VST3Util.hpp"
 #include "audio/util/VestifalUtil.hpp"
 #include "dao/PluginCategoryTable.hpp"
@@ -325,7 +326,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
     }
     else if(path.endsWith(clapExt, Qt::CaseSensitivity::CaseInsensitive))
     {
-        auto plugin = createCLAPFromLibrary(library);
+        auto plugin = YADAW::Audio::Util::createCLAPFromLibrary(library);
         if(plugin.entry())
         {
             std::vector<PluginScanResult> ret;
