@@ -1,5 +1,7 @@
 #include "VST3Util.hpp"
 
+#include "native/VST3Native.hpp"
+
 #include <cstring>
 
 namespace YADAW::Audio::Util
@@ -30,5 +32,17 @@ int splitSubCategories(SubCategories& subCategories, SplittedSubCategories& spli
         }
     }
     return splittedSubCategoryCount;
+}
+
+YADAW::Audio::Plugin::VST3Plugin createVST3FromLibrary(Native::Library& library)
+{
+    auto factory = library.getExport<YADAW::Audio::Plugin::VST3Plugin::FactoryEntry>("GetPluginFactory");
+    if(!factory)
+    {
+        return {};
+    }
+    auto init = library.getExport<YADAW::Audio::Plugin::VST3Plugin::InitEntry>(YADAW::Native::initEntryName);
+    auto exit = library.getExport<YADAW::Audio::Plugin::VST3Plugin::ExitEntry>(YADAW::Native::exitEntryName);
+    return {init, factory, exit};
 }
 }

@@ -16,6 +16,8 @@
 #include <timezoneapi.h>
 #include <combaseapi.h>
 
+#include <MemoryBuffer.h>
+
 // C++/WinRT API
 #include "native/win/winrt/Forward.hpp"
 #include <winrt/base.h>
@@ -25,10 +27,9 @@
 #include <winrt/Windows.Devices.Midi.h>
 #include <winrt/Windows.Media.h>
 #include <winrt/Windows.Media.Audio.h>
+#include <winrt/Windows.Media.Devices.h>
 #include <winrt/Windows.Media.MediaProperties.h>
 #include <winrt/Windows.Media.Render.h>
-#include <winrt/Windows.UI.ViewManagement.h>
-#include <winrt/Windows.UI.ViewManagement.Core.h>
 #endif
 
 #endif //YADAW_PCH_WINDOWSAPI

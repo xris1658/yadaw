@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_NATIVE_LINUX_ALSADEVICEENUMERATOR
 #define YADAW_SRC_NATIVE_LINUX_ALSADEVICEENUMERATOR
 
+#if(__linux__)
+
 #include <cstdint>
 #include <optional>
 
@@ -26,5 +28,7 @@ public:
     static std::optional<DeviceSelector> midiDeviceAt(std::uint32_t index);
 };
 }
+
+#endif
 
 #endif //YADAW_SRC_NATIVE_LINUX_ALSADEVICEENUMERATOR

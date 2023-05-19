@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_NATIVE_AUDIOGRAPHBACKENDIMPL
 #define YADAW_SRC_NATIVE_AUDIOGRAPHBACKENDIMPL
 
+#if(WIN32)
+
 #include "audio/backend/AudioGraphBackend.hpp"
 
 #include <Unknwn.h>
@@ -82,5 +84,7 @@ private:
     event_token eventToken_;
 };
 }
+
+#endif
 
 #endif //YADAW_SRC_NATIVE_AUDIOGRAPHBACKENDIMPL

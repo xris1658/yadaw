@@ -4,6 +4,7 @@
 #include "util/CompilerSpecifics.hpp"
 
 #include <atomic>
+#include <cstdlib>
 
 namespace YADAW::Util
 {

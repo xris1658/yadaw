@@ -2,6 +2,7 @@
 
 #include "audio/host/VST3Host.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
+#include "audio/util/VST3Util.hpp"
 #include "native/Native.hpp"
 #include "native/VST3Native.hpp"
 #include "dao/PluginTable.hpp"
@@ -301,7 +302,7 @@ int main(int argc, char* argv[])
             QGuiApplication application(argc, argv);
             library = YADAW::Native::Library(argv[argIndex]);
             ++argIndex;
-            auto plugin = YADAW::Native::createVST3FromLibrary(library);
+            auto plugin = YADAW::Audio::Util::createVST3FromLibrary(library);
             if(std::strlen(argv[argIndex]) == 32)
             {
                 for(int i = 0; i < 16; ++i)
@@ -323,7 +324,7 @@ int main(int argc, char* argv[])
             const auto& record = YADAW::DAO::selectPluginById(id);
             std::printf("\nTesting plugin: %ls...\n", reinterpret_cast<const wchar_t*>(record.path.data()));
             library = YADAW::Native::Library(record.path);
-            auto plugin = YADAW::Native::createVST3FromLibrary(library);
+            auto plugin = YADAW::Audio::Util::createVST3FromLibrary(library);
             std::memcpy(tuid, record.uid.data(), 16);
             assert(plugin.createPlugin(tuid));
             testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);

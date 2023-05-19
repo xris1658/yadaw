@@ -53,17 +53,17 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/AudioGraphBackend.cpp
     src/native/win/AudioGraphBackendImpl.cpp
     src/native/win/AudioGraphBackendImpl.hpp
+    src/native/win/CLAPNative.cpp
     src/native/win/LibraryImpl.cpp
     src/native/win/LibraryImpl.cpp
     src/native/win/Native.cpp
     src/native/win/VST3Native.cpp
+    src/native/win/VestifalNative.cpp
     src/native/win/winrt/Async.hpp
     src/native/win/winrt/Forward.hpp
     src/native/win/winrt/QStringFromHString.cpp
     src/native/win/winrt/QStringFromHString.hpp
-    src/native/win/CLAPNative.cpp
-    src/native/win/VestifalNative.cpp
-)
+    )
 
 set(LINUX_NATIVE_SOURCES
     src/audio/backend/ALSAAudioBackend.hpp
@@ -73,12 +73,13 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/ALSAAudioBackendImpl.hpp
     src/native/linux/ALSADeviceEnumerator.cpp
     src/native/linux/ALSADeviceEnumerator.hpp
+    src/native/linux/ALSAHelper.hpp
     src/native/linux/CLAPNative.cpp
     src/native/linux/LibraryImpl.cpp
     src/native/linux/Native.cpp
     src/native/linux/VST3Native.cpp
     src/native/linux/VestifalNative.cpp
-    src/native/linux/ALSAHelper.hpp)
+    )
 
 if(WIN32)
     set(NATIVE_SOURCES ${WIN32_NATIVE_SOURCES})
@@ -161,7 +162,10 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/VestifalPlugin.hpp
     src/audio/plugin/VestifalPluginGUI.cpp
     src/audio/plugin/VestifalPluginGUI.hpp
+    src/audio/util/CLAPUtil.cpp
     src/audio/util/CLAPUtil.hpp
+    src/audio/util/VestifalUtil.cpp
+    src/audio/util/VestifalUtil.hpp
     src/audio/util/VST3Util.cpp
     src/audio/util/VST3Util.hpp
     src/base/Constants.hpp

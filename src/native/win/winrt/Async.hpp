@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_NATIVE_WINRT_ASYNC
 #define YADAW_SRC_NATIVE_WINRT_ASYNC
 
+#if(WIN32)
+
 #include <winrt/Windows.Foundation.h>
 
 #include <future>
@@ -23,5 +25,7 @@ inline T asyncResult(winrt::Windows::Foundation::IAsyncOperation<T> asyncOperati
 #endif
 // #endif
 }
+
+#endif
 
 #endif //YADAW_SRC_NATIVE_WINRT_ASYNC

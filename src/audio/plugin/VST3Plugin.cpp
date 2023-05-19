@@ -4,7 +4,6 @@
 #include "audio/plugin/VST3PluginGUI.hpp"
 #include "audio/plugin/VST3PluginParameter.hpp"
 #include "audio/util/VST3Util.hpp"
-#include "util/ArrayAccess.hpp"
 
 // For some reason, memorystream.cpp is not included in sdk_common library, so I have to solve this
 // by `#include`ing the source file in another source: `audio/plugin/VST3MemoryStream.cpp`.
@@ -20,19 +19,13 @@ VST3Plugin::VST3Plugin(
     VST3Plugin::InitEntry initEntry,
     VST3Plugin::FactoryEntry factoryEntry,
     VST3Plugin::ExitEntry exitEntry):
-    exitEntry_(exitEntry)
+    exitEntry_(nullptr)
 {
-#if(WIN32)
-    if(initEntry)
+    if((!initEntry) || (!initEntry()))
     {
-#endif
-        if(!initEntry())
-        {
-            return;
-        }
-#if(WIN32)
+        return;
     }
-#endif
+    exitEntry_ = exitEntry;
     if(factoryEntry)
     {
         factory_ = factoryEntry();
@@ -87,14 +80,10 @@ VST3Plugin::~VST3Plugin()
         releasePointer(factory_);
         componentHandler_.reset();
     }
-#if(WIN32)
     if(exitEntry_)
     {
-#endif
         exitEntry_();
-#if(WIN32)
     }
-#endif
 }
 
 Steinberg::IPluginFactory* VST3Plugin::factory()

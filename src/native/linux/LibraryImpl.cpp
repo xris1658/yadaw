@@ -1,3 +1,5 @@
+#if(__linux__)
+
 #include "native/LibraryImpl.hpp"
 
 #include <dlfcn.h>
@@ -64,3 +66,5 @@ YADAW::Native::Library::ExportType LibraryImpl::getExport(const char* name) cons
     return dlsym(handle_, name);
 }
 }
+
+#endif

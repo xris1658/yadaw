@@ -1,6 +1,8 @@
 #ifndef YADAW_ALSAAUDIOBACKENDIMPL
 #define YADAW_ALSAAUDIOBACKENDIMPL
 
+#if(__linux__)
+
 #include "audio/backend/ALSAAudioBackend.hpp"
 #include "native/linux/ALSADeviceEnumerator.hpp"
 
@@ -24,5 +26,7 @@ private:
     snd_pcm_hw_params_t* hwParams_ = nullptr;
 };
 }
+
+#endif
 
 #endif //YADAW_ALSAAUDIOBACKENDIMPL

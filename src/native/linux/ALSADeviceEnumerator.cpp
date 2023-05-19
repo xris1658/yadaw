@@ -1,3 +1,5 @@
+#if(__linux__)
+
 #include "ALSADeviceEnumerator.hpp"
 
 #include <filesystem>
@@ -104,3 +106,5 @@ std::optional<ALSADeviceEnumerator::DeviceSelector> ALSADeviceEnumerator::midiDe
     return index < midiDeviceCount()? std::optional(midiDevices[index]): std::nullopt;
 }
 }
+
+#endif

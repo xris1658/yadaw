@@ -1,7 +1,9 @@
 #ifndef YADAW_SRC_AUDIO_UTIL_VESTIFALUTIL
 #define YADAW_SRC_AUDIO_UTIL_VESTIFALUTIL
 
+#include "audio/plugin/VestifalPlugin.hpp"
 #include "audio/plugin/vestifal/Vestifal.h"
+#include "native/Library.hpp"
 
 #include <cstdint>
 
@@ -9,5 +11,10 @@ inline intptr_t runDispatcher(AEffect* effect, std::int32_t opcode, std::int32_t
 {
     return effect->dispatcher(effect, opcode, input, opt, ptr, value);
 }
+
+VestifalEntry vestifalEntryFromLibrary(YADAW::Native::Library& library);
+
+YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(
+    YADAW::Native::Library& library, std::int32_t uid = 0);
 
 #endif //YADAW_SRC_AUDIO_UTIL_VESTIFALUTIL

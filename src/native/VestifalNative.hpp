@@ -12,11 +12,6 @@ namespace YADAW::Native
 {
 extern QLatin1StringView vestifalExt;
 extern QString vestifalPattern;
-
-VestifalEntry vestifalEntryFromLibrary(Library& library);
-
-YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(Library& library,
-    std::int32_t uid = 0);
 }
 
 #endif //YADAW_SRC_NATIVE_VESTIFALNATIVE

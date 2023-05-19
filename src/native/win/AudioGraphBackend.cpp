@@ -1,3 +1,5 @@
+#if(WIN32)
+
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "AudioGraphBackendImpl.hpp"
 #include "native/win/winrt/Async.hpp"
@@ -227,3 +229,5 @@ void YADAW::Audio::Backend::AudioGraphBackend::swap(YADAW::Audio::Backend::Audio
     std::swap(status_, rhs.status_);
 }
 }
+
+#endif

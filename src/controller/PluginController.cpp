@@ -84,7 +84,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
     }
     if(path.endsWith(vst3Ext, Qt::CaseSensitivity::CaseInsensitive))
     {
-        auto plugin = createVST3FromLibrary(library);
+        auto plugin = YADAW::Audio::Util::createVST3FromLibrary(library);
         if(auto factory = plugin.factory())
         {
             Steinberg::PFactoryInfo factoryInfo {};

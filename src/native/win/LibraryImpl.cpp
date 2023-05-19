@@ -1,3 +1,5 @@
+#if(WIN32)
+
 #include "native/LibraryImpl.hpp"
 
 #include <libloaderapi.h>
@@ -64,3 +66,5 @@ YADAW::Native::Library::ExportType LibraryImpl::getExport(const char* name) cons
     return GetProcAddress(reinterpret_cast<HMODULE>(handle_), name);
 }
 }
+
+#endif

@@ -1,3 +1,5 @@
+#if(__linux__)
+
 #include "ALSAAudioBackendImpl.hpp"
 
 #include <filesystem>
@@ -29,3 +31,5 @@ std::optional<ALSAAudioBackend::Impl::PCMDeviceSelector>
     return YADAW::Native::ALSADeviceEnumerator::audioOutputDeviceAt(index);
 }
 }
+
+#endif

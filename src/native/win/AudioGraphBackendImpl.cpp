@@ -1,3 +1,5 @@
+#if(WIN32)
+
 #include "AudioGraphBackendImpl.hpp"
 #include "audio/backend/AudioGraphBackend.hpp"
 
@@ -9,12 +11,12 @@
 #include <MemoryBuffer.h> // Windows::Foundation::IMemoryBufferByteAccess
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Devices.Enumeration.h>
 #include <winrt/Windows.Media.h>
 #include <winrt/Windows.Media.Audio.h>
 #include <winrt/Windows.Media.Devices.h>
 #include <winrt/Windows.Media.MediaProperties.h>
 #include <winrt/Windows.Media.Render.h>
-#include <winrt/Windows.Devices.Enumeration.h>
 
 #if __cplusplus <= 201703L
 #include <future>
@@ -322,3 +324,5 @@ std::uint32_t AudioGraphBackend::Impl::channelCount(bool isInput, std::uint32_t 
     return 0;
 }
 }
+
+#endif
