@@ -11,6 +11,7 @@ singleton Mnemonic 1.0 Mnemonic.qml
 AboutQtWindow 1.0 AboutQtWindow.qml
 AboutWindow 1.0 AboutWindow.qml
 Action 1.0 Action.qml
+ALSASettings 1.0 ALSASettings.qml
 ApplicationWindow 1.0 ApplicationWindow.qml
 Assets 1.0 Assets.qml
 AudioBusConfiguration 1.0 AudioBusConfiguration.qml

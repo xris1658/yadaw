@@ -69,8 +69,6 @@ set(WIN32_NATIVE_SOURCES
 
 set(LINUX_NATIVE_SOURCES
     src/audio/backend/ALSAAudioBackend.hpp
-    src/model/ALSADeviceListModel.cpp
-    src/model/ALSADeviceListModel.hpp
     src/native/linux/ALSAAudioBackendImpl.cpp
     src/native/linux/ALSAAudioBackendImpl.hpp
     src/native/linux/ALSADeviceEnumerator.cpp
@@ -166,10 +164,10 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/VestifalPluginGUI.hpp
     src/audio/util/CLAPUtil.cpp
     src/audio/util/CLAPUtil.hpp
-    src/audio/util/VestifalUtil.cpp
-    src/audio/util/VestifalUtil.hpp
     src/audio/util/VST3Util.cpp
     src/audio/util/VST3Util.hpp
+    src/audio/util/VestifalUtil.cpp
+    src/audio/util/VestifalUtil.hpp
     src/base/Constants.hpp
     src/controller/AppController.cpp
     src/controller/AppController.hpp
@@ -225,6 +223,10 @@ set(YADAW_COMMON_SOURCES
     src/midi/MessageToCLAPEvent.hpp
     src/midi/MessageToVST3Event.cpp
     src/midi/MessageToVST3Event.hpp
+    src/model/ALSAInputDeviceListModel.cpp
+    src/model/ALSAInputDeviceListModel.hpp
+    src/model/ALSAOutputDeviceListModel.cpp
+    src/model/ALSAOutputDeviceListModel.hpp
     src/model/AssetDirectoryListModel.cpp
     src/model/AssetDirectoryListModel.hpp
     src/model/AudioBusChannelListModel.cpp

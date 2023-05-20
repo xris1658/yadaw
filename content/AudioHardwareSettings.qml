@@ -12,6 +12,9 @@ Item {
     property alias audioGraphOutputDeviceList: audioGraphSettings.outputDeviceList
     property alias audioGraphOutputDeviceIndex: audioGraphSettings.outputDeviceIndex
 
+    property alias alsaInputDeviceList: alsaSettings.inputDeviceList
+    property alias alsaOutputDeviceList: alsaSettings.outputDeviceList
+
     property alias audioInputBusConfigurationModel: audioBusConfigurationWindow.inputConfigModel
     property alias audioOutputBusConfigurationModel: audioBusConfigurationWindow.outputConfigModel
 
@@ -39,7 +42,7 @@ Item {
         ComboBox {
             id: audioEngineSelector
             width: secondColumnWidth
-            model: [qsTr("Dummy"), "AudioGraph"]
+            model: [qsTr("Dummy"), "AudioGraph", "ALSA"]
         }
         Item {
             width: firstColumnWidth
@@ -65,6 +68,11 @@ Item {
         Item {}
         AudioGraphSettings {
             id: audioGraphSettings
+            firstColumnWidth: root.firstColumnWidth
+            secondColumnWidth: root.secondColumnWidth
+        }
+        ALSASettings {
+            id: alsaSettings
             firstColumnWidth: root.firstColumnWidth
             secondColumnWidth: root.secondColumnWidth
         }

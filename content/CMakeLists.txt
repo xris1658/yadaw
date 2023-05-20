@@ -29,6 +29,7 @@ set(CONTENT_QML_FILES
     AboutWindow.qml
     AboutQtWindow.qml
     Action.qml
+    ALSASettings.qml
     ApplicationWindow.qml
     Assets.qml
     AudioBusConfiguration.qml
