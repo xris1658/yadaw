@@ -1,17 +1,17 @@
 #if(__linux__)
 
-#include "native/LibraryImpl.hpp"
+#include "native/Library.hpp"
 
 #include <dlfcn.h>
 #include <errno.h>
 
 namespace YADAW::Native
 {
-LibraryImpl::LibraryImpl(): handle_(nullptr)
+Library::Library(): handle_(nullptr)
 {
 }
 
-LibraryImpl::LibraryImpl(const QString& path): path_(path)
+Library::Library(const QString& path): path_(path)
 {
     auto pathAsString = path.toStdString();
     handle_ = reinterpret_cast<decltype(handle_)>(dlopen(pathAsString.c_str(), 0));
@@ -21,13 +21,13 @@ LibraryImpl::LibraryImpl(const QString& path): path_(path)
     }
 }
 
-LibraryImpl::LibraryImpl(LibraryImpl&& rhs) noexcept: handle_(nullptr)
+Library::Library(Library&& rhs) noexcept: handle_(nullptr)
 {
     std::swap(path_, rhs.path_);
     std::swap(handle_, rhs.handle_);
 }
 
-LibraryImpl& LibraryImpl::operator=(YADAW::Native::LibraryImpl&& rhs) noexcept
+Library& Library::operator=(YADAW::Native::Library&& rhs) noexcept
 {
     if(handle_ != rhs.handle_)
     {
@@ -37,7 +37,7 @@ LibraryImpl& LibraryImpl::operator=(YADAW::Native::LibraryImpl&& rhs) noexcept
     return *this;
 }
 
-LibraryImpl::~LibraryImpl() noexcept
+Library::~Library() noexcept
 {
     if(handle_)
     {
@@ -46,22 +46,17 @@ LibraryImpl::~LibraryImpl() noexcept
     }
 }
 
-bool LibraryImpl::loaded() const
+bool Library::loaded() const
 {
     return handle_ != nullptr;
 }
 
-ErrorCodeType LibraryImpl::errorCode() const
-{
-    return errorCode_;
-}
-
-const QString& LibraryImpl::path() const
+const QString& Library::path() const
 {
     return path_;
 }
 
-YADAW::Native::Library::ExportType LibraryImpl::getExport(const char* name) const
+YADAW::Native::Library::ExportType Library::getExportImpl(const char* name) const
 {
     return dlsym(handle_, name);
 }

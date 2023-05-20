@@ -9,10 +9,16 @@
 
 namespace YADAW::Native
 {
-class LibraryImpl;
-
 class Library
 {
+private:
+#if(WIN32)
+    using HandleType = HMODULE;
+#elif(__linux__)
+    using HandleType = void*;
+#else
+#error Unknown HandleType
+#endif
 public:
 #if(WIN32)
     using ExportType = FARPROC;
@@ -33,14 +39,18 @@ private:
     ExportType getExportImpl(const char* name) const;
 public:
     bool loaded() const;
-    QString path() const;
+    const QString& path() const;
     template<typename T>
     T getExport(const char* name) const
     {
         return (T)getExportImpl(name);
     }
-public:
-    std::unique_ptr<LibraryImpl> pImpl_;
+private:
+    QString path_;
+#if(WIN32)
+    ErrorCodeType errorCode_ = 0;
+#endif
+    HandleType handle_;
 };
 }
 

@@ -56,8 +56,8 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/AudioGraphBackendImpl.cpp
     src/native/win/AudioGraphBackendImpl.hpp
     src/native/win/CLAPNative.cpp
-    src/native/win/LibraryImpl.cpp
-    src/native/win/LibraryImpl.cpp
+    src/native/win/Library.cpp
+    src/native/win/Library.cpp
     src/native/win/Native.cpp
     src/native/win/VST3Native.cpp
     src/native/win/VestifalNative.cpp
@@ -77,7 +77,7 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/ALSADeviceEnumerator.hpp
     src/native/linux/ALSAHelper.hpp
     src/native/linux/CLAPNative.cpp
-    src/native/linux/LibraryImpl.cpp
+    src/native/linux/Library.cpp
     src/native/linux/Native.cpp
     src/native/linux/VST3Native.cpp
     src/native/linux/VestifalNative.cpp
@@ -246,9 +246,7 @@ set(YADAW_COMMON_SOURCES
     src/model/PluginListModel.cpp
     src/model/PluginListModel.hpp
     src/native/CLAPNative.hpp
-    src/native/Library.cpp
     src/native/Library.hpp
-    src/native/LibraryImpl.hpp
     src/native/Native.hpp
     src/native/VST3Native.hpp
     src/native/VestifalNative.hpp
