@@ -17,6 +17,23 @@ if(WIN32)
                           windowsapp)
 endif()
 
+if(LINUX)
+    add_executable(ALSATest
+                   ../src/audio/backend/ALSADeviceSelector.hpp
+                   ../src/audio/backend/ALSAAudioBackend.hpp
+                   ../src/native/linux/ALSAAudioBackend.cpp
+                   ../src/native/linux/ALSAAudioBackendImpl.cpp
+                   ../src/native/linux/ALSAAudioBackendImpl.hpp
+                   ../src/native/linux/ALSADeviceEnumerator.cpp
+                   ../src/native/linux/ALSADeviceEnumerator.hpp
+                   ALSATest/main.cpp
+                   )
+    target_precompile_headers(ALSATest PRIVATE ../pch/LinuxAPI.hpp ../pch/QtCore.hpp)
+    target_link_libraries(ALSATest PRIVATE
+                          Qt6::Core
+                          asound)
+endif()
+
 add_executable(LockFreeQueueTest
                ../src/util/CompilerSpecifics.hpp
                ../src/util/LockFreeQueue.hpp

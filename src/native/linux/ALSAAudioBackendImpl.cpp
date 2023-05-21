@@ -2,6 +2,8 @@
 
 #include "ALSAAudioBackendImpl.hpp"
 
+#include "native/linux/ALSADeviceEnumerator.hpp"
+
 #include <filesystem>
 #include <mutex>
 
@@ -19,13 +21,13 @@ std::uint32_t ALSAAudioBackend::Impl::audioOutputCount()
     return YADAW::Native::ALSADeviceEnumerator::audioOutputDeviceCount();
 }
 
-std::optional<ALSAAudioBackend::Impl::PCMDeviceSelector>
+std::optional<ALSADeviceSelector>
     ALSAAudioBackend::Impl::audioInputDeviceAt(std::uint32_t index)
 {
     return YADAW::Native::ALSADeviceEnumerator::audioInputDeviceAt(index);
 }
 
-std::optional<ALSAAudioBackend::Impl::PCMDeviceSelector>
+std::optional<ALSADeviceSelector>
     ALSAAudioBackend::Impl::audioOutputDeviceAt(std::uint32_t index)
 {
     return YADAW::Native::ALSADeviceEnumerator::audioOutputDeviceAt(index);

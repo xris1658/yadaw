@@ -4,7 +4,7 @@
 #if(__linux__)
 
 #include "audio/backend/ALSAAudioBackend.hpp"
-#include "native/linux/ALSADeviceEnumerator.hpp"
+#include "audio/backend/ALSADeviceSelector.hpp"
 
 #include <alsa/asoundlib.h>
 
@@ -15,12 +15,11 @@ namespace YADAW::Audio::Backend
 {
 class ALSAAudioBackend::Impl
 {
-    using PCMDeviceSelector = YADAW::Native::ALSADeviceEnumerator::DeviceSelector;
 public:
     static std::uint32_t audioInputCount();
     static std::uint32_t audioOutputCount();
-    static std::optional<PCMDeviceSelector> audioInputDeviceAt(std::uint32_t index);
-    static std::optional<PCMDeviceSelector> audioOutputDeviceAt(std::uint32_t index);
+    static std::optional<ALSADeviceSelector> audioInputDeviceAt(std::uint32_t index);
+    static std::optional<ALSADeviceSelector> audioOutputDeviceAt(std::uint32_t index);
 private:
     snd_pcm_t* pcm_ = nullptr;
     snd_pcm_hw_params_t* hwParams_ = nullptr;
