@@ -168,7 +168,8 @@ AudioGraphBackend::Impl::activateDeviceInput(std::uint32_t deviceInputIndex, boo
                 return DeviceInputResult::AlreadyDone;
             }
             auto result = asyncResult(audioGraph_.CreateDeviceInputNodeAsync(
-                MediaCategory::Media, audioGraph_.EncodingProperties(),
+                MediaCategory::Media,
+                audioGraph_.EncodingProperties(), // FIXME: make channel count configurable or use max channel count
                 audioInputDeviceInformationCollection_.GetAt(deviceInputIndex)
             ));
             if(auto status = result.Status(); status == decltype(status)::Success)
