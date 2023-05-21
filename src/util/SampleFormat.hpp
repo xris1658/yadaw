@@ -1,0 +1,219 @@
+#ifndef YADAW_SRC_AUDIO_UTIL_SAMPLEFORMAT
+#define YADAW_SRC_AUDIO_UTIL_SAMPLEFORMAT
+
+#include "native/Native.hpp"
+#include "util/Endian.hpp"
+
+#include <cstdint>
+#include <type_traits>
+
+namespace YADAW::Util
+{
+namespace Impl
+{
+// This class is ABI compatible with basic data types. So code like
+// auto* data = reinterpret_cast<TypeWithReverseByteOrder<int>*>(pointer);
+// for(int i = 0; i < 10; ++i) { data[i] = i; }
+// Is acceptable.
+template<typename T>
+class TypeWithReverseByteOrder
+{
+    static_assert(!std::is_reference<T>::value, "Error: TypeWithReverseByteOrder<Reference> is not allowed.");
+    static_assert(std::is_arithmetic<T>::value,
+        "Error: TypeWithReverseByteOrder<NonArithmeticType> is not allowed in this library.");
+    static_assert((!std::is_same<std::decay_t<T>, std::uint8_t>::value) &&
+                  (!std::is_same<std::decay_t<T>, std::int8_t>::value) &&
+                  (!std::is_same<std::decay_t<T>, char>::value),
+        "Error: TypeWithReverseByteOrder with 8 bit data is pointless.");
+    static_assert(!std::is_const<T>::value,
+        "Error: TypeWithReverseByteOrder<const Type> is not allowed. Use const TypeWithReverseByteOrder<Type> instead.");
+public:
+    using Type = T;
+    using Self = TypeWithReverseByteOrder<T>;
+public:
+    TypeWithReverseByteOrder(): data_(T()) {}
+    TypeWithReverseByteOrder(T data): data_(data)
+    {
+        convertEndian();
+    }
+    TypeWithReverseByteOrder(const void* memory): data_(*reinterpret_cast<const T*>(memory)) {}
+    TypeWithReverseByteOrder(const Self& rhs): data_(rhs.data_) {}
+    TypeWithReverseByteOrder(Self&& rhs) noexcept: data_(std::move(rhs.data_)) {}
+    Self& operator=(const T& data)
+    {
+        data_ = data;
+        convertEndian();
+        return *this;
+    }
+    Self& operator=(T&& data)
+    {
+        data_ = std::move(data);
+        convertEndian();
+        return *this;
+    }
+    Self& operator=(const Self rhs)
+    {
+        data_ = rhs.data_;
+        return *this;
+    }
+public:
+    Self& operator+=(T rhs)
+    {
+        return this->operator=(T(*this) + rhs);
+    }
+
+    Self& operator-=(T rhs)
+    {
+        return this->operator=(T(*this) - rhs);
+    }
+    Self& operator*=(T rhs)
+    {
+        return this->operator=(T(*this) * rhs);
+    }
+    Self& operator/=(T rhs)
+    {
+        return this->operator=(T(*this) / rhs);
+    }
+    Self& operator%=(T rhs)
+    {
+        return this->operator=(T(*this) % rhs);
+    }
+    Self& operator&=(T rhs)
+    {
+        return this->operator=(T(*this) & rhs);
+    }
+    Self& operator|=(T rhs)
+    {
+        return this->operator=(T(*this) | rhs);
+    }
+    Self& operator^=(T rhs)
+    {
+        return this->operator=(T(*this) ^ rhs);
+    }
+    Self& operator>>=(int digit)
+    {
+        T data(*this);
+        data >>= digit;
+        this->operator=(data);
+        return *this;
+    }
+    Self& operator<<=(int digit)
+    {
+        T data(*this);
+        data <<= digit;
+        this->operator=(data);
+        return *this;
+    }
+    bool operator==(const Self& rhs) const
+    {
+        return data_ == rhs.data_;
+    }
+    bool operator!=(const Self& rhs) const
+    {
+        return data_ != rhs.data_;
+    }
+    Self& operator++()
+    {
+        return this->operator=(++T(data_));
+    }
+    Self operator++(int)
+    {
+        TypeWithReverseByteOrder ret = *this;
+        this->operator++();
+        return ret;
+    }
+    Self& operator--()
+    {
+        return this->operator=(--T(data_));
+    }
+    Self operator--(int)
+    {
+        TypeWithReverseByteOrder ret = *this;
+        this->operator--();
+        return ret;
+    }
+    operator T() const
+    {
+        Self copy = *this;
+        copy.convertEndian();
+        return copy.data_;
+    }
+protected:
+    void convertEndian()
+    {
+        std::array<std::int8_t, sizeof(data_)>* thisAsArray = reinterpret_cast<decltype(thisAsArray)>(this);
+        std::reverse(thisAsArray->begin(), thisAsArray->end());
+    }
+private:
+    T data_;
+};
+
+template<typename T>
+std::istream& operator>>(std::istream& is, TypeWithReverseByteOrder<T>& data)
+{
+    T temp;
+    is >> temp;
+    data = temp;
+    return is;
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const TypeWithReverseByteOrder<T>& type)
+{
+    os << T(type);
+    return os;
+}
+}
+
+#if(Q_BYTE_ORDER == Q_LITTLE_ENDIAN)
+using Int8LE = std::int8_t;
+using UInt8LE = std::uint8_t;
+using Int16LE = std::int16_t;
+using UInt16LE = std::uint16_t;
+using Int32LE = std::int32_t;
+using UInt32LE = std::uint32_t;
+using Int64LE = std::int64_t;
+using UInt64LE = std::uint64_t;
+using FloatLE = float;
+using DoubleLE = double;
+using LongDoubleLE = long double;
+
+using Int8BE = Impl::TypeWithReverseByteOrder<std::int8_t>;
+using UInt8BE = Impl::TypeWithReverseByteOrder<std::uint8_t>;
+using Int16BE = Impl::TypeWithReverseByteOrder<std::int16_t>;
+using UInt16BE = Impl::TypeWithReverseByteOrder<std::uint16_t>;
+using Int32BE = Impl::TypeWithReverseByteOrder<std::int32_t>;
+using UInt32BE = Impl::TypeWithReverseByteOrder<std::uint32_t>;
+using Int64BE = Impl::TypeWithReverseByteOrder<std::int64_t>;
+using UInt64BE = Impl::TypeWithReverseByteOrder<std::uint64_t>;
+using FloatBE = Impl::TypeWithReverseByteOrder<float>;
+using DoubleBE = Impl::TypeWithReverseByteOrder<double>;
+using LongDoubleBE = Impl::TypeWithReverseByteOrder<long double>;
+#else
+using Int8BE = std::int8_t;
+using UInt8BE = std::uint8_t;
+using Int16BE = std::int16_t;
+using UInt16BE = std::uint16_t;
+using Int32BE = std::int32_t;
+using UInt32BE = std::uint32_t;
+using Int64BE = std::int64_t;
+using UInt64BE = std::uint64_t;
+using FloatLE = Impl::TypeWithReverseByteOrder<float>;
+using DoubleLE = Impl::TypeWithReverseByteOrder<double>;
+using LongDoubleLE = Impl::TypeWithReverseByteOrder<long double>;
+
+using Int8LE = Impl::TypeWithReverseByteOrder<std::int8_t>;
+using UInt8LE = Impl::TypeWithReverseByteOrder<std::uint8_t>;
+using Int16LE = Impl::TypeWithReverseByteOrder<std::int16_t>;
+using UInt16LE = Impl::TypeWithReverseByteOrder<std::uint16_t>;
+using Int32LE = Impl::TypeWithReverseByteOrder<std::int32_t>;
+using UInt32LE = Impl::TypeWithReverseByteOrder<std::uint32_t>;
+using Int64LE = Impl::TypeWithReverseByteOrder<std::int64_t>;
+using UInt64LE = Impl::TypeWithReverseByteOrder<std::uint64_t>;
+using FloatBE = float;
+using DoubleBE = double;
+using LongDoubleBE = long double;
+#endif
+}
+
+#endif //YADAW_SRC_AUDIO_UTIL_SAMPLEFORMAT

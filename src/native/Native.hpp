@@ -47,12 +47,15 @@ std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> cur
 
 void setThreadPriorityToTimeCritical();
 
-inline constexpr YADAW::Util::Endian endian()
-{
-    return Q_BYTE_ORDER == Q_LITTLE_ENDIAN? YADAW::Util::Endian::LittleEndian:
-        Q_BYTE_ORDER == Q_BIG_ENDIAN? YADAW::Util::Endian::BigEndian:
-            YADAW::Util::Endian::UnknownEndian;
-}
+constexpr YADAW::Util::Endian SystemEndian =
+    Q_BYTE_ORDER == Q_LITTLE_ENDIAN?
+        YADAW::Util::Endian::LittleEndian:
+        YADAW::Util::Endian::BigEndian;
+
+constexpr YADAW::Util::Endian ReverseSystemEndian =
+    Q_BYTE_ORDER == Q_LITTLE_ENDIAN?
+        YADAW::Util::Endian::BigEndian:
+        YADAW::Util::Endian::LittleEndian;
 
 // Check if the application is being debugged. Currently only used to decide whether system
 // rendering should be enabled.

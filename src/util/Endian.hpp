@@ -7,7 +7,6 @@ namespace YADAW::Util
 {
 enum class Endian
 {
-    UnknownEndian,
     LittleEndian,
     BigEndian
 };
