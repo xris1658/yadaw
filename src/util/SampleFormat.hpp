@@ -166,8 +166,6 @@ std::ostream& operator<<(std::ostream& os, const TypeWithReverseByteOrder<T>& ty
 }
 
 #if(Q_BYTE_ORDER == Q_LITTLE_ENDIAN)
-using Int8LE = std::int8_t;
-using UInt8LE = std::uint8_t;
 using Int16LE = std::int16_t;
 using UInt16LE = std::uint16_t;
 using Int32LE = std::int32_t;
@@ -178,8 +176,6 @@ using FloatLE = float;
 using DoubleLE = double;
 using LongDoubleLE = long double;
 
-using Int8BE = Impl::TypeWithReverseByteOrder<std::int8_t>;
-using UInt8BE = Impl::TypeWithReverseByteOrder<std::uint8_t>;
 using Int16BE = Impl::TypeWithReverseByteOrder<std::int16_t>;
 using UInt16BE = Impl::TypeWithReverseByteOrder<std::uint16_t>;
 using Int32BE = Impl::TypeWithReverseByteOrder<std::int32_t>;
@@ -190,8 +186,6 @@ using FloatBE = Impl::TypeWithReverseByteOrder<float>;
 using DoubleBE = Impl::TypeWithReverseByteOrder<double>;
 using LongDoubleBE = Impl::TypeWithReverseByteOrder<long double>;
 #else
-using Int8BE = std::int8_t;
-using UInt8BE = std::uint8_t;
 using Int16BE = std::int16_t;
 using UInt16BE = std::uint16_t;
 using Int32BE = std::int32_t;
@@ -202,8 +196,6 @@ using FloatLE = Impl::TypeWithReverseByteOrder<float>;
 using DoubleLE = Impl::TypeWithReverseByteOrder<double>;
 using LongDoubleLE = Impl::TypeWithReverseByteOrder<long double>;
 
-using Int8LE = Impl::TypeWithReverseByteOrder<std::int8_t>;
-using UInt8LE = Impl::TypeWithReverseByteOrder<std::uint8_t>;
 using Int16LE = Impl::TypeWithReverseByteOrder<std::int16_t>;
 using UInt16LE = Impl::TypeWithReverseByteOrder<std::uint16_t>;
 using Int32LE = Impl::TypeWithReverseByteOrder<std::int32_t>;
