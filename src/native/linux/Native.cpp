@@ -11,8 +11,11 @@ namespace YADAW::Native
 {
 void sleepFor(std::chrono::steady_clock::duration duration)
 {
-    std::this_thread::sleep_for(duration);
-    // TODO: Use high-res (e.g. nanosleep) or low-cost solutions
+    auto nanosecond = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+    timespec timespec;
+    timespec.tv_sec = nanosecond / 1000000000;
+    timespec.tv_nsec = nanosecond - timespec.tv_sec * 1000000000;
+    nanosleep(&timespec, nullptr);
 }
 
 std::once_flag defaultPluginListFlag;
