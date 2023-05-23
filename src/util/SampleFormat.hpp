@@ -185,6 +185,26 @@ using UInt64BE = Impl::TypeWithReverseByteOrder<std::uint64_t>;
 using FloatBE = Impl::TypeWithReverseByteOrder<float>;
 using DoubleBE = Impl::TypeWithReverseByteOrder<double>;
 using LongDoubleBE = Impl::TypeWithReverseByteOrder<long double>;
+
+using Int16 = Int16LE;
+using UInt16 = UInt16LE;
+using Int32 = Int32LE;
+using UInt32 = UInt32LE;
+using Int64 = Int64LE;
+using UInt64 = UInt64LE;
+using Float = FloatLE;
+using Double = DoubleLE;
+using LongDouble = LongDoubleLE;
+
+using Int16RE = Int16BE;
+using UInt16RE = UInt16BE;
+using Int32RE = Int32BE;
+using UInt32RE = UInt32BE;
+using Int64RE = Int64BE;
+using UInt64RE = UInt64BE;
+using FloatRE = FloatBE;
+using DoubleRE = DoubleBE;
+using LongDoubleRE = LongDoubleBE;
 #else
 using Int16BE = std::int16_t;
 using UInt16BE = std::uint16_t;
@@ -192,9 +212,9 @@ using Int32BE = std::int32_t;
 using UInt32BE = std::uint32_t;
 using Int64BE = std::int64_t;
 using UInt64BE = std::uint64_t;
-using FloatLE = Impl::TypeWithReverseByteOrder<float>;
-using DoubleLE = Impl::TypeWithReverseByteOrder<double>;
-using LongDoubleLE = Impl::TypeWithReverseByteOrder<long double>;
+using FloatBE = float;
+using DoubleBE = double;
+using LongDoubleBE = long double;
 
 using Int16LE = Impl::TypeWithReverseByteOrder<std::int16_t>;
 using UInt16LE = Impl::TypeWithReverseByteOrder<std::uint16_t>;
@@ -202,9 +222,29 @@ using Int32LE = Impl::TypeWithReverseByteOrder<std::int32_t>;
 using UInt32LE = Impl::TypeWithReverseByteOrder<std::uint32_t>;
 using Int64LE = Impl::TypeWithReverseByteOrder<std::int64_t>;
 using UInt64LE = Impl::TypeWithReverseByteOrder<std::uint64_t>;
-using FloatBE = float;
-using DoubleBE = double;
-using LongDoubleBE = long double;
+using FloatLE = Impl::TypeWithReverseByteOrder<float>;
+using DoubleLE = Impl::TypeWithReverseByteOrder<double>;
+using LongDoubleLE = Impl::TypeWithReverseByteOrder<long double>;
+
+using Int16 = Int16BE;
+using UInt16 = UInt16BE;
+using Int32 = Int32BE;
+using UInt32 = UInt32BE;
+using Int64 = Int64BE;
+using UInt64 = UInt64BE;
+using Float = FloatBE;
+using Double = DoubleBE;
+using LongDouble = LongDoubleBE;
+
+using Int16RE = Int16LE;
+using UInt16RE = UInt16LE;
+using Int32RE = Int32LE;
+using UInt32RE = UInt32LE;
+using Int64RE = Int64LE;
+using UInt64RE = UInt64LE;
+using FloatRE = FloatLE;
+using DoubleRE = DoubleLE;
+using LongDoubleRE = LongDoubleLE;
 #endif
 }
 

@@ -28,4 +28,9 @@ int main(int argc, char** argv)
         auto value = YADAW::Native::ALSADeviceEnumerator::midiDeviceAt(i).value();
         std::printf("\n\t%u: hw:%u,%u", i + 1, value.cIndex, value.dIndex);
     }
+    YADAW::Audio::Backend::ALSAAudioBackend backend;
+    backend.initialize(44100, 512);
+    YADAW::Audio::Backend::ALSADeviceSelector selector(0, 0);
+    backend.setAudioInputDeviceActivated(selector, true);
+    backend.setAudioOutputDeviceActivated(selector, true);
 }

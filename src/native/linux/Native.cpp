@@ -38,7 +38,7 @@ const std::vector<QString>& defaultPluginDirectoryList()
     std::call_once(defaultPluginListFlag,
         [&list = ret]() mutable
         {
-        list.reserve(6);
+            list.reserve(6);
             // VST3
             list.emplace_back("$HOME/.vst3");
             list.emplace_back("/usr/lib/vst3");
@@ -66,9 +66,11 @@ const std::vector<QString>& defaultPluginDirectoryList()
 
 void locateFileInExplorer(const QString& path)
 {
-    // nautilus -s [URI]
-    // thunar [URI]
-    // dolphin [URI] --new-window --select
+    // GNOME:      nautilus -s [URI]
+    // Xfce:       thunar [URI]
+    // KDE Plasma: dolphin [URI] --new-window --select
+    // LXDE:       Not supported by pcmanfm?
+    // Cinnamon:   nemo [URI]
 }
 }
 
