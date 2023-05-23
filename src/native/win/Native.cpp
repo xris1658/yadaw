@@ -218,11 +218,11 @@ QString getProductVersion(const QString& path)
         {
             QString format("%1.%2.%3.%4");
             auto versions = reinterpret_cast<std::uint16_t*>(&(pFileInfo->dwProductVersionMS));
-            if constexpr(endian() == YADAW::Util::Endian::LittleEndian)
+            if constexpr(SystemEndian == YADAW::Util::Endian::LittleEndian)
             {
                 return format.arg(versions[1]).arg(versions[0]).arg(versions[3]).arg(versions[2]);
             }
-            else if constexpr(endian() == YADAW::Util::Endian::BigEndian)
+            else if constexpr(SystemEndian == YADAW::Util::Endian::BigEndian)
             {
                 return format.arg(versions[0]).arg(versions[1]).arg(versions[2]).arg(versions[3]);
             }

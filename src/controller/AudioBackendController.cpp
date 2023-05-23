@@ -20,15 +20,15 @@ bool isAudioBackendSupported(AudioBackend backend)
 {
     if(backend == AudioBackend::Dummy)
     {
-        return YADAW::Native::isAudioBackendSupported<AudioBackend::Dummy>();
+        return YADAW::Native::isAudioBackendSupported<AudioBackend::Dummy>;
     }
     if(backend == AudioBackend::AudioGraph)
     {
-        return YADAW::Native::isAudioBackendSupported<AudioBackend::AudioGraph>();
+        return YADAW::Native::isAudioBackendSupported<AudioBackend::AudioGraph>;
     }
     if(backend == AudioBackend::ALSA)
     {
-        return YADAW::Native::isAudioBackendSupported<AudioBackend::ALSA>();
+        return YADAW::Native::isAudioBackendSupported<AudioBackend::ALSA>;
     }
     return false;
 }
@@ -49,23 +49,31 @@ bool AudioBackendController::importConfiguration(const YAML::Node& node)
         {
             const auto& dummyNode = node[Impl::AudioBackendNodeName<AudioBackend::Dummy>];
             // TODO
+            return true;
         }
         else if(std::strcmp(backendString.data(), Impl::AudioBackendName<AudioBackend::AudioGraph>) == 0
             && YADAW::Native::isAudioBackendSupported<AudioBackend::AudioGraph>)
         {
             const auto& audioGraphNode = node[Impl::AudioBackendNodeName<AudioBackend::AudioGraph>];
             // TODO
+            return true;
         }
         else if(std::strcmp(backendString.data(), Impl::AudioBackendName<AudioBackend::ALSA>) == 0
             && YADAW::Native::isAudioBackendSupported<AudioBackend::ALSA>)
         {
             const auto& alsaNode = node[Impl::AudioBackendNodeName<AudioBackend::ALSA>];
             // TODO
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
     catch(...)
     {
         // TODO: generate and import default configuration and call it a day?
+        return false;
     }
 }
 
