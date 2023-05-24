@@ -1,16 +1,16 @@
-#ifndef YADAW_SRC_AUDIO_BACKEND_AUDIOGRAPHBUSCONFIGURATION
-#define YADAW_SRC_AUDIO_BACKEND_AUDIOGRAPHBUSCONFIGURATION
+#ifndef YADAW_SRC_AUDIO_BACKEND_ALSABUSCONFIGURATION
+#define YADAW_SRC_AUDIO_BACKEND_ALSABUSCONFIGURATION
 
-#if(WIN32)
+#if(__linux__)
 
-#include "audio/backend/AudioGraphBackend.hpp"
+#include "audio/backend/ALSAAudioBackend.hpp"
 #include "audio/device/IAudioBusConfiguration.hpp"
 
 namespace YADAW::Audio::Backend
 {
 using YADAW::Audio::Device::Channel;
 using YADAW::Audio::Device::IBus;
-class AudioGraphBusConfiguration: public YADAW::Audio::Device::IAudioBusConfiguration
+class ALSABusConfiguration: public YADAW::Audio::Device::IAudioBusConfiguration
 {
 public:
     class Bus: public YADAW::Audio::Device::IBus
@@ -24,7 +24,7 @@ public:
         std::vector<Channel> channels_;
     };
 public:
-    AudioGraphBusConfiguration(const AudioGraphBackend& backend);
+    ALSABusConfiguration(const ALSAAudioBackend& backend);
 public:
     std::uint32_t inputBusCount() const override;
     std::uint32_t outputBusCount() const override;
@@ -37,7 +37,7 @@ public:
     bool removeBus(bool isInput, std::uint32_t index) override;
     void clearBus(bool isInput) override;
 private:
-    const AudioGraphBackend* backend_;
+    const ALSAAudioBackend* backend_;
     std::vector<Bus> inputBusses_;
     std::vector<Bus> outputBusses_;
 };
@@ -45,4 +45,4 @@ private:
 
 #endif
 
-#endif //YADAW_SRC_AUDIO_BACKEND_AUDIOGRAPHBUSCONFIGURATION
+#endif //YADAW_SRC_AUDIO_BACKEND_ALSABUSCONFIGURATION

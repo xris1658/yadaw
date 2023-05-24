@@ -1,3 +1,5 @@
+#if(WIN32)
+
 #include "AudioGraphBusConfiguration.hpp"
 
 namespace YADAW::Audio::Backend
@@ -108,3 +110,5 @@ void AudioGraphBusConfiguration::clearBus(bool isInput)
     busses.clear();
 }
 }
+
+#endif

@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_NATIVE_AUDIOGRAPHBACKEND
 #define YADAW_SRC_NATIVE_AUDIOGRAPHBACKEND
 
+#if(WIN32)
+
 #include <QString>
 
 #include <memory>
@@ -95,5 +97,7 @@ private:
     Status status_;
 };
 }
+
+#endif
 
 #endif //YADAW_SRC_NATIVE_AUDIOGRAPHBACKEND

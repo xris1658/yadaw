@@ -69,7 +69,11 @@ set(WIN32_NATIVE_SOURCES
 
 set(LINUX_NATIVE_SOURCES
     src/audio/backend/ALSAAudioBackend.hpp
+    src/audio/backend/ALSABusConfiguration.cpp
+    src/audio/backend/ALSABusConfiguration.hpp
     src/audio/backend/ALSADeviceSelector.hpp
+    src/controller/ALSABackendController.cpp
+    src/controller/ALSABackendController.hpp
     src/native/linux/ALSAAudioBackend.cpp
     src/native/linux/ALSAAudioBackendImpl.cpp
     src/native/linux/ALSAAudioBackendImpl.hpp
