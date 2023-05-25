@@ -92,7 +92,7 @@ std::int64_t qpf()
 }
 }
 
-const QString& roamingAppDataFolder()
+const QString& appDataFolder()
 {
     return Impl::getFolderAsWCharArray<CSIDL_APPDATA>();
 }
@@ -100,6 +100,11 @@ const QString& roamingAppDataFolder()
 const QString& programFilesFolder()
 {
     return Impl::getFolderAsWCharArray<CSIDL_PROGRAM_FILES>();
+}
+
+const QString& localAppDataFolder()
+{
+    return Impl::getFolderAsWCharArray<CSIDL_LOCAL_APPDATA>();
 }
 
 void openSpecialCharacterInput()

@@ -20,7 +20,7 @@ namespace YADAW::Native
 
 #if(WIN32)
 constexpr auto CLSIDStringLength = 38;
-constexpr char pathSeparator = '\\';
+constexpr char PathSeparator = '\\';
 
 using WindowType = HWND;
 using ErrorCodeType = decltype(GetLastError());
