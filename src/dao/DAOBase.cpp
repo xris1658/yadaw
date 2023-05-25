@@ -10,7 +10,7 @@ namespace YADAW::DAO
 {
 const QString& appDataPath()
 {
-    static QString ret(YADAW::Native::roamingAppDataFolder() + '\\' + YADAW::Base::ProductName);
+    static QString ret(YADAW::Native::appDataFolder() + YADAW::Native::PathSeparator + YADAW::Base::ProductName);
     return ret;
 }
 
@@ -18,7 +18,7 @@ void createAppDataFolder()
 {
     if(!QFileInfo::exists(appDataPath()))
     {
-        QDir dir(YADAW::Native::roamingAppDataFolder());
+        QDir dir(YADAW::Native::appDataFolder());
         dir.mkdir(YADAW::Base::ProductName);
     }
 }
@@ -31,7 +31,7 @@ const QString& appDatabaseFileName()
 
 const QString& appDatabasePath()
 {
-    static QString ret(appDataPath() + '\\' + appDatabaseFileName());
+    static QString ret(appDataPath() + YADAW::Native::PathSeparator + appDatabaseFileName());
     return ret;
 }
 
@@ -43,7 +43,7 @@ const QString& appConfigFileName()
 
 const QString& appConfigPath()
 {
-    static QString ret(appDataPath() + '\\' + appConfigFileName());
+    static QString ret(appDataPath() + YADAW::Native::PathSeparator + appConfigFileName());
     return ret;
 }
 }

@@ -20,21 +20,22 @@ namespace YADAW::Native
 
 #if(WIN32)
 constexpr auto CLSIDStringLength = 38;
+constexpr char pathSeparator = '\\';
 
 using WindowType = HWND;
 using ErrorCodeType = decltype(GetLastError());
 #elif(__linux__)
+constexpr char PathSeparator = '/';
+
 using ErrorCodeType = int;
 #endif
 
-// Usually <User folder>\AppData\Roaming
-const QString& roamingAppDataFolder();
+// Windows: <User folder>\AppData\Roaming
+// Linux: $HOME/.local
+const QString& appDataFolder();
 
 // Usually <System Driver>\Program Files
 const QString& programFilesFolder();
-
-// Usually <User folder>\AppData\Local
-const QString& localAppDataFolder();
 
 void openSpecialCharacterInput();
 

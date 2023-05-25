@@ -102,11 +102,6 @@ const QString& programFilesFolder()
     return Impl::getFolderAsWCharArray<CSIDL_PROGRAM_FILES>();
 }
 
-const QString& localAppDataFolder()
-{
-    return Impl::getFolderAsWCharArray<CSIDL_LOCAL_APPDATA>();
-}
-
 void openSpecialCharacterInput()
 {
     ShellExecuteW(nullptr, L"open", L"charmap.exe", nullptr, nullptr, SW_NORMAL);
@@ -119,7 +114,7 @@ void showFileInExplorer(const QString& path)
     QString command = part1Raw;
     for(int i = 0; i < path.size(); ++i)
     {
-        command[int(i + size)] = path[i] == '/'? '\\': path[i];
+        command[int(i + size)] = path[i] == '/'? YADAW::Native::PathSeparator: path[i];
     }
     auto commandWide = command.toStdWString();
     ShellExecuteW(nullptr, L"open", commandWide.data(), nullptr, nullptr, SW_NORMAL);

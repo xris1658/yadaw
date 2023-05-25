@@ -16,7 +16,11 @@ private:
     {
         node_["general"]["language"] = "en_US";
         node_["general"]["system-font-rendering"] = false;
+#if(WIN32)
         node_["audio-hardware"]["audio-api"] = "AudioGraph";
+#elif(__linux__)
+        node_["audio-hardware"]["audio-api"] = "ALSA";
+#endif
         node_["plugin"]["scan-shortcuts"] = false;
         node_["plugin"]["scan-on-startup"] = false;
     }

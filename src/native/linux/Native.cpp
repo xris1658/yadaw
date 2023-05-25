@@ -9,6 +9,12 @@
 
 namespace YADAW::Native
 {
+const QString& appDataFolder()
+{
+    static auto ret = QString(std::getenv("HOME")) + "/.local";
+    return ret;
+}
+
 void sleepFor(std::chrono::steady_clock::duration duration)
 {
     auto nanosecond = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
@@ -40,11 +46,11 @@ const std::vector<QString>& defaultPluginDirectoryList()
         {
             list.reserve(6);
             // VST3
-            list.emplace_back("$HOME/.vst3");
+            list.emplace_back(QString(std::getenv("HOME")) + "/.vst3");
             list.emplace_back("/usr/lib/vst3");
             list.emplace_back("/usr/local/lib/vst3");
             // CLAP
-            list.emplace_back("$HOME/.clap");
+            list.emplace_back(QString(std::getenv("HOME")) + "/.clap");
             list.emplace_back("/usr/lib/clap");
             auto clapPath = std::getenv("CLAP_PATH");
             if(clapPath)

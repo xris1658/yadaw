@@ -3,7 +3,11 @@
 #include "base/Constants.hpp"
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
+#if(WIN32)
 #include "controller/AudioGraphBackendController.hpp"
+#elif(__linux__)
+#include "controller/ALSABackendController.hpp"
+#endif
 #include "controller/AudioBusConfigurationController.hpp"
 #include "controller/ConfigController.hpp"
 #include "controller/GeneralSettingsController.hpp"
@@ -40,10 +44,13 @@ void saveAudioBusConfiguration(
 void saveAudioBackendState()
 {
     auto appConfig = YADAW::Controller::loadConfig();
+#if(WIN32)
     const auto& audioGraphConfig = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
     appConfig["audio-hardware"]["audiograph"] = audioGraphConfig;
     auto dump = YAML::Dump(audioGraphConfig);
     YADAW::Controller::saveConfig(appConfig);
+#elif(__linux__)
+#endif
 }
 
 EventHandler::EventHandler(QObject* sender, QObject* receiver, QObject* parent):
@@ -89,6 +96,7 @@ void EventHandler::onStartInitializingApplication()
 
 void EventHandler::onOpenMainWindow()
 {
+#if(WIN32)
     auto& backend = YADAW::Controller::appAudioGraphBackend();
     backend.initialize();
     backend.createAudioGraph();
@@ -161,6 +169,10 @@ void EventHandler::onOpenMainWindow()
         saveAudioBusConfigurationLambda);
     // } audio bus configuration
 
+#elif(__linux__)
+    auto& backend = YADAW::Controller::appALSABackend();
+    // TODO: Initialize ALSA backend
+#endif
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
     YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",
@@ -187,6 +199,7 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appLocalizationListModel()));
     YADAW::UI::mainWindow->setProperty("currentTranslationIndex",
         QVariant::fromValue<int>(YADAW::Controller::currentTranslationIndex));
+#if(WIN32)
     YADAW::UI::mainWindow->setProperty("audioGraphInputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphInputDeviceListModel()));
     YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceList",
@@ -200,6 +213,12 @@ void EventHandler::onOpenMainWindow()
         YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceIndex",
             QVariant::fromValue<int>(currentOutputDeviceIndex));
     }
+#elif(__linux__)
+    YADAW::UI::mainWindow->setProperty("alsaInputDeviceList",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAInputDeviceListModel()));
+    YADAW::UI::mainWindow->setProperty("alsaOutputDeviceList",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAOutputDeviceListModel()));
+#endif
     QObject::connect(YADAW::Event::eventSender, SIGNAL(audioGraphOutputDeviceIndexChanged(int)),
         this, SLOT(onAudioGraphOutputDeviceIndexChanged(int)));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRendering(bool)),
@@ -212,7 +231,11 @@ void EventHandler::onOpenMainWindow()
 
 void EventHandler::onMainWindowClosing()
 {
+#if(WIN32)
     YADAW::Controller::appAudioGraphBackend().uninitialize();
+#elif(__linux__)
+    YADAW::Controller::appALSABackend().uninitialize();
+#endif
     mainWindowCloseAccepted();
 }
 
@@ -302,6 +325,8 @@ void EventHandler::onSetTranslationIndex(int index)
 
 void EventHandler::onAudioGraphOutputDeviceIndexChanged(int index)
 {
+#if(WIN32)
     YADAW::Controller::appAudioGraphOutputDeviceListModel().setOutputDeviceIndex(index);
+#endif
 }
 }
