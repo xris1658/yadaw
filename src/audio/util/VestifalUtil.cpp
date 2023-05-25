@@ -1,5 +1,7 @@
 #include "VestifalUtil.hpp"
 
+namespace YADAW::Audio::Util
+{
 VestifalEntry vestifalEntryFromLibrary(YADAW::Native::Library& library)
 {
     auto entry = library.getExport<VestifalEntry>(VESTIFAL_ENTRY_NAME);
@@ -18,4 +20,5 @@ YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(YADAW::Native::Li
         return {};
     }
     return {entry, uid};
+}
 }

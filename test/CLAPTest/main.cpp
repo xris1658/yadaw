@@ -3,7 +3,9 @@
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "audio/host/CLAPEventList.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
+#include "audio/util/CLAPUtil.hpp"
 #include "native/CLAPNative.hpp"
+#include "native/Library.hpp"
 #include "native/Native.hpp"
 #include "util/Constants.hpp"
 
@@ -136,7 +138,7 @@ int main(int argc, char* argv[])
         }
         QGuiApplication application(argc, argv);
         YADAW::Native::Library library(argv[1]);
-        auto plugin = YADAW::Native::createCLAPFromLibrary(library);
+        auto plugin = YADAW::Audio::Util::createCLAPFromLibrary(library);
         pPlugin = &plugin;
         std::vector<char> uid(strlen(argv[2]) / 2, '\0');
         for(int i = 0; i < uid.size(); ++i)

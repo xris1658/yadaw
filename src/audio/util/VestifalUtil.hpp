@@ -12,9 +12,13 @@ inline intptr_t runDispatcher(AEffect* effect, std::int32_t opcode, std::int32_t
     return effect->dispatcher(effect, opcode, input, opt, ptr, value);
 }
 
+namespace YADAW::Audio::Util
+{
 VestifalEntry vestifalEntryFromLibrary(YADAW::Native::Library& library);
 
 YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(
     YADAW::Native::Library& library, std::int32_t uid = 0);
+}
+
 
 #endif //YADAW_SRC_AUDIO_UTIL_VESTIFALUTIL

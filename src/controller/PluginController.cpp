@@ -406,7 +406,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
     else if(path.endsWith(vestifalExt, Qt::CaseSensitivity::CaseInsensitive))
     {
         YADAW::Audio::Host::setUniquePluginShouldBeZeroOnCurrentThread(false);
-        auto plugin = createVestifalFromLibrary(library);
+        auto plugin = YADAW::Audio::Util::createVestifalFromLibrary(library);
         auto effect = plugin.effect();
         if(effect)
         {
@@ -417,7 +417,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             {
                 YADAW::Audio::Host::setUniquePluginShouldBeZeroOnCurrentThread(true);
                 plugin = {};
-                plugin = createVestifalFromLibrary(library);
+                plugin = YADAW::Audio::Util::createVestifalFromLibrary(library);
             }
             std::vector<std::int32_t> uids;
             if(runDispatcher(effect, EffectOpcode::effectGetPlugCategory) == PluginCategory::PluginShell)
@@ -466,7 +466,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                 library = Library{path};
                 name[0] = 0;
                 vendor[0] = 0;
-                auto plugin = createVestifalFromLibrary(library, uid);
+                auto plugin = YADAW::Audio::Util::createVestifalFromLibrary(library, uid);
                 if(auto effect = plugin.effect(); effect)
                 {
                     std::memcpy(uidAsVector.data(), &effect->uniqueId, sizeof(std::int32_t));
