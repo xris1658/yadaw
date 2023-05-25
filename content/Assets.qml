@@ -220,7 +220,7 @@ Rectangle {
                         FolderDialog {
                             id: folderDialog
                             onAccepted: {
-                                directoryListModel.append(folderDialog.currentFolder);
+                                directoryListModel.append(folderDialog.selectedFolder);
                             }
                         }
                         onClicked: {
