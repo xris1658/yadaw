@@ -1,3 +1,5 @@
+#if(WIN32)
+
 #include "AudioGraphOutputDeviceListModel.hpp"
 
 namespace YADAW::Model
@@ -60,3 +62,5 @@ bool AudioGraphOutputDeviceListModel::setOutputDeviceIndex(std::uint32_t index)
     return false;
 }
 }
+
+#endif

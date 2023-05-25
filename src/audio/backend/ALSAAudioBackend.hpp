@@ -1,6 +1,8 @@
 #ifndef YADAW_ALSAAUDIOBACKEND
 #define YADAW_ALSAAUDIOBACKEND
 
+#if(__linux__)
+
 #include "audio/backend/ALSADeviceSelector.hpp"
 
 #include <cstdint>
@@ -50,5 +52,7 @@ private:
     std::unique_ptr<Impl> pImpl_;
 };
 }
+
+#endif
 
 #endif //YADAW_ALSAAUDIOBACKEND

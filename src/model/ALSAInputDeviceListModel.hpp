@@ -1,6 +1,8 @@
 #ifndef YADAW_ALSAINPUTDEVICELISTMODEL_HPP
 #define YADAW_ALSAINPUTDEVICELISTMODEL_HPP
 
+#if(__linux__)
+
 #include "audio/backend/ALSAAudioBackend.hpp"
 #include "model/IAudioDeviceListModel.hpp"
 
@@ -23,5 +25,7 @@ private:
     YADAW::Audio::Backend::ALSAAudioBackend* backend_;
 };
 }
+
+#endif
 
 #endif //YADAW_ALSAINPUTDEVICELISTMODEL_HPP

@@ -1,3 +1,5 @@
+#if(WIN32)
+
 #include "AudioGraphInputDeviceListModel.hpp"
 
 namespace YADAW::Model
@@ -66,3 +68,5 @@ bool AudioGraphInputDeviceListModel::setData(const QModelIndex& index, const QVa
     return false;
 }
 }
+
+#endif

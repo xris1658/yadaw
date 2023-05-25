@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_MODEL_AUDIOGRAPHOUTPUTDEVICELISTMODEL
 #define YADAW_SRC_MODEL_AUDIOGRAPHOUTPUTDEVICELISTMODEL
 
+#if(WIN32)
+
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "model/IAudioDeviceListModel.hpp"
 
@@ -24,5 +26,7 @@ private:
     YADAW::Audio::Backend::AudioGraphBackend* backend_;
 };
 }
+
+#endif
 
 #endif //YADAW_SRC_MODEL_AUDIOGRAPHOUTPUTDEVICELISTMODEL

@@ -5,6 +5,7 @@
 
 // Windows API
 #if(WIN32)
+#define NOMINMAX
 #include <Windows.h>
 #include <winreg.h>
 #include <winerror.h>
