@@ -8,21 +8,24 @@ namespace YADAW::Util
 template<typename Iterator, typename PredicateType>
 void insertionSort(Iterator first, Iterator last, PredicateType predicate)
 {
-    for(auto i = first; ++i != last;)
+    if(first != last)
     {
-        auto j = i;
-        while(j != first)
+        for(auto i = first; ++i != last;)
         {
-            auto k = j; --k;
-            if(predicate(*j, *k))
+            auto j = i;
+            while(j != first)
             {
-                std::swap(*j, *k);
+                auto k = j; --k;
+                if(predicate(*j, *k))
+                {
+                    std::swap(*j, *k);
+                }
+                else
+                {
+                    break;
+                }
+                --j;
             }
-            else
-            {
-                break;
-            }
-            --j;
         }
     }
 }
