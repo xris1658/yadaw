@@ -146,20 +146,20 @@ std::vector<PluginInfoInDatabase> selectAllPlugin(sqlite::database& database)
     ret.reserve(getAllPluginCount());
     database << Impl::selectAllPluginCommand()
         >> [&ret](int id,
-            const std::u16string& path,
+            const std::string& path,
             const std::vector<char>& uid,
-            const std::u16string& name,
-            const std::u16string& vendor,
-            const std::u16string& version,
+            const std::string& name,
+            const std::string& vendor,
+            const std::string& version,
             int format,
             int type)
         {
             ret.emplace_back(id,
-                QString::fromStdU16String(path),
+                QString::fromStdString(path),
                 uid,
-                QString::fromStdU16String(name),
-                QString::fromStdU16String(vendor),
-                QString::fromStdU16String(version),
+                QString::fromStdString(name),
+                QString::fromStdString(vendor),
+                QString::fromStdString(version),
                 format,
                 type);
         };
@@ -172,20 +172,20 @@ std::vector<PluginInfoInDatabase> selectPluginByType(PluginType type, sqlite::da
     ret.reserve(getAllPluginCount());
     database << Impl::selectPluginByTypeCommand() << int(type)
         >> [&ret](int id,
-            const std::u16string& path,
+            const std::string& path,
             const std::vector<char>& uid,
-            const std::u16string& name,
-            const std::u16string& vendor,
-            const std::u16string& version,
+            const std::string& name,
+            const std::string& vendor,
+            const std::string& version,
             int format,
             int type)
         {
             ret.emplace_back(id,
-                QString::fromStdU16String(path),
+                QString::fromStdString(path),
                 uid,
-                QString::fromStdU16String(name),
-                QString::fromStdU16String(vendor),
-                QString::fromStdU16String(version),
+                QString::fromStdString(name),
+                QString::fromStdString(vendor),
+                QString::fromStdString(version),
                 format,
                 type);
         };
@@ -198,20 +198,20 @@ std::vector<PluginInfoInDatabase> selectPluginByFormat(PluginFormat format, sqli
     ret.reserve(getAllPluginCount());
     database << Impl::selectPluginByFormatCommand() << int(format)
         >> [&ret](int id,
-            const std::u16string& path,
+            const std::string& path,
             const std::vector<char>& uid,
-            const std::u16string& name,
-            const std::u16string& vendor,
-            const std::u16string& version,
+            const std::string& name,
+            const std::string& vendor,
+            const std::string& version,
             int format,
             int type)
         {
             ret.emplace_back(id,
-                QString::fromStdU16String(path),
+                QString::fromStdString(path),
                 uid,
-                QString::fromStdU16String(name),
-                QString::fromStdU16String(vendor),
-                QString::fromStdU16String(version),
+                QString::fromStdString(name),
+                QString::fromStdString(vendor),
+                QString::fromStdString(version),
                 format,
                 type);
          };
@@ -230,21 +230,21 @@ PluginInfoInDatabase selectPluginById(int id, sqlite::database& database)
     PluginInfoInDatabase ret;
     database << Impl::selectPluginByIdCommand() << id
         >> [&ret](int id,
-            const std::u16string& path,
+            const std::string& path,
             const std::vector<char>& uid,
-            const std::u16string& name,
-            const std::u16string& vendor,
-            const std::u16string& version,
+            const std::string& name,
+            const std::string& vendor,
+            const std::string& version,
             int format,
             int type)
         {
             ret = {
                 id,
-                QString::fromStdU16String(path),
+                QString::fromStdString(path),
                 uid,
-                QString::fromStdU16String(name),
-                QString::fromStdU16String(vendor),
-                QString::fromStdU16String(version),
+                QString::fromStdString(name),
+                QString::fromStdString(vendor),
+                QString::fromStdString(version),
                 format,
                 type
             };
@@ -257,23 +257,23 @@ std::vector<PluginInfoInDatabase> selectPluginByPath(const QString& path, sqlite
     std::vector<PluginInfoInDatabase> ret;
     int count = 0; database << Impl::selectCountOfPluginByPathCommand() >> count;
     ret.reserve(count);
-    database << Impl::selectPluginByPathCommand() << path.toStdU16String()
+    database << Impl::selectPluginByPathCommand() << path.toStdString()
         >> [&ret](int id,
-            const std::u16string& path,
+            const std::string& path,
             const std::vector<char>& uid,
-            const std::u16string& name,
-            const std::u16string& vendor,
-            const std::u16string& version,
+            const std::string& name,
+            const std::string& vendor,
+            const std::string& version,
             int format,
             int type)
         {
             ret.emplace_back(
                 id,
-                QString::fromStdU16String(path),
+                QString::fromStdString(path),
                 uid,
-                QString::fromStdU16String(name),
-                QString::fromStdU16String(vendor),
-                QString::fromStdU16String(version),
+                QString::fromStdString(name),
+                QString::fromStdString(vendor),
+                QString::fromStdString(version),
                 format,
                 type
             );
@@ -287,15 +287,15 @@ std::vector<QString> selectDistinctPluginPath(sqlite::database& database)
     int count = 0; database << Impl::selectCountOfDistinctPluginPathCommand() >> count;
     ret.reserve(count);
     database << Impl::selectDistinctPluginPathCommand()
-                  >> [&ret](const std::u16string& path)
+                  >> [&ret](const std::string& path)
     {
-        ret.emplace_back(QString::fromStdU16String(path));
+        ret.emplace_back(QString::fromStdString(path));
     };
     return ret;
 }
 
 void removePluginByPath(const QString& path, sqlite::database& database)
 {
-    database << Impl::removePluginByPathCommand() << path.toStdU16String();
+    database << Impl::removePluginByPathCommand() << path.toStdString();
 }
 }

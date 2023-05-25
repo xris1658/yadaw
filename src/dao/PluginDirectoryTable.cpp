@@ -48,13 +48,13 @@ void createPluginDirectoryTable(sqlite::database& database)
 void addPluginDirectory(const QString& directory, sqlite::database& database)
 {
     database << Impl::addPluginDirectoryCommand()
-                  << directory.toStdU16String();
+                  << directory.toStdString();
 }
 
 void removePluginDirectory(const QString& directory, sqlite::database& database)
 {
     database << Impl::removePluginDirectoryCommand()
-                  << directory.toStdU16String();
+                  << directory.toStdString();
 }
 
 std::vector<QString> selectPluginDirectory(sqlite::database& database)
@@ -64,9 +64,9 @@ std::vector<QString> selectPluginDirectory(sqlite::database& database)
     database << Impl::selectPluginDirectoryCountCommand() >> size;
     ret.reserve(size);
     database << Impl::selectPluginDirectoryCommand()
-                  >> [&ret](const std::u16string& item)
+                  >> [&ret](const std::string& item)
     {
-        ret.emplace_back(QString::fromStdU16String(item));
+        ret.emplace_back(QString::fromStdString(item));
     };
     return ret;
 }

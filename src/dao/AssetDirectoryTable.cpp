@@ -93,9 +93,9 @@ std::vector<AssetDirectory> selectAllAssetDirectories(sqlite::database& database
     database << Impl::getAllAssetDirectoryCountCommand() >> count;
     ret.reserve(count);
     database << Impl::selectAllAssetDirectoryCommand()
-    >> [&ret](int id, const std::u16string& path, const std::u16string& name)
+    >> [&ret](int id, const std::string& path, const std::string& name)
     {
-        ret.emplace_back(id, QString::fromStdU16String(path), QString::fromStdU16String(name));
+        ret.emplace_back(id, QString::fromUtf8(path), QString::fromUtf8(name));
     };
     return ret;
 }
@@ -104,9 +104,9 @@ AssetDirectory selectAssetDirectoryById(int id, sqlite::database& database)
 {
     AssetDirectory ret;
     database << Impl::selectAssetDirectoryByIdCommand() << id
-    >> [&ret](int id, const std::u16string& path, const std::u16string& name)
+    >> [&ret](int id, const std::string& path, const std::string& name)
     {
-        ret = AssetDirectory{id, QString::fromStdU16String(path), QString::fromStdU16String(name)};
+        ret = AssetDirectory{id, QString::fromStdString(path), QString::fromStdString(name)};
     };
     return ret;
 }

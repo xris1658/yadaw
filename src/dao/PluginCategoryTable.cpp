@@ -118,9 +118,9 @@ std::vector<QString> selectById(int id, sqlite::database& database)
     database << Impl::selectCountByIdCommand() >> count;
     ret.reserve(count);
     database << Impl::selectByIdCommand() << id
-        >> [&ret](const std::u16string& category)
+        >> [&ret](const std::string& category)
         {
-            ret.emplace_back(QString::fromStdU16String(category));
+            ret.emplace_back(QString::fromStdString(category));
         };
     return ret;
 }

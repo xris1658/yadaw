@@ -13,7 +13,7 @@ namespace YADAW::DAO
 {
 sqlite::database& appDatabase()
 {
-    static sqlite::database ret(appDatabasePath().toStdU16String());
+    static sqlite::database ret(appDatabasePath().toStdString());
     return ret;
 }
 
