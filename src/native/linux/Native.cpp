@@ -21,9 +21,9 @@ bool isDebuggerPresent()
 {
     const auto pid = getpid();
     const auto size =
-        YADAW::Util::stackArraySize("/proc/") - 1
+        YADAW::Util::stringLength("/proc/")
         + 11 // length of INT32_MAX as string
-        + YADAW::Util::stackArraySize("/status") - 1
+        + YADAW::Util::stringLength("/status")
         + 1;
     std::vector<char> path(size, '\0');
     std::sprintf(path.data(), "/proc/%d/status", pid);
