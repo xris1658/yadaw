@@ -16,6 +16,7 @@ private:
     {
         node_["general"]["language"] = "en_US";
         node_["general"]["system-font-rendering"] = false;
+        node_["general"]["system-font-rendering-while-debugging"] = false;
 #if(WIN32)
         node_["audio-hardware"]["audio-api"] = "AudioGraph";
 #elif(__linux__)

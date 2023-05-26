@@ -1,8 +1,10 @@
 #if(__linux__)
 
 #include "native/Native.hpp"
+#include "util/Base.hpp"
 
 #include <time.h>
+#include <unistd.h>
 
 #include <ctime>
 #include <mutex>
@@ -13,6 +15,31 @@ const QString& appDataFolder()
 {
     static auto ret = QString(std::getenv("HOME")) + "/.local";
     return ret;
+}
+
+bool isDebuggerPresent()
+{
+    const auto pid = getpid();
+    const auto size =
+        YADAW::Util::stackArraySize("/proc/") - 1
+        + 11 // length of INT32_MAX as string
+        + YADAW::Util::stackArraySize("/status") - 1
+        + 1;
+    std::vector<char> path(size, '\0');
+    std::sprintf(path.data(), "/proc/%d/status", pid);
+    std::ifstream ifs(path.data());
+    char lineBuffer[128];
+    std::memset(lineBuffer, 0, YADAW::Util::stackArraySize(lineBuffer));
+    while(ifs.peek() != EOF)
+    {
+        ifs.getline(lineBuffer, YADAW::Util::stackArraySize(lineBuffer));
+        int tracerPid = 0;
+        if(std::sscanf(lineBuffer, "TracerPid:\t%d", &tracerPid) != 0)
+        {
+            return tracerPid != 0;
+        }
+    }
+    return false;
 }
 
 void sleepFor(std::chrono::steady_clock::duration duration)

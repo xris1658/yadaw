@@ -307,6 +307,11 @@ void EventHandler::onSetSystemFontRendering(bool enabled)
     YADAW::UI::messageDialog("TODO", YADAW::Base::ProductName, YADAW::UI::IconType::Info);
 }
 
+void EventHandler::onSetSystemFontRenderingWhileDebugging(bool enabled)
+{
+    YADAW::Controller::GeneralSettingsController::setSystemFontRenderingWhileDebugging(enabled);
+}
+
 void EventHandler::onSetTranslationIndex(int index)
 {
     const auto& model = YADAW::Controller::appLocalizationListModel();

@@ -4,6 +4,7 @@
 #include "event/EventHandler.hpp"
 #include "event/SplashScreenWorkerThread.hpp"
 #include "model/ModelInitializer.hpp"
+#include "native/Native.hpp"
 #include "ui/UI.hpp"
 
 #include <QFont>
@@ -87,7 +88,10 @@ int main(int argc, char *argv[])
     auto systemFontRendering = config["general"]["system-font-rendering"].as<bool>();
     if(systemFontRendering)
     {
-        QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
+        if((!YADAW::Native::isDebuggerPresent()) || config["general"]["system-font-rendering-while-debugging"].as<bool>())
+        {
+            QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
+        }
     }
     engine.load(frontendEventsURL);
     YADAW::Event::EventHandler eh(YADAW::Event::eventSender, YADAW::Event::eventReceiver);

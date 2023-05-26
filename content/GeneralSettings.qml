@@ -6,6 +6,7 @@ Item {
     width: firstColumnWidth + secondColumnWidth + grid.columnSpacing * 3
 
     property alias systemFontRendering: systemFontRenderingSwitch.checked
+    property alias systemFontRenderingWhileDebugging: enableSystemRenderingWhileDebuggingCheckBox.checked
     property alias translationModel: translationComboBox.model
     property alias currentTranslationIndex: translationComboBox.currentIndex
     property int firstColumnWidth
@@ -59,6 +60,17 @@ Item {
                 id: systemFontRenderingSwitch
                 checked: false
             }
+        }
+        Item {
+            visible: systemFontRenderingSwitch.checked
+            width: firstColumnWidth
+            height: enableSystemRenderingWhileDebuggingCheckBox.height
+        }
+        CheckBox {
+            visible: systemFontRenderingSwitch.checked
+            width: secondColumnWidth
+            id: enableSystemRenderingWhileDebuggingCheckBox
+            text: qsTr("Enable while debugging")
         }
     }
 }
