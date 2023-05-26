@@ -24,6 +24,7 @@ public:
     static std::uint32_t audioOutputCount();
     static std::optional<ALSADeviceSelector> audioInputDeviceAt(std::uint32_t index);
     static std::optional<ALSADeviceSelector> audioOutputDeviceAt(std::uint32_t index);
+    static std::optional<std::string> audioDeviceName(ALSADeviceSelector selector);
     ActivateDeviceResult setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated);
     ActivateDeviceResult setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool activated);
     bool isAudioInputDeviceActivated(ALSADeviceSelector selector) const;
@@ -35,8 +36,8 @@ private:
 private:
     std::uint32_t sampleRate_;
     std::uint32_t frameSize_;
-    std::map<std::uint64_t, std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>> inputs_;
-    std::map<std::uint64_t, std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>> outputs_;
+    std::map<ALSADeviceSelector, std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>> inputs_;
+    std::map<ALSADeviceSelector, std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>> outputs_;
 };
 }
 

@@ -99,10 +99,15 @@ std::optional<ALSADeviceSelector>
     return YADAW::Native::ALSADeviceEnumerator::audioOutputDeviceAt(index);
 }
 
+std::optional<std::string> ALSABackend::Impl::audioDeviceName(ALSADeviceSelector selector)
+{
+    return YADAW::Native::ALSADeviceEnumerator::audioDeviceName(selector);
+}
+
 ALSABackend::ActivateDeviceResult
 ALSABackend::Impl::setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated)
 {
-    auto key = keyFromDeviceSelector(selector);
+    auto key = selector;
     if(activated)
     {
         if(inputs_.find(key) != inputs_.end())
@@ -134,7 +139,7 @@ ALSABackend::Impl::setAudioInputDeviceActivated(ALSADeviceSelector selector, boo
 ALSABackend::ActivateDeviceResult
 ALSABackend::Impl::setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool activated)
 {
-    auto key = keyFromDeviceSelector(selector);
+    auto key = selector;
     if(activated)
     {
         if(outputs_.find(key) != outputs_.end())
@@ -168,13 +173,13 @@ ALSABackend::Impl::setAudioOutputDeviceActivated(ALSADeviceSelector selector, bo
 
 bool ALSABackend::Impl::isAudioInputDeviceActivated(ALSADeviceSelector selector) const
 {
-    auto key = keyFromDeviceSelector(selector);
+    auto key = selector;
     return inputs_.find(key) != inputs_.end();
 }
 
 bool ALSABackend::Impl::isAudioOutputDeviceActivated(ALSADeviceSelector selector) const
 {
-    auto key = keyFromDeviceSelector(selector);
+    auto key = selector;
     return outputs_.find(key) != outputs_.end();
 }
 

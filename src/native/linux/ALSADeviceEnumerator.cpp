@@ -2,8 +2,13 @@
 
 #include "ALSADeviceEnumerator.hpp"
 
+#include "util/Base.hpp"
+
 #include <filesystem>
+#include <fstream>
+#include <map>
 #include <mutex>
+#include <string>
 #include <vector>
 
 #include <cstring>
@@ -12,9 +17,35 @@ namespace YADAW::Native
 {
 using YADAW::Audio::Backend::ALSADeviceSelector;
 std::vector<ALSADeviceSelector> audioInputDevices;
+std::map<ALSADeviceSelector, std::string> audioDeviceNames;
 std::vector<ALSADeviceSelector> audioOutputDevices;
 std::vector<ALSADeviceSelector> midiDevices;
 std::once_flag enumerateDeviceFlag;
+
+void doEnumerateDeviceNames()
+{
+    std::ifstream ifs("/proc/asound/pcm", std::ios::in);
+    if(!(ifs.fail()))
+    {
+        char lineBuffer[128];
+        while(true)
+        {
+            ifs.getline(lineBuffer, YADAW::Util::stackArraySize(lineBuffer));
+            ALSADeviceSelector selector(-1, -1);
+            std::sscanf(lineBuffer, "%d-%d", &(selector.cIndex), &(selector.dIndex));
+            if(selector.cIndex != -1 && selector.dIndex != -1)
+            {
+                auto name = std::strchr(lineBuffer + 7, ':') + YADAW::Util::stringLength(": ");
+                auto nameEnd = std::strchr(name + 2, ':');
+                audioDeviceNames.emplace(selector, std::string(name, nameEnd - name - 1));
+            }
+            if(ifs.rdstate() & std::ios::eofbit)
+            {
+                break;
+            }
+        }
+    }
+}
 
 void doEnumerateDevices()
 {
@@ -74,7 +105,11 @@ void doEnumerateDevices()
 
 void ALSADeviceEnumerator::enumerateDevices()
 {
-    std::call_once(enumerateDeviceFlag, &doEnumerateDevices);
+    std::call_once(enumerateDeviceFlag, []()
+    {
+        doEnumerateDevices();
+        doEnumerateDeviceNames();
+    });
 }
 
 std::uint32_t ALSADeviceEnumerator::audioInputDeviceCount()
@@ -108,6 +143,15 @@ std::optional<ALSADeviceSelector> ALSADeviceEnumerator::audioOutputDeviceAt(std:
 std::optional<ALSADeviceSelector> ALSADeviceEnumerator::midiDeviceAt(std::uint32_t index)
 {
     return index < midiDeviceCount()? std::optional(midiDevices[index]): std::nullopt;
+}
+
+std::optional<std::string> ALSADeviceEnumerator::audioDeviceName(ALSADeviceSelector selector)
+{
+    if(auto it = audioDeviceNames.find(selector); it != audioDeviceNames.end())
+    {
+        return {it->second};
+    }
+    return std::nullopt;
 }
 }
 

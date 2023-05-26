@@ -20,11 +20,6 @@ public:
         Success,
         AlreadyDone
     };
-    struct DeviceSelector
-    {
-        std::uint32_t cIndex; // card index
-        std::uint32_t dIndex; // device index
-    };
     struct DeviceInfo
     {
         QString id;
@@ -42,6 +37,7 @@ public:
     static std::uint32_t audioOutputDeviceCount();
     static std::optional<ALSADeviceSelector> audioInputDeviceAt(std::uint32_t index);
     static std::optional<ALSADeviceSelector> audioOutputDeviceAt(std::uint32_t index);
+    static std::optional<std::string> audioDeviceName(ALSADeviceSelector selector);
     ActivateDeviceResult setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated);
     ActivateDeviceResult setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool activated);
     bool isAudioInputDeviceActivated(ALSADeviceSelector selector);

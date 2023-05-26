@@ -5,7 +5,7 @@
 namespace YADAW::Model
 {
 ALSAInputDeviceListModel::ALSAInputDeviceListModel(
-    Audio::Backend::ALSABackend& backend, QObject* parent):
+    YADAW::Audio::Backend::ALSABackend& backend, QObject* parent):
     IAudioDeviceListModel(parent),
     backend_(&backend)
 {}
@@ -34,7 +34,10 @@ QVariant ALSAInputDeviceListModel::data(const QModelIndex& index, int role) cons
         case Role::Id:
             return QVariant::fromValue(QString("hw:%1,%2").arg(selector.cIndex, selector.dIndex));
         case Role::Name:
-            return QVariant::fromValue(QString());
+            return QVariant::fromValue(
+                QString::fromStdString(
+                    YADAW::Audio::Backend::ALSABackend::audioDeviceName(selector)
+                    .value_or(std::string(""))));
         case Role::Enabled:
             return backend_->isAudioInputDeviceActivated(selector);
         }

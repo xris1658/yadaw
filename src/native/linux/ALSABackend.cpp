@@ -33,6 +33,11 @@ std::optional<ALSADeviceSelector> ALSABackend::audioOutputDeviceAt(std::uint32_t
     return Impl::audioOutputDeviceAt(index);
 }
 
+std::optional<std::string> ALSABackend::audioDeviceName(ALSADeviceSelector selector)
+{
+    return Impl::audioDeviceName(selector);
+}
+
 bool ALSABackend::initialize(std::uint32_t sampleRate, std::uint32_t frameSize)
 {
     if(pImpl_)
