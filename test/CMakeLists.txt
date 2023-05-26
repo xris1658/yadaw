@@ -20,10 +20,10 @@ endif()
 if(LINUX)
     add_executable(ALSATest
                    ../src/audio/backend/ALSADeviceSelector.hpp
-                   ../src/audio/backend/ALSAAudioBackend.hpp
-                   ../src/native/linux/ALSAAudioBackend.cpp
-                   ../src/native/linux/ALSAAudioBackendImpl.cpp
-                   ../src/native/linux/ALSAAudioBackendImpl.hpp
+                   ../src/audio/backend/ALSABackend.hpp
+                   ../src/native/linux/ALSABackend.cpp
+                   ../src/native/linux/ALSABackendImpl.cpp
+                   ../src/native/linux/ALSABackendImpl.hpp
                    ../src/native/linux/ALSADeviceEnumerator.cpp
                    ../src/native/linux/ALSADeviceEnumerator.hpp
                    ALSATest/main.cpp

@@ -1,6 +1,6 @@
 #if(__linux__)
 
-#include "ALSAAudioBackendImpl.hpp"
+#include "ALSABackendImpl.hpp"
 
 #include "native/linux/ALSADeviceEnumerator.hpp"
 #include "util/Base.hpp"
@@ -60,10 +60,10 @@ std::uint64_t keyFromDeviceSelector(YADAW::Audio::Backend::ALSADeviceSelector se
 
 namespace YADAW::Audio::Backend
 {
-ALSAAudioBackend::Impl::Impl(std::uint32_t sampleRate, std::uint32_t frameSize):
+ALSABackend::Impl::Impl(std::uint32_t sampleRate, std::uint32_t frameSize):
     sampleRate_(sampleRate), frameSize_(frameSize) {}
 
-ALSAAudioBackend::Impl::~Impl()
+ALSABackend::Impl::~Impl()
 {
     for(const auto& [key, tuple]: inputs_)
     {
@@ -77,30 +77,30 @@ ALSAAudioBackend::Impl::~Impl()
     }
 }
 
-std::uint32_t ALSAAudioBackend::Impl::audioInputCount()
+std::uint32_t ALSABackend::Impl::audioInputCount()
 {
     return YADAW::Native::ALSADeviceEnumerator::audioInputDeviceCount();
 }
 
-std::uint32_t ALSAAudioBackend::Impl::audioOutputCount()
+std::uint32_t ALSABackend::Impl::audioOutputCount()
 {
     return YADAW::Native::ALSADeviceEnumerator::audioOutputDeviceCount();
 }
 
 std::optional<ALSADeviceSelector>
-    ALSAAudioBackend::Impl::audioInputDeviceAt(std::uint32_t index)
+    ALSABackend::Impl::audioInputDeviceAt(std::uint32_t index)
 {
     return YADAW::Native::ALSADeviceEnumerator::audioInputDeviceAt(index);
 }
 
 std::optional<ALSADeviceSelector>
-    ALSAAudioBackend::Impl::audioOutputDeviceAt(std::uint32_t index)
+    ALSABackend::Impl::audioOutputDeviceAt(std::uint32_t index)
 {
     return YADAW::Native::ALSADeviceEnumerator::audioOutputDeviceAt(index);
 }
 
-ALSAAudioBackend::ActivateDeviceResult
-ALSAAudioBackend::Impl::setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated)
+ALSABackend::ActivateDeviceResult
+ALSABackend::Impl::setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated)
 {
     auto key = keyFromDeviceSelector(selector);
     if(activated)
@@ -131,8 +131,8 @@ ALSAAudioBackend::Impl::setAudioInputDeviceActivated(ALSADeviceSelector selector
     }
 }
 
-ALSAAudioBackend::ActivateDeviceResult
-ALSAAudioBackend::Impl::setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool activated)
+ALSABackend::ActivateDeviceResult
+ALSABackend::Impl::setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool activated)
 {
     auto key = keyFromDeviceSelector(selector);
     if(activated)
@@ -166,30 +166,30 @@ ALSAAudioBackend::Impl::setAudioOutputDeviceActivated(ALSADeviceSelector selecto
     }
 }
 
-bool ALSAAudioBackend::Impl::isAudioInputDeviceActivated(ALSADeviceSelector selector) const
+bool ALSABackend::Impl::isAudioInputDeviceActivated(ALSADeviceSelector selector) const
 {
     auto key = keyFromDeviceSelector(selector);
     return inputs_.find(key) != inputs_.end();
 }
 
-bool ALSAAudioBackend::Impl::isAudioOutputDeviceActivated(ALSADeviceSelector selector) const
+bool ALSABackend::Impl::isAudioOutputDeviceActivated(ALSADeviceSelector selector) const
 {
     auto key = keyFromDeviceSelector(selector);
     return outputs_.find(key) != outputs_.end();
 }
 
-bool ALSAAudioBackend::Impl::start()
+bool ALSABackend::Impl::start()
 {
     return false;
 }
 
-bool ALSAAudioBackend::Impl::stop()
+bool ALSABackend::Impl::stop()
 {
     return false;
 }
 
 std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
-    ALSAAudioBackend::Impl::activateDevice(bool isInput, ALSADeviceSelector selector)
+    ALSABackend::Impl::activateDevice(bool isInput, ALSADeviceSelector selector)
 {
     char name[26]; // hw:[0-9]+,[0-9]+
     auto count = std::sprintf(name, "hw:%d,%d", selector.cIndex, selector.dIndex);

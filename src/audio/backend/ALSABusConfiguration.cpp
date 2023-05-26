@@ -30,7 +30,7 @@ bool ALSABusConfiguration::Bus::setChannel(std::uint32_t index, Channel channel)
     return false;
 }
 
-ALSABusConfiguration::ALSABusConfiguration(const ALSAAudioBackend& backend):
+ALSABusConfiguration::ALSABusConfiguration(const ALSABackend& backend):
     backend_(&backend),
     inputBusses_(),
     outputBusses_()

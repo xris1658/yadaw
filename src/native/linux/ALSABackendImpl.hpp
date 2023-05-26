@@ -3,7 +3,7 @@
 
 #if(__linux__)
 
-#include "audio/backend/ALSAAudioBackend.hpp"
+#include "audio/backend/ALSABackend.hpp"
 #include "audio/backend/ALSADeviceSelector.hpp"
 
 #include <alsa/asoundlib.h>
@@ -14,7 +14,7 @@
 
 namespace YADAW::Audio::Backend
 {
-class ALSAAudioBackend::Impl
+class ALSABackend::Impl
 {
 public:
     Impl(std::uint32_t sampleRate, std::uint32_t frameSize);

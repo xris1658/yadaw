@@ -5,7 +5,7 @@
 namespace YADAW::Model
 {
 ALSAInputDeviceListModel::ALSAInputDeviceListModel(
-    Audio::Backend::ALSAAudioBackend& backend, QObject* parent):
+    Audio::Backend::ALSABackend& backend, QObject* parent):
     IAudioDeviceListModel(parent),
     backend_(&backend)
 {}

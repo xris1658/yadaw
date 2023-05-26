@@ -3,7 +3,7 @@
 
 #if(__linux__)
 
-#include "audio/backend/ALSAAudioBackend.hpp"
+#include "audio/backend/ALSABackend.hpp"
 #include "model/IAudioDeviceListModel.hpp"
 
 namespace YADAW::Model
@@ -12,7 +12,7 @@ class ALSAOutputDeviceListModel: public IAudioDeviceListModel
 {
     Q_OBJECT
 public:
-    ALSAOutputDeviceListModel(YADAW::Audio::Backend::ALSAAudioBackend& backend,
+    ALSAOutputDeviceListModel(YADAW::Audio::Backend::ALSABackend& backend,
         QObject* parent = nullptr);
     ~ALSAOutputDeviceListModel() override;
 public:
@@ -22,7 +22,7 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 private:
-    YADAW::Audio::Backend::ALSAAudioBackend* backend_;
+    YADAW::Audio::Backend::ALSABackend* backend_;
 };
 }
 

@@ -3,7 +3,7 @@
 
 #if(__linux__)
 
-#include "audio/backend/ALSAAudioBackend.hpp"
+#include "audio/backend/ALSABackend.hpp"
 #include "audio/device/IAudioBusConfiguration.hpp"
 
 namespace YADAW::Audio::Backend
@@ -24,7 +24,7 @@ public:
         std::vector<Channel> channels_;
     };
 public:
-    ALSABusConfiguration(const ALSAAudioBackend& backend);
+    ALSABusConfiguration(const ALSABackend& backend);
 public:
     std::uint32_t inputBusCount() const override;
     std::uint32_t outputBusCount() const override;
@@ -37,7 +37,7 @@ public:
     bool removeBus(bool isInput, std::uint32_t index) override;
     void clearBus(bool isInput) override;
 private:
-    const ALSAAudioBackend* backend_;
+    const ALSABackend* backend_;
     std::vector<Bus> inputBusses_;
     std::vector<Bus> outputBusses_;
 };

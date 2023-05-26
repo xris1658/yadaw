@@ -2,9 +2,9 @@
 
 namespace YADAW::Controller
 {
-YADAW::Audio::Backend::ALSAAudioBackend& appALSABackend()
+YADAW::Audio::Backend::ALSABackend& appALSABackend()
 {
-    static YADAW::Audio::Backend::ALSAAudioBackend ret;
+    static YADAW::Audio::Backend::ALSABackend ret;
     return ret;
 }
 

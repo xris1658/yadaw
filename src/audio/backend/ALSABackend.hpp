@@ -10,7 +10,7 @@
 
 namespace YADAW::Audio::Backend
 {
-class ALSAAudioBackend
+class ALSABackend
 {
     class Impl;
 public:
@@ -22,8 +22,8 @@ public:
     };
     struct DeviceSelector
     {
-        std::uint32_t cIndex;
-        std::uint32_t dIndex;
+        std::uint32_t cIndex; // card index
+        std::uint32_t dIndex; // device index
     };
     struct DeviceInfo
     {
@@ -31,10 +31,10 @@ public:
         QString name;
     };
 public:
-    ALSAAudioBackend();
-    ALSAAudioBackend(const ALSAAudioBackend&) = delete;
-    ALSAAudioBackend(ALSAAudioBackend&& rhs) noexcept;
-    ~ALSAAudioBackend();
+    ALSABackend();
+    ALSABackend(const ALSABackend&) = delete;
+    ALSABackend(ALSABackend&& rhs) noexcept;
+    ~ALSABackend();
 public:
     bool initialize(std::uint32_t sampleRate, std::uint32_t frameSize);
     bool uninitialize();
