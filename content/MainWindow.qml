@@ -23,6 +23,8 @@ ApplicationWindow {
     property alias audioGraphInputDeviceList: preferencesWindow.audioGraphInputDeviceList
     property alias audioGraphOutputDeviceList: preferencesWindow.audioGraphOutputDeviceList
     property alias audioGraphOutputDeviceIndex: preferencesWindow.audioGraphOutputDeviceIndex
+    property alias alsaInputDeviceList: preferencesWindow.alsaInputDeviceList
+    property alias alsaOutputDeviceList: preferencesWindow.alsaOutputDeviceList
 
     property alias pluginListModel: assets.pluginListModel
     property alias midiEffectListModel: assets.midiEffectListModel
