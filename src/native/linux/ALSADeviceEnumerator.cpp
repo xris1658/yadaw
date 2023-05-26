@@ -4,6 +4,9 @@
 
 #include <filesystem>
 #include <mutex>
+#include <vector>
+
+#include <cstring>
 
 namespace YADAW::Native
 {
