@@ -49,6 +49,24 @@ QVariant ALSAOutputDeviceListModel::data(const QModelIndex& index, int role) con
 
 bool ALSAOutputDeviceListModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
+    auto row = index.row();
+    if(row >= 0 && row < itemCount())
+    {
+        auto selector = backend_->audioOutputDeviceAt(row).value();
+        switch(role)
+        {
+        case Role::Enabled:
+        {
+
+            if(auto result = backend_->setAudioOutputDeviceActivated(selector, value.value<bool>());
+                result != Audio::Backend::ALSABackend::Failed)
+            {
+                dataChanged(index, index, {Role::Enabled});
+                return true;
+            }
+        }
+        }
+    }
     return false;
 }
 }

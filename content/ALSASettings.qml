@@ -91,6 +91,9 @@ Rectangle {
                     text: adlm_name
                     width: inputDeviceListView.width - (inputDeviceListScrollBar.visible? inputDeviceListScrollBar.width: 0)
                     checked: adlm_enabled
+                    onCheckedChanged: {
+                        adlm_enabled = checked;
+                    }
                 }
             }
         }
@@ -130,6 +133,9 @@ Rectangle {
                     text: adlm_name
                     width: outputDeviceListView.width - (outputDeviceListScrollBar.visible? outputDeviceListScrollBar.width: 0)
                     checked: adlm_enabled
+                    onCheckedChanged: {
+                        adlm_enabled = checked;
+                    }
                 }
             }
         }
