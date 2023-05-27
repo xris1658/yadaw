@@ -38,6 +38,11 @@ std::optional<std::string> ALSABackend::audioDeviceName(ALSADeviceSelector selec
     return Impl::audioDeviceName(selector);
 }
 
+std::optional<std::string> ALSABackend::cardName(int cardIndex)
+{
+    return Impl::cardName(cardIndex);
+}
+
 bool ALSABackend::initialize(std::uint32_t sampleRate, std::uint32_t frameSize)
 {
     if(pImpl_)

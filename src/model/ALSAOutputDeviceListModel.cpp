@@ -34,10 +34,12 @@ QVariant ALSAOutputDeviceListModel::data(const QModelIndex& index, int role) con
         case Role::Id:
             return QVariant::fromValue(QString("hw:%1,%2").arg(selector.cIndex, selector.dIndex));
         case Role::Name:
-            return QVariant::fromValue(
-                QString::fromStdString(
-                    YADAW::Audio::Backend::ALSABackend::audioDeviceName(selector)
-                        .value_or(std::string(""))));
+        {
+            auto cardName = YADAW::Audio::Backend::ALSABackend::cardName(selector.cIndex).value_or(std::string("Card ") + std::to_string(selector.cIndex));
+            auto deviceName = YADAW::Audio::Backend::ALSABackend::audioDeviceName(selector).value_or(std::string("Device ") + std::to_string(selector.dIndex));
+            auto name = deviceName + std::string(" (") + cardName + std::string(")");
+            return QVariant::fromValue(QString::fromStdString(name));
+        }
         case Role::Enabled:
             return backend_->isAudioOutputDeviceActivated(selector);
         }

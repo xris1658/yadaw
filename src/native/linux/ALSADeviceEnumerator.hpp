@@ -22,6 +22,7 @@ public:
     static std::optional<ALSADeviceSelector> audioOutputDeviceAt(std::uint32_t index);
     static std::optional<ALSADeviceSelector> midiDeviceAt(std::uint32_t index);
     static std::optional<std::string> audioDeviceName(ALSADeviceSelector selector);
+    static std::optional<std::string> cardName(int cardIndex);
 };
 }
 

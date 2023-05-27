@@ -104,6 +104,11 @@ std::optional<std::string> ALSABackend::Impl::audioDeviceName(ALSADeviceSelector
     return YADAW::Native::ALSADeviceEnumerator::audioDeviceName(selector);
 }
 
+std::optional<std::string> ALSABackend::Impl::cardName(int cardIndex)
+{
+    return YADAW::Native::ALSADeviceEnumerator::cardName(cardIndex);
+}
+
 ALSABackend::ActivateDeviceResult
 ALSABackend::Impl::setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated)
 {

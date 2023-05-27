@@ -4,6 +4,9 @@
 
 #include "util/Base.hpp"
 
+#include <alsa/asoundlib.h>
+#include <alsa/control.h>
+
 #include <filesystem>
 #include <fstream>
 #include <map>
@@ -17,13 +20,28 @@ namespace YADAW::Native
 {
 using YADAW::Audio::Backend::ALSADeviceSelector;
 std::vector<ALSADeviceSelector> audioInputDevices;
+std::map<int, std::string> cardNames;
 std::map<ALSADeviceSelector, std::string> audioDeviceNames;
 std::vector<ALSADeviceSelector> audioOutputDevices;
 std::vector<ALSADeviceSelector> midiDevices;
 std::once_flag enumerateDeviceFlag;
 
+void doEnumerateCardNames()
+{
+    int cardIndex = -1;
+    while(snd_card_next(&cardIndex) == 0 && cardIndex != -1)
+    {
+        char* name = nullptr;
+        if(snd_card_get_name(cardIndex, &name) == 0)
+        {
+            cardNames.emplace(cardIndex, std::string(name));
+        }
+    }
+}
+
 void doEnumerateDeviceNames()
 {
+    // Read device names without doing `snd_pcm_open` that potentially fails
     std::ifstream ifs("/proc/asound/pcm", std::ios::in);
     if(!(ifs.fail()))
     {
@@ -108,6 +126,7 @@ void ALSADeviceEnumerator::enumerateDevices()
     std::call_once(enumerateDeviceFlag, []()
     {
         doEnumerateDevices();
+        doEnumerateCardNames();
         doEnumerateDeviceNames();
     });
 }
@@ -147,7 +166,18 @@ std::optional<ALSADeviceSelector> ALSADeviceEnumerator::midiDeviceAt(std::uint32
 
 std::optional<std::string> ALSADeviceEnumerator::audioDeviceName(ALSADeviceSelector selector)
 {
+    enumerateDevices();
     if(auto it = audioDeviceNames.find(selector); it != audioDeviceNames.end())
+    {
+        return {it->second};
+    }
+    return std::nullopt;
+}
+
+std::optional<std::string> ALSADeviceEnumerator::cardName(int cardIndex)
+{
+    enumerateDevices();
+    if(auto it = cardNames.find(cardIndex); it != cardNames.end())
     {
         return {it->second};
     }
