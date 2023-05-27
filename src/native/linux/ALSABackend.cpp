@@ -65,7 +65,7 @@ bool ALSABackend::uninitialize()
 ALSABackend::ActivateDeviceResult
 ALSABackend::setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated)
 {
-    return pImpl_?
+    return pImpl_.get()?
         pImpl_->setAudioInputDeviceActivated(selector, activated):
         ActivateDeviceResult::Failed;
 }

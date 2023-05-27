@@ -134,7 +134,7 @@ ALSABackend::Impl::setAudioInputDeviceActivated(ALSADeviceSelector selector, boo
     }
     else
     {
-        const auto& [pcm, r1, r2, r3] = it->second;
+        auto [pcm, r1, r2, r3] = it->second;
         inputs_.erase(key);
         snd_pcm_close(pcm);
         return ActivateDeviceResult::Success;
@@ -168,7 +168,7 @@ ALSABackend::Impl::setAudioOutputDeviceActivated(ALSADeviceSelector selector, bo
         }
         else
         {
-            const auto& [pcm, r1, r2, r3] = it->second;
+            auto [pcm, r1, r2, r3] = it->second;
             inputs_.erase(key);
             snd_pcm_close(pcm);
             return ActivateDeviceResult::Success;
@@ -213,10 +213,15 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
     }
     snd_pcm_hw_params_t* hwParams = nullptr;
     snd_pcm_hw_params_alloca(&hwParams);
+    if(snd_pcm_hw_params_any(pcm, hwParams) < 0)
+    {
+        snd_pcm_close(pcm);
+        return {};
+    }
     snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
     for(int i = 0; i < YADAW::Util::stackArraySize(formats); ++i)
     {
-        if(snd_pcm_hw_params_set_format(pcm, hwParams, formats[i]) == 0)
+        if(auto err = snd_pcm_hw_params_set_format(pcm, hwParams, formats[i]); err == 0)
         {
             format = formats[i];
             break;
@@ -227,14 +232,21 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
         snd_pcm_close(pcm);
         return {};
     }
-    unsigned int channelCount = 0;
     if(auto err = snd_pcm_hw_params_set_rate(pcm, hwParams, sampleRate_, 0);
         err < 0)
     {
         snd_pcm_close(pcm);
         return {};
     }
-    if(auto err = snd_pcm_hw_params_set_channels_max(pcm, hwParams, &channelCount);
+    if(auto err = snd_pcm_hw_params_set_buffer_size(pcm, hwParams, frameSize_);
+        err < 0)
+    {
+        snd_pcm_close(pcm);
+        return {};
+    }
+    unsigned int channelCount = 0;
+    snd_pcm_hw_params_get_channels_max(hwParams, &channelCount);
+    if(auto err = snd_pcm_hw_params_set_channels(pcm, hwParams, channelCount);
         err < 0)
     {
         snd_pcm_close(pcm);
@@ -246,6 +258,7 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
         if(snd_pcm_hw_params_set_access(pcm, hwParams, accesses[i]) == 0)
         {
             access = accesses[i];
+            break;
         }
     }
     if(access > SND_PCM_ACCESS_LAST)
@@ -259,12 +272,6 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
     snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_RW_NONINTERLEAVED);
     snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_RW_INTERLEAVED);
     snd_pcm_hw_params_set_access_mask(pcm, hwParams, mask);
-    if(auto err = snd_pcm_hw_params_set_buffer_size(pcm, hwParams, frameSize_);
-        err < 0)
-    {
-        snd_pcm_close(pcm);
-        return {};
-    }
     if(auto err = snd_pcm_hw_params(pcm, hwParams); err < 0)
     {
         snd_pcm_close(pcm);
