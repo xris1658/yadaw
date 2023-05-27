@@ -1,9 +1,8 @@
 #include "audio/backend/ALSABackend.hpp"
-
 #include "midi/MIDIInputDevice.hpp"
+#include "native/linux/ALSADeviceEnumerator.hpp"
 
 #include <cstdio>
-#include <native/linux/ALSADeviceEnumerator.hpp>
 
 int main(int argc, char** argv)
 {
@@ -11,15 +10,17 @@ int main(int argc, char** argv)
     std::printf("Audio input device count: %u", audioInputCount);
     for(decltype(audioInputCount) i = 0; i < audioInputCount; ++i)
     {
-        auto value = YADAW::Audio::Backend::ALSABackend::audioInputDeviceAt(i).value();
-        std::printf("\n\t%u: hw:%u,%u", i + 1, value.cIndex, value.dIndex);
+        auto value = YADAW::Audio::Backend::ALSABackend::audioOutputDeviceAt(i).value();
+        auto name = YADAW::Audio::Backend::ALSABackend::audioDeviceName(value).value();
+        std::printf("\n\t%u: %s (hw:%u,%u)", i + 1, name.c_str(), value.cIndex, value.dIndex);
     }
     auto audioOutputCount = YADAW::Audio::Backend::ALSABackend::audioOutputDeviceCount();
     std::printf("\n\nAudio output device count: %u", audioOutputCount);
     for(decltype(audioOutputCount) i = 0; i < audioOutputCount; ++i)
     {
         auto value = YADAW::Audio::Backend::ALSABackend::audioOutputDeviceAt(i).value();
-        std::printf("\n\t%u: hw:%u,%u", i + 1, value.cIndex, value.dIndex);
+        auto name = YADAW::Audio::Backend::ALSABackend::audioDeviceName(value).value();
+        std::printf("\n\t%u: %s (hw:%u,%u)", i + 1, name.c_str(), value.cIndex, value.dIndex);
     }
     auto midiCount = YADAW::Native::ALSADeviceEnumerator::midiDeviceCount();
     std::printf("\n\nMIDI device count: %u", midiCount);
