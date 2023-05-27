@@ -96,11 +96,11 @@ void EventHandler::onStartInitializingApplication()
 
 void EventHandler::onOpenMainWindow()
 {
+    auto appConfig = YADAW::Controller::loadConfig();
 #if(WIN32)
     auto& backend = YADAW::Controller::appAudioGraphBackend();
     backend.initialize();
     backend.createAudioGraph();
-    auto appConfig = YADAW::Controller::loadConfig();
     auto audioGraphNode = appConfig["audio-hardware"]["audiograph"];
     if(audioGraphNode.IsNull())
     {
@@ -171,6 +171,7 @@ void EventHandler::onOpenMainWindow()
 
 #elif(__linux__)
     auto& backend = YADAW::Controller::appALSABackend();
+    YADAW::Controller::initializeALSAFromConfig(appConfig["audio-hardware"]["alsa"]);
     // TODO: Initialize ALSA backend
 #endif
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);

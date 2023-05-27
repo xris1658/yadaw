@@ -1,5 +1,8 @@
 #include "ConfigController.hpp"
 
+#if(__linux__)
+#include "controller/ALSABackendController.hpp"
+#endif
 #include "dao/Config.hpp"
 #include "dao/DAOBase.hpp"
 
@@ -21,6 +24,8 @@ private:
         node_["audio-hardware"]["audio-api"] = "AudioGraph";
 #elif(__linux__)
         node_["audio-hardware"]["audio-api"] = "ALSA";
+        node_["audio-hardware"]["alsa"]["sample-rate"] = YADAW::Controller::DefaultSampleRate;
+        node_["audio-hardware"]["alsa"]["buffer-size"] = YADAW::Controller::DefaultFrameSize;
 #endif
         node_["plugin"]["scan-shortcuts"] = false;
         node_["plugin"]["scan-on-startup"] = false;

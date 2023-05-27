@@ -5,9 +5,13 @@
 #include "model/ALSAInputDeviceListModel.hpp"
 #include "model/ALSAOutputDeviceListModel.hpp"
 
+#include <yaml-cpp/yaml.h>
+
 namespace YADAW::Controller
 {
-constexpr double defaultSampleRate = 44100.0;
+constexpr std::uint32_t DefaultSampleRate = 44100U;
+
+constexpr std::uint32_t DefaultFrameSize = 512U;
 
 YADAW::Audio::Backend::ALSABackend& appALSABackend();
 
