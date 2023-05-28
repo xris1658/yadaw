@@ -53,11 +53,6 @@ using SampleFormat = std::tuple<double, YADAW::Util::DoubleRE,
 
 std::once_flag flag;
 
-std::uint64_t keyFromDeviceSelector(YADAW::Audio::Backend::ALSADeviceSelector selector)
-{
-    return (static_cast<std::uint64_t>(selector.cIndex) << 32) + selector.dIndex;
-}
-
 namespace YADAW::Audio::Backend
 {
 ALSABackend::Impl::Impl(std::uint32_t sampleRate, std::uint32_t frameSize):
@@ -128,16 +123,19 @@ ALSABackend::Impl::setAudioInputDeviceActivated(ALSADeviceSelector selector, boo
         }
         return ActivateDeviceResult::Failed;
     }
-    if(auto it = inputs_.find(key); it == inputs_.end())
-    {
-        return ActivateDeviceResult::AlreadyDone;
-    }
     else
     {
-        auto [pcm, r1, r2, r3] = it->second;
-        inputs_.erase(key);
-        snd_pcm_close(pcm);
-        return ActivateDeviceResult::Success;
+        if(auto it = inputs_.find(key); it == inputs_.end())
+        {
+            return ActivateDeviceResult::AlreadyDone;
+        }
+        else
+        {
+            auto [pcm, r1, r2, r3] = it->second;
+            inputs_.erase(key);
+            snd_pcm_close(pcm);
+            return ActivateDeviceResult::Success;
+        }
     }
 }
 
@@ -151,7 +149,7 @@ ALSABackend::Impl::setAudioOutputDeviceActivated(ALSADeviceSelector selector, bo
         {
             return ActivateDeviceResult::AlreadyDone;
         }
-        auto result = activateDevice(true, selector);
+        auto result = activateDevice(false, selector);
         const auto& [pcm, r1, r2, r3] = result;
         if(pcm)
         {
@@ -169,7 +167,7 @@ ALSABackend::Impl::setAudioOutputDeviceActivated(ALSADeviceSelector selector, bo
         else
         {
             auto [pcm, r1, r2, r3] = it->second;
-            inputs_.erase(key);
+            outputs_.erase(key);
             snd_pcm_close(pcm);
             return ActivateDeviceResult::Success;
         }
