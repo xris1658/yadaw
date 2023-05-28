@@ -482,7 +482,7 @@
     <message>
         <location filename="../../content/GeneralSettings.qml" line="73"/>
         <source>Enable while debugging</source>
-        <translation type="unfinished">调试时启用</translation>
+        <translation>调试时也启用</translation>
     </message>
 </context>
 <context>
