@@ -126,6 +126,11 @@ qt_add_qml_module(content
                     images/Main-icon.ico
                     images/qtlogo-64.png)
 
+set_source_files_properties(../l10n/osct/YADAW_zh_CN.ts
+                            PROPERTIES
+                            OUTPUT_LOCATION
+                            ${CMAKE_CURRENT_BINARY_DIR}/../l10n/osct)
+
 qt_add_translations(content TS_FILES ../l10n/osct/YADAW_zh_CN.ts
                     INCLUDE_DIRECTORIES ./content
                     SOURCES ${CONTENT_QML_FILES})

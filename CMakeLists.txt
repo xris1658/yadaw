@@ -401,7 +401,7 @@ target_link_libraries(VST3Test PRIVATE
 
 message(NOTICE "Generate translation files using Qt Linguist BEFORE loading the CMake project")
 
-file(COPY ${CMAKE_CURRENT_BINARY_DIR}/content/YADAW_zh_CN.qm
+file(COPY
      ./l10n/osct/YADAW_zh_CN.yml
      ./l10n/osct/wqy-microhei.ttc
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/l10n/osct)
