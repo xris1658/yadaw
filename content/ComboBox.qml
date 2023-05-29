@@ -62,10 +62,10 @@ T.ComboBox {
             model: root.delegateModel
             currentIndex: root.currentIndex
             interactive: false
-            Component.onCompleted: {
-                for(let i = 0; i < count; ++i) {
-                    itemAtIndex(i).width = root.popup.width;
-                }
+        }
+        Component.onCompleted: {
+            for(let i = 0; i < count; ++i) {
+                listView.itemAtIndex(i).width = root.popup.width;
             }
         }
     }
