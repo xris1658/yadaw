@@ -16,6 +16,7 @@ T.ComboBox {
     rightPadding: 5
     spacing: 3
 
+    implicitWidth: 0
     implicitHeight: contentItem.contentHeight + topPadding + bottomPadding
 
     background: Rectangle {
@@ -55,7 +56,6 @@ T.ComboBox {
         z: 1
         width: root.width
         height: listView.contentHeight
-        implicitHeight: contentHeight
         contentItem: ListView {
             id: listView
             clip: true
@@ -72,6 +72,8 @@ T.ComboBox {
     delegate: MenuItem {
         id: menuItem
         minimumSpaceBetweenTextAndShortcut: 0
+        width: root.width
+        height: enabled? root.height: 0
         enabled: root.enabledRole?
             (Array.isArray(root.model)?
                  modelData[root.enabledRole]:
@@ -84,8 +86,6 @@ T.ComboBox {
             : modelData
         clip: true
         visible: ((!enabled) && hideDisabledItem)? false: true
-        width: root.width
-        height: visible? root.height: 0
         highlighted: root.highlightedIndex === index
         background: Rectangle {
             color: (menuItem.enabled && menuItem.highlighted)?
@@ -96,7 +96,8 @@ T.ComboBox {
             id: contentText
             leftPadding: 5
             text: menuItem.text
-            // width: menuItem.width - menuItem.height
+            width: menuItem.width - menuItem.height
+            height: contentHeight
             anchors.right: indicator.visible? indicator.left: parent.right
             anchors.left: parent.left
             color: menuItem.enabled? Colors.content: Colors.disabledContent
@@ -120,7 +121,7 @@ T.ComboBox {
             }
         }
         Component.onCompleted: {
-            let newWidth = contentItem.width + height;
+            let newWidth = contentItem.contentWidth + height;
             root.implicitWidth = Math.max(root.implicitWidth, newWidth);
         }
     }
