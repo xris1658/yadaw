@@ -92,6 +92,9 @@ Rectangle {
                     text: adlm_name
                     width: inputDeviceListView.width - (scrollBar.visible? scrollBar.width: 0)
                     checked: adlm_enabled
+                    onCheckedChanged: {
+                        adlm_enabled = checked;
+                    }
                 }
             }
         }
