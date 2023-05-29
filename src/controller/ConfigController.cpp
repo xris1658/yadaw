@@ -17,7 +17,7 @@ class YAMLNodeInitializer
 private:
     YAMLNodeInitializer()
     {
-        node_["general"]["language"] = "en_US";
+        node_["general"]["language"] = "English";
         node_["general"]["system-font-rendering"] = false;
         node_["general"]["system-font-rendering-while-debugging"] = false;
 #if(WIN32)
