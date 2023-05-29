@@ -126,11 +126,13 @@ Rectangle {
         visible: showInputBus
         anchors.left: leftBar.right
         width: contentWidth
+        height: root.height
         orientation: Qt.Horizontal
         model: inputModel
         delegate: Row {
+            width: inputMixerChannel.width + inputMixerChannelBorder.width
             MixerChannel {
-                id: mixerChannel
+                id: inputMixerChannel
                 height: root.height
                 inputModel: 0
                 outputModel: 0
@@ -145,6 +147,7 @@ Rectangle {
                 showFader: root.showFader
             }
             Rectangle {
+                id: inputMixerChannelBorder
                 width: 1
                 height: root.height
                 color: Colors.secondaryBorder
@@ -155,16 +158,19 @@ Rectangle {
         visible: showOutputBus
         anchors.right: root.right
         width: contentWidth
+        height: root.height
         orientation: Qt.Horizontal
         model: outputModel
         delegate: Row {
+            width: outputMixerChannel.width + outputMixerChannelBorder.width
             Rectangle {
+                id: outputMixerChannelBorder
                 width: 1
                 height: root.height
                 color: Colors.secondaryBorder
             }
             MixerChannel {
-                id: mixerChannel
+                id: outputMixerChannel
                 height: root.height
                 inputModel: 0
                 outputModel: 0
