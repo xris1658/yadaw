@@ -55,18 +55,18 @@ Item {
             width: properties.bigClockDigitWidth * 12
             height: digit.contentHeight
             Layout.alignment: Layout.AlignVCenter | Layout.AlignHCenter
-            ListView {
+            Row {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: contentWidth
-                height: contentHeight
-                model: 12
-                orientation: Qt.Horizontal
-                delegate: Label {
-                    color: root.color
-                    width: (index === 4 || index === 7)? contentWidth: properties.digitWidth
-                    horizontalAlignment: Text.AlignHCenter
-                    text: properties.textOfBeatTime.charAt(index)
-                    font: digit.font
+                Repeater {
+                    model: 12
+                    Label {
+                        color: root.color
+                        width: (index === 4 || index === 7)? contentWidth: properties.digitWidth
+                        height: root.height
+                        horizontalAlignment: Text.AlignHCenter
+                        text: properties.textOfBeatTime.charAt(index)
+                        font: digit.font
+                    }
                 }
             }
         }
@@ -74,38 +74,36 @@ Item {
             id: actualTimeItem
             width: properties.bigClockDigitWidth * 12
             height: digit.contentHeight
-            ListView {
+            Row {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: contentWidth
-                height: contentHeight
-                model: 12
-                orientation: Qt.Horizontal
-                delegate: Label {
-                    color: root.color
-                    width: (index === 2 || index === 5 || index === 8)? contentWidth: properties.digitWidth
-                    height: digit.height
-                    horizontalAlignment: Text.AlignHCenter
-                    text: properties.textOfActualTime.charAt(index)
-                    font: digit.font
+                Repeater {
+                    model: 12
+                    Label {
+                        color: root.color
+                        width: (index === 2 || index === 5 || index === 8)? contentWidth: properties.digitWidth
+                        height: root.height
+                        horizontalAlignment: Text.AlignHCenter
+                        text: properties.textOfActualTime.charAt(index)
+                        font: digit.font
+                    }
                 }
             }
         }
         Item {
             width: properties.bigClockDigitWidth * sampleAsString.length
             height: digit.contentHeight
-            ListView {
+            Row {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: contentWidth
-                height: contentHeight
-                model: sampleAsString.length
-                orientation: Qt.Horizontal
-                delegate: Label {
-                    color: root.color
-                    width: properties.digitWidth
-                    height: digit.height
-                    horizontalAlignment: Text.AlignHCenter
-                    text: sampleAsString.charAt(index)
-                    font: digit.font
+                Repeater {
+                    model: sampleAsString.length
+                    Label {
+                        color: root.color
+                        width: properties.digitWidth
+                        height: root.height
+                        horizontalAlignment: Text.AlignHCenter
+                        text: sampleAsString.charAt(index)
+                        font: digit.font
+                    }
                 }
             }
         }
