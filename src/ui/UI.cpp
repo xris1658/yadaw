@@ -23,4 +23,13 @@ void setSystemRender()
     }
 #endif
 }
+
+const QString& defaultFontDir()
+{
+    static QString ret =
+        QCoreApplication::applicationDirPath()
+        + YADAW::Native::PathSeparator + "content"
+        + YADAW::Native::PathSeparator + "fonts";
+    return ret;
+}
 }

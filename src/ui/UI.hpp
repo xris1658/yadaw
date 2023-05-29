@@ -10,6 +10,8 @@ extern QQmlApplicationEngine* qmlApplicationEngine;
 extern QQuickWindow* mainWindow;
 
 void setSystemRender();
+
+const QString& defaultFontDir();
 }
 
 #endif //YADAW_SRC_UI_UI

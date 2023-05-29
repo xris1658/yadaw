@@ -52,6 +52,15 @@ int main(int argc, char *argv[])
         }, Qt::DirectConnection);
     YADAW::Controller::initializeApplicationConfig();
     auto config = YADAW::Controller::loadConfig();
+    QDir dir(YADAW::UI::defaultFontDir());
+    if(dir.exists())
+    {
+        const auto& entryInfoList = dir.entryInfoList(QDir::Filter::Files | QDir::Filter::Hidden);
+        for(const auto& entryInfo: entryInfoList)
+        {
+            QFontDatabase::addApplicationFont(entryInfo.absoluteFilePath());
+        }
+    }
     auto language = QString::fromStdString(config["general"]["language"].as<std::string>());
     auto& localizationList = YADAW::Controller::appLocalizationListModel();
     QTranslator translator;
