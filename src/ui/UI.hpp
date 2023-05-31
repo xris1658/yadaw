@@ -9,8 +9,6 @@ namespace YADAW::UI
 extern QQmlApplicationEngine* qmlApplicationEngine;
 extern QQuickWindow* mainWindow;
 
-void setSystemRender();
-
 const QString& defaultFontDir();
 }
 
