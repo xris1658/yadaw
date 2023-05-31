@@ -391,8 +391,6 @@ target_link_libraries(VST3Test PRIVATE
                       ${SQLITE_LIBRARY}
                       yaml-cpp)
 
-message(NOTICE "Generate translation files using Qt Linguist BEFORE loading the CMake project")
-
 file(COPY
      ./l10n/osct/YADAW_zh_CN.yml
      ./l10n/osct/wqy-microhei.ttc
