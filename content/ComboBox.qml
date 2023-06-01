@@ -46,7 +46,6 @@ T.ComboBox {
             anchors.topMargin: -root.topPadding
             anchors.bottomMargin: -root.bottomPadding
             anchors.leftMargin: -parent.anchors.leftMargin
-            validator: root.validator
             inputMethodHints: root.inputMethodHints
             validator: root.validator
         }
