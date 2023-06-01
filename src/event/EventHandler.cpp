@@ -50,6 +50,10 @@ void saveAudioBackendState()
     auto dump = YAML::Dump(audioGraphConfig);
     YADAW::Controller::saveConfig(appConfig);
 #elif(__linux__)
+    const auto& alsaConfig = YADAW::Controller::deviceConfigFromALSA();
+    appConfig["audio-hardware"]["alsa"] = alsaConfig;
+    auto dump = YAML::Dump(alsaConfig);
+    YADAW::Controller::saveConfig(appConfig);
 #endif
 }
 
@@ -97,6 +101,7 @@ void EventHandler::onStartInitializingApplication()
 void EventHandler::onOpenMainWindow()
 {
     auto appConfig = YADAW::Controller::loadConfig();
+    // initialize audio backend
 #if(WIN32)
     auto& backend = YADAW::Controller::appAudioGraphBackend();
     backend.initialize();
@@ -141,38 +146,19 @@ void EventHandler::onOpenMainWindow()
         YADAW::Controller::loadAudioBusConfiguration(audioBusConfigNode,
             appAudioBusInputConfigurationModel, appAudioBusOutputConfigurationModel);
     }
-    static auto saveAudioBusConfigurationLambda =
-        []()
-        {
-            saveAudioBusConfiguration(
-                YADAW::Controller::appAudioBusConfiguration(),
-                appAudioBusInputConfigurationModel,
-                appAudioBusOutputConfigurationModel);
-        };
-    QObject::connect(&appAudioBusInputConfigurationModel,
-        &QAbstractItemModel::rowsInserted,
-        saveAudioBusConfigurationLambda);
-    QObject::connect(&appAudioBusOutputConfigurationModel,
-        &QAbstractItemModel::rowsInserted,
-        saveAudioBusConfigurationLambda);
-    QObject::connect(&appAudioBusInputConfigurationModel,
-        &QAbstractItemModel::rowsRemoved,
-        saveAudioBusConfigurationLambda);
-    QObject::connect(&appAudioBusOutputConfigurationModel,
-        &QAbstractItemModel::rowsRemoved,
-        saveAudioBusConfigurationLambda);
-    QObject::connect(&appAudioBusInputConfigurationModel,
-        &QAbstractItemModel::dataChanged,
-        saveAudioBusConfigurationLambda);
-    QObject::connect(&appAudioBusOutputConfigurationModel,
-        &QAbstractItemModel::dataChanged,
-        saveAudioBusConfigurationLambda);
     // } audio bus configuration
-
 #elif(__linux__)
     auto& backend = YADAW::Controller::appALSABackend();
+    // initialize backend
+    QObject::connect(&YADAW::Controller::appALSAInputDeviceListModel(),
+        &QAbstractItemModel::dataChanged, &saveAudioBackendState);
+    QObject::connect(&YADAW::Controller::appALSAOutputDeviceListModel(),
+        &QAbstractItemModel::dataChanged, &saveAudioBackendState);
     YADAW::Controller::initializeALSAFromConfig(appConfig["audio-hardware"]["alsa"]);
-    // TODO: Initialize ALSA backend
+    static YADAW::Model::AudioBusConfigurationModel appAudioBusInputConfigurationModel(
+        YADAW::Controller::appAudioBusConfiguration(), true);
+    static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
+        YADAW::Controller::appAudioBusConfiguration(), false);
 #endif
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
@@ -219,6 +205,36 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAInputDeviceListModel()));
     YADAW::UI::mainWindow->setProperty("alsaOutputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAOutputDeviceListModel()));
+    YADAW::UI::mainWindow->setProperty("audioInputBusConfigurationModel",
+        QVariant::fromValue<QObject*>(&appAudioBusInputConfigurationModel));
+    YADAW::UI::mainWindow->setProperty("audioOutputBusConfigurationModel",
+        QVariant::fromValue<QObject*>(&appAudioBusOutputConfigurationModel));
+    static auto saveAudioBusConfigurationLambda =
+        []()
+        {
+            saveAudioBusConfiguration(
+                YADAW::Controller::appAudioBusConfiguration(),
+                appAudioBusInputConfigurationModel,
+                appAudioBusOutputConfigurationModel);
+        };
+    QObject::connect(&appAudioBusInputConfigurationModel,
+        &QAbstractItemModel::rowsInserted,
+        saveAudioBusConfigurationLambda);
+    QObject::connect(&appAudioBusOutputConfigurationModel,
+        &QAbstractItemModel::rowsInserted,
+        saveAudioBusConfigurationLambda);
+    QObject::connect(&appAudioBusInputConfigurationModel,
+        &QAbstractItemModel::rowsRemoved,
+        saveAudioBusConfigurationLambda);
+    QObject::connect(&appAudioBusOutputConfigurationModel,
+        &QAbstractItemModel::rowsRemoved,
+        saveAudioBusConfigurationLambda);
+    QObject::connect(&appAudioBusInputConfigurationModel,
+        &QAbstractItemModel::dataChanged,
+        saveAudioBusConfigurationLambda);
+    QObject::connect(&appAudioBusOutputConfigurationModel,
+        &QAbstractItemModel::dataChanged,
+        saveAudioBusConfigurationLambda);
 #endif
     QObject::connect(YADAW::Event::eventSender, SIGNAL(audioGraphOutputDeviceIndexChanged(int)),
         this, SLOT(onAudioGraphOutputDeviceIndexChanged(int)));

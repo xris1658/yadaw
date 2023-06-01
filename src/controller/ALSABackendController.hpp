@@ -2,6 +2,7 @@
 #define YADAW_SRC_CONTROLLER_ALSABACKENDCONTROLLER
 
 #include "audio/backend/ALSABackend.hpp"
+#include "audio/backend/ALSABusConfiguration.hpp"
 #include "model/ALSAInputDeviceListModel.hpp"
 #include "model/ALSAOutputDeviceListModel.hpp"
 
@@ -24,6 +25,8 @@ void activateDefaultDevice(YADAW::Audio::Backend::ALSABackend& backend);
 bool initializeALSAFromConfig(const YAML::Node& node);
 
 YAML::Node deviceConfigFromALSA();
+
+YADAW::Audio::Backend::ALSABusConfiguration& appAudioBusConfiguration();
 }
 
 #endif //YADAW_SRC_CONTROLLER_ALSABACKENDCONTROLLER
