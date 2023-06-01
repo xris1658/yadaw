@@ -27,7 +27,9 @@ T.TextField {
         anchors.topMargin: root.topInset
         anchors.bottomMargin: root.bottomInset
         color: root.enabled? Colors.controlBackground: Colors.background
-        border.color: root.enabled? Colors.controlBorder: Colors.disabledControlBorder
+        border.color: root.enabled?
+            root.acceptableInput? Colors.controlBorder: Colors.unacceptableBorder:
+            Colors.disabledControlBorder
         border.width: root.activeFocus? 2: 1
     }
 

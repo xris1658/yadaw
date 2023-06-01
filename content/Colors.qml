@@ -8,6 +8,7 @@ QtObject {
     readonly property color controlBackground: "#333333"
     readonly property color border: "#666666"
     readonly property color secondaryBorder: "#444444"
+    readonly property color unacceptableBorder: "#FF6666"
     readonly property color controlBorder: border
     readonly property color disabledControlBorder: secondaryBorder
     readonly property color mouseOverControlBackground: "#505050"
