@@ -32,12 +32,24 @@ T.ComboBox {
     }
     contentItem: Label {
         text: root.displayText
-        color: root.enabled? Colors.content: Colors.disabledContent
+        color: root.editable? "transparent": root.enabled? Colors.content: Colors.disabledContent
         anchors.left: parent.left
         anchors.leftMargin: Math.max((root.height - contentHeight) / 2, root.leftPadding)
         anchors.right: indicator.left
         elide: Label.ElideRight
         anchors.verticalCenter: parent.verticalCenter
+        TextField {
+            id: textField
+            visible: editable
+            text: root.editText
+            anchors.fill: parent
+            anchors.topMargin: -root.topPadding
+            anchors.bottomMargin: -root.bottomPadding
+            anchors.leftMargin: -parent.anchors.leftMargin
+            validator: root.validator
+            inputMethodHints: root.inputMethodHints
+            validator: root.validator
+        }
     }
     indicator: Item {
         width: indicatorLabel.contentWidth + root.spacing * 2
@@ -71,7 +83,7 @@ T.ComboBox {
     }
     delegate: MenuItem {
         id: menuItem
-        minimumSpaceBetweenTextAndShortcut: 0
+        minimumSpaceBetweenTextAndShortcut: textField.leftPadding + textField.rightPadding
         width: root.width
         height: enabled? root.implicitHeight: 0
         enabled: root.enabledRole?
@@ -121,7 +133,7 @@ T.ComboBox {
             }
         }
         Component.onCompleted: {
-            let newWidth = contentItem.contentWidth + height;
+            let newWidth = contentItem.contentWidth + height + minimumSpaceBetweenTextAndShortcut;
             root.implicitWidth = Math.max(root.implicitWidth, newWidth);
         }
     }

@@ -228,15 +228,18 @@ ApplicationWindow {
                 model: ["a", "b", "c"]
             }
             ComboBox {
+                width: 50
+                model: ["a", "b", "c"]
+            }
+            ComboBox {
                 enabled: false
                 model: ["a", "b", "c"]
             }
             ComboBox {
-                width: 50
-                model: ["a", "b", "c"]
+                editable: true
+                model: ["123456", "123456", "123456"]
             }
         }
-
         Row {
             spacing: 5
             ProgressBar {
