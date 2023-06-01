@@ -6,6 +6,23 @@ Item {
     property int cpuUsagePercentage: 10
     width: Math.max(timeSig.x, timeSigLabel.x) - cpuMeter.x + cpuMeter.width
     height: timeIndicator.height +timeIndicatorText.height
+    Item {
+        id: impl
+        readonly property ListModel timeIndicatorModel: ListModel {
+            ListElement {
+                text: qsTr("Beat")
+                value: TimeIndicator.TimeFormat.Beat
+            }
+            ListElement {
+                text: qsTr("Second")
+                value: TimeIndicator.TimeFormat.Second
+            }
+            ListElement {
+                text: qsTr("Sample")
+                value: TimeIndicator.TimeFormat.Sample
+            }
+        }
+    }
     Grid {
         anchors.centerIn: parent
         horizontalItemAlignment: Grid.AlignHCenter
@@ -40,16 +57,37 @@ Item {
             color: Colors.secondaryContent
         }
         Column {
+            id: loopColumn
             TimeIndicator {
+                id: loopBeginTimeIndicator
                 color: Colors.content
+                timeFormat: loopTimeIndicatorComboBox.currentValue
             }
             TimeIndicator {
+                id: loopEndTimeIndicator
                 color: Colors.content
+                timeFormat: loopTimeIndicatorComboBox.currentValue
             }
         }
         Label {
+            width: loopColumn.width
+            horizontalAlignment: Label.AlignHCenter
             text: "LOOP"
             color: Colors.secondaryContent
+            background: Rectangle {
+                color: loopTimeIndicatorComboBox.hovered || loopTimeIndicatorComboBox.popup.opened?
+                    Colors.mouseOverControlBackground: "transparent"
+            }
+            ComboBox {
+                id: loopTimeIndicatorComboBox
+                anchors.fill: parent
+                model: impl.timeIndicatorModel
+                textRole: "text"
+                valueRole: "value"
+                background.opacity: 0
+                contentItem.opacity: 0
+                indicator.opacity: 0
+            }
         }
         TimeIndicator {
             font.bold: false
@@ -57,11 +95,28 @@ Item {
             font.pointSize: Qt.application.font.pointSize * 2.5
             color: Colors.bigClockText
             id: timeIndicator
+            timeFormat: timeIndicatorComboBox.currentValue
         }
         Label {
             id: timeIndicatorText
+            width: timeIndicator.width
             text: "TIME"
+            background: Rectangle {
+                color: timeIndicatorComboBox.hovered || timeIndicatorComboBox.popup.opened?
+                    Colors.mouseOverControlBackground: "transparent"
+            }
+            horizontalAlignment: Label.AlignHCenter
             color: Colors.secondaryContent
+            ComboBox {
+                id: timeIndicatorComboBox
+                anchors.fill: parent
+                textRole: "text"
+                valueRole: "value"
+                model: impl.timeIndicatorModel
+                background.opacity: 0
+                contentItem.opacity: 0
+                indicator.opacity: 0
+            }
         }
         Label {
             text: "128.000"

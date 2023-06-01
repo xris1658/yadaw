@@ -73,7 +73,7 @@ T.ComboBox {
         id: menuItem
         minimumSpaceBetweenTextAndShortcut: 0
         width: root.width
-        height: enabled? root.height: 0
+        height: enabled? root.implicitHeight: 0
         enabled: root.enabledRole?
             (Array.isArray(root.model)?
                  modelData[root.enabledRole]:
