@@ -159,6 +159,12 @@ void EventHandler::onOpenMainWindow()
         YADAW::Controller::appAudioBusConfiguration(), true);
     static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
         YADAW::Controller::appAudioBusConfiguration(), false);
+    if(auto audioBusConfigNode = appConfig["audio-bus"];
+        audioBusConfigNode.IsDefined())
+    {
+        YADAW::Controller::loadAudioBusConfiguration(audioBusConfigNode,
+            appAudioBusInputConfigurationModel, appAudioBusOutputConfigurationModel);
+    }
 #endif
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
