@@ -51,8 +51,8 @@ bool initializeALSAFromConfig(const YAML::Node& node)
         {
             backend.setAudioInputDeviceActivated(
                 YADAW::Audio::Backend::ALSADeviceSelector(
-                    input["card-index"].as<int>(),
-                    input["device-index"].as<int>()
+                    input["card-index"].as<std::uint32_t>(),
+                    input["device-index"].as<std::uint32_t>()
                 ),
                 input["activated"].as<bool>()
             );
@@ -65,8 +65,8 @@ bool initializeALSAFromConfig(const YAML::Node& node)
         {
             backend.setAudioOutputDeviceActivated(
                 YADAW::Audio::Backend::ALSADeviceSelector(
-                    output["card-index"].as<int>(),
-                    output["device-index"].as<int>()
+                    output["card-index"].as<std::uint32_t>(),
+                    output["device-index"].as<std::uint32_t>()
                 ),
                 output["activated"].as<bool>()
             );

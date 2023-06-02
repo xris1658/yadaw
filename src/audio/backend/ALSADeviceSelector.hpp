@@ -7,7 +7,7 @@ namespace YADAW::Audio::Backend
 {
 struct ALSADeviceSelector
 {
-    ALSADeviceSelector(int c, int d): cIndex(c), dIndex(d) {}
+    ALSADeviceSelector(std::uint32_t c, std::uint32_t d): cIndex(c), dIndex(d) {}
     std::uint32_t cIndex;
     std::uint32_t dIndex;
     inline std::uint64_t key() const

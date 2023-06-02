@@ -25,8 +25,8 @@ void loadAudioBusConfiguration(const YAML::Node& node,
                 for(decltype(channelCount) j = 0; j < channelCount; ++j)
                 {
                     const auto& channel = channels[j];
-                    auto deviceIndex = channel["device-index"].as<int>();
-                    auto channelIndex = channel["channel-index"].as<int>();
+                    auto deviceIndex = channel["device-index"].as<std::uint32_t>();
+                    auto channelIndex = channel["channel-index"].as<std::uint32_t>();
                     model.setChannel(i, j, deviceIndex, channelIndex);
                 }
             }
