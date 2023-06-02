@@ -3,6 +3,7 @@
 #include "dao/AssetDirectoryTable.hpp"
 
 #include <QDir>
+#include <QFileInfo>
 
 namespace YADAW::Model
 {
@@ -50,6 +51,8 @@ QVariant AssetDirectoryListModel::data(const QModelIndex& index, int role) const
             return QVariant::fromValue(path);
         case Role::Name:
             return QVariant::fromValue(name);
+        case Role::DefaultName:
+            return QVariant::fromValue(QFileInfo(path).baseName());
         default:
             return {};
         }

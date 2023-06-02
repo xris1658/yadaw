@@ -53,6 +53,9 @@ Rectangle {
             visible = false;
         }
         onAccepted: {
+            if(text.length === 0) {
+                text = placeholderText;
+            }
             parent.renameAccepted(text);
             visible = false;
         }
@@ -132,6 +135,7 @@ Rectangle {
                         property string pathId: adlm_id
                         property string pathPath: adlm_path
                         property string pathName: adlm_name
+                        property string defaultName: adlm_default_name
                         width: parent? parent.width - 3 * 2: 0
                         x: root.border.width + 3
                         text: pathName
@@ -182,6 +186,7 @@ Rectangle {
                             assetDirectoryRenameTextField.width = control.width - control.height + assetDirectoryRenameTextField.leftPadding;
                             assetDirectoryRenameTextField.height = control.height;
                             assetDirectoryRenameTextField.text = control.pathName;
+                            assetDirectoryRenameTextField.placeholderText = control.defaultName;
                             // assetDirectoryRenameTextField.select(assetDirectoryRenameTextField.length, 0);
                             assetDirectoryRenameTextField.selectAll();
                             assetDirectoryRenameTextField.forceActiveFocus();
