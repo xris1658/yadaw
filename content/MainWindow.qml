@@ -606,10 +606,6 @@ ApplicationWindow {
             SplitView.maximumWidth: Math.max(SplitView.minimumWidth, contents.width * 0.4)
             SplitView.preferredWidth: assets.preferredWidth + assetTabButton.height
             orientation: Qt.Vertical
-            handle: Item {
-                implicitWidth: 5
-                implicitHeight: 5
-            }
             Row {
                 id: assetRow
                 SplitView.minimumHeight: assetTabButton.width
