@@ -45,7 +45,7 @@ T.TextField {
         color: root.placeholderTextColor
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
-        visible: root.length === 0
+        visible: root.displayText.length === 0
         elide: Text.ElideRight
     }
 }

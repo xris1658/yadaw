@@ -261,5 +261,12 @@ ApplicationWindow {
             width: 500
             indeterminate: true
         }
+        Row {
+            TextField {
+                id: textField
+                width: 200
+                placeholderText: "abcd"
+            }
+        }
     }
 }
