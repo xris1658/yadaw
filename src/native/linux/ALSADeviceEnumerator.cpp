@@ -126,6 +126,9 @@ void ALSADeviceEnumerator::enumerateDevices()
     std::call_once(enumerateDeviceFlag, []()
     {
         doEnumerateDevices();
+        std::sort(audioInputDevices.begin(), audioInputDevices.end());
+        std::sort(audioOutputDevices.begin(), audioOutputDevices.end());
+        std::sort(midiDevices.begin(), midiDevices.end());
         doEnumerateCardNames();
         doEnumerateDeviceNames();
     });
