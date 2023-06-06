@@ -14,10 +14,10 @@ Library::Library(): handle_(nullptr)
 Library::Library(const QString& path): path_(path)
 {
     auto pathAsString = path.toStdString();
-    handle_ = reinterpret_cast<decltype(handle_)>(dlopen(pathAsString.c_str(), 0));
+    handle_ = reinterpret_cast<decltype(handle_)>(dlopen(pathAsString.c_str(), RTLD_NOW));
     if(handle_ == nullptr)
     {
-        dlerror();
+        qDebug("%s", dlerror());
     }
 }
 
