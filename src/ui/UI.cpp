@@ -2,6 +2,8 @@
 
 #include "native/Native.hpp"
 
+#include <QCoreApplication>
+
 namespace YADAW::UI
 {
 QQmlApplicationEngine* qmlApplicationEngine = nullptr;

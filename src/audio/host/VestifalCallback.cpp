@@ -1,5 +1,6 @@
 #include "VestifalCallback.hpp"
 
+#include <cstring>
 #include <mutex>
 
 namespace YADAW::Audio::Host

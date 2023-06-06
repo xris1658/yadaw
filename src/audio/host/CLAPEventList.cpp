@@ -3,6 +3,7 @@
 #include "util/Algorithm.hpp"
 
 #include <cstdlib>
+#include <cstring>
 
 namespace YADAW::Audio::Host
 {

@@ -56,5 +56,6 @@ Steinberg::tresult VST3PlugFrame::resizeView(Steinberg::IPlugView* view, Steinbe
         gui_->connect();
         return Steinberg::kResultOk;
     }
+    return Steinberg::kInvalidArgument;
 }
 }

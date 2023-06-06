@@ -36,5 +36,6 @@ clap_event_header* createCLAPEventFromMessage(const Message& message)
             break;
         }
     }
+    return nullptr;
 }
 }

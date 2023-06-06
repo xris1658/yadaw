@@ -1,5 +1,7 @@
 #include "VST3ParameterChanges.hpp"
 
+#include <algorithm>
+
 namespace YADAW::Audio::Host
 {
 using namespace Steinberg;

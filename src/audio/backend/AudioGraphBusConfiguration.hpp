@@ -5,6 +5,9 @@
 
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "audio/device/IAudioBusConfiguration.hpp"
+#include "util/OptionalUtil.hpp"
+
+#include <optional>
 
 namespace YADAW::Audio::Backend
 {

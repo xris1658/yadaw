@@ -2,6 +2,7 @@
 #define YADAW_AUDIO_UTIL_LITERAL
 
 #include <array>
+#include <cstdint>
 
 namespace YADAW::Util
 {

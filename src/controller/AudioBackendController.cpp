@@ -2,6 +2,8 @@
 
 #include "native/AudioBackend.hpp"
 
+#include <cstring>
+
 namespace YADAW::Controller
 {
 namespace Impl

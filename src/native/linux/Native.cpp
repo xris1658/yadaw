@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include <ctime>
+#include <fstream>
 #include <mutex>
 
 namespace YADAW::Native

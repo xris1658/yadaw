@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 
 namespace YADAW::Audio::Backend
 {
@@ -19,11 +20,6 @@ public:
         Failed,
         Success,
         AlreadyDone
-    };
-    struct DeviceInfo
-    {
-        QString id;
-        QString name;
     };
 public:
     ALSABackend();

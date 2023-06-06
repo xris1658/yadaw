@@ -4,6 +4,8 @@
 #include "util/OptionalUtil.hpp"
 
 #include <cstdint>
+#include <limits>
+#include <optional>
 #include <vector>
 
 namespace YADAW::Audio::Device

@@ -7,6 +7,7 @@
 #include <alsa/asoundlib.h>
 #include <alsa/control.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <map>

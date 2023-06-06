@@ -16,6 +16,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <clocale>
 #include <cstdio>
 #include <thread>
