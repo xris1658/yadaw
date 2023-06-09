@@ -734,6 +734,7 @@
     <message>
         <location filename="../../content/MainWindow.qml" line="42"/>
         <location filename="../../content/MainWindow.qml" line="732"/>
+        <location filename="../../content/MainWindow.qml" line="740"/>
         <source>The settings are saved. Please restart the application to apply the new settings.</source>
         <translation>设置已保存。请重新启动程序，以使新设置生效。</translation>
     </message>
@@ -890,17 +891,17 @@
         <translation>首选项</translation>
     </message>
     <message>
-        <location filename="../../content/PreferencesWindow.qml" line="49"/>
+        <location filename="../../content/PreferencesWindow.qml" line="50"/>
         <source>General</source>
         <translation>通用</translation>
     </message>
     <message>
-        <location filename="../../content/PreferencesWindow.qml" line="49"/>
+        <location filename="../../content/PreferencesWindow.qml" line="50"/>
         <source>Audio Hardware</source>
         <translation>音频硬件</translation>
     </message>
     <message>
-        <location filename="../../content/PreferencesWindow.qml" line="49"/>
+        <location filename="../../content/PreferencesWindow.qml" line="50"/>
         <source>Plugins</source>
         <translation>插件</translation>
     </message>

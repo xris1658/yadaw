@@ -9,5 +9,6 @@ QtObject {
     signal audioGraphOutputDeviceIndexChanged(deviceIndex: int)
     signal startPluginScan()
     signal setSystemFontRendering(enabled: bool)
+    signal setSystemFontRenderingWhileDebugging(enabled: bool)
     signal setTranslationIndex(index: int)
 }

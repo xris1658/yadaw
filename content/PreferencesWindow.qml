@@ -13,6 +13,7 @@ Window {
     property int secondColumnWidth: 275
 
     property alias systemFontRendering: generalSettings.systemFontRendering
+    property alias systemFontRenderingWhileDebugging: generalSettings.systemFontRenderingWhileDebugging
     property alias translationModel: generalSettings.translationModel
     property alias currentTranslationIndex: generalSettings.currentTranslationIndex
 

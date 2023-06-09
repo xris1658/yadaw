@@ -734,5 +734,13 @@ ApplicationWindow {
                     MessageDialog.Icon.Info);
             }
         }
+        onSystemFontRenderingWhileDebuggingChanged: {
+            if(opened) {
+                EventSender.setSystemFontRenderingWhileDebugging(systemFontRenderingWhileDebugging);
+                Global.messageDialog(qsTr("The settings are saved. Please restart the application to apply the new settings."),
+                    "YADAW",
+                    MessageDialog.Icon.Info);
+            }
+        }
     }
 }

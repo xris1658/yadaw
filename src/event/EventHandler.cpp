@@ -231,6 +231,8 @@ void EventHandler::onOpenMainWindow()
         this, SLOT(onAudioGraphOutputDeviceIndexChanged(int)));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRendering(bool)),
         this, SLOT(onSetSystemFontRendering(bool)));
+    QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRenderingWhileDebugging(bool)),
+        this, SLOT(onSetSystemFontRenderingWhileDebugging(bool)));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setTranslationIndex(int)),
         this, SLOT(onSetTranslationIndex(int)));
     setQtVersion(qVersion());
