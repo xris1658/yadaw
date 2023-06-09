@@ -6,6 +6,10 @@ QtObject {
     id: root
     property SplashScreen splashScreen: null
     property MainWindow mainWindow: null
+    signal mainWindowReady()
+    onMainWindowReady: {
+        mainWindow.mainWindowReady();
+    }
     signal mainWindowClosingAccepted()
     onMainWindowClosingAccepted: {
         mainWindow.closingAccepted();
@@ -24,20 +28,6 @@ QtObject {
     }
     signal messageDialog(message: string, title: string, icon: int, modal: bool)
     onMessageDialog: (message, title, icon, modal) => {
-        let component = Qt.createComponent("./MessageDialog.qml");
-        if(component.status === Component.Ready) {
-            let dialog = component.createObject(root);
-            dialog.message = message;
-            dialog.title = title;
-            dialog.standardButtons = QC.DialogButtonBox.Ok;
-            dialog.icon = icon;
-            if(modal) {
-                dialog.modality = Qt.NonModal;
-            }
-            dialog.showNormal();
-        }
-        else {
-            console.log(component.errorString());
-        }
+        Global.messageDialog(message, title, icon, modal);
     }
 }

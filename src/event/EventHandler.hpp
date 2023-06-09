@@ -14,6 +14,7 @@ private:
     void connectToEventSender(QObject* sender);
     void connectToEventReceiver(QObject* receiver);
 signals:
+    void mainWindowReady();
     void mainWindowCloseAccepted();
     void setQtVersion(const QString& version);
     void setSplashScreenText(const QString& text);

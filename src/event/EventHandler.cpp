@@ -78,6 +78,8 @@ void EventHandler::connectToEventSender(QObject* sender)
 
 void EventHandler::connectToEventReceiver(QObject* receiver)
 {
+    QObject::connect(this, SIGNAL(mainWindowReady()),
+        receiver, SIGNAL(mainWindowReady()));
     QObject::connect(this, SIGNAL(mainWindowCloseAccepted()),
         receiver, SIGNAL(mainWindowClosingAccepted()));
     QObject::connect(this, SIGNAL(setQtVersion(QString)),
@@ -134,19 +136,6 @@ void EventHandler::onOpenMainWindow()
         &saveAudioBackendState);
     appConfig["audio-hardware"]["audiograph"] = audioGraphNode;
     YADAW::Controller::saveConfig(appConfig);
-    // audio bus configuration {
-    static YADAW::Model::AudioBusConfigurationModel appAudioBusInputConfigurationModel(
-        YADAW::Controller::appAudioBusConfiguration(), true);
-    static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
-        YADAW::Controller::appAudioBusConfiguration(), false);
-
-    if(auto audioBusConfigNode = appConfig["audio-bus"];
-        audioBusConfigNode.IsDefined())
-    {
-        YADAW::Controller::loadAudioBusConfiguration(audioBusConfigNode,
-            appAudioBusInputConfigurationModel, appAudioBusOutputConfigurationModel);
-    }
-    // } audio bus configuration
 #elif(__linux__)
     auto& backend = YADAW::Controller::appALSABackend();
     // initialize backend
@@ -155,6 +144,7 @@ void EventHandler::onOpenMainWindow()
     QObject::connect(&YADAW::Controller::appALSAOutputDeviceListModel(),
         &QAbstractItemModel::dataChanged, &saveAudioBackendState);
     YADAW::Controller::initializeALSAFromConfig(appConfig["audio-hardware"]["alsa"]);
+#endif
     static YADAW::Model::AudioBusConfigurationModel appAudioBusInputConfigurationModel(
         YADAW::Controller::appAudioBusConfiguration(), true);
     static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
@@ -165,7 +155,6 @@ void EventHandler::onOpenMainWindow()
         YADAW::Controller::loadAudioBusConfiguration(audioBusConfigNode,
             appAudioBusInputConfigurationModel, appAudioBusOutputConfigurationModel);
     }
-#endif
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
     YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",
@@ -197,10 +186,6 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphInputDeviceListModel()));
     YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphOutputDeviceListModel()));
-    YADAW::UI::mainWindow->setProperty("audioInputBusConfigurationModel",
-        QVariant::fromValue<QObject*>(&appAudioBusInputConfigurationModel));
-    YADAW::UI::mainWindow->setProperty("audioOutputBusConfigurationModel",
-        QVariant::fromValue<QObject*>(&appAudioBusOutputConfigurationModel));
     if(currentOutputDeviceIndex != -1)
     {
         YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceIndex",
@@ -211,6 +196,7 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAInputDeviceListModel()));
     YADAW::UI::mainWindow->setProperty("alsaOutputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAOutputDeviceListModel()));
+#endif
     YADAW::UI::mainWindow->setProperty("audioInputBusConfigurationModel",
         QVariant::fromValue<QObject*>(&appAudioBusInputConfigurationModel));
     YADAW::UI::mainWindow->setProperty("audioOutputBusConfigurationModel",
@@ -241,7 +227,6 @@ void EventHandler::onOpenMainWindow()
     QObject::connect(&appAudioBusOutputConfigurationModel,
         &QAbstractItemModel::dataChanged,
         saveAudioBusConfigurationLambda);
-#endif
     QObject::connect(YADAW::Event::eventSender, SIGNAL(audioGraphOutputDeviceIndexChanged(int)),
         this, SLOT(onAudioGraphOutputDeviceIndexChanged(int)));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRendering(bool)),
@@ -250,6 +235,7 @@ void EventHandler::onOpenMainWindow()
         this, SLOT(onSetTranslationIndex(int)));
     setQtVersion(qVersion());
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
+    mainWindowReady();
 }
 
 void EventHandler::onMainWindowClosing()
@@ -327,7 +313,6 @@ void EventHandler::onStartPluginScan()
 void EventHandler::onSetSystemFontRendering(bool enabled)
 {
     YADAW::Controller::GeneralSettingsController::setSystemFontRendering(enabled);
-    YADAW::UI::messageDialog("TODO", YADAW::Base::ProductName, YADAW::UI::IconType::Info);
 }
 
 void EventHandler::onSetSystemFontRenderingWhileDebugging(bool enabled)
@@ -342,7 +327,6 @@ void EventHandler::onSetTranslationIndex(int index)
     {
         YADAW::Controller::currentTranslationIndex = index;
         YADAW::Controller::GeneralSettingsController::setTranslation(model.at(index).name);
-        YADAW::UI::messageDialog("TODO", YADAW::Base::ProductName, YADAW::UI::IconType::Info);
     }
     else
     {

@@ -12,6 +12,7 @@ ApplicationWindow {
     flags: Qt.Window
 
     property bool canClose: false
+    property bool opened: false
 
     property alias assetDirectoryListModel: assets.directoryListModel
 
@@ -36,7 +37,13 @@ ApplicationWindow {
     property alias pluginDirectoryListModel: preferencesWindow.pluginDirectoryListModel
 
     onCurrentTranslationIndexChanged: {
-        EventSender.setTranslationIndex(currentTranslationIndex);
+        if(opened) {
+            EventSender.setTranslationIndex(currentTranslationIndex);
+            Global.messageDialog(qsTr("The settings are saved. Please restart the application to apply the new settings."),
+                "YADAW",
+                MessageDialog.Icon.Info);
+        }
+
     }
 
     onAudioGraphOutputDeviceIndexChanged: {
@@ -46,6 +53,11 @@ ApplicationWindow {
     signal pluginScanComplete()
     onPluginScanComplete: {
         preferencesWindow.pluginScanComplete();
+    }
+
+    signal mainWindowReady()
+    onMainWindowReady: {
+        opened = true;
     }
 
     Component.onCompleted: {
@@ -715,7 +727,12 @@ ApplicationWindow {
             EventSender.startPluginScan();
         }
         onSystemFontRenderingChanged: {
-            EventSender.setSystemFontRendering(systemFontRendering);
+            if(opened) {
+                EventSender.setSystemFontRendering(systemFontRendering);
+                Global.messageDialog(qsTr("The settings are saved. Please restart the application to apply the new settings."),
+                    "YADAW",
+                    MessageDialog.Icon.Info);
+            }
         }
     }
 }

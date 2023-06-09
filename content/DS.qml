@@ -218,7 +218,9 @@ MainWindow {
 
     Item {
         Component.onCompleted: {
+            EventReceiver.mainWindow = root;
             Global.qtVersion = "6.5.0";
+            mainWindowReady();
         }
     }
 }
