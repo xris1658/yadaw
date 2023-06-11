@@ -1,6 +1,9 @@
 import QtQml
+import QtQml.Models
 import QtQuick
 import QtQuick.Layouts
+
+import YADAW.Entities
 
 Item {
     id: root
@@ -17,6 +20,11 @@ Item {
 
     property alias audioInputBusConfigurationModel: audioBusConfigurationWindow.inputConfigModel
     property alias audioOutputBusConfigurationModel: audioBusConfigurationWindow.outputConfigModel
+
+    QtObject {
+        id: impl
+        readonly property AudioBackendSupport audioBackendSupport: AudioBackendSupport {}
+    }
 
     Grid {
         id: grid
@@ -42,7 +50,10 @@ Item {
         ComboBox {
             id: audioEngineSelector
             width: secondColumnWidth
-            model: [qsTr("Dummy"), "AudioGraph", "ALSA"]
+            model: ListModel { dynamicRoles: true }
+            textRole: "name"
+            valueRole: "value"
+            enabledRole: "enabled"
         }
         Item {
             width: firstColumnWidth
@@ -65,7 +76,8 @@ Item {
         anchors.top: grid.bottom
         anchors.topMargin: grid.rowSpacing
         currentIndex: audioEngineSelector.currentIndex
-        Item {}
+        Item { /*Off*/ }
+        Item { /*Dummy*/ }
         AudioGraphSettings {
             id: audioGraphSettings
             firstColumnWidth: root.firstColumnWidth
@@ -81,5 +93,35 @@ Item {
         id: audioBusConfigurationWindow
         inputDeviceListModel: audioGraphInputDeviceList
         outputDeviceListModel: audioGraphOutputDeviceList
+    }
+    Component.onCompleted: {
+        audioEngineSelector.model.append(
+            {
+                "name": qsTr("Off"),
+                "value": AudioBackendSupport.Off,
+                "enabled": impl.audioBackendSupport.isBackendSupported(AudioBackendSupport.Off)
+            }
+        );
+        audioEngineSelector.model.append(
+            {
+                "name": qsTr("Dummy"),
+                "value": AudioBackendSupport.Dummy,
+                "enabled": impl.audioBackendSupport.isBackendSupported(AudioBackendSupport.Dummy)
+            }
+        );
+        audioEngineSelector.model.append(
+            {
+                "name": "AudioGraph",
+                "value": AudioBackendSupport.AudioGraph,
+                "enabled": impl.audioBackendSupport.isBackendSupported(AudioBackendSupport.AudioGraph)
+            }
+        );
+        audioEngineSelector.model.append(
+            {
+                "name": "ALSA",
+                "value": AudioBackendSupport.ALSA,
+                "enabled": impl.audioBackendSupport.isBackendSupported(AudioBackendSupport.ALSA)
+            }
+        );
     }
 }

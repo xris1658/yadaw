@@ -1,0 +1,15 @@
+#ifndef YADAW_SRC_AUDIO_BACKEND_AUDIOBACKENDBASE
+#define YADAW_SRC_AUDIO_BACKEND_AUDIOBACKENDBASE
+
+namespace YADAW::Audio::Backend
+{
+enum AudioBackend
+{
+    Off,
+    Dummy,
+    AudioGraph,
+    ALSA
+};
+}
+
+#endif //YADAW_SRC_AUDIO_BACKEND_AUDIOBACKENDSUPPORT

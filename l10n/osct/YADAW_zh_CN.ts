@@ -251,22 +251,27 @@
 <context>
     <name>AudioHardwareSettings</name>
     <message>
-        <location filename="../../content/AudioHardwareSettings.qml" line="30"/>
+        <location filename="../../content/AudioHardwareSettings.qml" line="38"/>
         <source>Audio Engine</source>
         <translation>音频引擎</translation>
     </message>
     <message>
-        <location filename="../../content/AudioHardwareSettings.qml" line="39"/>
+        <location filename="../../content/AudioHardwareSettings.qml" line="47"/>
         <source>Audio Backend</source>
         <translation>音频后端</translation>
     </message>
     <message>
-        <location filename="../../content/AudioHardwareSettings.qml" line="45"/>
+        <location filename="../../content/AudioHardwareSettings.qml" line="100"/>
+        <source>Off</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioHardwareSettings.qml" line="107"/>
         <source>Dummy</source>
         <translation>假设备</translation>
     </message>
     <message>
-        <location filename="../../content/AudioHardwareSettings.qml" line="57"/>
+        <location filename="../../content/AudioHardwareSettings.qml" line="68"/>
         <source>&amp;Configure Audio Bus...</source>
         <translation>配置音频总线(&amp;C)...</translation>
     </message>

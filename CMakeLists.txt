@@ -87,6 +87,8 @@ endif()
 
 set(YADAW_COMMON_SOURCES
     ${NATIVE_SOURCES}
+    src/audio/backend/AudioBackendBase.hpp
+    src/audio/backend/AudioBackendSupport.hpp
     src/audio/backend/AudioGraphBackend.hpp
     src/audio/backend/AudioGraphBusConfiguration.cpp
     src/audio/backend/AudioGraphBusConfiguration.hpp
@@ -171,8 +173,6 @@ set(YADAW_COMMON_SOURCES
     src/controller/AppController.hpp
     src/controller/AssetDirectoryController.cpp
     src/controller/AssetDirectoryController.hpp
-    src/controller/AudioBackendController.cpp
-    src/controller/AudioBackendController.hpp
     src/controller/AudioBusConfigurationController.cpp
     src/controller/AudioBusConfigurationController.hpp
     src/controller/AudioEngineController.hpp
@@ -208,6 +208,9 @@ set(YADAW_COMMON_SOURCES
     src/dao/PluginDirectoryTable.hpp
     src/dao/PluginTable.cpp
     src/dao/PluginTable.hpp
+    src/entity/AudioBackendSupport.cpp
+    src/entity/EntityInitializer.cpp
+    src/entity/EntityInitializer.hpp
     src/event/EventBase.cpp
     src/event/EventBase.hpp
     src/event/EventHandler.cpp
@@ -247,7 +250,7 @@ set(YADAW_COMMON_SOURCES
     src/model/PluginDirectoryListModel.hpp
     src/model/PluginListModel.cpp
     src/model/PluginListModel.hpp
-    src/native/AudioBackend.hpp
+    src/native/AudioBackendSupport.hpp
     src/native/CLAPNative.hpp
     src/native/Library.hpp
     src/native/Native.hpp

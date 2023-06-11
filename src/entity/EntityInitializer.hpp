@@ -1,0 +1,9 @@
+#ifndef YADAW_SRC_ENTITY_ENTITYINITIALIZER
+#define YADAW_SRC_ENTITY_ENTITYINITIALIZER
+
+namespace YADAW::Entity
+{
+void initializeEntity();
+}
+
+#endif //YADAW_SRC_ENTITY_ENTITYINITIALIZER
