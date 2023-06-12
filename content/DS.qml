@@ -2,6 +2,21 @@ import QtQuick
 
 MainWindow {
     id: mainWindow
+    assetDirectoryListModel: ListModel {
+        ListElement {
+            adlm_id: 1
+            adlm_path: "/path/to/dir/1"
+            adlm_name: "Asset Folder 1"
+            adlm_default_name: "Dir 1"
+        }
+        ListElement {
+            adlm_id: 1
+            adlm_path: "/path/to/dir/2"
+            adlm_name: "Asset Folder 2"
+            adlm_default_name: "Dir 2"
+        }
+    }
+
     translationModel: ListModel {
         ListElement {
             lm_name: "English"
