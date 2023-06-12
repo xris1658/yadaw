@@ -11,6 +11,9 @@ Item {
     property int firstColumnWidth
     property int secondColumnWidth
 
+    property alias audioInputDeviceList: audioBusConfigurationWindow.inputDeviceListModel
+    property alias audioOutputDeviceList: audioBusConfigurationWindow.outputDeviceListModel
+
     property alias audioGraphInputDeviceList: audioGraphSettings.inputDeviceList
     property alias audioGraphOutputDeviceList: audioGraphSettings.outputDeviceList
     property alias audioGraphOutputDeviceIndex: audioGraphSettings.outputDeviceIndex
@@ -92,8 +95,6 @@ Item {
     }
     AudioBusConfigurationWindow {
         id: audioBusConfigurationWindow
-        inputDeviceListModel: audioGraphInputDeviceList
-        outputDeviceListModel: audioGraphOutputDeviceList
     }
     Component.onCompleted: {
         audioEngineSelector.model.append(

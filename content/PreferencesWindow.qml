@@ -20,6 +20,9 @@ Window {
     property alias audioInputBusConfigurationModel: audioHardwareSettings.audioInputBusConfigurationModel
     property alias audioOutputBusConfigurationModel: audioHardwareSettings.audioOutputBusConfigurationModel
 
+    property alias audioInputDeviceList: audioHardwareSettings.audioInputDeviceList
+    property alias audioOutputDeviceList: audioHardwareSettings.audioOutputDeviceList
+
     property alias audioGraphInputDeviceList: audioHardwareSettings.audioGraphInputDeviceList
     property alias audioGraphOutputDeviceList: audioHardwareSettings.audioGraphOutputDeviceList
     property alias audioGraphOutputDeviceIndex: audioHardwareSettings.audioGraphOutputDeviceIndex

@@ -186,6 +186,10 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphInputDeviceListModel()));
     YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphOutputDeviceListModel()));
+    YADAW::UI::mainWindow->setProperty("audioInputDeviceList",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphInputDeviceListModel()));
+    YADAW::UI::mainWindow->setProperty("audioOutputDeviceList",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioGraphOutputDeviceListModel()));
     if(currentOutputDeviceIndex != -1)
     {
         YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceIndex",
@@ -195,6 +199,10 @@ void EventHandler::onOpenMainWindow()
     YADAW::UI::mainWindow->setProperty("alsaInputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAInputDeviceListModel()));
     YADAW::UI::mainWindow->setProperty("alsaOutputDeviceList",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAOutputDeviceListModel()));
+    YADAW::UI::mainWindow->setProperty("audioInputDeviceList",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAInputDeviceListModel()));
+    YADAW::UI::mainWindow->setProperty("audioOutputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAOutputDeviceListModel()));
 #endif
     YADAW::UI::mainWindow->setProperty("audioInputBusConfigurationModel",

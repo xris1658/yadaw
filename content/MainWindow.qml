@@ -21,6 +21,8 @@ ApplicationWindow {
     property alias systemFontRendering: preferencesWindow.systemFontRendering
     property alias audioInputBusConfigurationModel: preferencesWindow.audioInputBusConfigurationModel
     property alias audioOutputBusConfigurationModel: preferencesWindow.audioOutputBusConfigurationModel
+    property alias audioInputDeviceList: preferencesWindow.audioInputDeviceList
+    property alias audioOutputDeviceList: preferencesWindow.audioOutputDeviceList
     property alias audioGraphInputDeviceList: preferencesWindow.audioGraphInputDeviceList
     property alias audioGraphOutputDeviceList: preferencesWindow.audioGraphOutputDeviceList
     property alias audioGraphOutputDeviceIndex: preferencesWindow.audioGraphOutputDeviceIndex
