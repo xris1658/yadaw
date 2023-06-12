@@ -56,10 +56,12 @@ Item {
             enabledRole: "enabled"
         }
         Item {
+            visible: audioEngineSelector.currentValue !== AudioBackendSupport.Off
             width: firstColumnWidth
             height: configureAudioBusButton.height
         }
         Item {
+            visible: audioEngineSelector.currentValue !== AudioBackendSupport.Off
             width: secondColumnWidth
             height: configureAudioBusButton.height
             Button {
@@ -77,7 +79,6 @@ Item {
         anchors.topMargin: grid.rowSpacing
         currentIndex: audioEngineSelector.currentIndex
         Item { /*Off*/ }
-        Item { /*Dummy*/ }
         AudioGraphSettings {
             id: audioGraphSettings
             firstColumnWidth: root.firstColumnWidth
@@ -104,13 +105,6 @@ Item {
         );
         audioEngineSelector.model.append(
             {
-                "name": qsTr("Dummy"),
-                "value": AudioBackendSupport.Dummy,
-                "enabled": impl.audioBackendSupport.isBackendSupported(AudioBackendSupport.Dummy)
-            }
-        );
-        audioEngineSelector.model.append(
-            {
                 "name": "AudioGraph",
                 "value": AudioBackendSupport.AudioGraph,
                 "enabled": impl.audioBackendSupport.isBackendSupported(AudioBackendSupport.AudioGraph)
@@ -123,5 +117,6 @@ Item {
                 "enabled": impl.audioBackendSupport.isBackendSupported(AudioBackendSupport.ALSA)
             }
         );
+        audioEngineSelector.currentIndex = 0;
     }
 }

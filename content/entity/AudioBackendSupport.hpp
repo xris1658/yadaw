@@ -12,7 +12,6 @@ public:
     enum Backend
     {
         Off,
-        Dummy,
         AudioGraph,
         ALSA,
         Last = ALSA

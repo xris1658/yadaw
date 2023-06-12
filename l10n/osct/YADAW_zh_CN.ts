@@ -176,10 +176,6 @@
         <source>N/A</source>
         <translation>无</translation>
     </message>
-    <message>
-        <source>Invalid Channel</source>
-        <translation type="vanished">无效声道</translation>
-    </message>
 </context>
 <context>
     <name>AudioBusConfigurationWindow</name>
@@ -261,17 +257,12 @@
         <translation>音频后端</translation>
     </message>
     <message>
-        <location filename="../../content/AudioHardwareSettings.qml" line="100"/>
+        <location filename="../../content/AudioHardwareSettings.qml" line="101"/>
         <source>Off</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../../content/AudioHardwareSettings.qml" line="107"/>
-        <source>Dummy</source>
-        <translation>假设备</translation>
-    </message>
-    <message>
-        <location filename="../../content/AudioHardwareSettings.qml" line="68"/>
+        <location filename="../../content/AudioHardwareSettings.qml" line="70"/>
         <source>&amp;Configure Audio Bus...</source>
         <translation>配置音频总线(&amp;C)...</translation>
     </message>

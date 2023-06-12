@@ -6,7 +6,6 @@ namespace YADAW::Audio::Backend
 enum AudioBackend
 {
     Off,
-    Dummy,
     AudioGraph,
     ALSA
 };

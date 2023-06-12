@@ -13,9 +13,6 @@ template<>
 constexpr bool isBackendSupported<AudioBackend::Off> = true;
 
 template<>
-constexpr bool isBackendSupported<AudioBackend::Dummy> = true;
-
-template<>
 constexpr bool isBackendSupported<AudioBackend::AudioGraph> =
     YADAW::Native::isAudioBackendSupported<AudioBackend::AudioGraph>;
 

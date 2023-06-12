@@ -12,8 +12,6 @@ Q_INVOKABLE bool AudioBackendSupport::isBackendSupported(YADAW::Entity::AudioBac
     {
     case Backend::Off:
         return YADAW::Audio::Backend::isBackendSupported<YADAW::Audio::Backend::AudioBackend::Off>;
-    case Backend::Dummy:
-        return YADAW::Audio::Backend::isBackendSupported<YADAW::Audio::Backend::AudioBackend::Dummy>;
     case Backend::AudioGraph:
         return YADAW::Audio::Backend::isBackendSupported<YADAW::Audio::Backend::AudioBackend::AudioGraph>;
     case Backend::ALSA:
