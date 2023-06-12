@@ -14,7 +14,7 @@ namespace YADAW::Native
 {
 const QString& appDataFolder()
 {
-    static auto ret = QString(std::getenv("HOME")) + "/.local";
+    static auto ret = QString(std::getenv("HOME")) + "/.local/share";
     return ret;
 }
 
