@@ -168,15 +168,21 @@ Rectangle {
                                 assetDirectoryOptions.forceActiveFocus();
                             }
                         }
-                        FolderIcon {
-                            readonly property double effectiveWidth: originalWidth * scale
-                            readonly property double effectiveHeight: originalHeight * scale
-                            x: y
-                            y: (parent.height - effectiveHeight) / 2
-                            transformOrigin: Item.TopLeft
-                            scale: (parent.height - parent.topPadding - parent.bottomPadding) * 0.8 / originalHeight
-                            path.strokeColor: "transparent"
-                            path.fillColor: Colors.secondaryContent
+                        Item {
+                            anchors.left: parent.left
+                            width: height
+                            height: parent.height
+                            Item {
+                                anchors.centerIn: parent
+                                width: 16
+                                height: width
+                                FolderIcon {
+                                    anchors.centerIn: parent
+                                    scale: parent.height / originalHeight
+                                    path.strokeColor: "transparent"
+                                    path.fillColor: Colors.secondaryContent
+                                }
+                            }
                         }
                         signal rename()
                         onRename: {
