@@ -10,4 +10,4 @@ namespace YADAW::MIDI
 clap_event_header* createCLAPEventFromMessage(const YADAW::MIDI::Message& message);
 }
 
-#endif //YADAW_SRC_MIDI_MESSAGETOCLAPEVENT
+#endif // YADAW_SRC_MIDI_MESSAGETOCLAPEVENT

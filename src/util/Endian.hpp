@@ -1,5 +1,5 @@
-#ifndef YADAW_UTIL_ENDIAN
-#define YADAW_UTIL_ENDIAN
+#ifndef YADAW_SRC_UTIL_ENDIAN
+#define YADAW_SRC_UTIL_ENDIAN
 
 #include <cstddef>
 
@@ -16,4 +16,4 @@ void reverseEndianness(void* data, std::size_t byteCount);
 void reverseEndiannessCopy(void* src, std::size_t byteCount, void* dest);
 }
 
-#endif //YADAW_UTIL_ENDIAN
+#endif // YADAW_SRC_UTIL_ENDIAN

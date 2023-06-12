@@ -10,4 +10,4 @@
 #include <alsa/asoundlib.h>
 #endif
 
-#endif //YADAW_PCH_LINUXAPI
+#endif // YADAW_PCH_LINUXAPI

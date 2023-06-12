@@ -6,4 +6,4 @@ namespace YADAW::Model
 void initializeModel();
 }
 
-#endif //YADAW_SRC_MODEL_MODELINITIALIZER
+#endif // YADAW_SRC_MODEL_MODELINITIALIZER

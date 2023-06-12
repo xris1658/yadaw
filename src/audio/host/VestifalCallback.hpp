@@ -18,4 +18,4 @@ void setUniquePluginIdOnCurrentThread(std::int32_t uniqueId);
 void setUniquePluginShouldBeZeroOnCurrentThread(bool value);
 }
 
-#endif //YADAW_SRC_AUDIO_HOST_VESTIFALCALLBACK
+#endif // YADAW_SRC_AUDIO_HOST_VESTIFALCALLBACK

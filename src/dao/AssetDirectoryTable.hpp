@@ -40,4 +40,4 @@ void removeAssetDirectory(int id,
     sqlite::database& database = appDatabase());
 }
 
-#endif //YADAW_SRC_DAO_ASSETDIRECTORYTABLE
+#endif // YADAW_SRC_DAO_ASSETDIRECTORYTABLE

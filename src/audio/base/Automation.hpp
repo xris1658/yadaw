@@ -1,5 +1,5 @@
-#ifndef YADAW_AUDIO_BASE_AUTOMATION
-#define YADAW_AUDIO_BASE_AUTOMATION
+#ifndef YADAW_SRC_AUDIO_BASE_AUTOMATION
+#define YADAW_SRC_AUDIO_BASE_AUTOMATION
 
 #include "util/QuadraticFunction.hpp"
 
@@ -106,4 +106,4 @@ private:
 };
 }
 
-#endif //YADAW_AUDIO_BASE_AUTOMATION
+#endif // YADAW_SRC_AUDIO_BASE_AUTOMATION

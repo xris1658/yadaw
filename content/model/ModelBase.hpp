@@ -9,4 +9,4 @@ namespace YADAW::Model
 using RoleNames = QHash<int, QByteArray>;
 }
 
-#endif //YADAW_CONTENT_MODEL_MODELBASE
+#endif // YADAW_CONTENT_MODEL_MODELBASE

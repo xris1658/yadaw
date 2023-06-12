@@ -6,4 +6,4 @@ namespace YADAW::Controller
 void initializeApplicationDatabase();
 }
 
-#endif //YADAW_SRC_CONTROLLER_DATABASECONTROLLER
+#endif // YADAW_SRC_CONTROLLER_DATABASECONTROLLER

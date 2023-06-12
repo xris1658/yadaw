@@ -20,4 +20,4 @@ T scaleFromDecibel(T decibel)
 }
 }
 
-#endif //YADAW_SRC_AUDIO_BASE_GAIN
+#endif // YADAW_SRC_AUDIO_BASE_GAIN

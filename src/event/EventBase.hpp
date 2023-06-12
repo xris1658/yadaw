@@ -14,4 +14,4 @@ extern EventHandler* eventHandler;
 extern SplashScreenWorkerThread* splashScreenWorkerThread;
 }
 
-#endif //YADAW_SRC_EVENT_EVENTBASE
+#endif // YADAW_SRC_EVENT_EVENTBASE

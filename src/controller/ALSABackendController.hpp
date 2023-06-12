@@ -29,4 +29,4 @@ YAML::Node deviceConfigFromALSA();
 YADAW::Audio::Backend::ALSABusConfiguration& appAudioBusConfiguration();
 }
 
-#endif //YADAW_SRC_CONTROLLER_ALSABACKENDCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_ALSABACKENDCONTROLLER

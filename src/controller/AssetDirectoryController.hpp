@@ -8,4 +8,4 @@ namespace YADAW::Controller
 YADAW::Model::AssetDirectoryListModel& appAssetDirectoryListModel();
 }
 
-#endif //YADAW_SRC_CONTROLLER_ASSETDIRECTORYCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_ASSETDIRECTORYCONTROLLER

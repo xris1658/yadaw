@@ -1,5 +1,5 @@
-#ifndef YADAW_MATH_INTEGRATION
-#define YADAW_MATH_INTEGRATION
+#ifndef YADAW_SRC_UTIL_INTEGRATION
+#define YADAW_SRC_UTIL_INTEGRATION
 
 #include "QuadraticFunction.hpp"
 
@@ -16,4 +16,4 @@ double quadraticFunctionIntegration(const QuadraticFunction& function, double fr
 double quadraticFunctionInvertIntegration(const QuadraticFunction& function, double from, double to);
 }
 
-#endif //YADAW_MATH_INTEGRATION
+#endif // YADAW_SRC_UTIL_INTEGRATION

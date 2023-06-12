@@ -1,5 +1,5 @@
-#ifndef YADAW_PCH_QT
-#define YADAW_PCH_QT
+#ifndef YADAW_PCH_QTCORE
+#define YADAW_PCH_QTCORE
 
 #include <QCoreApplication>
 #include <QUrl>
@@ -19,4 +19,4 @@
 #include <QVector>
 #include <QTranslator>
 
-#endif //YADAW_PCH_QT
+#endif // YADAW_PCH_QTCORE

@@ -6,4 +6,4 @@ namespace YADAW::Base
 constexpr char ProductName[] = "YADAW";
 }
 
-#endif //YADAW_SRC_BASE_CONSTANTS
+#endif // YADAW_SRC_BASE_CONSTANTS

@@ -82,4 +82,4 @@ struct PitchBendChangeMessage
 };
 }
 
-#endif //YADAW_SRC_MIDI_MESSAGE
+#endif // YADAW_SRC_MIDI_MESSAGE

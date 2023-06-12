@@ -11,4 +11,4 @@ extern const char* exitEntryName;
 extern const Steinberg::FIDString ViewType;
 }
 
-#endif //YADAW_SRC_NATIVE_VST3NATIVE
+#endif // YADAW_SRC_NATIVE_VST3NATIVE

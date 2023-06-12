@@ -14,4 +14,4 @@ extern QLatin1StringView vestifalExt;
 extern QString vestifalPattern;
 }
 
-#endif //YADAW_SRC_NATIVE_VESTIFALNATIVE
+#endif // YADAW_SRC_NATIVE_VESTIFALNATIVE

@@ -1,5 +1,5 @@
-#ifndef YADAW_AUDIO_UTIL_LITERAL
-#define YADAW_AUDIO_UTIL_LITERAL
+#ifndef YADAW_SRC_UTIL_LITERAL
+#define YADAW_SRC_UTIL_LITERAL
 
 #include <array>
 #include <cstdint>
@@ -34,4 +34,4 @@ extern template NoteName<char8_t> getNoteName(std::int8_t, MIDINoteNameKeyShift,
 #endif
 }
 
-#endif //YADAW_AUDIO_UTIL_LITERAL
+#endif // YADAW_SRC_UTIL_LITERAL

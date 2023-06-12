@@ -16,4 +16,4 @@ struct SineFunction
 };
 }
 
-#endif //YADAW_SRC_UTIL_SINEFUNCTION
+#endif // YADAW_SRC_UTIL_SINEFUNCTION

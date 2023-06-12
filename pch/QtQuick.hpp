@@ -6,4 +6,4 @@
 #include <qqml.h>
 #include <QQuickItem>
 
-#endif //YADAW_PCH_QTQUICK
+#endif // YADAW_PCH_QTQUICK

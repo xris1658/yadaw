@@ -33,4 +33,4 @@
 #include <winrt/Windows.Media.Render.h>
 #endif
 
-#endif //YADAW_PCH_WINDOWSAPI
+#endif // YADAW_PCH_WINDOWSAPI

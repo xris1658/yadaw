@@ -11,4 +11,4 @@ extern int currentTranslationIndex;
 YADAW::Model::LocalizationListModel& appLocalizationListModel();
 }
 
-#endif //YADAW_SRC_CONTROLLER_LOCALIZATIONCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_LOCALIZATIONCONTROLLER

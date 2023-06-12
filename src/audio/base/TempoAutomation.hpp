@@ -1,5 +1,5 @@
-#ifndef YADAW_AUDIO_BASE_TEMPOAUTOMATION
-#define YADAW_AUDIO_BASE_TEMPOAUTOMATION
+#ifndef YADAW_SRC_AUDIO_BASE_TEMPOAUTOMATION
+#define YADAW_SRC_AUDIO_BASE_TEMPOAUTOMATION
 
 #include "audio/base/Automation.hpp"
 #include "audio/base/Chrono.hpp"
@@ -249,4 +249,4 @@ Duration<PPQ> pulseElapsed(double tempo, double second)
 }
 }
 
-#endif //YADAW_AUDIO_BASE_TEMPOAUTOMATION
+#endif // YADAW_SRC_AUDIO_BASE_TEMPOAUTOMATION

@@ -1,5 +1,5 @@
-#ifndef YADAW_UTIL_STOPWATCH
-#define YADAW_UTIL_STOPWATCH
+#ifndef YADAW_SRC_UTIL_STOPWATCH
+#define YADAW_SRC_UTIL_STOPWATCH
 
 #include "native/Native.hpp"
 
@@ -35,4 +35,4 @@ std::int64_t stopwatchVoid(Function<void, Args...>&& function, Args&&... args)
 }
 }
 
-#endif //YADAW_UTIL_STOPWATCH
+#endif // YADAW_SRC_UTIL_STOPWATCH

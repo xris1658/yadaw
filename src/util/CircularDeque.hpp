@@ -208,4 +208,4 @@ private:
 };
 }
 
-#endif //YADAW_SRC_UTIL_CIRCULARDEQUE
+#endif // YADAW_SRC_UTIL_CIRCULARDEQUE

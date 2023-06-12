@@ -21,4 +21,4 @@ constexpr bool isBackendSupported<AudioBackend::ALSA> =
     YADAW::Native::isAudioBackendSupported<AudioBackend::ALSA>;
 }
 
-#endif //YADAW_SRC_AUDIO_BACKEND_AUDIOBACKENDSUPPORT
+#endif // YADAW_SRC_AUDIO_BACKEND_AUDIOBACKENDSUPPORT

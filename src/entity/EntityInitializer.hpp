@@ -6,4 +6,4 @@ namespace YADAW::Entity
 void initializeEntity();
 }
 
-#endif //YADAW_SRC_ENTITY_ENTITYINITIALIZER
+#endif // YADAW_SRC_ENTITY_ENTITYINITIALIZER

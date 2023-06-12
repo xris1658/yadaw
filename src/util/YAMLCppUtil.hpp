@@ -26,4 +26,4 @@ using YAMLMap = YAMLBeginEndHelper<YAML::BeginMap, YAML::EndMap>;
 using YAMLDoc = YAMLBeginEndHelper<YAML::BeginDoc, YAML::EndDoc>;
 }
 
-#endif //YADAW_SRC_UTIL_YAMLCPPUTIL
+#endif // YADAW_SRC_UTIL_YAMLCPPUTIL

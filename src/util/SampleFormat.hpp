@@ -1,5 +1,5 @@
-#ifndef YADAW_SRC_AUDIO_UTIL_SAMPLEFORMAT
-#define YADAW_SRC_AUDIO_UTIL_SAMPLEFORMAT
+#ifndef YADAW_SRC_UTIL_SAMPLEFORMAT
+#define YADAW_SRC_UTIL_SAMPLEFORMAT
 
 #include "native/Native.hpp"
 #include "util/Endian.hpp"
@@ -248,4 +248,4 @@ using LongDoubleRE = LongDoubleLE;
 #endif
 }
 
-#endif //YADAW_SRC_AUDIO_UTIL_SAMPLEFORMAT
+#endif // YADAW_SRC_UTIL_SAMPLEFORMAT

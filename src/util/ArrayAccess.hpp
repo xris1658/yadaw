@@ -24,4 +24,4 @@ auto getOrNull(T& container, std::size_t index)
 }
 }
 
-#endif //YADAW_SRC_UTIL_ARRAYACCESS
+#endif // YADAW_SRC_UTIL_ARRAYACCESS

@@ -18,4 +18,4 @@ void process(YADAW::Audio::Device::IAudioDevice* device,
 }
 }
 
-#endif //YADAW_SRC_CONTROLLER_AUDIOENGINECONTROLLER
+#endif // YADAW_SRC_CONTROLLER_AUDIOENGINECONTROLLER

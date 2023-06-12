@@ -73,4 +73,4 @@ private:
 };
 }
 
-#endif //YADAW_SRC_AUDIO_HOST_CLAPHOST
+#endif // YADAW_SRC_AUDIO_HOST_CLAPHOST

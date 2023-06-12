@@ -7,4 +7,4 @@
 template<typename T>
 using OptionalRef = std::optional<std::reference_wrapper<T>>;
 
-#endif //YADAW_SRC_UTIL_OPTIONALUTIL
+#endif // YADAW_SRC_UTIL_OPTIONALUTIL

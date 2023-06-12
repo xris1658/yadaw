@@ -1,5 +1,5 @@
-#ifndef YADAW_BASE_BASE
-#define YADAW_BASE_BASE
+#ifndef YADAW_SRC_UTIL_BASE
+#define YADAW_SRC_UTIL_BASE
 
 #include <cstdlib>
 #include <cstring>
@@ -36,4 +36,4 @@ auto underlyingValue(T enumerate)
 }
 }
 
-#endif // YADAW_BASE_BASE
+#endif //  YADAW_SRC_UTIL_BASE

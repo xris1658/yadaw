@@ -14,4 +14,4 @@ void saveConfig(const YAML::Node& node, const QString& path);
 YAML::Node loadConfig(const QString& path);
 }
 
-#endif //YADAW_SRC_DAO_CONFIG
+#endif // YADAW_SRC_DAO_CONFIG

@@ -37,4 +37,4 @@ namespace YADAW::Audio::Util
 YADAW::Audio::Plugin::CLAPPlugin createCLAPFromLibrary(YADAW::Native::Library& library);
 }
 
-#endif //YADAW_SRC_AUDIO_UTIL_CLAPUTIL
+#endif // YADAW_SRC_AUDIO_UTIL_CLAPUTIL

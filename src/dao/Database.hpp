@@ -10,4 +10,4 @@ sqlite::database& appDatabase();
 void initDatabase(sqlite::database& database);
 }
 
-#endif //YADAW_SRC_DAO_DATABASE
+#endif // YADAW_SRC_DAO_DATABASE

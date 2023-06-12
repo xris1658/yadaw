@@ -14,4 +14,4 @@ YAML::Node loadConfig();
 void saveConfig(const YAML::Node& config);
 }
 
-#endif //YADAW_SRC_CONTROLLER_CONFIGCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_CONFIGCONTROLLER

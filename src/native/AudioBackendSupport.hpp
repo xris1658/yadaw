@@ -18,4 +18,4 @@ template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBa
 #endif
 }
 
-#endif //YADAW_SRC_NATIVE_AUDIOBACKENDSUPPORT
+#endif // YADAW_SRC_NATIVE_AUDIOBACKENDSUPPORT

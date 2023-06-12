@@ -36,4 +36,4 @@ private:
 };
 }
 
-#endif //YADAW_SRC_EVENT_EVENTHANDLER
+#endif // YADAW_SRC_EVENT_EVENTHANDLER

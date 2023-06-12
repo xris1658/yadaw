@@ -1,5 +1,5 @@
-#ifndef YADAW_DAO_PLUGINDIRECTORYDAO
-#define YADAW_DAO_PLUGINDIRECTORYDAO
+#ifndef YADAW_SRC_DAO_PLUGINDIRECTORYDAO
+#define YADAW_SRC_DAO_PLUGINDIRECTORYDAO
 
 #include "dao/Database.hpp"
 
@@ -20,4 +20,4 @@ void removePluginDirectory(const QString& directory, sqlite::database& database 
 std::vector<QString> selectPluginDirectory(sqlite::database& database = appDatabase());
 }
 
-#endif // YADAW_DAO_PLUGINDIRECTORYDAO
+#endif //  YADAW_SRC_DAO_PLUGINDIRECTORYDAO

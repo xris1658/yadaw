@@ -18,4 +18,4 @@ const QString& appConfigFileName();
 const QString& appConfigPath();
 }
 
-#endif //YADAW_SRC_DAO_DAOBASE
+#endif // YADAW_SRC_DAO_DAOBASE

@@ -21,4 +21,4 @@ YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(
 }
 
 
-#endif //YADAW_SRC_AUDIO_UTIL_VESTIFALUTIL
+#endif // YADAW_SRC_AUDIO_UTIL_VESTIFALUTIL

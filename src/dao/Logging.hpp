@@ -8,4 +8,4 @@ namespace YADAW::DAO
 
 }
 
-#endif //YADAW_SRC_DAO_LOGGING
+#endif // YADAW_SRC_DAO_LOGGING

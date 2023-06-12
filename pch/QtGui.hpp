@@ -6,4 +6,4 @@
 #include <QColor>
 #include <QScreen>
 
-#endif //YADAW_PCH_QTGUI
+#endif // YADAW_PCH_QTGUI

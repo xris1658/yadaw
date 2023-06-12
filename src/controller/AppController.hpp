@@ -8,4 +8,4 @@ namespace YADAW::Controller
 void initApplication();
 }
 
-#endif //YADAW_SRC_CONTROLLER_APPCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_APPCONTROLLER

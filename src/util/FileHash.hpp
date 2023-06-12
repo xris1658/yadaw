@@ -1,5 +1,5 @@
-#ifndef YADAW_UTIL_FILEHASH
-#define YADAW_UTIL_FILEHASH
+#ifndef YADAW_SRC_UTIL_FILEHASH
+#define YADAW_SRC_UTIL_FILEHASH
 
 #include <QString>
 
@@ -10,4 +10,4 @@ namespace YADAW::Util
 std::vector<char> fileHash(const QString& filePath);
 }
 
-#endif //YADAW_UTIL_FILEHASH
+#endif // YADAW_SRC_UTIL_FILEHASH

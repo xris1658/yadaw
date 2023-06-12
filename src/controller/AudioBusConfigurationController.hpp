@@ -18,4 +18,4 @@ YAML::Node exportFromAudioBusConfiguration(
     const YADAW::Model::AudioBusConfigurationModel& outputModel);
 }
 
-#endif //YADAW_SRC_CONTROLLER_AUDIOBUSCONFIGURATIONCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_AUDIOBUSCONFIGURATIONCONTROLLER

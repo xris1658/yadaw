@@ -12,4 +12,4 @@ extern QQuickWindow* mainWindow;
 const QString& defaultFontDir();
 }
 
-#endif //YADAW_SRC_UI_UI
+#endif // YADAW_SRC_UI_UI

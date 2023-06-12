@@ -137,4 +137,4 @@ private:
 };
 }
 
-#endif //YADAW_SRC_UTIL_LOCKFREEQUEUE
+#endif // YADAW_SRC_UTIL_LOCKFREEQUEUE

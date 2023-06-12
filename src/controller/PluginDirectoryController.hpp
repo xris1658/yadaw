@@ -12,4 +12,4 @@ Model::PluginDirectoryListModel& appPluginDirectoryListModel();
 void initializePluginDirectory();
 }
 
-#endif //YADAW_SRC_CONTROLLER_PLUGINDIRECTORYCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_PLUGINDIRECTORYCONTROLLER

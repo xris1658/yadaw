@@ -36,4 +36,4 @@ std::vector<int> selectByCategoryName(const QString& categoryName, sqlite::datab
 std::vector<QString> selectById(int id, sqlite::database& database = appDatabase());
 }
 
-#endif //YADAW_SRC_DAO_PLUGINCATEGORYTABLE
+#endif // YADAW_SRC_DAO_PLUGINCATEGORYTABLE

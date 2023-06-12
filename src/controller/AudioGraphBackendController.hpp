@@ -32,4 +32,4 @@ YADAW::Audio::Backend::AudioGraphBusConfiguration& appAudioBusConfiguration();
 
 #endif
 
-#endif //YADAW_SRC_CONTROLLER_AUDIOGRAPHBACKENDCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_AUDIOGRAPHBACKENDCONTROLLER

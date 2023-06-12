@@ -11,4 +11,4 @@
 #include <clap/ext/gui.h>
 #include <clap/factory/plugin-factory.h>
 
-#endif //YADAW_PCH_CLAP
+#endif // YADAW_PCH_CLAP

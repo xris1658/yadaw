@@ -69,4 +69,4 @@ using ALSADeletablePointer = std::unique_ptr<T, ALSADeleter<T>>;
 
 #endif
 
-#endif //YADAW_SRC_NATIVE_LINUX_ALSAHELPER
+#endif // YADAW_SRC_NATIVE_LINUX_ALSAHELPER

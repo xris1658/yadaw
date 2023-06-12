@@ -37,4 +37,4 @@ YADAW::Audio::Plugin::VST3Plugin createVST3FromLibrary(YADAW::Native::Library& l
 }
 
 
-#endif //YADAW_SRC_AUDIO_UTIL_VST3UTIL
+#endif // YADAW_SRC_AUDIO_UTIL_VST3UTIL

@@ -1,5 +1,5 @@
-#ifndef YADAW_NATIVE_LIBRARY
-#define YADAW_NATIVE_LIBRARY
+#ifndef YADAW_SRC_NATIVE_LIBRARY
+#define YADAW_SRC_NATIVE_LIBRARY
 
 #include "native/Native.hpp"
 
@@ -54,4 +54,4 @@ private:
 };
 }
 
-#endif //YADAW_NATIVE_LIBRARY
+#endif // YADAW_SRC_NATIVE_LIBRARY

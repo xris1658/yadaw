@@ -29,4 +29,4 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path);
 void savePluginScanResult(const PluginScanResult& result);
 }
 
-#endif //YADAW_SRC_CONTROLLER_PLUGINCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_PLUGINCONTROLLER

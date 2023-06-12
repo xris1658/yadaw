@@ -87,4 +87,4 @@ StereoScale scaleFromPanning<PanLaw::ConstantGain>(double panning)
 
 #include <cmath>
 
-#endif //YADAW_SRC_AUDIO_BASE_STEREOPANNING
+#endif // YADAW_SRC_AUDIO_BASE_STEREOPANNING

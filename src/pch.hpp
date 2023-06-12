@@ -1,5 +1,5 @@
-#ifndef YADAW_PCH
-#define YADAW_PCH
+#ifndef YADAW_SRC_PCH
+#define YADAW_SRC_PCH
 
 // SQLite / sqlite_modern_cpp
 #include <sqlite_modern_cpp.h>
@@ -51,4 +51,4 @@
 #include <queue>
 #include <fstream>
 
-#endif //YADAW_PCH
+#endif // YADAW_SRC_PCH

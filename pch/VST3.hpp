@@ -19,4 +19,4 @@
 #include <pluginterfaces/vst/vstspeaker.h>
 #include <pluginterfaces/vst/vsttypes.h>
 
-#endif //YADAW_PCH_VST3
+#endif // YADAW_PCH_VST3

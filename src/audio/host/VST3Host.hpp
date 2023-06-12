@@ -30,4 +30,4 @@ public:
 };
 }
 
-#endif //YADAW_SRC_AUDIO_HOST_VST3HOST
+#endif // YADAW_SRC_AUDIO_HOST_VST3HOST

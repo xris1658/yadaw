@@ -87,4 +87,4 @@ template<std::size_t Size>
 constexpr std::size_t align = Impl::align<Size>();
 }
 
-#endif //YADAW_SRC_UTIL_ALIGNMENT
+#endif // YADAW_SRC_UTIL_ALIGNMENT

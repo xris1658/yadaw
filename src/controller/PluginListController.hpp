@@ -20,4 +20,4 @@ YADAW::Model::PluginListModel& appVST3PluginListModel();
 YADAW::Model::PluginListModel& appCLAPPluginListModel();
 }
 
-#endif //YADAW_SRC_CONTROLLER_PLUGINLISTCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_PLUGINLISTCONTROLLER

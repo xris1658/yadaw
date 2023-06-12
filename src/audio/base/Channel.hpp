@@ -1,5 +1,5 @@
-#ifndef YADAW_AUDIO_BASE_CHANNEL
-#define YADAW_AUDIO_BASE_CHANNEL
+#ifndef YADAW_SRC_AUDIO_BASE_CHANNEL
+#define YADAW_SRC_AUDIO_BASE_CHANNEL
 
 namespace YADAW::Audio::Base
 {
@@ -23,4 +23,4 @@ enum class ChannelGroupType
 constexpr int InvalidChannelCount = -1;
 }
 
-#endif //YADAW_AUDIO_BASE_CHANNEL
+#endif // YADAW_SRC_AUDIO_BASE_CHANNEL

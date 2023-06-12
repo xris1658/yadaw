@@ -40,4 +40,4 @@ void insertionSort(Iterator first, Iterator last)
 }
 }
 
-#endif //YADAW_SRC_UTIL_ALGORITHM
+#endif // YADAW_SRC_UTIL_ALGORITHM

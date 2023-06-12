@@ -1,5 +1,5 @@
-#ifndef YADAW_DAO_PLUGINDAO
-#define YADAW_DAO_PLUGINDAO
+#ifndef YADAW_SRC_DAO_PLUGINDAO
+#define YADAW_SRC_DAO_PLUGINDAO
 
 #include "dao/Database.hpp"
 
@@ -89,4 +89,4 @@ std::vector<QString> selectDistinctPluginPath(sqlite::database& database = appDa
 void removePluginByPath(const QString& path, sqlite::database& database = appDatabase());
 }
 
-#endif // YADAW_DAO_PLUGINDAO
+#endif //  YADAW_SRC_DAO_PLUGINDAO

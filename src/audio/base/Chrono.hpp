@@ -1,5 +1,5 @@
-#ifndef YADAW_AUDIO_BASE_CHRONO
-#define YADAW_AUDIO_BASE_CHRONO
+#ifndef YADAW_SRC_AUDIO_BASE_CHRONO
+#define YADAW_SRC_AUDIO_BASE_CHRONO
 
 #include <cstddef>
 #include <cstdint>
@@ -228,4 +228,4 @@ TimePoint<PPQ>& TimePoint<PPQ>::operator-=(const Duration<PPQ>& duration)
 }
 }
 
-#endif //YADAW_AUDIO_BASE_CHRONO
+#endif // YADAW_SRC_AUDIO_BASE_CHRONO

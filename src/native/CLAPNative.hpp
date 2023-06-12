@@ -12,4 +12,4 @@ extern const char* windowAPI;
 void setWindow(clap_window& clapWindow, QWindow* window);
 }
 
-#endif //YADAW_SRC_NATIVE_CLAPNATIVE
+#endif // YADAW_SRC_NATIVE_CLAPNATIVE

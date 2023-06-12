@@ -1,5 +1,5 @@
-#ifndef YADAW_MATH_CONSTANTS
-#define YADAW_MATH_CONSTANTS
+#ifndef YADAW_SRC_UTIL_CONSTANTS
+#define YADAW_SRC_UTIL_CONSTANTS
 
 #if __cplusplus >= 201907L
 #include <numbers>
@@ -48,4 +48,4 @@ T sqrt2()
 #endif
 }
 
-#endif //YADAW_MATH_CONSTANTS
+#endif // YADAW_SRC_UTIL_CONSTANTS

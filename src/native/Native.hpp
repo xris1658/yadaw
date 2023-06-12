@@ -1,5 +1,5 @@
-#ifndef YADAW_NATIVE_NATIVE
-#define YADAW_NATIVE_NATIVE
+#ifndef YADAW_SRC_NATIVE_NATIVE
+#define YADAW_SRC_NATIVE_NATIVE
 
 #include "util/Endian.hpp"
 
@@ -74,4 +74,4 @@ const std::vector<QString>& defaultPluginDirectoryList();
 void locateFileInExplorer(const QString& path);
 }
 
-#endif // YADAW_NATIVE_NATIVE
+#endif //  YADAW_SRC_NATIVE_NATIVE
