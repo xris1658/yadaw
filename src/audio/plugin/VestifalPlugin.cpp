@@ -1,7 +1,7 @@
 #include "VestifalPlugin.hpp"
 
 #include "audio/host/VestifalCallback.hpp"
-#include "audio/util/VestifalUtil.hpp"
+#include "audio/util/VestifalHelper.hpp"
 
 #include <mutex>
 

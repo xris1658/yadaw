@@ -2,7 +2,7 @@
 
 #include "audio/host/VST3Host.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
-#include "audio/util/VST3Util.hpp"
+#include "audio/util/VST3Helper.hpp"
 #include "native/Native.hpp"
 #include "native/VST3Native.hpp"
 #include "dao/PluginTable.hpp"

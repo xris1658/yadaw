@@ -1,9 +1,9 @@
 #include "PluginController.hpp"
 
 #include "audio/host/VestifalCallback.hpp"
-#include "audio/util/CLAPUtil.hpp"
-#include "audio/util/VST3Util.hpp"
-#include "audio/util/VestifalUtil.hpp"
+#include "audio/util/CLAPHelper.hpp"
+#include "audio/util/VST3Helper.hpp"
+#include "audio/util/VestifalHelper.hpp"
 #include "dao/PluginCategoryTable.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/CLAPNative.hpp"

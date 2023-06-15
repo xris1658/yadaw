@@ -1,6 +1,6 @@
 #include "CLAPPlugin.hpp"
 
-#include "audio/util/CLAPUtil.hpp"
+#include "audio/util/CLAPHelper.hpp"
 
 namespace YADAW::Audio::Plugin
 {

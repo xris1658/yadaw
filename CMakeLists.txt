@@ -162,12 +162,12 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/VestifalPlugin.hpp
     src/audio/plugin/VestifalPluginGUI.cpp
     src/audio/plugin/VestifalPluginGUI.hpp
-    src/audio/util/CLAPUtil.cpp
-    src/audio/util/CLAPUtil.hpp
-    src/audio/util/VST3Util.cpp
-    src/audio/util/VST3Util.hpp
-    src/audio/util/VestifalUtil.cpp
-    src/audio/util/VestifalUtil.hpp
+    src/audio/util/CLAPHelper.cpp
+    src/audio/util/CLAPHelper.hpp
+    src/audio/util/VST3Helper.cpp
+    src/audio/util/VST3Helper.hpp
+    src/audio/util/VestifalHelper.cpp
+    src/audio/util/VestifalHelper.hpp
     src/base/Constants.hpp
     src/controller/AppController.cpp
     src/controller/AppController.hpp

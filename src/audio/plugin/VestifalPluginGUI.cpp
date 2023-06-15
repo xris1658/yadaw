@@ -1,6 +1,6 @@
 #include "VestifalPluginGUI.hpp"
 
-#include "audio/util/VestifalUtil.hpp"
+#include "audio/util/VestifalHelper.hpp"
 
 namespace YADAW::Audio::Plugin
 {

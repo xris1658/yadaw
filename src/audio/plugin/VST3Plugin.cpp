@@ -3,7 +3,7 @@
 #include "audio/host/VST3Host.hpp"
 #include "audio/plugin/VST3PluginGUI.hpp"
 #include "audio/plugin/VST3PluginParameter.hpp"
-#include "audio/util/VST3Util.hpp"
+#include "audio/util/VST3Helper.hpp"
 
 // For some reason, memorystream.cpp is not included in sdk_common library, so I have to solve this
 // by `#include`ing the source file in another source: `audio/plugin/VST3MemoryStream.cpp`.

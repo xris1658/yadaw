@@ -1,5 +1,5 @@
 #include "audio/plugin/VestifalPlugin.hpp"
-#include "audio/util/VestifalUtil.hpp"
+#include "audio/util/VestifalHelper.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/Library.hpp"
 #include "native/VestifalNative.hpp"

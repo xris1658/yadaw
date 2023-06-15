@@ -1,5 +1,5 @@
-#ifndef YADAW_SRC_AUDIO_UTIL_CLAPUTIL
-#define YADAW_SRC_AUDIO_UTIL_CLAPUTIL
+#ifndef YADAW_SRC_AUDIO_UTIL_CLAPHELPER
+#define YADAW_SRC_AUDIO_UTIL_CLAPHELPER
 
 #include "audio/plugin/CLAPPlugin.hpp"
 #include "native/Library.hpp"
@@ -37,4 +37,4 @@ namespace YADAW::Audio::Util
 YADAW::Audio::Plugin::CLAPPlugin createCLAPFromLibrary(YADAW::Native::Library& library);
 }
 
-#endif // YADAW_SRC_AUDIO_UTIL_CLAPUTIL
+#endif // YADAW_SRC_AUDIO_UTIL_CLAPHELPER

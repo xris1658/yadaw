@@ -3,7 +3,7 @@
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "audio/host/CLAPEventList.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
-#include "audio/util/CLAPUtil.hpp"
+#include "audio/util/CLAPHelper.hpp"
 #include "native/CLAPNative.hpp"
 #include "native/Library.hpp"
 #include "native/Native.hpp"

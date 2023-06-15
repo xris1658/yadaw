@@ -1,7 +1,7 @@
 #include "VST3PluginParameter.hpp"
 
 #include "audio/plugin/IParameter.hpp"
-#include "audio/util/VST3Util.hpp"
+#include "audio/util/VST3Helper.hpp"
 #include "util/ArrayAccess.hpp"
 
 #include <pluginterfaces/vst/ivsteditcontroller.h>

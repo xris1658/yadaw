@@ -1,5 +1,5 @@
-#ifndef YADAW_SRC_AUDIO_UTIL_VST3UTIL
-#define YADAW_SRC_AUDIO_UTIL_VST3UTIL
+#ifndef YADAW_SRC_AUDIO_UTIL_VST3HELPER
+#define YADAW_SRC_AUDIO_UTIL_VST3HELPER
 
 #include "audio/plugin/VST3Plugin.hpp"
 #include "native/Library.hpp"
@@ -37,4 +37,4 @@ YADAW::Audio::Plugin::VST3Plugin createVST3FromLibrary(YADAW::Native::Library& l
 }
 
 
-#endif // YADAW_SRC_AUDIO_UTIL_VST3UTIL
+#endif // YADAW_SRC_AUDIO_UTIL_VST3HELPER

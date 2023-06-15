@@ -1,5 +1,5 @@
-#ifndef YADAW_SRC_AUDIO_UTIL_VESTIFALUTIL
-#define YADAW_SRC_AUDIO_UTIL_VESTIFALUTIL
+#ifndef YADAW_SRC_AUDIO_UTIL_VESTIFALHELPER
+#define YADAW_SRC_AUDIO_UTIL_VESTIFALHELPER
 
 #include "audio/plugin/VestifalPlugin.hpp"
 #include "audio/plugin/vestifal/Vestifal.h"
@@ -21,4 +21,4 @@ YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(
 }
 
 
-#endif // YADAW_SRC_AUDIO_UTIL_VESTIFALUTIL
+#endif // YADAW_SRC_AUDIO_UTIL_VESTIFALHELPER
