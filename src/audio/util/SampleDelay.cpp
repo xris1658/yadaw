@@ -61,13 +61,52 @@ SampleDelay::~SampleDelay() noexcept
 
 bool SampleDelay::setDelay(std::uint32_t delay)
 {
+    if(delay_ == delay)
+    {
+        return true;
+    }
     if(!processing_)
     {
-        delay_ = delay;
-        for(auto& buffer: buffers_)
+        std::vector<std::vector<float>> buffers(buffers_.size(),
+            std::vector<float>(delay, 0.0f));
+        // 5 -> 3:
+        // old:           v
+        //      | 1 | 2 | 3 | 4 | 5 |
+        //
+        // new:   v
+        //      | 5 | 1 | 2 |
+        if(delay_ > delay)
         {
-            buffer = std::vector<float>(delay, 0.0f);
+            const auto delta = delay_ - delay;
+            for(std::size_t i = 0; i < buffers_.size(); ++i)
+            {
+                for(std::size_t j = 0; j < delay; ++j)
+                {
+                    buffers[i][j] = buffers_[i][(offset_ + j + delta) % delay_];
+                }
+            }
+            offset_ = 0;
         }
+        // 3 -> 5:
+        // old:       v
+        //      | 1 | 2 | 3 |
+        //
+        // new:   v
+        //      | 0 | 0 | 2 | 3 | 1 |
+        else
+        {
+            const auto delta = delay - delay_;
+            for(std::size_t i = 0; i < buffers_.size(); ++i)
+            {
+                for(std::size_t j = 0; j < delay_; ++j)
+                {
+                    buffers[i][j + delta] = buffers_[i][(offset_ + j) % delay_];
+                }
+            }
+            offset_ = 0;
+        }
+        buffers_ = std::move(buffers);
+        delay_ = delay;
         return true;
     }
     return false;
