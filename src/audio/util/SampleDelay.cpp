@@ -1,0 +1,144 @@
+#include "SampleDelay.hpp"
+
+namespace YADAW::Audio::Util
+{
+SampleDelay::AudioChannelGroup::AudioChannelGroup(const Device::IAudioChannelGroup& group):
+    name_(group.name()),
+    type_(group.type()),
+    speakers_(group.channelCount()),
+    speakerNames_(group.channelCount())
+{
+    for(std::size_t i = 0; i < speakers_.size(); ++i)
+    {
+        speakers_[i] = group.speakerAt(i);
+        speakerNames_[i] = group.speakerNameAt(i);
+    }
+}
+
+QString SampleDelay::AudioChannelGroup::name() const
+{
+    return name_;
+}
+
+std::uint32_t SampleDelay::AudioChannelGroup::channelCount() const
+{
+    return speakers_.size();
+}
+
+YADAW::Audio::Base::ChannelGroupType SampleDelay::AudioChannelGroup::type() const
+{
+    return type_;
+}
+
+YADAW::Audio::Base::ChannelType SampleDelay::AudioChannelGroup::speakerAt(std::uint32_t index) const
+{
+    return index < channelCount()? speakers_[index]: YADAW::Audio::Base::ChannelType::Invalid;
+}
+
+QString SampleDelay::AudioChannelGroup::speakerNameAt(std::uint32_t index) const
+{
+    return index < channelCount()? speakerNames_[index]: QString();
+}
+
+bool SampleDelay::AudioChannelGroup::isMain() const
+{
+    return true;
+}
+
+SampleDelay::SampleDelay(std::uint32_t delay,
+    const YADAW::Audio::Device::IAudioChannelGroup& channelGroup):
+    delay_(delay),
+    processing_(false),
+    offset_(0),
+    buffers_(channelGroup_.channelCount(), std::vector<float>(delay, 0.0f)),
+    channelGroup_(channelGroup)
+{}
+
+SampleDelay::~SampleDelay() noexcept
+{
+    stopProcessing();
+}
+
+bool SampleDelay::setDelay(std::uint32_t delay)
+{
+    if(!processing_)
+    {
+        delay_ = delay;
+        for(auto& buffer: buffers_)
+        {
+            buffer = std::vector<float>(delay, 0.0f);
+        }
+        return true;
+    }
+    return false;
+}
+
+bool SampleDelay::startProcessing()
+{
+    if(delay_ != 0)
+    {
+        processing_ = true;
+        return true;
+    }
+    return false;
+}
+
+bool SampleDelay::stopProcessing()
+{
+    processing_ = false;
+    return true;
+}
+
+uint32_t SampleDelay::audioInputGroupCount() const
+{
+    return 1;
+}
+
+uint32_t SampleDelay::audioOutputGroupCount() const
+{
+    return 1;
+}
+
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
+    SampleDelay::audioInputGroupAt(std::uint32_t index) const
+{
+    return index == 0?
+        OptionalAudioChannelGroup(
+            static_cast<const YADAW::Audio::Device::IAudioChannelGroup&>(channelGroup_)
+        ):
+        std::nullopt;
+}
+
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
+    SampleDelay::audioOutputGroupAt(std::uint32_t index) const
+{
+    return index == 0?
+        OptionalAudioChannelGroup(
+            static_cast<const YADAW::Audio::Device::IAudioChannelGroup&>(channelGroup_)
+        ):
+        std::nullopt;
+}
+
+uint32_t SampleDelay::latencyInSamples() const
+{
+    return delay_;
+}
+
+void SampleDelay::process(const Device::AudioProcessData<float>& audioProcessData)
+{
+    for(std::uint32_t i = 0; i < audioProcessData.outputCounts[0]; ++i)
+    {
+        for(std::uint32_t j = 0; j < audioProcessData.singleBufferSize; ++j)
+        {
+            auto input = audioProcessData.inputs[0][i][j];
+            audioProcessData.outputs[0][i][j] = buffers_[i][(j + offset_) % delay_];
+            buffers_[i][(j + offset_) % delay_] = input;
+        }
+    }
+    offset_ += audioProcessData.singleBufferSize;
+    if(offset_ > delay_)
+    {
+        offset_ -= delay_;
+    }
+}
+}

@@ -164,6 +164,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/VestifalPluginGUI.hpp
     src/audio/util/CLAPHelper.cpp
     src/audio/util/CLAPHelper.hpp
+    src/audio/util/SampleDelay.cpp
+    src/audio/util/SampleDelay.hpp
     src/audio/util/VST3Helper.cpp
     src/audio/util/VST3Helper.hpp
     src/audio/util/VestifalHelper.cpp
