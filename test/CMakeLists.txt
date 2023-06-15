@@ -48,4 +48,11 @@ add_executable(CircularDequeTest
 add_executable(QStringConversionTest
                QStringConversionTest/main.cpp)
 
+add_executable(SampleDelayTest
+               ../src/audio/util/SampleDelay.cpp
+               ../src/audio/util/SampleDelay.hpp
+               SampleDelayTest/main.cpp)
+
 target_link_libraries(QStringConversionTest PRIVATE Qt6::Core)
+
+target_link_libraries(SampleDelayTest PRIVATE Qt6::Core)
