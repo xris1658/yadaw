@@ -2,7 +2,6 @@
 #define YADAW_SRC_AUDIO_UTIL_SAMPLEDELAY
 
 #include "audio/device/IAudioDevice.hpp"
-#include "audio/plugin/IAudioPlugin.hpp"
 #include "util/CircularDeque.hpp"
 
 #include <vector>

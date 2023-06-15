@@ -50,7 +50,7 @@ SampleDelay::SampleDelay(std::uint32_t delay,
     delay_(delay),
     processing_(false),
     offset_(0),
-    buffers_(channelGroup_.channelCount(), std::vector<float>(delay, 0.0f)),
+    buffers_(channelGroup.channelCount(), std::vector<float>(delay, 0.0f)),
     channelGroup_(channelGroup)
 {}
 
@@ -126,19 +126,22 @@ uint32_t SampleDelay::latencyInSamples() const
 
 void SampleDelay::process(const Device::AudioProcessData<float>& audioProcessData)
 {
-    for(std::uint32_t i = 0; i < audioProcessData.outputCounts[0]; ++i)
+    if(processing_)
     {
-        for(std::uint32_t j = 0; j < audioProcessData.singleBufferSize; ++j)
+        for(std::uint32_t i = 0; i < audioProcessData.outputCounts[0]; ++i)
         {
-            auto input = audioProcessData.inputs[0][i][j];
-            audioProcessData.outputs[0][i][j] = buffers_[i][(j + offset_) % delay_];
-            buffers_[i][(j + offset_) % delay_] = input;
+            for(std::uint32_t j = 0; j < audioProcessData.singleBufferSize; ++j)
+            {
+                auto input = audioProcessData.inputs[0][i][j];
+                audioProcessData.outputs[0][i][j] = buffers_[i][(j + offset_) % delay_];
+                buffers_[i][(j + offset_) % delay_] = input;
+            }
         }
-    }
-    offset_ += audioProcessData.singleBufferSize;
-    if(offset_ > delay_)
-    {
-        offset_ -= delay_;
+        offset_ += audioProcessData.singleBufferSize;
+        if(offset_ > delay_)
+        {
+            offset_ %= delay_;
+        }
     }
 }
 }
