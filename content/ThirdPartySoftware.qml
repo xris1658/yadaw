@@ -100,6 +100,12 @@ Window {
                         description: qsTr("Typeface used with Simplified Chinese localization")
                         license: "GPL v3"
                     }
+                    ListElement {
+                        name: "ade"
+                        website: "https://github.com/opencv/ade"
+                        description: qsTr("Graph construction, manipulation, and processing")
+                        license: "Apache-2.0"
+                    }
                 }
                 delegate: Item {
                     width: listView.width
