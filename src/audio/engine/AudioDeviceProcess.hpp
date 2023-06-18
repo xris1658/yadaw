@@ -26,7 +26,7 @@ private: // Expression SFINAE
 public:
     template<typename T>
     explicit AudioDeviceProcess(T& audioDevice):
-        audioDevice_(static_cast<void*>(&audioDevice)),
+        audioDevice_(static_cast<YADAW::Audio::Device::IAudioDevice*>(&audioDevice)),
         func_(&doProcess<T>)
     {}
 private:
@@ -38,12 +38,16 @@ private:
         static_cast<T*>(ptr)->process(audioProcessData);
     }
 public:
-    void process(const AudioProcessData<float>& audioProcessData)
+    auto device()
+    {
+        return audioDevice_;
+    }
+    inline void process(const AudioProcessData<float>& audioProcessData)
     {
         func_(audioDevice_, audioProcessData);
     }
 private:
-    void* audioDevice_ = nullptr;
+    YADAW::Audio::Device::IAudioDevice* audioDevice_ = nullptr;
     void(*func_)(void*, const AudioProcessData<float>&);
 };
 }

@@ -34,6 +34,9 @@ if(LINUX)
                           asound)
 endif()
 
+add_executable(ADEUtilsTest
+    ADEUtilsTest/main.cpp)
+
 add_executable(LockFreeQueueTest
                ../src/util/CompilerSpecifics.hpp
                ../src/util/LockFreeQueue.hpp
@@ -52,6 +55,8 @@ add_executable(SampleDelayTest
                ../src/audio/util/SampleDelay.cpp
                ../src/audio/util/SampleDelay.hpp
                SampleDelayTest/main.cpp)
+
+target_link_libraries(ADEUtilsTest PRIVATE ade)
 
 target_link_libraries(QStringConversionTest PRIVATE Qt6::Core)
 
