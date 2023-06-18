@@ -14,6 +14,7 @@ using YADAW::Audio::Device::AudioProcessData;
 // A not-owning version of `std::function`
 class AudioDeviceProcess
 {
+#ifdef __GNUC__
 private: // Expression SFINAE
     template<typename T, typename U = void>
     struct HasProcessMethodHelper: std::false_type {};
@@ -23,6 +24,7 @@ private: // Expression SFINAE
     >: std::true_type {};
     template<typename T>
     static constexpr bool hasProcess = HasProcessMethodHelper<T>::value;
+#endif
 public:
     template<typename T>
     explicit AudioDeviceProcess(T& audioDevice):
@@ -34,7 +36,9 @@ private:
     static void doProcess(void* ptr,
         const AudioProcessData<float>& audioProcessData)
     {
+#ifdef __GNUC__
         static_assert(hasProcess<T>);
+#endif
         static_cast<T*>(ptr)->process(audioProcessData);
     }
 public:
