@@ -5,6 +5,7 @@
 #include <ade/typed_graph.hpp>
 #include <ade/typed_metadata.hpp>
 
+#include <algorithm>
 #include <optional>
 #include <set>
 #include <vector>
@@ -24,9 +25,9 @@ std::optional<TopologicalOrderResult<T>> topologicalOrder(const ade::TypedGraph<
     {
         unvisitedNodes.emplace_back(node);
     }
+    std::vector<ade::NodeHandle> currentPassNodes;
     while(!unvisitedNodes.empty())
     {
-        std::vector<ade::NodeHandle> currentPassNodes;
         std::vector<T> currentPassValue;
         auto size = visitedNodes.size();
         for(auto it = unvisitedNodes.begin(); it != unvisitedNodes.end(); ++it)
@@ -34,11 +35,11 @@ std::optional<TopologicalOrderResult<T>> topologicalOrder(const ade::TypedGraph<
             auto& node = *it;
             auto inNodes = node->inNodes();
             if((inNodes.size() <= size)
-               && std::all_of(inNodes.begin(), inNodes.end(),
+                && std::all_of(inNodes.begin(), inNodes.end(),
                     [&visitedNodes](const ade::NodeHandle& nodeHandle)
                     {
                         return std::find(visitedNodes.begin(), visitedNodes.end(), nodeHandle)
-                            != visitedNodes.end();
+                               != visitedNodes.end();
                     }
                 )
             )
@@ -65,6 +66,7 @@ std::optional<TopologicalOrderResult<T>> topologicalOrder(const ade::TypedGraph<
             ),
             unvisitedNodes.end()
         );
+        currentPassNodes.clear();
     }
     return {ret};
 }
