@@ -1,4 +1,5 @@
 #include "util/ADEUtil.hpp"
+#include "util/Stopwatch.hpp"
 
 #include <iostream>
 #include <map>
@@ -47,7 +48,8 @@ int main()
     L('F', 'M');
     L('J', 'M');
 #undef L
-    auto sequence = YADAW::Util::topologicalOrder(typedGraph);
+    auto [sequence, time] = YADAW::Util::stopwatch(&YADAW::Util::topologicalOrder<Node>, std::ref(typedGraph));
+    std::cout << time << '\n';
     if(sequence.has_value())
     {
         auto seq = sequence.value();
