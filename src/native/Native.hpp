@@ -3,7 +3,6 @@
 
 #include "util/Endian.hpp"
 
-#include <QList>
 #include <QString>
 #include <QtGlobal>
 
@@ -42,10 +41,6 @@ void openSpecialCharacterInput();
 void showFileInExplorer(const QString& path);
 
 int getProcessCPUCoreCount();
-
-std::int64_t currentTimeValueInNanosecond();
-
-std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> currentTimePointInNanosecond();
 
 void setThreadPriorityToTimeCritical();
 

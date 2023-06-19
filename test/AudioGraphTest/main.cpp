@@ -1,7 +1,7 @@
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "audio/base/Gain.hpp"
-#include "native/Native.hpp"
 #include "util/Constants.hpp"
+#include "util/Util.hpp"
 
 #include <QString>
 
@@ -28,7 +28,7 @@ double sampleRate = 0;
 void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudioBuffer* inputs,
     int outputCount, const AudioGraphBackend::InterleaveAudioBuffer* outputs)
 {
-    auto start = YADAW::Native::currentTimeValueInNanosecond();
+    auto start = YADAW::Util::currentTimeValueInNanosecond();
     int frameCount = 0;
     int firstAvailableInput = -1;
     for(int i = 0; i < inputCount; ++i)
@@ -70,7 +70,7 @@ void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudio
         }
     }
     samplePosition += frameCount;
-    callbackDuration = YADAW::Native::currentTimeValueInNanosecond() - start;
+    callbackDuration = YADAW::Util::currentTimeValueInNanosecond() - start;
 }
 
 int main()

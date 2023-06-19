@@ -5,6 +5,8 @@
 #include "util/Base.hpp"
 #include "util/FixedSizeMemoryBlock.hpp"
 
+#include <QList>
+
 #include <ShlObj_core.h>
 #include <shellapi.h>
 #include <processthreadsapi.h>
@@ -130,35 +132,6 @@ int getProcessCPUCoreCount()
     auto procMask = Impl::procMask();
     auto bitset = reinterpret_cast<std::bitset<sizeof(procMask) * CHAR_BIT>*>(&procMask);
     return bitset->count();
-}
-
-std::int64_t currentTimeValueInNanosecond()
-{
-    // // Ver 1 (Windows API)
-    // auto qpf = Impl::qpf();
-    // LARGE_INTEGER qpc;
-    // QueryPerformanceCounter(&qpc);
-    // return qpc.QuadPart * 1e9 / static_cast<double>(qpf);
-    // Ver 1 (Modern C++ API)
-    // std::chrono::steady_clock is implemented on MSVC using QPC.
-    // https://github.com/microsoft/STL/blob/main/stl/inc/__msvc_chrono.hpp#L668
-    // Thread affinity is not set automatically. If you want the time to be continuous, make sure
-    // that this thread only runs on only one CPU core.
-    // return std::chrono::steady_clock::now().time_since_epoch().count();
-
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::steady_clock::now().time_since_epoch()
-    ).count();
-
-     // // Ver 2
-     // std::uint64_t ret;
-     // QueryInterruptTimePrecise(&ret);
-     // return ret * 100;
-}
-
-std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> currentTimePointInNanosecond()
-{
-    return std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now());
 }
 
 void setThreadPriorityToTimeCritical()

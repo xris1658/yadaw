@@ -1,7 +1,7 @@
 #include "VST3ComponentHandler.hpp"
 
 #include "audio/plugin/VST3Plugin.hpp"
-#include "native/Native.hpp"
+#include "util/Util.hpp"
 
 namespace YADAW::Audio::Host
 {
@@ -82,7 +82,7 @@ tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue
 {
     // std::printf("performEdit(%u, %lf)\n", id, normalizedValue);
     auto hostBufferIndex = hostBufferIndex_;
-    auto timestamp = YADAW::Native::currentTimeValueInNanosecond();
+    auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
     // Is the following operation needed? Seems not.
     // plugin_->editController()->setParamNormalized(id, normalizedValue);
     auto iterator = std::find_if(mappings_[hostBufferIndex].begin(), mappings_[hostBufferIndex].end(),

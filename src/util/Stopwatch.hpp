@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_UTIL_STOPWATCH
 #define YADAW_SRC_UTIL_STOPWATCH
 
-#include "native/Native.hpp"
+#include "util/Util.hpp"
 
 #include <tuple>
 
@@ -13,7 +13,7 @@ using Function = ReturnType(Args...);
 template<typename Function, typename... Args, typename ReturnType = std::result_of_t<Function(Args...)>>
 std::tuple<ReturnType, std::int64_t> stopwatch(Function&& function, Args&&... args)
 {
-    auto start = YADAW::Native::currentTimeValueInNanosecond();
+    auto start = YADAW::Util::currentTimeValueInNanosecond();
     auto ret = std::make_tuple<ReturnType, std::int64_t>(
         std::forward<Function>(function)(std::forward<Args>(args)...), 0);
     // Make sure the time is retrieved AFTER the result is valid
@@ -22,16 +22,16 @@ std::tuple<ReturnType, std::int64_t> stopwatch(Function&& function, Args&&... ar
     // There's a better solution in terms of initializing multiple objects in the tuple in a fixed
     // order: https://stackoverflow.com/questions/49414550
     auto& [result, time] = ret;
-    time = YADAW::Native::currentTimeValueInNanosecond() - start;
+    time = YADAW::Util::currentTimeValueInNanosecond() - start;
     return ret;
 }
 
 template<typename... Args>
 std::int64_t stopwatchVoid(Function<void, Args...>&& function, Args&&... args)
 {
-    auto start = YADAW::Native::currentTimeValueInNanosecond();
+    auto start = YADAW::Util::currentTimeValueInNanosecond();
     std::forward<Function<void, Args...>>(function)(std::forward<Args>(args)...);
-    return YADAW::Native::currentTimeValueInNanosecond() - start;
+    return YADAW::Util::currentTimeValueInNanosecond() - start;
 }
 }
 

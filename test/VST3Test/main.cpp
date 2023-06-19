@@ -3,11 +3,11 @@
 #include "audio/host/VST3Host.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "audio/util/VST3Helper.hpp"
-#include "native/Native.hpp"
 #include "native/VST3Native.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/Native.hpp"
 #include "util/Constants.hpp"
+#include "util/Util.hpp"
 
 #include <QGuiApplication>
 #include <QScreen>
@@ -225,7 +225,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                             {
                                 if(auto componentHandler = plugin.componentHandler(); componentHandler)
                                 {
-                                    componentHandler->consumeOutputParameterChanges(YADAW::Native::currentTimeValueInNanosecond());
+                                    componentHandler->consumeOutputParameterChanges(YADAW::Util::currentTimeValueInNanosecond());
                                 }
                                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
                             }
@@ -237,7 +237,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     [&stop, &plugin]()
                     {
                         using Steinberg::Vst::ProcessContext;
-                        auto timestamp = YADAW::Native::currentTimeValueInNanosecond();
+                        auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
                         auto& processContext = YADAW::Audio::Host::VST3Host::processContext();
                         processContext.state = ProcessContext::StatesAndFlags::kSystemTimeValid | ProcessContext::StatesAndFlags::kPlaying;
                         processContext.sampleRate = 48000;

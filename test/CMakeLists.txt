@@ -35,6 +35,8 @@ if(LINUX)
 endif()
 
 add_executable(ADEUtilsTest
+    ../src/util/Util.cpp
+    ../src/util/Util.hpp
     ADEUtilsTest/main.cpp)
 
 add_executable(LockFreeQueueTest

@@ -54,18 +54,6 @@ void sleepFor(std::chrono::steady_clock::duration duration)
 
 std::once_flag defaultPluginListFlag;
 
-std::int64_t currentTimeValueInNanosecond()
-{
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::steady_clock::now().time_since_epoch()
-    ).count();
-}
-
-std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> currentTimePointInNanosecond()
-{
-    return std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now());
-}
-
 const std::vector<QString>& defaultPluginDirectoryList()
 {
     static std::vector<QString> ret;

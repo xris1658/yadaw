@@ -294,6 +294,8 @@ set(YADAW_COMMON_SOURCES
     src/util/SineFunction.cpp
     src/util/SineFunction.hpp
     src/util/Stopwatch.hpp
+    src/util/Util.cpp
+    src/util/Util.hpp
     src/util/YAMLCppUtil.hpp
     )
 
