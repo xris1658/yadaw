@@ -5,7 +5,7 @@
 
 #include <type_traits>
 
-#define DECLVAL_FUNCTION(class_name, function_name, data_type) std::declval<class_name>.function_name(std::declval<data_type>())
+#define DECLVAL_FUNCTION(class_name, function_name, data_type) std::declval<class_name>().function_name(std::declval<data_type>())
 
 namespace YADAW::Audio::Engine
 {
@@ -14,7 +14,6 @@ using YADAW::Audio::Device::AudioProcessData;
 // A not-owning version of `std::function`
 class AudioDeviceProcess
 {
-#ifndef __GNUC__
 private: // Expression SFINAE
     template<typename T, typename U = void>
     struct HasProcessMethodHelper: std::false_type {};
@@ -24,7 +23,6 @@ private: // Expression SFINAE
     >: std::true_type {};
     template<typename T>
     static constexpr bool hasProcess = HasProcessMethodHelper<T>::value;
-#endif
 public:
     template<typename T>
     explicit AudioDeviceProcess(T& audioDevice):
@@ -36,9 +34,7 @@ private:
     static void doProcess(void* ptr,
         const AudioProcessData<float>& audioProcessData)
     {
-#ifndef __GNUC__
         static_assert(hasProcess<T>);
-#endif
         static_cast<T*>(ptr)->process(audioProcessData);
     }
 public:
