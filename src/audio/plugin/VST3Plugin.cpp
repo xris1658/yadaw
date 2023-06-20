@@ -21,7 +21,7 @@ VST3Plugin::VST3Plugin(
     VST3Plugin::ExitEntry exitEntry):
     exitEntry_(nullptr)
 {
-    if((!initEntry) || (!initEntry()))
+    if(initEntry && (!initEntry()))
     {
         return;
     }
