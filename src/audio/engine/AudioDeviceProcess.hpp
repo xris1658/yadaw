@@ -38,7 +38,11 @@ private:
         static_cast<T*>(ptr)->process(audioProcessData);
     }
 public:
-    auto device()
+    const YADAW::Audio::Device::IAudioDevice* device() const
+    {
+        return audioDevice_;
+    }
+    YADAW::Audio::Device::IAudioDevice* device()
     {
         return audioDevice_;
     }
