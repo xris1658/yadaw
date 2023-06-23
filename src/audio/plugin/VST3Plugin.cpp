@@ -233,7 +233,7 @@ bool VST3Plugin::startProcessing()
 
 bool VST3Plugin::stopProcessing()
 {
-    auto result = audioProcessor_->setProcessing(true);
+    auto result = audioProcessor_->setProcessing(false);
     if(result == Steinberg::kResultOk || result == Steinberg::kNotImplemented)
     {
         status_ = IAudioPlugin::Status::Activated;
