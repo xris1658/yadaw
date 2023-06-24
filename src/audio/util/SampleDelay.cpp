@@ -49,6 +49,10 @@ SampleDelay::SampleDelay(std::uint32_t delay,
     const YADAW::Audio::Device::IAudioChannelGroup& channelGroup):
     delay_(delay),
     processing_(false),
+    processFunc_(delay_ == 0?
+        &SampleDelay::doProcessIfDelayIsZero:
+        &SampleDelay::doProcessIfDelayIsNotZero
+    ),
     offset_(0),
     buffers_(channelGroup.channelCount(), std::vector<float>(delay, 0.0f)),
     channelGroup_(channelGroup)
@@ -107,6 +111,8 @@ bool SampleDelay::setDelay(std::uint32_t delay)
         }
         buffers_ = std::move(buffers);
         delay_ = delay;
+        processFunc_ = delay_ == 0? &SampleDelay::doProcessIfDelayIsZero:
+            &SampleDelay::doProcessIfDelayIsNotZero;
         return true;
     }
     return false;
@@ -167,20 +173,36 @@ void SampleDelay::process(const Device::AudioProcessData<float>& audioProcessDat
 {
     if(processing_)
     {
-        for(std::uint32_t i = 0; i < audioProcessData.outputCounts[0]; ++i)
+        (this->*processFunc_)(audioProcessData);
+    }
+}
+
+void SampleDelay::doProcessIfDelayIsZero(const Device::AudioProcessData<float>& audioProcessData)
+{
+    for(std::uint32_t i = 0; i < audioProcessData.outputCounts[0]; ++i)
+    {
+        for(std::uint32_t j = 0; j < audioProcessData.singleBufferSize; ++j)
         {
-            for(std::uint32_t j = 0; j < audioProcessData.singleBufferSize; ++j)
-            {
-                auto input = audioProcessData.inputs[0][i][j];
-                audioProcessData.outputs[0][i][j] = buffers_[i][(j + offset_) % delay_];
-                buffers_[i][(j + offset_) % delay_] = input;
-            }
+            audioProcessData.outputs[0][i][j] = audioProcessData.inputs[0][i][j];
         }
-        offset_ += audioProcessData.singleBufferSize;
-        if(offset_ > delay_)
+    }
+}
+
+void SampleDelay::doProcessIfDelayIsNotZero(const Device::AudioProcessData<float>& audioProcessData)
+{
+    for(std::uint32_t i = 0; i < audioProcessData.outputCounts[0]; ++i)
+    {
+        for(std::uint32_t j = 0; j < audioProcessData.singleBufferSize; ++j)
         {
-            offset_ %= delay_;
+            auto input = audioProcessData.inputs[0][i][j];
+            audioProcessData.outputs[0][i][j] = buffers_[i][(j + offset_) % delay_];
+            buffers_[i][(j + offset_) % delay_] = input;
         }
+    }
+    offset_ += audioProcessData.singleBufferSize;
+    if(offset_ > delay_)
+    {
+        offset_ %= delay_;
     }
 }
 }

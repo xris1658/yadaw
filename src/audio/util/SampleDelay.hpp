@@ -46,10 +46,14 @@ public:
     OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const override;
     OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
     std::uint32_t latencyInSamples() const override;
-    void process(const Device::AudioProcessData<float>& audioProcessData) override;
+    void process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData) override;
+private:
+    void doProcessIfDelayIsZero(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData);
+    void doProcessIfDelayIsNotZero(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData);
 private:
     std::uint32_t delay_;
     bool processing_;
+    void (SampleDelay::*processFunc_)(const YADAW::Audio::Device::AudioProcessData<float>&);
     std::uint64_t offset_;
     std::vector<std::vector<float>> buffers_;
     AudioChannelGroup channelGroup_;
