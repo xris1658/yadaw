@@ -20,6 +20,8 @@ public:
     virtual bool isMain() const = 0;
 protected:
     static int channelCount(YADAW::Audio::Base::ChannelGroupType channelGroupType);
+    static YADAW::Audio::Base::ChannelType channelAt(YADAW::Audio::Base::ChannelGroupType channelGroupType,
+        std::uint32_t index);
     static bool isChannelInGroup(YADAW::Audio::Base::ChannelType channelType, YADAW::Audio::Base::ChannelGroupType channelGroupType);
 };
 }
