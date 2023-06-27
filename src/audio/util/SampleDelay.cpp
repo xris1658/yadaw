@@ -58,6 +58,38 @@ SampleDelay::SampleDelay(std::uint32_t delay,
     channelGroup_(channelGroup)
 {}
 
+SampleDelay::SampleDelay(SampleDelay&& rhs) noexcept:
+    delay_(rhs.delay_),
+    processing_(rhs.processing_),
+    processFunc_(rhs.processFunc_),
+    offset_(rhs.offset_),
+    buffers_(std::move(rhs.buffers_)),
+    channelGroup_(std::move(rhs.channelGroup_))
+{
+    rhs.delay_ = 0;
+    rhs.offset_ = 0;
+    rhs.processing_ = false;
+    rhs.processFunc_ = &SampleDelay::doProcessIfDelayIsZero;
+}
+
+SampleDelay& SampleDelay::operator=(SampleDelay&& rhs) noexcept
+{
+    if(this != &rhs)
+    {
+        delay_ = rhs.delay_;
+        processing_ = rhs.processing_;
+        processFunc_ = rhs.processFunc_;
+        offset_ = rhs.offset_;
+        buffers_ = std::move(rhs.buffers_);
+        channelGroup_ = std::move(rhs.channelGroup_);
+        rhs.delay_ = 0;
+        rhs.offset_ = 0;
+        rhs.processing_ = false;
+        rhs.processFunc_ = &SampleDelay::doProcessIfDelayIsZero;
+    }
+    return *this;
+}
+
 SampleDelay::~SampleDelay() noexcept
 {
     stopProcessing();
@@ -116,6 +148,11 @@ bool SampleDelay::setDelay(std::uint32_t delay)
         return true;
     }
     return false;
+}
+
+bool SampleDelay::isProcessing() const
+{
+    return processing_;
 }
 
 bool SampleDelay::startProcessing()
@@ -181,9 +218,12 @@ void SampleDelay::doProcessIfDelayIsZero(const Device::AudioProcessData<float>& 
 {
     for(std::uint32_t i = 0; i < audioProcessData.outputCounts[0]; ++i)
     {
-        for(std::uint32_t j = 0; j < audioProcessData.singleBufferSize; ++j)
+        if(audioProcessData.outputs[0][i] != audioProcessData.inputs[0][i])
         {
-            audioProcessData.outputs[0][i][j] = audioProcessData.inputs[0][i][j];
+            for(std::uint32_t j = 0; j < audioProcessData.singleBufferSize; ++j)
+            {
+                audioProcessData.outputs[0][i][j] = audioProcessData.inputs[0][i][j];
+            }
         }
     }
 }

@@ -32,12 +32,13 @@ public:
         const YADAW::Audio::Device::IAudioChannelGroup& channelGroup
     );
     SampleDelay(const SampleDelay&) = delete;
-    SampleDelay(SampleDelay&&) = delete;
+    SampleDelay(SampleDelay&& rhs) noexcept;
     SampleDelay& operator=(const SampleDelay&) = delete;
-    SampleDelay& operator=(SampleDelay&&) = delete;
+    SampleDelay& operator=(SampleDelay&& rhs) noexcept;
     ~SampleDelay() noexcept;
 public:
     bool setDelay(std::uint32_t delay);
+    bool isProcessing() const;
     bool startProcessing();
     bool stopProcessing();
 public:
