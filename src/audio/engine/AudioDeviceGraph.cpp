@@ -184,13 +184,14 @@ void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)
             auto& processNode = getMetadataFromNode(front);
             if(processNode.process.device()->audioInputGroupCount() > 1)
             {
-                auto outNodes = front->outNodes();
-                auto maxSumLatencyNodeIterator = std::max_element(outNodes.begin(), outNodes.end(),
+                auto inNodes = front->inNodes();
+                auto maxSumLatencyNodeIterator = std::max_element(inNodes.begin(), inNodes.end(),
                     [this](const ade::NodeHandle& lhs, const ade::NodeHandle& rhs)
                     {
                         return getMetadataFromNode(lhs).sumLatency() < getMetadataFromNode(rhs).sumLatency();
                     }
                 );
+                assert(maxSumLatencyNodeIterator != inNodes.end());
                 auto maxSumLatency = getMetadataFromNode(*maxSumLatencyNodeIterator).sumLatency();
                 processNode.upstreamLatency = maxSumLatency;
             }
@@ -222,17 +223,20 @@ void AudioDeviceGraph::compensate()
         auto upstreamLatency = getMetadataFromNode(nodeHandle).upstreamLatency;
         for(auto& pdc: pdcs)
         {
-            auto metadata = getMetadataFromNode(pdc);
-            auto* sampleDelay = static_cast<YADAW::Audio::Util::SampleDelay*>(metadata.process.device());
-            auto processing = sampleDelay->isProcessing();
-            if(processing)
+            if(!(pdc->inNodes().empty()))
             {
-                sampleDelay->stopProcessing();
-            }
-            sampleDelay->setDelay(upstreamLatency - metadata.upstreamLatency);
-            if(processing)
-            {
-                sampleDelay->startProcessing();
+                auto metadata = getMetadataFromNode(pdc);
+                auto* sampleDelay = static_cast<YADAW::Audio::Util::SampleDelay*>(metadata.process.device());
+                auto processing = sampleDelay->isProcessing();
+                if(processing)
+                {
+                    sampleDelay->stopProcessing();
+                }
+                sampleDelay->setDelay(upstreamLatency - metadata.upstreamLatency);
+                if(processing)
+                {
+                    sampleDelay->startProcessing();
+                }
             }
         }
     }
