@@ -54,7 +54,7 @@ void Summing::process(const Device::AudioProcessData<float>& audioProcessData)
         {
             for(std::uint32_t k = 0; k < audioProcessData.singleBufferSize; ++k)
             {
-                audioProcessData.outputs[0][j][k] = audioProcessData.inputs[i][j][k];
+                audioProcessData.outputs[0][j][k] += audioProcessData.inputs[i][j][k];
             }
         }
     }
