@@ -17,7 +17,7 @@ public:
     Summing(Summing&& rhs) noexcept = default;
     Summing& operator=(const Summing& rhs) = default;
     Summing& operator=(Summing&& rhs) noexcept = default;
-    ~Summing();
+    ~Summing() noexcept = default;
 public:
     std::uint32_t audioInputGroupCount() const override;
     std::uint32_t audioOutputGroupCount() const override;

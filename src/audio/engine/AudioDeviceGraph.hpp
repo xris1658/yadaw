@@ -3,6 +3,7 @@
 
 #include "audio/engine/AudioDeviceProcess.hpp"
 #include "audio/util/SampleDelay.hpp"
+#include "util/ADEUtil.hpp"
 
 #include <ade/node.hpp>
 #include <ade/edge.hpp>
@@ -18,7 +19,7 @@ namespace YADAW::Audio::Engine
 {
 class AudioDeviceGraph
 {
-private:
+public:
     struct AudioDeviceProcessNode
     {
         AudioDeviceProcess process;
@@ -39,6 +40,7 @@ public:
 private:
     auto& getMetadataFromNode(const ade::NodeHandle& nodeHandle) const;
     auto& getMetadataFromNode(ade::NodeHandle& nodeHandle);
+    void setMetadataFromNode(ade::NodeHandle& nodeHandle, AudioDeviceProcessNode&& metadata);
 private:
     ade::NodeHandle doAddNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData);
     void doRemoveNode(ade::NodeHandle nodeHandle);
@@ -51,6 +53,8 @@ public:
         std::uint32_t fromChannel, std::uint32_t toChannel);
     void disconnect(ade::EdgeHandle edgeHandle);
     void disconnect(const std::vector<ade::EdgeHandle>& edgeHandles);
+public:
+    std::optional<YADAW::Util::TopologicalOrderResult<AudioDeviceProcessNode>> topologicalOrder() const;
 private:
     void onSumLatencyChanged(ade::NodeHandle nodeHandle);
     void compensate();

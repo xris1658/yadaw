@@ -76,7 +76,7 @@ void AudioChannelGroup::setChannelGroupType(YADAW::Audio::Base::ChannelGroupType
         {
             speakers_.emplace_back(IAudioChannelGroup::channelAt(channelGroupType, i));
         }
-        speakers_.resize(channelCount, YADAW::Audio::Base::ChannelType::);
+        speakers_.resize(channelCount, YADAW::Audio::Base::ChannelType::Custom);
         speakerNames_.resize(channelCount);
     }
 }

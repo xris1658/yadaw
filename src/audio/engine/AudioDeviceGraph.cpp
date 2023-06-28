@@ -1,5 +1,7 @@
 #include "AudioDeviceGraph.hpp"
 
+#include "util/ADEUtil.hpp"
+
 #include <deque>
 
 namespace YADAW::Audio::Engine
@@ -19,10 +21,16 @@ auto& AudioDeviceGraph::getMetadataFromNode(ade::NodeHandle& nodeHandle)
     return typedGraph_.metadata(nodeHandle).get<AudioDeviceProcessNode>();
 }
 
+void AudioDeviceGraph::setMetadataFromNode(
+    ade::NodeHandle& nodeHandle, AudioDeviceGraph::AudioDeviceProcessNode&& metadata)
+{
+    typedGraph_.metadata(nodeHandle).set<AudioDeviceProcessNode>(std::move(metadata));
+}
+
 ade::NodeHandle AudioDeviceGraph::doAddNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData)
 {
-    auto nodeHandle = typedGraph_.createNode();
-    getMetadataFromNode(nodeHandle) = AudioDeviceProcessNode{std::move(process), std::move(audioProcessData)});
+    auto nodeHandle = graph_.createNode();
+    setMetadataFromNode(nodeHandle, AudioDeviceProcessNode{std::move(process), std::move(audioProcessData)});
     return nodeHandle;
 }
 
@@ -53,7 +61,7 @@ ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, AudioPro
     if(auto audioInputGroupCount = device->audioInputGroupCount();
         audioInputGroupCount > 1)
     {
-        auto pair = multiInputNodes_.emplace_back(std::make_pair(nodeHandle, std::vector<ade::NodeHandle>()));
+        auto& pair = multiInputNodes_.emplace_back(std::make_pair(nodeHandle, std::vector<ade::NodeHandle>()));
         for(decltype(audioInputGroupCount) i = 0; i < audioInputGroupCount; ++i)
         {
             auto [it, inserted] = pdc_.emplace(
@@ -114,12 +122,19 @@ ade::EdgeHandle AudioDeviceGraph::connect(ade::NodeHandle from, ade::NodeHandle 
         auto it = std::find_if(multiInputNodes_.begin(), multiInputNodes_.end(),
             [&to](const auto& pair) { return pair.first == to; });
         ret = doConnect(from, it->second[toChannel], fromChannel, 0);
-        onSumLatencyChanged(it->second[toChannel]);
+        if(getMetadataFromNode(from).sumLatency() > 0)
+        {
+            onSumLatencyChanged(it->second[toChannel]);
+        }
     }
     else
     {
+        auto latencyReduced = getMetadataFromNode(from).sumLatency() > 0;
         ret = doConnect(from, to, fromChannel, toChannel);
-        onSumLatencyChanged(to);
+        if(latencyReduced)
+        {
+            onSumLatencyChanged(to);
+        }
     }
     return ret;
 }
@@ -149,6 +164,12 @@ void AudioDeviceGraph::disconnect(const std::vector<ade::EdgeHandle>& edgeHandle
     }
 }
 
+std::optional<YADAW::Util::TopologicalOrderResult<AudioDeviceGraph::AudioDeviceProcessNode>>
+    AudioDeviceGraph::topologicalOrder() const
+{
+    return YADAW::Util::topologicalOrder(typedGraph_);
+}
+
 void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)
 {
     std::deque<ade::NodeHandle> deque;
@@ -160,7 +181,8 @@ void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)
         for(decltype(size) i = 0; i < size; ++i)
         {
             auto& front = deque.front();
-            if(getMetadataFromNode(front).process.device()->audioInputGroupCount() > 1)
+            auto& processNode = getMetadataFromNode(front);
+            if(processNode.process.device()->audioInputGroupCount() > 1)
             {
                 auto outNodes = front->outNodes();
                 auto maxSumLatencyNodeIterator = std::max_element(outNodes.begin(), outNodes.end(),
@@ -170,17 +192,17 @@ void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)
                     }
                 );
                 auto maxSumLatency = getMetadataFromNode(*maxSumLatencyNodeIterator).sumLatency();
-                getMetadataFromNode(front).upstreamLatency = maxSumLatency;
+                processNode.upstreamLatency = maxSumLatency;
             }
             else
             {
                 if(const auto& inNodes = front->inNodes(); inNodes.empty())
                 {
-                    getMetadataFromNode(front).upstreamLatency = 0;
+                    processNode.upstreamLatency = 0;
                 }
                 else
                 {
-                    getMetadataFromNode(front).upstreamLatency = getMetadataFromNode(inNodes.front()).sumLatency();
+                    processNode.upstreamLatency = getMetadataFromNode(inNodes.front()).sumLatency();
                 }
             }
             for(auto&& outNode: front->outNodes())
