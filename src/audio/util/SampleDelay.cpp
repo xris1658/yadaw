@@ -157,12 +157,8 @@ bool SampleDelay::isProcessing() const
 
 bool SampleDelay::startProcessing()
 {
-    if(delay_ != 0)
-    {
-        processing_ = true;
-        return true;
-    }
-    return false;
+    processing_ = true;
+    return true;
 }
 
 bool SampleDelay::stopProcessing()
