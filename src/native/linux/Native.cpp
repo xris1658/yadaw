@@ -3,6 +3,8 @@
 #include "native/Native.hpp"
 #include "util/Base.hpp"
 
+#include <QStringList>
+
 #include <time.h>
 #include <unistd.h>
 

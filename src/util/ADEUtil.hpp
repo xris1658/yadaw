@@ -54,7 +54,7 @@ std::optional<TopologicalOrderResult<T>> topologicalOrder(const ade::TypedGraph<
         for(const auto& currentPassNode: currentPassNodes)
         {
             visitedNodes.emplace_back(currentPassNode);
-            currentPassValue.emplace_back(graph.metadata(currentPassNode).get<T>());
+            currentPassValue.emplace_back(graph.metadata(currentPassNode).template get<T>());
         }
         ret.emplace_back(std::move(currentPassValue));
         unvisitedNodes.erase(

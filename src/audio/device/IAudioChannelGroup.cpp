@@ -3,7 +3,7 @@
 using namespace YADAW::Audio::Base;
 
 template<ChannelGroupType>
-ChannelType speakers[];
+ChannelType speakers[] = {};
 
 template<>
 ChannelType speakers
