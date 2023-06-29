@@ -79,6 +79,7 @@ ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, AudioPro
                 processData.outputs = audioProcessData.inputs + i;
                 processData.inputCounts = processData.outputCounts;
                 processData.inputs = processData.outputs;
+                (*it)->startProcessing();
                 auto pdcNodeHandle = doAddNode(
                     AudioDeviceProcess(*(it->get())),
                     std::move(processData)
