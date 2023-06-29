@@ -9,7 +9,8 @@
 int main()
 {
     std::random_device randomDevice;
-    std::vector<float> source(64, 0.0f);
+    auto bufferSize = 64;
+    std::vector<float> source(bufferSize, 0.0f);
     for(auto& data: source)
     {
         data = randomDevice() / static_cast<float>(std::random_device::max() - std::random_device::min());
@@ -18,33 +19,35 @@ int main()
     YADAW::Audio::Util::AudioChannelGroup audioChannelGroup;
     audioChannelGroup.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::Stereo);
     std::vector<YADAW::Audio::Util::SampleDelay> sd;
+    auto deviceCount = 8;
+    sd.reserve(deviceCount);
     std::vector<ade::NodeHandle> nodes;
     auto channelCount = audioChannelGroup.channelCount();
     std::vector<std::vector<std::vector<float>>> d3(
-        8,
+        deviceCount,
         std::vector<std::vector<float>>(
             channelCount,
             std::vector<float>(
-                64, 0.0f
+                bufferSize, 0.0f
             )
         )
     );
     std::vector<std::vector<float*>> d2(
-        8,
+        deviceCount,
         std::vector<float*>(
             channelCount,
             nullptr
         )
         );
     std::vector<std::uint32_t> c1(
-        8,
+        deviceCount,
         channelCount
     );
     std::vector<float**> d1(
-        8, nullptr
+        deviceCount, nullptr
     );
-    std::vector<YADAW::Audio::Device::AudioProcessData<float>> a1(8);
-    for(int i = 0; i < 8; ++i)
+    std::vector<YADAW::Audio::Device::AudioProcessData<float>> a1(deviceCount);
+    for(int i = 0; i < deviceCount; ++i)
     {
         d2.emplace_back();
         for(int j = 0; j < channelCount; ++j)
@@ -52,20 +55,23 @@ int main()
             d2[i][j] = d3[i][j].data();
         }
         d1[i] = d2[i].data();
-        sd.emplace_back(i * 5 % 8, audioChannelGroup);
+        sd.emplace_back(i * 5 % deviceCount, audioChannelGroup);
         sd.back().startProcessing();
-        a1[i].singleBufferSize = 64;
-        a1[i].inputGroupCount = d1.size();
-        a1[i].inputCounts = c1.data();
-        a1[i].inputs = d1.data();
-        a1[i].outputGroupCount = d1.size();
-        a1[i].outputCounts = c1.data();
-        a1[i].outputs = d1.data();
+        a1[i].singleBufferSize = bufferSize;
+        a1[i].inputGroupCount = 1;
+        a1[i].inputCounts = c1.data() + i;
+        a1[i].inputs = d1.data() + i;
+        a1[i].outputGroupCount = 1;
+        a1[i].outputCounts = c1.data() + i;
+        a1[i].outputs = d1.data() + i;
+    }
+    for(int i = 0; i < deviceCount; ++i)
+    {
         nodes.emplace_back(graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(sd[i]), std::move(a1[i])));
     }
-    YADAW::Audio::Util::Summing summing(8, YADAW::Audio::Base::ChannelGroupType::Stereo);
+    YADAW::Audio::Util::Summing summing(deviceCount, YADAW::Audio::Base::ChannelGroupType::Stereo);
     std::vector<std::vector<float>> sd3(
-        channelCount, std::vector<float>(64, 0.0f)
+        channelCount, std::vector<float>(bufferSize, 0.0f)
     );
     std::vector<float*> sd2(channelCount, nullptr);
     for(int i = 0; i < channelCount; ++i)
@@ -75,7 +81,7 @@ int main()
     std::uint32_t sc1 = 2;
     float** sd1 = sd2.data();
     YADAW::Audio::Device::AudioProcessData<float> spd;
-    spd.singleBufferSize = 64;
+    spd.singleBufferSize = bufferSize;
     spd.inputGroupCount = d1.size();
     spd.inputCounts = c1.data();
     spd.inputs = d1.data();
@@ -83,7 +89,7 @@ int main()
     spd.outputCounts = &sc1;
     spd.outputs = &sd1;
     auto summingNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(summing), std::move(spd));
-    for(int i = 0; i < 8; ++i)
+    for(int i = 0; i < deviceCount; ++i)
     {
         graph.connect(nodes[i], summingNode, 0, i);
     }
@@ -92,7 +98,7 @@ int main()
     auto& topo = optionalTopo.value();
     for(int i = 0; i < 10; ++i)
     {
-        for(int j = 0; j < 8; j += 2)
+        for(int j = 0; j < deviceCount; j += 2)
         {
             for(int k = 0; k < channelCount; ++k)
             {
@@ -120,7 +126,7 @@ int main()
                         vec.begin(), vec.end(),
                         [](float value)
                         {
-                            return value = 0.0f;
+                            return value == 0.0f;
                         }
                     );
                 }
