@@ -186,15 +186,15 @@ void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)
             if(processNode.process.device()->audioInputGroupCount() > 1)
             {
                 auto inNodes = front->inNodes();
-                auto maxSumLatencyNodeIterator = std::max_element(inNodes.begin(), inNodes.end(),
+                auto maxUpstreamLatencyNodeIterator = std::max_element(inNodes.begin(), inNodes.end(),
                     [this](const ade::NodeHandle& lhs, const ade::NodeHandle& rhs)
                     {
-                        return getMetadataFromNode(lhs).sumLatency() < getMetadataFromNode(rhs).sumLatency();
+                        return getMetadataFromNode(lhs).upstreamLatency < getMetadataFromNode(rhs).upstreamLatency;
                     }
                 );
-                assert(maxSumLatencyNodeIterator != inNodes.end());
-                auto maxSumLatency = getMetadataFromNode(*maxSumLatencyNodeIterator).sumLatency();
-                processNode.upstreamLatency = maxSumLatency;
+                assert(maxUpstreamLatencyNodeIterator != inNodes.end());
+                auto maxUpstreamLatency = getMetadataFromNode(*maxUpstreamLatencyNodeIterator).upstreamLatency;
+                processNode.upstreamLatency = maxUpstreamLatency;
             }
             else
             {
