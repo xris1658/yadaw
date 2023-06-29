@@ -31,7 +31,7 @@ public:
     {}
 private:
     template<typename T>
-    static void doProcess(void* ptr,
+    static void doProcess(YADAW::Audio::Device::IAudioDevice* ptr,
         const AudioProcessData<float>& audioProcessData)
     {
         static_assert(hasProcess<T>);
@@ -52,7 +52,7 @@ public:
     }
 private:
     YADAW::Audio::Device::IAudioDevice* audioDevice_ = nullptr;
-    void(*func_)(void*, const AudioProcessData<float>&);
+    void(*func_)(YADAW::Audio::Device::IAudioDevice*, const AudioProcessData<float>&);
 };
 }
 
