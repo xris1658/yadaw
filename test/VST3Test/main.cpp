@@ -1,5 +1,7 @@
 #include "test/common/PluginWindowThread.hpp"
 
+#include "VST3PluginLatencyChangedCallback.hpp"
+
 #include "audio/host/VST3Host.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "audio/util/VST3Helper.hpp"
@@ -38,12 +40,14 @@ bool initializePlugin = true;
 bool activatePlugin = true;
 bool processPlugin = true;
 
+decltype(std::chrono::steady_clock::now() - std::chrono::steady_clock::now()) duration;
+
 char tuid[16];
 void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin, bool activatePlugin, bool processPlugin)
 {
     if(initializePlugin)
     {
-        assert(plugin.initialize(48000, 480));
+        assert(plugin.initialize(44100, 64));
         auto audioInputGroupCount = plugin.audioInputGroupCount();
         std::printf("%d audio input(s)", audioInputGroupCount);
         if(audioInputGroupCount != 0)
@@ -135,13 +139,15 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
         if(activatePlugin)
         {
             assert(plugin.activate());
+            VST3PluginLatencyChangedCallback callback(plugin);
+            plugin.componentHandler()->latencyChanged([&callback]() { callback.latencyChanged(); });
             if(processPlugin)
             {
                 assert(plugin.startProcessing());
                 plugin.setProcessContext(&(YADAW::Audio::Host::VST3Host::processContext()));
                 PluginWindowThread pluginWindowThread(nullptr);
                 // Prepare audio process data {
-                audioProcessData.singleBufferSize = 480;
+                audioProcessData.singleBufferSize = 64;
                 // Inputs
                 std::vector<std::vector<std::vector<float>>> idc1;
                 std::vector<std::vector<float*>> idc2;
@@ -240,7 +246,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                         auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
                         auto& processContext = YADAW::Audio::Host::VST3Host::processContext();
                         processContext.state = ProcessContext::StatesAndFlags::kSystemTimeValid | ProcessContext::StatesAndFlags::kPlaying;
-                        processContext.sampleRate = 48000;
+                        processContext.sampleRate = 44100;
                         processContext.projectTimeSamples = 0;
                         // Audio callback goes here...
                         while(!stop.load(std::memory_order::memory_order_acquire))
@@ -252,9 +258,11 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                                 break;
                             }
                             componentHandler->switchBuffer(timestamp);
-                            auto sleepTo = std::chrono::steady_clock::now() + std::chrono::milliseconds(10);
+                            auto sleepTo = std::chrono::steady_clock::now() + std::chrono::microseconds (64 * 10000 / 441);
                             processContext.systemTime = timestamp;
+                            auto start = std::chrono::steady_clock::now();
                             plugin.process(audioProcessData);
+                            duration = std::chrono::steady_clock::now() - start;
                             processContext.projectTimeSamples += audioProcessData.singleBufferSize;
                             while(std::chrono::steady_clock::now() < sleepTo)
                             {
@@ -331,6 +339,7 @@ int main(int argc, char* argv[])
             testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);
             ++argIndex;
         }
+        std::printf("Duration: %lld\n", duration.count());
     }
     std::wprintf(L"Press any key to continue...");
     getchar();

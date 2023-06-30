@@ -331,7 +331,9 @@ add_executable(VestifalPluginTest ${YADAW_COMMON_SOURCES}
 add_executable(VST3Test ${YADAW_COMMON_SOURCES}
                test/common/PluginWindowThread.hpp
                test/common/PluginWindowThread.cpp
-    test/VST3Test/main.cpp)
+               test/VST3Test/main.cpp
+               test/VST3Test/VST3PluginLatencyChangedCallback.cpp
+               test/VST3Test/VST3PluginLatencyChangedCallback.hpp)
 
 target_precompile_headers(YADAW PRIVATE src/pch.hpp)
 
@@ -411,6 +413,7 @@ target_link_libraries(VestifalPluginTest PRIVATE
 
 target_link_libraries(VST3Test PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
+                      ade
                       contentplugin
                       ${NATIVE_LIBRARY}
                       base pluginterfaces sdk_common sdk_hosting
