@@ -7,6 +7,7 @@
 #include <clap/ext/params.h>
 #include <clap/ext/thread-check.h>
 
+#include <functional>
 #include <thread>
 
 namespace YADAW::Audio::Plugin
@@ -61,10 +62,12 @@ public:
     YADAW::Audio::Plugin::CLAPPlugin* plugin();
     void setMainThreadId(std::thread::id mainThreadId);
     void setAudioThreadId(std::thread::id audioThreadId);
+    void latencyChanged(std::function<void()>&& callback);
 private:
     static std::thread::id mainThreadId_;
     static std::thread::id audioThreadId_;
     YADAW::Audio::Plugin::CLAPPlugin* plugin_;
+    std::function<void()> latencyChanged_;
     clap_host host_;
     clap_host_gui gui_;
     clap_host_latency latency_;

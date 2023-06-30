@@ -6,6 +6,7 @@
 #include <pluginterfaces/vst/ivstaudioprocessor.h>
 #include <pluginterfaces/vst/ivsteditcontroller.h>
 
+#include <functional>
 #include <vector>
 
 namespace YADAW::Audio::Plugin
@@ -63,8 +64,13 @@ public:
     double sampleRate() const;
 public:
     void reserve();
+public:
+    void latencyChanged(std::function<void()>&& callback);
+    void ioChanged(std::function<void()>&& callback);
 private:
     YADAW::Audio::Plugin::VST3Plugin* plugin_;
+    std::function<void()> latencyChanged_;
+    std::function<void()> ioChanged_;
     // Used by host
     int hostBufferIndex_;
     // Set on switchBuffer

@@ -9,6 +9,8 @@ constexpr auto nanosecondCount = 1000000000;
 
 VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin* plugin):
     plugin_(plugin),
+    latencyChanged_([]() {}),
+    ioChanged_([]() {}),
     hostBufferIndex_(0),
     timestamp_(0),
     inputParameterChanges_{},
@@ -138,14 +140,27 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
         }
         return kResultOk;
     }
-    if((flags & RestartFlags::kIoChanged)
-    || (flags & RestartFlags::kLatencyChanged))
+    if(flags & RestartFlags::kIoChanged)
     {
         auto status = plugin_->status();
         plugin_->stopProcessing();
         plugin_->deactivate();
-        // TODO: Query bus configuration and/or latency according to the flags
+        ioChanged_();
         plugin_->activate();
+        if(status >= IAudioPlugin::Status::Processing)
+        {
+            plugin_->startProcessing();
+        }
+        return kResultOk;
+    }
+    if(flags & RestartFlags::kLatencyChanged)
+    {
+        auto status = plugin_->status();
+        plugin_->stopProcessing();
+        plugin_->deactivate();
+        plugin_->activate();
+        auto latency = plugin_->audioProcessor()->getLatencySamples();
+        latencyChanged_();
         if(status >= IAudioPlugin::Status::Processing)
         {
             plugin_->startProcessing();
@@ -221,5 +236,15 @@ void VST3ComponentHandler::reserve()
             mappings_[1].reserve(parameterCount);
         }
     }
+}
+
+void VST3ComponentHandler::latencyChanged(std::function<void()>&& callback)
+{
+    latencyChanged_ = std::move(callback);
+}
+
+void VST3ComponentHandler::ioChanged(std::function<void()>&& callback)
+{
+    ioChanged_ = std::move(callback);
 }
 }

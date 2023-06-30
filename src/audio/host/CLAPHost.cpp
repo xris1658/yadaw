@@ -14,6 +14,7 @@ std::thread::id CLAPHost::audioThreadId_ = {};
 
 CLAPHost::CLAPHost(YADAW::Audio::Plugin::CLAPPlugin* plugin):
     plugin_(plugin),
+    latencyChanged_([]() {}),
     host_
     {
         {
@@ -230,7 +231,7 @@ void CLAPHost::doClosed(bool wasDestroyed)
 
 void CLAPHost::doChanged()
 {
-    // TODO
+    latencyChanged_();
 }
 
 void CLAPHost::doRescan(clap_param_rescan_flags flags)
@@ -261,5 +262,10 @@ void CLAPHost::setMainThreadId(std::thread::id mainThreadId)
 void CLAPHost::setAudioThreadId(std::thread::id audioThreadId)
 {
     audioThreadId_ = audioThreadId;
+}
+
+void CLAPHost::latencyChanged(std::function<void()>&& callback)
+{
+    latencyChanged_ = std::move(callback);
 }
 }
