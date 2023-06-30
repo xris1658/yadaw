@@ -101,7 +101,7 @@ Window {
                         license: "GPL v3"
                     }
                     ListElement {
-                        name: "ade"
+                        name: "ADE"
                         website: "https://github.com/opencv/ade"
                         description: qsTr("Graph construction, manipulation, and processing")
                         license: "Apache-2.0"
