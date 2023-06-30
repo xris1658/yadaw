@@ -55,8 +55,9 @@ public:
     void disconnect(const std::vector<ade::EdgeHandle>& edgeHandles);
 public:
     std::optional<YADAW::Util::TopologicalOrderResult<AudioDeviceProcessNode>> topologicalOrder() const;
-private:
+public:
     void onSumLatencyChanged(ade::NodeHandle nodeHandle);
+private:
     void compensate();
 private:
     ade::Graph graph_;
