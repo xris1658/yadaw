@@ -268,5 +268,10 @@ ApplicationWindow {
                 placeholderText: "abcd"
             }
         }
+        Row {
+            Dial {
+                diameter: 40
+            }
+        }
     }
 }

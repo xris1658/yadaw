@@ -50,6 +50,7 @@ set(CONTENT_QML_FILES
     ComboBox.qml
     Constants.qml
     Detail.qml
+    Dial.qml
     EventReceiver.qml
     EventSender.qml
     FaderIcon.qml

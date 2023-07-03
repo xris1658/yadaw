@@ -29,6 +29,7 @@ ColorPicker 1.0 ColorPicker.qml
 ColorPickerWindow 1.0 ColorPickerWindow.qml
 ComboBox 1.0 ComboBox.qml
 Detail 1.0 Detail.qml
+Dial 1.0 Dial.qml
 FaderIcon 1.0 FaderIcon.qml
 FolderIcon 1.0 FolderIcon.qml
 FollowIcon 1.0 FollowIcon.qml
