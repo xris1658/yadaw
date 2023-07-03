@@ -1,4 +1,5 @@
 #include "../common/PluginWindowThread.hpp"
+#include "CLAPPluginLatencyChangedCallback.hpp"
 
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "audio/host/CLAPEventList.hpp"
@@ -24,6 +25,8 @@
 
 using YADAW::Audio::Backend::AudioGraphBackend;
 
+std::atomic_bool stop;
+
 int inputIndex = -1;
 
 int samplePosition = 0;
@@ -43,9 +46,13 @@ YADAW::Audio::Device::AudioProcessData<float> audioProcessData;
 void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudioBuffer* inputs,
     int outputCount, const AudioGraphBackend::InterleaveAudioBuffer* outputs)
 {
+    pPlugin->host().setAudioThreadId(std::this_thread::get_id());
+    if(pPlugin->status() != YADAW::Audio::Plugin::IAudioPlugin::Status::Processing)
+    {
+        pPlugin->startProcessing();
+    }
     auto start = YADAW::Util::currentTimeValueInNanosecond();
     eventList.flip();
-    pPlugin->host().setAudioThreadId(std::this_thread::get_id());
     for(int i = 0; i < audioProcessData.inputGroupCount; ++i)
     {
         for(int j = 0; j < audioProcessData.inputCounts[i]; ++j)
@@ -74,13 +81,17 @@ void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudio
     }
     samplePosition += frameCount;
     callbackDuration = YADAW::Util::currentTimeValueInNanosecond() - start;
+    if(stop.load(std::memory_order::memory_order_acquire))
+    {
+        pPlugin->stopProcessing();
+    }
 }
 
 int main(int argc, char* argv[])
 {
     if(argc != 3)
     {
-        std::printf("Usage: VST3Test <plugin path> <plugin UID>\nPress any key to continue...");
+        std::printf("Usage: CLAPTest <plugin path> <plugin UID>\nPress any key to continue...");
         getchar();
         return 0;
     }
@@ -140,14 +151,8 @@ int main(int argc, char* argv[])
         YADAW::Native::Library library(argv[1]);
         auto plugin = YADAW::Audio::Util::createCLAPFromLibrary(library);
         pPlugin = &plugin;
-        std::vector<char> uid(strlen(argv[2]) / 2, '\0');
-        for(int i = 0; i < uid.size(); ++i)
-        {
-            unsigned char value = argv[2][i * 2] > '9'? argv[2][i * 2] - 'A' + 10: argv[2][i * 2] - '0';
-            value *= 16;
-            value += argv[2][i * 2 + 1] > '9'? argv[2][i * 2 + 1] - 'A' + 10: argv[2][i * 2 + 1] - '0';
-            std::memcpy(uid.data() + i, &value, 1);
-        }
+        std::vector<char> uid(strlen(argv[2]) + 1, '\0');
+        std::strcpy(uid.data(), argv[2]);
         assert(plugin.createPlugin(uid.data()));
         plugin.host().setMainThreadId(std::this_thread::get_id());
         assert(plugin.initialize(audioGraphBackend.sampleRate(), audioGraphBackend.bufferSizeInFrames()));
@@ -238,7 +243,6 @@ int main(int argc, char* argv[])
         assert(plugin.activate());
         CLAPPluginLatencyChangedCallback callback(plugin);
         plugin.host().latencyChanged([&callback]() { callback.latencyChanged(); });
-        assert(plugin.startProcessing());
         PluginWindowThread pluginWindowThread(nullptr);
         QWindow window;
         window.showNormal();
@@ -294,12 +298,11 @@ int main(int argc, char* argv[])
         audioProcessData.outputs = odc3.data();
         audioProcessData.outputCounts = oc.data();
         // } prepare audio process data
-        std::atomic_bool stop;
         stop.store(false);
         plugin.gui()->attachToWindow(&window);
         audioGraphBackend.start(&audioGraphCallback);
         std::thread uiThread(
-            [&stop, &plugin]()
+            [&plugin]()
             {
                 while(!stop.load(std::memory_order::memory_order_acquire))
                 {
@@ -321,7 +324,6 @@ int main(int argc, char* argv[])
         stop.store(true, std::memory_order::memory_order_release);
         uiThread.join();
         audioGraphBackend.stop();
-        plugin.stopProcessing();
         plugin.deactivate();
         plugin.uninitialize();
         audioGraphBackend.destroyAudioGraph();
