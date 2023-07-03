@@ -27,6 +27,7 @@ namespace YADAW::Audio::Plugin
 {
 class CLAPPlugin: public YADAW::Audio::Plugin::IAudioPlugin
 {
+    friend class YADAW::Audio::Host::CLAPHost;
 public:
     CLAPPlugin();
     CLAPPlugin(const clap_plugin_entry* entry, const QString& path);
@@ -49,6 +50,9 @@ public:
     IPluginGUI* gui() override;
     IPluginParameter* parameter() override;
 public:
+    CLAPPluginGUI* pluginGUI();
+    CLAPPluginParameter* pluginParameter();
+public:
     std::uint32_t audioInputGroupCount() const override;
     std::uint32_t audioOutputGroupCount() const override;
     IAudioDevice::OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const override;
@@ -60,13 +64,15 @@ private:
     void clearAudioRelatedInfo();
     void prepareProcessData();
     void resetProcessData();
+    void refreshAllParameter();
+    void refreshParameterInfo();
 public:
     CLAPEventProcessor* eventProcessor();
     clap_process& processData();
     YADAW::Audio::Host::CLAPHost& host();
     void calledOnMainThread();
 private:
-    YADAW::Audio::Host::CLAPHost host_ {this};
+    YADAW::Audio::Host::CLAPHost host_ {*this};
     IAudioPlugin::Status status_ = IAudioPlugin::Status::Empty;
     clap_process_status processStatus_;
     const clap_plugin_entry* entry_ = nullptr;

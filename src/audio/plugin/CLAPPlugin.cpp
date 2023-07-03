@@ -177,6 +177,16 @@ std::uint32_t CLAPPlugin::tailSizeInSamples()
 
 IPluginGUI* CLAPPlugin::gui()
 {
+    return pluginGUI();
+}
+
+IPluginParameter* CLAPPlugin::parameter()
+{
+    return pluginParameter();
+}
+
+CLAPPluginGUI* CLAPPlugin::pluginGUI()
+{
     if(!gui_)
     {
         const clap_plugin_gui* gui = nullptr;
@@ -189,7 +199,7 @@ IPluginGUI* CLAPPlugin::gui()
     return gui_.get();
 }
 
-IPluginParameter* CLAPPlugin::parameter()
+CLAPPluginParameter* CLAPPlugin::pluginParameter()
 {
     if(!parameter_)
     {
@@ -289,6 +299,22 @@ void CLAPPlugin::prepareProcessData()
 void CLAPPlugin::resetProcessData()
 {
     processData_ = {};
+}
+
+void CLAPPlugin::refreshAllParameter()
+{
+    const clap_plugin_params* params = nullptr;
+    getExtension(plugin_, CLAP_EXT_PARAMS, &params);
+    // parameter_ = std::make_unique<CLAPPluginParameter>(plugin_, params);
+     *parameter_ = std::move(CLAPPluginParameter(plugin_, params));
+}
+
+void CLAPPlugin::refreshParameterInfo()
+{
+    if(parameter_)
+    {
+        parameter_->refreshParameterInfo();
+    }
 }
 
 CLAPEventProcessor* CLAPPlugin::eventProcessor()

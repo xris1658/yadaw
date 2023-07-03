@@ -530,6 +530,14 @@ bool VST3Plugin::destroyEditController()
     return true;
 }
 
+void VST3Plugin::refreshParameterInfo()
+{
+    if(parameter_)
+    {
+        parameter_->refreshParameterInfo();
+    }
+}
+
 void VST3Plugin::setProcessContext(Steinberg::Vst::ProcessContext* processContext)
 {
     processData_.processContext = processContext;

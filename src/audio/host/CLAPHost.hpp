@@ -19,8 +19,9 @@ namespace YADAW::Audio::Host
 {
 class CLAPHost
 {
+    friend class YADAW::Audio::Plugin::CLAPPlugin;
 public:
-    CLAPHost(YADAW::Audio::Plugin::CLAPPlugin* plugin);
+    CLAPHost(YADAW::Audio::Plugin::CLAPPlugin& plugin);
 public:
     const clap_host* host();
 protected: // clap_host functions
@@ -63,11 +64,17 @@ public:
     void setMainThreadId(std::thread::id mainThreadId);
     void setAudioThreadId(std::thread::id audioThreadId);
     void latencyChanged(std::function<void()>&& callback);
+    void parameterValueChanged(std::function<void()>&& callback);
+    void parameterTextChanged(std::function<void()>&& callback);
+    void parameterInfoChanged(std::function<void()>&& callback);
 private:
     static std::thread::id mainThreadId_;
     static std::thread::id audioThreadId_;
     YADAW::Audio::Plugin::CLAPPlugin* plugin_;
     std::function<void()> latencyChanged_;
+    std::function<void()> parameterValueChanged_;
+    std::function<void()> parameterTextChanged_;
+    std::function<void()> parameterInfoChanged_;
     clap_host host_;
     clap_host_gui gui_;
     clap_host_latency latency_;

@@ -6,12 +6,15 @@
 
 #include <pluginterfaces/vst/ivsteditcontroller.h>
 
+#include <optional>
+
 namespace YADAW::Audio::Plugin
 {
 using YADAW::Audio::Plugin::IPluginParameter;
 using YADAW::Audio::Plugin::IParameter;
 class VST3Parameter: public IParameter
 {
+    friend class VST3PluginParameter;
     using Self = VST3Parameter;
 public:
     VST3Parameter(Steinberg::Vst::IEditController* editController, std::int32_t index);
@@ -31,12 +34,15 @@ public:
 public:
     const Steinberg::Vst::ParameterInfo& getParameterInfo() const;
 private:
+    void refreshParameterInfo();
+private:
     Steinberg::Vst::IEditController* editController_ = nullptr;
     Steinberg::Vst::ParameterInfo parameterInfo_ = {};
     std::int32_t index_ = -1;
 };
 class VST3PluginParameter: public IPluginParameter
 {
+    friend class VST3Plugin;
     using Self = VST3PluginParameter;
 public:
     VST3PluginParameter(Steinberg::Vst::IEditController* editController);
@@ -50,6 +56,8 @@ public:
     IParameter* parameter(std::uint32_t index) override;
 public:
     void swap(Self& rhs) noexcept;
+private:
+    void refreshParameterInfo();
 private:
     Steinberg::Vst::IEditController* editController_ = nullptr;
     Steinberg::Vst::IEditController2* editController2_ = nullptr;

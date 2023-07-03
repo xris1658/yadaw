@@ -12,8 +12,8 @@ CLAPHost* getHost(const clap_host* host)
 std::thread::id CLAPHost::mainThreadId_ = {};
 std::thread::id CLAPHost::audioThreadId_ = {};
 
-CLAPHost::CLAPHost(YADAW::Audio::Plugin::CLAPPlugin* plugin):
-    plugin_(plugin),
+CLAPHost::CLAPHost(YADAW::Audio::Plugin::CLAPPlugin& plugin):
+    plugin_(&plugin),
     latencyChanged_([]() {}),
     host_
     {
@@ -198,12 +198,12 @@ void CLAPHost::doRequestCallback()
 
 void CLAPHost::doResizeHintsChanged()
 {
-    static_cast<YADAW::Audio::Plugin::CLAPPluginGUI*>(plugin_->gui())->fetchResizeHints();
+    static_cast<YADAW::Audio::Plugin::CLAPPluginGUI*>(plugin_->pluginGUI())->fetchResizeHints();
 }
 
 bool CLAPHost::doRequestResize(std::uint32_t width, std::uint32_t height)
 {
-    auto window = plugin_->gui()->window();
+    auto window = plugin_->pluginGUI()->window();
     window->setWidth(width);
     window->setHeight(height);
     return true;
@@ -211,13 +211,13 @@ bool CLAPHost::doRequestResize(std::uint32_t width, std::uint32_t height)
 
 bool CLAPHost::doRequestShow()
 {
-    plugin_->gui()->window()->show();
+    plugin_->pluginGUI()->window()->show();
     return false;
 }
 
 bool CLAPHost::doRequestHide()
 {
-    plugin_->gui()->window()->hide();
+    plugin_->pluginGUI()->window()->hide();
     return true;
 }
 
@@ -236,7 +236,26 @@ void CLAPHost::doChanged()
 
 void CLAPHost::doRescan(clap_param_rescan_flags flags)
 {
-    // TODO
+    if(flags & CLAP_PARAM_RESCAN_ALL)
+    {
+        plugin_->refreshAllParameter();
+    }
+    else
+    {
+        if(flags & CLAP_PARAM_RESCAN_VALUES)
+        {
+            parameterValueChanged_();
+        }
+        if(flags & CLAP_PARAM_RESCAN_TEXT)
+        {
+            parameterTextChanged_();
+        }
+        if(flags & CLAP_PARAM_RESCAN_INFO)
+        {
+            plugin_->pluginParameter()->refreshParameterInfo();
+            parameterInfoChanged_();
+        }
+    }
 }
 
 void CLAPHost::doClear(clap_id paramId, clap_param_clear_flags flags)
@@ -267,5 +286,20 @@ void CLAPHost::setAudioThreadId(std::thread::id audioThreadId)
 void CLAPHost::latencyChanged(std::function<void()>&& callback)
 {
     latencyChanged_ = std::move(callback);
+}
+
+void CLAPHost::parameterValueChanged(std::function<void()>&& callback)
+{
+    parameterValueChanged_ = std::move(callback);
+}
+
+void CLAPHost::parameterTextChanged(std::function<void()>&& callback)
+{
+    parameterTextChanged_ = std::move(callback);
+}
+
+void CLAPHost::parameterInfoChanged(std::function<void()>&& callback)
+{
+    parameterInfoChanged_ = std::move(callback);
 }
 }

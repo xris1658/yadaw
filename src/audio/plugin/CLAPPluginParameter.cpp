@@ -9,30 +9,9 @@ CLAPParameter::CLAPParameter(const clap_plugin* plugin, const clap_plugin_params
     params_(params),
     index_(index)
 {
-    params->get_info(plugin_, index, &paramInfo_);
-    auto flags = paramInfo_.flags;
-    if(flags & CLAP_PARAM_IS_STEPPED)
-    {
-        flags_ |= ParameterFlags::Discrete;
-    }
-    if(flags & CLAP_PARAM_IS_PERIODIC)
-    {
-        flags_ |= ParameterFlags::Periodic;
-    }
-    if(flags & CLAP_PARAM_IS_HIDDEN)
-    {
-        flags_ |= ParameterFlags::Hidden;
-    }
-    if(flags & CLAP_PARAM_IS_READONLY)
-    {
-        flags_ |= ParameterFlags::Readonly;
-    }
-    if(flags & CLAP_PARAM_IS_AUTOMATABLE)
-    {
-        flags_ |= ParameterFlags::Automatable;
-    }
-    flags |= ParameterFlags::SupportMinMaxValue;
-    flags |= ParameterFlags::SupportDefaultValue;
+    refreshInfo();
+    flags_ |= ParameterFlags::SupportMinMaxValue;
+    flags_ |= ParameterFlags::SupportDefaultValue;
 }
 
 std::uint32_t CLAPParameter::id() const
@@ -96,6 +75,32 @@ double CLAPParameter::stringToValue(const QString& string) const
     return params_->text_to_value(plugin_, paramInfo_.id, utf8.data(), &ret)? ret: -1;
 }
 
+void CLAPParameter::refreshInfo()
+{
+    params_->get_info(plugin_, index_, &paramInfo_);
+    auto flags = paramInfo_.flags;
+    if(flags & CLAP_PARAM_IS_STEPPED)
+    {
+        flags_ |= ParameterFlags::Discrete;
+    }
+    if(flags & CLAP_PARAM_IS_PERIODIC)
+    {
+        flags_ |= ParameterFlags::Periodic;
+    }
+    if(flags & CLAP_PARAM_IS_HIDDEN)
+    {
+        flags_ |= ParameterFlags::Hidden;
+    }
+    if(flags & CLAP_PARAM_IS_READONLY)
+    {
+        flags_ |= ParameterFlags::Readonly;
+    }
+    if(flags & CLAP_PARAM_IS_AUTOMATABLE)
+    {
+        flags_ |= ParameterFlags::Automatable;
+    }
+}
+
 CLAPPluginParameter::CLAPPluginParameter(const clap_plugin* plugin, const clap_plugin_params* params):
     plugin_(plugin),
     params_(params)
@@ -130,5 +135,13 @@ void CLAPPluginParameter::swap(CLAPPluginParameter::Self& rhs) noexcept
     std::swap(plugin_, rhs.plugin_);
     std::swap(params_, rhs.params_);
     std::swap(parameters_, rhs.parameters_);
+}
+
+void CLAPPluginParameter::refreshParameterInfo()
+{
+    for(auto& parameter: parameters_)
+    {
+        parameter.refreshInfo();
+    }
 }
 }

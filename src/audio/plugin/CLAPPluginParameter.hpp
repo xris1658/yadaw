@@ -8,10 +8,16 @@
 
 #include <vector>
 
+namespace YADAW::Audio::Host
+{
+class CLAPHost;
+}
+
 namespace YADAW::Audio::Plugin
 {
 class CLAPParameter: public IParameter
 {
+    friend class CLAPPluginParameter;
 public:
     CLAPParameter(const clap_plugin* plugin, const clap_plugin_params* params,
         std::uint32_t index);
@@ -28,6 +34,8 @@ public:
     QString valueToString(double value) const override;
     double stringToValue(const QString& string) const override;
 private:
+    void refreshInfo();
+private:
     const clap_plugin* plugin_;
     const clap_plugin_params* params_;
     std::uint32_t index_;
@@ -35,19 +43,23 @@ private:
 };
 class CLAPPluginParameter: public IPluginParameter
 {
+    friend class CLAPPlugin;
+    friend class YADAW::Audio::Host::CLAPHost;
     using Self = CLAPPluginParameter;
 public:
     CLAPPluginParameter(const clap_plugin* plugin, const clap_plugin_params* params);
     CLAPPluginParameter(const Self&) = delete;
-    CLAPPluginParameter(Self&& rhs) = delete;
+    CLAPPluginParameter(Self&& rhs) = default;
     Self& operator=(const Self&) = delete;
-    Self& operator=(Self&&) = delete;
+    Self& operator=(Self&&) = default;
     ~CLAPPluginParameter() noexcept;
 public:
     std::uint32_t parameterCount() override;
     IParameter* parameter(std::uint32_t index) override;
 public:
     void swap(Self& rhs) noexcept;
+private:
+    void refreshParameterInfo();
 private:
     const clap_plugin* plugin_;
     const clap_plugin_params* params_;

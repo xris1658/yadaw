@@ -19,6 +19,7 @@ namespace YADAW::Audio::Plugin
 {
 class VST3Plugin: public YADAW::Audio::Plugin::IAudioPlugin
 {
+    friend class YADAW::Audio::Host::VST3ComponentHandler;
 public:
     using InitEntry = bool(*)();
     using FactoryEntry = Steinberg::IPluginFactory*(*)();
@@ -73,6 +74,7 @@ private:
     bool initializeEditController();
     bool uninitializeEditController();
     bool destroyEditController();
+    void refreshParameterInfo();
 public:
     void setProcessContext(Steinberg::Vst::ProcessContext* processContext);
 private:

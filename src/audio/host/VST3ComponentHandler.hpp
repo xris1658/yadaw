@@ -67,10 +67,14 @@ public:
 public:
     void latencyChanged(std::function<void()>&& callback);
     void ioChanged(std::function<void()>&& callback);
+    void parameterValueChanged(std::function<void()>&& callback);
+    void parameterInfoChanged(std::function<void()>&& callback);
 private:
     YADAW::Audio::Plugin::VST3Plugin* plugin_;
     std::function<void()> latencyChanged_;
     std::function<void()> ioChanged_;
+    std::function<void()> parameterValueChanged_;
+    std::function<void()> parameterInfoChanged_;
     // Used by host
     int hostBufferIndex_;
     // Set on switchBuffer

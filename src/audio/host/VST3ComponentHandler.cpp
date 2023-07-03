@@ -11,6 +11,8 @@ VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin* plu
     plugin_(plugin),
     latencyChanged_([]() {}),
     ioChanged_([]() {}),
+    parameterValueChanged_([]() {}),
+    parameterInfoChanged_([]() {}),
     hostBufferIndex_(0),
     timestamp_(0),
     inputParameterChanges_{},
@@ -169,13 +171,14 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
     }
     if(flags & RestartFlags::kParamTitlesChanged)
     {
-        // TODO: Flush param info
-        return kNotImplemented;
+        plugin_->refreshParameterInfo();
+        parameterInfoChanged_();
+        return kResultOk;
     }
     if(flags & RestartFlags::kParamValuesChanged)
     {
-        // TODO: Flush param value
-        return kNotImplemented;
+        parameterValueChanged_();
+        return kResultOk;
     }
     return kNotImplemented;
 }
@@ -246,5 +249,15 @@ void VST3ComponentHandler::latencyChanged(std::function<void()>&& callback)
 void VST3ComponentHandler::ioChanged(std::function<void()>&& callback)
 {
     ioChanged_ = std::move(callback);
+}
+
+void VST3ComponentHandler::parameterValueChanged(std::function<void()>&& callback)
+{
+    parameterValueChanged_ = std::move(callback);
+}
+
+void VST3ComponentHandler::parameterInfoChanged(std::function<void()>&& callback)
+{
+    parameterInfoChanged_ = std::move(callback);
 }
 }

@@ -19,31 +19,7 @@ VST3Parameter::VST3Parameter(
     index_(index)
 {
     editController_->addRef();
-    editController_->getParameterInfo(index, parameterInfo_);
-    if(parameterInfo_.stepCount != 0)
-    {
-        IParameter::flags_ |= ParameterFlags::Discrete;
-    }
-    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsWrapAround)
-    {
-        IParameter::flags_ |= ParameterFlags::Periodic;
-    }
-    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsHidden)
-    {
-        IParameter::flags_ |= ParameterFlags::Hidden;
-    }
-    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsReadOnly)
-    {
-        IParameter::flags_ |= ParameterFlags::Readonly;
-    }
-    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kCanAutomate)
-    {
-        IParameter::flags_ |= ParameterFlags::Automatable;
-    }
-    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsList)
-    {
-        IParameter::flags_ |= ParameterFlags::ShowAsList;
-    }
+    refreshParameterInfo();
     IParameter::flags_ |= ParameterFlags::SupportMinMaxValue;
     IParameter::flags_ |= ParameterFlags::SupportDefaultValue;
 }
@@ -77,8 +53,8 @@ double VST3Parameter::value() const
 {
     auto normalizedValue = editController_->getParamNormalized(parameterInfo_.id);
     return parameterInfo_.stepCount?
-           editController_->normalizedParamToPlain(parameterInfo_.id, normalizedValue):
-           normalizedValue;
+        editController_->normalizedParamToPlain(parameterInfo_.id, normalizedValue):
+        normalizedValue;
 }
 
 void VST3Parameter::setValue(double value)
@@ -101,11 +77,6 @@ double VST3Parameter::stepSize() const
            (maxValue() - minValue()) / static_cast<double>(parameterInfo_.stepCount);
 }
 
-const Steinberg::Vst::ParameterInfo& VST3Parameter::getParameterInfo() const
-{
-    return parameterInfo_;
-}
-
 QString VST3Parameter::valueToString(double value) const
 {
     auto normalizedValue = editController_->plainParamToNormalized(parameterInfo_.id, value);
@@ -123,6 +94,40 @@ double VST3Parameter::stringToValue(const QString& string) const
     ParamValue ret = 0;
     auto getValueResult = editController_->getParamValueByString(parameterInfo_.id, const_cast<Steinberg::Vst::TChar*>(reinterpret_cast<const Steinberg::Vst::TChar*>(string.data())), ret);
     return getValueResult == Steinberg::kResultOk? ret: -1;
+}
+
+const Steinberg::Vst::ParameterInfo& VST3Parameter::getParameterInfo() const
+{
+    return parameterInfo_;
+}
+
+void VST3Parameter::refreshParameterInfo()
+{
+    editController_->getParameterInfo(index_, parameterInfo_);
+    if(parameterInfo_.stepCount != 0)
+    {
+        IParameter::flags_ |= ParameterFlags::Discrete;
+    }
+    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsWrapAround)
+    {
+        IParameter::flags_ |= ParameterFlags::Periodic;
+    }
+    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsHidden)
+    {
+        IParameter::flags_ |= ParameterFlags::Hidden;
+    }
+    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsReadOnly)
+    {
+        IParameter::flags_ |= ParameterFlags::Readonly;
+    }
+    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kCanAutomate)
+    {
+        IParameter::flags_ |= ParameterFlags::Automatable;
+    }
+    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsList)
+    {
+        IParameter::flags_ |= ParameterFlags::ShowAsList;
+    }
 }
 
 VST3PluginParameter::VST3PluginParameter(Steinberg::Vst::IEditController* editController):
@@ -174,5 +179,13 @@ void VST3PluginParameter::swap(VST3PluginParameter& rhs) noexcept
     std::swap(editController2_, rhs.editController2_);
     std::swap(editControllerHostEditing_, rhs.editControllerHostEditing_);
     std::swap(parameters_, rhs.parameters_);
+}
+
+void VST3PluginParameter::refreshParameterInfo()
+{
+    for(auto& parameter: parameters_)
+    {
+        parameter.refreshParameterInfo();
+    }
 }
 }
