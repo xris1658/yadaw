@@ -29,7 +29,7 @@ private:
     static void requestRestart(const clap_host* host);
     static void requestProcess(const clap_host* host);
     static void requestCallback(const clap_host* host);
-private: // clap_hsot_gui functions
+private: // clap_host_gui functions
     static void resizeHintsChanged(const clap_host* host);
     static bool requestResize(const clap_host* host, std::uint32_t width, std::uint32_t height);
     static bool requestShow(const clap_host* host);
