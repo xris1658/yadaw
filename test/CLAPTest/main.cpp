@@ -236,6 +236,8 @@ int main(int argc, char* argv[])
             std::printf("\n");
         }
         assert(plugin.activate());
+        CLAPPluginLatencyChangedCallback callback(plugin);
+        plugin.host().latencyChanged([&callback]() { callback.latencyChanged(); });
         assert(plugin.startProcessing());
         PluginWindowThread pluginWindowThread(nullptr);
         QWindow window;

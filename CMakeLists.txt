@@ -315,7 +315,9 @@ add_executable(AudioDeviceGraphTest ${YADAW_COMMON_SOURCES}
 add_executable(CLAPTest ${YADAW_COMMON_SOURCES}
                test/common/PluginWindowThread.hpp
                test/common/PluginWindowThread.cpp
-               test/CLAPTest/main.cpp)
+               test/CLAPTest/main.cpp
+               test/CLAPTest/CLAPPluginLatencyChangedCallback.cpp
+               test/CLAPTest/CLAPPluginLatencyChangedCallback.hpp)
 
 add_executable(PluginDirectoryScanTest ${YADAW_COMMON_SOURCES}
     test/PluginDirectoryScanTest/main.cpp)
@@ -380,6 +382,7 @@ target_link_libraries(AudioDeviceGraphTest PRIVATE
                       yaml-cpp)
 
 target_link_libraries(CLAPTest PRIVATE
+                      ade
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
                       contentplugin
                       ${NATIVE_LIBRARY}
