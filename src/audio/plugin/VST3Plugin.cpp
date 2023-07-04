@@ -538,8 +538,8 @@ void VST3Plugin::refreshParameterInfo()
     }
 }
 
-void VST3Plugin::setProcessContext(Steinberg::Vst::ProcessContext* processContext)
+void VST3Plugin::setProcessContext(Steinberg::Vst::ProcessContext& processContext)
 {
-    processData_.processContext = processContext;
+    processData_.processContext = &processContext;
 }
 }

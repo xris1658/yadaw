@@ -11,6 +11,8 @@
 #include "util/Constants.hpp"
 #include "util/Util.hpp"
 
+#include <pluginterfaces/vst/ivstprocesscontext.h>
+
 #include <QGuiApplication>
 #include <QScreen>
 #include <QString>
@@ -39,6 +41,8 @@ YADAW::Audio::Device::AudioProcessData<float> audioProcessData;
 bool initializePlugin = true;
 bool activatePlugin = true;
 bool processPlugin = true;
+
+Steinberg::Vst::ProcessContext processContext;
 
 decltype(std::chrono::steady_clock::now() - std::chrono::steady_clock::now()) duration;
 
@@ -144,7 +148,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
             if(processPlugin)
             {
                 assert(plugin.startProcessing());
-                plugin.setProcessContext(&(YADAW::Audio::Host::VST3Host::processContext()));
+                plugin.setProcessContext(processContext);
                 PluginWindowThread pluginWindowThread(nullptr);
                 // Prepare audio process data {
                 audioProcessData.singleBufferSize = 64;
@@ -244,7 +248,6 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     {
                         using Steinberg::Vst::ProcessContext;
                         auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
-                        auto& processContext = YADAW::Audio::Host::VST3Host::processContext();
                         processContext.state = ProcessContext::StatesAndFlags::kSystemTimeValid | ProcessContext::StatesAndFlags::kPlaying;
                         processContext.sampleRate = 44100;
                         processContext.projectTimeSamples = 0;

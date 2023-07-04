@@ -76,7 +76,7 @@ private:
     bool destroyEditController();
     void refreshParameterInfo();
 public:
-    void setProcessContext(Steinberg::Vst::ProcessContext* processContext);
+    void setProcessContext(Steinberg::Vst::ProcessContext& processContext);
 private:
     IAudioPlugin::Status status_ = IAudioPlugin::Status::Empty;
     std::int32_t unified_ = 0;
