@@ -13,6 +13,7 @@ AboutWindow 1.0 AboutWindow.qml
 Action 1.0 Action.qml
 ALSASettings 1.0 ALSASettings.qml
 ApplicationWindow 1.0 ApplicationWindow.qml
+Arrangement 1.0 Arrangement.qml
 Assets 1.0 Assets.qml
 AudioBusConfiguration 1.0 AudioBusConfiguration.qml
 AudioBusConfigurationWindow 1.0 AudioBusConfigurationWindow.qml
@@ -73,6 +74,8 @@ TabButton 1.0 TabButton.qml
 TextField 1.0 TextField.qml
 ThirdPartySoftware 1.0 ThirdPartySoftware.qml
 TimeIndicator 1.0 TimeIndicator.qml
+Timeline 1.0 Timeline.qml
+TrackHeader 1.0 TrackHeader.qml
 VestifalIcon 1.0 VestifalIcon.qml
 VST3Icon 1.0 VST3Icon.qml
 WindowIcon 1.0 WindowIcon.qml

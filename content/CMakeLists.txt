@@ -32,6 +32,7 @@ set(CONTENT_QML_FILES
     Action.qml
     ALSASettings.qml
     ApplicationWindow.qml
+    Arrangement.qml
     Assets.qml
     AudioBusConfiguration.qml
     AudioBusConfigurationWindow.qml
@@ -99,6 +100,8 @@ set(CONTENT_QML_FILES
     TextField.qml
     ThirdPartySoftware.qml
     TimeIndicator.qml
+    Timeline.qml
+    TrackHeader.qml
     VestifalIcon.qml
     VST3Icon.qml
     WindowIcon.qml

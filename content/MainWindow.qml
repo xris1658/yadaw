@@ -677,7 +677,7 @@ ApplicationWindow {
                     height: parent.height - arrangementTabButton.height
                     color: "transparent"
                     border.color: Colors.controlBorder
-                    Item {
+                    Arrangement {
                         anchors.fill: parent
                         anchors.margins: parent.border.width
                     }
