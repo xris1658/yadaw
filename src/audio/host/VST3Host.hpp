@@ -25,8 +25,6 @@ public:
 public:
     tresult PLUGIN_API getName(String128 name) override;
     tresult PLUGIN_API createInstance(TUID cid, TUID iid_, void** obj) override;
-public:
-    static Steinberg::Vst::ProcessContext& processContext();
 };
 }
 
