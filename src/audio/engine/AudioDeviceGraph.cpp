@@ -11,12 +11,14 @@ AudioDeviceGraph::AudioDeviceGraph():
     graph_(),
     typedGraph_(graph_) {}
 
-auto& AudioDeviceGraph::getMetadataFromNode(const ade::NodeHandle& nodeHandle) const
+const AudioDeviceGraph::AudioDeviceProcessNode&
+    AudioDeviceGraph::getMetadataFromNode(const ade::NodeHandle& nodeHandle) const
 {
     return typedGraph_.metadata(nodeHandle).get<AudioDeviceProcessNode>();
 }
 
-auto& AudioDeviceGraph::getMetadataFromNode(ade::NodeHandle& nodeHandle)
+AudioDeviceGraph::AudioDeviceProcessNode&
+    AudioDeviceGraph::getMetadataFromNode(ade::NodeHandle& nodeHandle)
 {
     return typedGraph_.metadata(nodeHandle).get<AudioDeviceProcessNode>();
 }

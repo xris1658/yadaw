@@ -37,9 +37,9 @@ public:
     };
 public:
     AudioDeviceGraph();
-private:
-    auto& getMetadataFromNode(const ade::NodeHandle& nodeHandle) const;
-    auto& getMetadataFromNode(ade::NodeHandle& nodeHandle);
+public:
+    const AudioDeviceProcessNode& getMetadataFromNode(const ade::NodeHandle& nodeHandle) const;
+    AudioDeviceProcessNode& getMetadataFromNode(ade::NodeHandle& nodeHandle);
     void setMetadataFromNode(ade::NodeHandle& nodeHandle, AudioDeviceProcessNode&& metadata);
 private:
     ade::NodeHandle doAddNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData);
