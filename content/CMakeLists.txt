@@ -24,6 +24,7 @@ set(CONTENT_CPP_FILES
     model/ModelBase.hpp
     model/IPluginDirectoryListModel.hpp
     model/IPluginListModel.hpp
+    model/ITrackListModel.hpp
     )
 
 set(CONTENT_QML_FILES
