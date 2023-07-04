@@ -177,10 +177,49 @@ Rectangle {
                         bottomPadding: 1
                     }
                 }
-                Button {
+                Item {
                     id: panningButton
                     width: root.width - impl.padding * 2
+                    height: panningText.contentHeight
+                    Item {
+                        anchors.left: parent.left
+                        width: parent.width / 2
+                        height: parent.height
+                        Row {
+                            anchors.centerIn: parent
+                            spacing: 5
+                            Dial {
+                                id: panningDial
+                                diameter: panningText.contentHeight
+                                from: -100
+                                to: 100
+                            }
+                            Label {
+                                id: panningText
+                                width: panningTextMax.contentWidth
+                                horizontalAlignment: Label.AlignHCenter
+                                text: Math.floor(panningDial.value)
+                                Label {
+                                    id: panningTextMax
+                                    text: "-100"
+                                    visible: false
+                                }
+                            }
+                        }
+                    }
+                    Item {
+                        anchors.right: parent.right
+                        width: parent.width / 2
+                        height: parent.height
+                        Button {
+                            anchors.centerIn: parent
+                            height: panningButton.height
+                            text: "MONO"
+                            checkable: true
+                        }
+                    }
                 }
+
             }
         }
         Rectangle {
