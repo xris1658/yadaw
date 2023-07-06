@@ -11,9 +11,8 @@
 #include <ade/typed_graph.hpp>
 #include <ade/typed_metadata.hpp>
 
-#include <deque>
-#include <memory>
 #include <set>
+#include <unordered_map>
 
 namespace YADAW::Audio::Engine
 {
@@ -62,8 +61,17 @@ private:
 private:
     ade::Graph graph_;
     ade::TypedGraph<AudioDeviceProcessNode> typedGraph_;
-    std::vector<std::pair<ade::NodeHandle, std::vector<ade::NodeHandle>>> multiInputNodes_;
-    std::set<std::unique_ptr<YADAW::Audio::Util::SampleDelay>> pdc_;
+    std::unordered_map<
+        ade::NodeHandle,
+        std::vector<
+            std::pair<
+                ade::NodeHandle,
+                YADAW::Audio::Util::SampleDelay
+            >
+        >,
+        ade::HandleHasher<ade::Node>
+    >
+    multiInputs_;
 };
 }
 

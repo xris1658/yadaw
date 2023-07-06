@@ -4,6 +4,8 @@
 
 #include <deque>
 
+using YADAW::Audio::Util::SampleDelay;
+
 namespace YADAW::Audio::Engine
 {
 
@@ -63,32 +65,31 @@ ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, AudioPro
     if(auto audioInputGroupCount = device->audioInputGroupCount();
         audioInputGroupCount > 1)
     {
-        auto& pair = multiInputNodes_.emplace_back(std::make_pair(nodeHandle, std::vector<ade::NodeHandle>()));
+        auto [it, inserted] = multiInputs_.emplace(
+            std::make_pair(
+                nodeHandle,
+                decltype(multiInputs_)::value_type::second_type()
+            )
+        );
+        auto& pdcs = it->second;
+        pdcs.reserve(audioInputGroupCount);
         for(decltype(audioInputGroupCount) i = 0; i < audioInputGroupCount; ++i)
         {
-            auto [it, inserted] = pdc_.emplace(
-                std::make_unique<YADAW::Audio::Util::SampleDelay>(
-                    0, device->audioInputGroupAt(i)->get()
-                )
+            auto& [pdcNode, pdc] = pdcs.emplace_back(ade::NodeHandle(), SampleDelay(0, device->audioInputGroupAt(i)->get()));
+            AudioProcessData<float> processData;
+            processData.singleBufferSize = audioProcessData.singleBufferSize;
+            processData.inputGroupCount = 1;
+            processData.outputGroupCount = 1;
+            processData.outputCounts = audioProcessData.inputCounts + i;
+            processData.outputs = audioProcessData.inputs + i;
+            processData.inputCounts = processData.outputCounts;
+            processData.inputs = processData.outputs;
+            pdc.startProcessing();
+            pdcNode = doAddNode(
+                AudioDeviceProcess(pdc),
+                std::move(processData)
             );
-            if(inserted)
-            {
-                AudioProcessData<float> processData;
-                processData.singleBufferSize = audioProcessData.singleBufferSize;
-                processData.inputGroupCount = 1;
-                processData.outputGroupCount = 1;
-                processData.outputCounts = audioProcessData.inputCounts + i;
-                processData.outputs = audioProcessData.inputs + i;
-                processData.inputCounts = processData.outputCounts;
-                processData.inputs = processData.outputs;
-                (*it)->startProcessing();
-                auto pdcNodeHandle = doAddNode(
-                    AudioDeviceProcess(*(it->get())),
-                    std::move(processData)
-                );
-                pair.second.emplace_back(pdcNodeHandle);
-                doConnect(pdcNodeHandle, nodeHandle, 0, i);
-            }
+            doConnect(pdcNode, nodeHandle, 0, i);
         }
     }
     return nodeHandle;
@@ -99,28 +100,18 @@ void AudioDeviceGraph::removeNode(ade::NodeHandle nodeHandle)
     if(auto device = typedGraph_.metadata(nodeHandle).get<AudioDeviceProcessNode>().process.device();
         device->audioInputGroupCount() > 1)
     {
-        auto inNodes = nodeHandle->inNodes();
-        for(inNodes = nodeHandle->inNodes(); !inNodes.empty(); inNodes = nodeHandle->inNodes())
+        auto it = multiInputs_.find(nodeHandle);
+        assert(it != multiInputs_.end());
+        auto& pdcs = it->second;
+        for(auto& [pdcNodeHandle, pdc]: pdcs)
         {
-            auto pdc = typedGraph_.metadata(inNodes.front()).get<AudioDeviceProcessNode>().process.device();
-            auto it = std::find_if(pdc_.begin(), pdc_.end(),
-                [pdc](const std::unique_ptr<YADAW::Audio::Util::SampleDelay>& ptr)
-                {
-                    return pdc == ptr.get();
-                }
-            );
-            doRemoveNode(nodeHandle);
-            pdc_.erase(it);
+            pdc.stopProcessing();
+            doDisconnect(pdcNodeHandle->outEdges().front());
+            doRemoveNode(pdcNodeHandle);
         }
-        multiInputNodes_.erase(
-            std::find_if(
-                multiInputNodes_.begin(), multiInputNodes_.end(),
-                [&nodeHandle](const std::pair<ade::NodeHandle, std::vector<ade::NodeHandle>>& pair)
-                {
-                    return pair.first == nodeHandle;
-                }
-            )
-        );
+        doRemoveNode(nodeHandle);
+        pdcs.clear();
+        multiInputs_.erase(it);
     }
     else
     {
@@ -135,12 +126,12 @@ ade::EdgeHandle AudioDeviceGraph::connect(ade::NodeHandle from, ade::NodeHandle 
     if(auto device = getMetadataFromNode(to).process.device();
         device->audioInputGroupCount() > 1)
     {
-        auto it = std::find_if(multiInputNodes_.begin(), multiInputNodes_.end(),
-            [&to](const auto& pair) { return pair.first == to; });
-        ret = doConnect(from, it->second[toChannel], fromChannel, 0);
+        auto it = multiInputs_.find(to);
+        assert(it != multiInputs_.end());
+        ret = doConnect(from, it->second[toChannel].first, fromChannel, 0);
         if(getMetadataFromNode(from).sumLatency() > 0)
         {
-            onSumLatencyChanged(it->second[toChannel]);
+            onSumLatencyChanged(it->second[toChannel].first);
         }
     }
     else
@@ -190,7 +181,6 @@ void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)
 {
     std::deque<ade::NodeHandle> deque;
     deque.emplace_back(nodeHandle);
-    // TODO: Update upstream latency info
     while(!deque.empty())
     {
         auto size = deque.size();
@@ -234,24 +224,22 @@ void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)
 
 void AudioDeviceGraph::compensate()
 {
-    for(auto& [nodeHandle, pdcs]: multiInputNodes_)
+    for(auto& [nodeHandle, pdcs]: multiInputs_)
     {
         auto upstreamLatency = getMetadataFromNode(nodeHandle).upstreamLatency;
-        for(auto& pdc: pdcs)
+        for(auto& [pdcNode, pdc]: pdcs)
         {
-            if(!(pdc->inNodes().empty()))
+            if(!(pdcNode->inNodes().empty()))
             {
-                auto metadata = getMetadataFromNode(pdc);
-                auto* sampleDelay = static_cast<YADAW::Audio::Util::SampleDelay*>(metadata.process.device());
-                auto processing = sampleDelay->isProcessing();
+                auto processing = pdc.isProcessing();
                 if(processing)
                 {
-                    sampleDelay->stopProcessing();
+                    pdc.stopProcessing();
                 }
-                sampleDelay->setDelay(upstreamLatency - metadata.upstreamLatency);
+                pdc.setDelay(upstreamLatency - getMetadataFromNode(pdcNode).upstreamLatency);
                 if(processing)
                 {
-                    sampleDelay->startProcessing();
+                    pdc.startProcessing();
                 }
             }
         }
