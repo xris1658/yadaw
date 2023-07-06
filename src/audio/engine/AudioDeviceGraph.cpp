@@ -112,6 +112,19 @@ void AudioDeviceGraph::removeNode(ade::NodeHandle nodeHandle)
             doRemoveNode(nodeHandle);
             pdc_.erase(it);
         }
+        multiInputNodes_.erase(
+            std::find_if(
+                multiInputNodes_.begin(), multiInputNodes_.end(),
+                [&nodeHandle](const std::pair<ade::NodeHandle, std::vector<ade::NodeHandle>>& pair)
+                {
+                    return pair.first == nodeHandle;
+                }
+            )
+        );
+    }
+    else
+    {
+        doRemoveNode(nodeHandle);
     }
 }
 
