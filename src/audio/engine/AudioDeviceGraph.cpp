@@ -109,9 +109,9 @@ void AudioDeviceGraph::removeNode(ade::NodeHandle nodeHandle)
             doDisconnect(pdcNodeHandle->outEdges().front());
             doRemoveNode(pdcNodeHandle);
         }
-        doRemoveNode(nodeHandle);
         pdcs.clear();
         multiInputs_.erase(it);
+        doRemoveNode(nodeHandle);
     }
     else
     {
