@@ -6,6 +6,7 @@
 #include <pluginterfaces/vst/ivstaudioprocessor.h>
 #include <pluginterfaces/vst/ivsteditcontroller.h>
 
+#include <atomic>
 #include <functional>
 #include <vector>
 
@@ -77,6 +78,7 @@ private:
     std::function<void()> parameterInfoChanged_;
     // Used by host
     int hostBufferIndex_;
+    std::atomic_bool editing_ {false};
     // Set on switchBuffer
     std::int64_t timestamp_;
     YADAW::Audio::Host::VST3ParameterChanges inputParameterChanges_[2];

@@ -5,6 +5,21 @@
 
 namespace YADAW::Audio::Host
 {
+struct AtomicBoolLock
+{
+    AtomicBoolLock(std::atomic_bool& value): value_(value)
+    {
+        while(value_.load(std::memory_order::memory_order_acquire)) {}
+        value_.store(true, std::memory_order::memory_order_release);
+    }
+    ~AtomicBoolLock()
+    {
+        value_.store(false, std::memory_order::memory_order_release);
+    }
+private:
+    std::atomic_bool& value_;
+};
+
 constexpr auto nanosecondCount = 1000000000;
 
 VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin* plugin):
@@ -72,7 +87,7 @@ tresult VST3ComponentHandler::doEndEdit(ParamID id)
 tresult VST3ComponentHandler::beginEdit(ParamID id)
 {
     // std::printf("beginEdit(%u)\n", id);
-
+    AtomicBoolLock boolAsFlag(editing_);
     auto hostBufferIndex = hostBufferIndex_;
     if(auto index = doBeginEdit(hostBufferIndex, id); index != -1)
     {
@@ -84,6 +99,7 @@ tresult VST3ComponentHandler::beginEdit(ParamID id)
 
 tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue)
 {
+    AtomicBoolLock boolAsFlag(editing_);
     // std::printf("performEdit(%u, %lf)\n", id, normalizedValue);
     auto hostBufferIndex = hostBufferIndex_;
     auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
@@ -114,6 +130,7 @@ tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue
 
 tresult VST3ComponentHandler::endEdit(ParamID id)
 {
+    AtomicBoolLock boolAsFlag(editing_);
     // std::printf("endEdit(%u)\n", id);
     // TODO: Not sure what to do yet :(
     return doEndEdit(id);
@@ -185,6 +202,7 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
 
 void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond)
 {
+    AtomicBoolLock boolAsFlag(editing_);
     timestamp_ = switchTimestampInNanosecond;
     outputParameterChanges_[hostBufferIndex_].clearPointsInQueue();
     hostBufferIndex_ ^= 1; // 0 <-> 1
