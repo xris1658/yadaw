@@ -170,6 +170,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/util/CLAPHelper.hpp
     src/audio/util/SampleDelay.cpp
     src/audio/util/SampleDelay.hpp
+    src/audio/util/Splitter.cpp
+    src/audio/util/Splitter.hpp
     src/audio/util/StereoChannelFader.cpp
     src/audio/util/StereoChannelFader.hpp
     src/audio/util/Summing.cpp
