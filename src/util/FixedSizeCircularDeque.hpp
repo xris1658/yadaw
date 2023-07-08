@@ -47,14 +47,14 @@ public:
         bool operator>=(const Iterator& rhs) const { return !(*this < rhs); }
     public:
         const Iterator& operator++() { ++index_; return *this; }
-        const Iterator       operator++(int) { auto ret = *this; operator++(); return ret; }
+        const Iterator  operator++(int) { auto ret = *this; operator++(); return ret; }
         const Iterator& operator--() { --index_; return *this; }
-        const Iterator       operator--(int) { auto ret = *this; operator++(); return ret; }
+        const Iterator  operator--(int) { auto ret = *this; operator++(); return ret; }
         const Iterator& operator+=(std::size_t offset) { index_ += offset; return *this; }
         const Iterator& operator-=(std::size_t offset) { index_ -= offset; return *this; }
-        const Iterator       operator+(std::size_t offset) const { return { container_, index_ + offset }; }
-        const Iterator       operator-(std::size_t offset) const { return { container_, index_ - offset }; }
-        std::ptrdiff_t operator-(const Iterator& rhs) const { return index_ - rhs.index_; } // FIXME: Deal with overflow
+        const Iterator  operator+(std::size_t offset) const { return { container_, index_ + offset }; }
+        const Iterator  operator-(std::size_t offset) const { return { container_, index_ - offset }; }
+        std::ptrdiff_t  operator-(const Iterator& rhs) const { return index_ - rhs.index_; } // FIXME: Deal with overflow
     private:
         Self* container_;
         std::size_t index_;
@@ -94,15 +94,15 @@ public:
         bool operator<=(const ConstIterator& rhs) const { return !(rhs < *this); }
         bool operator>=(const ConstIterator& rhs) const { return !(*this < rhs); }
     public:
-        const ConstIterator&      operator++() { ++index_; return *this; }
-        const ConstIterator       operator++(int) { auto ret = *this; operator++(); return ret; }
-        const ConstIterator&      operator--() { --index_; return *this; }
-        const ConstIterator       operator--(int) { auto ret = *this; operator++(); return ret; }
-        const ConstIterator&      operator-=(std::size_t offset) { index_ -= offset; return *this; }
-        const ConstIterator&      operator+=(std::size_t offset) { index_ += offset; return *this; }
-        const ConstIterator       operator+(std::size_t offset) const { return { container_, index_ + offset }; }
-        const ConstIterator       operator-(std::size_t offset) const { return { container_, index_ - offset }; }
-        std::ptrdiff_t operator-(const Iterator& rhs) const { return index_ - rhs.index_; } // FIXME: Deal with overflow
+        const ConstIterator& operator++() { ++index_; return *this; }
+        const ConstIterator  operator++(int) { auto ret = *this; operator++(); return ret; }
+        const ConstIterator& operator--() { --index_; return *this; }
+        const ConstIterator  operator--(int) { auto ret = *this; operator++(); return ret; }
+        const ConstIterator& operator-=(std::size_t offset) { index_ -= offset; return *this; }
+        const ConstIterator& operator+=(std::size_t offset) { index_ += offset; return *this; }
+        const ConstIterator  operator+(std::size_t offset) const { return { container_, index_ + offset }; }
+        const ConstIterator  operator-(std::size_t offset) const { return { container_, index_ - offset }; }
+        std::ptrdiff_t       operator-(const Iterator& rhs) const { return index_ - rhs.index_; } // FIXME: Deal with overflow
     private:
         Self* container_;
         std::size_t index_;

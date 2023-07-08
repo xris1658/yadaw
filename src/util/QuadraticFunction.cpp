@@ -29,6 +29,6 @@ double QuadraticFunction::delta() const
 
 double QuadraticFunction::operator()(double x) const
 {
-    return a * x * x + b * x + c;
+    return std::fma(std::fma(a, x, b), x, c);
 }
 }

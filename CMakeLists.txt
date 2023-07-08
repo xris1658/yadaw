@@ -278,10 +278,7 @@ set(YADAW_COMMON_SOURCES
     src/util/CircularDeque.hpp
     src/util/CompilerSpecifics.hpp
     src/util/Constants.hpp
-    src/util/Endian.cpp
     src/util/Endian.hpp
-    src/util/FileHash.cpp
-    src/util/FileHash.hpp
     src/util/FixedSizeCircularDeque.hpp
     src/util/FixedSizeLockFreeQueue.hpp
     src/util/FixedSizeMemoryBlock.hpp
@@ -291,7 +288,6 @@ set(YADAW_COMMON_SOURCES
     src/util/Literal.hpp
     src/util/LockFreeQueue.hpp
     src/util/OptionalUtil.hpp
-    src/util/QStringUtil.cpp
     src/util/QStringUtil.hpp
     src/util/QmlUtil.hpp
     src/util/QuadraticFunction.cpp
