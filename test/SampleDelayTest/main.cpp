@@ -61,26 +61,90 @@ int main()
     audioProcessData.outputCounts = &outputCount;
     auto inputPtr = buffer1.data();
     auto inputPtrPtr = &inputPtr;
-    auto outputPtr = buffer2.data();
+    auto outputPtr = buffer1.data();
     auto outputPtrPtr = &outputPtr;
     audioProcessData.inputs = &inputPtrPtr;
     audioProcessData.outputs = &outputPtrPtr;
     for(int i = 0; i < 4; ++i)
     {
+        for(int j = 0; j < buffer1.size(); ++j)
+        {
+            buffer1[j] = j + 1;
+        }
         pdc.process(audioProcessData);
+        for(auto value: buffer1)
+        {
+            std::printf("%f, ", value);
+        }
+        std::printf("\n");
     }
+    std::printf("\n");
     pdc.stopProcessing();
     pdc.setDelay(4);
     pdc.startProcessing();
     for(int i = 0; i < 4; ++i)
     {
+        for(int j = 0; j < buffer1.size(); ++j)
+        {
+            buffer1[j] = j + 1;
+        }
         pdc.process(audioProcessData);
+        for(auto value: buffer1)
+        {
+            std::printf("%f, ", value);
+        }
+        std::printf("\n");
     }
+    std::printf("\n");
     pdc.stopProcessing();
     pdc.setDelay(16);
     pdc.startProcessing();
     for(int i = 0; i < 4; ++i)
     {
+        for(int j = 0; j < buffer1.size(); ++j)
+        {
+            buffer1[j] = j + 1;
+        }
         pdc.process(audioProcessData);
+        for(auto value: buffer1)
+        {
+            std::printf("%f, ", value);
+        }
+        std::printf("\n");
     }
+    std::printf("\n");
+    pdc.stopProcessing();
+    pdc.setDelay(0);
+    pdc.startProcessing();
+    for(int i = 0; i < 4; ++i)
+    {
+        for(int j = 0; j < buffer1.size(); ++j)
+        {
+            buffer1[j] = j + 1;
+        }
+        pdc.process(audioProcessData);
+        for(auto value: buffer1)
+        {
+            std::printf("%f, ", value);
+        }
+        std::printf("\n");
+    }
+    std::printf("\n");
+    pdc.stopProcessing();
+    pdc.setDelay(4);
+    pdc.startProcessing();
+    for(int i = 0; i < 4; ++i)
+    {
+        for(int j = 0; j < buffer1.size(); ++j)
+        {
+            buffer1[j] = j + 1;
+        }
+        pdc.process(audioProcessData);
+        for(auto value: buffer1)
+        {
+            std::printf("%f, ", value);
+        }
+        std::printf("\n");
+    }
+    std::printf("\n");
 }
