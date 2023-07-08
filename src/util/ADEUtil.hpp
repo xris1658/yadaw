@@ -39,7 +39,7 @@ std::optional<TopologicalOrderResult<T>> topologicalOrder(const ade::TypedGraph<
                     [&visitedNodes](const ade::NodeHandle& nodeHandle)
                     {
                         return std::find(visitedNodes.begin(), visitedNodes.end(), nodeHandle)
-                               != visitedNodes.end();
+                            != visitedNodes.end();
                     }
                 )
             )
