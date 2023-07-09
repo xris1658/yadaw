@@ -6,6 +6,7 @@
 #include <QString>
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace YADAW::MIDI
@@ -21,6 +22,9 @@ public:
         QString id;
         QString name;
     };
+public:
+    static std::size_t inputDeviceCount();
+    std::optional<MIDIInputDeviceInfo> inputDeviceAt(std::size_t index);
 public:
     MIDIInputDevice(const QString& id);
     MIDIInputDevice(const MIDIInputDevice&) = delete;

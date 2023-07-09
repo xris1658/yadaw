@@ -50,6 +50,8 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/CLAPNative.cpp
     src/native/win/Library.cpp
     src/native/win/Library.cpp
+    src/native/win/MIDIInputDeviceImpl.cpp
+    src/native/win/MIDIInputDeviceImpl.hpp
     src/native/win/Native.cpp
     src/native/win/VST3Native.cpp
     src/native/win/VestifalNative.cpp
@@ -231,6 +233,7 @@ set(YADAW_COMMON_SOURCES
     src/event/SplashScreenWorkerThread.hpp
     src/l10n/L10N.cpp
     src/l10n/L10N.hpp
+    src/midi/MIDIInputDevice.cpp
     src/midi/MIDIInputDevice.hpp
     src/midi/MIDIOutputDevice.hpp
     src/midi/Message.hpp
@@ -265,6 +268,7 @@ set(YADAW_COMMON_SOURCES
     src/native/AudioBackendSupport.hpp
     src/native/CLAPNative.hpp
     src/native/Library.hpp
+    src/native/MIDIInputDeviceImpl.hpp
     src/native/Native.hpp
     src/native/VST3Native.hpp
     src/native/VestifalNative.hpp
