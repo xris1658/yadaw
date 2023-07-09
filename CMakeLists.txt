@@ -272,6 +272,7 @@ set(YADAW_COMMON_SOURCES
     src/ui/MessageDialog.hpp
     src/ui/UI.cpp
     src/ui/UI.hpp
+    src/util/ADEUtil.cpp
     src/util/ADEUtil.hpp
     src/util/Algorithm.hpp
     src/util/Alignment.hpp

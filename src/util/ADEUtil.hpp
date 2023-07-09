@@ -15,6 +15,8 @@ namespace YADAW::Util
 template<typename T>
 using TopologicalOrderResult = std::vector<std::vector<T>>;
 
+bool pathExists(ade::NodeHandle from, ade::NodeHandle to);
+
 template<typename T>
 std::optional<TopologicalOrderResult<T>> topologicalOrder(const ade::TypedGraph<T>& graph)
 {
