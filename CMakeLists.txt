@@ -76,6 +76,8 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/ALSAHelper.hpp
     src/native/linux/CLAPNative.cpp
     src/native/linux/Library.cpp
+    src/native/linux/MIDIInputDeviceImpl.cpp
+    src/native/linux/MIDIInputDeviceImpl.hpp
     src/native/linux/Native.cpp
     src/native/linux/VST3Native.cpp
     src/native/linux/VestifalNative.cpp
