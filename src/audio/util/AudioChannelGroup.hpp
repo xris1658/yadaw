@@ -14,6 +14,7 @@ public:
     AudioChannelGroup& operator=(const AudioChannelGroup& rhs) = default;
     AudioChannelGroup& operator=(AudioChannelGroup&& rhs) = default;
     ~AudioChannelGroup() noexcept = default;
+    static AudioChannelGroup from(const YADAW::Audio::Device::IAudioChannelGroup& rhs);
 public:
     QString name() const override;
     std::uint32_t channelCount() const override;

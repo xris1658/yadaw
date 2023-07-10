@@ -7,6 +7,21 @@ AudioChannelGroup::AudioChannelGroup()
 
 }
 
+AudioChannelGroup AudioChannelGroup::from(const Device::IAudioChannelGroup& rhs)
+{
+    AudioChannelGroup ret;
+    ret.name_ = rhs.name();
+    ret.type_ = rhs.type();
+    ret.isMain_ = rhs.isMain();
+    ret.speakers_.resize(rhs.channelCount());
+    ret.speakerNames_.resize(rhs.channelCount());
+    for(decltype(speakers_.size()) i = 0; i < ret.speakers_.size(); ++i)
+    {
+        ret.speakers_[i] = rhs.speakerAt(i);
+        ret.speakerNames_[i] = rhs.speakerNameAt(i);
+    }
+}
+
 QString AudioChannelGroup::name() const
 {
     return name_;
