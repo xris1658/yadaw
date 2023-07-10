@@ -20,6 +20,7 @@ AudioChannelGroup AudioChannelGroup::from(const Device::IAudioChannelGroup& rhs)
         ret.speakers_[i] = rhs.speakerAt(i);
         ret.speakerNames_[i] = rhs.speakerNameAt(i);
     }
+    return ret;
 }
 
 QString AudioChannelGroup::name() const

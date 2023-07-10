@@ -11,6 +11,7 @@ using winrt::Windows::Devices::Midi::MidiInPort;
 
 namespace YADAW::MIDI
 {
+DeviceInformationCollection midiInputDevices_ {nullptr};
 std::once_flag enumerateInputDeviceFlag;
 
 std::size_t MIDIInputDevice::Impl::inputDeviceCount()

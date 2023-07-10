@@ -25,7 +25,6 @@ public:
     void start(ReceiveInputFunc* const func);
     void stop();
 private:
-    static winrt::Windows::Devices::Enumeration::DeviceInformationCollection midiInputDevices_;
     winrt::Windows::Devices::Midi::MidiInPort midiInPort_;
     winrt::event_token eventToken_;
 };
