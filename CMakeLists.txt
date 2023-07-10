@@ -172,6 +172,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/util/AudioChannelGroup.hpp
     src/audio/util/CLAPHelper.cpp
     src/audio/util/CLAPHelper.hpp
+    src/audio/util/ChannelGroupConverter.cpp
+    src/audio/util/ChannelGroupConverter.hpp
     src/audio/util/SampleDelay.cpp
     src/audio/util/SampleDelay.hpp
     src/audio/util/Splitter.cpp
