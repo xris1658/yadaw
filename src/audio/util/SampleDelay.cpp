@@ -2,49 +2,6 @@
 
 namespace YADAW::Audio::Util
 {
-SampleDelay::AudioChannelGroup::AudioChannelGroup(const Device::IAudioChannelGroup& group):
-    name_(group.name()),
-    type_(group.type()),
-    speakers_(group.channelCount()),
-    speakerNames_(group.channelCount())
-{
-    for(std::size_t i = 0; i < speakers_.size(); ++i)
-    {
-        speakers_[i] = group.speakerAt(i);
-        speakerNames_[i] = group.speakerNameAt(i);
-    }
-}
-
-QString SampleDelay::AudioChannelGroup::name() const
-{
-    return name_;
-}
-
-std::uint32_t SampleDelay::AudioChannelGroup::channelCount() const
-{
-    return speakers_.size();
-}
-
-YADAW::Audio::Base::ChannelGroupType SampleDelay::AudioChannelGroup::type() const
-{
-    return type_;
-}
-
-YADAW::Audio::Base::ChannelType SampleDelay::AudioChannelGroup::speakerAt(std::uint32_t index) const
-{
-    return index < channelCount()? speakers_[index]: YADAW::Audio::Base::ChannelType::Invalid;
-}
-
-QString SampleDelay::AudioChannelGroup::speakerNameAt(std::uint32_t index) const
-{
-    return index < channelCount()? speakerNames_[index]: QString();
-}
-
-bool SampleDelay::AudioChannelGroup::isMain() const
-{
-    return true;
-}
-
 SampleDelay::SampleDelay(std::uint32_t delay,
     const YADAW::Audio::Device::IAudioChannelGroup& channelGroup):
     delay_(delay),
@@ -55,7 +12,7 @@ SampleDelay::SampleDelay(std::uint32_t delay,
     ),
     offset_(0),
     buffers_(channelGroup.channelCount(), std::vector<float>(delay, 0.0f)),
-    channelGroup_(channelGroup)
+    channelGroup_(AudioChannelGroup::from(channelGroup))
 {}
 
 SampleDelay::SampleDelay(SampleDelay&& rhs) noexcept:

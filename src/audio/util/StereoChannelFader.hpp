@@ -3,31 +3,12 @@
 
 #include "audio/base/StereoPanning.hpp"
 #include "audio/device/IAudioDevice.hpp"
-
-#include <bitset>
+#include "audio/util/AudioChannelGroup.hpp"
 
 namespace YADAW::Audio::Util
 {
 class StereoChannelFader: public YADAW::Audio::Device::IAudioDevice
 {
-private:
-    class AudioChannelGroup: public YADAW::Audio::Device::IAudioChannelGroup
-    {
-    private:
-        static constexpr YADAW::Audio::Base::ChannelGroupType channelGroupType();
-    public:
-        QString name() const override;
-        std::uint32_t channelCount() const override;
-        YADAW::Audio::Base::ChannelGroupType type() const override;
-        YADAW::Audio::Base::ChannelType speakerAt(std::uint32_t index) const override;
-        QString speakerNameAt(std::uint32_t index) const override;
-        bool isMain() const override;
-    public:
-        void setName(const QString& name);
-        void setName(QString&& name);
-    private:
-        QString name_;
-    };
 public:
     StereoChannelFader();
     ~StereoChannelFader();

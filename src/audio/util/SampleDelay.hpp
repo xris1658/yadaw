@@ -2,6 +2,7 @@
 #define YADAW_SRC_AUDIO_UTIL_SAMPLEDELAY
 
 #include "audio/device/IAudioDevice.hpp"
+#include "audio/util/AudioChannelGroup.hpp"
 #include "util/CircularDeque.hpp"
 
 #include <vector>
@@ -10,23 +11,6 @@ namespace YADAW::Audio::Util
 {
 class SampleDelay: public YADAW::Audio::Device::IAudioDevice
 {
-    class AudioChannelGroup: public YADAW::Audio::Device::IAudioChannelGroup
-    {
-    public:
-        AudioChannelGroup(const YADAW::Audio::Device::IAudioChannelGroup& group);
-    public:
-        QString name() const override;
-        std::uint32_t channelCount() const override;
-        YADAW::Audio::Base::ChannelGroupType type() const override;
-        YADAW::Audio::Base::ChannelType speakerAt(std::uint32_t index) const override;
-        QString speakerNameAt(std::uint32_t index) const override;
-        bool isMain() const override;
-    private:
-        QString name_;
-        YADAW::Audio::Base::ChannelGroupType type_;
-        std::vector<YADAW::Audio::Base::ChannelType> speakers_;
-        std::vector<QString> speakerNames_;
-    };
 public:
     SampleDelay(std::uint32_t delay,
         const YADAW::Audio::Device::IAudioChannelGroup& channelGroup

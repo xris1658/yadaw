@@ -4,56 +4,14 @@ namespace YADAW::Audio::Util
 {
 using YADAW::Audio::Device::IAudioDevice;
 
-constexpr YADAW::Audio::Base::ChannelGroupType StereoChannelFader::AudioChannelGroup::channelGroupType()
-{
-    return Base::ChannelGroupType::Stereo;
-}
-
-QString StereoChannelFader::AudioChannelGroup::name() const
-{
-    return name_;
-}
-
-std::uint32_t StereoChannelFader::AudioChannelGroup::channelCount() const
-{
-    return YADAW::Audio::Device::IAudioChannelGroup::channelCount(channelGroupType());
-}
-
-YADAW::Audio::Base::ChannelGroupType StereoChannelFader::AudioChannelGroup::type() const
-{
-    return channelGroupType();
-}
-
-YADAW::Audio::Base::ChannelType StereoChannelFader::AudioChannelGroup::speakerAt(std::uint32_t index) const
-{
-    return YADAW::Audio::Device::IAudioChannelGroup::channelAt(
-        channelGroupType(), index);
-}
-
-QString StereoChannelFader::AudioChannelGroup::speakerNameAt(std::uint32_t index) const
-{
-    return QString();
-}
-
-bool StereoChannelFader::AudioChannelGroup::isMain() const
-{
-    return true;
-}
-
-void StereoChannelFader::AudioChannelGroup::setName(const QString& name)
-{
-    name_ = name;
-}
-
-void StereoChannelFader::AudioChannelGroup::setName(QString&& name)
-{
-    name_ = std::move(name);
-}
-
 StereoChannelFader::StereoChannelFader()
 {
     inputAudioChannelGroup_.setName("StereoChannelFader Main Input");
+    inputAudioChannelGroup_.setMain(true);
+    inputAudioChannelGroup_.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::Stereo);
     outputAudioChannelGroup_.setName("StereoChannelFader Main Output");
+    outputAudioChannelGroup_.setMain(true);
+    outputAudioChannelGroup_.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::Stereo);
 }
 
 StereoChannelFader::~StereoChannelFader()
