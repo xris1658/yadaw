@@ -1,18 +1,19 @@
-#ifndef YADAW_SRC_AUDIO_UTIL_CHANNELGROUPCONVERTER
-#define YADAW_SRC_AUDIO_UTIL_CHANNELGROUPCONVERTER
+#ifndef YADAW_SRC_AUDIO_UTIL_CHANNELGROUPREMAPPER
+#define YADAW_SRC_AUDIO_UTIL_CHANNELGROUPREMAPPER
 
 #include "audio/util/AudioChannelGroup.hpp"
 #include "audio/device/IAudioDevice.hpp"
+#include "util/Constants.hpp"
 
 namespace YADAW::Audio::Util
 {
 using YADAW::Audio::Device::IAudioChannelGroup;
-class ChannelGroupConverter: public YADAW::Audio::Device::IAudioDevice
+class ChannelGroupRemapper: public YADAW::Audio::Device::IAudioDevice
 {
 public:
-    ChannelGroupConverter(const IAudioChannelGroup& inputChannelGroup,
+    ChannelGroupRemapper(const IAudioChannelGroup& inputChannelGroup,
         const IAudioChannelGroup& outputChannelGroup);
-    ~ChannelGroupConverter() noexcept;
+    ~ChannelGroupRemapper() noexcept;
 public:
     std::uint32_t audioInputGroupCount() const override;
     std::uint32_t audioOutputGroupCount() const override;
