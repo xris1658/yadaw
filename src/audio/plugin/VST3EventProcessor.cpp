@@ -2,8 +2,11 @@
 
 namespace YADAW::Audio::Plugin
 {
+using YADAW::Audio::Event::IEventProcessor;
+
 using namespace Steinberg;
 using namespace Steinberg::Vst;
+
 VST3EventProcessor::VST3EventProcessor(Steinberg::Vst::IComponent& component) :
 	component_(&component)
 {
@@ -41,21 +44,21 @@ std::uint32_t VST3EventProcessor::eventOutputBusCount() const
 	return component_->getBusCount(MediaTypes::kEvent, BusDirections::kOutput);
 }
 
-const IEventBusInfo* VST3EventProcessor::eventInputBusAt(std::uint32_t index) const
+IEventProcessor::OptionalEventBusInfo VST3EventProcessor::eventInputBusAt(std::uint32_t index) const
 {
     if(index < eventInputBusCount())
     {
-        return &input_[index];
+        return std::ref(input_[index]);
     }
-    return nullptr;
+    return std::nullopt;
 }
 
-const IEventBusInfo* VST3EventProcessor::eventOutputBusAt(std::uint32_t index) const
+IEventProcessor::OptionalEventBusInfo VST3EventProcessor::eventOutputBusAt(std::uint32_t index) const
 {
     if(index < eventOutputBusCount())
     {
-        return &output_[index];
+        return std::ref(output_[index]);
     }
-    return nullptr;
+    return std::nullopt;
 }
 }

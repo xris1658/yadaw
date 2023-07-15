@@ -16,8 +16,8 @@ public:
 public:
 	std::uint32_t eventInputBusCount() const override;
 	std::uint32_t eventOutputBusCount() const override;
-	const IEventBusInfo* eventInputBusAt(std::uint32_t index) const override;
-	const IEventBusInfo* eventOutputBusAt(std::uint32_t index) const override;
+	OptionalEventBusInfo eventInputBusAt(std::uint32_t index) const override;
+	OptionalEventBusInfo eventOutputBusAt(std::uint32_t index) const override;
 private:
 	Steinberg::Vst::IComponent* component_;
 	std::vector<Steinberg::Vst::BusInfo> eventInputBusInfoGroup_;

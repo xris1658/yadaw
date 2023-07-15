@@ -2,6 +2,8 @@
 
 namespace YADAW::Audio::Plugin
 {
+using YADAW::Audio::Event::IEventProcessor;
+
 CLAPEventProcessor::CLAPEventProcessor(const clap_plugin& plugin, const clap_plugin_note_ports& notePorts):
     plugin_(&plugin),
     notePorts_(&notePorts)
@@ -32,21 +34,21 @@ std::uint32_t CLAPEventProcessor::eventOutputBusCount() const
     return outputNotePortInfo_.size();
 }
 
-const IEventBusInfo* CLAPEventProcessor::eventInputBusAt(std::uint32_t index) const
+IEventProcessor::OptionalEventBusInfo CLAPEventProcessor::eventInputBusAt(std::uint32_t index) const
 {
     if(index < eventInputBusCount())
     {
-        return inputEventBusInfo_.data() + index;
+        return std::ref(inputEventBusInfo_[index]);
     }
-    return nullptr;
+    return std::nullopt;
 }
 
-const IEventBusInfo* CLAPEventProcessor::eventOutputBusAt(std::uint32_t index) const
+IEventProcessor::OptionalEventBusInfo CLAPEventProcessor::eventOutputBusAt(std::uint32_t index) const
 {
     if(index < eventOutputBusCount())
     {
-        return outputEventBusInfo_.data() + index;
+        return std::ref(outputEventBusInfo_[index]);
     }
-    return nullptr;
+    return std::nullopt;
 }
 }
