@@ -24,7 +24,7 @@ public:
     };
 public:
     static std::size_t inputDeviceCount();
-    std::optional<MIDIInputDeviceInfo> inputDeviceAt(std::size_t index);
+    static std::optional<MIDIInputDeviceInfo> inputDeviceAt(std::size_t index);
 public:
     MIDIInputDevice(const QString& id);
     MIDIInputDevice(const MIDIInputDevice&) = delete;
