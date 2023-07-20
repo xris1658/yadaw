@@ -65,6 +65,20 @@ void doEnumerateDeviceNames()
             }
         }
     }
+    ifs.close();
+    for(const auto& midiDevice: midiDevices)
+    {
+        const auto& [cIndex, dIndex] = midiDevice;
+        char filePath[64];
+        std::sprintf(filePath, "/proc/asound/card%u/midi%u", cIndex, dIndex);
+        ifs.open(filePath, std::ios::in);
+        if(!ifs.fail())
+        {
+            char lineBuffer[128];
+            ifs.getline(lineBuffer, YADAW::Util::stackArraySize(lineBuffer));
+            audioDeviceNames.emplace(midiDevice, std::string(lineBuffer));
+        }
+    }
 }
 
 void doEnumerateDevices()

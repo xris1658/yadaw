@@ -17,12 +17,14 @@ std::optional<MIDIInputDevice::MIDIInputDeviceInfo>
     if(info)
     {
         MIDIInputDeviceInfo ret;
-        ret.id = QString("hw:%1,%2").arg(info->cIndex, info->dIndex);
+        ret.id = QString("hw:%1,%2").arg(info->cIndex).arg(info->dIndex);
         ret.name = QString("%1 (%2)").arg(
             QString::fromStdString(ALSADeviceEnumerator::audioDeviceName(info.value()).value()),
             QString::fromStdString(ALSADeviceEnumerator::cardName(info->cIndex).value())
         );
+        return std::make_optional(ret);
     }
+    return std::nullopt;
 }
 
 MIDIInputDevice::Impl::Impl(const MIDIInputDevice& device, const QString& id):
