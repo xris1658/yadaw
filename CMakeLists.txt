@@ -357,6 +357,19 @@ add_executable(WindowsMIDIInputDeviceTest
                src/util/Util.cpp
                src/util/Util.hpp
                test/WindowsMIDIInputDeviceTest/main.cpp)
+elseif(LINUX)
+add_executable(LinuxMIDIInputDeviceTest
+               src/midi/MIDIInputDevice.cpp
+               src/midi/MIDIInputDevice.hpp
+               src/midi/Message.hpp
+               src/native/MIDIInputDeviceImpl.hpp
+               src/native/linux/MIDIInputDeviceImpl.cpp
+               src/native/linux/MIDIInputDeviceImpl.hpp
+               src/native/linux/ALSADeviceEnumerator.cpp
+               src/native/linux/ALSADeviceEnumerator.hpp
+               src/util/Util.cpp
+               src/util/Util.hpp
+               test/LinuxMIDIInputDeviceTest/main.cpp)
 endif()
 
 target_precompile_headers(YADAW PRIVATE src/pch.hpp)
@@ -449,6 +462,10 @@ if(WIN32)
 target_link_libraries(WindowsMIDIInputDeviceTest PRIVATE
                       Qt6::Core
                       windowsapp)
+elseif(LINUX)
+target_link_libraries(LinuxMIDIInputDeviceTest PRIVATE
+                      Qt6::Core
+                      asound)
 endif()
 
 file(COPY
