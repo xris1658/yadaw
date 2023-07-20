@@ -346,6 +346,19 @@ add_executable(VST3Test ${YADAW_COMMON_SOURCES}
                test/VST3Test/VST3PluginLatencyChangedCallback.cpp
                test/VST3Test/VST3PluginLatencyChangedCallback.hpp)
 
+if(WIN32)
+add_executable(WindowsMIDIInputDeviceTest
+               src/midi/MIDIInputDevice.cpp
+               src/midi/MIDIInputDevice.hpp
+               src/midi/Message.hpp
+               src/native/MIDIInputDeviceImpl.hpp
+               src/native/win/MIDIInputDeviceImpl.cpp
+               src/native/win/MIDIInputDeviceImpl.hpp
+               src/util/Util.cpp
+               src/util/Util.hpp
+               test/WindowsMIDIInputDeviceTest/main.cpp)
+endif()
+
 target_precompile_headers(YADAW PRIVATE src/pch.hpp)
 
 qt_add_qml_module(YADAW
@@ -431,6 +444,12 @@ target_link_libraries(VST3Test PRIVATE
                       base pluginterfaces sdk_common sdk_hosting
                       ${SQLITE_LIBRARY}
                       yaml-cpp)
+
+if(WIN32)
+target_link_libraries(WindowsMIDIInputDeviceTest PRIVATE
+                      Qt6::Core
+                      windowsapp)
+endif()
 
 file(COPY
      ./l10n/osct/YADAW_zh_CN.yml
