@@ -5,6 +5,8 @@
 
 #include "midi/MIDIInputDevice.hpp"
 
+#include "native/win/winrt/Forward.hpp"
+
 #include <winrt/base.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
@@ -26,6 +28,7 @@ public:
     void stop();
 private:
     winrt::Windows::Devices::Midi::MidiInPort midiInPort_;
+    std::int64_t createTime_;
     winrt::event_token eventToken_;
 };
 }

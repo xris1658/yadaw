@@ -3,6 +3,9 @@
 #include "MIDIInputDeviceImpl.hpp"
 
 #include "native/win/winrt/Async.hpp"
+#include "util/Util.hpp"
+
+#include <winrt/Windows.Storage.Streams.h> // IBuffer from IMidiMessage
 
 using winrt::Windows::Devices::Enumeration::DeviceInformation;
 using winrt::Windows::Devices::Enumeration::DeviceInformationCollection;
@@ -47,6 +50,7 @@ MIDIInputDevice::Impl::Impl(const QString& id): midiInPort_(nullptr)
             idAsHString
         )
     );
+    createTime_ = YADAW::Util::currentTimeValueInNanosecond(); // Latency?
 }
 
 MIDIInputDevice::Impl::~Impl()
@@ -60,12 +64,17 @@ MIDIInputDevice::Impl::~Impl()
 void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
 {
     eventToken_ = midiInPort_.MessageReceived(
-        [func](const winrt::Windows::Devices::Midi::MidiInPort& midiInPort,
+        [createTime = this->createTime_, func](const winrt::Windows::Devices::Midi::MidiInPort& midiInPort,
             const winrt::Windows::Devices::Midi::MidiMessageReceivedEventArgs& args)
         {
-            YADAW::MIDI::Message message {};
-            // TODO: convert args.Message() to YADAW::MIDI::Message
-            func(message);
+            auto preceivedValue = YADAW::Util::currentTimeValueInNanosecond();
+            const auto& from = args.Message();
+            YADAW::MIDI::Message to {};
+            to.timestampInNanoseconds = createTime + static_cast<std::chrono::nanoseconds>(from.Timestamp()).count(); // 
+            const auto& rawData = from.RawData();
+            to.size = rawData.Length();
+            to.data = rawData.data();
+            func(to);
         }
     );
 }
