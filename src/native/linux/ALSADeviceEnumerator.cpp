@@ -36,6 +36,7 @@ void doEnumerateCardNames()
         if(snd_card_get_name(cardIndex, &name) == 0)
         {
             cardNames.emplace(cardIndex, std::string(name));
+            free(name);
         }
     }
 }
