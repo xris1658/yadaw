@@ -21,7 +21,7 @@ public:
     static std::size_t inputDeviceCount();
     static std::optional<MIDIInputDeviceInfo> inputDeviceAt(std::size_t index);
 public:
-    Impl(const QString& id);
+    Impl(const MIDIInputDevice& device, const QString& id);
     ~Impl();
 public:
     void start(ReceiveInputFunc* const func);
@@ -29,6 +29,7 @@ public:
 private:
     winrt::Windows::Devices::Midi::MidiInPort midiInPort_;
     std::int64_t createTime_;
+    const MIDIInputDevice& device_;
     winrt::event_token eventToken_;
 };
 }

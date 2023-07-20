@@ -25,7 +25,8 @@ std::optional<MIDIInputDevice::MIDIInputDeviceInfo>
     }
 }
 
-MIDIInputDevice::Impl::Impl(const QString& id)
+MIDIInputDevice::Impl::Impl(const MIDIInputDevice& device, const QString& id):
+    device_(device)
 {
     auto idAs8Bit = id.toLocal8Bit();
     if(auto midiRet = snd_rawmidi_open(&rawMIDI_, nullptr, idAs8Bit.data(), SND_RAWMIDI_NONBLOCK);

@@ -42,7 +42,9 @@ std::optional<YADAW::MIDI::MIDIInputDevice::MIDIInputDeviceInfo>
     return std::nullopt;
 }
 
-MIDIInputDevice::Impl::Impl(const QString& id): midiInPort_(nullptr)
+MIDIInputDevice::Impl::Impl(const MIDIInputDevice& device, const QString& id):
+    midiInPort_(nullptr),
+    device_(device)
 {
     winrt::hstring idAsHString(reinterpret_cast<const wchar_t*>(id.data()));
     midiInPort_ = asyncResult(
@@ -64,17 +66,17 @@ MIDIInputDevice::Impl::~Impl()
 void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
 {
     eventToken_ = midiInPort_.MessageReceived(
-        [createTime = this->createTime_, func](const winrt::Windows::Devices::Midi::MidiInPort& midiInPort,
+        [this, func](const winrt::Windows::Devices::Midi::MidiInPort& midiInPort,
             const winrt::Windows::Devices::Midi::MidiMessageReceivedEventArgs& args)
         {
             auto preceivedValue = YADAW::Util::currentTimeValueInNanosecond();
             const auto& from = args.Message();
             YADAW::MIDI::Message to {};
-            to.timestampInNanoseconds = createTime + static_cast<std::chrono::nanoseconds>(from.Timestamp()).count(); // 
+            to.timestampInNanoseconds = createTime_ + static_cast<std::chrono::nanoseconds>(from.Timestamp()).count(); //
             const auto& rawData = from.RawData();
             to.size = rawData.Length();
             to.data = rawData.data();
-            func(to);
+            func(device_, to);
         }
     );
 }

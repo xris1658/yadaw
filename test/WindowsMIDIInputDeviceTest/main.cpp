@@ -2,7 +2,7 @@
 
 #include <cstdio>
 
-void printTime(const YADAW::MIDI::Message& message)
+void printTime(const YADAW::MIDI::MIDIInputDevice& device, const YADAW::MIDI::Message& message)
 {
     std::printf("%lld\n", message.timestampInNanoseconds);
 }

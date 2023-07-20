@@ -15,7 +15,7 @@ class MIDIInputDevice
 {
     class Impl;
 public:
-    using ReceiveInputFunc = void(const YADAW::MIDI::Message& message);
+    using ReceiveInputFunc = void(const MIDIInputDevice& device, const YADAW::MIDI::Message& message);
 public:
     struct MIDIInputDeviceInfo
     {

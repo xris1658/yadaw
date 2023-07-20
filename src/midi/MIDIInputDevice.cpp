@@ -14,7 +14,7 @@ std::optional<MIDIInputDevice::MIDIInputDeviceInfo> MIDIInputDevice::inputDevice
 }
 
 MIDIInputDevice::MIDIInputDevice(const QString& id):
-    pImpl_(std::make_unique<Impl>(id))
+    pImpl_(std::make_unique<Impl>(*this, id))
 {}
 
 MIDIInputDevice::~MIDIInputDevice()
