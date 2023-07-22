@@ -1,12 +1,14 @@
-#include "../common/PluginWindowThread.hpp"
+#include "test/common/PluginWindowThread.hpp"
+
 #include "CLAPPluginLatencyChangedCallback.hpp"
 
-#include "audio/backend/AudioGraphBackend.hpp"
 #include "audio/host/CLAPEventList.hpp"
+#include "audio/host/CLAPHost.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
 #include "audio/util/CLAPHelper.hpp"
 #include "native/CLAPNative.hpp"
-#include "native/Library.hpp"
+#include "dao/PluginTable.hpp"
+#include "native/Native.hpp"
 #include "util/Constants.hpp"
 #include "util/Util.hpp"
 
@@ -17,15 +19,11 @@
 
 #include <atomic>
 #include <chrono>
-#include <clocale>
 #include <cmath>
+#include <clocale>
 #include <cstdio>
 #include <thread>
 #include <vector>
-
-using YADAW::Audio::Backend::AudioGraphBackend;
-
-std::atomic_bool stop;
 
 int inputIndex = -1;
 
@@ -33,129 +31,22 @@ int samplePosition = 0;
 
 double pi = YADAW::Util::pi<float>();
 
-std::uint64_t callbackDuration = 0;
-
 double sampleRate = 0;
-
-YADAW::Audio::Plugin::CLAPPlugin* pPlugin;
-
-YADAW::Audio::Host::CLAPEventList eventList;
 
 YADAW::Audio::Device::AudioProcessData<float> audioProcessData;
 
-void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudioBuffer* inputs,
-    int outputCount, const AudioGraphBackend::InterleaveAudioBuffer* outputs)
-{
-    pPlugin->host().setAudioThreadId(std::this_thread::get_id());
-    if(pPlugin->status() != YADAW::Audio::Plugin::IAudioPlugin::Status::Processing)
-    {
-        pPlugin->startProcessing();
-    }
-    auto start = YADAW::Util::currentTimeValueInNanosecond();
-    eventList.flip();
-    for(int i = 0; i < audioProcessData.inputGroupCount; ++i)
-    {
-        for(int j = 0; j < audioProcessData.inputCounts[i]; ++j)
-        {
-            for(int k = 0; k < audioProcessData.singleBufferSize; ++k)
-            {
-                audioProcessData.inputs[i][j][k] = std::sinf((samplePosition + k) * 440 * 2 * pi / sampleRate) * 0.125;
-            }
-        }
-    }
-    eventList.attachToProcessData(pPlugin->processData());
-    pPlugin->process(audioProcessData);
-    int frameCount = 0;
-    for(int i = 0; i < outputCount; ++i)
-    {
-        const auto& output = outputs[i];
-        frameCount = output.frameCount;
-        for(int j = 0; j < output.channelCount; ++j)
-        {
-            for(int k = 0; k < output.frameCount; ++k)
-            {
-                *reinterpret_cast<float*>(output.at(k, j)) = audioProcessData.outputs[0][j][k];
-                // *reinterpret_cast<float*>(output.at(k, j)) = *reinterpret_cast<float*>(input.at(k, j));
-            }
-        }
-    }
-    samplePosition += frameCount;
-    callbackDuration = YADAW::Util::currentTimeValueInNanosecond() - start;
-    if(stop.load(std::memory_order::memory_order_acquire))
-    {
-        pPlugin->stopProcessing();
-    }
-}
+bool initializePlugin = true;
+bool activatePlugin = true;
+bool processPlugin = true;
 
-int main(int argc, char* argv[])
+void testPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, bool initializePlugin, bool activatePlugin, bool processPlugin)
 {
-    if(argc != 3)
+    YADAW::Audio::Host::CLAPEventList inputEventList;
+    plugin.host().setMainThreadId(std::this_thread::get_id());
+    if(initializePlugin)
     {
-        std::printf("Usage: CLAPTest <plugin path> <plugin UID>\nPress any key to continue...");
-        getchar();
-        return 0;
-    }
-    std::setlocale(LC_ALL, "en_US.UTF-8");
-    AudioGraphBackend audioGraphBackend;
-    if(audioGraphBackend.initialize())
-    {
-        auto outputDeviceCount = audioGraphBackend.audioOutputDeviceCount();
-        std::vector<QString> ids;
-        for(decltype(outputDeviceCount) i = 0; i < outputDeviceCount; ++i)
-        {
-            auto info = audioGraphBackend.audioOutputDeviceAt(i);
-            if(info.isEnabled)
-            {
-                std::printf("  ");
-            }
-            else
-            {
-                std::printf("X ");
-            }
-            std::wprintf(L"%d: %s\n", (i + 1), reinterpret_cast<const wchar_t*>(info.name.data()));
-            ids.emplace_back(info.id);
-        }
-        int output = -1;
-        while(1)
-        {
-            std::printf("Select primary output device (0 for default output): ");
-            if(std::scanf("%d", &output) != 1 || output < 0 || output > outputDeviceCount)
-            {
-                std::printf("The input is invalid. Please input again.\n");
-                continue;
-            }
-            break;
-        }
-        bool createAudioGraphResult = false;
-        if(output == 0)
-        {
-            createAudioGraphResult = audioGraphBackend.createAudioGraph();
-        }
-        else
-        {
-            createAudioGraphResult = audioGraphBackend.createAudioGraph(ids[output - 1]);
-        }
-        if(!createAudioGraphResult)
-        {
-            std::printf("Create audio graph failed!\n");
-            return 0;
-        }
-        sampleRate = audioGraphBackend.sampleRate();
-        std::printf("Created audio graph at %lf Hz\n", sampleRate);
-        if(output == 0)
-        {
-            auto currentOutputDevice = audioGraphBackend.currentOutputDevice();
-            std::wprintf(L"Current device: %s\n", reinterpret_cast<const wchar_t*>(currentOutputDevice.name.data()));
-        }
-        QGuiApplication application(argc, argv);
-        YADAW::Native::Library library(argv[1]);
-        auto plugin = YADAW::Audio::Util::createCLAPFromLibrary(library);
-        pPlugin = &plugin;
-        std::vector<char> uid(strlen(argv[2]) + 1, '\0');
-        std::strcpy(uid.data(), argv[2]);
-        assert(plugin.createPlugin(uid.data()));
-        plugin.host().setMainThreadId(std::this_thread::get_id());
-        assert(plugin.initialize(audioGraphBackend.sampleRate(), audioGraphBackend.bufferSizeInFrames()));
+        auto bufferSize = 512;
+        assert(plugin.initialize(44100, bufferSize));
         auto audioInputGroupCount = plugin.audioInputGroupCount();
         std::printf("%d audio input(s)", audioInputGroupCount);
         if(audioInputGroupCount != 0)
@@ -172,7 +63,9 @@ int main(int argc, char* argv[])
                 {
                     std::printf("\n  ");
                 }
-                std::printf("%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group.name().data()), static_cast<int>(group.channelCount()));
+                std::printf(
+                    "%d: %s (%d channels)", i + 1, group.name().toLocal8Bit().data(),
+                    static_cast<int>(group.channelCount()));
             }
         }
         auto audioOutputGroupCount = plugin.audioOutputGroupCount();
@@ -191,7 +84,9 @@ int main(int argc, char* argv[])
                 {
                     std::printf("\n  ");
                 }
-                std::printf("%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group.name().data()), static_cast<int>(group.channelCount()));
+                std::printf(
+                    "%d: %s (%d channels)", i + 1, group.name().toLocal8Bit().data(),
+                    static_cast<int>(group.channelCount()));
             }
         }
         std::printf("\n");
@@ -205,8 +100,8 @@ int main(int argc, char* argv[])
                 std::printf(":");
                 for(std::uint32_t i = 0; i < eventInputCount; ++i)
                 {
-                    const auto& busInfo = eventProcessor->eventInputBusAt(i);
-                    if(busInfo->isMain())
+                    const auto& busInfo = eventProcessor->eventInputBusAt(i)->get();
+                    if(busInfo.isMain())
                     {
                         std::printf("\n> ");
                     }
@@ -214,8 +109,8 @@ int main(int argc, char* argv[])
                     {
                         std::printf("\n  ");
                     }
-                    std::printf("%u: %ls (%u channels)", i + 1, reinterpret_cast<wchar_t*>(busInfo->name().data()),
-                        busInfo->channelCount());
+                    std::printf("%u: %s (%u channels)", i + 1, busInfo.name().toLocal8Bit().data(),
+                        busInfo.channelCount());
                 }
             }
             auto eventOutputCount = eventProcessor->eventOutputBusCount();
@@ -225,8 +120,8 @@ int main(int argc, char* argv[])
                 std::printf(":");
                 for(std::uint32_t i = 0; i < eventOutputCount; ++i)
                 {
-                    const auto& busInfo = eventProcessor->eventOutputBusAt(i);
-                    if(busInfo->isMain())
+                    const auto& busInfo = eventProcessor->eventOutputBusAt(i)->get();
+                    if(busInfo.isMain())
                     {
                         std::printf("\n> ");
                     }
@@ -234,101 +129,166 @@ int main(int argc, char* argv[])
                     {
                         std::printf("\n  ");
                     }
-                    std::printf("%u: %ls (%u channels)", i + 1, reinterpret_cast<wchar_t*>(busInfo->name().data()),
-                        busInfo->channelCount());
+                    std::printf("%u: %s (%u channels)", i + 1, busInfo.name().toLocal8Bit().data(),
+                        busInfo.channelCount());
                 }
             }
             std::printf("\n");
         }
-        assert(plugin.activate());
-        CLAPPluginLatencyChangedCallback callback(plugin);
-        plugin.host().latencyChanged([&callback]() { callback.latencyChanged(); });
-        PluginWindowThread pluginWindowThread(nullptr);
-        QWindow window;
-        window.showNormal();
-        window.setTitle(plugin.name());
-        // Prepare audio process data {
-        audioProcessData.singleBufferSize = audioGraphBackend.bufferSizeInFrames();
-        // Inputs
-        std::vector<std::vector<std::vector<float>>> idc1;
-        std::vector<std::vector<float*>> idc2;
-        std::vector<float**> idc3;
-        std::vector<std::uint32_t> ic;
-        idc1.resize(plugin.audioInputGroupCount());
-        idc2.resize(idc1.size());
-        idc3.resize(idc1.size(), nullptr);
-        ic.resize(idc1.size(), -1);
-        audioProcessData.inputGroupCount = idc1.size();
-        for(int i = 0; i < idc1.size(); ++i)
+        if(activatePlugin)
         {
-            idc1[i].resize(plugin.audioInputGroupAt(i)->get().channelCount());
-            idc2[i].resize(idc1[i].size());
-            ic[i] = idc1[i].size();
-            for(int j = 0; j < idc1[i].size(); ++j)
+            assert(plugin.activate());
+            CLAPPluginLatencyChangedCallback callback(plugin);
+            plugin.host().latencyChanged(
+                [&callback]()
+                { callback.latencyChanged(); }
+            );
+            if(processPlugin)
             {
-                idc1[i][j].resize(audioProcessData.singleBufferSize, 0.0f);
-                idc2[i][j] = idc1[i][j].data();
-            }
-            idc3[i] = idc2[i].data();
-        }
-        audioProcessData.inputs = idc3.data();
-        audioProcessData.inputCounts = ic.data();
-        // Outputs
-        std::vector<std::vector<std::vector<float>>> odc1;
-        std::vector<std::vector<float*>> odc2;
-        std::vector<float**> odc3;
-        std::vector<std::uint32_t> oc;
-        odc1.resize(plugin.audioOutputGroupCount());
-        odc2.resize(odc1.size());
-        odc3.resize(odc1.size(), nullptr);
-        oc.resize(odc1.size(), -1);
-        audioProcessData.outputGroupCount = odc1.size();
-        for(int i = 0; i < odc1.size(); ++i)
-        {
-            odc1[i].resize(plugin.audioOutputGroupAt(i)->get().channelCount());
-            odc2[i].resize(odc1[i].size());
-            oc[i] = odc1[i].size();
-            for(int j = 0; j < odc1[i].size(); ++j)
-            {
-                odc1[i][j].resize(audioProcessData.singleBufferSize, 0.0f);
-                odc2[i][j] = odc1[i][j].data();
-            }
-            odc3[i] = odc2[i].data();
-        }
-        audioProcessData.outputs = odc3.data();
-        audioProcessData.outputCounts = oc.data();
-        // } prepare audio process data
-        stop.store(false);
-        plugin.gui()->attachToWindow(&window);
-        audioGraphBackend.start(&audioGraphCallback);
-        std::thread uiThread(
-            [&plugin]()
-            {
-                while(!stop.load(std::memory_order::memory_order_acquire))
+                PluginWindowThread pluginWindowThread(nullptr);
+                inputEventList.attachToProcessData(plugin.processData());
+                // Prepare audio process data {
+                audioProcessData.singleBufferSize = bufferSize;
+                // Inputs
+                std::vector<std::vector<std::vector<float>>> idc1;
+                std::vector<std::vector<float*>> idc2;
+                std::vector<float**> idc3;
+                std::vector<std::uint32_t> ic;
+                idc1.resize(plugin.audioInputGroupCount());
+                idc2.resize(idc1.size());
+                idc3.resize(idc1.size(), nullptr);
+                ic.resize(idc1.size(), -1);
+                audioProcessData.inputGroupCount = idc1.size();
+                for(int i = 0; i < idc1.size(); ++i)
                 {
-                    //
+                    idc1[i].resize(plugin.audioInputGroupAt(i)->get().channelCount());
+                    idc2[i].resize(idc1[i].size());
+                    ic[i] = idc1[i].size();
+                    for(int j = 0; j < idc1[i].size(); ++j)
+                    {
+                        idc1[i][j].resize(audioProcessData.singleBufferSize, 0.0f);
+                        idc2[i][j] = idc1[i][j].data();
+                        for(int k = 0; k < audioProcessData.singleBufferSize; ++k)
+                        {
+#if(__GNUC__)
+                            idc1[i][j][k] = 0.25 * std::sin((i + 1) * k * 2 * pi / audioProcessData.singleBufferSize);
+#else
+                            idc1[i][j][k] = 0.25 * std::sinf((i + 1) * k * 2 * pi / audioProcessData.singleBufferSize);
+#endif
+                        }
+                    }
+                    idc3[i] = idc2[i].data();
                 }
+                audioProcessData.inputs = idc3.data();
+                audioProcessData.inputCounts = ic.data();
+                // Outputs
+                std::vector<std::vector<std::vector<float>>> odc1;
+                std::vector<std::vector<float*>> odc2;
+                std::vector<float**> odc3;
+                std::vector<std::uint32_t> oc;
+                odc1.resize(plugin.audioOutputGroupCount());
+                odc2.resize(odc1.size());
+                odc3.resize(odc1.size(), nullptr);
+                oc.resize(odc1.size(), -1);
+                audioProcessData.outputGroupCount = odc1.size();
+                for(int i = 0; i < odc1.size(); ++i)
+                {
+                    odc1[i].resize(plugin.audioOutputGroupAt(i)->get().channelCount());
+                    odc2[i].resize(odc1[i].size());
+                    oc[i] = odc1[i].size();
+                    for(int j = 0; j < odc1[i].size(); ++j)
+                    {
+                        odc1[i][j].resize(audioProcessData.singleBufferSize, 0.0f);
+                        odc2[i][j] = odc1[i][j].data();
+                    }
+                    odc3[i] = odc2[i].data();
+                }
+                audioProcessData.outputs = odc3.data();
+                audioProcessData.outputCounts = oc.data();
+                // } prepare audio process data
+                std::atomic_bool stop;
+                stop.store(false);
+                std::thread audioThread(
+                    [bufferSize, &stop, &plugin]()
+                    {
+                        plugin.host().setAudioThreadId(std::this_thread::get_id());
+                        assert(plugin.startProcessing());
+                        // Audio callback goes here...
+                        while(!stop.load(std::memory_order::memory_order_acquire))
+                        {
+                            auto sleepTo =
+                                std::chrono::steady_clock::now() + std::chrono::microseconds(
+                                    bufferSize * 10000 / 441);
+                            plugin.process(audioProcessData);
+                            while(std::chrono::steady_clock::now() < sleepTo)
+                            {
+                                std::this_thread::yield();
+                            }
+                        }
+                        plugin.stopProcessing();
+                    }
+                );
+                auto gui = plugin.pluginGUI();
+                if(gui)
+                {
+                    pluginWindowThread.start();
+                    pluginWindowThread.window()->showNormal();
+                    gui->attachToWindow(pluginWindowThread.window());
+                    QGuiApplication::exec();
+                }
+                else
+                {
+                    std::wprintf(L"No GUI available!");
+                    getchar();
+                }
+                stop.store(true, std::memory_order::memory_order_release);
+                audioThread.join();
+                plugin.deactivate();
             }
-        );
-        auto latencyInMilliseconds =
-            audioGraphBackend.latencyInSamples() * 1000.0 / static_cast<double>(audioGraphBackend.sampleRate());
-        auto bufferDuration =
-            audioGraphBackend.bufferSizeInFrames() * 1000.0 / static_cast<double>(audioGraphBackend.sampleRate());
-        std::printf(
-            "Latency: %d samples (%lf millisecond)\n", audioGraphBackend.latencyInSamples(), latencyInMilliseconds
-        );
-        std::printf(
-            "Buffer size: %d samples (%lf milliseconds)\n", audioGraphBackend.bufferSizeInFrames(), bufferDuration
-        );
-        QGuiApplication::exec();
-        stop.store(true, std::memory_order::memory_order_release);
-        uiThread.join();
-        audioGraphBackend.stop();
-        plugin.deactivate();
+        }
         plugin.uninitialize();
-        audioGraphBackend.destroyAudioGraph();
-        std::printf("Destroyed audio graph\n");
-        audioGraphBackend.uninitialize();
     }
+}
+
+int main(int argc, char* argv[])
+{
+    if(argc < 2)
+    {
+        std::printf("Usage: CLAPTest [<plugin path> <plugin UID>] or [<record id in database>]\nPress any key to continue...");
+        getchar();
+        return 0;
+    }
+    std::setlocale(LC_ALL, "en_US.UTF-8");
+    int argIndex = 1;
+    while(argIndex != argc)
+    {
+        YADAW::Native::Library library;
+        int id = -1;
+        std::sscanf(argv[argIndex], "%d", &id);
+        if(id == -1)
+        {
+            std::printf("\nTesting plugin: %s...\n", argv[argIndex]);
+            QGuiApplication application(argc, argv);
+            library = YADAW::Native::Library(argv[argIndex]);
+            ++argIndex;
+            auto plugin = YADAW::Audio::Util::createCLAPFromLibrary(library);
+            assert(plugin.createPlugin(argv[argIndex]));
+            testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);
+            ++argIndex;
+        }
+        else
+        {
+            QGuiApplication application(argc, argv);
+            const auto& record = YADAW::DAO::selectPluginById(id);
+            std::printf("\nTesting plugin: %s...\n", record.path.toLocal8Bit().data());
+            library = YADAW::Native::Library(record.path);
+            auto plugin = YADAW::Audio::Util::createCLAPFromLibrary(library);
+            assert(plugin.createPlugin(record.uid.data()));
+            testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);
+            ++argIndex;
+        }
+    }
+    std::printf("Press any key to continue...");
+    getchar();
     return 0;
 }
