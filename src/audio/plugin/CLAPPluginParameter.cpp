@@ -127,7 +127,6 @@ std::uint32_t CLAPPluginParameter::parameterCount()
 IParameter* CLAPPluginParameter::parameter(std::uint32_t index)
 {
     return YADAW::Util::getOrNull(parameters_, index);
-    return &parameters_[index];
 }
 
 void CLAPPluginParameter::swap(CLAPPluginParameter::Self& rhs) noexcept

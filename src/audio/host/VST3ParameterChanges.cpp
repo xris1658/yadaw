@@ -40,7 +40,7 @@ Vst::IParamValueQueue* VST3ParameterChanges::getParameterData(int32 index)
 {
     if(index >= 0 && index < parameterValueQueues_.size())
     {
-        return &(parameterValueQueues_[index]);
+        return parameterValueQueues_.data() + index;
     }
     return nullptr;
 }

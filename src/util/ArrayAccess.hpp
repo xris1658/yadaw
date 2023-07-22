@@ -12,7 +12,7 @@ T* getOrNull(T* pointer, std::size_t count, std::size_t index)
 }
 
 template<typename T>
-const auto getOrNull(const T& container, std::size_t index)
+auto getOrNull(const T& container, std::size_t index)
 {
     return getOrNull(container.data(), container.size(), index);
 }
