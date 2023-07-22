@@ -105,8 +105,8 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 std::printf(":");
                 for(std::uint32_t i = 0; i < eventInputCount; ++i)
                 {
-                    const auto& busInfo = eventProcessor->eventInputBusAt(i);
-                    if(busInfo->isMain())
+                    const auto& busInfo = eventProcessor->eventInputBusAt(i)->get();
+                    if(busInfo.isMain())
                     {
                         std::printf("\n> ");
                     }
@@ -114,8 +114,8 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     {
                         std::printf("\n  ");
                     }
-                    std::printf("%u: %ls (%u channels)", i + 1, reinterpret_cast<wchar_t*>(busInfo->name().data()),
-                        busInfo->channelCount());
+                    std::printf("%u: %ls (%u channels)", i + 1, reinterpret_cast<wchar_t*>(busInfo.name().data()),
+                        busInfo.channelCount());
                 }
             }
             auto eventOutputCount = eventProcessor->eventOutputBusCount();
@@ -125,8 +125,8 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 std::printf(":");
                 for(std::uint32_t i = 0; i < eventOutputCount; ++i)
                 {
-                    const auto& busInfo = eventProcessor->eventOutputBusAt(i);
-                    if(busInfo->isMain())
+                    const auto& busInfo = eventProcessor->eventOutputBusAt(i)->get();
+                    if(busInfo.isMain())
                     {
                         std::printf("\n> ");
                     }
@@ -134,8 +134,8 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     {
                         std::printf("\n  ");
                     }
-                    std::printf("%u: %ls (%u channels)", i + 1, reinterpret_cast<wchar_t*>(busInfo->name().data()),
-                        busInfo->channelCount());
+                    std::printf("%u: %ls (%u channels)", i + 1, reinterpret_cast<wchar_t*>(busInfo.name().data()),
+                        busInfo.channelCount());
                 }
             }
             std::printf("\n");
@@ -173,7 +173,11 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                         idc2[i][j] = idc1[i][j].data();
                         for(int k = 0; k < audioProcessData.singleBufferSize; ++k)
                         {
+#if(__GNUC__)
+                            idc1[i][j][k] = 0.25 * std::sin((i + 1) * k * 2 * pi / audioProcessData.singleBufferSize);
+#else
                             idc1[i][j][k] = 0.25 * std::sinf((i + 1) * k * 2 * pi / audioProcessData.singleBufferSize);
+#endif
                         }
                     }
                     idc3[i] = idc2[i].data();
@@ -342,7 +346,7 @@ int main(int argc, char* argv[])
             testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);
             ++argIndex;
         }
-        std::printf("Duration: %lld\n", duration.count());
+        std::printf("Duration: %ld\n", duration.count());
     }
     std::wprintf(L"Press any key to continue...");
     getchar();
