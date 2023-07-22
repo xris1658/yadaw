@@ -8,10 +8,10 @@ StereoChannelFader::StereoChannelFader()
 {
     inputAudioChannelGroup_.setName("StereoChannelFader Main Input");
     inputAudioChannelGroup_.setMain(true);
-    inputAudioChannelGroup_.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::Stereo);
+    inputAudioChannelGroup_.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::eStereo);
     outputAudioChannelGroup_.setName("StereoChannelFader Main Output");
     outputAudioChannelGroup_.setMain(true);
-    outputAudioChannelGroup_.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::Stereo);
+    outputAudioChannelGroup_.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::eStereo);
 }
 
 StereoChannelFader::~StereoChannelFader()

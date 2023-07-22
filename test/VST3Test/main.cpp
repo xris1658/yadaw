@@ -51,7 +51,11 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
 {
     if(initializePlugin)
     {
+
         assert(plugin.initialize(44100, 64));
+        std::vector<YADAW::Audio::Base::ChannelGroupType> inputChannels(plugin.audioInputGroupCount(), YADAW::Audio::Base::ChannelGroupType::e71);
+        std::vector<YADAW::Audio::Base::ChannelGroupType> outputChannels(plugin.audioOutputGroupCount(), YADAW::Audio::Base::ChannelGroupType::e71);
+        plugin.setChannelGroups(inputChannels.data(), inputChannels.size(), outputChannels.data(), outputChannels.size());
         auto audioInputGroupCount = plugin.audioInputGroupCount();
         std::printf("%d audio input(s)", audioInputGroupCount);
         if(audioInputGroupCount != 0)

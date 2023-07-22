@@ -4,6 +4,7 @@
 #include "audio/plugin/VST3PluginGUI.hpp"
 #include "audio/plugin/VST3PluginParameter.hpp"
 #include "audio/util/VST3Helper.hpp"
+#include "util/Base.hpp"
 
 // For some reason, memorystream.cpp is not included in sdk_common library, so I have to solve this
 // by `#include`ing the source file in another source: `audio/plugin/VST3MemoryStream.cpp`.
@@ -11,6 +12,59 @@
 
 namespace YADAW::Audio::Plugin
 {
+Steinberg::Vst::SpeakerArrangement vst3ChannelGroupMapping[] = {
+    SpeakerArr::kEmpty,
+    SpeakerArr::kMono,
+    SpeakerArr::kStereo,
+    SpeakerArr::k30Cine,
+    SpeakerArr::k40Music,
+    SpeakerArr::k50,
+    SpeakerArr::k51,
+    SpeakerArr::k61Cine,
+    SpeakerArr::k71Cine
+};
+
+YADAW::Audio::Base::ChannelGroupType fromSpeakerArrangement(SpeakerArrangement speakerArrangement)
+{
+    using namespace YADAW::Audio::Base;
+    using namespace SpeakerArr;
+    switch(speakerArrangement)
+    {
+    case kEmpty:
+        return ChannelGroupType::eEmpty;
+    case kMono:
+        return ChannelGroupType::eMono;
+    case kStereo:
+        return ChannelGroupType::eStereo;
+    case k30Cine:
+        return ChannelGroupType::eLRC;
+    case k40Music:
+        return ChannelGroupType::eQuad;
+    case k50:
+        return ChannelGroupType::e50;
+    case k51:
+        return ChannelGroupType::e51;
+    case k61Cine:
+        return ChannelGroupType::e61;
+    case k71Cine:
+        return ChannelGroupType::e71;
+    default:
+        return ChannelGroupType::eCustomGroup;
+    }
+}
+
+Steinberg::Vst::SpeakerArrangement fromChannelGroup(YADAW::Audio::Base::ChannelGroupType channelGroup)
+{
+    using namespace YADAW::Util;
+    if(auto index = underlyingValue(channelGroup);
+        index >= 0
+        && index < underlyingValue(YADAW::Audio::Base::ChannelGroupType::eEnd))
+    {
+        return vst3ChannelGroupMapping[index];
+    }
+    return SpeakerArr::kEmpty;
+}
+
 VST3Plugin::VST3Plugin()
 {
 }
@@ -109,6 +163,32 @@ Steinberg::Vst::IEditController* VST3Plugin::editController()
 const Steinberg::Vst::ProcessSetup& VST3Plugin::processSetup()
 {
     return processSetup_;
+}
+
+bool VST3Plugin::setChannelGroups(YADAW::Audio::Base::ChannelGroupType* inputs, std::uint32_t inputCount,
+    YADAW::Audio::Base::ChannelGroupType* outputs, std::uint32_t outputCount)
+{
+    std::vector<Steinberg::Vst::SpeakerArrangement> inputsAsSpeakerArrangement;
+    inputsAsSpeakerArrangement.reserve(inputCount);
+    std::vector<Steinberg::Vst::SpeakerArrangement> outputsAsSpeakerArrangement;
+    outputsAsSpeakerArrangement.reserve(outputCount);
+    for(std::uint32_t i = 0; i < inputCount; ++i)
+    {
+        inputsAsSpeakerArrangement.emplace_back(fromChannelGroup(inputs[i]));
+    }
+    for(std::uint32_t i = 0; i < outputCount; ++i)
+    {
+        outputsAsSpeakerArrangement.emplace_back(fromChannelGroup(outputs[i]));
+    }
+    auto ret = audioProcessor_->setBusArrangements(inputsAsSpeakerArrangement.data(), inputCount,
+        outputsAsSpeakerArrangement.data(), outputCount);
+    if(ret == Steinberg::kResultOk)
+    {
+        prepareAudioRelatedInfo();
+        prepareProcessData(processSetup_.processMode);
+        return true;
+    }
+    return false;
 }
 
 bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)

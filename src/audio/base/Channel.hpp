@@ -7,17 +7,30 @@ enum class ChannelType
 {
     Custom = -2,
     Invalid,
-    Center,
-    Left,
-    Right
+    Center, FrontCenter = Center,
+    Left, FrontLeft = Left,
+    Right, FrontRight = Right,
+    SideLeft,
+    SideRight,
+    RearLeft,
+    RearRight,
+    RearCenter,
+    LFE,
 };
 
 enum class ChannelGroupType
 {
-    Custom = -1,
-    NoChannel,
-    Mono,
-    Stereo
+    eCustomGroup = -1,
+    eEmpty,
+    eMono,
+    eStereo,
+    eLRC,
+    eQuad,
+    e50,
+    e51,
+    e61,
+    e71,
+    eEnd
 };
 
 constexpr int InvalidChannelCount = -1;

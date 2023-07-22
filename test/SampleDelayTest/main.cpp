@@ -19,7 +19,7 @@ public:
 
     virtual YADAW::Audio::Base::ChannelGroupType type() const override
     {
-        return YADAW::Audio::Base::ChannelGroupType::Mono;
+        return YADAW::Audio::Base::ChannelGroupType::eMono;
     }
 
     virtual YADAW::Audio::Base::ChannelType speakerAt(std::uint32_t index) const override

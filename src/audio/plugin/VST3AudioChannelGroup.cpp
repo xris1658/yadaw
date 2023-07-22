@@ -2,7 +2,58 @@
 
 namespace YADAW::Audio::Plugin
 {
+using namespace YADAW::Audio::Base;
 using namespace YADAW::Audio::Device;
+
+using namespace Steinberg::Vst;
+
+template<Steinberg::Vst::SpeakerArrangement Arr>
+ChannelType vst3Speakers[] = {};
+
+template<> ChannelType vst3Speakers<SpeakerArr::kMono>[] = {
+    ChannelType::Center
+};
+
+template<> ChannelType vst3Speakers<SpeakerArr::kStereo>[] = {
+    ChannelType::Left, ChannelType::Right
+};
+
+template<> ChannelType vst3Speakers<SpeakerArr::k30Cine>[] = {
+    ChannelType::Left, ChannelType::Right, ChannelType::Center
+};
+
+template<> ChannelType vst3Speakers<SpeakerArr::k40Music>[] = {
+    ChannelType::Left, ChannelType::Right,
+    ChannelType::RearLeft, ChannelType::RearRight
+};
+
+template<> ChannelType vst3Speakers<SpeakerArr::k50>[] = {
+    ChannelType::Left, ChannelType::Right,
+    ChannelType::Center,
+    ChannelType::RearLeft, ChannelType::RearRight
+};
+
+template<> ChannelType vst3Speakers<SpeakerArr::k51>[] = {
+    ChannelType::Left, ChannelType::Right,
+    ChannelType::Center,
+    ChannelType::RearLeft, ChannelType::RearRight,
+    ChannelType::LFE
+};
+
+template<> ChannelType vst3Speakers<SpeakerArr::k61Cine>[] = {
+    ChannelType::Left, ChannelType::Right,
+    ChannelType::Center,
+    ChannelType::RearLeft, ChannelType::RearRight, ChannelType::RearCenter,
+    ChannelType::LFE
+};
+
+template<> ChannelType vst3Speakers<SpeakerArr::k71Cine>[] = {
+    ChannelType::Left, ChannelType::Right,
+    ChannelType::Center,
+    ChannelType::RearLeft, ChannelType::RearRight,
+    ChannelType::SideLeft, ChannelType::SideRight,
+    ChannelType::LFE
+};
 
 VST3AudioChannelGroup::VST3AudioChannelGroup():
     speakerArrangement_(SpeakerArr::kEmpty),
@@ -29,34 +80,71 @@ QString VST3AudioChannelGroup::name() const
 
 std::uint32_t VST3AudioChannelGroup::channelCount() const
 {
-    // Alternative solution
-    // return SpeakerArr::getChannelCount(speakerArrangement_);
     return busInfo_.channelCount;
 }
 
 YADAW::Audio::Base::ChannelGroupType VST3AudioChannelGroup::type() const
 {
-    return speakerArrangement_ == SpeakerArr::kStereo? YADAW::Audio::Base::ChannelGroupType::Stereo:
-        speakerArrangement_ == SpeakerArr::kMono? YADAW::Audio::Base::ChannelGroupType::Mono:
-        YADAW::Audio::Base::ChannelGroupType::Custom;
+    switch(speakerArrangement_)
+    {
+    case SpeakerArr::kEmpty:
+        return YADAW::Audio::Base::ChannelGroupType::eEmpty;
+    case SpeakerArr::kMono:
+        return YADAW::Audio::Base::ChannelGroupType::eMono;
+    case SpeakerArr::kStereo:
+        return YADAW::Audio::Base::ChannelGroupType::eStereo;
+    case SpeakerArr::k30Cine:
+        return YADAW::Audio::Base::ChannelGroupType::eLRC;
+    case SpeakerArr::k40Music:
+        return YADAW::Audio::Base::ChannelGroupType::eQuad;
+    case SpeakerArr::k50:
+        return YADAW::Audio::Base::ChannelGroupType::e50;
+    case SpeakerArr::k51:
+        return YADAW::Audio::Base::ChannelGroupType::e51;
+    case SpeakerArr::k61Cine:
+        return YADAW::Audio::Base::ChannelGroupType::e61;
+    case SpeakerArr::k71Cine:
+        return YADAW::Audio::Base::ChannelGroupType::e71;
+    default:
+        return YADAW::Audio::Base::ChannelGroupType::eCustomGroup;
+    }
 }
 
 YADAW::Audio::Base::ChannelType VST3AudioChannelGroup::speakerAt(std::uint32_t index) const
 {
-    auto speaker = SpeakerArr::getSpeaker(speakerArrangement_, index);
-    if(speaker == Steinberg::Vst::kSpeakerL)
+    using namespace YADAW::Audio::Base;
+    using namespace Steinberg::Vst;
+    if(index < channelCount())
     {
-        return YADAW::Audio::Base::ChannelType::Left;
+        auto speaker = SpeakerArr::getSpeaker(speakerArrangement_, index);
+        switch(speaker)
+        {
+        case kSpeakerM:
+        case kSpeakerC:
+            return ChannelType::Center;
+        case kSpeakerL:
+            return ChannelType::Left;
+        case kSpeakerR:
+            return ChannelType::Right;
+        case kSpeakerLs:
+            return ChannelType::RearLeft;
+        case kSpeakerRs:
+            return ChannelType::RearRight;
+        case kSpeakerCs:
+            return ChannelType::RearCenter;
+        case kSpeakerLfe:
+            return ChannelType::LFE;
+        case kSpeakerSl:
+            return ChannelType::SideLeft;
+        case kSpeakerSr:
+            return ChannelType::SideRight;
+        case 0:
+            return ChannelType::Invalid;
+        default:
+            return ChannelType::Custom;
+        }
     }
-    else if(speaker == Steinberg::Vst::kSpeakerR)
-    {
-        return YADAW::Audio::Base::ChannelType::Right;
-    }
-    else if(speaker == 0)
-    {
-        return YADAW::Audio::Base::ChannelType::Invalid;
-    }
-    return index < channelCount()? YADAW::Audio::Base::ChannelType::Custom: YADAW::Audio::Base::ChannelType::Invalid;
+    return YADAW::Audio::Base::ChannelType::Invalid;
 }
 
 QString VST3AudioChannelGroup::speakerNameAt(std::uint32_t index) const

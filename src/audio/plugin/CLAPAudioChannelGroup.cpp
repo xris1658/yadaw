@@ -23,10 +23,10 @@ std::uint32_t CLAPAudioChannelGroup::channelCount() const
 YADAW::Audio::Base::ChannelGroupType CLAPAudioChannelGroup::type() const
 {
     return
-        std::strcmp(audioPortInfo_.port_type, CLAP_PORT_STEREO) == 0? YADAW::Audio::Base::ChannelGroupType::Stereo:
-        std::strcmp(audioPortInfo_.port_type, CLAP_PORT_MONO) == 0? YADAW::Audio::Base::ChannelGroupType::Mono:
-        channelCount() == 0? YADAW::Audio::Base::ChannelGroupType::NoChannel:
-        YADAW::Audio::Base::ChannelGroupType::Custom;
+        std::strcmp(audioPortInfo_.port_type, CLAP_PORT_STEREO) == 0? YADAW::Audio::Base::ChannelGroupType::eStereo:
+        std::strcmp(audioPortInfo_.port_type, CLAP_PORT_MONO) == 0? YADAW::Audio::Base::ChannelGroupType::eMono:
+        channelCount() == 0? YADAW::Audio::Base::ChannelGroupType::eEmpty:
+        YADAW::Audio::Base::ChannelGroupType::eCustomGroup;
 }
 
 YADAW::Audio::Base::ChannelType CLAPAudioChannelGroup::speakerAt(std::uint32_t index) const

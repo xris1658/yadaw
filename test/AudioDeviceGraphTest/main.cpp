@@ -17,7 +17,7 @@ int main()
     }
     YADAW::Audio::Engine::AudioDeviceGraph graph;
     YADAW::Audio::Util::AudioChannelGroup audioChannelGroup;
-    audioChannelGroup.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::Stereo);
+    audioChannelGroup.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::eStereo);
     std::vector<YADAW::Audio::Util::SampleDelay> sd;
     auto deviceCount = 8;
     sd.reserve(deviceCount);
@@ -69,7 +69,7 @@ int main()
     {
         nodes.emplace_back(graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(sd[i]), std::move(a1[i])));
     }
-    YADAW::Audio::Util::Summing summing(deviceCount, YADAW::Audio::Base::ChannelGroupType::Stereo);
+    YADAW::Audio::Util::Summing summing(deviceCount, YADAW::Audio::Base::ChannelGroupType::eStereo);
     std::vector<std::vector<float>> sd3(
         channelCount, std::vector<float>(bufferSize, 0.0f)
     );
