@@ -16,12 +16,4 @@ sqlite::database& appDatabase()
     static sqlite::database ret(appDatabasePath().toStdString());
     return ret;
 }
-
-void initDatabase(sqlite::database& database)
-{
-    createAssetDirectoryTable(database);
-    createPluginCategoryTable(database);
-    createPluginDirectoryTable(database);
-    createPluginTable(database);
-}
 }
