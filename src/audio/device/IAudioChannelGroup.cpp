@@ -3,6 +3,7 @@
 #include "util/Base.hpp"
 
 using namespace YADAW::Audio::Base;
+using namespace YADAW::Util;
 
 template<ChannelGroupType>
 ChannelType speakers[] = {};
@@ -57,117 +58,138 @@ ChannelType speakers<ChannelGroupType::e71>[] = {
     ChannelType::LFE
 };
 
-template<ChannelGroupType Type>
+template<ChannelGroupType C>
 ChannelType getChannelFromGroup(std::uint32_t index)
 {
-    return index < YADAW::Util::stackArraySize(speakers<Type>)?
-        speakers<Type>[index]:
+    return index < stackArraySize(speakers<C>)?
+        speakers<C>[index]:
             ChannelType::Invalid;
+}
+
+template<ChannelGroupType C>
+bool channelIsInGroup(ChannelType channel)
+{
+    for(auto speaker: speakers<C>)
+    {
+        if(speaker == channel)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 namespace YADAW::Audio::Device
 {
 int IAudioChannelGroup::channelCount(ChannelGroupType channelGroupType)
 {
-    switch(channelGroupType)
+    if(constexpr auto C = ChannelGroupType::eMono; channelGroupType == C)
     {
-    case ChannelGroupType::eMono:
-        return YADAW::Util::stackArraySize(speakers<ChannelGroupType::eMono>);
-    case ChannelGroupType::eStereo:
-        return YADAW::Util::stackArraySize(speakers<ChannelGroupType::eStereo>);
-    case ChannelGroupType::eLRC:
-        return YADAW::Util::stackArraySize(speakers<ChannelGroupType::eLRC>);
-    case ChannelGroupType::eQuad:
-        return YADAW::Util::stackArraySize(speakers<ChannelGroupType::eQuad>);
-    case ChannelGroupType::e50:
-        return YADAW::Util::stackArraySize(speakers<ChannelGroupType::e50>);
-    case ChannelGroupType::e51:
-        return YADAW::Util::stackArraySize(speakers<ChannelGroupType::e51>);
-    case ChannelGroupType::e61:
-        return YADAW::Util::stackArraySize(speakers<ChannelGroupType::e61>);
-    case ChannelGroupType::e71:
-        return YADAW::Util::stackArraySize(speakers<ChannelGroupType::e71>);
-    default:
-        return InvalidChannelCount;
+        return stackArraySize(speakers<C>);
     }
+    if(constexpr auto C = ChannelGroupType::eStereo; channelGroupType == C)
+    {
+        return stackArraySize(speakers<C>);
+    }
+    if(constexpr auto C = ChannelGroupType::eLRC; channelGroupType == C)
+    {
+        return stackArraySize(speakers<C>);
+    }
+    if(constexpr auto C = ChannelGroupType::eQuad; channelGroupType == C)
+    {
+        return stackArraySize(speakers<C>);
+    }
+    if(constexpr auto C = ChannelGroupType::e50; channelGroupType == C)
+    {
+        return stackArraySize(speakers<C>);
+    }
+    if(constexpr auto C = ChannelGroupType::e51; channelGroupType == C)
+    {
+        return stackArraySize(speakers<C>);
+    }
+    if(constexpr auto C = ChannelGroupType::e61; channelGroupType == C)
+    {
+        return stackArraySize(speakers<C>);
+    }
+    if(constexpr auto C = ChannelGroupType::e71; channelGroupType == C)
+    {
+        return stackArraySize(speakers<C>);
+    }
+    return InvalidChannelCount;
 }
 
 ChannelType IAudioChannelGroup::channelAt(
     ChannelGroupType channelGroupType, std::uint32_t index)
 {
-    switch(channelGroupType)
+    if(constexpr auto C = ChannelGroupType::eMono; channelGroupType == C)
     {
-    case ChannelGroupType::eMono:
-        return getChannelFromGroup<ChannelGroupType::eMono>(index);
-    case ChannelGroupType::eStereo:
-        return getChannelFromGroup<ChannelGroupType::eStereo>(index);
-    case ChannelGroupType::eLRC:
-        return getChannelFromGroup<ChannelGroupType::eLRC>(index);
-    case ChannelGroupType::eQuad:
-        return getChannelFromGroup<ChannelGroupType::eQuad>(index);
-    case ChannelGroupType::e50:
-        return getChannelFromGroup<ChannelGroupType::e50>(index);
-    case ChannelGroupType::e51:
-        return getChannelFromGroup<ChannelGroupType::e51>(index);
-    case ChannelGroupType::e61:
-        return getChannelFromGroup<ChannelGroupType::e61>(index);
-    case ChannelGroupType::e71:
-        return getChannelFromGroup<ChannelGroupType::e71>(index);
-    default:
-        return ChannelType::Invalid;
+        return getChannelFromGroup<C>(index);
     }
+    if(constexpr auto C = ChannelGroupType::eStereo; channelGroupType == C)
+    {
+        return getChannelFromGroup<C>(index);
+    }
+    if(constexpr auto C = ChannelGroupType::eLRC; channelGroupType == C)
+    {
+        return getChannelFromGroup<C>(index);
+    }
+    if(constexpr auto C = ChannelGroupType::eQuad; channelGroupType == C)
+    {
+        return getChannelFromGroup<C>(index);
+    }
+    if(constexpr auto C = ChannelGroupType::e50; channelGroupType == C)
+    {
+        return getChannelFromGroup<C>(index);
+    }
+    if(constexpr auto C = ChannelGroupType::e51; channelGroupType == C)
+    {
+        return getChannelFromGroup<C>(index);
+    }
+    if(constexpr auto C = ChannelGroupType::e61; channelGroupType == C)
+    {
+        return getChannelFromGroup<C>(index);
+    }
+    if(constexpr auto C = ChannelGroupType::e71; channelGroupType == C)
+    {
+        return getChannelFromGroup<C>(index);
+    }
+    return ChannelType::Invalid;
 }
 
-bool IAudioChannelGroup::isChannelInGroup(ChannelType channelType, ChannelGroupType channelGroupType)
+bool IAudioChannelGroupchannelIsInGroup(ChannelType channelType, ChannelGroupType channelGroupType)
 {
-    switch(channelGroupType)
+    if(constexpr auto C = ChannelGroupType::eMono; channelGroupType == C)
     {
-    case ChannelGroupType::eMono:
-        return channelType == ChannelType::Center;
-    case ChannelGroupType::eStereo:
-        return channelType == ChannelType::Left
-            || channelType == ChannelType::Right;
-    case ChannelGroupType::eLRC:
-        return channelType == ChannelType::Left
-            || channelType == ChannelType::Right
-            || channelType == ChannelType::FrontCenter;
-    case ChannelGroupType::eQuad:
-        return channelType == ChannelType::Left
-            || channelType == ChannelType::Right
-            || channelType == ChannelType::RearLeft
-            || channelType == ChannelType::RearRight;
-    case ChannelGroupType::e50:
-        return channelType == ChannelType::Left
-            || channelType == ChannelType::Center
-            || channelType == ChannelType::Right
-            || channelType == ChannelType::RearLeft
-            || channelType == ChannelType::RearRight;
-    case ChannelGroupType::e51:
-        return channelType == ChannelType::Left
-            || channelType == ChannelType::Center
-            || channelType == ChannelType::Right
-            || channelType == ChannelType::RearLeft
-            || channelType == ChannelType::RearRight
-            || channelType == ChannelType::LFE;
-    case ChannelGroupType::e61:
-        return channelType == ChannelType::Left
-            || channelType == ChannelType::Center
-            || channelType == ChannelType::Right
-            || channelType == ChannelType::SideLeft
-            || channelType == ChannelType::SideRight
-            || channelType == ChannelType::RearCenter
-            || channelType == ChannelType::LFE;
-    case ChannelGroupType::e71:
-        return channelType == ChannelType::Left
-            || channelType == ChannelType::Center
-            || channelType == ChannelType::Right
-            || channelType == ChannelType::SideLeft
-            || channelType == ChannelType::SideRight
-            || channelType == ChannelType::RearLeft
-            || channelType == ChannelType::RearRight
-            || channelType == ChannelType::LFE;
-    default:
-        return false;
+        return channelIsInGroup<C>(channelType);
     }
+    if(constexpr auto C = ChannelGroupType::eStereo; channelGroupType == C)
+    {
+        return channelIsInGroup<C>(channelType);
+    }
+    if(constexpr auto C = ChannelGroupType::eLRC; channelGroupType == C)
+    {
+        return channelIsInGroup<C>(channelType);
+    }
+    if(constexpr auto C = ChannelGroupType::eQuad; channelGroupType == C)
+    {
+        return channelIsInGroup<C>(channelType);
+    }
+    if(constexpr auto C = ChannelGroupType::e50; channelGroupType == C)
+    {
+        return channelIsInGroup<C>(channelType);
+    }
+    if(constexpr auto C = ChannelGroupType::e51; channelGroupType == C)
+    {
+        return channelIsInGroup<C>(channelType);
+    }
+    if(constexpr auto C = ChannelGroupType::e61; channelGroupType == C)
+    {
+        return channelIsInGroup<C>(channelType);
+    }
+    if(constexpr auto C = ChannelGroupType::e71; channelGroupType == C)
+    {
+        return channelIsInGroup<C>(channelType);
+    }
+    return false;
 }
 }
