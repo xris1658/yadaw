@@ -37,7 +37,21 @@ add_subdirectory(content)
 add_definitions(-DUNICODE -D_UNICODE)
 
 if(MSVC)
-    add_compile_options(/W4 /Zc:wchar_t /Zc:__cplusplus)
+    add_compile_options(/Wall
+                        /wd4820 # 'bytes' bytes padding added after construct 'member_name'
+                        /wd4267 # conversion from `size_t` to `type`, possible loss of data
+                        /wd4365 # conversion from 'type_1' to 'type_2', signed/unsigned mismatch
+                        /wd4018 /wd4388 # signed/unsigned mismatch
+                        /wd4265 # class has virtual functions, but its non-trivial destructor is not virtual; instances of this class may not be destructed correctly
+                        /wd4625 # copy constructor was implicitly defined as deleted
+                        /wd4626 # assignment operator was implicitly defined as deleted
+                        /wd4668 # 'xxx' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
+                        /wd5026 # move constructor was implicitly defined as deleted
+                        /wd5027 # move assignment operator was implicitly defined as deleted
+                        /wd5045 # Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+                        /wd5204 # class has virtual functions, but its non-trivial destructor is not virtual; instances of this class may not be destructed correctly
+                        /wd5219 # implicit conversion from `xxx` to `yyy`, possible loss of data
+                        /Zc:wchar_t /Zc:__cplusplus)
 elseif(GCC)
     add_compile_options(-Wextra)
 endif()
