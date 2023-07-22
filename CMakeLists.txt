@@ -39,7 +39,7 @@ add_definitions(-DUNICODE -D_UNICODE)
 if(MSVC)
     add_compile_options(/W4 /Zc:wchar_t /Zc:__cplusplus)
 elseif(GCC)
-    add_compile_options(-Wall)
+    add_compile_options(-Wextra)
 endif()
 
 set(WIN32_NATIVE_SOURCES
