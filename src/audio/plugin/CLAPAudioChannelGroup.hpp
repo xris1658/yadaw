@@ -4,6 +4,8 @@
 #include "audio/device/IAudioChannelGroup.hpp"
 
 #include <clap/ext/audio-ports.h>
+#include <clap/ext/draft/ambisonic.h>
+#include <clap/ext/draft/surround.h>
 
 #include <vector>
 
@@ -18,7 +20,7 @@ class CLAPAudioChannelGroup: public IAudioChannelGroup
     friend CLAPPlugin;
 public:
     CLAPAudioChannelGroup();
-    CLAPAudioChannelGroup(const clap_plugin* plugin, const clap_plugin_audio_ports* audioPorts, bool isInput, int index);
+    CLAPAudioChannelGroup(const clap_plugin* plugin, const clap_plugin_audio_ports* audioPorts, bool isInput, std::uint32_t index);
     CLAPAudioChannelGroup(const CLAPAudioChannelGroup&) = default;
     CLAPAudioChannelGroup(CLAPAudioChannelGroup&&) noexcept = default;
     ~CLAPAudioChannelGroup() noexcept = default;
@@ -30,7 +32,10 @@ public:
     QString speakerNameAt(std::uint32_t index) const override;
     bool isMain() const override;
 private:
+    bool isAmbisonic_ = false;
+    bool isSurround_ = false;
     clap_audio_port_info audioPortInfo_;
+    std::vector<std::uint8_t> mapping_;
 };
 }
 
