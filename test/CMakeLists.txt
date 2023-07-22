@@ -56,6 +56,10 @@ add_executable(QStringConversionTest
 add_executable(SampleDelayTest
                ../src/audio/util/SampleDelay.cpp
                ../src/audio/util/SampleDelay.hpp
+               ../src/audio/util/AudioChannelGroup.cpp
+               ../src/audio/util/AudioChannelGroup.hpp
+               ../src/audio/device/IAudioChannelGroup.cpp
+               ../src/audio/device/IAudioChannelGroup.hpp
                SampleDelayTest/main.cpp)
 
 target_link_libraries(ADEUtilsTest PRIVATE ade)
