@@ -43,7 +43,10 @@ bool initializeALSAFromConfig(const YAML::Node& node)
     auto sampleRate = sampleRateNode.IsDefined()? sampleRateNode.as<std::uint32_t>(): DefaultSampleRate;
     const auto& frameSizeNode = node["buffer-size"];
     auto frameSize = frameSizeNode.IsDefined()? frameSizeNode.as<std::uint32_t>(): DefaultFrameSize;
-    backend.initialize(sampleRate, frameSize);
+    if(!backend.initialize(sampleRate, frameSize))
+    {
+        return false;
+    }
     if(const auto& inputDevicesNode = node["inputs"];
         inputDevicesNode.IsDefined() && inputDevicesNode.IsSequence())
     {
@@ -72,6 +75,7 @@ bool initializeALSAFromConfig(const YAML::Node& node)
             );
         }
     }
+    return true;
 }
 
 YADAW::Audio::Backend::ALSABusConfiguration& appAudioBusConfiguration()
