@@ -18,6 +18,8 @@ ChannelType speakers<ChannelGroupType::eStereo>[] = {
     ChannelType::Left, ChannelType::Right
 };
 
+// https://www.rfc-editor.org/rfc/rfc7845#section-5.1.1.2
+
 template<>
 ChannelType speakers<ChannelGroupType::eLRC>[] = {
     ChannelType::Left, ChannelType::FrontCenter, ChannelType::Right

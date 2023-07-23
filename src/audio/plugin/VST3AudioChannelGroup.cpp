@@ -18,6 +18,8 @@ template<> ChannelType vst3Speakers<SpeakerArr::kStereo>[] = {
     ChannelType::Left, ChannelType::Right
 };
 
+// pluginterfaces/vst/vstspeaker.h
+
 template<> ChannelType vst3Speakers<SpeakerArr::k30Cine>[] = {
     ChannelType::Left, ChannelType::Right, ChannelType::Center
 };
