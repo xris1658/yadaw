@@ -15,7 +15,9 @@ struct Message
 
 struct ChannelVoiceMessageHeader
 {
-    std::uint8_t channel: 4, type: 4; // FIXME: actual mapping is implementation defined
+    std::uint8_t channelAsByte;
+    std::uint8_t type() const { return channelAsByte >> 4; }
+    std::uint8_t channel() const { return channelAsByte & 0b00001111; }
 };
 
 inline bool isChannelVoiceMessageHeader(std::uint8_t data)
