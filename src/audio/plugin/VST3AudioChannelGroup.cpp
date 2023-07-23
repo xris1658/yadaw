@@ -42,14 +42,7 @@ template<> ChannelType vst3Speakers<SpeakerArr::k51>[] = {
     ChannelType::RearLeft, ChannelType::RearRight
 };
 
-template<> ChannelType vst3Speakers<SpeakerArr::k61Cine>[] = {
-    ChannelType::Left, ChannelType::Right,
-    ChannelType::Center,
-    ChannelType::LFE,
-    ChannelType::RearLeft, ChannelType::RearRight, ChannelType::RearCenter
-};
-
-template<> ChannelType vst3Speakers<SpeakerArr::k71Cine>[] = {
+template<> ChannelType vst3Speakers<SpeakerArr::k71Music>[] = {
     ChannelType::Left, ChannelType::Right,
     ChannelType::Center,
     ChannelType::LFE,
@@ -103,9 +96,7 @@ YADAW::Audio::Base::ChannelGroupType VST3AudioChannelGroup::type() const
         return YADAW::Audio::Base::ChannelGroupType::e50;
     case SpeakerArr::k51:
         return YADAW::Audio::Base::ChannelGroupType::e51;
-    case SpeakerArr::k61Cine:
-        return YADAW::Audio::Base::ChannelGroupType::e61;
-    case SpeakerArr::k71Cine:
+    case SpeakerArr::k71Music:
         return YADAW::Audio::Base::ChannelGroupType::e71;
     default:
         return YADAW::Audio::Base::ChannelGroupType::eCustomGroup;
