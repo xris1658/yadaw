@@ -4,7 +4,62 @@
 
 void printTime(const YADAW::MIDI::MIDIInputDevice& device, const YADAW::MIDI::Message& message)
 {
-    std::printf("%lld\n", message.timestampInNanoseconds);
+    using namespace YADAW::MIDI;
+    auto header = reinterpret_cast<ChannelVoiceMessageHeader*>(message.data);
+    std::printf("Channel: %hhu\n", header->channel());
+    std::printf("   Type: %hhu\n", header->type());
+    switch(header->type())
+    {
+    case NoteOffMessage::TypeId:
+    {
+        auto noteOff = reinterpret_cast<NoteOffMessage*>(message.data);
+        std::printf("      Note: %hhu\n", noteOff->note);
+        std::printf("  Velocity: %hhu\n", noteOff->velocity);
+        break;
+    }
+    case NoteOnMessage::TypeId:
+    {
+        auto noteOn = reinterpret_cast<NoteOnMessage*>(message.data);
+        std::printf("      Note: %hhu\n", noteOn->note);
+        std::printf("  Velocity: %hhu\n", noteOn->velocity);
+        break;
+    }
+    case PolyKeyPressureMessage::TypeId:
+    {
+        auto pkp = reinterpret_cast<PolyKeyPressureMessage*>(message.data);
+        std::printf("      Note: %hhu\n", pkp->note);
+        std::printf("  Pressure: %hhu\n", pkp->pressure);
+        break;
+    }
+    case ControlChangeMessage::TypeId:
+    {
+        auto cc = reinterpret_cast<ControlChangeMessage*>(message.data);
+        std::printf("  Ctrl. ID: %hhu\n", cc->controlId);
+        std::printf("     Value: %hhu\n", cc->controlValue);
+        break;
+    }
+    case ProgramChangeMessage::TypeId:
+    {
+        auto pc = reinterpret_cast<ProgramChangeMessage*>(message.data);
+        std::printf("  Prog. ID: %hhu\n", pc->programId);
+        break;
+    }
+    case ChannelPressureMessage::TypeId:
+    {
+        auto cp = reinterpret_cast<ChannelPressureMessage*>(message.data);
+        std::printf("  Pressure: %hhu\n", cp->pressure);
+        break;
+    }
+    case PitchBendChangeMessage::TypeId:
+    {
+        auto pb = reinterpret_cast<PitchBendChangeMessage*>(message.data);
+        std::printf("  PB Value: %hd\n", pb->value());
+        break;
+    }
+    default:
+        break;
+    }
+    std::printf("   Time: %lld\n", message.timestampInNanoseconds);
 }
 
 int main()
