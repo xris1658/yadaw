@@ -36,23 +36,23 @@ template<> ChannelType vst3Speakers<SpeakerArr::k50>[] = {
 template<> ChannelType vst3Speakers<SpeakerArr::k51>[] = {
     ChannelType::Left, ChannelType::Right,
     ChannelType::Center,
-    ChannelType::RearLeft, ChannelType::RearRight,
-    ChannelType::LFE
+    ChannelType::LFE,
+    ChannelType::RearLeft, ChannelType::RearRight
 };
 
 template<> ChannelType vst3Speakers<SpeakerArr::k61Cine>[] = {
     ChannelType::Left, ChannelType::Right,
     ChannelType::Center,
-    ChannelType::RearLeft, ChannelType::RearRight, ChannelType::RearCenter,
-    ChannelType::LFE
+    ChannelType::LFE,
+    ChannelType::RearLeft, ChannelType::RearRight, ChannelType::RearCenter
 };
 
 template<> ChannelType vst3Speakers<SpeakerArr::k71Cine>[] = {
     ChannelType::Left, ChannelType::Right,
     ChannelType::Center,
+    ChannelType::LFE,
     ChannelType::RearLeft, ChannelType::RearRight,
-    ChannelType::SideLeft, ChannelType::SideRight,
-    ChannelType::LFE
+    ChannelType::SideLeft, ChannelType::SideRight
 };
 
 VST3AudioChannelGroup::VST3AudioChannelGroup():
