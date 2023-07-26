@@ -57,6 +57,7 @@ elseif(GCC)
 endif()
 
 set(WIN32_NATIVE_SOURCES
+    rc/YADAW.rc
     src/audio/backend/AudioGraphBackend.hpp
     src/native/win/AudioGraphBackend.cpp
     src/native/win/AudioGraphBackendImpl.cpp
@@ -327,7 +328,6 @@ set(YADAW_COMMON_SOURCES
     )
 
 qt_add_executable(YADAW
-                  rc/YADAW.rc
                   src/main.cpp
                   ${YADAW_COMMON_SOURCES}
                   )
