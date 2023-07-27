@@ -3,6 +3,7 @@
 #include "MIDIInputDeviceImpl.hpp"
 
 #include "native/win/winrt/Async.hpp"
+#include "native/win/winrt/QStringFromHString.hpp"
 #include "util/Util.hpp"
 
 #include <winrt/Windows.Storage.Streams.h> // IBuffer from IMidiMessage
@@ -28,21 +29,21 @@ std::size_t MIDIInputDevice::Impl::inputDeviceCount()
     return midiInputDevices_.Size();
 }
 
-std::optional<YADAW::MIDI::MIDIInputDevice::MIDIInputDeviceInfo>
+std::optional<YADAW::MIDI::DeviceInfo>
     MIDIInputDevice::Impl::inputDeviceAt(std::size_t index)
 {
     if(index < inputDeviceCount())
     {
         const auto& info = midiInputDevices_.GetAt(index);
-        YADAW::MIDI::MIDIInputDevice::MIDIInputDeviceInfo ret;
-        ret.id = QString::fromWCharArray(info.Id().data());
-        ret.name = QString::fromWCharArray(info.Name().data());
-        return std::optional<MIDIInputDeviceInfo>(ret);
+        YADAW::MIDI::DeviceInfo ret;
+        ret.id = info.Id();
+        ret.name = YADAW::Native::qStringFromHString(info.Name());
+        return std::optional(ret);
     }
     return std::nullopt;
 }
 
-MIDIInputDevice::Impl::Impl(const MIDIInputDevice& device, const QString& id):
+MIDIInputDevice::Impl::Impl(const MIDIInputDevice& device, const YADAW::Native::MIDIDeviceID& id):
     midiInPort_(nullptr),
     device_(device)
 {

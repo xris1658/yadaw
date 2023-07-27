@@ -3,6 +3,7 @@
 
 #if(WIN32)
 
+#include "midi/DeviceInfo.hpp"
 #include "midi/MIDIInputDevice.hpp"
 
 #include "native/win/winrt/Forward.hpp"
@@ -19,9 +20,9 @@ class MIDIInputDevice::Impl
 {
 public:
     static std::size_t inputDeviceCount();
-    static std::optional<MIDIInputDeviceInfo> inputDeviceAt(std::size_t index);
+    static std::optional<DeviceInfo> inputDeviceAt(std::size_t index);
 public:
-    Impl(const MIDIInputDevice& device, const QString& id);
+    Impl(const MIDIInputDevice& device, const YADAW::Native::MIDIDeviceID& id);
     ~Impl();
 public:
     void start(ReceiveInputFunc* const func);

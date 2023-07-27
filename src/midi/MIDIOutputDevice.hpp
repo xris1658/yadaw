@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_MIDI_MIDIOUTPUTDEVICE
 #define YADAW_SRC_MIDI_MIDIOUTPUTDEVICE
 
+#include "midi/DeviceInfo.hpp"
+
 #include <QString>
 
 #include <memory>
@@ -13,13 +15,10 @@ class MIDIOutputDevice
     class Impl;
 
 public:
-    struct MIDIOutputDeviceInfo
-    {
-        QString id;
-        QString name;
-    };
+    static std::size_t outputDeviceCount();
+    static std::optional<DeviceInfo> outputDeviceAt(std::size_t index);
 public:
-    MIDIOutputDevice(const QString& id);
+    MIDIInputDevice(const YADAW::Native::MIDIDeviceID& id);
     MIDIOutputDevice(const MIDIOutputDevice&) = delete;
     MIDIOutputDevice(MIDIOutputDevice&&) = delete;
     ~MIDIOutputDevice();

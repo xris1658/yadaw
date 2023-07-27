@@ -252,6 +252,7 @@ set(YADAW_COMMON_SOURCES
     src/event/SplashScreenWorkerThread.hpp
     src/l10n/L10N.cpp
     src/l10n/L10N.hpp
+    src/midi/DeviceInfo.hpp
     src/midi/MIDIInputDevice.cpp
     src/midi/MIDIInputDevice.hpp
     src/midi/MIDIOutputDevice.hpp
@@ -287,6 +288,7 @@ set(YADAW_COMMON_SOURCES
     src/native/AudioBackendSupport.hpp
     src/native/CLAPNative.hpp
     src/native/Library.hpp
+    src/native/MIDIDeviceID.hpp
     src/native/MIDIInputDeviceImpl.hpp
     src/native/Native.hpp
     src/native/VST3Native.hpp
@@ -690,6 +692,8 @@ add_executable(WindowsMIDIInputDeviceTest
                src/native/MIDIInputDeviceImpl.hpp
                src/native/win/MIDIInputDeviceImpl.cpp
                src/native/win/MIDIInputDeviceImpl.hpp
+               src/native/win/winrt/QStringFromHString.cpp
+               src/native/win/winrt/QStringFromHString.hpp
                src/util/Util.cpp
                src/util/Util.hpp
                test/WindowsMIDIInputDeviceTest/main.cpp)

@@ -8,12 +8,12 @@ std::size_t MIDIInputDevice::inputDeviceCount()
     return Impl::inputDeviceCount();
 }
 
-std::optional<MIDIInputDevice::MIDIInputDeviceInfo> MIDIInputDevice::inputDeviceAt(std::size_t index)
+std::optional<YADAW::MIDI::DeviceInfo> MIDIInputDevice::inputDeviceAt(std::size_t index)
 {
     return Impl::inputDeviceAt(index);
 }
 
-MIDIInputDevice::MIDIInputDevice(const QString& id):
+MIDIInputDevice::MIDIInputDevice(const YADAW::Native::MIDIDeviceID& id):
     pImpl_(std::make_unique<Impl>(*this, id))
 {}
 

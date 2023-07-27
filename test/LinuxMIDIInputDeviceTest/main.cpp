@@ -14,11 +14,29 @@ int main()
     {
         const auto& device = MIDIInputDevice::inputDeviceAt(i);
         auto name = device->name.toLocal8Bit();
-        auto id = device->id.toLocal8Bit();
-        std::printf("  %lu: %s (ID: %s)\n",
+        auto id = device->id;
+        std::printf("  %lu: %s (ID: %d)\n",
             i + 1,
             name.data(),
-            id.data()
+            id
         );
     }
+    if(inputCount == 0)
+    {
+        return 0;
+    }
+    int index = -1;
+    while(true)
+    {
+        std::scanf("%d", &index);
+        if(index > 0 && index <= inputCount)
+        {
+            break;
+        }
+    }
+    getchar();
+    YADAW::MIDI::MIDIInputDevice device(MIDIInputDevice::inputDeviceAt(index - 1)->id);
+    device.start(&printTime);
+    getchar();
+    device.stop();
 }

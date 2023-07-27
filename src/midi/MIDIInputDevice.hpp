@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_MIDI_MIDIINPUTDEVICE
 #define YADAW_SRC_MIDI_MIDIINPUTDEVICE
 
+#include "midi/DeviceInfo.hpp"
 #include "midi/Message.hpp"
 
 #include <QString>
@@ -17,16 +18,10 @@ class MIDIInputDevice
 public:
     using ReceiveInputFunc = void(const MIDIInputDevice& device, const YADAW::MIDI::Message& message);
 public:
-    struct MIDIInputDeviceInfo
-    {
-        QString id;
-        QString name;
-    };
-public:
     static std::size_t inputDeviceCount();
-    static std::optional<MIDIInputDeviceInfo> inputDeviceAt(std::size_t index);
+    static std::optional<DeviceInfo> inputDeviceAt(std::size_t index);
 public:
-    MIDIInputDevice(const QString& id);
+    MIDIInputDevice(const YADAW::Native::MIDIDeviceID& id);
     MIDIInputDevice(const MIDIInputDevice&) = delete;
     MIDIInputDevice(MIDIInputDevice&&) = delete;
     ~MIDIInputDevice();

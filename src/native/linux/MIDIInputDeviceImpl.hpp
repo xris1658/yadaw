@@ -3,9 +3,12 @@
 
 #if(__linux__)
 
+#include "midi/DeviceInfo.hpp"
 #include "midi/MIDIInputDevice.hpp"
 
 #include <alsa/asoundlib.h>
+
+#include <thread>
 
 namespace YADAW::MIDI
 {
@@ -13,17 +16,21 @@ class MIDIInputDevice::Impl
 {
 public:
     static std::size_t inputDeviceCount();
-    static std::optional<MIDIInputDeviceInfo> inputDeviceAt(std::size_t index);
+    static std::optional<DeviceInfo> inputDeviceAt(std::size_t index);
 public:
-    Impl(const MIDIInputDevice& device, const QString& id);
+    Impl(const MIDIInputDevice& device, const YADAW::Native::MIDIDeviceID& id);
     ~Impl();
 public:
     void start(ReceiveInputFunc* const func);
     void stop();
 private:
     const MIDIInputDevice& device_;
-    snd_rawmidi_t* rawMIDI_ = nullptr;
     snd_seq_t* seq_ = nullptr;
+    snd_seq_system_info_t* systemInfo_ = nullptr;
+    snd_seq_client_info_t* clientInfo_ = nullptr;
+    snd_seq_port_info_t* portInfo_ = nullptr;
+    snd_seq_port_subscribe_t* subscription_ = nullptr;
+    std::thread midiThread_;
     int seqPortId_ = -1;
 };
 }

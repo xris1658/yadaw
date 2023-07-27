@@ -24,7 +24,7 @@ std::vector<ALSADeviceSelector> audioInputDevices;
 std::map<int, std::string> cardNames;
 std::map<ALSADeviceSelector, std::string> audioDeviceNames;
 std::vector<ALSADeviceSelector> audioOutputDevices;
-std::vector<ALSADeviceSelector> midiDevices;
+std::vector<YADAW::MIDI::DeviceInfo> midiDevices;
 std::once_flag enumerateDeviceFlag;
 
 void doEnumerateCardNames()
@@ -66,17 +66,24 @@ void doEnumerateDeviceNames()
         }
     }
     ifs.close();
-    for(const auto& midiDevice: midiDevices)
+    if(!midiDevices.empty())
     {
-        const auto& [cIndex, dIndex] = midiDevice;
-        char filePath[64];
-        std::sprintf(filePath, "/proc/asound/card%u/midi%u", cIndex, dIndex);
-        ifs.open(filePath, std::ios::in);
-        if(!ifs.fail())
+        snd_seq_t* seq;
+        if(auto seqOpen = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, SND_SEQ_NONBLOCK);
+            seqOpen == 0)
         {
-            char lineBuffer[128];
-            ifs.getline(lineBuffer, YADAW::Util::stackArraySize(lineBuffer));
-            audioDeviceNames.emplace(midiDevice, std::string(lineBuffer));
+            for(auto& midiDevice: midiDevices)
+            {
+                snd_seq_client_info_t* clientInfo = nullptr;
+                snd_seq_client_info_alloca(&clientInfo);
+                if(snd_seq_get_any_client_info(seq, midiDevice.id, clientInfo) == 0)
+                {
+                    midiDevice.name = QString::fromLocal8Bit(
+                        snd_seq_client_info_get_name(clientInfo)
+                    );
+                }
+            }
+            snd_seq_close(seq);
         }
     }
 }
@@ -93,7 +100,7 @@ void doEnumerateDevices()
             if(i.exists() && !i.is_directory())
             {
                 auto name = i.path().filename().c_str();
-                // pcmC0D0c or midiC0D0 (both shortest name)
+                // pcmC0D0c
                 if(std::strlen(name) >= 8)
                 {
                     if(std::strncmp(name, "pcm", 3) == 0)
@@ -117,23 +124,28 @@ void doEnumerateDevices()
                             }
                         }
                     }
-                    if(std::strncmp(name, "midi", 4) == 0)
-                    {
-                        // midiC[0-9]+D[0-9]+
-                        name += 5; // midiC
-                        int cIndex = -1;
-                        name += std::sscanf(name, "%d", &cIndex); // [0-9]+
-                        ++name; // D
-                        int dIndex = -1;
-                        name += std::sscanf(name, "%d", &dIndex); // [0-9]+
-                        if(cIndex != -1 && dIndex != -1)
-                        {
-                            midiDevices.emplace_back(cIndex, dIndex);
-                        }
-                    }
                 }
             }
         }
+    }
+    std::vector<std::pair<int, int>> clients;
+    snd_seq_client_info_t* clientInfo = nullptr;
+    snd_seq_client_info_alloca(&clientInfo);
+    snd_seq_client_info_set_client(clientInfo, -1);
+    snd_seq_t* seq;
+    if(auto seqOpen = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, SND_SEQ_NONBLOCK);
+        seqOpen == 0)
+    {
+        auto seqClientId = snd_seq_client_id(seq);
+        while(snd_seq_query_next_client(seq, clientInfo) >= 0)
+        {
+            auto clientId = snd_seq_client_info_get_client(clientInfo);
+            if(clientId != seqClientId)
+            {
+                midiDevices.emplace_back(YADAW::MIDI::DeviceInfo{clientId, QString()});
+            }
+        }
+        snd_seq_close(seq);
     }
 }
 
@@ -144,7 +156,12 @@ void ALSADeviceEnumerator::enumerateDevices()
         doEnumerateDevices();
         std::sort(audioInputDevices.begin(), audioInputDevices.end());
         std::sort(audioOutputDevices.begin(), audioOutputDevices.end());
-        std::sort(midiDevices.begin(), midiDevices.end());
+        std::sort(midiDevices.begin(), midiDevices.end(),
+            [](const YADAW::MIDI::DeviceInfo& lhs, const YADAW::MIDI::DeviceInfo& rhs)
+            {
+                return lhs.id < rhs.id;
+            }
+        );
         doEnumerateCardNames();
         doEnumerateDeviceNames();
     });
@@ -178,9 +195,9 @@ std::optional<ALSADeviceSelector> ALSADeviceEnumerator::audioOutputDeviceAt(std:
     return index < audioOutputDeviceCount()? std::optional(audioOutputDevices[index]): std::nullopt;
 }
 
-std::optional<ALSADeviceSelector> ALSADeviceEnumerator::midiDeviceAt(std::uint32_t index)
+std::optional<YADAW::MIDI::DeviceInfo> ALSADeviceEnumerator::midiDeviceAt(std::uint32_t index)
 {
-    return index < midiDeviceCount()? std::optional(midiDevices[index]): std::nullopt;
+    return index < midiDevices.size()? std::optional(midiDevices[index]): std::nullopt;
 }
 
 std::optional<std::string> ALSADeviceEnumerator::audioDeviceName(ALSADeviceSelector selector)
