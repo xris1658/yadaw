@@ -49,7 +49,7 @@ if(MSVC)
                         /wd5026 # move constructor was implicitly defined as deleted
                         /wd5027 # move assignment operator was implicitly defined as deleted
                         /wd5045 # Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
-                        /wd5204 # class has virtual functions, but its non-trivial destructor is not virtual; instances of this class may not be destructed correctly
+                        /wd5204 # class has virtual functions, but its trivial destructor is not virtual; instances of this class may not be destructed correctly
                         /wd5219 # implicit conversion from `xxx` to `yyy`, possible loss of data
                         /Zc:wchar_t /Zc:__cplusplus)
 elseif(GCC)
