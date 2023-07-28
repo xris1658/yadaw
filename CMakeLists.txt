@@ -314,7 +314,6 @@ set(YADAW_COMMON_SOURCES
     src/util/FixedSizeMemoryBlock.hpp
     src/util/Integration.cpp
     src/util/Integration.hpp
-    src/util/Literal.cpp
     src/util/Literal.hpp
     src/util/LockFreeQueue.hpp
     src/util/OptionalUtil.hpp
@@ -696,6 +695,7 @@ add_executable(WindowsMIDIInputDeviceTest
                src/native/win/MIDIInputDeviceImpl.hpp
                src/native/win/winrt/QStringFromHString.cpp
                src/native/win/winrt/QStringFromHString.hpp
+               src/util/Literal.hpp
                src/util/Util.cpp
                src/util/Util.hpp
                test/WindowsMIDIInputDeviceTest/main.cpp)

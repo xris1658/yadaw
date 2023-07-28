@@ -1,10 +1,12 @@
 #include "midi/MIDIInputDevice.hpp"
+#include "util/Literal.hpp"
 
 #include <cstdio>
 
 void printTime(const YADAW::MIDI::MIDIInputDevice& device, const YADAW::MIDI::Message& message)
 {
     using namespace YADAW::MIDI;
+    using namespace YADAW::Util;
     auto header = reinterpret_cast<ChannelVoiceMessageHeader*>(message.data);
     std::printf("Channel: %hhu\n", header->channel());
     std::printf("   Type: %hhu\n", header->type());
@@ -13,21 +15,27 @@ void printTime(const YADAW::MIDI::MIDIInputDevice& device, const YADAW::MIDI::Me
     case NoteOffMessage::TypeId:
     {
         auto noteOff = reinterpret_cast<NoteOffMessage*>(message.data);
-        std::printf("      Note: %hhu\n", noteOff->note);
+        auto note = noteOff->note;
+        auto noteName = getNoteName<char>(note, MIDINoteNameKeyShift::kSharp, MIDINoteOctaveOffset::kNoOffset);
+        std::printf("      Note: %s\n", noteName.data());
         std::printf("  Velocity: %hhu\n", noteOff->velocity);
         break;
     }
     case NoteOnMessage::TypeId:
     {
         auto noteOn = reinterpret_cast<NoteOnMessage*>(message.data);
-        std::printf("      Note: %hhu\n", noteOn->note);
+        auto note = noteOn->note;
+        auto noteName = getNoteName<char>(note, MIDINoteNameKeyShift::kSharp, MIDINoteOctaveOffset::kNoOffset);
+        std::printf("      Note: %s\n", noteName.data());
         std::printf("  Velocity: %hhu\n", noteOn->velocity);
         break;
     }
     case PolyKeyPressureMessage::TypeId:
     {
         auto pkp = reinterpret_cast<PolyKeyPressureMessage*>(message.data);
-        std::printf("      Note: %hhu\n", pkp->note);
+        auto note = pkp->note;
+        auto noteName = getNoteName<char>(note, MIDINoteNameKeyShift::kSharp, MIDINoteOctaveOffset::kNoOffset);
+        std::printf("      Note: %s\n", noteName.data());
         std::printf("  Pressure: %hhu\n", pkp->pressure);
         break;
     }
