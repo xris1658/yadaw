@@ -15,10 +15,11 @@ int main()
         const auto& device = MIDIInputDevice::inputDeviceAt(i);
         auto name = device->name.toLocal8Bit();
         auto id = device->id;
-        std::printf("  %lu: %s (ID: %d)\n",
+        std::printf("  %lu: %s (ID: %u, %u)\n",
             i + 1,
             name.data(),
-            id
+            id.clientId,
+            id.portId
         );
     }
     if(inputCount == 0)

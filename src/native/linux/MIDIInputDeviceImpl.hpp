@@ -5,6 +5,7 @@
 
 #include "midi/DeviceInfo.hpp"
 #include "midi/MIDIInputDevice.hpp"
+#include "native/linux/Sequencer.hpp"
 
 #include <alsa/asoundlib.h>
 
@@ -25,12 +26,11 @@ public:
     void stop();
 private:
     const MIDIInputDevice& device_;
-    snd_seq_t* seq_ = nullptr;
+    YADAW::Native::MIDIDeviceID deviceId_;
     snd_seq_system_info_t* systemInfo_ = nullptr;
     snd_seq_client_info_t* clientInfo_ = nullptr;
     snd_seq_port_info_t* portInfo_ = nullptr;
     snd_seq_port_subscribe_t* subscription_ = nullptr;
-    std::thread midiThread_;
     int seqPortId_ = -1;
 };
 }

@@ -94,6 +94,8 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/MIDIInputDeviceImpl.cpp
     src/native/linux/MIDIInputDeviceImpl.hpp
     src/native/linux/Native.cpp
+    src/native/linux/Sequencer.cpp
+    src/native/linux/Sequencer.hpp
     src/native/linux/VST3Native.cpp
     src/native/linux/VestifalNative.cpp
     )
@@ -703,10 +705,12 @@ add_executable(LinuxMIDIInputDeviceTest
                src/midi/MIDIInputDevice.hpp
                src/midi/Message.hpp
                src/native/MIDIInputDeviceImpl.hpp
-               src/native/linux/MIDIInputDeviceImpl.cpp
-               src/native/linux/MIDIInputDeviceImpl.hpp
                src/native/linux/ALSADeviceEnumerator.cpp
                src/native/linux/ALSADeviceEnumerator.hpp
+               src/native/linux/MIDIInputDeviceImpl.cpp
+               src/native/linux/MIDIInputDeviceImpl.hpp
+               src/native/linux/Sequencer.cpp
+               src/native/linux/Sequencer.hpp
                src/util/Util.cpp
                src/util/Util.hpp
                test/LinuxMIDIInputDeviceTest/main.cpp)

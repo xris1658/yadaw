@@ -2,6 +2,7 @@
 
 #include "ALSADeviceEnumerator.hpp"
 
+#include "native/linux/Sequencer.hpp"
 #include "util/Base.hpp"
 
 #include <alsa/asoundlib.h>
@@ -68,22 +69,19 @@ void doEnumerateDeviceNames()
     ifs.close();
     if(!midiDevices.empty())
     {
-        snd_seq_t* seq;
-        if(auto seqOpen = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, SND_SEQ_NONBLOCK);
-            seqOpen == 0)
+        auto seq = Sequencer::instance().seq();
+        for(auto& midiDevice: midiDevices)
         {
-            for(auto& midiDevice: midiDevices)
-            {
-                snd_seq_client_info_t* clientInfo = nullptr;
-                snd_seq_client_info_alloca(&clientInfo);
-                if(snd_seq_get_any_client_info(seq, midiDevice.id, clientInfo) == 0)
-                {
-                    midiDevice.name = QString::fromLocal8Bit(
-                        snd_seq_client_info_get_name(clientInfo)
-                    );
-                }
-            }
-            snd_seq_close(seq);
+            snd_seq_client_info_t* clientInfo = nullptr;
+            snd_seq_client_info_alloca(&clientInfo);
+            snd_seq_port_info_t* portInfo = nullptr;
+            snd_seq_port_info_alloca(&portInfo);
+            snd_seq_get_any_client_info(seq, midiDevice.id.clientId, clientInfo);
+            snd_seq_get_any_port_info(seq, midiDevice.id.clientId, midiDevice.id.portId, portInfo);
+            midiDevice.name = QString("%1 (%2)").arg(
+                QString::fromLocal8Bit(snd_seq_port_info_get_name(portInfo)),
+                QString::fromLocal8Bit(snd_seq_client_info_get_name(clientInfo))
+            );
         }
     }
 }
@@ -131,21 +129,34 @@ void doEnumerateDevices()
     std::vector<std::pair<int, int>> clients;
     snd_seq_client_info_t* clientInfo = nullptr;
     snd_seq_client_info_alloca(&clientInfo);
+    snd_seq_port_info_t* portInfo = nullptr;
+    snd_seq_port_info_alloca(&portInfo);
     snd_seq_client_info_set_client(clientInfo, -1);
-    snd_seq_t* seq;
-    if(auto seqOpen = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, SND_SEQ_NONBLOCK);
-        seqOpen == 0)
+    auto seq = Sequencer::instance().seq();
+    auto seqClientId = snd_seq_client_id(seq);
+    while(snd_seq_query_next_client(seq, clientInfo) >= 0)
     {
-        auto seqClientId = snd_seq_client_id(seq);
-        while(snd_seq_query_next_client(seq, clientInfo) >= 0)
+        auto clientId = snd_seq_client_info_get_client(clientInfo);
+        if(clientId != seqClientId)
         {
-            auto clientId = snd_seq_client_info_get_client(clientInfo);
-            if(clientId != seqClientId)
+            auto portCount = snd_seq_client_info_get_num_ports(clientInfo);
+            snd_seq_port_info_set_client(portInfo, clientId);
+            snd_seq_port_info_set_port(portInfo, -1);
+            for(decltype(portCount) i = 0; i < portCount; ++i)
             {
-                midiDevices.emplace_back(YADAW::MIDI::DeviceInfo{clientId, QString()});
+                snd_seq_query_next_port(seq, portInfo);
+                auto portId = snd_seq_port_info_get_port(portInfo);
+                midiDevices.emplace_back(
+                    YADAW::MIDI::DeviceInfo{
+                        {
+                            static_cast<std::uint32_t>(clientId),
+                            static_cast<std::uint32_t>(portId)
+                        },
+                        QString()
+                    }
+                );
             }
         }
-        snd_seq_close(seq);
     }
 }
 
