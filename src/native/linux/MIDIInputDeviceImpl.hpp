@@ -31,6 +31,9 @@ private:
     snd_seq_client_info_t* clientInfo_ = nullptr;
     snd_seq_port_info_t* portInfo_ = nullptr;
     snd_seq_port_subscribe_t* subscription_ = nullptr;
+    std::thread midiThread_;
+    std::atomic_bool run_ {true};
+    int queueId_ = -1;
     int seqPortId_ = -1;
 };
 }
