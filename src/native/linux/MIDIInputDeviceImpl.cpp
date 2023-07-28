@@ -25,7 +25,7 @@ MIDIInputDevice::Impl::Impl(const MIDIInputDevice& device, const YADAW::Native::
     auto seq = Sequencer::instance().seq();
     auto createPortResult = snd_seq_create_simple_port(
         seq, "YADAW application port",
-        SND_SEQ_PORT_CAP_DUPLEX | SND_SEQ_PORT_CAP_SUBS_READ | SND_SEQ_PORT_CAP_SUBS_WRITE,
+        SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
         SND_SEQ_PORT_TYPE_MIDI_GENERIC);
     if(createPortResult < 0)
     {
