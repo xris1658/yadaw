@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_NATIVE_LINUX_SEQUENCER
 #define YADAW_SRC_NATIVE_LINUX_SEQUENCER
 
+#if(__linux__)
+
 #include <alsa/asoundlib.h>
 
 namespace YADAW::Native
@@ -17,5 +19,7 @@ private:
     snd_seq_t* seq_ = nullptr;
 };
 }
+
+#endif
 
 #endif //YADAW_SRC_NATIVE_LINUX_SEQUENCER

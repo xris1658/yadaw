@@ -1,3 +1,5 @@
+#if(__linux__)
+
 #include "audio/backend/ALSABackend.hpp"
 #include "native/linux/ALSABackendImpl.hpp"
 
@@ -98,3 +100,5 @@ bool ALSABackend::stop()
     return pImpl_? pImpl_->stop(): false;
 }
 }
+
+#endif

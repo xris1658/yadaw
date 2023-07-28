@@ -1,3 +1,5 @@
+#if(__linux__)
+
 #include "Sequencer.hpp"
 
 namespace YADAW::Native
@@ -24,3 +26,5 @@ snd_seq_t* Sequencer::seq()
     return seq_;
 }
 }
+
+#endif

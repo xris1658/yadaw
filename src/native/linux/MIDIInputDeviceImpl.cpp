@@ -1,3 +1,5 @@
+#if(__linux__)
+
 #include "MIDIInputDeviceImpl.hpp"
 
 #include "native/linux/ALSADeviceEnumerator.hpp"
@@ -69,3 +71,5 @@ void MIDIInputDevice::Impl::stop()
 {
 }
 }
+
+#endif
