@@ -646,6 +646,8 @@ add_executable(WindowsMIDIInputDeviceTest
                src/util/Literal.hpp
                src/util/Util.cpp
                src/util/Util.hpp
+               test/common/MIDICallback.cpp
+               test/common/MIDICallback.hpp
                test/WindowsMIDIInputDeviceTest/main.cpp)
 elseif(LINUX)
 add_executable(LinuxMIDIInputDeviceTest
@@ -661,6 +663,8 @@ add_executable(LinuxMIDIInputDeviceTest
                src/native/linux/Sequencer.hpp
                src/util/Util.cpp
                src/util/Util.hpp
+               test/common/MIDICallback.cpp
+               test/common/MIDICallback.hpp
                test/LinuxMIDIInputDeviceTest/main.cpp)
 endif()
 
