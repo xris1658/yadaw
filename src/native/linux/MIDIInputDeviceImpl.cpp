@@ -3,6 +3,7 @@
 #include "MIDIInputDeviceImpl.hpp"
 
 #include "native/linux/ALSADeviceEnumerator.hpp"
+#include "util/Base.hpp"
 
 namespace YADAW::MIDI
 {
@@ -81,6 +82,9 @@ void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
     midiThread_ = std::thread(
         [this, func, seq]()
         {
+            std::uint8_t midiBuffer[256];
+            snd_midi_event_t* midiEvent;
+            snd_midi_event_new(0, &midiEvent);
             while(run_.load(std::memory_order::memory_order_acquire))
             {
                 if(snd_seq_event_input_pending(seq, 1) == 0)
@@ -101,10 +105,12 @@ void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
                     }
                     else
                     {
-                        auto length = snd_seq_event_length(event);
+                        auto byteCount = snd_midi_event_decode(midiEvent,
+                            midiBuffer, YADAW::Util::stackArraySize(midiBuffer),
+                            event);
                         YADAW::MIDI::Message message{};
-                        message.size = length;
-                        message.data = reinterpret_cast<std::uint8_t*>(&(event->data));
+                        message.size = byteCount;
+                        message.data = midiBuffer;
                         func(device_, message);
                     }
                 }
