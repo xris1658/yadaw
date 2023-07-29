@@ -50,10 +50,10 @@ void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
     auto seq = Sequencer::instance().seq();
     snd_seq_addr_t sender;
     snd_seq_addr_t dest;
-    sender.client = snd_seq_client_id(seq);
-    sender.port = seqPortId_;
-    dest.client = deviceId_.clientId;
-    dest.port = deviceId_.portId;
+    sender.client = deviceId_.clientId;
+    sender.port = deviceId_.portId;
+    dest.client = snd_seq_client_id(seq);
+    dest.port = seqPortId_;
     snd_seq_queue_info_t* queueInfo;
     snd_seq_queue_info_alloca(&queueInfo);
     queueId_ = snd_seq_create_queue(seq, queueInfo);
