@@ -85,6 +85,7 @@ void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
             std::uint8_t midiBuffer[256];
             snd_midi_event_t* midiEvent;
             snd_midi_event_new(0, &midiEvent);
+            snd_midi_event_no_status(midiEvent, 1);
             while(run_.load(std::memory_order::memory_order_acquire))
             {
                 if(snd_seq_event_input_pending(seq, 1) == 0)
