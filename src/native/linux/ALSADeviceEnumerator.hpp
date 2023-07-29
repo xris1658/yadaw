@@ -19,10 +19,12 @@ public:
     static void enumerateDevices();
     static std::uint32_t audioInputDeviceCount();
     static std::uint32_t audioOutputDeviceCount();
-    static std::uint32_t midiDeviceCount();
+    static std::uint32_t midiInputDeviceCount();
+    static std::uint32_t midiOutputDeviceCount();
     static std::optional<ALSADeviceSelector> audioInputDeviceAt(std::uint32_t index);
     static std::optional<ALSADeviceSelector> audioOutputDeviceAt(std::uint32_t index);
-    static std::optional<YADAW::MIDI::DeviceInfo> midiDeviceAt(std::uint32_t index);
+    static std::optional<YADAW::MIDI::DeviceInfo> midiInputDeviceAt(std::uint32_t index);
+    static std::optional<YADAW::MIDI::DeviceInfo> midiOutputDeviceAt(std::uint32_t index);
     static std::optional<std::string> audioDeviceName(ALSADeviceSelector selector);
     static std::optional<std::string> cardName(int cardIndex);
 };

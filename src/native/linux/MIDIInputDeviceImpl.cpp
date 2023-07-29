@@ -9,13 +9,13 @@ namespace YADAW::MIDI
 using namespace YADAW::Native;
 std::size_t MIDIInputDevice::Impl::inputDeviceCount()
 {
-    return YADAW::Native::ALSADeviceEnumerator::midiDeviceCount();
+    return YADAW::Native::ALSADeviceEnumerator::midiInputDeviceCount();
 }
 
 std::optional<YADAW::MIDI::DeviceInfo>
     MIDIInputDevice::Impl::inputDeviceAt(std::size_t index)
 {
-    return ALSADeviceEnumerator::midiDeviceAt(index);
+    return ALSADeviceEnumerator::midiInputDeviceAt(index);
 }
 
 MIDIInputDevice::Impl::Impl(const MIDIInputDevice& device, const YADAW::Native::MIDIDeviceID& id):
