@@ -63,6 +63,7 @@ void printTime(const YADAW::MIDI::MIDIInputDevice& device, const YADAW::MIDI::Me
 int main()
 {
     using YADAW::MIDI::MIDIInputDevice;
+    std::setvbuf(stdout, nullptr, _IONBF, 0);
     auto inputCount = MIDIInputDevice::inputDeviceCount();
     std::printf("%lld input devices\n", inputCount);
     for(decltype(inputCount) i = 0; i < inputCount; ++i)
