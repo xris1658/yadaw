@@ -3,8 +3,6 @@
 
 #include "audio/event/IEventBusInfo.hpp"
 
-#include <pluginterfaces/vst/ivstcomponent.h>
-
 #include <cstdint>
 #include <optional>
 #include <vector>

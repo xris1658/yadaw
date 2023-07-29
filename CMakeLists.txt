@@ -360,51 +360,6 @@ add_executable(CLAPTest
                src/native/CLAPNative.hpp
                src/native/linux/CLAPNative.cpp
                src/native/win/CLAPNative.cpp
-               src/audio/plugin/VST3AudioChannelGroup.cpp
-               src/audio/host/VST3AttributeList.cpp
-               src/audio/host/VST3AttributeList.hpp
-               src/audio/host/VST3ComponentHandler.cpp
-               src/audio/host/VST3ComponentHandler.hpp
-               src/audio/host/VST3Host.cpp
-               src/audio/host/VST3Host.hpp
-               src/audio/host/VST3Message.cpp
-               src/audio/host/VST3Message.hpp
-               src/audio/host/VST3ParameterChanges.cpp
-               src/audio/host/VST3ParameterChanges.hpp
-               src/audio/host/VST3ParameterValueQueue.cpp
-               src/audio/host/VST3ParameterValueQueue.hpp
-               src/audio/plugin/VST3AudioChannelGroup.hpp
-               src/audio/plugin/VST3EventBusInfo.cpp
-               src/audio/plugin/VST3EventBusInfo.hpp
-               src/audio/plugin/VST3EventProcessor.cpp
-               src/audio/plugin/VST3EventProcessor.hpp
-               src/audio/plugin/VST3MemoryStream.cpp
-               src/audio/plugin/VST3PlugFrame.cpp
-               src/audio/plugin/VST3PlugFrame.hpp
-               src/audio/plugin/VST3Plugin.cpp
-               src/audio/plugin/VST3Plugin.hpp
-               src/audio/plugin/VST3PluginGUI.cpp
-               src/audio/plugin/VST3PluginGUI.hpp
-               src/audio/plugin/VST3PluginParameter.cpp
-               src/audio/plugin/VST3PluginParameter.hpp
-               src/audio/util/VST3Helper.cpp
-               src/audio/util/VST3Helper.hpp
-               src/native/VST3Native.hpp
-               src/native/linux/VST3Native.cpp
-               src/native/win/VST3Native.cpp
-               src/audio/host/VestifalCallback.cpp
-               src/audio/host/VestifalCallback.hpp
-               src/audio/plugin/VestifalPlugin.cpp
-               src/audio/plugin/VestifalPlugin.hpp
-               src/audio/plugin/VestifalPluginGUI.cpp
-               src/audio/plugin/VestifalPluginGUI.hpp
-               src/audio/util/VestifalHelper.cpp
-               src/audio/util/VestifalHelper.hpp
-               src/native/VestifalNative.hpp
-               src/native/linux/VestifalNative.cpp
-               src/native/win/VestifalNative.cpp
-               src/controller/PluginController.cpp
-               src/controller/PluginController.hpp
                src/dao/DAOBase.cpp
                src/dao/DAOBase.hpp
                src/dao/Database.cpp
@@ -593,31 +548,37 @@ add_executable(PluginScanTest
                src/util/Util.hpp
                test/PluginScanTest/main.cpp)
 
-add_executable(VestifalPluginTest ${YADAW_COMMON_SOURCES}
+add_executable(VestifalPluginTest
+               src/audio/host/VestifalCallback.cpp
+               src/audio/host/VestifalCallback.hpp
+               src/audio/plugin/VestifalPlugin.cpp
+               src/audio/plugin/VestifalPlugin.hpp
+               src/audio/plugin/VestifalPluginGUI.cpp
+               src/audio/plugin/VestifalPluginGUI.hpp
+               src/audio/util/VestifalHelper.cpp
+               src/audio/util/VestifalHelper.hpp
+               src/dao/DAOBase.cpp
+               src/dao/DAOBase.hpp
+               src/dao/Database.cpp
+               src/dao/Database.hpp
+               src/dao/PluginCategoryTable.cpp
+               src/dao/PluginCategoryTable.hpp
+               src/dao/PluginTable.cpp
+               src/dao/PluginTable.hpp
+               src/native/Library.hpp
+               src/native/Native.hpp
+               src/native/VestifalNative.hpp
+               src/native/linux/Library.cpp
+               src/native/linux/Native.cpp
+               src/native/linux/VestifalNative.cpp
+               src/native/win/Library.cpp
+               src/native/win/Native.cpp
+               src/native/win/VestifalNative.cpp
                test/common/PluginWindowThread.hpp
                test/common/PluginWindowThread.cpp
                test/VestifalPluginTest/main.cpp)
 
 add_executable(VST3Test
-               src/audio/host/CLAPHost.cpp
-               src/audio/host/CLAPHost.hpp
-               src/audio/plugin/CLAPAudioChannelGroup.cpp
-               src/audio/plugin/CLAPAudioChannelGroup.hpp
-               src/audio/plugin/CLAPEventBusInfo.cpp
-               src/audio/plugin/CLAPEventBusInfo.hpp
-               src/audio/plugin/CLAPEventProcessor.cpp
-               src/audio/plugin/CLAPEventProcessor.hpp
-               src/audio/plugin/CLAPPlugin.cpp
-               src/audio/plugin/CLAPPlugin.hpp
-               src/audio/plugin/CLAPPluginGUI.cpp
-               src/audio/plugin/CLAPPluginGUI.hpp
-               src/audio/plugin/CLAPPluginParameter.cpp
-               src/audio/plugin/CLAPPluginParameter.hpp
-               src/audio/util/CLAPHelper.cpp
-               src/audio/util/CLAPHelper.hpp
-               src/native/CLAPNative.hpp
-               src/native/linux/CLAPNative.cpp
-               src/native/win/CLAPNative.cpp
                src/audio/plugin/VST3AudioChannelGroup.cpp
                src/audio/host/VST3AttributeList.cpp
                src/audio/host/VST3AttributeList.hpp
@@ -650,19 +611,6 @@ add_executable(VST3Test
                src/native/VST3Native.hpp
                src/native/linux/VST3Native.cpp
                src/native/win/VST3Native.cpp
-               src/audio/host/VestifalCallback.cpp
-               src/audio/host/VestifalCallback.hpp
-               src/audio/plugin/VestifalPlugin.cpp
-               src/audio/plugin/VestifalPlugin.hpp
-               src/audio/plugin/VestifalPluginGUI.cpp
-               src/audio/plugin/VestifalPluginGUI.hpp
-               src/audio/util/VestifalHelper.cpp
-               src/audio/util/VestifalHelper.hpp
-               src/native/VestifalNative.hpp
-               src/native/linux/VestifalNative.cpp
-               src/native/win/VestifalNative.cpp
-               src/controller/PluginController.cpp
-               src/controller/PluginController.hpp
                src/dao/DAOBase.cpp
                src/dao/DAOBase.hpp
                src/dao/Database.cpp
@@ -763,9 +711,7 @@ target_link_libraries(AudioDeviceGraphTest PRIVATE
 target_link_libraries(CLAPTest PRIVATE
                       Qt6::Core Qt6::Gui
                       ${NATIVE_LIBRARY}
-                      base pluginterfaces sdk_common sdk_hosting
-                      ${SQLITE_LIBRARY}
-                      yaml-cpp)
+                      ${SQLITE_LIBRARY})
 
 target_link_libraries(PluginDirectoryScanTest PRIVATE
                       Qt6::Core Qt6::Gui
@@ -780,12 +726,9 @@ target_link_libraries(PluginScanTest PRIVATE
                       ${SQLITE_LIBRARY})
 
 target_link_libraries(VestifalPluginTest PRIVATE
-                      Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
-                      contentplugin
+                      Qt6::Core Qt6::Gui
                       ${NATIVE_LIBRARY}
-                      base pluginterfaces sdk_common sdk_hosting
-                      ${SQLITE_LIBRARY}
-                      yaml-cpp)
+                      ${SQLITE_LIBRARY})
 
 target_link_libraries(VST3Test PRIVATE
                       Qt6::Core Qt6::Gui
