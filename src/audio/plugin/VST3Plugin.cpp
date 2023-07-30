@@ -134,7 +134,6 @@ VST3Plugin::~VST3Plugin()
     if(status_ == IAudioPlugin::Status::Loaded)
     {
         releasePointer(factory_);
-        componentHandler_.reset();
     }
     if(exitEntry_)
     {
@@ -209,7 +208,6 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
     {
         componentPoint_->connect(editControllerPoint_);
         editControllerPoint_->connect(componentPoint_);
-        componentHandler_->reserve();
     }
     if(audioProcessor_->canProcessSampleSize(Steinberg::Vst::SymbolicSampleSizes::kSample32) != Steinberg::kResultTrue)
     {
@@ -463,10 +461,6 @@ std::uint32_t VST3Plugin::latencyInSamples() const
 
 void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData)
 {
-    if(componentHandler_)
-    {
-        componentHandler_->attachToProcessData(processData_);
-    }
     processData_.numSamples = audioProcessData.singleBufferSize;
     for(int i = 0; i < processData_.numInputs; ++i)
     {
@@ -479,9 +473,9 @@ void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData
     audioProcessor_->process(processData_);
 }
 
-YADAW::Audio::Host::VST3ComponentHandler* VST3Plugin::componentHandler()
+Steinberg::Vst::IComponentHandler* VST3Plugin::componentHandler()
 {
-    return componentHandler_.get();
+    return componentHandler_;
 }
 
 YADAW::Audio::Plugin::VST3EventProcessor* VST3Plugin::eventProcessor()
@@ -579,8 +573,10 @@ bool VST3Plugin::initializeEditController()
                 return false;
             }
         }
-        componentHandler_ = std::make_unique<YADAW::Audio::Host::VST3ComponentHandler>(this);
-        editController_->setComponentHandler(componentHandler_.get());
+        if(componentHandler_)
+        {
+            editController_->setComponentHandler(componentHandler_);
+        }
         queryInterface(editController_, &editControllerPoint_);
         return true;
     }
@@ -620,8 +616,19 @@ void VST3Plugin::refreshParameterInfo()
     }
 }
 
+void VST3Plugin::setComponentHandler(IComponentHandler& componentHandler)
+{
+    componentHandler_ = &componentHandler;
+}
+
 void VST3Plugin::setProcessContext(Steinberg::Vst::ProcessContext& processContext)
 {
     processData_.processContext = &processContext;
 }
+
+void VST3Plugin::setParameterChanges(IParameterChanges& inputParameterChanges,
+    Steinberg::Vst::IParameterChanges* outputParameterChanges)
+{
+    processData_.inputParameterChanges = &inputParameterChanges;
+    processData_.outputParameterChanges = outputParameterChanges;
 }

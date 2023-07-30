@@ -20,7 +20,6 @@ namespace YADAW::Audio::Plugin
 {
 class VST3Plugin: public YADAW::Audio::Plugin::IAudioPlugin
 {
-    friend class YADAW::Audio::Host::VST3ComponentHandler;
 public:
     using FactoryEntry = Steinberg::IPluginFactory*(*)();
     using ExitEntry = bool(*)();
@@ -66,7 +65,7 @@ public:
     std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
 public:
-    YADAW::Audio::Host::VST3ComponentHandler* componentHandler();
+    Steinberg::Vst::IComponentHandler* componentHandler();
     YADAW::Audio::Plugin::VST3EventProcessor* eventProcessor();
 private:
     void prepareAudioRelatedInfo();
@@ -77,9 +76,11 @@ private:
     bool initializeEditController();
     bool uninitializeEditController();
     bool destroyEditController();
-    void refreshParameterInfo();
 public:
+    void refreshParameterInfo();
+    void setComponentHandler(Steinberg::Vst::IComponentHandler& componentHandler);
     void setProcessContext(Steinberg::Vst::ProcessContext& processContext);
+    void setParameterChanges(Steinberg::Vst::IParameterChanges& inputParameterChanges, Steinberg::Vst::IParameterChanges* outputParameterChanges);
 private:
     IAudioPlugin::Status status_ = IAudioPlugin::Status::Empty;
     std::int32_t unified_ = 0;
@@ -100,7 +101,7 @@ private:
     std::vector<Steinberg::Vst::AudioBusBuffers> outputBuffers_;
     std::unique_ptr<VST3PluginGUI> gui_;
     std::unique_ptr<VST3PluginParameter> parameter_;
-    std::unique_ptr<YADAW::Audio::Host::VST3ComponentHandler> componentHandler_;
+    Steinberg::Vst::IComponentHandler* componentHandler_ = nullptr;
     std::unique_ptr<YADAW::Audio::Plugin::VST3EventProcessor> eventProcessor_;
 };
 }

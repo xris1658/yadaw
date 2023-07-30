@@ -22,8 +22,8 @@ private:
 
 constexpr auto nanosecondCount = 1000000000;
 
-VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin* plugin):
-    plugin_(plugin),
+VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin& plugin):
+    plugin_(&plugin),
     latencyChanged_([]() {}),
     ioChanged_([]() {}),
     parameterValueChanged_([]() {}),
@@ -207,13 +207,9 @@ void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond
     outputParameterChanges_[hostBufferIndex_].clearPointsInQueue();
     hostBufferIndex_ ^= 1; // 0 <-> 1
     inputParameterChanges_[hostBufferIndex_].clearPointsInQueue();
-}
-
-void VST3ComponentHandler::attachToProcessData(Vst::ProcessData& processData)
-{
     auto pluginBufferIndex = hostBufferIndex_ ^ 1;
-    processData.inputParameterChanges = &(inputParameterChanges_[pluginBufferIndex]);
-    processData.outputParameterChanges = &(outputParameterChanges_[pluginBufferIndex]);
+    plugin_->setParameterChanges(inputParameterChanges_[pluginBufferIndex],
+        outputParameterChanges_ + pluginBufferIndex);
 }
 
 void VST3ComponentHandler::consumeOutputParameterChanges(std::int64_t timestampInNanosecond)
