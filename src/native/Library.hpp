@@ -45,6 +45,7 @@ public:
     {
         return (T)getExportImpl(name);
     }
+    void* handle() const;
 private:
     QString path_;
 #if(WIN32)

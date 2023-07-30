@@ -60,6 +60,11 @@ YADAW::Native::Library::ExportType Library::getExportImpl(const char* name) cons
 {
     return dlsym(handle_, name);
 }
+
+void* Library::handle() const
+{
+    return reinterpret_cast<void*>(handle_);
+}
 }
 
 #endif
