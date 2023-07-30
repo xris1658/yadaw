@@ -632,3 +632,10 @@ void VST3Plugin::setParameterChanges(IParameterChanges& inputParameterChanges,
     processData_.inputParameterChanges = &inputParameterChanges;
     processData_.outputParameterChanges = outputParameterChanges;
 }
+
+void VST3Plugin::setEventList(Steinberg::Vst::IEventList* inputEventList, Steinberg::Vst::IEventList* outputEventList)
+{
+    processData_.inputEvents = inputEventList;
+    processData_.outputEvents = outputEventList;
+}
+}

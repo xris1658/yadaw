@@ -81,6 +81,7 @@ public:
     void setComponentHandler(Steinberg::Vst::IComponentHandler& componentHandler);
     void setProcessContext(Steinberg::Vst::ProcessContext& processContext);
     void setParameterChanges(Steinberg::Vst::IParameterChanges& inputParameterChanges, Steinberg::Vst::IParameterChanges* outputParameterChanges);
+    void setEventList(Steinberg::Vst::IEventList* inputEventList, Steinberg::Vst::IEventList* outputEventList);
 private:
     IAudioPlugin::Status status_ = IAudioPlugin::Status::Empty;
     std::int32_t unified_ = 0;
