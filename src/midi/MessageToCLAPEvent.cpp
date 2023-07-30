@@ -1,10 +1,10 @@
 #include "MessageToCLAPEvent.hpp"
 
-#include <cstdlib>
+#include <new>
 
 namespace YADAW::MIDI
 {
-clap_event_header* createCLAPEventFromMessage(const Message& message)
+std::unique_ptr<clap_event_header> createCLAPEventFromMessage(const Message& message)
 {
     auto data = message.data;
     if(YADAW::MIDI::isChannelVoiceMessageHeader(data[0]))
@@ -14,23 +14,31 @@ clap_event_header* createCLAPEventFromMessage(const Message& message)
         {
         case YADAW::MIDI::NoteOnMessage::TypeId:
         {
-            auto* ret = reinterpret_cast<clap_event_note*>(std::malloc(sizeof(clap_event_note)));
-            auto* noteOn = reinterpret_cast<const YADAW::MIDI::NoteOnMessage*>(data);
-            ret->channel = noteOn->header.channel();
-            ret->note_id = -1;
-            ret->key = noteOn->note;
-            ret->velocity = noteOn->velocity / 127.0;
-            return reinterpret_cast<clap_event_header*>(ret);
+            auto* ret = new(std::nothrow) clap_event_note();
+            if(ret)
+            {
+                ret->header.type = CLAP_EVENT_NOTE_ON;
+                auto* noteOn = reinterpret_cast<const YADAW::MIDI::NoteOnMessage*>(data);
+                ret->channel = noteOn->header.channel();
+                ret->note_id = -1;
+                ret->key = noteOn->note;
+                ret->velocity = noteOn->velocity / 127.0;
+            }
+            return std::unique_ptr<clap_event_header>(reinterpret_cast<clap_event_header*>(ret));
         }
         case YADAW::MIDI::NoteOffMessage::TypeId:
         {
-            auto* ret = reinterpret_cast<clap_event_note*>(std::malloc(sizeof(clap_event_note)));
-            auto* noteOff = reinterpret_cast<const YADAW::MIDI::NoteOffMessage*>(data);
-            ret->channel = noteOff->header.channel();
-            ret->note_id = -1;
-            ret->key = noteOff->note;
-            ret->velocity = noteOff->velocity / 127.0;
-            return reinterpret_cast<clap_event_header*>(ret);
+            auto* ret = new(std::nothrow) clap_event_note();
+            if(ret)
+            {
+                ret->header.type = CLAP_EVENT_NOTE_OFF;
+                auto* noteOff = reinterpret_cast<const YADAW::MIDI::NoteOffMessage*>(data);
+                ret->channel = noteOff->header.channel();
+                ret->note_id = -1;
+                ret->key = noteOff->note;
+                ret->velocity = noteOff->velocity / 127.0;
+            }
+            return std::unique_ptr<clap_event_header>(reinterpret_cast<clap_event_header*>(ret));
         }
         default:
             break;

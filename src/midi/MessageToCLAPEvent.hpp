@@ -5,9 +5,11 @@
 
 #include <clap/events.h>
 
+#include <memory>
+
 namespace YADAW::MIDI
 {
-clap_event_header* createCLAPEventFromMessage(const YADAW::MIDI::Message& message);
+std::unique_ptr<clap_event_header> createCLAPEventFromMessage(const YADAW::MIDI::Message& message);
 }
 
 #endif // YADAW_SRC_MIDI_MESSAGETOCLAPEVENT
