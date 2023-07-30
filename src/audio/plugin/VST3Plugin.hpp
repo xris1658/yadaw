@@ -7,6 +7,7 @@
 #include "audio/plugin/VST3EventProcessor.hpp"
 #include "audio/plugin/VST3PluginGUI.hpp"
 #include "audio/plugin/VST3PluginParameter.hpp"
+#include "native/VST3Native.hpp"
 
 #include <pluginterfaces/base/ipluginbase.h>
 #include <pluginterfaces/vst/ivstaudioprocessor.h>
@@ -21,12 +22,12 @@ class VST3Plugin: public YADAW::Audio::Plugin::IAudioPlugin
 {
     friend class YADAW::Audio::Host::VST3ComponentHandler;
 public:
-    using InitEntry = bool(*)();
     using FactoryEntry = Steinberg::IPluginFactory*(*)();
     using ExitEntry = bool(*)();
 public:
     VST3Plugin();
-    VST3Plugin(InitEntry initEntry, FactoryEntry factoryEntry, ExitEntry exitEntry);
+    VST3Plugin(YADAW::Native::InitEntry initEntry, FactoryEntry factoryEntry, ExitEntry exitEntry,
+        void* libraryHandle = nullptr);
     bool createPlugin(const Steinberg::TUID& uid);
     void destroyPlugin();
     ~VST3Plugin();

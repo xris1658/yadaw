@@ -26,9 +26,9 @@ using namespace YADAW::Audio::Device;
 using namespace YADAW::Audio::Plugin;
 using namespace YADAW::Native;
 
-QLatin1StringView vst3Ext("vst3");
+QLatin1StringView vst3Ext(YADAW::Native::vst3FilePattern + 2);
 QLatin1StringView clapExt("clap");
-QString vst3Pattern("*.vst3");
+QString vst3Pattern(YADAW::Native::vst3FilePattern);
 QString clapPattern("*.clap");
 
 std::vector<QString> scanDirectory(const QDir& dir, bool recursive, bool includeSymLink)
@@ -64,7 +64,11 @@ std::vector<QString> scanDirectory(const QDir& dir, bool recursive, bool include
         {
             if(dirInfo.isDir() && dirInfo.exists())
             {
-                QDir subdir(dirInfo.absoluteFilePath());
+                const auto& unlinkedDirInfo =
+                    (dirInfo.isSymLink() && dirInfo.exists())?
+                        QFileInfo(dirInfo.symLinkTarget()):
+                        dirInfo;
+                QDir subdir(unlinkedDirInfo.absoluteFilePath());
                 auto result = scanDirectory(subdir, true, includeSymLink);
                 for(const auto& item: result)
                 {
@@ -85,6 +89,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
     }
     if(path.endsWith(vst3Ext, Qt::CaseSensitivity::CaseInsensitive))
     {
+        std::printf("%s\n", path.toLocal8Bit().data());
         auto plugin = YADAW::Audio::Util::createVST3FromLibrary(library);
         if(auto factory = plugin.factory())
         {

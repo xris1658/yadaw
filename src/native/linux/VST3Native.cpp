@@ -2,15 +2,16 @@
 
 #include "native/VST3Native.hpp"
 
+#include <pluginterfaces/gui/iplugview.h>
+
 namespace YADAW::Native
 {
-using YADAW::Native::Library;
-using YADAW::Audio::Plugin::VST3Plugin;
-
 const Steinberg::FIDString ViewType = Steinberg::kPlatformTypeX11EmbedWindowID;
 
-const char* initEntryName = "ModuleEntry";
-const char* exitEntryName = "ModuleExit";
+bool initVST3Entry(InitEntry initEntry, void* libraryHandle)
+{
+    return initEntry && initEntry(libraryHandle);
+}
 }
 
 #endif

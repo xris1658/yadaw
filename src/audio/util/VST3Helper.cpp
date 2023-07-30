@@ -41,8 +41,8 @@ YADAW::Audio::Plugin::VST3Plugin createVST3FromLibrary(Native::Library& library)
     {
         return {};
     }
-    auto init = library.getExport<YADAW::Audio::Plugin::VST3Plugin::InitEntry>(YADAW::Native::initEntryName);
+    auto init = library.getExport<YADAW::Native::InitEntry>(YADAW::Native::initEntryName);
     auto exit = library.getExport<YADAW::Audio::Plugin::VST3Plugin::ExitEntry>(YADAW::Native::exitEntryName);
-    return {init, factory, exit};
+    return {init, factory, exit, library.handle()};
 }
 }

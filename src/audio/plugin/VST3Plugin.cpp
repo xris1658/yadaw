@@ -70,20 +70,22 @@ VST3Plugin::VST3Plugin()
 }
 
 VST3Plugin::VST3Plugin(
-    VST3Plugin::InitEntry initEntry,
+    YADAW::Native::InitEntry initEntry,
     VST3Plugin::FactoryEntry factoryEntry,
-    VST3Plugin::ExitEntry exitEntry):
+    VST3Plugin::ExitEntry exitEntry,
+    void* libraryHandle):
     exitEntry_(nullptr)
 {
-    if(initEntry && (!initEntry()))
+    if(YADAW::Native::initVST3Entry(initEntry, libraryHandle))
     {
-        return;
-    }
-    exitEntry_ = exitEntry;
-    if(factoryEntry)
-    {
-        factory_ = factoryEntry();
-        status_ = IAudioPlugin::Status::Loaded;
+        if(factoryEntry)
+        {
+            if(auto factory = factoryEntry(); factory)
+            {
+                factory_ = factory;
+            }
+        }
+        exitEntry_ = exitEntry;
     }
 }
 
