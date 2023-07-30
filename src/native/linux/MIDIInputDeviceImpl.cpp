@@ -129,6 +129,7 @@ void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
                     }
                 }
             }
+            snd_midi_event_free(midiEvent);
         }
     );
 }
