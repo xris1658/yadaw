@@ -4,6 +4,12 @@
 
 #include "native/linux/ALSADeviceEnumerator.hpp"
 #include "util/Base.hpp"
+#include "util/Util.hpp"
+
+inline std::int64_t nanosecondFromRealTime(snd_seq_real_time time)
+{
+    return time.tv_sec * 1000000000LL + time.tv_nsec;
+}
 
 namespace YADAW::MIDI
 {
@@ -82,37 +88,44 @@ void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
     midiThread_ = std::thread(
         [this, func, seq]()
         {
+            std::int64_t timestamp = YADAW::Util::currentTimeValueInNanosecond();
             std::uint8_t midiBuffer[256];
             snd_midi_event_t* midiEvent;
             snd_midi_event_new(0, &midiEvent);
             snd_midi_event_no_status(midiEvent, 1);
             while(run_.load(std::memory_order::memory_order_acquire))
             {
-                if(snd_seq_event_input_pending(seq, 1) == 0)
+                if(auto eventCount = snd_seq_event_input_pending(seq, 1);
+                    eventCount == 0)
                 {
                     std::this_thread::yield();
                 }
                 else
                 {
                     snd_seq_event_t* event;
-                    auto getEventResult = snd_seq_event_input(seq, &event);
-                    if(getEventResult == -ENOSPC)
+                    for(decltype(eventCount) i = 0; i < eventCount; ++i)
                     {
-                        // Input buffer overrun
-                    }
-                    else if(getEventResult < 0)
-                    {
-                        auto errorMessage = snd_strerror(getEventResult);
-                    }
-                    else
-                    {
-                        auto byteCount = snd_midi_event_decode(midiEvent,
-                            midiBuffer, YADAW::Util::stackArraySize(midiBuffer),
-                            event);
-                        YADAW::MIDI::Message message{};
-                        message.size = byteCount;
-                        message.data = midiBuffer;
-                        func(device_, message);
+                        auto getEventResult = snd_seq_event_input(seq, &event);
+                        if(getEventResult == -ENOSPC)
+                        {
+                            // Input buffer overrun
+                        }
+                        else if(getEventResult < 0)
+                        {
+                            auto errorMessage = snd_strerror(getEventResult);
+                        }
+                        else
+                        {
+                            auto byteCount = snd_midi_event_decode(midiEvent,
+                                midiBuffer, YADAW::Util::stackArraySize(midiBuffer),
+                                event);
+                            YADAW::MIDI::Message message{};
+                            message.size = byteCount;
+                            message.data = midiBuffer;
+                            message.timestampInNanoseconds = timestamp + nanosecondFromRealTime(event->time.time);
+                            auto currentTimeFromClock = YADAW::Util::currentTimeValueInNanosecond();
+                            func(device_, message);
+                        }
                     }
                 }
             }
