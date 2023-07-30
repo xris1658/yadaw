@@ -37,7 +37,7 @@ class VST3ComponentHandler:
 {
     using Self = VST3ComponentHandler;
 public:
-    VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin* plugin);
+    VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin& plugin);
     VST3ComponentHandler(const Self&) = delete;
     VST3ComponentHandler(Self&& rhs) = delete;
     Self& operator=(const Self&) = delete;
@@ -59,7 +59,6 @@ public:
     tresult PLUGIN_API restartComponent(int32 flags) override;
 public:
     void switchBuffer(std::int64_t switchTimestampInNanosecond);
-    void attachToProcessData(Vst::ProcessData& processData);
     // TODO: Use timestamp
     void consumeOutputParameterChanges(std::int64_t timestampInNanosecond);
     double sampleRate() const;

@@ -13,15 +13,8 @@
 namespace YADAW::Audio::Plugin
 {
 Steinberg::Vst::SpeakerArrangement vst3ChannelGroupMapping[] = {
-    SpeakerArr::kEmpty,
-    SpeakerArr::kMono,
-    SpeakerArr::kStereo,
-    SpeakerArr::k30Cine,
-    SpeakerArr::k40Music,
-    SpeakerArr::k50,
-    SpeakerArr::k51,
-    SpeakerArr::k61Cine,
-    SpeakerArr::k71Cine
+    SpeakerArr::kEmpty, SpeakerArr::kMono, SpeakerArr::kStereo, SpeakerArr::k30Cine, SpeakerArr::k40Music,
+    SpeakerArr::k50, SpeakerArr::k51, SpeakerArr::k61Cine, SpeakerArr::k71Cine
 };
 
 YADAW::Audio::Base::ChannelGroupType fromSpeakerArrangement(SpeakerArrangement speakerArrangement)
@@ -57,8 +50,7 @@ Steinberg::Vst::SpeakerArrangement fromChannelGroup(YADAW::Audio::Base::ChannelG
 {
     using namespace YADAW::Util;
     if(auto index = underlyingValue(channelGroup);
-        index >= 0
-        && index < underlyingValue(YADAW::Audio::Base::ChannelGroupType::eEnd))
+        index >= 0 && index < underlyingValue(YADAW::Audio::Base::ChannelGroupType::eEnd))
     {
         return vst3ChannelGroupMapping[index];
     }
@@ -69,12 +61,8 @@ VST3Plugin::VST3Plugin()
 {
 }
 
-VST3Plugin::VST3Plugin(
-    YADAW::Native::InitEntry initEntry,
-    VST3Plugin::FactoryEntry factoryEntry,
-    VST3Plugin::ExitEntry exitEntry,
-    void* libraryHandle):
-    exitEntry_(nullptr)
+VST3Plugin::VST3Plugin(YADAW::Native::InitEntry initEntry, VST3Plugin::FactoryEntry factoryEntry,
+    VST3Plugin::ExitEntry exitEntry, void* libraryHandle): exitEntry_(nullptr)
 {
     if(YADAW::Native::initVST3Entry(initEntry, libraryHandle))
     {
@@ -93,9 +81,8 @@ bool VST3Plugin::createPlugin(const Steinberg::TUID& uid)
 {
     if(factory_)
     {
-        if(factory_->createInstance(uid, Steinberg::Vst::IComponent::iid,
-            reinterpret_cast<void**>(&component_))
-            == Steinberg::kResultOk)
+        if(factory_->createInstance(uid, Steinberg::Vst::IComponent::iid, reinterpret_cast<void**>(&component_)) ==
+           Steinberg::kResultOk)
         {
             status_ = IAudioPlugin::Status::Created;
             return true;
@@ -134,7 +121,6 @@ VST3Plugin::~VST3Plugin()
     if(status_ == IAudioPlugin::Status::Loaded)
     {
         releasePointer(factory_);
-        componentHandler_.reset();
     }
     if(exitEntry_)
     {
@@ -209,7 +195,6 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
     {
         componentPoint_->connect(editControllerPoint_);
         editControllerPoint_->connect(componentPoint_);
-        componentHandler_->reserve();
     }
     if(audioProcessor_->canProcessSampleSize(Steinberg::Vst::SymbolicSampleSizes::kSample32) != Steinberg::kResultTrue)
     {
@@ -367,7 +352,8 @@ VST3PluginGUI* VST3Plugin::pluginGUI()
             }
         }
         catch(...)
-        {}
+        {
+        }
     }
     return gui_.get();
 }
@@ -384,30 +370,22 @@ VST3PluginParameter* VST3Plugin::pluginParameter()
 
 std::uint32_t VST3Plugin::audioInputGroupCount() const
 {
-    return component_->getBusCount(Steinberg::Vst::MediaTypes::kAudio,
-        Steinberg::Vst::BusDirections::kInput);
+    return component_->getBusCount(Steinberg::Vst::MediaTypes::kAudio, Steinberg::Vst::BusDirections::kInput);
 }
 
 std::uint32_t VST3Plugin::audioOutputGroupCount() const
 {
-    return component_->getBusCount(Steinberg::Vst::MediaTypes::kAudio,
-        Steinberg::Vst::BusDirections::kOutput);
+    return component_->getBusCount(Steinberg::Vst::MediaTypes::kAudio, Steinberg::Vst::BusDirections::kOutput);
 }
 
-YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
-VST3Plugin::audioInputGroupAt(std::uint32_t index) const
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup VST3Plugin::audioInputGroupAt(std::uint32_t index) const
 {
-    return index < audioInputGroupCount()?
-        std::optional(std::cref(audioInputChannelGroup_[index])):
-        std::nullopt;
+    return index < audioInputGroupCount()? std::optional(std::cref(audioInputChannelGroup_[index])): std::nullopt;
 }
 
-YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
-VST3Plugin::audioOutputGroupAt(std::uint32_t index) const
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup VST3Plugin::audioOutputGroupAt(std::uint32_t index) const
 {
-    return index < audioOutputGroupCount()?
-        std::optional(std::cref(audioOutputChannelGroup_[index])):
-        std::nullopt;
+    return index < audioOutputGroupCount()? std::optional(std::cref(audioOutputChannelGroup_[index])): std::nullopt;
 }
 
 bool VST3Plugin::isAudioInputGroupActivated(int index) const
@@ -463,10 +441,6 @@ std::uint32_t VST3Plugin::latencyInSamples() const
 
 void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData)
 {
-    if(componentHandler_)
-    {
-        componentHandler_->attachToProcessData(processData_);
-    }
     processData_.numSamples = audioProcessData.singleBufferSize;
     for(int i = 0; i < processData_.numInputs; ++i)
     {
@@ -479,9 +453,9 @@ void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData
     audioProcessor_->process(processData_);
 }
 
-YADAW::Audio::Host::VST3ComponentHandler* VST3Plugin::componentHandler()
+Steinberg::Vst::IComponentHandler* VST3Plugin::componentHandler()
 {
-    return componentHandler_.get();
+    return componentHandler_;
 }
 
 YADAW::Audio::Plugin::VST3EventProcessor* VST3Plugin::eventProcessor()
@@ -502,16 +476,16 @@ void VST3Plugin::prepareAudioRelatedInfo()
     {
         audioProcessor_->getBusArrangement(Steinberg::Vst::BusDirections::kInput, i,
             audioInputChannelGroup_[i].speakerArrangement_);
-        component_->getBusInfo(Steinberg::Vst::MediaTypes::kAudio,
-            Steinberg::Vst::BusDirections::kInput, i, audioInputChannelGroup_[i].busInfo_);
+        component_->getBusInfo(Steinberg::Vst::MediaTypes::kAudio, Steinberg::Vst::BusDirections::kInput, i,
+            audioInputChannelGroup_[i].busInfo_);
         inputBuffers_[i].numChannels = audioInputChannelGroup_[i].busInfo_.channelCount;
     }
     for(int i = 0; i < audioOutputGroupCount; ++i)
     {
         audioProcessor_->getBusArrangement(Steinberg::Vst::BusDirections::kOutput, i,
             audioOutputChannelGroup_[i].speakerArrangement_);
-        component_->getBusInfo(Steinberg::Vst::MediaTypes::kAudio,
-            Steinberg::Vst::BusDirections::kOutput, i, audioOutputChannelGroup_[i].busInfo_);
+        component_->getBusInfo(Steinberg::Vst::MediaTypes::kAudio, Steinberg::Vst::BusDirections::kOutput, i,
+            audioOutputChannelGroup_[i].busInfo_);
         outputBuffers_[i].numChannels = audioOutputChannelGroup_[i].busInfo_.channelCount;
     }
 }
@@ -555,7 +529,7 @@ bool VST3Plugin::createEditController()
         if(auto queryInterfaceResult = queryInterface(component_, &editController_);
             queryInterfaceResult == Steinberg::kResultOk)
         {
-            unified_  = 1;
+            unified_ = 1;
             return true;
         }
         else
@@ -579,8 +553,10 @@ bool VST3Plugin::initializeEditController()
                 return false;
             }
         }
-        componentHandler_ = std::make_unique<YADAW::Audio::Host::VST3ComponentHandler>(this);
-        editController_->setComponentHandler(componentHandler_.get());
+        if(componentHandler_)
+        {
+            editController_->setComponentHandler(componentHandler_);
+        }
         queryInterface(editController_, &editControllerPoint_);
         return true;
     }
@@ -620,8 +596,20 @@ void VST3Plugin::refreshParameterInfo()
     }
 }
 
+void VST3Plugin::setComponentHandler(IComponentHandler& componentHandler)
+{
+    componentHandler_ = &componentHandler;
+}
+
 void VST3Plugin::setProcessContext(Steinberg::Vst::ProcessContext& processContext)
 {
     processData_.processContext = &processContext;
+}
+
+void VST3Plugin::setParameterChanges(IParameterChanges& inputParameterChanges,
+    Steinberg::Vst::IParameterChanges* outputParameterChanges)
+{
+    processData_.inputParameterChanges = &inputParameterChanges;
+    processData_.outputParameterChanges = outputParameterChanges;
 }
 }
