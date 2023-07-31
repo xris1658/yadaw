@@ -74,7 +74,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     std::printf("\n  ");
                 }
                 std::printf(
-                    "%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group.name().data()),
+                    "%d: %ls (%d channels)", i + 1, group.name().toStdWString().data(),
                     static_cast<int>(group.channelCount()));
             }
         }
@@ -95,7 +95,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     std::printf("\n  ");
                 }
                 std::printf(
-                    "%d: %ls (%d channels)", i + 1, reinterpret_cast<wchar_t*>(group.name().data()),
+                    "%d: %ls (%d channels)", i + 1, group.name().toStdWString().data(),
                     static_cast<int>(group.channelCount()));
             }
         }
@@ -119,7 +119,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     {
                         std::printf("\n  ");
                     }
-                    std::printf("%u: %ls (%u channels)", i + 1, reinterpret_cast<wchar_t*>(busInfo.name().data()),
+                    std::printf("%u: %ls (%u channels)", i + 1, busInfo.name().toStdWString().data(),
                         busInfo.channelCount());
                 }
             }
@@ -139,7 +139,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     {
                         std::printf("\n  ");
                     }
-                    std::printf("%u: %ls (%u channels)", i + 1, reinterpret_cast<wchar_t*>(busInfo.name().data()),
+                    std::printf("%u: %ls (%u channels)", i + 1, busInfo.name().toStdWString().data(),
                         busInfo.channelCount());
                 }
             }
@@ -334,7 +334,7 @@ int main(int argc, char* argv[])
         {
             QGuiApplication application(argc, argv);
             const auto& record = YADAW::DAO::selectPluginById(id);
-            std::printf("\nTesting plugin: %ls...\n", reinterpret_cast<const wchar_t*>(record.path.data()));
+            std::printf("\nTesting plugin: %ls...\n", record.path.toStdWString().data());
             library = YADAW::Native::Library(record.path);
             auto plugin = YADAW::Audio::Util::createVST3FromLibrary(library);
             std::memcpy(tuid, record.uid.data(), 16);
