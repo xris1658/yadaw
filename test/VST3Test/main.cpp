@@ -246,7 +246,6 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     [&componentHandler]()
                     {
                         componentHandler.consumeOutputParameterChanges(YADAW::Util::currentTimeValueInNanosecond());
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
                     });
                 timer.start();
                 std::thread audioThread(
