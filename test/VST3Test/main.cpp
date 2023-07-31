@@ -2,6 +2,7 @@
 
 #include "VST3PluginLatencyChangedCallback.hpp"
 
+#include "audio/host/VST3ComponentHandler.hpp"
 #include "audio/host/VST3Host.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "audio/util/VST3Helper.hpp"
@@ -51,10 +52,10 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
 {
     if(initializePlugin)
     {
-
+        YADAW::Audio::Host::VST3ComponentHandler componentHandler(plugin);
         assert(plugin.initialize(44100, 64));
-        std::vector<YADAW::Audio::Base::ChannelGroupType> inputChannels(plugin.audioInputGroupCount(), YADAW::Audio::Base::ChannelGroupType::e71);
-        std::vector<YADAW::Audio::Base::ChannelGroupType> outputChannels(plugin.audioOutputGroupCount(), YADAW::Audio::Base::ChannelGroupType::e71);
+        std::vector<YADAW::Audio::Base::ChannelGroupType> inputChannels(plugin.audioInputGroupCount(), YADAW::Audio::Base::ChannelGroupType::eStereo);
+        std::vector<YADAW::Audio::Base::ChannelGroupType> outputChannels(plugin.audioOutputGroupCount(), YADAW::Audio::Base::ChannelGroupType::eStereo);
         plugin.setChannelGroups(inputChannels.data(), inputChannels.size(), outputChannels.data(), outputChannels.size());
         auto audioInputGroupCount = plugin.audioInputGroupCount();
         std::printf("%d audio input(s)", audioInputGroupCount);
@@ -148,7 +149,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
         {
             assert(plugin.activate());
             VST3PluginLatencyChangedCallback callback(plugin);
-            plugin.componentHandler()->latencyChanged([&callback]() { callback.latencyChanged(); });
+            componentHandler.latencyChanged([&callback]() { callback.latencyChanged(); });
             if(processPlugin)
             {
                 assert(plugin.startProcessing());
@@ -237,14 +238,11 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     }
                     gui->attachToWindow(pluginWindowThread.window());
                     std::thread uiThread(
-                        [&stop, &plugin]()
+                        [&stop, &plugin, &componentHandler]()
                         {
                             while(!stop.load(std::memory_order::memory_order_acquire))
                             {
-                                if(auto componentHandler = plugin.componentHandler(); componentHandler)
-                                {
-                                    componentHandler->consumeOutputParameterChanges(YADAW::Util::currentTimeValueInNanosecond());
-                                }
+                                componentHandler.consumeOutputParameterChanges(YADAW::Util::currentTimeValueInNanosecond());
                                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
                             }
                         }
@@ -252,7 +250,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     uiThread.detach();
                 }
                 std::thread audioThread(
-                    [&stop, &plugin]()
+                    [&stop, &plugin, &componentHandler]()
                     {
                         using Steinberg::Vst::ProcessContext;
                         auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
@@ -262,13 +260,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                         // Audio callback goes here...
                         while(!stop.load(std::memory_order::memory_order_acquire))
                         {
-                            auto componentHandler = plugin.componentHandler();
-                            if(!componentHandler)
-                            {
-                                std::wprintf(L"Component handler is not available!\n");
-                                break;
-                            }
-                            componentHandler->switchBuffer(timestamp);
+                            componentHandler.switchBuffer(timestamp);
                             auto sleepTo = std::chrono::steady_clock::now() + std::chrono::microseconds (64 * 10000 / 441);
                             processContext.systemTime = timestamp;
                             auto start = std::chrono::steady_clock::now();
