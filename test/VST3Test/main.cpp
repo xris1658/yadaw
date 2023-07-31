@@ -17,6 +17,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QString>
+#include <QTimer>
 #include <QWindow>
 
 #include <atomic>
@@ -237,18 +238,17 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                         }
                     }
                     gui->attachToWindow(pluginWindowThread.window());
-                    std::thread uiThread(
-                        [&stop, &plugin, &componentHandler]()
-                        {
-                            while(!stop.load(std::memory_order::memory_order_acquire))
-                            {
-                                componentHandler.consumeOutputParameterChanges(YADAW::Util::currentTimeValueInNanosecond());
-                                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                            }
-                        }
-                    );
-                    uiThread.detach();
                 }
+                QTimer timer;
+                timer.setInterval(std::chrono::milliseconds(10));
+                timer.setSingleShot(false);
+                timer.callOnTimeout(
+                    [&componentHandler]()
+                    {
+                        componentHandler.consumeOutputParameterChanges(YADAW::Util::currentTimeValueInNanosecond());
+                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    });
+                timer.start();
                 std::thread audioThread(
                     [&stop, &plugin, &componentHandler]()
                     {
@@ -286,6 +286,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 stop.store(true, std::memory_order::memory_order_release);
                 audioThread.join();
                 plugin.stopProcessing();
+                timer.stop();
             }
             plugin.deactivate();
         }
