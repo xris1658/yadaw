@@ -76,7 +76,7 @@ VST3Plugin::VST3Plugin(
     void* libraryHandle):
     exitEntry_(nullptr)
 {
-    if(YADAW::Native::initVST3Entry(initEntry))
+    if(YADAW::Native::initVST3Entry(initEntry, libraryHandle))
     {
         if(factoryEntry)
         {
