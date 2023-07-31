@@ -586,6 +586,8 @@ add_executable(VST3Test
                src/audio/host/VST3AttributeList.hpp
                src/audio/host/VST3ComponentHandler.cpp
                src/audio/host/VST3ComponentHandler.hpp
+               src/audio/host/VST3EventList.cpp
+               src/audio/host/VST3EventList.hpp
                src/audio/host/VST3Host.cpp
                src/audio/host/VST3Host.hpp
                src/audio/host/VST3Message.cpp
@@ -621,19 +623,40 @@ add_executable(VST3Test
                src/dao/PluginCategoryTable.hpp
                src/dao/PluginTable.cpp
                src/dao/PluginTable.hpp
+               src/midi/MessageToVST3Event.cpp
+               src/midi/MessageToVST3Event.hpp
+               src/midi/MIDIInputDevice.cpp
+               src/midi/MIDIInputDevice.hpp
+               src/midi/Message.hpp
                src/native/Library.hpp
+               src/native/MIDIInputDeviceImpl.hpp
                src/native/Native.hpp
-               src/native/linux/Native.cpp
-               src/native/win/Native.cpp
+               src/native/linux/ALSADeviceEnumerator.cpp
+               src/native/linux/ALSADeviceEnumerator.hpp
+               src/native/linux/ALSAHelper.hpp
                src/native/linux/Library.cpp
+               src/native/linux/MIDIInputDeviceImpl.cpp
+               src/native/linux/MIDIInputDeviceImpl.hpp
+               src/native/linux/Native.cpp
+               src/native/linux/Sequencer.cpp
+               src/native/linux/Sequencer.hpp
+               src/native/win/winrt/Async.hpp
+               src/native/win/winrt/Forward.hpp
+               src/native/win/winrt/QStringFromHString.cpp
+               src/native/win/winrt/QStringFromHString.hpp
                src/native/win/Library.cpp
+               src/native/win/MIDIInputDeviceImpl.cpp
+               src/native/win/MIDIInputDeviceImpl.hpp
+               src/native/win/Native.cpp
                src/util/Util.cpp
                src/util/Util.hpp
                test/common/PluginWindowThread.hpp
                test/common/PluginWindowThread.cpp
                test/VST3Test/main.cpp
                test/VST3Test/VST3PluginLatencyChangedCallback.cpp
-               test/VST3Test/VST3PluginLatencyChangedCallback.hpp)
+               test/VST3Test/VST3PluginLatencyChangedCallback.hpp
+               test/VST3Test/VST3DoubleBuffer.cpp
+               test/VST3Test/VST3DoubleBuffer.hpp)
 
 if(WIN32)
 add_executable(WindowsMIDIInputDeviceTest

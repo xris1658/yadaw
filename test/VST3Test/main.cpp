@@ -1,4 +1,6 @@
 #include "test/common/PluginWindowThread.hpp"
+#include "test/common/DisableStreamBuffer.hpp"
+#include "VST3DoubleBuffer.hpp"
 
 #include "VST3PluginLatencyChangedCallback.hpp"
 
@@ -6,6 +8,8 @@
 #include "audio/host/VST3Host.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "audio/util/VST3Helper.hpp"
+#include "midi/MessageToVST3Event.hpp"
+#include "midi/MIDIInputDevice.hpp"
 #include "native/VST3Native.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/Native.hpp"
@@ -21,6 +25,7 @@
 #include <QWindow>
 
 #include <atomic>
+#include <cassert>
 #include <chrono>
 #include <cmath>
 #include <clocale>
@@ -36,8 +41,6 @@ double pi = YADAW::Util::pi<float>();
 
 std::uint64_t callbackDuration = 0;
 
-double sampleRate = 0;
-
 YADAW::Audio::Device::AudioProcessData<float> audioProcessData;
 
 bool initializePlugin = true;
@@ -49,12 +52,78 @@ Steinberg::Vst::ProcessContext processContext;
 decltype(std::chrono::steady_clock::now() - std::chrono::steady_clock::now()) duration;
 
 char tuid[16];
+
+const std::uint32_t sampleRate = 48000;
+
+const std::uint32_t bufferSize = 480;
+
+std::int64_t audioCallbackTime = 0;
+
+VST3DoubleBuffer doubleBuffer;
+
+std::uint64_t eventCount = 0;
+
+std::uint64_t underflowEventCount = 0;
+
+std::uint64_t overflowEventCount = 0;
+
+void translateEvent(const YADAW::MIDI::MIDIInputDevice& device, const YADAW::MIDI::Message& message)
+{
+    // Synchronization required
+    using namespace Steinberg::Vst;
+    auto [input, output] = doubleBuffer.hostSideEventList();
+    auto audioCallbackTime = ::audioCallbackTime;
+    ++eventCount;
+    auto vst3Event = YADAW::MIDI::createVST3EventFromMessage(message);
+    vst3Event.busIndex = 0;
+    vst3Event.flags = Event::EventFlags::kIsLive;
+    auto sampleOffset = (message.timestampInNanoseconds - audioCallbackTime) * sampleRate / 1000000000;
+    bool rectified = false;
+    if(sampleOffset < 0)
+    {
+        sampleOffset = 0;
+        rectified = true;
+        ++underflowEventCount;
+    }
+    if(sampleOffset >= bufferSize)
+    {
+        sampleOffset = bufferSize - 1;
+        rectified = true;
+        ++overflowEventCount;
+    }
+    vst3Event.sampleOffset = sampleOffset;
+    vst3Event.ppqPosition = 0;
+    input.addEvent(vst3Event);
+}
+
 void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin, bool activatePlugin, bool processPlugin)
 {
+    using YADAW::MIDI::MIDIInputDevice;
+    auto inputCount = MIDIInputDevice::inputDeviceCount();
+    std::printf("%lld input devices\n", inputCount);
+    for(decltype(inputCount) i = 0; i < inputCount; ++i)
+    {
+        const auto& device = MIDIInputDevice::inputDeviceAt(i);
+        std::printf("  %lld: %ls\n",
+            i + 1,
+            device->name.toStdWString().data()
+        );
+    }
+    int index = -1;
+    while(true)
+    {
+        std::scanf("%d", &index);
+        if(index > 0 && index <= inputCount)
+        {
+            break;
+        }
+    }
+    getchar();
+    YADAW::MIDI::MIDIInputDevice device(MIDIInputDevice::inputDeviceAt(index - 1)->id);
     if(initializePlugin)
     {
         YADAW::Audio::Host::VST3ComponentHandler componentHandler(plugin);
-        assert(plugin.initialize(44100, 64));
+        assert(plugin.initialize(sampleRate, bufferSize));
         std::vector<YADAW::Audio::Base::ChannelGroupType> inputChannels(plugin.audioInputGroupCount(), YADAW::Audio::Base::ChannelGroupType::eStereo);
         std::vector<YADAW::Audio::Base::ChannelGroupType> outputChannels(plugin.audioOutputGroupCount(), YADAW::Audio::Base::ChannelGroupType::eStereo);
         plugin.setChannelGroups(inputChannels.data(), inputChannels.size(), outputChannels.data(), outputChannels.size());
@@ -157,7 +226,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 plugin.setProcessContext(processContext);
                 PluginWindowThread pluginWindowThread(nullptr);
                 // Prepare audio process data {
-                audioProcessData.singleBufferSize = 64;
+                audioProcessData.singleBufferSize = bufferSize;
                 // Inputs
                 std::vector<std::vector<std::vector<float>>> idc1;
                 std::vector<std::vector<float*>> idc2;
@@ -252,16 +321,23 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     [&stop, &plugin, &componentHandler]()
                     {
                         using Steinberg::Vst::ProcessContext;
-                        auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
                         processContext.state = ProcessContext::StatesAndFlags::kSystemTimeValid | ProcessContext::StatesAndFlags::kPlaying;
-                        processContext.sampleRate = 44100;
+                        processContext.sampleRate = sampleRate;
                         processContext.projectTimeSamples = 0;
                         // Audio callback goes here...
                         while(!stop.load(std::memory_order::memory_order_acquire))
                         {
-                            componentHandler.switchBuffer(timestamp);
-                            auto sleepTo = std::chrono::steady_clock::now() + std::chrono::microseconds (64 * 10000 / 441);
-                            processContext.systemTime = timestamp;
+                            auto timestamp = YADAW::Util::currentTimePointInNanosecond();
+                            audioCallbackTime = timestamp.time_since_epoch().count();
+                            componentHandler.switchBuffer(audioCallbackTime);
+                            doubleBuffer.switchBuffer();
+                            auto [pi, po] = doubleBuffer.pluginSideEventList();
+                            auto [hi, ho] = doubleBuffer.hostSideEventList();
+                            plugin.setEventList(&pi, &po);
+                            hi.clear();
+                            ho.clear();
+                            auto sleepTo = std::chrono::steady_clock::now() + std::chrono::microseconds(static_cast<std::int64_t>(bufferSize * 1000000 / static_cast<double>(sampleRate)));
+                            processContext.systemTime = audioCallbackTime;
                             auto start = std::chrono::steady_clock::now();
                             plugin.process(audioProcessData);
                             duration = std::chrono::steady_clock::now() - start;
@@ -273,6 +349,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                         }
                     }
                 );
+                device.start(&translateEvent);
                 if(gui)
                 {
                     QGuiApplication::exec();
@@ -286,6 +363,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 audioThread.join();
                 plugin.stopProcessing();
                 timer.stop();
+                device.stop();
             }
             plugin.deactivate();
         }
@@ -295,6 +373,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
 
 int main(int argc, char* argv[])
 {
+    disableStdOutBuffer();
     if(argc < 2)
     {
         std::printf("Usage: VST3Test [<plugin path> <plugin UID>] or [<record id in database>]\nPress any key to continue...");
@@ -342,8 +421,12 @@ int main(int argc, char* argv[])
             testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);
             ++argIndex;
         }
-        std::printf("Duration: %ld\n", duration.count());
     }
+    std::printf("%llu events (%llu overflow, %llu underflow) are rectified in %llu events.\n",
+        overflowEventCount + underflowEventCount,
+        overflowEventCount,
+        underflowEventCount,
+        eventCount);
     std::wprintf(L"Press any key to continue...");
     getchar();
     return 0;
