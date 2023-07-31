@@ -34,6 +34,7 @@ VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin& plu
     outputParameterChanges_{},
     mappings_{{}, {}}
 {
+    plugin.setComponentHandler(*this);
 }
 
 VST3ComponentHandler::~VST3ComponentHandler() noexcept
