@@ -2,6 +2,7 @@
 #define YADAW_SRC_AUDIO_HOST_VST3COMPONENTHANDLER
 
 #include "audio/host/VST3ParameterChanges.hpp"
+#include "util/AtomicMutex.hpp"
 
 #include <pluginterfaces/vst/ivstaudioprocessor.h>
 #include <pluginterfaces/vst/ivsteditcontroller.h>
@@ -77,7 +78,7 @@ private:
     std::function<void()> parameterInfoChanged_;
     // Used by host
     int hostBufferIndex_;
-    std::atomic_bool editing_ {false};
+    YADAW::Util::AtomicMutex editing_;
     // Set on switchBuffer
     std::int64_t timestamp_;
     YADAW::Audio::Host::VST3ParameterChanges inputParameterChanges_[2];

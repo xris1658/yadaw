@@ -330,7 +330,9 @@ set(YADAW_COMMON_SOURCES
     src/util/Util.cpp
     src/util/Util.hpp
     src/util/YAMLCppUtil.hpp
-    )
+    src/util/AtomicMutex.cpp
+    src/util/AtomicMutex.hpp
+)
 
 qt_add_executable(YADAW
                   src/main.cpp
@@ -648,6 +650,8 @@ add_executable(VST3Test
                src/native/win/MIDIInputDeviceImpl.cpp
                src/native/win/MIDIInputDeviceImpl.hpp
                src/native/win/Native.cpp
+               src/util/AtomicMutex.cpp
+               src/util/AtomicMutex.hpp
                src/util/Util.cpp
                src/util/Util.hpp
                test/common/PluginWindowThread.hpp
