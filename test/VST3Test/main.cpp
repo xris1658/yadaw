@@ -1,7 +1,6 @@
 #include "test/common/PluginWindowThread.hpp"
 #include "test/common/DisableStreamBuffer.hpp"
 #include "VST3DoubleBuffer.hpp"
-
 #include "VST3PluginLatencyChangedCallback.hpp"
 
 #include "audio/host/VST3ComponentHandler.hpp"
@@ -131,7 +130,10 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
     if(initializePlugin)
     {
         YADAW::Audio::Host::VST3ComponentHandler componentHandler(plugin);
-        assert(plugin.initialize(sampleRate, bufferSize));
+        if(!plugin.initialize(sampleRate, bufferSize))
+        {
+            throw std::runtime_error("Initialization failed!");
+        }
         std::vector<YADAW::Audio::Base::ChannelGroupType> inputChannels(plugin.audioInputGroupCount(), YADAW::Audio::Base::ChannelGroupType::eStereo);
         std::vector<YADAW::Audio::Base::ChannelGroupType> outputChannels(plugin.audioOutputGroupCount(), YADAW::Audio::Base::ChannelGroupType::eStereo);
         plugin.setChannelGroups(inputChannels.data(), inputChannels.size(), outputChannels.data(), outputChannels.size());
@@ -225,12 +227,18 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
         }
         if(activatePlugin)
         {
-            assert(plugin.activate());
+            if(!plugin.activate())
+            {
+                throw std::runtime_error("Activation failed!");
+            }
             VST3PluginLatencyChangedCallback callback(plugin);
             componentHandler.latencyChanged([&callback]() { callback.latencyChanged(); });
             if(processPlugin)
             {
-                assert(plugin.startProcessing());
+                if(!plugin.startProcessing())
+                {
+                    throw std::runtime_error("Start processing failed!");
+                }
                 plugin.setProcessContext(processContext);
                 PluginWindowThread pluginWindowThread(nullptr);
                 // Prepare audio process data {
@@ -416,7 +424,10 @@ int main(int argc, char* argv[])
                     std::memcpy(tuid + i, &value, 1);
                 }
             }
-            assert(plugin.createPlugin(tuid));
+            if(!plugin.createPlugin(tuid))
+            {
+                throw std::runtime_error("Error: Create plugin failed!");
+            }
             testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);
             ++argIndex;
         }
@@ -428,7 +439,10 @@ int main(int argc, char* argv[])
             library = YADAW::Native::Library(record.path);
             auto plugin = YADAW::Audio::Util::createVST3FromLibrary(library);
             std::memcpy(tuid, record.uid.data(), 16);
-            assert(plugin.createPlugin(tuid));
+            if(!plugin.createPlugin(tuid))
+            {
+                throw std::runtime_error("Error: Create plugin failed!");
+            }
             testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);
             ++argIndex;
         }
