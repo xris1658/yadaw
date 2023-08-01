@@ -15,6 +15,7 @@
 #include "native/Native.hpp"
 #include "util/Constants.hpp"
 #include "util/Util.hpp"
+#include "util/AtomicMutex.hpp"
 
 #include <pluginterfaces/vst/ivstprocesscontext.h>
 
@@ -67,8 +68,14 @@ std::uint64_t underflowEventCount = 0;
 
 std::uint64_t overflowEventCount = 0;
 
+YADAW::Util::AtomicMutex mutex;
+
+std::int64_t translateEventDuration = 0;
+
 void translateEvent(const YADAW::MIDI::MIDIInputDevice& device, const YADAW::MIDI::Message& message)
 {
+    auto now = YADAW::Util::currentTimeValueInNanosecond();
+    YADAW::Util::AtomicLockGuard lg(mutex);
     // Synchronization required
     using namespace Steinberg::Vst;
     auto [input, output] = doubleBuffer.hostSideEventList();
@@ -94,6 +101,7 @@ void translateEvent(const YADAW::MIDI::MIDIInputDevice& device, const YADAW::MID
     vst3Event.sampleOffset = sampleOffset;
     vst3Event.ppqPosition = 0;
     input.addEvent(vst3Event);
+    translateEventDuration = std::max(translateEventDuration, YADAW::Util::currentTimeValueInNanosecond() - now);
 }
 
 void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin, bool activatePlugin, bool processPlugin)
@@ -330,7 +338,10 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                             auto timestamp = YADAW::Util::currentTimePointInNanosecond();
                             audioCallbackTime = timestamp.time_since_epoch().count();
                             componentHandler.switchBuffer(audioCallbackTime);
-                            doubleBuffer.switchBuffer();
+                            {
+                                YADAW::Util::AtomicLockGuard lg(mutex);
+                                doubleBuffer.switchBuffer();
+                            }
                             auto [pi, po] = doubleBuffer.pluginSideEventList();
                             auto [hi, ho] = doubleBuffer.hostSideEventList();
                             plugin.setEventList(&pi, &po);
@@ -427,7 +438,8 @@ int main(int argc, char* argv[])
         overflowEventCount,
         underflowEventCount,
         eventCount);
-    std::wprintf(L"Press any key to continue...");
+    std::printf("Max event translation duration: %lld\n", translateEventDuration);
+    std::wprintf(L"Press <ENTER> to continue...");
     getchar();
     return 0;
 }
