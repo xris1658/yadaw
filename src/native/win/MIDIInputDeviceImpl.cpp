@@ -49,11 +49,8 @@ MIDIInputDevice::Impl::Impl(const MIDIInputDevice& device, const YADAW::Native::
     midiInPort_(nullptr),
     device_(device)
 {
-    winrt::hstring idAsHString(reinterpret_cast<const wchar_t*>(id.data()));
     midiInPort_ = asyncResult(
-        winrt::Windows::Devices::Midi::MidiInPort::FromIdAsync(
-            idAsHString
-        )
+        winrt::Windows::Devices::Midi::MidiInPort::FromIdAsync(id)
     );
     createTime_ = YADAW::Util::currentTimeValueInNanosecond(); // Latency?
 }
