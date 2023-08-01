@@ -23,7 +23,9 @@ std::size_t MIDIInputDevice::Impl::inputDeviceCount()
     std::call_once(enumerateInputDeviceFlag,
         []()
         {
-            midiInputDevices_ = DeviceInformation::FindAllAsync(MidiInPort::GetDeviceSelector()).get();
+            midiInputDevices_ = asyncResult(
+                DeviceInformation::FindAllAsync(MidiInPort::GetDeviceSelector())
+            );
         }
     );
     return midiInputDevices_.Size();
