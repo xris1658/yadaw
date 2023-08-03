@@ -590,6 +590,8 @@ add_executable(VST3Test
                src/audio/host/VST3AttributeList.hpp
                src/audio/host/VST3ComponentHandler.cpp
                src/audio/host/VST3ComponentHandler.hpp
+               src/audio/host/VST3EventDoubleBuffer.cpp
+               src/audio/host/VST3EventDoubleBuffer.hpp
                src/audio/host/VST3EventList.cpp
                src/audio/host/VST3EventList.hpp
                src/audio/host/VST3Host.cpp
@@ -660,9 +662,7 @@ add_executable(VST3Test
                test/common/PluginWindowThread.cpp
                test/VST3Test/main.cpp
                test/VST3Test/VST3PluginLatencyChangedCallback.cpp
-               test/VST3Test/VST3PluginLatencyChangedCallback.hpp
-               test/VST3Test/VST3DoubleBuffer.cpp
-               test/VST3Test/VST3DoubleBuffer.hpp)
+               test/VST3Test/VST3PluginLatencyChangedCallback.hpp)
 
 if(WIN32)
 add_executable(WindowsMIDIInputDeviceTest
