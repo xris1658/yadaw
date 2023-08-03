@@ -138,6 +138,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VST3AttributeList.hpp
     src/audio/host/VST3ComponentHandler.cpp
     src/audio/host/VST3ComponentHandler.hpp
+    src/audio/host/VST3EventDoubleBuffer.cpp
+    src/audio/host/VST3EventDoubleBuffer.hpp
     src/audio/host/VST3EventList.cpp
     src/audio/host/VST3EventList.hpp
     src/audio/host/VST3Host.cpp
