@@ -12,7 +12,6 @@ class VST3EventDoubleBuffer
 public:
     OptionalRef<Steinberg::Vst::Event> emplaceInputEvent();
     YADAW::Audio::Host::VST3EventList& hostOutputEventList();
-    std::pair<YADAW::Audio::Host::VST3EventList&, YADAW::Audio::Host::VST3EventList&> hostSideEventList();
     std::pair<YADAW::Audio::Host::VST3EventList&, YADAW::Audio::Host::VST3EventList&> pluginSideEventList();
     void switchBuffer();
 private:

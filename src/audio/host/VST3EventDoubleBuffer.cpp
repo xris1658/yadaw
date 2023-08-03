@@ -17,17 +17,6 @@ YADAW::Audio::Host::VST3EventList& VST3EventDoubleBuffer::hostOutputEventList()
 }
 
 std::pair<YADAW::Audio::Host::VST3EventList&, YADAW::Audio::Host::VST3EventList&>
-    VST3EventDoubleBuffer::hostSideEventList()
-{
-    int hostSideBufferIndex;
-    {
-        AtomicLockGuard lg(mutex_);
-        hostSideBufferIndex = hostSideBufferIndex_;
-    }
-    return {inputs_[hostSideBufferIndex], outputs_[hostSideBufferIndex]};
-}
-
-std::pair<YADAW::Audio::Host::VST3EventList&, YADAW::Audio::Host::VST3EventList&>
     VST3EventDoubleBuffer::pluginSideEventList()
 {
     int hostSideBufferIndex;
