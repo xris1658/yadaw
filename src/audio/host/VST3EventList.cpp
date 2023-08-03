@@ -41,12 +41,20 @@ tresult VST3EventList::getEvent(int32 index, Vst::Event& e)
 
 tresult VST3EventList::addEvent(Vst::Event& e)
 {
-    if(!container_.full())
+    if(container_.pushBack(e))
     {
-        container_.pushBack(e);
         return kResultOk;
     }
     return kOutOfMemory;
+}
+
+OptionalRef<Vst::Event> VST3EventList::emplace()
+{
+    if(container_.emplaceBack())
+    {
+        return {container_.back()};
+    }
+    return std::nullopt;
 }
 
 void VST3EventList::clear()

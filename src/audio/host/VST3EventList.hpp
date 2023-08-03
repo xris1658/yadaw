@@ -2,6 +2,7 @@
 #define YADAW_SRC_AUDIO_HOST_VST3EVENTLIST
 
 #include "util/FixedSizeCircularDeque.hpp"
+#include "util/OptionalUtil.hpp"
 
 #include <pluginterfaces/vst/ivstevents.h>
 
@@ -22,6 +23,7 @@ public:
     tresult getEvent(int32 index, Vst::Event& e) override;
     tresult addEvent(Vst::Event& e) override;
 public:
+    OptionalRef<Vst::Event> emplace();
     void clear();
 private:
     YADAW::Util::FixedSizeCircularDeque<Vst::Event, 2048> container_;
