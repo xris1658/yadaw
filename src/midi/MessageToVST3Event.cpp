@@ -5,10 +5,9 @@ namespace YADAW::MIDI
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
-Event createVST3EventFromMessage(const Message& message)
+bool fillVST3EventFromMessage(const Message& from, Event& to)
 {
-    Event ret {};
-    auto data = message.data;
+    auto data = from.data;
     if(YADAW::MIDI::isChannelVoiceMessageHeader(data[0]))
     {
         auto header = reinterpret_cast<const YADAW::MIDI::ChannelVoiceMessageHeader*>(data);
@@ -16,36 +15,36 @@ Event createVST3EventFromMessage(const Message& message)
         {
         case YADAW::MIDI::NoteOnMessage::TypeId:
         {
-            ret.type = Event::EventTypes::kNoteOnEvent;
+            to.type = Event::EventTypes::kNoteOnEvent;
             auto* noteOn = reinterpret_cast<const YADAW::MIDI::NoteOnMessage*>(data);
-            ret.noteOn.channel = noteOn->header.channel();
-            ret.noteOn.noteId = -1;
-            ret.noteOn.pitch = noteOn->note;
-            ret.noteOn.velocity = noteOn->velocity / 127.0;
-            ret.noteOn.length = 0;
-            ret.noteOn.tuning = 0; // FIXME
-            return ret;
+            to.noteOn.channel = noteOn->header.channel();
+            to.noteOn.noteId = -1;
+            to.noteOn.pitch = noteOn->note;
+            to.noteOn.velocity = noteOn->velocity / 127.0;
+            to.noteOn.length = 0;
+            to.noteOn.tuning = 0; // FIXME
+            return true;
         }
         case YADAW::MIDI::NoteOffMessage::TypeId:
         {
-            ret.type = Event::EventTypes::kNoteOffEvent;
+            to.type = Event::EventTypes::kNoteOffEvent;
             auto* noteOff = reinterpret_cast<const YADAW::MIDI::NoteOffMessage*>(data);
-            ret.noteOff.channel = noteOff->header.channel();
-            ret.noteOff.noteId = -1;
-            ret.noteOff.pitch = noteOff->note;
-            ret.noteOff.velocity = noteOff->velocity / 127.0;
-            ret.noteOff.tuning = 0; // FIXME
-            return ret;
+            to.noteOff.channel = noteOff->header.channel();
+            to.noteOff.noteId = -1;
+            to.noteOff.pitch = noteOff->note;
+            to.noteOff.velocity = noteOff->velocity / 127.0;
+            to.noteOff.tuning = 0; // FIXME
+            return true;
         }
         case YADAW::MIDI::PolyKeyPressureMessage::TypeId:
         {
-            ret.type = Event::EventTypes::kPolyPressureEvent;
+            to.type = Event::EventTypes::kPolyPressureEvent;
             auto* polyKeyPressure = reinterpret_cast<const YADAW::MIDI::PolyKeyPressureMessage*>(data);
-            ret.polyPressure.channel = polyKeyPressure->header.channel();
-            ret.polyPressure.noteId = -1;
-            ret.polyPressure.pitch = polyKeyPressure->note;
-            ret.polyPressure.pressure = polyKeyPressure->pressure;
-            return ret;
+            to.polyPressure.channel = polyKeyPressure->header.channel();
+            to.polyPressure.noteId = -1;
+            to.polyPressure.pitch = polyKeyPressure->note;
+            to.polyPressure.pressure = polyKeyPressure->pressure;
+            return true;
         }
         default:
             break;
@@ -55,6 +54,6 @@ Event createVST3EventFromMessage(const Message& message)
     {
         // TODO: Process other message type
     }
-    return ret;
+    return false;
 }
 }

@@ -7,7 +7,14 @@
 
 namespace YADAW::MIDI
 {
-Steinberg::Vst::Event createVST3EventFromMessage(const YADAW::MIDI::Message& message);
+bool fillVST3EventFromMessage(const YADAW::MIDI::Message& from, Steinberg::Vst::Event& to);
+
+inline Steinberg::Vst::Event createVST3EventFromMessage(const YADAW::MIDI::Message& message)
+{
+    Steinberg::Vst::Event event;
+    fillVST3EventFromMessage(message, event);
+    return event;
+}
 }
 
 #endif // YADAW_SRC_MIDI_MESSAGETOVST3EVENT
