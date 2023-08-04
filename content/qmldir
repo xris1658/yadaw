@@ -66,6 +66,7 @@ SendIcon 1.0 SendIcon.qml
 ShowLeftPaneIcon 1.0 ShowLeftPaneIcon.qml
 Slider 1.0 Slider.qml
 SortIcon 1.0 SortIcon.qml
+SpinBox 1.0 SpinBox.qml
 SplashScreen 1.0 SplashScreen.qml
 SplitView 1.0 SplitView.qml
 Switch 1.0 Switch.qml
