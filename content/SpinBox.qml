@@ -18,11 +18,11 @@ T.SpinBox {
     implicitHeight: contentItem.implicitHeight
 
     up.hovered: upButton.hovered
-    up.indicator: upButton.contentItem
+    up.indicator: upButton
     up.pressed: upButton.pressed
 
     down.hovered: downButton.hovered
-    down.indicator: downButton.contentItem
+    down.indicator: downButton
     down.pressed: downButton.pressed
 
     background: Rectangle {
@@ -61,7 +61,7 @@ T.SpinBox {
         text: root.textFromValue(root.value, root.locale)
         validator: root.validator
         readOnly: !root.editable
-        inputMethodHints: root.inputMethod
+        inputMethodHints: root.inputMethodHints
         Item {
             width: height
             height: parent.height - anchors.rightMargin * 2
@@ -83,6 +83,7 @@ T.SpinBox {
                             Colors.mouseOverControlBackground:
                             Colors.controlBackground
                 }
+                focusPolicy: Qt.NoFocus
                 onClicked: {
                     root.increase();
                 }
@@ -103,10 +104,17 @@ T.SpinBox {
                             Colors.mouseOverControlBackground:
                             Colors.controlBackground
                 }
+                focusPolicy: Qt.NoFocus
                 onClicked: {
                     root.decrease();
                 }
             }
+        }
+        Keys.onUpPressed: {
+            root.increase();
+        }
+        Keys.onDownPressed: {
+            root.decrease();
         }
     }
 }
