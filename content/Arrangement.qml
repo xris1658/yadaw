@@ -29,6 +29,53 @@ SplitView {
             width: parent.width
             height: hbar.height
         }
+        ListView {
+            id: trackHeaderListView
+            anchors.top: topLeft.bottom
+            anchors.bottom: bottomLeft.top
+            footer: MouseArea {
+                property int minimumHeight: 60
+                width: arrangementHeader.width
+                height: Math.max(trackHeaderListView.height - trackHeaderListView.contentHeight + minimumHeight, minimumHeight)
+                acceptedButtons: Qt.RightButton
+                Menu {
+                    id: trackHeaderBlankOptions
+                    title: qsTr("Track Header Blank Area Options")
+                    Menu {
+                        title: qsTr("&Append Track")
+                        MenuItem {
+                            text: qsTr("&Audio")
+                            onTriggered: {
+                                addTrackWindow.show();
+                            }
+                        }
+                        MenuItem {
+                            text: qsTr("&Instrument")
+                            onTriggered: {
+                                addTrackWindow.show();
+                            }
+                        }
+                        MenuItem {
+                            text: qsTr("&MIDI")
+                            onTriggered: {
+                                addTrackWindow.show();
+                            }
+                        }
+                        MenuItem {
+                            text: qsTr("Audio &Effect")
+                            onTriggered: {
+                                addTrackWindow.show();
+                            }
+                        }
+                    }
+                }
+                onClicked: {
+                    trackHeaderBlankOptions.x = mouseX;
+                    trackHeaderBlankOptions.y = mouseY;
+                    trackHeaderBlankOptions.open();
+                }
+            }
+        }
     }
     Item {
         id: arrangementContent
@@ -139,5 +186,9 @@ SplitView {
                 anchors.bottom: hbar.top
             }
         }
+    }
+    AddTrackWindow {
+        id: addTrackWindow
+        modality: Qt.WindowModal
     }
 }

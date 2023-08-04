@@ -77,6 +77,151 @@
     </message>
 </context>
 <context>
+    <name>AddTrackWindow</name>
+    <message>
+        <location filename="../../content/AddTrackWindow.qml" line="7"/>
+        <source>Add Track</source>
+        <translation>添加轨道</translation>
+    </message>
+    <message>
+        <location filename="../../content/AddTrackWindow.qml" line="21"/>
+        <source>Audio</source>
+        <translation>音频</translation>
+    </message>
+    <message>
+        <location filename="../../content/AddTrackWindow.qml" line="26"/>
+        <location filename="../../content/AddTrackWindow.qml" line="117"/>
+        <source>Instrument</source>
+        <translation>乐器</translation>
+    </message>
+    <message>
+        <location filename="../../content/AddTrackWindow.qml" line="36"/>
+        <location filename="../../content/AddTrackWindow.qml" line="217"/>
+        <source>Audio Effect</source>
+        <translation>音频效果</translation>
+    </message>
+    <message>
+        <location filename="../../content/AddTrackWindow.qml" line="59"/>
+        <location filename="../../content/AddTrackWindow.qml" line="109"/>
+        <location filename="../../content/AddTrackWindow.qml" line="159"/>
+        <location filename="../../content/AddTrackWindow.qml" line="201"/>
+        <source>Name</source>
+        <translation>名称</translation>
+    </message>
+    <message>
+        <location filename="../../content/AddTrackWindow.qml" line="67"/>
+        <location filename="../../content/AddTrackWindow.qml" line="209"/>
+        <source>Channel Config</source>
+        <translation>声道</translation>
+    </message>
+    <message>
+        <location filename="../../content/AddTrackWindow.qml" line="75"/>
+        <location filename="../../content/AddTrackWindow.qml" line="125"/>
+        <location filename="../../content/AddTrackWindow.qml" line="167"/>
+        <source>Input</source>
+        <translation>输入</translation>
+    </message>
+    <message>
+        <location filename="../../content/AddTrackWindow.qml" line="83"/>
+        <location filename="../../content/AddTrackWindow.qml" line="133"/>
+        <location filename="../../content/AddTrackWindow.qml" line="175"/>
+        <location filename="../../content/AddTrackWindow.qml" line="225"/>
+        <source>Output</source>
+        <translation>输出</translation>
+    </message>
+    <message>
+        <location filename="../../content/AddTrackWindow.qml" line="91"/>
+        <location filename="../../content/AddTrackWindow.qml" line="141"/>
+        <location filename="../../content/AddTrackWindow.qml" line="183"/>
+        <location filename="../../content/AddTrackWindow.qml" line="233"/>
+        <source>Count</source>
+        <translation>数量</translation>
+    </message>
+    <message>
+        <location filename="../../content/AddTrackWindow.qml" line="254"/>
+        <source>&amp;Add</source>
+        <translation type="unfinished">添加(&amp;A)</translation>
+    </message>
+</context>
+<context>
+    <name>Arrangement</name>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="43"/>
+        <source>Track Header Blank Area Options</source>
+        <translation>轨道区空白处选项</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="45"/>
+        <source>&amp;Append Track</source>
+        <translation>在末尾添加轨道(&amp;A)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="47"/>
+        <source>&amp;Audio</source>
+        <translation>音频(&amp;A)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="53"/>
+        <source>&amp;Instrument</source>
+        <translation>乐器(&amp;I)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="59"/>
+        <source>&amp;MIDI</source>
+        <translation>MIDI(&amp;M)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="65"/>
+        <source>Audio &amp;Effect</source>
+        <translation>音频效果(&amp;E)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="99"/>
+        <source>Timeline Options</source>
+        <translation>时间轴选项</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="101"/>
+        <source>&amp;Beat</source>
+        <translation>拍子(&amp;B)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="106"/>
+        <source>&amp;Second</source>
+        <translation>秒(&amp;S)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="111"/>
+        <source>S&amp;ample</source>
+        <translation>采样(&amp;A)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="117"/>
+        <source>B&amp;eat linear</source>
+        <translation>节拍线性(&amp;E)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="122"/>
+        <source>T&amp;ime linear</source>
+        <translation>时间线性(&amp;I)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="148"/>
+        <source>Content Area Zoom Options</source>
+        <translation>内容区缩放选项</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="150"/>
+        <source>Fit &amp;width</source>
+        <translation>适应内容宽度(&amp;W)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="153"/>
+        <source>Fit &amp;height</source>
+        <translation>适应内容高度(&amp;H)</translation>
+    </message>
+</context>
+<context>
     <name>Assets</name>
     <message>
         <location filename="../../content/Assets.qml" line="27"/>

@@ -31,6 +31,7 @@ set(CONTENT_QML_FILES
     AboutWindow.qml
     AboutQtWindow.qml
     Action.qml
+    AddTrackWindow.qml
     ALSASettings.qml
     ApplicationWindow.qml
     Arrangement.qml
