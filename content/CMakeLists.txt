@@ -93,6 +93,7 @@ set(CONTENT_QML_FILES
     ShowLeftPaneIcon.qml
     Slider.qml
     SortIcon.qml
+    SpinBox.qml
     SplashScreen.qml
     SplitView.qml
     Switch.qml
