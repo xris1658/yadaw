@@ -316,17 +316,21 @@ Window {
                 }
             }
         }
-        Keys.onTabPressed: (event) => {
-            if(event.modifiers & Qt.ControlModifier) {
-                if(event.modifiers & Qt.ShiftModifier) {
-                    let index = trackType === 0? stackLayout.count - 1: trackType - 1;
-                    root.trackType = index;
-                }
-                else {
-                    let index = trackType === stackLayout.count - 1? 0: trackType + 1;
-                    root.trackType = index;
-                }
-            }
+    }
+    Shortcut {
+        context: Qt.WindowShortcut
+        sequence: StandardKey.NextChild
+        onActivated: {
+            let index = trackType === stackLayout.count - 1? 0: trackType + 1;
+            root.trackType = index;
+        }
+    }
+    Shortcut {
+        context: Qt.WindowShortcut
+        sequence: StandardKey.PreviousChild
+        onActivated: {
+            let index = trackType === 0? stackLayout.count - 1: trackType - 1;
+            root.trackType = index;
         }
     }
 }
