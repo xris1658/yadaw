@@ -19,6 +19,7 @@ ApplicationWindow {
     property alias translationModel: preferencesWindow.translationModel
     property alias currentTranslationIndex: preferencesWindow.currentTranslationIndex
     property alias systemFontRendering: preferencesWindow.systemFontRendering
+    property alias systemFontRenderingWhileDebugging: preferencesWindow.systemFontRenderingWhileDebugging
     property alias audioInputBusConfigurationModel: preferencesWindow.audioInputBusConfigurationModel
     property alias audioOutputBusConfigurationModel: preferencesWindow.audioOutputBusConfigurationModel
     property alias audioInputDeviceList: preferencesWindow.audioInputDeviceList

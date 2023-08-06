@@ -177,6 +177,8 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appCLAPPluginListModel()));
     YADAW::UI::mainWindow->setProperty("systemFontRendering",
         QVariant::fromValue<bool>(YADAW::Controller::GeneralSettingsController::systemFontRendering()));
+    YADAW::UI::mainWindow->setProperty("systemFontRenderingWhileDebugging",
+        QVariant::fromValue<bool>(YADAW::Controller::GeneralSettingsController::systemFontRenderingWhileDebugging()));
     YADAW::UI::mainWindow->setProperty("translationModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appLocalizationListModel()));
     YADAW::UI::mainWindow->setProperty("currentTranslationIndex",
