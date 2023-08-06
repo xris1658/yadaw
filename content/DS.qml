@@ -231,11 +231,9 @@ MainWindow {
 
     canClose: true
 
-    Item {
-        Component.onCompleted: {
-            EventReceiver.mainWindow = root;
-            Global.qtVersion = "6.5.0";
-            mainWindowReady();
-        }
+    Component.onCompleted: {
+        EventReceiver.mainWindow = mainWindow;
+        Global.qtVersion = "6.5.1";
+        mainWindowReady();
     }
 }
