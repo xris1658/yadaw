@@ -15,9 +15,21 @@ public:
     {
         ChannelType,
         Name,
-        IsMain,
         RoleCount
     };
+    enum Channel
+    {
+        Center,
+        Left,
+        Right,
+        SideLeft,
+        SideRight,
+        RearLeft,
+        RearRight,
+        RearCenter,
+        LFE
+    };
+    Q_ENUM(Channel)
 public:
     IAudioChannelGroupModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
     virtual ~IAudioChannelGroupModel() {}
@@ -31,8 +43,7 @@ protected:
         static RoleNames ret
         {
             std::make_pair(Role::ChannelType, "acgm_channel_type"),
-            std::make_pair(Role::Name, "acgm_name"),
-            std::make_pair(Role::IsMain, "acgm_is_main")
+            std::make_pair(Role::Name, "acgm_name")
         };
         return ret;
     }
