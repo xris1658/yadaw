@@ -36,6 +36,55 @@ QtObject {
     readonly property string renameText:                qsTr("Rename")
     readonly property string renameTextWithMnemonic:    qsTr("Rena&me")
 
+    enum ChannelConfig {
+        Invalid,
+        Mono,
+        Stereo,
+        LRC,
+        Quad,
+        C51,
+        C61,
+        C71
+    }
+
+    readonly property ListModel channelConfigProperties: ListModel {
+        ListElement {
+            type: Constants.ChannelConfig.Mono
+            name: qsTr("Mono")
+            channelCount: 1
+        }
+        ListElement {
+            type: Constants.ChannelConfig.Stereo
+            name: qsTr("Stereo")
+            channelCount: 2
+        }
+        ListElement {
+            type: Constants.ChannelConfig.LRC
+            name: qsTr("LRC")
+            channelCount: 3
+        }
+        ListElement {
+            type: Constants.ChannelConfig.Quad
+            name: qsTr("Quad")
+            channelCount: 4
+        }
+        ListElement {
+            type: Constants.ChannelConfig.C51
+            name: qsTr("5.1")
+            channelCount: 6
+        }
+        ListElement {
+            type: Constants.ChannelConfig.C61
+            name: qsTr("6.1")
+            channelCount: 7
+        }
+        ListElement {
+            type: Constants.ChannelConfig.C71
+            name: qsTr("7.1")
+            channelCount: 8
+        }
+    }
+
     readonly property ListModel dynamicKeyName: ListModel {
         ListElement {
             flat: "C"
