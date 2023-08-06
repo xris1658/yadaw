@@ -1,39 +1,65 @@
+import QtQml
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Window
 
 Window {
     id: root
-    title: qsTr("Add Track")
-    color: Colors.background
     flags: Qt.Dialog
+    title: qsTr("Add Track")
+    modality: Qt.WindowModal
+    color: Colors.background
+
     width: tabContent.width + 10
     height: column.height + 10
+
+    property alias trackType: stackLayout.currentIndex
+
+    enum TrackType {
+        Audio,
+        Instrument,
+        MIDI,
+        AudioEffect
+    }
+
     Column {
         id: column
         anchors.centerIn: parent
         spacing: 10
         TabBar {
             id: trackTypeTabBar
+            currentIndex: root.trackType
             TabButton {
                 id: audioTrackButton
                 width: implicitWidth
                 text: qsTr("Audio")
+                onClicked: {
+                    root.trackType = TabBar.index;
+                }
             }
             TabButton {
                 id: instrumentButton
                 width: implicitWidth
                 text: qsTr("Instrument")
+                onClicked: {
+                    root.trackType = TabBar.index;
+                }
             }
             TabButton {
                 id: midiButton
                 width: implicitWidth
                 text: "MIDI"
+                onClicked: {
+                    root.trackType = TabBar.index;
+                }
             }
             TabButton {
                 id: audioEffectButton
                 width: implicitWidth
                 text: qsTr("Audio Effect")
+                onClicked: {
+                    root.trackType = TabBar.index;
+                }
             }
         }
         Item {
@@ -60,6 +86,7 @@ Window {
                         horizontalAlignment: Label.AlignRight
                     }
                     TextField {
+                        id: audioNameField
                         width: tabContent.secondColumnWidth
                     }
                     Label {
@@ -97,6 +124,11 @@ Window {
                         editable: true
                         from: 1
                     }
+                    StackLayout.onIsCurrentItemChanged: {
+                        if(StackLayout.isCurrentItem) {
+                            audioNameField.forceActiveFocus();
+                        }
+                    }
                 }
                 Grid {
                     columns: 2
@@ -110,6 +142,7 @@ Window {
                         horizontalAlignment: Label.AlignRight
                     }
                     TextField {
+                        id: instrumentNameField
                         width: tabContent.secondColumnWidth
                     }
                     Label {
@@ -147,6 +180,11 @@ Window {
                         editable: true
                         from: 1
                     }
+                    StackLayout.onIsCurrentItemChanged: {
+                        if(StackLayout.isCurrentItem) {
+                            instrumentNameField.forceActiveFocus();
+                        }
+                    }
                 }
                 Grid {
                     columns: 2
@@ -160,6 +198,7 @@ Window {
                         horizontalAlignment: Label.AlignRight
                     }
                     TextField {
+                        id: midiNameField
                         width: tabContent.secondColumnWidth
                     }
                     Label {
@@ -189,6 +228,11 @@ Window {
                         editable: true
                         from: 1
                     }
+                    StackLayout.onIsCurrentItemChanged: {
+                        if(StackLayout.isCurrentItem) {
+                            midiNameField.forceActiveFocus();
+                        }
+                    }
                 }
                 Grid {
                     columns: 2
@@ -202,6 +246,7 @@ Window {
                         horizontalAlignment: Label.AlignRight
                     }
                     TextField {
+                        id: audioEffectNameField
                         width: tabContent.secondColumnWidth
                     }
                     Label {
@@ -239,6 +284,11 @@ Window {
                         editable: true
                         from: 1
                     }
+                    StackLayout.onIsCurrentItemChanged: {
+                        if(StackLayout.isCurrentItem) {
+                            audioEffectNameField.forceActiveFocus();
+                        }
+                    }
                 }
             }
         }
@@ -263,6 +313,18 @@ Window {
                     onClicked: {
                         root.close();
                     }
+                }
+            }
+        }
+        Keys.onTabPressed: (event) => {
+            if(event.modifiers & Qt.ControlModifier) {
+                if(event.modifiers & Qt.ShiftModifier) {
+                    let index = trackType === 0? stackLayout.count - 1: trackType - 1;
+                    root.trackType = index;
+                }
+                else {
+                    let index = trackType === stackLayout.count - 1? 0: trackType + 1;
+                    root.trackType = index;
                 }
             }
         }

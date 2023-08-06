@@ -3,6 +3,8 @@ import QtQuick
 SplitView {
     id: root
 
+    property Window mainWindow: null
+
     handle: Item {
         implicitWidth: 2
         implicitHeight: 2
@@ -42,29 +44,38 @@ SplitView {
                     id: trackHeaderBlankOptions
                     title: qsTr("Track Header Blank Area Options")
                     Menu {
+                        id: appendTrackMenu
                         title: qsTr("&Append Track")
+                        function openAddTrackWindow(trackType: int) {
+                            let component = Qt.createComponent("AddTrackWindow.qml");
+                            if(component.status == Component.Ready) {
+                                let addTrackWindow = component.createObject(mainWindow);
+                                addTrackWindow.trackType = trackType;
+                                addTrackWindow.showNormal();
+                            }
+                        }
                         MenuItem {
                             text: qsTr("&Audio")
                             onTriggered: {
-                                addTrackWindow.show();
+                                appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.Audio);
                             }
                         }
                         MenuItem {
                             text: qsTr("&Instrument")
                             onTriggered: {
-                                addTrackWindow.show();
+                                appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.Instrument);
                             }
                         }
                         MenuItem {
                             text: qsTr("&MIDI")
                             onTriggered: {
-                                addTrackWindow.show();
+                                appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.MIDI);
                             }
                         }
                         MenuItem {
                             text: qsTr("Audio &Effect")
                             onTriggered: {
-                                addTrackWindow.show();
+                                appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.AudioEffect);
                             }
                         }
                     }
