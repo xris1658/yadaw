@@ -277,6 +277,8 @@ set(YADAW_COMMON_SOURCES
     src/model/AudioBusChannelListModel.hpp
     src/model/AudioBusConfigurationModel.cpp
     src/model/AudioBusConfigurationModel.hpp
+    src/model/AudioChannelGroupModel.cpp
+    src/model/AudioChannelGroupModel.hpp
     src/model/AudioGraphInputDeviceListModel.cpp
     src/model/AudioGraphInputDeviceListModel.hpp
     src/model/AudioGraphOutputDeviceListModel.cpp
