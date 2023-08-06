@@ -9,7 +9,7 @@
 
 namespace YADAW::MIDI
 {
-std::unique_ptr<clap_event_header> createCLAPEventFromMessage(const YADAW::MIDI::Message& message);
+std::unique_ptr<std::byte[]> createCLAPEventFromMessage(const YADAW::MIDI::Message& message);
 }
 
 #endif // YADAW_SRC_MIDI_MESSAGETOCLAPEVENT
