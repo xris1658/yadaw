@@ -333,4 +333,11 @@ Window {
             root.trackType = index;
         }
     }
+    Shortcut {
+        context: Qt.WindowShortcut
+        sequence: "Esc"
+        onActivated: {
+            root.close();
+        }
+    }
 }
