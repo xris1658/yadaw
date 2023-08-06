@@ -681,7 +681,7 @@ ApplicationWindow {
                     Arrangement {
                         anchors.fill: parent
                         anchors.margins: parent.border.width
-                        mainWindow: mainWindow
+                        mainWindow: root
                     }
                 }
             }
