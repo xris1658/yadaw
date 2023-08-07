@@ -15,6 +15,13 @@ Window {
 
     property alias trackType: trackTypeTabBar.currentIndex
 
+    property var audioInputList: null
+    property var audioOutputList: null
+    property var midiInputList: null
+    property var midiOutputList: null
+    property var instrumentList: null
+    property var audioEffectList: null
+
     enum TrackType {
         Audio,
         Instrument,
@@ -129,6 +136,10 @@ Window {
                             id: instrumentComboBox
                             width: gridContainer.secondColumnWidth
                             visible: instrumentLabel.visible
+                            model: root.instrumentList
+                            textRole: "plm_name"
+                            valueRole: "plm_id"
+                            // TODO: update display text
                         }
                         Label {
                             id: audioEffectLabel
@@ -141,6 +152,10 @@ Window {
                             id: audioEffectComboBox
                             width: gridContainer.secondColumnWidth
                             visible: audioEffectLabel.visible
+                            model: root.audioEffectList
+                            textRole: "plm_name"
+                            valueRole: "plm_id"
+                            // TODO: update display text
                         }
                         Label {
                             id: midiInputLabel
@@ -154,6 +169,7 @@ Window {
                             id: midiInputComboBox
                             width: gridContainer.secondColumnWidth
                             visible: midiInputLabel.visible
+                            model: root.midiInputList
                         }
                         Label {
                             id: audioInputLabel
@@ -166,6 +182,8 @@ Window {
                             id: audioInputComboBox
                             width: gridContainer.secondColumnWidth
                             visible: audioInputLabel.visible
+                            model: root.audioInputList
+                            textRole: "abcm_name"
                         }
                         Label {
                             id: midiOutputLabel
@@ -178,6 +196,7 @@ Window {
                             id: midiOutputComboBox
                             width: gridContainer.secondColumnWidth
                             visible: midiOutputLabel.visible
+                            model: root.midiOutputList
                         }
                         Label {
                             id: audioOutputLabel
@@ -192,6 +211,8 @@ Window {
                             id: audioOutputComboBox
                             width: gridContainer.secondColumnWidth
                             visible: audioOutputLabel.visible
+                            model: root.audioOutputList
+                            textRole: "abcm_name"
                         }
                         Label {
                             width: gridContainer.firstColumnWidth

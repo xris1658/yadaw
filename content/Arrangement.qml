@@ -5,6 +5,13 @@ SplitView {
 
     property Window mainWindow: null
 
+    property alias audioInputList: addTrackWindow.audioInputList
+    property alias audioOutputList: addTrackWindow.audioOutputList
+    property alias midiInputList: addTrackWindow.midiInputList
+    property alias midiOutputList: addTrackWindow.midiOutputList
+    property alias instrumentList: addTrackWindow.instrumentList
+    property alias audioEffectList: addTrackWindow.audioEffectList
+
     handle: Item {
         implicitWidth: 2
         implicitHeight: 2

@@ -682,6 +682,10 @@ ApplicationWindow {
                         anchors.fill: parent
                         anchors.margins: parent.border.width
                         mainWindow: root
+                        audioInputList: root.audioInputBusConfigurationModel
+                        audioOutputList: root.audioOutputBusConfigurationModel
+                        instrumentList: root.instrumentListModel
+                        audioEffectList: root.audioEffectListModel
                     }
                 }
             }
