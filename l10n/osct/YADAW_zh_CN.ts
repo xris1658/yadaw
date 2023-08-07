@@ -1165,6 +1165,11 @@
         <translation>适合低分辨率的无衬线字体</translation>
     </message>
     <message>
+        <location filename="../../content/ThirdPartySoftware.qml" line="98"/>
+        <source>WenQuanYi Micro Hei</source>
+        <translation>文泉驿微米黑</translation>
+    </message>
+    <message>
         <location filename="../../content/ThirdPartySoftware.qml" line="100"/>
         <source>Typeface used with Simplified Chinese localization</source>
         <translation>简体中文本地化使用的字体</translation>
@@ -1175,12 +1180,17 @@
         <translation>构造、操纵与处理图</translation>
     </message>
     <message>
-        <location filename="../../content/ThirdPartySoftware.qml" line="136"/>
+        <location filename="../../content/ThirdPartySoftware.qml" line="123"/>
+        <source>&lt;p&gt;&lt;b&gt;Click to visit the following link: &lt;/b&gt;&lt;/p&gt;%1</source>
+        <translation>&lt;p&gt;&lt;b&gt;点击访问以下链接：&lt;/b&gt;&lt;/p&gt;%1</translation>
+    </message>
+    <message>
+        <location filename="../../content/ThirdPartySoftware.qml" line="152"/>
         <source>Due to incompatibility with several open-source licenses, ASIO support is not included.</source>
         <translation>由于与部分开源许可不兼容，此软件不包含 ASIO。</translation>
     </message>
     <message>
-        <location filename="../../content/ThirdPartySoftware.qml" line="148"/>
+        <location filename="../../content/ThirdPartySoftware.qml" line="164"/>
         <source>&amp;Close</source>
         <translation>关闭(&amp;C)</translation>
     </message>

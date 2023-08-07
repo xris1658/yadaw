@@ -18,7 +18,7 @@ QtObject {
     readonly property color content: "#FFFFFF"
     readonly property color secondaryContent: "#CCCCCC"
     readonly property color disabledContent: "#A0A0A0"
-    readonly property color link: "#0097F3"
+    readonly property color link: "#0080FF"
     readonly property color visitedLink: "#C080C0"
     readonly property color menuBarBackground: "#000000"
     readonly property color highlightMenuBarBackground: "#333333"

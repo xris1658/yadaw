@@ -95,7 +95,7 @@ Window {
                         license: "SIL Open Font License"
                     }
                     ListElement {
-                        name: "WenQuanYi Micro Hei"
+                        name: qsTr("WenQuanYi Micro Hei")
                         website: "http://wenq.org/wqy2/index.cgi?MicroHei"
                         description: qsTr("Typeface used with Simplified Chinese localization")
                         license: "GPL v3"
@@ -114,9 +114,25 @@ Window {
                         id: row
                         anchors.centerIn: parent
                         Label {
+                            id: label
                             leftPadding: 3
                             width: 135
                             text: "<a href=\"%1\">%2</a>".arg(website).arg(name)
+                            ToolTip {
+                                id: toolTip
+                                text: qsTr("<p><b>Click to visit the following link: </b></p>%1").arg(website)
+                            }
+                            onLinkActivated: (link) => {
+                                Qt.openUrlExternally(link);
+                            }
+                            onLinkHovered: (link) => {
+                                if(link) {
+                                    toolTip.open();
+                                }
+                                else {
+                                    toolTip.close();
+                                }
+                            }
                         }
                         Label {
                             width: 285
