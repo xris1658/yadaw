@@ -54,33 +54,30 @@ SplitView {
                         id: appendTrackMenu
                         title: qsTr("&Append Track")
                         function openAddTrackWindow(trackType: int) {
-                            let component = Qt.createComponent("AddTrackWindow.qml");
-                            if(component.status == Component.Ready) {
-                                let addTrackWindow = component.createObject(mainWindow);
-                                addTrackWindow.trackType = trackType;
-                                addTrackWindow.showNormal();
-                            }
+                            addTrackWindow.transientParent = root.mainWindow;
+                            addTrackWindow.trackType = trackType;
+                            addTrackWindow.showNormal();
                         }
                         MenuItem {
-                            text: qsTr("&Audio")
+                            text: qsTr("&Audio") + "..."
                             onTriggered: {
                                 appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.Audio);
                             }
                         }
                         MenuItem {
-                            text: qsTr("&Instrument")
+                            text: qsTr("&Instrument") + "..."
                             onTriggered: {
                                 appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.Instrument);
                             }
                         }
                         MenuItem {
-                            text: qsTr("&MIDI")
+                            text: qsTr("&MIDI") + "..."
                             onTriggered: {
                                 appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.MIDI);
                             }
                         }
                         MenuItem {
-                            text: qsTr("Audio &Effect")
+                            text: qsTr("Audio &Effect") + "..."
                             onTriggered: {
                                 appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.AudioEffect);
                             }
