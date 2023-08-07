@@ -73,6 +73,7 @@ SplitView 1.0 SplitView.qml
 Switch 1.0 Switch.qml
 TabBar 1.0 TabBar.qml
 TabButton 1.0 TabButton.qml
+TapTempoWindow 1.0 TapTempoWindow.qml
 TextField 1.0 TextField.qml
 ThirdPartySoftware 1.0 ThirdPartySoftware.qml
 TimeIndicator 1.0 TimeIndicator.qml

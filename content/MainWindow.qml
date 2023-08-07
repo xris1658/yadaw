@@ -415,6 +415,9 @@ ApplicationWindow {
             MenuSeparator {}
             Action {
                 text: qsTr("Tap Tempo...")
+                onTriggered: {
+                    tapTempoWindow.show();
+                }
             }
         }
         Menu {
@@ -750,5 +753,8 @@ ApplicationWindow {
                     MessageDialog.Icon.Info);
             }
         }
+    }
+    TapTempoWindow {
+        id: tapTempoWindow
     }
 }

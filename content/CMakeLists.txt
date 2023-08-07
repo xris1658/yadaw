@@ -101,6 +101,7 @@ set(CONTENT_QML_FILES
     Switch.qml
     TabBar.qml
     TabButton.qml
+    TapTempoWindow.qml
     TextField.qml
     ThirdPartySoftware.qml
     TimeIndicator.qml
