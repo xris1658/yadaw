@@ -65,14 +65,18 @@ T.ComboBox {
     popup: Menu {
         y: root.height - 1
         z: 1
-        width: root.width
-        height: listView.contentHeight
+        width: root.width + (scrollBar.visible? scrollBar.width: 0)
+        height: Math.min(listView.contentHeight, root.Window.height)
         contentItem: ListView {
             id: listView
             clip: true
             model: root.delegateModel
             currentIndex: root.currentIndex
             interactive: false
+            ScrollBar.vertical: ScrollBar {
+                id: scrollBar
+                visible: listView.contentHeight > listView.height
+            }
         }
         Component.onCompleted: {
             for(let i = 0; i < count; ++i) {

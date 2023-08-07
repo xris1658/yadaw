@@ -236,6 +236,9 @@ ApplicationWindow {
                 model: ["a", "b", "c"]
             }
             ComboBox {
+                model: 50
+            }
+            ComboBox {
                 editable: true
                 model: ["123456", "123456", "123456"]
             }
