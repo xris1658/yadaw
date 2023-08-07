@@ -106,6 +106,7 @@ set(CONTENT_QML_FILES
     ThirdPartySoftware.qml
     TimeIndicator.qml
     Timeline.qml
+    ToolTip.qml
     TrackHeader.qml
     VestifalIcon.qml
     VST3Icon.qml

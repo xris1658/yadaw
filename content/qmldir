@@ -78,6 +78,7 @@ TextField 1.0 TextField.qml
 ThirdPartySoftware 1.0 ThirdPartySoftware.qml
 TimeIndicator 1.0 TimeIndicator.qml
 Timeline 1.0 Timeline.qml
+ToolTip 1.0 ToolTip.qml
 TrackHeader 1.0 TrackHeader.qml
 VestifalIcon 1.0 VestifalIcon.qml
 VST3Icon 1.0 VST3Icon.qml
