@@ -385,7 +385,7 @@ ApplicationWindow {
 
             Action {
                 id: menuItemMetronome
-                text: qsTr("Metronome")
+                text: qsTr("&Metronome")
                 shortcut: "Ctrl+M"
                 checkable: true
                 checked: metronomeButton.checked
@@ -395,7 +395,7 @@ ApplicationWindow {
             }
             Action {
                 id: actionEnableKeyboard
-                text: qsTr("Map Keyboard")
+                text: qsTr("Map &Keyboard")
                 checkable: true
                 checked: mapKeyboardIcon.checked
                 onTriggered: {
@@ -404,7 +404,7 @@ ApplicationWindow {
             }
             Action {
                 id: actionCountdown
-                text: qsTr("Record Countdown")
+                text: qsTr("&Record Countdown")
                 checkable: true
                 checked: countdownButton.checked
                 onTriggered: {
@@ -414,7 +414,7 @@ ApplicationWindow {
 
             MenuSeparator {}
             Action {
-                text: qsTr("Tap Tempo...")
+                text: qsTr("&Tap Tempo...")
                 onTriggered: {
                     tapTempoWindow.show();
                 }
