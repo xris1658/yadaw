@@ -292,4 +292,8 @@ Window {
             cancelButton.clicked();
         }
     }
+
+    Component.onCompleted: {
+        nameField.forceActiveFocus();
+    }
 }
