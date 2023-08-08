@@ -52,7 +52,12 @@ if(MSVC)
                         /wd5204 # class has virtual functions, but its trivial destructor is not virtual; instances of this class may not be destructed correctly
                         /wd5219 # implicit conversion from `xxx` to `yyy`, possible loss of data
                         /Zc:wchar_t /Zc:__cplusplus /Zi)
-elseif(GCC)
+endif()
+
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    if(${CMAKE_BUILD_TYPE} STREQUAL Debug OR ${CMAKE_BUILD_TYPE} STREQUAL RelWithDebInfo)
+        add_compile_options(-g3)
+    endif()
     add_compile_options(-Wextra)
 endif()
 
