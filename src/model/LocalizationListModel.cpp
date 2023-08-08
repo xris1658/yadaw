@@ -35,7 +35,7 @@ int LocalizationListModel::rowCount(const QModelIndex&) const
 QVariant LocalizationListModel::data(const QModelIndex& index, int role) const
 {
     auto row = index.row();
-    if(row < itemCount() && row >= 0)
+    if(row >= 0 && row < itemCount())
     {
         switch(role)
         {
@@ -71,7 +71,7 @@ bool LocalizationListModel::append(const LocalizationListModel::Item& item)
 
 bool LocalizationListModel::remove(int index)
 {
-    if(index < itemCount() && index >= 0)
+    if(index >= 0 && index < itemCount())
     {
         data_.erase(data_.begin() + index);
         return true;

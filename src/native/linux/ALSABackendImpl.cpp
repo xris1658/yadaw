@@ -217,7 +217,7 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
         return {};
     }
     snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
-    for(int i = 0; i < YADAW::Util::stackArraySize(formats); ++i)
+    for(std::size_t i = 0; i < YADAW::Util::stackArraySize(formats); ++i)
     {
         if(auto err = snd_pcm_hw_params_set_format(pcm, hwParams, formats[i]); err == 0)
         {
@@ -251,7 +251,7 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
         return {};
     }
     int access = SND_PCM_ACCESS_LAST + 1;
-    for(int i = 0; i < YADAW::Util::stackArraySize(accesses); ++i)
+    for(std::size_t i = 0; i < YADAW::Util::stackArraySize(accesses); ++i)
     {
         if(snd_pcm_hw_params_set_access(pcm, hwParams, accesses[i]) == 0)
         {

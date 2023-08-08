@@ -9,7 +9,7 @@ AutomationModel::AutomationModel(Audio::Base::Automation& automation, QObject* p
 AutomationModel::~AutomationModel()
 {}
 
-std::size_t AutomationModel::pointCount() const
+std::size_t AutomationModel::itemCount() const
 {
     return automation_->pointCount();
 }
@@ -26,13 +26,13 @@ double AutomationModel::getMaxValue() const
 
 int AutomationModel::rowCount(const QModelIndex&) const
 {
-    return pointCount();
+    return itemCount();
 }
 
 QVariant AutomationModel::data(const QModelIndex& index, int role) const
 {
     auto row = index.row();
-    if(row < pointCount() && row >= 0)
+    if(row >= 0 && row < itemCount())
     {
         const auto& point = automation_->operator[](row);
         switch(role)
@@ -51,7 +51,7 @@ QVariant AutomationModel::data(const QModelIndex& index, int role) const
 bool AutomationModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
     auto row = index.row();
-    if(row < pointCount() && row >= 0)
+    if(row >= 0 && row < itemCount())
     {
         auto& point = automation_->operator[](row);
         switch(role)

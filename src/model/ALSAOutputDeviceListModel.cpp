@@ -13,7 +13,7 @@ ALSAOutputDeviceListModel::ALSAOutputDeviceListModel(
 ALSAOutputDeviceListModel::~ALSAOutputDeviceListModel()
 {}
 
-int ALSAOutputDeviceListModel::itemCount() const
+std::uint32_t ALSAOutputDeviceListModel::itemCount() const
 {
     return backend_->audioOutputDeviceCount();
 }

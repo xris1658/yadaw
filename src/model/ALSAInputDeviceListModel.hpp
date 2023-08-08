@@ -16,7 +16,7 @@ public:
         QObject* parent = nullptr);
     ~ALSAInputDeviceListModel() override;
 public:
-    int itemCount() const;
+    std::uint32_t itemCount() const;
 public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;

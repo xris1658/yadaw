@@ -58,10 +58,10 @@ public:
     std::uint32_t audioOutputGroupCount() const override;
     IAudioDevice::OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const override;
     IAudioDevice::OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
-    bool isAudioInputGroupActivated(int index) const;
-    bool activateAudioInputGroup(int index, bool state);
-    bool isAudioOutputGroupActivated(int index) const;
-    bool activateAudioOutputGroup(int index, bool state);
+    bool isAudioInputGroupActivated(std::uint32_t index) const;
+    bool activateAudioInputGroup(std::uint32_t index, bool state);
+    bool isAudioOutputGroupActivated(std::uint32_t index) const;
+    bool activateAudioOutputGroup(std::uint32_t index, bool state);
     std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
 public:

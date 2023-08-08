@@ -29,7 +29,7 @@ AudioBusChannelListModel::AudioBusChannelListModel(const AudioBusChannelListMode
 AudioBusChannelListModel::~AudioBusChannelListModel()
 {}
 
-int AudioBusChannelListModel::itemCount() const
+std::uint32_t AudioBusChannelListModel::itemCount() const
 {
     const auto& bus = isInput_? configuration_->inputBusAt(index_)->get():
         configuration_->outputBusAt(index_)->get();

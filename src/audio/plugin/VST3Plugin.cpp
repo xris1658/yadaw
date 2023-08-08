@@ -234,11 +234,11 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
     prepareAudioRelatedInfo();
     audioInputBusActivated_.resize(audioInputGroupCount(), false);
     audioOutputBusActivated_.resize(audioOutputGroupCount(), false);
-    for(int i = 0; i < audioInputGroupCount(); ++i)
+    for(decltype(audioInputGroupCount()) i = 0; i < audioInputGroupCount(); ++i)
     {
         activateAudioInputGroup(i, true);
     }
-    for(int i = 0; i < audioOutputGroupCount(); ++i)
+    for(decltype(audioOutputGroupCount()) i = 0; i < audioOutputGroupCount(); ++i)
     {
         activateAudioOutputGroup(i, true);
     }
@@ -408,18 +408,18 @@ VST3Plugin::audioOutputGroupAt(std::uint32_t index) const
         std::nullopt;
 }
 
-bool VST3Plugin::isAudioInputGroupActivated(int index) const
+bool VST3Plugin::isAudioInputGroupActivated(std::uint32_t index) const
 {
-    if(index >= 0 && index < audioInputGroupCount())
+    if(index < audioInputGroupCount())
     {
         return audioInputBusActivated_[index];
     }
     return false;
 }
 
-bool VST3Plugin::activateAudioInputGroup(int index, bool state)
+bool VST3Plugin::activateAudioInputGroup(std::uint32_t index, bool state)
 {
-    if(index >= 0 && index < audioInputGroupCount())
+    if(index < audioInputGroupCount())
     {
         if(component_->activateBus(MediaTypes::kAudio, BusDirections::kInput, index, state) == Steinberg::kResultOk)
         {
@@ -431,18 +431,18 @@ bool VST3Plugin::activateAudioInputGroup(int index, bool state)
     return false;
 }
 
-bool VST3Plugin::isAudioOutputGroupActivated(int index) const
+bool VST3Plugin::isAudioOutputGroupActivated(std::uint32_t index) const
 {
-    if(index >= 0 && index < audioOutputGroupCount())
+    if(index < audioOutputGroupCount())
     {
         return audioOutputBusActivated_[index];
     }
     return false;
 }
 
-bool VST3Plugin::activateAudioOutputGroup(int index, bool state)
+bool VST3Plugin::activateAudioOutputGroup(std::uint32_t index, bool state)
 {
-    if(index >= 0 && index < audioOutputGroupCount())
+    if(index < audioOutputGroupCount())
     {
         if(component_->activateBus(MediaTypes::kAudio, BusDirections::kOutput, index, state) == Steinberg::kResultOk)
         {
@@ -492,7 +492,7 @@ void VST3Plugin::prepareAudioRelatedInfo()
     audioOutputChannelGroup_ = std::vector<VST3AudioChannelGroup>(audioOutputGroupCount);
     inputBuffers_ = std::vector<Steinberg::Vst::AudioBusBuffers>(audioInputGroupCount);
     outputBuffers_ = std::vector<Steinberg::Vst::AudioBusBuffers>(audioOutputGroupCount);
-    for(int i = 0; i < audioInputGroupCount; ++i)
+    for(decltype(audioInputGroupCount) i = 0; i < audioInputGroupCount; ++i)
     {
         audioProcessor_->getBusArrangement(Steinberg::Vst::BusDirections::kInput, i,
             audioInputChannelGroup_[i].speakerArrangement_);
@@ -500,7 +500,7 @@ void VST3Plugin::prepareAudioRelatedInfo()
             Steinberg::Vst::BusDirections::kInput, i, audioInputChannelGroup_[i].busInfo_);
         inputBuffers_[i].numChannels = audioInputChannelGroup_[i].busInfo_.channelCount;
     }
-    for(int i = 0; i < audioOutputGroupCount; ++i)
+    for(decltype(audioOutputGroupCount) i = 0; i < audioOutputGroupCount; ++i)
     {
         audioProcessor_->getBusArrangement(Steinberg::Vst::BusDirections::kOutput, i,
             audioOutputChannelGroup_[i].speakerArrangement_);

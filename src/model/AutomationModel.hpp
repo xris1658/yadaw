@@ -16,7 +16,7 @@ public:
         QObject* parent = nullptr);
     ~AutomationModel() override;
 public:
-    std::size_t pointCount() const;
+    std::size_t itemCount() const;
     double getMinValue() const;
     double getMaxValue() const;
 public:

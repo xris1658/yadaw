@@ -20,7 +20,7 @@ AudioBusConfigurationModel::AudioBusConfigurationModel(
 AudioBusConfigurationModel::~AudioBusConfigurationModel()
 {}
 
-int AudioBusConfigurationModel::itemCount() const
+std::uint32_t AudioBusConfigurationModel::itemCount() const
 {
     return isInput_? configuration_->inputBusCount():
         configuration_->outputBusCount();

@@ -55,7 +55,7 @@ void doEnumerateDeviceNames()
             ifs.getline(lineBuffer, YADAW::Util::stackArraySize(lineBuffer));
             ALSADeviceSelector selector(-1, -1);
             std::sscanf(lineBuffer, "%d-%d", &(selector.cIndex), &(selector.dIndex));
-            if(selector.cIndex != -1 && selector.dIndex != -1)
+            if(selector.cIndex != UINT32_MAX && selector.dIndex != UINT32_MAX)
             {
                 auto name = std::strchr(lineBuffer + 7, ':') + YADAW::Util::stringLength(": ");
                 auto nameEnd = std::strchr(name + 2, ':');

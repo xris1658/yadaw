@@ -247,11 +247,11 @@ std::uint32_t CLAPPlugin::latencyInSamples() const
 void CLAPPlugin::process(const Device::AudioProcessData<float>& audioProcessData)
 {
     processData_.frames_count = audioProcessData.singleBufferSize;
-    for(int i = 0; i < processData_.audio_inputs_count; ++i)
+    for(decltype(processData_.audio_inputs_count) i = 0; i < processData_.audio_inputs_count; ++i)
     {
         inputBuffers_[i].data32 = audioProcessData.inputs[i];
     }
-    for(int i = 0; i < processData_.audio_outputs_count; ++i)
+    for(decltype(processData_.audio_outputs_count) i = 0; i < processData_.audio_outputs_count; ++i)
     {
         outputBuffers_[i].data32 = audioProcessData.outputs[i];
     }
@@ -266,13 +266,13 @@ void CLAPPlugin::prepareAudioRelatedInfo()
     inputBuffers_.reserve(audioInputGroupCount);
     outputChannelGroups_.reserve(audioOutputGroupCount);
     outputBuffers_.reserve(audioOutputGroupCount);
-    for(int i = 0; i < audioInputGroupCount; ++i)
+    for(decltype(audioInputGroupCount) i = 0; i < audioInputGroupCount; ++i)
     {
         inputChannelGroups_.emplace_back(plugin_, audioPorts_, true, i);
         inputBuffers_.emplace_back();
         inputBuffers_.back().channel_count = inputChannelGroups_[i].channelCount();
     }
-    for(int i = 0; i < audioOutputGroupCount; ++i)
+    for(decltype(audioOutputGroupCount) i = 0; i < audioOutputGroupCount; ++i)
     {
         outputChannelGroups_.emplace_back(plugin_, audioPorts_, false, i);
         outputBuffers_.emplace_back();

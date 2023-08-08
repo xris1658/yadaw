@@ -43,7 +43,7 @@ int PluginDirectoryListModel::rowCount(const QModelIndex&) const
 QVariant PluginDirectoryListModel::data(const QModelIndex& index, int role) const
 {
     auto row = index.row();
-    if(row < itemCount() && row >= 0)
+    if(row >= 0 && row < itemCount())
     {
         switch(role)
         {
@@ -57,7 +57,7 @@ QVariant PluginDirectoryListModel::data(const QModelIndex& index, int role) cons
 bool PluginDirectoryListModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
     auto row = index.row();
-    if(row < itemCount() && row >= 0)
+    if(row >= 0 && row < itemCount())
     {
         switch(role)
         {
@@ -108,7 +108,7 @@ void PluginDirectoryListModel::append(const QUrl& url)
 
 void PluginDirectoryListModel::remove(int index)
 {
-    if(index < itemCount() && index >= 0)
+    if(index >= 0 && index < itemCount())
     {
         try
         {

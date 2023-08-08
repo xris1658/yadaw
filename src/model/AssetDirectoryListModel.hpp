@@ -17,7 +17,7 @@ public:
     AssetDirectoryListModel(QObject* parent = nullptr);
     ~AssetDirectoryListModel() override;
 public:
-    int itemCount() const;
+    std::uint32_t itemCount() const;
 public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;

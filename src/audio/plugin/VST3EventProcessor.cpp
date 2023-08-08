@@ -15,13 +15,13 @@ VST3EventProcessor::VST3EventProcessor(Steinberg::Vst::IComponent& component) :
 	auto outputCount = eventOutputBusCount();
 	eventInputBusInfoGroup_.resize(inputCount);
 	eventOutputBusInfoGroup_.resize(outputCount);
-	for (int i = 0; i < inputCount; ++i)
+	for (decltype(inputCount) i = 0; i < inputCount; ++i)
 	{
 		component_->getBusInfo(MediaTypes::kEvent, BusDirections::kInput,
 			i, eventInputBusInfoGroup_[i]);
         input_.emplace_back(eventInputBusInfoGroup_[i]);
 	}
-    for(int i = 0; i < outputCount; ++i)
+    for(decltype(outputCount) i = 0; i < outputCount; ++i)
     {
         component_->getBusInfo(MediaTypes::kEvent, BusDirections::kOutput,
             i, eventOutputBusInfoGroup_[i]);

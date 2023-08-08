@@ -27,7 +27,7 @@ AssetDirectoryListModel::~AssetDirectoryListModel()
 {
 }
 
-int AssetDirectoryListModel::itemCount() const
+std::uint32_t AssetDirectoryListModel::itemCount() const
 {
     return data_.size();
 }
