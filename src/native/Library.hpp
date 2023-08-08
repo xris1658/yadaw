@@ -23,7 +23,7 @@ public:
 #if(WIN32)
     using ExportType = FARPROC;
 #elif(__linux__)
-    using ExportType = void* const;
+    using ExportType = void*;
 #else
 #error Unknown ExportType
 #endif
