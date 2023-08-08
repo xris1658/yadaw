@@ -52,9 +52,8 @@ AudioBufferPool::AudioBufferPool(std::uint32_t singleBufferByteSize):
 
 std::shared_ptr<AudioBufferPool> AudioBufferPool::createPool(std::uint32_t singleBufferByteSize)
 {
-    class MakeSharedEnabler: public AudioBufferPool
+    struct MakeSharedEnabler: public AudioBufferPool
     {
-    public:
         MakeSharedEnabler(std::uint32_t singleBufferByteSize): AudioBufferPool(singleBufferByteSize) {}
     };
     return std::make_shared<MakeSharedEnabler>(singleBufferByteSize);
