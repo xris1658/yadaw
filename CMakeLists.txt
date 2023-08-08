@@ -194,6 +194,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/VestifalPlugin.hpp
     src/audio/plugin/VestifalPluginGUI.cpp
     src/audio/plugin/VestifalPluginGUI.hpp
+    src/audio/util/AudioBufferPool.cpp
+    src/audio/util/AudioBufferPool.hpp
     src/audio/util/AudioChannelGroup.cpp
     src/audio/util/AudioChannelGroup.hpp
     src/audio/util/CLAPHelper.cpp

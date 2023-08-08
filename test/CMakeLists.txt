@@ -39,6 +39,11 @@ add_executable(ADEUtilsTest
     ../src/util/Util.hpp
     ADEUtilsTest/main.cpp)
 
+add_executable(AudioBufferPoolTest
+               ../src/audio/util/AudioBufferPool.cpp
+               ../src/audio/util/AudioBufferPool.hpp
+               AudioBufferPoolTest/main.cpp)
+
 add_executable(LockFreeQueueTest
                ../src/util/CompilerSpecifics.hpp
                ../src/util/LockFreeQueue.hpp
