@@ -1,11 +1,11 @@
-#include "ChannelGroupRemapper.hpp"
+#include "ChannelGroupRemixer.hpp"
 
 namespace YADAW::Audio::Util
 {
 using YADAW::Audio::Device::IAudioDevice;
 using YADAW::Audio::Device::IAudioChannelGroup;
 
-ChannelGroupRemapper::ChannelGroupRemapper(
+ChannelGroupRemixer::ChannelGroupRemixer(
     const IAudioChannelGroup& inputChannelGroup,
     const IAudioChannelGroup& outputChannelGroup):
     inputChannelGroup_(AudioChannelGroup::from(inputChannelGroup)),
@@ -15,37 +15,37 @@ ChannelGroupRemapper::ChannelGroupRemapper(
     )
 {}
 
-ChannelGroupRemapper::~ChannelGroupRemapper() noexcept
+ChannelGroupRemixer::~ChannelGroupRemixer() noexcept
 {}
 
-std::uint32_t ChannelGroupRemapper::audioInputGroupCount() const
+std::uint32_t ChannelGroupRemixer::audioInputGroupCount() const
 {
     return 1;
 }
 
-std::uint32_t ChannelGroupRemapper::audioOutputGroupCount() const
+std::uint32_t ChannelGroupRemixer::audioOutputGroupCount() const
 {
     return 1;
 }
 
 IAudioDevice::OptionalAudioChannelGroup
-    ChannelGroupRemapper::audioInputGroupAt(std::uint32_t index) const
+    ChannelGroupRemixer::audioInputGroupAt(std::uint32_t index) const
 {
     return index == 0? OptionalAudioChannelGroup(std::ref(inputChannelGroup_)): std::nullopt;
 }
 
 IAudioDevice::OptionalAudioChannelGroup
-    ChannelGroupRemapper::audioOutputGroupAt(std::uint32_t index) const
+    ChannelGroupRemixer::audioOutputGroupAt(std::uint32_t index) const
 {
     return index == 0? OptionalAudioChannelGroup(std::ref(outputChannelGroup_)): std::nullopt;
 }
 
-std::uint32_t ChannelGroupRemapper::latencyInSamples() const
+std::uint32_t ChannelGroupRemixer::latencyInSamples() const
 {
     return 0;
 }
 
-void ChannelGroupRemapper::process(const Device::AudioProcessData<float>& audioProcessData)
+void ChannelGroupRemixer::process(const Device::AudioProcessData<float>& audioProcessData)
 {
     for(decltype(outputChannelGroup_.channelCount()) i = 0; i < outputChannelGroup_.channelCount(); ++i)
     {
@@ -61,12 +61,12 @@ void ChannelGroupRemapper::process(const Device::AudioProcessData<float>& audioP
     }
 }
 
-float ChannelGroupRemapper::getGain(std::uint32_t from, std::uint32_t to) const
+float ChannelGroupRemixer::getGain(std::uint32_t from, std::uint32_t to) const
 {
     return gain_[to][from];
 }
 
-void ChannelGroupRemapper::setGain(std::uint32_t from, std::uint32_t to, float gain)
+void ChannelGroupRemixer::setGain(std::uint32_t from, std::uint32_t to, float gain)
 {
     gain_[to][from] = gain;
 }

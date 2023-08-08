@@ -1,5 +1,5 @@
-#ifndef YADAW_SRC_AUDIO_UTIL_CHANNELGROUPREMAPPER
-#define YADAW_SRC_AUDIO_UTIL_CHANNELGROUPREMAPPER
+#ifndef YADAW_SRC_AUDIO_UTIL_CHANNELGROUPREMIXER
+#define YADAW_SRC_AUDIO_UTIL_CHANNELGROUPREMIXER
 
 #include "audio/util/AudioChannelGroup.hpp"
 #include "audio/device/IAudioDevice.hpp"
@@ -8,12 +8,12 @@
 namespace YADAW::Audio::Util
 {
 using YADAW::Audio::Device::IAudioChannelGroup;
-class ChannelGroupRemapper: public YADAW::Audio::Device::IAudioDevice
+class ChannelGroupRemixer: public YADAW::Audio::Device::IAudioDevice
 {
 public:
-    ChannelGroupRemapper(const IAudioChannelGroup& inputChannelGroup,
+    ChannelGroupRemixer(const IAudioChannelGroup& inputChannelGroup,
         const IAudioChannelGroup& outputChannelGroup);
-    ~ChannelGroupRemapper() noexcept;
+    ~ChannelGroupRemixer() noexcept;
 public:
     std::uint32_t audioInputGroupCount() const override;
     std::uint32_t audioOutputGroupCount() const override;
@@ -273,4 +273,4 @@ const float stereoFrom71Normalized[2][8] = {
     }
 };
 }
-#endif //YADAW_SRC_AUDIO_UTIL_CHANNELGROUPREMAPPER
+#endif //YADAW_SRC_AUDIO_UTIL_CHANNELGROUPREMIXER
