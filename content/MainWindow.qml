@@ -323,7 +323,7 @@ ApplicationWindow {
             MenuSeparator {}
             Action {
                 id: actionFollow
-                text: qsTr("&Follow")
+                text: qsTr("Fo&llow")
                 shortcut: "Ctrl+Shift+F"
                 checkable: true
                 checked: followButton.checked
@@ -344,24 +344,23 @@ ApplicationWindow {
                 checked: false
             }
             MenuSeparator {}
-            Menu {
-                id: menuShowMasterTrack
-                title: qsTr("Master Track")
-                MenuItem {
-                    text: qsTr("&Hide")
-                    checkable: true
-                    showIndicatorAsRadio: true
-                }
-                MenuItem {
-                    text: qsTr("&Top")
-                    checkable: true
-                    showIndicatorAsRadio: true
-                }
-                MenuItem {
-                    text: qsTr("&Bottom")
-                    checkable: true
-                    showIndicatorAsRadio: true
-                }
+            Action {
+                id: actionShowAudioInputTrack
+                text: qsTr("Show Audio &Inputs")
+                checkable: true
+                checked: false
+            }
+            Action {
+                id: actionShowAudioOutputTrack
+                text: qsTr("Show Audio &Outputs")
+                checkable: true
+                checked: false
+            }
+            Action {
+                id: actionShowTempoAutomation
+                text: qsTr("Show &Tempo Automation")
+                checkable: true
+                checked: false
             }
             Menu {
                 title: qsTr("Arrangement Snap Unit")
