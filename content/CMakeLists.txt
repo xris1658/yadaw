@@ -82,6 +82,7 @@ set(CONTENT_QML_FILES
     MixerChannel.qml
     Mnemonic.qml
     MnemonicFunctions.js
+    PianoKeys.qml
     PianoKeysIcon.qml
     PlayIcon.qml
     PluginIcon.qml

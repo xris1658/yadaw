@@ -54,6 +54,7 @@ MIDIEffectIcon 1.0 MIDIEffectIcon.qml
 Mixer 1.0 Mixer.qml
 MixerChannel 1.0 MixerChannel.qml
 MnemonicFunctions 1.0 MnemonicFunctions.js
+PianoKeys 1.0 PianoKeys.qml
 PianoKeysIcon 1.0 PianoKeysIcon.qml
 PlayIcon 1.0 PlayIcon.qml
 PluginIcon 1.0 PluginIcon.qml
