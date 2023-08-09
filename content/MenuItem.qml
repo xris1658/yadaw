@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Shapes
 import QtQuick.Templates as T
 
+import "MnemonicFunctions.js" as MnemonicFunctions
+
 T.MenuItem {
     id: root
 
@@ -27,8 +29,8 @@ T.MenuItem {
         anchors.verticalCenter: parent? parent.verticalCenter: undefined
         Label {
             id: contentText
-            text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? Mnemonic.text(root.text):
-                root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? Mnemonic.textWithUnderline(root.text):
+            text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? MnemonicFunctions.mnemonicText(root.text):
+                root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? MnemonicFunctions.mnemonicTextWithUnderline(root.text):
                 root.text
             anchors.left: parent.left
             color: root.enabled? Colors.content: Colors.disabledContent

@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Templates as T
 
+import "MnemonicFunctions.js" as MnemonicFunctions
+
 T.ItemDelegate {
     id: root
 
@@ -33,8 +35,8 @@ T.ItemDelegate {
 
     contentItem: Label {
         id: label
-        text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? Mnemonic.text(root.text):
-            root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? Mnemonic.textWithUnderline(root.text):
+        text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? MnemonicFunctions.mnemonicText(root.text):
+            root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? MnemonicFunctions.mnemonicTextWithUnderline(root.text):
             root.text
         color: root.enabled? Colors.content: Colors.disabledContent
         anchors.fill: root
