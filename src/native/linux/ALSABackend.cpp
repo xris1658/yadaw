@@ -90,6 +90,11 @@ bool ALSABackend::isAudioOutputDeviceActivated(ALSADeviceSelector selector)
     return pImpl_? pImpl_->isAudioOutputDeviceActivated(selector): false;
 }
 
+std::uint32_t ALSABackend::channelCount(bool isInput, ALSADeviceSelector selector) const
+{
+    return pImpl_? pImpl_->channelCount(isInput, selector): 0;
+}
+
 bool ALSABackend::start()
 {
     return pImpl_? pImpl_->start(): false;

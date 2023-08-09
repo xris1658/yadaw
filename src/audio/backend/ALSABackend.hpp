@@ -39,6 +39,7 @@ public:
     ActivateDeviceResult setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool activated);
     bool isAudioInputDeviceActivated(ALSADeviceSelector selector);
     bool isAudioOutputDeviceActivated(ALSADeviceSelector selector);
+    std::uint32_t channelCount(bool isInput, ALSADeviceSelector selector) const;
     bool start();
     bool stop();
 private:

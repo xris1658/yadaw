@@ -42,6 +42,8 @@ QVariant ALSAInputDeviceListModel::data(const QModelIndex& index, int role) cons
         }
         case Role::Enabled:
             return backend_->isAudioInputDeviceActivated(selector);
+        case Role::ChannelCount:
+            return QVariant::fromValue<int>(backend_->channelCount(true, selector));
         }
     }
     return {};

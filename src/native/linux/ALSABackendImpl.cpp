@@ -186,6 +186,17 @@ bool ALSABackend::Impl::isAudioOutputDeviceActivated(ALSADeviceSelector selector
     return outputs_.find(key) != outputs_.end();
 }
 
+std::uint32_t ALSABackend::Impl::channelCount(bool isInput, ALSADeviceSelector selector) const
+{
+    const auto& container = isInput? inputs_: outputs_;
+    if(auto it = container.find(selector); it != container.end())
+    {
+        const auto& [pcm, r1, r2, r3] = it->second;
+        return r1;
+    }
+    return 0;
+}
+
 bool ALSABackend::Impl::start()
 {
     return false;
