@@ -17,6 +17,7 @@ signals:
     void mainWindowReady();
     void mainWindowCloseAccepted();
     void setQtVersion(const QString& version);
+    void setQtCopyrightYear(const QString& copoyrightYear);
     void setSplashScreenText(const QString& text);
     void pluginScanComplete();
     void messageDialog(const QString& message, const QString& title, int icon, bool modal);

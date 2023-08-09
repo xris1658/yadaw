@@ -5,6 +5,7 @@ import QtQuick.Controls as QC
 
 QtObject {
     property string qtVersion: "Unknown"
+    property string qtCopyrightYear: "Unknown"
     function messageDialog(message: string, title: string, icon: int, modal: bool) {
         let component = Qt.createComponent("./MessageDialog.qml");
         if(component.status === Component.Ready) {

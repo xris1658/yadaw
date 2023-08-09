@@ -38,7 +38,8 @@ Window {
                 text: "This program uses Qt version %1.".arg(Global.qtVersion)
                 color: Colors.content
             }
-            // Source: <Qt install path>\6.4.2\Src\src\widgets\dialogs\qmessagebox.cpp:1843
+            // Source: <Qt install path>\<Qt version>\Src\qtbase\src\widgets\dialogs\qmessagebox.cpp
+            // `QMessageBox::aboutQt`
             // There seems to be no way to create a "About Qt" dialog without copying
             // the following text or introducing Qt Widgets.
             Label {
@@ -64,7 +65,7 @@ Window {
                     <p>Qt and the Qt logo are trademarks of The Qt Company Ltd.</p>
                     <p>Qt is The Qt Company Ltd product developed as an open source
                     project. See <a href=\"http://%3/\">%3</a> for more information.</p>"
-                   .arg("2022").arg("qt.io/licensing").arg("qt.io")
+                   .arg(Global.qtCopyrightYear).arg("qt.io/licensing").arg("qt.io")
                 color: Colors.content
                 width: root.width - content.spacing * 3 - icon.width
                 wrapMode: Text.WordWrap

@@ -21,6 +21,7 @@
 #include "ui/UI.hpp"
 
 #include <QDir>
+#include <QtCore/private/qconfig_p.h>
 
 #include <algorithm>
 #include <deque>
@@ -84,6 +85,8 @@ void EventHandler::connectToEventReceiver(QObject* receiver)
         receiver, SIGNAL(mainWindowClosingAccepted()));
     QObject::connect(this, SIGNAL(setQtVersion(QString)),
         receiver, SIGNAL(setQtVersion(QString)));
+    QObject::connect(this, SIGNAL(setQtCopyrightYear(QString)),
+        receiver, SIGNAL(setQtCopyrightYear(QString)));
     QObject::connect(this, SIGNAL(setSplashScreenText(QString)),
         receiver, SIGNAL(setSplashScreenText(QString)));
     QObject::connect(this, SIGNAL(pluginScanComplete()),
@@ -248,6 +251,7 @@ void EventHandler::onOpenMainWindow()
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setTranslationIndex(int)),
         this, SLOT(onSetTranslationIndex(int)));
     setQtVersion(qVersion());
+    setQtCopyrightYear(QT_COPYRIGHT_YEAR);
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
     mainWindowReady();
 }

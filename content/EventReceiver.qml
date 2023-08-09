@@ -18,6 +18,10 @@ QtObject {
     onSetQtVersion: (version) => {
         Global.qtVersion = version;
     }
+    signal setQtCopyrightYear(copyrightYear: string)
+    onSetQtCopyrightYear: (copyrightYear) => {
+        Global.qtCopyrightYear = copyrightYear;
+    }
     signal setSplashScreenText(text: string)
     onSetSplashScreenText: (text) => {
         splashScreen.text = text;
