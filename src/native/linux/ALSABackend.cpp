@@ -80,12 +80,12 @@ ALSABackend::setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool act
         ActivateDeviceResult::Failed;
 }
 
-bool ALSABackend::isAudioInputDeviceActivated(ALSADeviceSelector selector)
+bool ALSABackend::isAudioInputDeviceActivated(ALSADeviceSelector selector) const
 {
     return pImpl_? pImpl_->isAudioInputDeviceActivated(selector): false;
 }
 
-bool ALSABackend::isAudioOutputDeviceActivated(ALSADeviceSelector selector)
+bool ALSABackend::isAudioOutputDeviceActivated(ALSADeviceSelector selector) const
 {
     return pImpl_? pImpl_->isAudioOutputDeviceActivated(selector): false;
 }

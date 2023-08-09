@@ -37,8 +37,8 @@ public:
     static std::optional<std::string> cardName(int cardIndex);
     ActivateDeviceResult setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated);
     ActivateDeviceResult setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool activated);
-    bool isAudioInputDeviceActivated(ALSADeviceSelector selector);
-    bool isAudioOutputDeviceActivated(ALSADeviceSelector selector);
+    bool isAudioInputDeviceActivated(ALSADeviceSelector selector) const;
+    bool isAudioOutputDeviceActivated(ALSADeviceSelector selector) const;
     std::uint32_t channelCount(bool isInput, ALSADeviceSelector selector) const;
     bool start();
     bool stop();
