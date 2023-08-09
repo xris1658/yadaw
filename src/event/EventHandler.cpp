@@ -22,6 +22,12 @@
 
 #include <QDir>
 #include <QtCore/private/qconfig_p.h>
+// `QT_COPYRIGHT_YEAR` is a private macro added since Qt 6.5.1
+// Define this macro as the year of now since it's absent from Qt 6.5.0 and
+// previous versions
+#ifndef QT_COPYRIGHT_YEAR
+#define QT_COPYRIGHT_YEAR "2023"
+#endif
 
 #include <algorithm>
 #include <deque>
