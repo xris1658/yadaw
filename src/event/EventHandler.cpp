@@ -237,8 +237,10 @@ void EventHandler::onOpenMainWindow()
     QObject::connect(&appAudioBusOutputConfigurationModel,
         &QAbstractItemModel::dataChanged,
         saveAudioBusConfigurationLambda);
+#if(WIN32)
     QObject::connect(YADAW::Event::eventSender, SIGNAL(audioGraphOutputDeviceIndexChanged(int)),
         this, SLOT(onAudioGraphOutputDeviceIndexChanged(int)));
+#endif
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRendering(bool)),
         this, SLOT(onSetSystemFontRendering(bool)));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRenderingWhileDebugging(bool)),
