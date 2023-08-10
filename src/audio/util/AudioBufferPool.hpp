@@ -10,14 +10,9 @@ namespace YADAW::Audio::Util
 class AudioBufferPool: public std::enable_shared_from_this<AudioBufferPool>
 {
 public:
-    struct Buffer
+    class Buffer
     {
         friend AudioBufferPool;
-        std::byte* pointer = nullptr;
-    private:
-        std::size_t row;
-        std::size_t column;
-        std::shared_ptr<AudioBufferPool> pool = nullptr;
     public:
         Buffer() {}
     private:
@@ -27,6 +22,13 @@ public:
         Buffer(Buffer&& rhs) noexcept;
         Buffer& operator=(Buffer&& rhs) noexcept;
         ~Buffer();
+    public:
+        std::byte* pointer() const { return pointer_; }
+    private:
+        std::shared_ptr<AudioBufferPool> pool = nullptr;
+        std::byte* pointer_ = nullptr;
+        std::size_t row;
+        std::size_t column;
     };
 private:
     AudioBufferPool(std::uint32_t singleBufferByteSize);

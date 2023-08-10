@@ -6,14 +6,14 @@ constexpr std::size_t bufferCount = 64;
 
 AudioBufferPool::Buffer::Buffer(
     std::size_t row, std::size_t column, std::shared_ptr<AudioBufferPool> pool):
-    pointer(pool->pool_[row]->data() + pool->singleBufferByteSize_ * column),
+    pointer_(pool->pool_[row]->data() + pool->singleBufferByteSize_ * column),
     row(row),
     column(column),
     pool(std::move(pool))
 {}
 
 AudioBufferPool::Buffer::Buffer(AudioBufferPool::Buffer&& rhs) noexcept:
-    pointer(rhs.pointer),
+    pointer_(rhs.pointer_),
     row(rhs.row),
     column(rhs.column),
     pool(std::move(rhs.pool))
@@ -23,7 +23,7 @@ AudioBufferPool::Buffer& AudioBufferPool::Buffer::operator=(AudioBufferPool::Buf
 {
     if(this != &rhs)
     {
-        pointer = rhs.pointer;
+        pointer_ = rhs.pointer_;
         row = rhs.row;
         column = rhs.column;
         pool = std::move(rhs.pool);
