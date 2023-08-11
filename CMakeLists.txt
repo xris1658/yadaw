@@ -133,7 +133,7 @@ set(YADAW_COMMON_SOURCES
     src/audio/engine/AudioDeviceGraph.cpp
     src/audio/engine/AudioDeviceGraph.hpp
     src/audio/engine/AudioDeviceProcess.hpp
-    src/audio/engine/AudioProcessDataContainer.hpp
+    src/audio/engine/AudioProcessDataBufferContainer.hpp
     src/audio/event/IEventBusInfo.hpp
     src/audio/event/IEventProcessor.hpp
     src/audio/host/CLAPEventList.cpp

@@ -44,13 +44,12 @@ add_executable(AudioBufferPoolTest
                ../src/audio/util/AudioBufferPool.hpp
                AudioBufferPoolTest/main.cpp)
 
-add_executable(AudioProcessDataContainerTest
-               ../src/audio/device/IAudioDevice.hpp
-               ../src/audio/engine/AudioProcessDataContainer.hpp
+add_executable(AudioProcessDataBufferContainerTest
                ../src/audio/util/AudioBufferPool.cpp
                ../src/audio/util/AudioBufferPool.hpp
                ../src/audio/util/AudioProcessDataPointerContainer.hpp
-               AudioProcessDataContainerTest/main.cpp)
+               ../src/audio/engine/AudioProcessDataBufferContainer.hpp
+               AudioProcessDataBufferContainerTest/main.cpp)
 
 add_executable(LockFreeQueueTest
                ../src/util/CompilerSpecifics.hpp
@@ -77,7 +76,7 @@ add_executable(SampleDelayTest
 
 target_link_libraries(ADEUtilsTest PRIVATE ade)
 
-target_link_libraries(AudioProcessDataContainerTest PRIVATE Qt6::Core)
+target_link_libraries(AudioProcessDataBufferContainerTest PRIVATE Qt6::Core)
 
 target_link_libraries(QStringConversionTest PRIVATE Qt6::Core)
 
