@@ -25,10 +25,10 @@ public:
     public:
         std::byte* pointer() const { return pointer_; }
     private:
-        std::shared_ptr<AudioBufferPool> pool = nullptr;
+        std::shared_ptr<AudioBufferPool> pool_ = nullptr;
         std::byte* pointer_ = nullptr;
-        std::size_t row;
-        std::size_t column;
+        std::size_t row_;
+        std::size_t column_;
     };
 private:
     AudioBufferPool(std::uint32_t singleBufferByteSize);

@@ -319,6 +319,8 @@ set(YADAW_COMMON_SOURCES
     src/util/Algorithm.hpp
     src/util/Alignment.hpp
     src/util/ArrayAccess.hpp
+    src/util/AtomicMutex.cpp
+    src/util/AtomicMutex.hpp
     src/util/Base.hpp
     src/util/CircularDeque.hpp
     src/util/CompilerSpecifics.hpp
@@ -342,9 +344,8 @@ set(YADAW_COMMON_SOURCES
     src/util/Stopwatch.hpp
     src/util/Util.cpp
     src/util/Util.hpp
+    src/util/VectorUtil.hpp
     src/util/YAMLCppUtil.hpp
-    src/util/AtomicMutex.cpp
-    src/util/AtomicMutex.hpp
 )
 
 qt_add_executable(YADAW

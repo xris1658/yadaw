@@ -11,6 +11,10 @@ template<typename SampleType>
 class AudioProcessDataPointerContainer
 {
 public:
+    void setSingleBufferSize(std::uint32_t singleBufferSize)
+    {
+        audioProcessData_.singleBufferSize = singleBufferSize;
+    }
     void setInputGroupCount(std::uint32_t inputGroupCount)
     {
         inputCounts_.resize(inputGroupCount, 0);

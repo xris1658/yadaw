@@ -6,17 +6,17 @@ constexpr std::size_t bufferCount = 64;
 
 AudioBufferPool::Buffer::Buffer(
     std::size_t row, std::size_t column, std::shared_ptr<AudioBufferPool> pool):
-    pointer_(pool->pool_[row]->data() + pool->singleBufferByteSize_ * column),
-    row(row),
-    column(column),
-    pool(std::move(pool))
+    pool_(std::move(pool)),
+    pointer_(pool_->pool_[row]->data() + pool_->singleBufferByteSize_ * column),
+    row_(row),
+    column_(column)
 {}
 
 AudioBufferPool::Buffer::Buffer(AudioBufferPool::Buffer&& rhs) noexcept:
     pointer_(rhs.pointer_),
-    row(rhs.row),
-    column(rhs.column),
-    pool(std::move(rhs.pool))
+    row_(rhs.row_),
+    column_(rhs.column_),
+    pool_(std::move(rhs.pool_))
 {}
 
 AudioBufferPool::Buffer& AudioBufferPool::Buffer::operator=(AudioBufferPool::Buffer&& rhs) noexcept
@@ -24,19 +24,19 @@ AudioBufferPool::Buffer& AudioBufferPool::Buffer::operator=(AudioBufferPool::Buf
     if(this != &rhs)
     {
         pointer_ = rhs.pointer_;
-        row = rhs.row;
-        column = rhs.column;
-        pool = std::move(rhs.pool);
+        row_ = rhs.row_;
+        column_ = rhs.column_;
+        pool_ = std::move(rhs.pool_);
     }
     return *this;
 }
 
 AudioBufferPool::Buffer::~Buffer()
 {
-    if(pool)
+    if(pool_)
     {
-        std::lock_guard<std::mutex> lg(pool->mutex_);
-        pool->vacant_[row][column] = true;
+        std::lock_guard<std::mutex> lg(pool_->mutex_);
+        pool_->vacant_[row_][column_] = true;
         // std::memset(ptr, 0, pool->singleBufferByteSize_);
     }
 }
