@@ -33,7 +33,7 @@ public:
         std::size_t i = 0;
         for(auto& inputBuffer: inputBuffers_[index])
         {
-            if(!inputBuffer.pointer)
+            if(!inputBuffer.pointer())
             {
                 inputBuffer = audioBufferPool_->lend();
                 container_.setInput(index, i, inputBuffer.pointer());
@@ -48,7 +48,7 @@ public:
         std::size_t i = 0;
         for(auto& outputBuffer: outputBuffers_[index])
         {
-            if(!outputBuffer.pointer)
+            if(!outputBuffer.pointer())
             {
                 outputBuffer = audioBufferPool_->lend();
                 container_.setOutput(index, i, outputBuffer.pointer());
