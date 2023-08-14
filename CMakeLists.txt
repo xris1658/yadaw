@@ -132,6 +132,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/device/IAudioDevice.hpp
     src/audio/engine/AudioDeviceGraph.cpp
     src/audio/engine/AudioDeviceGraph.hpp
+    src/audio/engine/AudioDeviceGraphBase.cpp
+    src/audio/engine/AudioDeviceGraphBase.hpp
     src/audio/engine/AudioDeviceProcess.hpp
     src/audio/engine/AudioProcessDataBufferContainer.hpp
     src/audio/event/IEventBusInfo.hpp
@@ -353,7 +355,20 @@ qt_add_executable(YADAW
                   ${YADAW_COMMON_SOURCES}
                   )
 
-add_executable(AudioDeviceGraphTest ${YADAW_COMMON_SOURCES}
+add_executable(AudioDeviceGraphTest
+               src/audio/device/IAudioChannelGroup.cpp
+               src/audio/device/IAudioChannelGroup.hpp
+               src/audio/device/IAudioDevice.hpp
+               src/audio/engine/AudioDeviceGraph.cpp
+               src/audio/engine/AudioDeviceGraph.hpp
+               src/audio/engine/AudioDeviceGraphBase.cpp
+               src/audio/engine/AudioDeviceGraphBase.hpp
+               src/audio/util/AudioChannelGroup.cpp
+               src/audio/util/AudioChannelGroup.hpp
+               src/audio/util/SampleDelay.cpp
+               src/audio/util/SampleDelay.hpp
+               src/audio/util/Summing.cpp
+               src/audio/util/Summing.hpp
                test/AudioDeviceGraphTest/main.cpp)
 
 add_executable(CLAPTest
@@ -748,12 +763,7 @@ target_link_libraries(YADAW PRIVATE
 
 target_link_libraries(AudioDeviceGraphTest PRIVATE
                       ade
-                      Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
-                      contentplugin
-                      ${NATIVE_LIBRARY}
-                      base pluginterfaces sdk_common sdk_hosting
-                      ${SQLITE_LIBRARY}
-                      yaml-cpp)
+                      Qt6::Core)
 
 target_link_libraries(CLAPTest PRIVATE
                       Qt6::Core Qt6::Gui

@@ -16,52 +16,26 @@ AudioDeviceGraph::AudioDeviceGraph():
 const AudioDeviceGraph::AudioDeviceProcessNode&
     AudioDeviceGraph::getMetadataFromNode(const ade::NodeHandle& nodeHandle) const
 {
-    return typedGraph_.metadata(nodeHandle).get<AudioDeviceProcessNode>();
+    return AudioDeviceGraphBase::getMetadataFromNode(nodeHandle);
 }
 
 AudioDeviceGraph::AudioDeviceProcessNode&
     AudioDeviceGraph::getMetadataFromNode(ade::NodeHandle& nodeHandle)
 {
-    return typedGraph_.metadata(nodeHandle).get<AudioDeviceProcessNode>();
+    return AudioDeviceGraphBase::getMetadataFromNode(nodeHandle);
 }
 
 void AudioDeviceGraph::setMetadataFromNode(
     ade::NodeHandle& nodeHandle, AudioDeviceGraph::AudioDeviceProcessNode&& metadata)
 {
-    typedGraph_.metadata(nodeHandle).set<AudioDeviceProcessNode>(std::move(metadata));
-}
-
-ade::NodeHandle AudioDeviceGraph::doAddNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData)
-{
-    auto nodeHandle = graph_.createNode();
-    setMetadataFromNode(nodeHandle, AudioDeviceProcessNode{std::move(process), std::move(audioProcessData)});
-    return nodeHandle;
-}
-
-void AudioDeviceGraph::doRemoveNode(ade::NodeHandle nodeHandle)
-{
-    typedGraph_.metadata(nodeHandle).erase<AudioDeviceProcessNode>();
-    typedGraph_.erase(nodeHandle);
-}
-
-ade::EdgeHandle AudioDeviceGraph::doConnect(ade::NodeHandle from, ade::NodeHandle to,
-    std::uint32_t fromChannel, std::uint32_t toChannel)
-{
-    auto edgeHandle = typedGraph_.link(from, to);
-    return edgeHandle;
-}
-
-void AudioDeviceGraph::doDisconnect(ade::EdgeHandle edgeHandle)
-{
-    typedGraph_.metadata(edgeHandle->dstNode()).get<AudioDeviceProcessNode>().upstreamLatency = 0U;
-    typedGraph_.erase(edgeHandle);
+    AudioDeviceGraphBase::setMetadataFromNode(nodeHandle, std::move(metadata));
 }
 
 
 ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData)
 {
     auto device = process.device();
-    auto nodeHandle = doAddNode(std::move(process), std::move(audioProcessData));
+    auto nodeHandle = AudioDeviceGraphBase::addNode(std::move(process), std::move(audioProcessData));
     if(auto audioInputGroupCount = device->audioInputGroupCount();
         audioInputGroupCount > 1)
     {
@@ -85,11 +59,11 @@ ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, AudioPro
             processData.inputCounts = processData.outputCounts;
             processData.inputs = processData.outputs;
             pdc.startProcessing();
-            pdcNode = doAddNode(
+            pdcNode = AudioDeviceGraphBase::addNode(
                 AudioDeviceProcess(pdc),
                 std::move(processData)
             );
-            doConnect(pdcNode, nodeHandle, 0, i);
+            AudioDeviceGraphBase::connect(pdcNode, nodeHandle, 0, i);
         }
     }
     return nodeHandle;
@@ -106,16 +80,16 @@ void AudioDeviceGraph::removeNode(ade::NodeHandle nodeHandle)
         for(auto& [pdcNodeHandle, pdc]: pdcs)
         {
             pdc.stopProcessing();
-            doDisconnect(pdcNodeHandle->outEdges().front());
-            doRemoveNode(pdcNodeHandle);
+            AudioDeviceGraphBase::disconnect(pdcNodeHandle->outEdges().front());
+            AudioDeviceGraphBase::removeNode(pdcNodeHandle);
         }
         pdcs.clear();
         multiInputs_.erase(it);
-        doRemoveNode(nodeHandle);
+        AudioDeviceGraphBase::removeNode(nodeHandle);
     }
     else
     {
-        doRemoveNode(nodeHandle);
+        AudioDeviceGraphBase::removeNode(nodeHandle);
     }
 }
 
@@ -128,7 +102,7 @@ ade::EdgeHandle AudioDeviceGraph::connect(ade::NodeHandle from, ade::NodeHandle 
     {
         auto it = multiInputs_.find(to);
         assert(it != multiInputs_.end());
-        ret = doConnect(from, it->second[toChannel].first, fromChannel, 0);
+        ret = AudioDeviceGraphBase::connect(from, it->second[toChannel].first, fromChannel, 0);
         if(getMetadataFromNode(from).sumLatency() > 0)
         {
             onSumLatencyChanged(it->second[toChannel].first);
@@ -137,7 +111,7 @@ ade::EdgeHandle AudioDeviceGraph::connect(ade::NodeHandle from, ade::NodeHandle 
     else
     {
         auto latencyReduced = getMetadataFromNode(from).sumLatency() > 0;
-        ret = doConnect(from, to, fromChannel, toChannel);
+        ret = AudioDeviceGraphBase::connect(from, to, fromChannel, toChannel);
         if(latencyReduced)
         {
             onSumLatencyChanged(to);
@@ -149,7 +123,7 @@ ade::EdgeHandle AudioDeviceGraph::connect(ade::NodeHandle from, ade::NodeHandle 
 void AudioDeviceGraph::disconnect(ade::EdgeHandle edgeHandle)
 {
     auto destNode = edgeHandle->dstNode();
-    doDisconnect(edgeHandle);
+    AudioDeviceGraphBase::disconnect(edgeHandle);
     onSumLatencyChanged(destNode);
 }
 
@@ -159,7 +133,7 @@ void AudioDeviceGraph::disconnect(const std::vector<ade::EdgeHandle>& edgeHandle
     for(const auto& edgeHandle: edgeHandles)
     {
         auto destNode = edgeHandle->dstNode();
-        doDisconnect(edgeHandle);
+        AudioDeviceGraphBase::disconnect(edgeHandle);
         if(std::find(destNodes.begin(), destNodes.end(), destNode) == destNodes.end())
         {
             destNodes.emplace_back(destNode);

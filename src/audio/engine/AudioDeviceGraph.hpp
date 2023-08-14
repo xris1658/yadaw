@@ -2,6 +2,7 @@
 #define YADAW_SRC_AUDIO_ENGINE_AUDIODEVICEGRAPH
 
 #include "audio/engine/AudioDeviceProcess.hpp"
+#include "audio/engine/AudioDeviceGraphBase.hpp"
 #include "audio/util/SampleDelay.hpp"
 #include "util/ADEUtil.hpp"
 
@@ -16,24 +17,8 @@
 
 namespace YADAW::Audio::Engine
 {
-class AudioDeviceGraph
+class AudioDeviceGraph: private AudioDeviceGraphBase
 {
-public:
-    struct AudioDeviceProcessNode
-    {
-        AudioDeviceProcess process;
-        AudioProcessData<float> processData;
-        std::uint32_t upstreamLatency = 0U;
-        std::uint32_t sumLatency() const
-        {
-            return process.device()->latencyInSamples() + upstreamLatency;
-        }
-        inline void doProcess()
-        {
-            process.process(processData);
-        }
-        static const char* name() { return "AudioDeviceProcessNode"; }
-    };
 public:
     AudioDeviceGraph();
 public:
