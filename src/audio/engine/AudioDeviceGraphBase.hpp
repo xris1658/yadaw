@@ -45,20 +45,12 @@ public:
     void removeNode(ade::NodeHandle nodeHandle);
     ade::EdgeHandle connect(ade::NodeHandle from, ade::NodeHandle to, std::uint32_t fromChannel, std::uint32_t toChannel);
     void disconnect(ade::EdgeHandle edgeHandle);
-private:
+public:
+    bool latencyCompensationEnabled() const;
+    void setLatencyCompensationEnabled();
+protected:
     ade::Graph graph_;
     ade::TypedGraph<AudioDeviceProcessNode> typedGraph_;
-    std::unordered_map<
-    ade::NodeHandle,
-    std::vector<
-        std::pair<
-        ade::NodeHandle,
-        YADAW::Audio::Util::SampleDelay
-    >
-    >,
-    ade::HandleHasher<ade::Node>
-    >
-    multiInputs_;
 };
 }
 

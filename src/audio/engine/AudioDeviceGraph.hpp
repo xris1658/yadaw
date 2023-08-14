@@ -44,8 +44,6 @@ public:
 private:
     void compensate();
 private:
-    ade::Graph graph_;
-    ade::TypedGraph<AudioDeviceProcessNode> typedGraph_;
     std::unordered_map<
         ade::NodeHandle,
         std::vector<

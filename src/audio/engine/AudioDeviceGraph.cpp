@@ -10,8 +10,8 @@ namespace YADAW::Audio::Engine
 {
 
 AudioDeviceGraph::AudioDeviceGraph():
-    graph_(),
-    typedGraph_(graph_) {}
+    AudioDeviceGraphBase()
+{}
 
 const AudioDeviceGraph::AudioDeviceProcessNode&
     AudioDeviceGraph::getMetadataFromNode(const ade::NodeHandle& nodeHandle) const
