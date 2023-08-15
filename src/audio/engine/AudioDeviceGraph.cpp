@@ -193,30 +193,57 @@ void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)
             deque.pop_front();
         }
     }
-    compensate();
+    compensate(latencyCompensationEnabled_);
 }
 
-void AudioDeviceGraph::compensate()
+void AudioDeviceGraph::compensate(bool latencyCompensationEnabled)
 {
-    for(auto& [nodeHandle, pdcs]: multiInputs_)
+    if(latencyCompensationEnabled)
     {
-        auto upstreamLatency = getMetadataFromNode(nodeHandle).upstreamLatency;
-        for(auto& [pdcNode, pdc]: pdcs)
+        for(auto& [nodeHandle, pdcs]: multiInputs_)
         {
-            if(!(pdcNode->inNodes().empty()))
+            auto upstreamLatency = getMetadataFromNode(nodeHandle).upstreamLatency;
+            for(auto& [pdcNode, pdc]: pdcs)
             {
-                auto processing = pdc.isProcessing();
-                if(processing)
+                if(!(pdcNode->inNodes().empty()))
                 {
-                    pdc.stopProcessing();
-                }
-                pdc.setDelay(upstreamLatency - getMetadataFromNode(pdcNode).upstreamLatency);
-                if(processing)
-                {
-                    pdc.startProcessing();
+                    auto processing = pdc.isProcessing();
+                    if(processing)
+                    {
+                        pdc.stopProcessing();
+                    }
+                    pdc.setDelay(upstreamLatency - getMetadataFromNode(pdcNode).upstreamLatency);
+                    if(processing)
+                    {
+                        pdc.startProcessing();
+                    }
                 }
             }
         }
+    }
+    else
+    {
+        for(auto& [nodeHandle, pdcs]: multiInputs_)
+        {
+            for(auto& [pdcNode, pdc]: pdcs)
+            {
+                pdc.setDelay(0);
+            }
+        }
+    }
+}
+
+bool AudioDeviceGraph::latencyCompensationEnabled() const
+{
+    return latencyCompensationEnabled_;
+}
+
+void AudioDeviceGraph::setLatencyCompensationEnabled(bool enabled)
+{
+    if(latencyCompensationEnabled_ != enabled)
+    {
+        compensate(enabled);
+        latencyCompensationEnabled_ = enabled;
     }
 }
 }

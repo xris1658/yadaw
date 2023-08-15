@@ -20,16 +20,13 @@ namespace YADAW::Audio::Engine
 class AudioDeviceGraph: private AudioDeviceGraphBase
 {
 public:
+    using AudioDeviceProcessNode = AudioDeviceGraphBase::AudioDeviceProcessNode;
+public:
     AudioDeviceGraph();
 public:
     const AudioDeviceProcessNode& getMetadataFromNode(const ade::NodeHandle& nodeHandle) const;
     AudioDeviceProcessNode& getMetadataFromNode(ade::NodeHandle& nodeHandle);
     void setMetadataFromNode(ade::NodeHandle& nodeHandle, AudioDeviceProcessNode&& metadata);
-private:
-    ade::NodeHandle doAddNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData);
-    void doRemoveNode(ade::NodeHandle nodeHandle);
-    ade::EdgeHandle doConnect(ade::NodeHandle from, ade::NodeHandle to, std::uint32_t fromChannel, std::uint32_t toChannel);
-    void doDisconnect(ade::EdgeHandle edgeHandle);
 public:
     ade::NodeHandle addNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData);
     void removeNode(ade::NodeHandle nodeHandle);
@@ -42,7 +39,10 @@ public:
 public:
     void onSumLatencyChanged(ade::NodeHandle nodeHandle);
 private:
-    void compensate();
+    void compensate(bool latencyCompensationEnabled);
+public:
+    bool latencyCompensationEnabled() const;
+    void setLatencyCompensationEnabled(bool enabled);
 private:
     std::unordered_map<
         ade::NodeHandle,
@@ -55,6 +55,7 @@ private:
         ade::HandleHasher<ade::Node>
     >
     multiInputs_;
+    bool latencyCompensationEnabled_ = true;
 };
 }
 

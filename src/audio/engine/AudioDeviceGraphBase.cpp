@@ -47,8 +47,7 @@ void AudioDeviceGraphBase::removeNode(ade::NodeHandle nodeHandle)
 ade::EdgeHandle AudioDeviceGraphBase::connect(ade::NodeHandle from, ade::NodeHandle to,
     std::uint32_t fromChannel, std::uint32_t toChannel)
 {
-    auto edgeHandle = typedGraph_.link(from, to);
-    return edgeHandle;
+    return typedGraph_.link(from, to);
 }
 
 void AudioDeviceGraphBase::disconnect(ade::EdgeHandle edgeHandle)

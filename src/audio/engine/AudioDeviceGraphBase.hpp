@@ -45,9 +45,6 @@ public:
     void removeNode(ade::NodeHandle nodeHandle);
     ade::EdgeHandle connect(ade::NodeHandle from, ade::NodeHandle to, std::uint32_t fromChannel, std::uint32_t toChannel);
     void disconnect(ade::EdgeHandle edgeHandle);
-public:
-    bool latencyCompensationEnabled() const;
-    void setLatencyCompensationEnabled();
 protected:
     ade::Graph graph_;
     ade::TypedGraph<AudioDeviceProcessNode> typedGraph_;
