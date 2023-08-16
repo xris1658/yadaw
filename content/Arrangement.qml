@@ -12,6 +12,20 @@ SplitView {
     property alias instrumentList: addTrackWindow.instrumentList
     property alias audioEffectList: addTrackWindow.audioEffectList
 
+    enum TimelineUnit {
+        Beat,
+        Second,
+        Sample
+    }
+
+    enum TimelineLinear {
+        BeatLinear,
+        TimeLinear
+    }
+
+    property int timelineUnit: Arrangement.TimelineUnit.Beat
+    property int timelineLinear: Arrangement.TimelineLinear.BeatLinear
+
     handle: Item {
         implicitWidth: 2
         implicitHeight: 2
@@ -42,10 +56,14 @@ SplitView {
             id: trackHeaderListView
             anchors.top: topLeft.bottom
             anchors.bottom: bottomLeft.top
+
             footer: MouseArea {
+                id: trackHeaderListBlankArea
                 property int minimumHeight: 60
+                anchors.bottom: parent.bottom
                 width: arrangementHeader.width
                 height: Math.max(trackHeaderListView.height - trackHeaderListView.contentHeight + minimumHeight, minimumHeight)
+
                 acceptedButtons: Qt.RightButton
                 Menu {
                     id: trackHeaderBlankOptions
@@ -90,6 +108,15 @@ SplitView {
                     trackHeaderBlankOptions.open();
                 }
             }
+            footerPositioning: ListView.OverlayFooter
+            ScrollBar.vertical: ScrollBar {
+                id: vbar
+                parent: vbarPlaceholder
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                visible: size !== 1.0
+            }
         }
     }
     Item {
@@ -114,29 +141,44 @@ SplitView {
                             title: qsTr("Timeline Options")
                             MenuItem {
                                 text: qsTr("&Beat")
-                                checkable: true
                                 showIndicatorAsRadio: true
+                                checked: root.timelineUnit === Arrangement.TimelineUnit.Beat
+                                onTriggered: {
+                                    root.timelineUnit = Arrangement.TimelineUnit.Beat;
+                                }
                             }
                             MenuItem {
                                 text: qsTr("&Second")
-                                checkable: true
                                 showIndicatorAsRadio: true
+                                checked: root.timelineUnit === Arrangement.TimelineUnit.Second
+                                onTriggered: {
+                                    root.timelineUnit = Arrangement.TimelineUnit.Second;
+                                }
                             }
                             MenuItem {
                                 text: qsTr("S&ample")
-                                checkable: true
                                 showIndicatorAsRadio: true
+                                checked: root.timelineUnit === Arrangement.TimelineUnit.Sample
+                                onTriggered: {
+                                    root.timelineUnit = Arrangement.TimelineUnit.Sample;
+                                }
                             }
                             MenuSeparator {}
                             MenuItem {
                                 text: qsTr("B&eat linear")
-                                checkable: true
                                 showIndicatorAsRadio: true
+                                checked: root.timelineLinear === Arrangement.TimelineLinear.BeatLinear
+                                onTriggered: {
+                                    root.timelineLinear = Arrangement.TimelineLinear.BeatLinear;
+                                }
                             }
                             MenuItem {
                                 text: qsTr("T&ime linear")
-                                checkable: true
                                 showIndicatorAsRadio: true
+                                checked: root.timelineLinear === Arrangement.TimelineLinear.TimeLinear
+                                onTriggered: {
+                                    root.timelineLinear = Arrangement.TimelineLinear.TimeLinear;
+                                }
                             }
                         }
                         onClicked: {
@@ -144,10 +186,11 @@ SplitView {
                         }
                     }
                 }
-                ScrollBar {
-                    id: vbar
+                Rectangle {
+                    id: vbarPlaceholder
+                    width: vbar.width
                     height: scrollBarAndOptions.height - timeline.height - hbar.height
-                    orientation: Qt.Vertical
+                    color: Colors.controlBackground
                 }
                 Item {
                     width: scrollBarAndOptions.width
