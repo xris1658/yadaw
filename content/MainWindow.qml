@@ -703,8 +703,7 @@ ApplicationWindow {
                         anchors.fill: parent
                         anchors.margins: parent.border.width
                         currentIndex: mixerButton.checked? 1: 0
-                        Item {
-                            // editor
+                        MIDIEditor {
                         }
                         Mixer {
                             inputModel: audioInputBusConfigurationModel

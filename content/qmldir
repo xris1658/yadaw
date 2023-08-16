@@ -50,6 +50,7 @@ MenuItem 1.0 MenuItem.qml
 MenuSeparator 1.0 MenuSeparator.qml
 MessageDialog 1.0 MessageDialog.qml
 MetronomeIcon 1.0 MetronomeIcon.qml
+MIDIEditor 1.0 MIDIEditor.qml
 MIDIEffectIcon 1.0 MIDIEffectIcon.qml
 Mixer 1.0 Mixer.qml
 MixerChannel 1.0 MixerChannel.qml

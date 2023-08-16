@@ -77,6 +77,7 @@ set(CONTENT_QML_FILES
     MenuSeparator.qml
     MessageDialog.qml
     MetronomeIcon.qml
+    MIDIEditor.qml
     MIDIEffectIcon.qml
     Mixer.qml
     MixerChannel.qml
