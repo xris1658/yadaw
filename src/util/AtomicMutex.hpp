@@ -16,7 +16,7 @@ public:
         LockGuard(LockGuard&&) = delete;
         ~LockGuard();
     private:
-        std::atomic_bool& value_;
+        std::atomic_flag& flag_;
     };
     friend LockGuard;
 public:
@@ -25,7 +25,7 @@ public:
     AtomicMutex(AtomicMutex&&) = delete;
     ~AtomicMutex() noexcept = default;
 private:
-    std::atomic_bool value_ {false};
+    std::atomic_flag flag_ = ATOMIC_FLAG_INIT;
 };
 
 using AtomicLockGuard = AtomicMutex::LockGuard;

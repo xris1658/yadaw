@@ -3,14 +3,13 @@
 namespace YADAW::Util
 {
 AtomicMutex::LockGuard::LockGuard(AtomicMutex& lock):
-    value_(lock.value_)
+    flag_(lock.flag_)
 {
-    while(value_.load(std::memory_order::memory_order_acquire)) {}
-    value_.store(true, std::memory_order::memory_order_release);
+    while(flag_.test_and_set(std::memory_order::memory_order_acquire)) {}
 }
 
 AtomicMutex::LockGuard::~LockGuard()
 {
-    value_.store(false, std::memory_order::memory_order_release);
+    flag_.clear(std::memory_order::memory_order_release);
 }
 }
