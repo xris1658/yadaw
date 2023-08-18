@@ -45,6 +45,7 @@ Rectangle {
                 border.width: 0
                 width: 16
                 height: 16
+                enabled: showSend | showFader
                 InsertIcon {
                     path.fillColor: parent.contentItem.color
                     path.strokeWidth: 0
@@ -59,6 +60,7 @@ Rectangle {
                 border.width: 0
                 width: 16
                 height: 16
+                enabled: showInsert | showFader
                 SendIcon {
                     path.fillColor: parent.contentItem.color
                     path.strokeWidth: 0
@@ -73,6 +75,7 @@ Rectangle {
                 border.width: 0
                 width: 16
                 height: 16
+                enabled: showInsert | showSend
                 FaderIcon {
                     path.fillColor: parent.contentItem.color
                     path.strokeWidth: 0
@@ -128,6 +131,7 @@ Rectangle {
         width: contentWidth
         height: root.height
         orientation: Qt.Horizontal
+        boundsBehavior: ListView.StopAtBounds
         model: inputModel
         delegate: Row {
             width: inputMixerChannel.width + inputMixerChannelBorder.width
@@ -141,7 +145,7 @@ Rectangle {
                 channelColor: Colors.controlBackground
                 name: abcm_name
                 showIO: root.showIO
-                showInstrumentSlot: true
+                hasInstrument: false
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
@@ -160,6 +164,7 @@ Rectangle {
         width: contentWidth
         height: root.height
         orientation: Qt.Horizontal
+        boundsBehavior: ListView.StopAtBounds
         model: outputModel
         delegate: Row {
             width: outputMixerChannel.width + outputMixerChannelBorder.width
@@ -179,7 +184,7 @@ Rectangle {
                 channelColor: Colors.controlBackground
                 name: abcm_name
                 showIO: root.showIO
-                showInstrumentSlot: true
+                hasInstrument: false
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader

@@ -27,12 +27,15 @@ Rectangle {
         readonly property int padding: 3
         readonly property int borderWidth: 1
     }
-    Column {
+    ColumnLayout {
+        width: root.width
+        height: root.height
+        spacing: 0
         Rectangle {
             id: ioPlaceholder
             color: "transparent"
             width: root.width
-            height: ioComboBoxColumn.height + impl.padding * 2
+            Layout.preferredHeight: ioComboBoxColumn.height + impl.padding * 2
             visible: root.showIO
             Column {
                 id: ioComboBoxColumn
@@ -62,7 +65,7 @@ Rectangle {
         }
         Rectangle {
             width: root.width
-            height: impl.borderWidth
+            Layout.preferredHeight: impl.borderWidth
             color: Colors.border
             visible: ioPlaceholder.visible
         }
@@ -70,7 +73,7 @@ Rectangle {
             id: instrumentPlaceholder
             color: "transparent"
             width: root.width
-            height: instrumentButton.height + impl.padding * 2
+            Layout.preferredHeight: instrumentButton.height + impl.padding * 2
             visible: root.showInstrumentSlot
             opacity: root.hasInstrument? 1: 0
             Button {
@@ -82,7 +85,7 @@ Rectangle {
         }
         Rectangle {
             width: root.width
-            height: impl.borderWidth
+            Layout.preferredHeight: impl.borderWidth
             color: Colors.border
             visible: instrumentPlaceholder.visible
         }
@@ -90,7 +93,8 @@ Rectangle {
             id: insertPlaceholder
             color: "transparent"
             width: root.width
-            height: 60
+            Layout.fillHeight: true
+            Layout.verticalStretchFactor: 1
             visible: root.showInsertSlot
             clip: true
             Column {
@@ -108,7 +112,7 @@ Rectangle {
         }
         Rectangle {
             width: root.width
-            height: impl.borderWidth
+            Layout.preferredHeight: impl.borderWidth
             color: Colors.border
             visible: insertPlaceholder.visible
         }
@@ -116,7 +120,8 @@ Rectangle {
             id: sendPlaceholder
             color: "transparent"
             width: root.width
-            height: 60
+            Layout.fillHeight: true
+            Layout.verticalStretchFactor: 1
             visible: root.showSendSlot
             clip: true
             Column {
@@ -134,7 +139,7 @@ Rectangle {
         }
         Rectangle {
             width: root.width
-            height: impl.borderWidth
+            Layout.preferredHeight: impl.borderWidth
             color: Colors.border
             visible: sendPlaceholder.visible
         }
@@ -142,7 +147,7 @@ Rectangle {
             id: controlButtonPlaceholder
             color: "transparent"
             width: root.width
-            height: muteButton.height + panningButton.height + impl.padding * 3
+            Layout.preferredHeight: muteButton.height + panningButton.height + impl.padding * 3
             Column {
                 anchors.centerIn: parent
                 spacing: impl.padding
@@ -224,16 +229,13 @@ Rectangle {
         }
         Rectangle {
             width: root.width
-            height: impl.borderWidth
+            Layout.preferredHeight: impl.borderWidth
             color: Colors.border
         }
         Rectangle {
             id: faderAndMeterPlaceholder
-            height: root.height - (ioPlaceholder.visible? ioPlaceholder.height + impl.borderWidth: 0)
-                    - (instrumentPlaceholder.visible? instrumentPlaceholder.height + impl.borderWidth: 0)
-                    - (insertPlaceholder.visible? insertPlaceholder.height + impl.borderWidth: 0)
-                    - (sendPlaceholder.visible? sendPlaceholder.height + impl.borderWidth: 0)
-                    - controlButtonPlaceholder.height - infoPlaceholder.height
+            Layout.fillHeight: true
+            Layout.verticalStretchFactor: 2
             visible: root.showFader
             color: "transparent"
             width: root.width
@@ -288,7 +290,8 @@ Rectangle {
         Rectangle {
             id: infoPlaceholder
             width: root.width
-            height: nameLabel.height + impl.padding * 4
+            Layout.preferredHeight: nameLabel.height + impl.padding * 4
+            Layout.fillHeight: false
             Label {
                 id: nameLabel
                 anchors.centerIn: parent

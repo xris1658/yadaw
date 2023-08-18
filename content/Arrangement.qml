@@ -121,6 +121,7 @@ SplitView {
     }
     Item {
         id: arrangementContent
+        SplitView.minimumWidth: vbarPlaceholder.width
         Item {
             id: scrollBarAndOptions
             anchors.right: parent.right

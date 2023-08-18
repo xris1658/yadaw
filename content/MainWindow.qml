@@ -683,6 +683,7 @@ ApplicationWindow {
                     Arrangement {
                         anchors.fill: parent
                         anchors.margins: parent.border.width
+                        clip: true
                         mainWindow: root
                         audioInputList: root.audioInputBusConfigurationModel
                         audioOutputList: root.audioOutputBusConfigurationModel
