@@ -8,22 +8,14 @@ namespace YADAW::Util
 class AtomicMutex
 {
 public:
-    class LockGuard
-    {
-    public:
-        LockGuard(AtomicMutex& lock);
-        LockGuard(const LockGuard&) = delete;
-        LockGuard(LockGuard&&) = delete;
-        ~LockGuard();
-    private:
-        std::atomic_flag& flag_;
-    };
-    friend LockGuard;
-public:
     AtomicMutex() = default;
     AtomicMutex(const AtomicMutex&) = delete;
     AtomicMutex(AtomicMutex&&) = delete;
     ~AtomicMutex() noexcept = default;
+public:
+    void lock();
+    bool try_lock();
+    void unlock();
 private:
     std::atomic_flag flag_ = ATOMIC_FLAG_INIT;
 };
