@@ -55,6 +55,11 @@ private:
         ade::HandleHasher<ade::Node>
     >
     multiInputs_;
+    std::unordered_set<
+        ade::NodeHandle,
+        ade::HandleHasher<ade::Node>
+    >
+    multiOutputs_;
     bool latencyCompensationEnabled_ = true;
 };
 }

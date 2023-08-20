@@ -66,13 +66,18 @@ ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, AudioPro
             AudioDeviceGraphBase::connect(pdcNode, nodeHandle, 0, i);
         }
     }
+    if(auto audioOutputGroupCount = device->audioOutputGroupCount();
+        audioOutputGroupCount > 1)
+    {
+        multiOutputs_.emplace(nodeHandle);
+    }
     return nodeHandle;
 }
 
 void AudioDeviceGraph::removeNode(ade::NodeHandle nodeHandle)
 {
-    if(auto device = typedGraph_.metadata(nodeHandle).get<AudioDeviceProcessNode>().process.device();
-        device->audioInputGroupCount() > 1)
+    auto device = typedGraph_.metadata(nodeHandle).get<AudioDeviceProcessNode>().process.device();
+    if(device->audioInputGroupCount() > 1)
     {
         auto it = multiInputs_.find(nodeHandle);
         assert(it != multiInputs_.end());
@@ -85,12 +90,14 @@ void AudioDeviceGraph::removeNode(ade::NodeHandle nodeHandle)
         }
         pdcs.clear();
         multiInputs_.erase(it);
-        AudioDeviceGraphBase::removeNode(nodeHandle);
     }
-    else
+    if(device->audioOutputGroupCount() > 1)
     {
-        AudioDeviceGraphBase::removeNode(nodeHandle);
+        auto it = multiOutputs_.find(nodeHandle);
+        assert(it != multiOutputs_.end());
+        multiOutputs_.erase(it);
     }
+    AudioDeviceGraphBase::removeNode(nodeHandle);
 }
 
 ade::EdgeHandle AudioDeviceGraph::connect(ade::NodeHandle from, ade::NodeHandle to,
