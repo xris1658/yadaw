@@ -227,7 +227,16 @@ void AudioDeviceGraph::compensate(bool latencyCompensationEnabled)
         {
             for(auto& [pdcNode, pdc]: pdcs)
             {
+                auto processing = pdc.isProcessing();
+                if(processing)
+                {
+                    pdc.stopProcessing();
+                }
                 pdc.setDelay(0);
+                if(processing)
+                {
+                    pdc.startProcessing();
+                }
             }
         }
     }
