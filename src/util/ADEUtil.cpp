@@ -37,4 +37,52 @@ bool pathExists(ade::NodeHandle from, ade::NodeHandle to)
     VisitedNodes visitedNodes;
     return pathExists(from, to, visitedNodes);
 }
+
+std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>> squashGraph(const ade::Graph& graph)
+{
+    std::unordered_set<ade::NodeHandle, ade::HandleHasher<ade::Node>> linkStartNodes;
+    std::unordered_set<ade::NodeHandle, ade::HandleHasher<ade::Node>> linkEndNodes;
+    auto nodes = graph.nodes();
+    std::for_each(nodes.begin(), nodes.end(),
+        [&linkStartNodes, &linkEndNodes](const ade::NodeHandle& nodeHandle)
+        {
+            auto inNodes = nodeHandle->inNodes();
+            auto outNodes = nodeHandle->outNodes();
+            if(inNodes.empty() || inNodes.size() > 1)
+            {
+                linkStartNodes.emplace(nodeHandle);
+                std::for_each(inNodes.begin(), inNodes.end(),
+                    [&linkEndNodes](const ade::NodeHandle& inNode)
+                    {
+                        linkEndNodes.emplace(inNode);
+                    }
+                );
+            }
+            if(outNodes.empty() || outNodes.size() > 1)
+            {
+                linkEndNodes.emplace(nodeHandle);
+                std::for_each(outNodes.begin(), outNodes.end(),
+                    [&linkStartNodes](const ade::NodeHandle& outNode)
+                    {
+                        linkStartNodes.emplace(outNode);
+                    }
+                );
+            }
+        }
+    );
+    std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>> ret;
+    std::for_each(linkStartNodes.begin(), linkStartNodes.end(),
+        [&linkEndNodes, &ret](const ade::NodeHandle& nodeHandle)
+        {
+            auto i = nodeHandle;
+            for(;
+                linkEndNodes.find(i) == linkEndNodes.end();
+                i = i->outNodes().front()
+            )
+            {}
+            ret.emplace_back(nodeHandle, i);
+        }
+    );
+    return ret;
+}
 }
