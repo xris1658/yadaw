@@ -74,6 +74,10 @@ std::optional<TopologicalOrderResult<T>> topologicalOrder(const ade::TypedGraph<
 }
 
 std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>> squashGraph(const ade::Graph& graph);
+
+std::optional<std::vector<std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>>>> topologicalSort(
+    const std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>>& squashedGraph
+);
 }
 
 #endif // YADAW_SRC_UTIL_ADEUTIL

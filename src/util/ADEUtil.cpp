@@ -38,7 +38,9 @@ bool pathExists(ade::NodeHandle from, ade::NodeHandle to)
     return pathExists(from, to, visitedNodes);
 }
 
-std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>> squashGraph(const ade::Graph& graph)
+using Link = std::pair<ade::NodeHandle, ade::NodeHandle>;
+
+std::vector<Link> squashGraph(const ade::Graph& graph)
 {
     std::unordered_set<ade::NodeHandle, ade::HandleHasher<ade::Node>> linkStartNodes;
     std::unordered_set<ade::NodeHandle, ade::HandleHasher<ade::Node>> linkEndNodes;
@@ -70,7 +72,7 @@ std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>> squashGraph(const ade::
             }
         }
     );
-    std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>> ret;
+    std::vector<Link> ret;
     std::for_each(linkStartNodes.begin(), linkStartNodes.end(),
         [&linkEndNodes, &ret](const ade::NodeHandle& nodeHandle)
         {
@@ -84,5 +86,50 @@ std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>> squashGraph(const ade::
         }
     );
     return ret;
+}
+
+std::optional<std::vector<std::vector<Link>>>
+    topologicalSort(const std::vector<Link>& squashedGraph)
+{
+    std::vector<std::vector<Link>> ret;
+    if(!squashedGraph.empty())
+    {
+        std::vector<Link> visitedLinks;
+        std::vector<Link> unvisitedLinks = squashedGraph;
+        while(!unvisitedLinks.empty())
+        {
+            auto partitionPoint = std::partition(
+                unvisitedLinks.begin(), unvisitedLinks.end(),
+                [&visitedLinks](const Link& link)
+                {
+                    auto inNodes = link.first->inNodes();
+                    return !(inNodes.empty() || std::all_of(
+                        inNodes.begin(), inNodes.end(),
+                        [&visitedLinks](const ade::NodeHandle& nodeHandle)
+                        {
+                            return std::find_if(
+                                visitedLinks.begin(), visitedLinks.end(),
+                                [&nodeHandle](const Link& visitedLink)
+                                {
+                                    return visitedLink.second == nodeHandle;
+                                }
+                            ) != visitedLinks.end();
+                        }
+                    ));
+                }
+            );
+            if(partitionPoint == unvisitedLinks.end())
+            {
+                return std::nullopt;
+            }
+            auto& currentPass = ret.emplace_back();
+            std::copy(partitionPoint, unvisitedLinks.end(),
+                std::back_inserter(visitedLinks));
+            std::move(partitionPoint, unvisitedLinks.end(),
+                std::back_inserter(currentPass));
+            unvisitedLinks.erase(partitionPoint, unvisitedLinks.end());
+        }
+    }
+    return {ret};
 }
 }
