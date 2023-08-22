@@ -328,6 +328,7 @@ set(YADAW_COMMON_SOURCES
     src/util/CompilerSpecifics.hpp
     src/util/Constants.hpp
     src/util/Endian.hpp
+    src/util/FibonacciIterator.hpp
     src/util/FixedSizeCircularDeque.hpp
     src/util/FixedSizeLockFreeQueue.hpp
     src/util/FixedSizeMemoryBlock.hpp
