@@ -37,6 +37,8 @@ endif()
 add_executable(ADEUtilsTest
     ../src/util/Util.cpp
     ../src/util/Util.hpp
+    ../src/util/ADEUtil.cpp
+    ../src/util/ADEUtil.hpp
     ADEUtilsTest/main.cpp)
 
 add_executable(AudioBufferPoolTest
