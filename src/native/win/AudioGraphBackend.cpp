@@ -1,9 +1,10 @@
 #if(WIN32)
 
 #include "audio/backend/AudioGraphBackend.hpp"
-#include "AudioGraphBackendImpl.hpp"
+#include "native/win/AudioGraphBackendImpl.hpp"
 #include "native/win/winrt/Async.hpp"
 #include "native/win/winrt/QStringFromHString.hpp"
+#include "util/IntegerRange.hpp"
 
 namespace YADAW::Audio::Backend
 {
@@ -68,7 +69,7 @@ std::uint32_t AudioGraphBackend::defaultAudioInputDeviceIndex() const
 {
     const auto& id = defaultAudioInputDeviceId();
     auto inputDeviceCount = audioInputDeviceCount();
-    for(decltype(inputDeviceCount) i = 0; i < inputDeviceCount; ++i)
+    for(auto i: YADAW::Util::IntegerRange(inputDeviceCount))
     {
         if(audioInputDeviceAt(i).id == id)
         {
@@ -82,7 +83,7 @@ std::uint32_t AudioGraphBackend::defaultAudioOutputDeviceIndex() const
 {
     const auto& id = defaultAudioOutputDeviceId();
     auto outputDeviceCount = audioOutputDeviceCount();
-    for(decltype(outputDeviceCount) i = 0; i < outputDeviceCount; ++i)
+    for(auto i: YADAW::Util::IntegerRange(outputDeviceCount))
     {
         if(audioOutputDeviceAt(i).id == id)
         {
@@ -208,13 +209,13 @@ bool AudioGraphBackend::setOutputDeviceIndex(std::uint32_t index)
     {
         auto inputDeviceCount = audioInputDeviceCount();
         std::vector<bool> inputDeviceActivated(inputDeviceCount, false);
-        for(decltype(inputDeviceCount) i = 0; i < inputDeviceCount; ++i)
+        for(auto i: YADAW::Util::IntegerRange(inputDeviceCount))
         {
             inputDeviceActivated[i] = isDeviceInputActivated(i);
         }
         destroyAudioGraph();
         createAudioGraph(audioOutputDeviceAt(index).id);
-        for(decltype(inputDeviceCount) i = 0; i < inputDeviceCount; ++i)
+        for(auto i: YADAW::Util::IntegerRange(inputDeviceCount))
         {
             activateDeviceInput(i, inputDeviceActivated[i]);
         }

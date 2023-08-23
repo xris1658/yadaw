@@ -1,6 +1,7 @@
 #include "VST3ComponentHandler.hpp"
 
 #include "audio/plugin/VST3Plugin.hpp"
+#include "util/IntegerRange.hpp"
 #include "util/Util.hpp"
 
 #include <mutex>
@@ -205,7 +206,7 @@ void VST3ComponentHandler::consumeOutputParameterChanges(std::int64_t timestampI
     auto& outputParameterChanges = outputParameterChanges_[hostBufferIndex_];
     auto* editController = plugin_->editController();
     auto outputParameterChangeCount = outputParameterChanges.getParameterCount();
-    for(decltype(outputParameterChangeCount) i = 0; i < outputParameterChangeCount; ++i)
+    FOR_RANGE0(i, outputParameterChangeCount)
     {
         if(auto ptr = outputParameterChanges.getParameterData(i); ptr)
         {

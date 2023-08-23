@@ -1,5 +1,7 @@
 #include "VST3EventProcessor.hpp"
 
+#include "util/IntegerRange.hpp"
+
 namespace YADAW::Audio::Plugin
 {
 using YADAW::Audio::Event::IEventProcessor;
@@ -21,7 +23,7 @@ VST3EventProcessor::VST3EventProcessor(Steinberg::Vst::IComponent& component) :
 			i, eventInputBusInfoGroup_[i]);
         input_.emplace_back(eventInputBusInfoGroup_[i]);
 	}
-    for(decltype(outputCount) i = 0; i < outputCount; ++i)
+    FOR_RANGE0(i, outputCount)
     {
         component_->getBusInfo(MediaTypes::kEvent, BusDirections::kOutput,
             i, eventOutputBusInfoGroup_[i]);

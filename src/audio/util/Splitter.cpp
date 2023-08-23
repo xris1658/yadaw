@@ -1,12 +1,14 @@
 #include "Splitter.hpp"
 
+#include "util/IntegerRange.hpp"
+
 namespace YADAW::Audio::Util
 {
 Splitter::Splitter(std::uint32_t outputCount, YADAW::Audio::Base::ChannelGroupType channelGroupType,
     std::uint32_t channelCountInGroup)
 {
     outputs_.reserve(outputCount);
-    for(decltype(outputCount) i = 0; i < outputCount; ++i)
+    FOR_RANGE0(i, outputCount)
     {
         outputs_.emplace_back().setChannelGroupType(channelGroupType, channelCountInGroup);
     }

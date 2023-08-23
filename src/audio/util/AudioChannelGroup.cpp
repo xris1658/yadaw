@@ -1,5 +1,7 @@
 #include "AudioChannelGroup.hpp"
 
+#include "util/IntegerRange.hpp"
+
 namespace YADAW::Audio::Util
 {
 AudioChannelGroup::AudioChannelGroup()
@@ -15,7 +17,7 @@ AudioChannelGroup AudioChannelGroup::from(const Device::IAudioChannelGroup& rhs)
     ret.isMain_ = rhs.isMain();
     ret.speakers_.resize(rhs.channelCount());
     ret.speakerNames_.resize(rhs.channelCount());
-    for(decltype(speakers_.size()) i = 0; i < ret.speakers_.size(); ++i)
+    for(auto i: YADAW::Util::IntegerRange(ret.speakers_.size()))
     {
         ret.speakers_[i] = rhs.speakerAt(i);
         ret.speakerNames_[i] = rhs.speakerNameAt(i);
@@ -88,7 +90,7 @@ void AudioChannelGroup::setChannelGroupType(YADAW::Audio::Base::ChannelGroupType
         channelCount = channelCountOfType;
         speakers_.clear();
         speakerNames_.clear();
-        for(decltype(channelCount) i = 0; i < channelCount; ++i)
+        for(auto i: YADAW::Util::IntegerRange(channelCount))
         {
             speakers_.emplace_back(IAudioChannelGroup::channelAt(channelGroupType, i));
         }

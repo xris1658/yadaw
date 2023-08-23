@@ -332,6 +332,7 @@ set(YADAW_COMMON_SOURCES
     src/util/FixedSizeCircularDeque.hpp
     src/util/FixedSizeLockFreeQueue.hpp
     src/util/FixedSizeMemoryBlock.hpp
+    src/util/IntegerRange.hpp
     src/util/Integration.cpp
     src/util/Integration.hpp
     src/util/Literal.hpp

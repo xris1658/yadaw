@@ -1,12 +1,14 @@
 #include "Summing.hpp"
 
+#include "util/IntegerRange.hpp"
+
 namespace YADAW::Audio::Util
 {
 Summing::Summing(std::uint32_t inputCount, YADAW::Audio::Base::ChannelGroupType channelGroupType,
     std::uint32_t channelCountInGroup)
 {
     inputs_.reserve(inputCount);
-    for(decltype(inputCount) i = 0; i < inputCount; ++i)
+    for(auto i: YADAW::Util::IntegerRange(inputCount))
     {
         inputs_.emplace_back().setChannelGroupType(channelGroupType, channelCountInGroup);
     }

@@ -1,6 +1,7 @@
 #include "CLAPPlugin.hpp"
 
 #include "audio/util/CLAPHelper.hpp"
+#include "util/IntegerRange.hpp"
 
 namespace YADAW::Audio::Plugin
 {
@@ -247,11 +248,11 @@ std::uint32_t CLAPPlugin::latencyInSamples() const
 void CLAPPlugin::process(const Device::AudioProcessData<float>& audioProcessData)
 {
     processData_.frames_count = audioProcessData.singleBufferSize;
-    for(decltype(processData_.audio_inputs_count) i = 0; i < processData_.audio_inputs_count; ++i)
+    FOR_RANGE0(i, processData_.audio_inputs_count)
     {
         inputBuffers_[i].data32 = audioProcessData.inputs[i];
     }
-    for(decltype(processData_.audio_outputs_count) i = 0; i < processData_.audio_outputs_count; ++i)
+    FOR_RANGE0(i, processData_.audio_outputs_count)
     {
         outputBuffers_[i].data32 = audioProcessData.outputs[i];
     }
@@ -266,13 +267,13 @@ void CLAPPlugin::prepareAudioRelatedInfo()
     inputBuffers_.reserve(audioInputGroupCount);
     outputChannelGroups_.reserve(audioOutputGroupCount);
     outputBuffers_.reserve(audioOutputGroupCount);
-    for(decltype(audioInputGroupCount) i = 0; i < audioInputGroupCount; ++i)
+    FOR_RANGE0(i, audioInputGroupCount)
     {
         inputChannelGroups_.emplace_back(plugin_, audioPorts_, true, i);
         inputBuffers_.emplace_back();
         inputBuffers_.back().channel_count = inputChannelGroups_[i].channelCount();
     }
-    for(decltype(audioOutputGroupCount) i = 0; i < audioOutputGroupCount; ++i)
+    FOR_RANGE0(i, audioOutputGroupCount)
     {
         outputChannelGroups_.emplace_back(plugin_, audioPorts_, false, i);
         outputBuffers_.emplace_back();

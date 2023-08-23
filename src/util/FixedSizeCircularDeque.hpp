@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_UTIL_FIXEDSIZECIRCULARDEQUE
 #define YADAW_SRC_UTIL_FIXEDSIZECIRCULARDEQUE
 
+#include "util/IntegerRange.hpp"
+
 #include <array>
 #include <cassert>
 #include <iterator>
@@ -299,7 +301,7 @@ public:
     {
         if constexpr(!std::is_trivially_destructible_v<T>)
         {
-            for(decltype(count_) i = 0; i < count_; ++i)
+            FOR_RANGE0(i, count_)
             {
                 (&(operator[](i)))->~T();
             }

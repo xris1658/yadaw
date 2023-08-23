@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_UTIL_CIRCULARDEQUE
 #define YADAW_SRC_UTIL_CIRCULARDEQUE
 
+#include "util/IntegerRange.hpp"
+
 #include <stdexcept>
 
 namespace YADAW::Util
@@ -194,7 +196,7 @@ public:
     }
     void clear()
     {
-        for(decltype(count_) i = 0; i < count_; ++i)
+        FOR_RANGE0(i, count_)
         {
             (&(operator[](i)))->~T();
         }

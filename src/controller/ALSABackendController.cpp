@@ -1,5 +1,6 @@
 #include "ALSABackendController.hpp"
 
+#include "util/IntegerRange.hpp"
 #include "util/YAMLCppUtil.hpp"
 
 #include <yaml-cpp/yaml.h>
@@ -95,7 +96,7 @@ YAML::Node deviceConfigFromALSA()
         {
             YAMLSeq seq(emitter);
             auto inputCount = backend.audioInputDeviceCount();
-            for(decltype(inputCount) i = 0; i < inputCount; ++i)
+            for(auto i: YADAW::Util::IntegerRange(inputCount))
             {
                 YAMLMap map(emitter);
                 const auto& device = backend.audioInputDeviceAt(i).value();
@@ -108,7 +109,7 @@ YAML::Node deviceConfigFromALSA()
         {
             YAMLSeq seq(emitter);
             auto inputCount = backend.audioOutputDeviceCount();
-            for(decltype(inputCount) i = 0; i < inputCount; ++i)
+            for(auto i: YADAW::Util::IntegerRange(inputCount))
             {
                 YAMLMap map(emitter);
                 const auto& device = backend.audioOutputDeviceAt(i).value();

@@ -1,5 +1,7 @@
 #include "CLAPPluginParameter.hpp"
+
 #include "util/ArrayAccess.hpp"
+#include "util/IntegerRange.hpp"
 
 namespace YADAW::Audio::Plugin
 {
@@ -107,7 +109,7 @@ CLAPPluginParameter::CLAPPluginParameter(const clap_plugin* plugin, const clap_p
 {
     auto count = parameterCount();
     parameters_.reserve(count);
-    for(decltype(count) i = 0; i < count; ++i)
+    for(auto i: YADAW::Util::IntegerRange(count))
     {
         parameters_.emplace_back(plugin_, params_, i);
     }

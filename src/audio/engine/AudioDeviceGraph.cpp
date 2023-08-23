@@ -1,6 +1,7 @@
 #include "AudioDeviceGraph.hpp"
 
 #include "util/ADEUtil.hpp"
+#include "util/IntegerRange.hpp"
 
 #include <deque>
 
@@ -47,7 +48,7 @@ ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, AudioPro
         );
         auto& pdcs = it->second;
         pdcs.reserve(audioInputGroupCount);
-        for(decltype(audioInputGroupCount) i = 0; i < audioInputGroupCount; ++i)
+        FOR_RANGE0(i, audioInputGroupCount)
         {
             auto& [pdcNode, pdc] = pdcs.emplace_back(ade::NodeHandle(), SampleDelay(0, device->audioInputGroupAt(i)->get()));
             AudioProcessData<float> processData;
@@ -165,7 +166,7 @@ void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)
     while(!deque.empty())
     {
         auto size = deque.size();
-        for(decltype(size) i = 0; i < size; ++i)
+        FOR_RANGE0(i, size)
         {
             auto& front = deque.front();
             auto& processNode = getMetadataFromNode(front);

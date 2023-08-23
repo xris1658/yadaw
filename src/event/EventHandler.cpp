@@ -19,6 +19,7 @@
 #include "native/Native.hpp"
 #include "ui/MessageDialog.hpp"
 #include "ui/UI.hpp"
+#include "util/IntegerRange.hpp"
 
 #include <QDir>
 #include <QtCore/private/qconfig_p.h>
@@ -290,7 +291,7 @@ void EventHandler::onStartPluginScan()
         const auto& model = YADAW::Controller::appPluginDirectoryListModel();
         auto itemCount = model.itemCount();
         std::vector<std::vector<QString>> libLists;
-        for(decltype(itemCount) i = 0; i < itemCount; ++i)
+        for(auto i: YADAW::Util::IntegerRange(itemCount))
         {
             QDir dir(model[i]);
             if(dir.exists())

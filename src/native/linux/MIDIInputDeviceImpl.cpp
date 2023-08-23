@@ -4,6 +4,7 @@
 
 #include "native/linux/ALSADeviceEnumerator.hpp"
 #include "util/Base.hpp"
+#include "util/IntegerRange.hpp"
 #include "util/Util.hpp"
 
 inline std::int64_t nanosecondFromRealTime(snd_seq_real_time time)
@@ -103,7 +104,7 @@ void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
                 else
                 {
                     snd_seq_event_t* event;
-                    for(decltype(eventCount) i = 0; i < eventCount; ++i)
+                    for(auto i: YADAW::Util::IntegerRange(eventCount))
                     {
                         auto getEventResult = snd_seq_event_input(seq, &event);
                         if(getEventResult == -ENOSPC)

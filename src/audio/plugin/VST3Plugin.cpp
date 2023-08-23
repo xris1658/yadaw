@@ -5,6 +5,7 @@
 #include "audio/plugin/VST3PluginParameter.hpp"
 #include "audio/util/VST3Helper.hpp"
 #include "util/Base.hpp"
+#include "util/IntegerRange.hpp"
 
 // For some reason, memorystream.cpp is not included in sdk_common library, so I have to solve this
 // by `#include`ing the source file in another source: `audio/plugin/VST3MemoryStream.cpp`.
@@ -234,11 +235,11 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
     prepareAudioRelatedInfo();
     audioInputBusActivated_.resize(audioInputGroupCount(), false);
     audioOutputBusActivated_.resize(audioOutputGroupCount(), false);
-    for(decltype(audioInputGroupCount()) i = 0; i < audioInputGroupCount(); ++i)
+    FOR_RANGE0(i, audioInputGroupCount())
     {
         activateAudioInputGroup(i, true);
     }
-    for(decltype(audioOutputGroupCount()) i = 0; i < audioOutputGroupCount(); ++i)
+    for(auto i: YADAW::Util::IntegerRange(audioOutputGroupCount()))
     {
         activateAudioOutputGroup(i, true);
     }
@@ -492,7 +493,7 @@ void VST3Plugin::prepareAudioRelatedInfo()
     audioOutputChannelGroup_ = std::vector<VST3AudioChannelGroup>(audioOutputGroupCount);
     inputBuffers_ = std::vector<Steinberg::Vst::AudioBusBuffers>(audioInputGroupCount);
     outputBuffers_ = std::vector<Steinberg::Vst::AudioBusBuffers>(audioOutputGroupCount);
-    for(decltype(audioInputGroupCount) i = 0; i < audioInputGroupCount; ++i)
+    for(auto i: YADAW::Util::IntegerRange(audioInputGroupCount))
     {
         audioProcessor_->getBusArrangement(Steinberg::Vst::BusDirections::kInput, i,
             audioInputChannelGroup_[i].speakerArrangement_);
@@ -500,7 +501,7 @@ void VST3Plugin::prepareAudioRelatedInfo()
             Steinberg::Vst::BusDirections::kInput, i, audioInputChannelGroup_[i].busInfo_);
         inputBuffers_[i].numChannels = audioInputChannelGroup_[i].busInfo_.channelCount;
     }
-    for(decltype(audioOutputGroupCount) i = 0; i < audioOutputGroupCount; ++i)
+    for(auto i: YADAW::Util::IntegerRange(audioOutputGroupCount))
     {
         audioProcessor_->getBusArrangement(Steinberg::Vst::BusDirections::kOutput, i,
             audioOutputChannelGroup_[i].speakerArrangement_);

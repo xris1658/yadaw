@@ -2,7 +2,9 @@
 
 #include "AudioGraphBackendController.hpp"
 
+
 #include "util/YAMLCppUtil.hpp"
+#include "util/IntegerRange.hpp"
 
 #include <yaml-cpp/emitter.h>
 
@@ -76,7 +78,7 @@ bool createAudioGraphFromConfig(const YAML::Node& node)
     {
         auto configInputCount = inputsNode.size();
         auto deviceInputCount = backend.audioInputDeviceCount();
-        for(decltype(configInputCount) i = 0; i < configInputCount; ++i)
+        for(auto i: YADAW::Util::IntegerRange(configInputCount))
         {
             const auto& id = inputsNode[i]["id"].as<std::string>();
             if(inputsNode[i]["activated"].as<bool>())
@@ -107,7 +109,7 @@ YAML::Node deviceConfigFromCurrentAudioGraph()
         {
             YAMLSeq seq(emitter);
             auto inputCount = appAudioGraphBackend().audioInputDeviceCount();
-            for(decltype(inputCount) i = 0; i < inputCount; ++i)
+            for(auto i: YADAW::Util::IntegerRange(inputCount))
             {
                 YAMLMap map(emitter);
                 const auto& device = backend.audioInputDeviceAt(i);

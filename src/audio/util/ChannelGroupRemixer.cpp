@@ -1,5 +1,7 @@
 #include "ChannelGroupRemixer.hpp"
 
+#include "util/IntegerRange.hpp"
+
 namespace YADAW::Audio::Util
 {
 using YADAW::Audio::Device::IAudioDevice;
@@ -47,7 +49,7 @@ std::uint32_t ChannelGroupRemixer::latencyInSamples() const
 
 void ChannelGroupRemixer::process(const Device::AudioProcessData<float>& audioProcessData)
 {
-    for(decltype(outputChannelGroup_.channelCount()) i = 0; i < outputChannelGroup_.channelCount(); ++i)
+    for(auto i: YADAW::Util::IntegerRange(outputChannelGroup_.channelCount()))
     {
         for(decltype(audioProcessData.singleBufferSize) j = 0; j < audioProcessData.singleBufferSize; ++j)
         {

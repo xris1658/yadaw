@@ -10,6 +10,7 @@
 #include "native/VST3Native.hpp"
 #include "native/VestifalNative.hpp"
 #include "util/Base.hpp"
+#include "util/IntegerRange.hpp"
 
 #include <pluginterfaces/vst/ivstaudioprocessor.h>
 
@@ -103,7 +104,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             {
                 auto classCount = factory3->countClasses();
                 Steinberg::PClassInfoW classInfoW {};
-                for(decltype(classCount) i = 0; i < classCount; ++i)
+                for(auto i: YADAW::Util::IntegerRange(classCount))
                 {
                     bool isInstrument = false;
                     bool isAudioEffect = false;
@@ -171,7 +172,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             {
                 auto classCount = factory2->countClasses();
                 Steinberg::PClassInfo2 classInfo2 {};
-                for(decltype(classCount) i = 0; i < classCount; ++i)
+                for(auto i: YADAW::Util::IntegerRange(classCount))
                 {
                     bool isInstrument = false;
                     bool isAudioEffect = false;
@@ -239,7 +240,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             {
                 auto classCount = factory->countClasses();
                 Steinberg::PClassInfo classInfo {};
-                for(decltype(classCount) i = 0; i < classCount; ++i)
+                for(auto i: YADAW::Util::IntegerRange(classCount))
                 {
                     if(factory->getClassInfo(i, &classInfo) == Steinberg::kResultOk
                     && std::strcmp(classInfo.category, kVstAudioEffectClass) == 0)
@@ -337,7 +338,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             std::vector<PluginScanResult> ret;
             auto factory = plugin.factory();
             auto count = factory->get_plugin_count(factory);
-            for(decltype(count) i = 0; i < count; ++i)
+            for(auto i: YADAW::Util::IntegerRange(count))
             {
                 bool isInstrument = false;
                 bool isAudioEffect = false;

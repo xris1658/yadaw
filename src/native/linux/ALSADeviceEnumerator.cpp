@@ -4,6 +4,7 @@
 
 #include "native/linux/Sequencer.hpp"
 #include "util/Base.hpp"
+#include "util/IntegerRange.hpp"
 
 #include <alsa/asoundlib.h>
 #include <alsa/control.h>
@@ -156,7 +157,7 @@ void doEnumerateDevices()
             auto portCount = snd_seq_client_info_get_num_ports(clientInfo);
             snd_seq_port_info_set_client(portInfo, clientId);
             snd_seq_port_info_set_port(portInfo, -1);
-            for(decltype(portCount) i = 0; i < portCount; ++i)
+            for(auto i: YADAW::Util::IntegerRange(portCount))
             {
                 snd_seq_query_next_port(seq, portInfo);
                 auto portId = snd_seq_port_info_get_port(portInfo);
