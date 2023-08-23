@@ -19,8 +19,6 @@ public:
 private:
     std::atomic_flag flag_ = ATOMIC_FLAG_INIT;
 };
-
-using AtomicLockGuard = AtomicMutex::LockGuard;
 }
 
 #endif // YADAW_SRC_UTIL_ATOMICMUTEX
