@@ -157,7 +157,7 @@ void doEnumerateDevices()
             auto portCount = snd_seq_client_info_get_num_ports(clientInfo);
             snd_seq_port_info_set_client(portInfo, clientId);
             snd_seq_port_info_set_port(portInfo, -1);
-            for(auto i: YADAW::Util::IntegerRange(portCount))
+            FOR_RANGE0(i, portCount)
             {
                 snd_seq_query_next_port(seq, portInfo);
                 auto portId = snd_seq_port_info_get_port(portInfo);

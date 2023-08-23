@@ -109,7 +109,7 @@ CLAPPluginParameter::CLAPPluginParameter(const clap_plugin* plugin, const clap_p
 {
     auto count = parameterCount();
     parameters_.reserve(count);
-    for(auto i: YADAW::Util::IntegerRange(count))
+    FOR_RANGE0(i, count)
     {
         parameters_.emplace_back(plugin_, params_, i);
     }

@@ -13,7 +13,7 @@ void loadAudioBusConfiguration(const YAML::Node& node,
     if(node.IsSequence())
     {
         auto size = node.size();
-        for(auto i: YADAW::Util::IntegerRange(size))
+        FOR_RANGE0(i, size)
         {
             const auto& bus = node[i];
             const auto& name =
@@ -42,7 +42,7 @@ void emitAudioChannelList(YAML::Emitter& emitter, const YADAW::Audio::Device::IB
     emitter << YAML::Key << "channels";
     YAMLSeq seq(emitter);
     auto channelCount = bus.channelCount();
-    for(auto i: YADAW::Util::IntegerRange(channelCount))
+    FOR_RANGE0(i, channelCount)
     {
         YAMLMap map(emitter);
         const auto& channel = bus.channelAt(i).value();
@@ -71,7 +71,7 @@ YAML::Node exportFromAudioBusConfiguration(
     {
         YAMLSeq seq(emitter);
         auto inputCount = configuration.inputBusCount();
-        for(auto i: YADAW::Util::IntegerRange(inputCount))
+        FOR_RANGE0(i, inputCount)
         {
             YAMLMap map1(emitter);
             const auto& bus = configuration.inputBusAt(i)->get();
@@ -84,7 +84,7 @@ YAML::Node exportFromAudioBusConfiguration(
     {
         YAMLSeq seq(emitter);
         auto outputCount = configuration.outputBusCount();
-        for(auto i: YADAW::Util::IntegerRange(outputCount))
+        FOR_RANGE0(i, outputCount)
         {
             YAMLMap map1(emitter);
             const auto& bus = configuration.outputBusAt(i)->get();

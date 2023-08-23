@@ -78,7 +78,7 @@ bool createAudioGraphFromConfig(const YAML::Node& node)
     {
         auto configInputCount = inputsNode.size();
         auto deviceInputCount = backend.audioInputDeviceCount();
-        for(auto i: YADAW::Util::IntegerRange(configInputCount))
+        FOR_RANGE0(i, configInputCount)
         {
             const auto& id = inputsNode[i]["id"].as<std::string>();
             if(inputsNode[i]["activated"].as<bool>())
@@ -109,7 +109,7 @@ YAML::Node deviceConfigFromCurrentAudioGraph()
         {
             YAMLSeq seq(emitter);
             auto inputCount = appAudioGraphBackend().audioInputDeviceCount();
-            for(auto i: YADAW::Util::IntegerRange(inputCount))
+            FOR_RANGE0(i, inputCount)
             {
                 YAMLMap map(emitter);
                 const auto& device = backend.audioInputDeviceAt(i);

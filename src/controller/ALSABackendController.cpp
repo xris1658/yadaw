@@ -96,7 +96,7 @@ YAML::Node deviceConfigFromALSA()
         {
             YAMLSeq seq(emitter);
             auto inputCount = backend.audioInputDeviceCount();
-            for(auto i: YADAW::Util::IntegerRange(inputCount))
+            FOR_RANGE0(i, inputCount)
             {
                 YAMLMap map(emitter);
                 const auto& device = backend.audioInputDeviceAt(i).value();
@@ -109,7 +109,7 @@ YAML::Node deviceConfigFromALSA()
         {
             YAMLSeq seq(emitter);
             auto inputCount = backend.audioOutputDeviceCount();
-            for(auto i: YADAW::Util::IntegerRange(inputCount))
+            FOR_RANGE0(i, inputCount)
             {
                 YAMLMap map(emitter);
                 const auto& device = backend.audioOutputDeviceAt(i).value();

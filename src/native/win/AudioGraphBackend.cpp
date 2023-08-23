@@ -69,7 +69,7 @@ std::uint32_t AudioGraphBackend::defaultAudioInputDeviceIndex() const
 {
     const auto& id = defaultAudioInputDeviceId();
     auto inputDeviceCount = audioInputDeviceCount();
-    for(auto i: YADAW::Util::IntegerRange(inputDeviceCount))
+    FOR_RANGE0(i, inputDeviceCount)
     {
         if(audioInputDeviceAt(i).id == id)
         {
@@ -83,7 +83,7 @@ std::uint32_t AudioGraphBackend::defaultAudioOutputDeviceIndex() const
 {
     const auto& id = defaultAudioOutputDeviceId();
     auto outputDeviceCount = audioOutputDeviceCount();
-    for(auto i: YADAW::Util::IntegerRange(outputDeviceCount))
+    FOR_RANGE0(i, outputDeviceCount)
     {
         if(audioOutputDeviceAt(i).id == id)
         {
@@ -209,13 +209,13 @@ bool AudioGraphBackend::setOutputDeviceIndex(std::uint32_t index)
     {
         auto inputDeviceCount = audioInputDeviceCount();
         std::vector<bool> inputDeviceActivated(inputDeviceCount, false);
-        for(auto i: YADAW::Util::IntegerRange(inputDeviceCount))
+        FOR_RANGE0(i, inputDeviceCount)
         {
             inputDeviceActivated[i] = isDeviceInputActivated(i);
         }
         destroyAudioGraph();
         createAudioGraph(audioOutputDeviceAt(index).id);
-        for(auto i: YADAW::Util::IntegerRange(inputDeviceCount))
+        FOR_RANGE0(i, inputDeviceCount)
         {
             activateDeviceInput(i, inputDeviceActivated[i]);
         }

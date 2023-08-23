@@ -104,7 +104,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             {
                 auto classCount = factory3->countClasses();
                 Steinberg::PClassInfoW classInfoW {};
-                for(auto i: YADAW::Util::IntegerRange(classCount))
+                FOR_RANGE0(i, classCount)
                 {
                     bool isInstrument = false;
                     bool isAudioEffect = false;
@@ -172,7 +172,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             {
                 auto classCount = factory2->countClasses();
                 Steinberg::PClassInfo2 classInfo2 {};
-                for(auto i: YADAW::Util::IntegerRange(classCount))
+                FOR_RANGE0(i, classCount)
                 {
                     bool isInstrument = false;
                     bool isAudioEffect = false;
@@ -240,7 +240,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             {
                 auto classCount = factory->countClasses();
                 Steinberg::PClassInfo classInfo {};
-                for(auto i: YADAW::Util::IntegerRange(classCount))
+                FOR_RANGE0(i, classCount)
                 {
                     if(factory->getClassInfo(i, &classInfo) == Steinberg::kResultOk
                     && std::strcmp(classInfo.category, kVstAudioEffectClass) == 0)
@@ -338,7 +338,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             std::vector<PluginScanResult> ret;
             auto factory = plugin.factory();
             auto count = factory->get_plugin_count(factory);
-            for(auto i: YADAW::Util::IntegerRange(count))
+            FOR_RANGE0(i, count)
             {
                 bool isInstrument = false;
                 bool isAudioEffect = false;

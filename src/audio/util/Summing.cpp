@@ -8,7 +8,7 @@ Summing::Summing(std::uint32_t inputCount, YADAW::Audio::Base::ChannelGroupType 
     std::uint32_t channelCountInGroup)
 {
     inputs_.reserve(inputCount);
-    for(auto i: YADAW::Util::IntegerRange(inputCount))
+    FOR_RANGE0(i, inputCount)
     {
         inputs_.emplace_back().setChannelGroupType(channelGroupType, channelCountInGroup);
     }

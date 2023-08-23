@@ -291,7 +291,7 @@ void EventHandler::onStartPluginScan()
         const auto& model = YADAW::Controller::appPluginDirectoryListModel();
         auto itemCount = model.itemCount();
         std::vector<std::vector<QString>> libLists;
-        for(auto i: YADAW::Util::IntegerRange(itemCount))
+        FOR_RANGE0(i, itemCount)
         {
             QDir dir(model[i]);
             if(dir.exists())

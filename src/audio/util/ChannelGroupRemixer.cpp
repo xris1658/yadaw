@@ -49,7 +49,7 @@ std::uint32_t ChannelGroupRemixer::latencyInSamples() const
 
 void ChannelGroupRemixer::process(const Device::AudioProcessData<float>& audioProcessData)
 {
-    for(auto i: YADAW::Util::IntegerRange(outputChannelGroup_.channelCount()))
+    FOR_RANGE0(i, outputChannelGroup_.channelCount())
     {
         for(decltype(audioProcessData.singleBufferSize) j = 0; j < audioProcessData.singleBufferSize; ++j)
         {

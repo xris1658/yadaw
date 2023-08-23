@@ -104,7 +104,7 @@ void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
                 else
                 {
                     snd_seq_event_t* event;
-                    for(auto i: YADAW::Util::IntegerRange(eventCount))
+                    FOR_RANGE0(i, eventCount)
                     {
                         auto getEventResult = snd_seq_event_input(seq, &event);
                         if(getEventResult == -ENOSPC)

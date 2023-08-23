@@ -239,7 +239,7 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
     {
         activateAudioInputGroup(i, true);
     }
-    for(auto i: YADAW::Util::IntegerRange(audioOutputGroupCount()))
+    FOR_RANGE0(i, audioOutputGroupCount())
     {
         activateAudioOutputGroup(i, true);
     }
@@ -493,7 +493,7 @@ void VST3Plugin::prepareAudioRelatedInfo()
     audioOutputChannelGroup_ = std::vector<VST3AudioChannelGroup>(audioOutputGroupCount);
     inputBuffers_ = std::vector<Steinberg::Vst::AudioBusBuffers>(audioInputGroupCount);
     outputBuffers_ = std::vector<Steinberg::Vst::AudioBusBuffers>(audioOutputGroupCount);
-    for(auto i: YADAW::Util::IntegerRange(audioInputGroupCount))
+    FOR_RANGE0(i, audioInputGroupCount)
     {
         audioProcessor_->getBusArrangement(Steinberg::Vst::BusDirections::kInput, i,
             audioInputChannelGroup_[i].speakerArrangement_);
@@ -501,7 +501,7 @@ void VST3Plugin::prepareAudioRelatedInfo()
             Steinberg::Vst::BusDirections::kInput, i, audioInputChannelGroup_[i].busInfo_);
         inputBuffers_[i].numChannels = audioInputChannelGroup_[i].busInfo_.channelCount;
     }
-    for(auto i: YADAW::Util::IntegerRange(audioOutputGroupCount))
+    FOR_RANGE0(i, audioOutputGroupCount)
     {
         audioProcessor_->getBusArrangement(Steinberg::Vst::BusDirections::kOutput, i,
             audioOutputChannelGroup_[i].speakerArrangement_);

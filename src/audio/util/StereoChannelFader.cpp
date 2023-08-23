@@ -52,11 +52,11 @@ void StereoChannelFader::process(const Device::AudioProcessData<float>& audioPro
 {
     using namespace YADAW::Audio::Base;
     auto scale = scaleFromPanning<PanLaw::ConstantPowerSineCompensate>(panning_);
-    for(auto i: YADAW::Util::IntegerRange(audioProcessData.singleBufferSize))
+    FOR_RANGE0(i, audioProcessData.singleBufferSize)
     {
         audioProcessData.outputs[0][0][i] = audioProcessData.inputs[0][0][i] * gain_ * scale.left;
     }
-    for(auto i: YADAW::Util::IntegerRange(audioProcessData.singleBufferSize))
+    FOR_RANGE0(i, audioProcessData.singleBufferSize)
     {
         audioProcessData.outputs[0][1][i] = audioProcessData.inputs[0][1][i] * gain_ * scale.right;
     }
