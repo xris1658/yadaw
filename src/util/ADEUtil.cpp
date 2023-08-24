@@ -38,8 +38,6 @@ bool pathExists(ade::NodeHandle from, ade::NodeHandle to)
     return pathExists(from, to, visitedNodes);
 }
 
-using Link = std::pair<ade::NodeHandle, ade::NodeHandle>;
-
 std::vector<Link> squashGraph(const ade::Graph& graph)
 {
     std::unordered_set<ade::NodeHandle, ade::HandleHasher<ade::Node>> linkStartNodes;

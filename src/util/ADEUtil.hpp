@@ -12,6 +12,10 @@
 
 namespace YADAW::Util
 {
+// Describes a link in a `ade::Graph`.
+// Link is inclusive, meaning that both `first` and `second` are part of it.
+using Link = std::pair<ade::NodeHandle, ade::NodeHandle>;
+
 template<typename T>
 using TopologicalOrderResult = std::vector<std::vector<T>>;
 
@@ -73,10 +77,12 @@ std::optional<TopologicalOrderResult<T>> topologicalOrder(const ade::TypedGraph<
     return {ret};
 }
 
-std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>> squashGraph(const ade::Graph& graph);
+// Squash a `ade::Graph` that is a DAG. Cycles are not included.
+std::vector<Link> squashGraph(const ade::Graph& graph);
 
-std::optional<std::vector<std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>>>> topologicalSort(
-    const std::vector<std::pair<ade::NodeHandle, ade::NodeHandle>>& squashedGraph
+// Do topological sort on a squashed `ade::Graph`.
+std::optional<std::vector<std::vector<Link>>> topologicalSort(
+    const std::vector<Link>& squashedGraph
 );
 }
 
