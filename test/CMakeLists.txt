@@ -26,6 +26,8 @@ if(LINUX)
                    ../src/native/linux/ALSABackendImpl.hpp
                    ../src/native/linux/ALSADeviceEnumerator.cpp
                    ../src/native/linux/ALSADeviceEnumerator.hpp
+                   ../src/native/linux/Sequencer.cpp
+                   ../src/native/linux/Sequencer.hpp
                    ALSATest/main.cpp
                    )
     target_precompile_headers(ALSATest PRIVATE ../pch/LinuxAPI.hpp ../pch/QtCore.hpp)

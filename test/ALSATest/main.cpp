@@ -22,12 +22,19 @@ int main(int argc, char** argv)
         auto name = YADAW::Audio::Backend::ALSABackend::audioDeviceName(value).value();
         std::printf("\n\t%u: %s (hw:%u,%u)", i + 1, name.c_str(), value.cIndex, value.dIndex);
     }
-    auto midiCount = YADAW::Native::ALSADeviceEnumerator::midiDeviceCount();
-    std::printf("\n\nMIDI device count: %u", midiCount);
-    for(decltype(midiCount) i = 0; i < midiCount; ++i)
+    auto midiInputCount = YADAW::Native::ALSADeviceEnumerator::midiInputDeviceCount();
+    std::printf("\n\nMIDI device count: %u", midiInputCount);
+    for(decltype(midiInputCount) i = 0; i < midiInputCount; ++i)
     {
-        auto value = YADAW::Native::ALSADeviceEnumerator::midiDeviceAt(i).value();
-        std::printf("\n\t%u: hw:%u,%u", i + 1, value.cIndex, value.dIndex);
+        auto value = YADAW::Native::ALSADeviceEnumerator::midiInputDeviceAt(i).value();
+        std::printf("\n\t%u: %s (Client %u, Port %u)", i + 1, value.name.toStdString().c_str(), value.id.clientId, value.id.portId);
+    }
+    auto midiOutputCount = YADAW::Native::ALSADeviceEnumerator::midiOutputDeviceCount();
+    std::printf("\n\nMIDI device count: %u", midiOutputCount);
+    for(decltype(midiOutputCount) i = 0; i < midiOutputCount; ++i)
+    {
+        auto value = YADAW::Native::ALSADeviceEnumerator::midiOutputDeviceAt(i).value();
+        std::printf("\n\t%u: %s (Client %u, Port %u)", i + 1, value.name.toStdString().c_str(), value.id.clientId, value.id.portId);
     }
     YADAW::Audio::Backend::ALSABackend backend;
     backend.initialize(44100, 512);

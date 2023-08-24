@@ -31,6 +31,7 @@
 #include <cmath>
 #include <clocale>
 #include <cstdio>
+#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -89,7 +90,7 @@ void translateEvent(const YADAW::MIDI::MIDIInputDevice& device, const YADAW::MID
         vst3Event.flags = Event::EventFlags::kIsLive;
         vst3Event.ppqPosition = 0;
         {
-            YADAW::Util::AtomicLockGuard lg(audioCallbackTimeMutex);
+            std::lock_guard<YADAW::Util::AtomicMutex> lg(audioCallbackTimeMutex);
             auto& sampleOffset = vst3Event.sampleOffset;
             sampleOffset = (message.timestampInNanoseconds - audioCallbackTime) * sampleRate / 1000000000;
             bool rectified = false;
@@ -355,11 +356,11 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                         {
                             auto now = std::chrono::steady_clock::now();
                             {
-                                YADAW::Util::AtomicLockGuard lg(audioCallbackTimeMutex);
+                                std::lock_guard<YADAW::Util::AtomicMutex> lg(audioCallbackTimeMutex);
                                 audioCallbackTime = now.time_since_epoch().count();
                                 componentHandler.switchBuffer(audioCallbackTime);
                                 {
-                                    YADAW::Util::AtomicLockGuard lg(mutex);
+                                    std::lock_guard<YADAW::Util::AtomicMutex> lg(mutex);
                                     doubleBuffer.switchBuffer();
                                 }
                                 processContext.systemTime = audioCallbackTime;

@@ -480,6 +480,8 @@ add_executable(PluginDirectoryScanTest
                src/native/win/Native.cpp
                src/native/linux/Library.cpp
                src/native/win/Library.cpp
+               src/util/AtomicMutex.cpp
+               src/util/AtomicMutex.hpp
                src/util/Util.cpp
                src/util/Util.hpp
                test/PluginDirectoryScanTest/main.cpp)
@@ -563,6 +565,8 @@ add_executable(PluginScanTest
                src/native/win/Native.cpp
                src/native/linux/Library.cpp
                src/native/win/Library.cpp
+               src/util/AtomicMutex.cpp
+               src/util/AtomicMutex.hpp
                src/util/Util.cpp
                src/util/Util.hpp
                test/PluginScanTest/main.cpp)
