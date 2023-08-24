@@ -30,9 +30,13 @@ public:
 public:
     ade::NodeHandle addNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData);
     void removeNode(ade::NodeHandle nodeHandle);
+    // Connects two nodes if no "to -> from" is found. Returns an invalid
+    // `ade::EdgeHandle` otherwise.
     ade::EdgeHandle connect(ade::NodeHandle from, ade::NodeHandle to,
         std::uint32_t fromChannel, std::uint32_t toChannel);
+    // Remove an edge. It does nothing if `edgeHandle` is invalid.
     void disconnect(ade::EdgeHandle edgeHandle);
+    // Remove edges. It does nothing while removing invalid `ade::EdgeHandle`s.
     void disconnect(const std::vector<ade::EdgeHandle>& edgeHandles);
 public:
     std::optional<YADAW::Util::TopologicalOrderResult<AudioDeviceProcessNode>> topologicalOrder() const;
