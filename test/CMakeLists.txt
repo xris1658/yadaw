@@ -9,6 +9,8 @@ if(WIN32)
                    ../src/native/win/winrt/Forward.hpp
                    ../src/native/win/winrt/QStringFromHString.cpp
                    ../src/native/win/winrt/QStringFromHString.hpp
+                   ../src/util/Util.cpp
+                   ../src/util/Util.hpp
                    AudioGraphTest/main.cpp)
     target_precompile_headers(AudioGraphTest PRIVATE ../pch/WindowsAPI.hpp ../pch/QtCore.hpp)
     target_link_libraries(AudioGraphTest PRIVATE
