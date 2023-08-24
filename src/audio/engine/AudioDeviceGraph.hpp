@@ -21,6 +21,8 @@ class AudioDeviceGraph: private AudioDeviceGraphBase
 {
 public:
     using AudioDeviceProcessNode = AudioDeviceGraphBase::AudioDeviceProcessNode;
+    using TopologicalSortResult =
+        std::vector<std::vector<std::vector<AudioDeviceProcessNode>>>;
 public:
     AudioDeviceGraph();
 public:
@@ -39,7 +41,7 @@ public:
     // Remove edges. It does nothing while removing invalid `ade::EdgeHandle`s.
     void disconnect(const std::vector<ade::EdgeHandle>& edgeHandles);
 public:
-    std::optional<YADAW::Util::TopologicalOrderResult<AudioDeviceProcessNode>> topologicalOrder() const;
+    TopologicalSortResult topologicalSort() const;
 public:
     void onSumLatencyChanged(ade::NodeHandle nodeHandle);
 private:

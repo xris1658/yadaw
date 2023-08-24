@@ -165,10 +165,34 @@ void AudioDeviceGraph::disconnect(const std::vector<ade::EdgeHandle>& edgeHandle
     }
 }
 
-std::optional<YADAW::Util::TopologicalOrderResult<AudioDeviceGraph::AudioDeviceProcessNode>>
-    AudioDeviceGraph::topologicalOrder() const
+AudioDeviceGraph::TopologicalSortResult AudioDeviceGraph::topologicalSort() const
 {
-    return YADAW::Util::topologicalOrder(typedGraph_);
+    auto topoResult = YADAW::Util::topologicalSort(
+        YADAW::Util::squashGraph(AudioDeviceGraphBase::graph_)
+    );
+    auto& result = *topoResult;
+    TopologicalSortResult ret;
+    ret.reserve(result.size());
+    for(const auto& row: result)
+    {
+        auto& rowInRet = ret.emplace_back();
+        rowInRet.reserve(row.size());
+        for(const auto& cell: row)
+        {
+            auto& cellInRet = rowInRet.emplace_back();
+            auto i = cell.first;
+            while(true)
+            {
+                cellInRet.emplace_back(getMetadataFromNode(i));
+                if(i == cell.second)
+                {
+                    break;
+                }
+                i = i->outNodes().front();
+            }
+        }
+    }
+    return ret;
 }
 
 void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)

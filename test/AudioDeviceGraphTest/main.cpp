@@ -93,9 +93,7 @@ int main()
     {
         graph.connect(nodes[i], summingNode, 0, i);
     }
-    auto optionalTopo = graph.topologicalOrder();
-    assert(optionalTopo.has_value());
-    auto& topo = optionalTopo.value();
+    auto topoResult = graph.topologicalSort();
     for(int i = 0; i < 10; ++i)
     {
         for(int j = 0; j < deviceCount; j += 2)
@@ -108,15 +106,23 @@ int main()
                     [](float& value) { value *= -1; });
             }
         }
-        for(auto& node: topo)
-        {
-            std::for_each(std::execution::par_unseq, node.begin(), node.end(),
-                [](YADAW::Audio::Engine::AudioDeviceGraph::AudioDeviceProcessNode& n)
-                {
-                    n.doProcess();
-                }
-            );
-        }
+        std::for_each(topoResult.begin(), topoResult.end(),
+            [](decltype(topoResult)::reference row)
+            {
+                std::for_each(std::execution::par_unseq,
+                    row.begin(), row.end(),
+                    [](decltype(topoResult)::value_type::reference cell)
+                    {
+                        std::for_each(cell.begin(), cell.end(),
+                            [](decltype(topoResult)::value_type::value_type::reference process)
+                            {
+                                process.doProcess();
+                            }
+                        );
+                    }
+                );
+            }
+        );
         assert(
             std::all_of(
                 sd3.begin(), sd3.end(),
