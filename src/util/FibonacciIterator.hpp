@@ -10,6 +10,9 @@ namespace YADAW::Util
 template<typename IntegerType>
 class FibonacciIterator
 {
+private:
+    FibonacciIterator(IntegerType first, IntegerType second):
+        value_(std::pair(first, second)) {}
 public:
     static FibonacciIterator begin()
     {
@@ -40,9 +43,21 @@ public:
         operator--();
         return ret;
     }
-    std::pair<IntegerType, IntegerType> operator*() const
+    const std::pair<IntegerType, IntegerType>& operator*() const
     {
         return value_;
+    }
+    std::pair<IntegerType, IntegerType>& operator*()
+    {
+        return value_;
+    }
+    const std::pair<IntegerType, IntegerType>* operator->() const
+    {
+        return &value_;
+    }
+    std::pair<IntegerType, IntegerType>* operator->()
+    {
+        return &value_;
     }
     friend bool operator==(const FibonacciIterator<IntegerType>& lhs, const FibonacciIterator<IntegerType>& rhs)
     {

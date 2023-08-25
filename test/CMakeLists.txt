@@ -98,6 +98,8 @@ add_executable(SampleDelayTest
                ../src/audio/device/IAudioChannelGroup.hpp
                SampleDelayTest/main.cpp)
 
+add_executable(ZeckendorfLogarithmTest ZeckendorfLogarithmTest/main.cpp)
+
 target_link_libraries(ADEUtilsTest PRIVATE ade)
 
 target_link_libraries(AudioDeviceGraphTest PRIVATE
