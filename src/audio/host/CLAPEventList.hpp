@@ -6,6 +6,7 @@
 #include <clap/events.h>
 #include <clap/process.h>
 
+#include <atomic>
 #include <cstdlib>
 #include <memory>
 
@@ -57,7 +58,7 @@ public: // host-side buffer reads and writes
     void flip();
     void attachToProcessData(clap_process& process);
 private:
-    int pluginBufferIndex_ = 0;
+    std::atomic<int> pluginBufferIndex_ {0};
     clap_input_events inputEvents_;
     clap_output_events outputEvents_;
     CircularDequeType inputEventLists_[2];

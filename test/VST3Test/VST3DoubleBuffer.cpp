@@ -6,7 +6,7 @@ using namespace Steinberg::Vst;
 
 std::pair<VST3EventList&, VST3EventList&> VST3DoubleBuffer::hostSideEventList()
 {
-    auto hostSideBufferIndex = hostSideBufferIndex_;
+    auto hostSideBufferIndex = hostSideBufferIndex_.load(std::memory_order::memory_order_acquire);
     return {
         inputs_[hostSideBufferIndex],
         outputs_[hostSideBufferIndex]
@@ -15,7 +15,7 @@ std::pair<VST3EventList&, VST3EventList&> VST3DoubleBuffer::hostSideEventList()
 
 std::pair<VST3EventList&, VST3EventList&> VST3DoubleBuffer::pluginSideEventList()
 {
-    auto pluginSideBufferIndex = hostSideBufferIndex_ ^ 1;
+    auto pluginSideBufferIndex = hostSideBufferIndex_.load(std::memory_order::memory_order_acquire) ^ 1;
     return {
         inputs_[pluginSideBufferIndex],
         outputs_[pluginSideBufferIndex]
@@ -24,5 +24,5 @@ std::pair<VST3EventList&, VST3EventList&> VST3DoubleBuffer::pluginSideEventList(
 
 void VST3DoubleBuffer::switchBuffer()
 {
-    hostSideBufferIndex_ ^= 1;
+    hostSideBufferIndex_.fetch_xor(1);
 }

@@ -5,6 +5,8 @@
 
 #include <pluginterfaces/vst/ivstaudioprocessor.h>
 
+#include <atomic>
+
 class VST3DoubleBuffer
 {
     using VST3EventList = YADAW::Audio::Host::VST3EventList;
@@ -14,7 +16,7 @@ public:
     std::pair<VST3EventList&, VST3EventList&> pluginSideEventList();
     void switchBuffer();
 private:
-    int hostSideBufferIndex_ = 1;
+    std::atomic<int> hostSideBufferIndex_ {1};
     VST3EventList inputs_[2];
     VST3EventList outputs_[2];
 };

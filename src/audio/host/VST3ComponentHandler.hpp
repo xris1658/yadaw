@@ -77,8 +77,7 @@ private:
     std::function<void()> parameterValueChanged_;
     std::function<void()> parameterInfoChanged_;
     // Used by host
-    int hostBufferIndex_;
-    YADAW::Util::AtomicMutex editing_;
+    std::atomic<int> hostBufferIndex_;
     // Set on switchBuffer
     std::int64_t timestamp_;
     YADAW::Audio::Host::VST3ParameterChanges inputParameterChanges_[2];

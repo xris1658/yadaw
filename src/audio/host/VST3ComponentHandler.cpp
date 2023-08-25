@@ -16,7 +16,7 @@ VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin& plu
     ioChanged_([]() {}),
     parameterValueChanged_([]() {}),
     parameterInfoChanged_([]() {}),
-    hostBufferIndex_(0),
+    hostBufferIndex_{0},
     timestamp_(0),
     inputParameterChanges_{},
     outputParameterChanges_{},
@@ -76,8 +76,8 @@ tresult VST3ComponentHandler::doEndEdit(ParamID id)
 tresult VST3ComponentHandler::beginEdit(ParamID id)
 {
     // std::printf("beginEdit(%u)\n", id);
-    std::lock_guard<YADAW::Util::AtomicMutex> lg(editing_);
-    auto hostBufferIndex = hostBufferIndex_;
+    auto hostBufferIndex = hostBufferIndex_.load(
+        std::memory_order::memory_order_acquire);
     if(auto index = doBeginEdit(hostBufferIndex, id); index != -1)
     {
         mappings_[hostBufferIndex].emplace_back(id, index);
@@ -88,9 +88,9 @@ tresult VST3ComponentHandler::beginEdit(ParamID id)
 
 tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue)
 {
-    std::lock_guard<YADAW::Util::AtomicMutex> lg(editing_);
     // std::printf("performEdit(%u, %lf)\n", id, normalizedValue);
-    auto hostBufferIndex = hostBufferIndex_;
+    auto hostBufferIndex = hostBufferIndex_.load(
+        std::memory_order::memory_order_acquire);
     auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
     // Is the following operation needed? Seems not.
     // plugin_->editController()->setParamNormalized(id, normalizedValue);
@@ -119,7 +119,8 @@ tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue
 
 tresult VST3ComponentHandler::endEdit(ParamID id)
 {
-    std::lock_guard<YADAW::Util::AtomicMutex> lg(editing_);
+    auto hostBufferIndex = hostBufferIndex_.load(
+        std::memory_order::memory_order_acquire);
     // std::printf("endEdit(%u)\n", id);
     // TODO: Not sure what to do yet :(
     return doEndEdit(id);
@@ -191,19 +192,18 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
 
 void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond)
 {
-    std::lock_guard<YADAW::Util::AtomicMutex> lg(editing_);
     timestamp_ = switchTimestampInNanosecond;
-    outputParameterChanges_[hostBufferIndex_].clearPointsInQueue();
-    hostBufferIndex_ ^= 1; // 0 <-> 1
-    inputParameterChanges_[hostBufferIndex_].clearPointsInQueue();
-    auto pluginBufferIndex = hostBufferIndex_ ^ 1;
+    outputParameterChanges_[hostBufferIndex_.fetch_xor(1)].clearPointsInQueue();
+    const auto hostBufferIndex = hostBufferIndex_.load(std::memory_order::memory_order_acquire);
+    inputParameterChanges_[hostBufferIndex].clearPointsInQueue();
+    auto pluginBufferIndex = hostBufferIndex ^ 1;
     plugin_->setParameterChanges(inputParameterChanges_[pluginBufferIndex],
         outputParameterChanges_ + pluginBufferIndex);
 }
 
 void VST3ComponentHandler::consumeOutputParameterChanges(std::int64_t timestampInNanosecond)
 {
-    auto& outputParameterChanges = outputParameterChanges_[hostBufferIndex_];
+    auto& outputParameterChanges = outputParameterChanges_[hostBufferIndex_.load(std::memory_order::memory_order_acquire)];
     auto* editController = plugin_->editController();
     auto outputParameterChangeCount = outputParameterChanges.getParameterCount();
     FOR_RANGE0(i, outputParameterChangeCount)
