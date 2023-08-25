@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_CONTROLLER_AUDIOGRAPHBACKENDCONTROLLER
 #define YADAW_SRC_CONTROLLER_AUDIOGRAPHBACKENDCONTROLLER
 
-#if(WIN32)
+#if _WIN32
 
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "audio/backend/AudioGraphBusConfiguration.hpp"

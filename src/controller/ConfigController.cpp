@@ -20,7 +20,7 @@ private:
         node_["general"]["language"] = "English";
         node_["general"]["system-font-rendering"] = false;
         node_["general"]["system-font-rendering-while-debugging"] = false;
-#if(WIN32)
+#if _WIN32
         node_["audio-hardware"]["audio-api"] = "AudioGraph";
 #elif(__linux__)
         node_["audio-hardware"]["audio-api"] = "ALSA";

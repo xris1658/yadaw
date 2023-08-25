@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_NATIVE_WIN_WINRT_ASYNC
 #define YADAW_SRC_NATIVE_WIN_WINRT_ASYNC
 
-#if(WIN32)
+#if _WIN32
 
 #include <winrt/Windows.Foundation.h>
 

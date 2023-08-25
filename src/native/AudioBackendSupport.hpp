@@ -7,7 +7,7 @@ namespace YADAW::Native
 {
 template<YADAW::Audio::Backend::AudioBackend> constexpr bool isAudioBackendSupported = false;
 
-#if(WIN32)
+#if _WIN32
 template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBackend::AudioGraph> = true;
 template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBackend::ALSA> = false;
 #endif

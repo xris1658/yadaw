@@ -6,7 +6,7 @@
 #include <QString>
 #include <QtGlobal>
 
-#if(WIN32)
+#if _WIN32
 #define NOMINMAX
 #include <Windows.h>
 #endif
@@ -17,7 +17,7 @@
 namespace YADAW::Native
 {
 
-#if(WIN32)
+#if _WIN32
 constexpr auto CLSIDStringLength = 38;
 constexpr char PathSeparator = '\\';
 

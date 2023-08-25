@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_NATIVE_WIN_AUDIOGRAPHBACKENDIMPL
 #define YADAW_SRC_NATIVE_WIN_AUDIOGRAPHBACKENDIMPL
 
-#if(WIN32)
+#if _WIN32
 
 #include "audio/backend/AudioGraphBackend.hpp"
 

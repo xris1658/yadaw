@@ -12,7 +12,7 @@ namespace YADAW::Native
 class Library
 {
 private:
-#if(WIN32)
+#if _WIN32
     using HandleType = HMODULE;
 #elif(__linux__)
     using HandleType = void*;
@@ -20,7 +20,7 @@ private:
 #error Unknown HandleType
 #endif
 public:
-#if(WIN32)
+#if _WIN32
     using ExportType = FARPROC;
 #elif(__linux__)
     using ExportType = void*;
@@ -48,7 +48,7 @@ public:
     void* handle() const;
 private:
     QString path_;
-#if(WIN32)
+#if _WIN32
     ErrorCodeType errorCode_ = 0;
 #endif
     HandleType handle_;

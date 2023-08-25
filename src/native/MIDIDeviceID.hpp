@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_NATIVE_MIDIDEVICEID
 #define YADAW_SRC_NATIVE_MIDIDEVICEID
 
-#if(WIN32)
+#if _WIN32
 #include <winrt/base.h>
 #elif(__linux__)
 #include <cstdint>
@@ -9,7 +9,7 @@
 
 namespace YADAW::Native
 {
-#if(WIN32)
+#if _WIN32
 using MIDIDeviceID = winrt::hstring;
 #elif(__linux__)
 struct MIDIDeviceID

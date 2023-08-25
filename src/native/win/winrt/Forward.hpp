@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_NATIVE_WIN_WINRT_FORWARD
 #define YADAW_SRC_NATIVE_WIN_WINRT_FORWARD
 
-#if(WIN32)
+#if _WIN32
 
 #include <winrt/base.h>
 

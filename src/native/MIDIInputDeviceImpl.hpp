@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_NATIVE_MIDIINPUTDEVICEIMPL
 #define YADAW_SRC_NATIVE_MIDIINPUTDEVICEIMPL
 
-#if(WIN32)
+#if _WIN32
 #include "native/win/MIDIInputDeviceImpl.hpp"
 #elif(__linux__)
 #include "native/linux/MIDIInputDeviceImpl.hpp"

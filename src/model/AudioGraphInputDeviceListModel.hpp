@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_MODEL_AUDIOGRAPHINPUTDEVICELISTMODEL
 #define YADAW_SRC_MODEL_AUDIOGRAPHINPUTDEVICELISTMODEL
 
-#if(WIN32)
+#if _WIN32
 
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "model/IAudioDeviceListModel.hpp"

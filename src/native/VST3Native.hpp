@@ -8,7 +8,7 @@
 namespace YADAW::Native
 {
 extern const Steinberg::FIDString ViewType;
-#if(WIN32)
+#if _WIN32
 using InitEntry = bool(*)();
 constexpr char vst3FilePattern[] = "*.vst3";
 constexpr char initEntryName[] = "InitDll";
