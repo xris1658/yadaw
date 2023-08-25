@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_BACKEND_ALSABUSCONFIGURATION
 #define YADAW_SRC_AUDIO_BACKEND_ALSABUSCONFIGURATION
 
-#if(__linux__)
+#if __linux__
 
 #include "audio/backend/ALSABackend.hpp"
 #include "audio/device/IAudioBusConfiguration.hpp"

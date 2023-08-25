@@ -1,6 +1,6 @@
 #include "ConfigController.hpp"
 
-#if(__linux__)
+#if __linux__
 #include "controller/ALSABackendController.hpp"
 #endif
 #include "dao/Config.hpp"

@@ -165,7 +165,7 @@ std::ostream& operator<<(std::ostream& os, const TypeWithReverseByteOrder<T>& ty
 }
 }
 
-#if(Q_BYTE_ORDER == Q_LITTLE_ENDIAN)
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 using Int16LE = std::int16_t;
 using UInt16LE = std::uint16_t;
 using Int32LE = std::int32_t;

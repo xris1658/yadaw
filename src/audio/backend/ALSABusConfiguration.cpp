@@ -1,4 +1,4 @@
-#if(__linux__)
+#if __linux__
 
 #include "ALSABusConfiguration.hpp"
 

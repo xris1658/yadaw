@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         {
             if (!obj)
             {
-#if(NDEBUG)
+#if NDEBUG
 #else
                 fprintf(stderr, "Press <ENTER> to exit...");
                 getchar();

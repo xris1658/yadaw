@@ -1,4 +1,4 @@
-#if(__linux__)
+#if __linux__
 
 #include "audio/backend/ALSABackend.hpp"
 #include "native/linux/ALSABackendImpl.hpp"

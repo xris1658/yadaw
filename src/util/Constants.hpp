@@ -35,7 +35,7 @@ constexpr T sqrt3()
 template<typename T>
 T pi()
 {
-#if(__GNUC__)
+#if __GNUC__
     return std::acos(-1.0l);
 #else
     return std::acosl(-1.0l);
@@ -45,7 +45,7 @@ T pi()
 template<typename T>
 T sqrt2()
 {
-#if(__GNUC__)
+#if __GNUC__
     return std::sqrt(2.0l);
 #else
     return std::sqrtl(2.0l);
@@ -55,7 +55,7 @@ T sqrt2()
 template<typename T>
 T sqrt3()
 {
-#if(__GNUC__)
+#if __GNUC__
     return std::sqrt(3.0l);
 #else
     return std::sqrtl(3.0l);

@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_NATIVE_LINUX_ALSAHELPER
 #define YADAW_SRC_NATIVE_LINUX_ALSAHELPER
 
-#if(__linux__)
+#if __linux__
 
 #include <alsa/asoundlib.h>
 

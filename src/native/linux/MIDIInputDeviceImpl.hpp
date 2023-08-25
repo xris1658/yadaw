@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_NATIVE_LINUX_MIDIINPUTDEVICEIMPL
 #define YADAW_SRC_NATIVE_LINUX_MIDIINPUTDEVICEIMPL
 
-#if(__linux__)
+#if __linux__
 
 #include "midi/DeviceInfo.hpp"
 #include "midi/MIDIInputDevice.hpp"

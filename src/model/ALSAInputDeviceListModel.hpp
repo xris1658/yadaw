@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_MODEL_ALSAINPUTDEVICELISTMODEL
 #define YADAW_SRC_MODEL_ALSAINPUTDEVICELISTMODEL
 
-#if(__linux__)
+#if __linux__
 
 #include "audio/backend/ALSABackend.hpp"
 #include "model/IAudioDeviceListModel.hpp"

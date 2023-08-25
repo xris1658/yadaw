@@ -12,7 +12,7 @@ template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBa
 template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBackend::ALSA> = false;
 #endif
 
-#if(__linux__)
+#if __linux__
 template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBackend::AudioGraph> = false;
 template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBackend::ALSA> = true;
 #endif

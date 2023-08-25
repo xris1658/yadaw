@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_BACKEND_ALSAAUDIOBACKEND
 #define YADAW_SRC_AUDIO_BACKEND_ALSAAUDIOBACKEND
 
-#if(__linux__)
+#if __linux__
 
 #include "audio/backend/ALSADeviceSelector.hpp"
 

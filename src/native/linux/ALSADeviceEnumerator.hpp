@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_NATIVE_LINUX_ALSADEVICEENUMERATOR
 #define YADAW_SRC_NATIVE_LINUX_ALSADEVICEENUMERATOR
 
-#if(__linux__)
+#if __linux__
 
 #include "audio/backend/ALSADeviceSelector.hpp"
 #include "midi/DeviceInfo.hpp"
