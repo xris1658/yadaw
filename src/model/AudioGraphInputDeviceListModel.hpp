@@ -1,10 +1,12 @@
 #ifndef YADAW_SRC_MODEL_AUDIOGRAPHINPUTDEVICELISTMODEL
 #define YADAW_SRC_MODEL_AUDIOGRAPHINPUTDEVICELISTMODEL
 
-#if _WIN32
-
-#include "audio/backend/AudioGraphBackend.hpp"
 #include "model/IAudioDeviceListModel.hpp"
+
+namespace YADAW::Audio::Backend
+{
+class AudioGraphBackend;
+}
 
 namespace YADAW::Model
 {
@@ -25,7 +27,5 @@ private:
     YADAW::Audio::Backend::AudioGraphBackend* backend_;
 };
 }
-
-#endif
 
 #endif // YADAW_SRC_MODEL_AUDIOGRAPHINPUTDEVICELISTMODEL

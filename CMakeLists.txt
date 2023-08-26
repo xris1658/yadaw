@@ -64,6 +64,12 @@ endif()
 set(WIN32_NATIVE_SOURCES
     rc/YADAW.rc
     src/audio/backend/AudioGraphBackend.hpp
+    src/controller/AudioGraphBackendController.cpp
+    src/controller/AudioGraphBackendController.hpp
+    src/model/AudioGraphInputDeviceListModel.cpp
+    src/model/AudioGraphInputDeviceListModel.hpp
+    src/model/AudioGraphOutputDeviceListModel.cpp
+    src/model/AudioGraphOutputDeviceListModel.hpp
     src/native/win/AudioGraphBackend.cpp
     src/native/win/AudioGraphBackendImpl.cpp
     src/native/win/AudioGraphBackendImpl.hpp
@@ -88,6 +94,10 @@ set(LINUX_NATIVE_SOURCES
     src/audio/backend/ALSADeviceSelector.hpp
     src/controller/ALSABackendController.cpp
     src/controller/ALSABackendController.hpp
+    src/model/ALSAInputDeviceListModel.cpp
+    src/model/ALSAInputDeviceListModel.hpp
+    src/model/ALSAOutputDeviceListModel.cpp
+    src/model/ALSAOutputDeviceListModel.hpp
     src/native/linux/ALSABackend.cpp
     src/native/linux/ALSABackendImpl.cpp
     src/native/linux/ALSABackendImpl.hpp
@@ -226,8 +236,6 @@ set(YADAW_COMMON_SOURCES
     src/controller/AudioBusConfigurationController.cpp
     src/controller/AudioBusConfigurationController.hpp
     src/controller/AudioEngineController.hpp
-    src/controller/AudioGraphBackendController.cpp
-    src/controller/AudioGraphBackendController.hpp
     src/controller/ConfigController.cpp
     src/controller/ConfigController.hpp
     src/controller/DatabaseController.cpp
@@ -278,10 +286,6 @@ set(YADAW_COMMON_SOURCES
     src/midi/MessageToCLAPEvent.hpp
     src/midi/MessageToVST3Event.cpp
     src/midi/MessageToVST3Event.hpp
-    src/model/ALSAInputDeviceListModel.cpp
-    src/model/ALSAInputDeviceListModel.hpp
-    src/model/ALSAOutputDeviceListModel.cpp
-    src/model/ALSAOutputDeviceListModel.hpp
     src/model/AssetDirectoryListModel.cpp
     src/model/AssetDirectoryListModel.hpp
     src/model/AudioBusChannelListModel.cpp
@@ -290,10 +294,6 @@ set(YADAW_COMMON_SOURCES
     src/model/AudioBusConfigurationModel.hpp
     src/model/AudioChannelGroupModel.cpp
     src/model/AudioChannelGroupModel.hpp
-    src/model/AudioGraphInputDeviceListModel.cpp
-    src/model/AudioGraphInputDeviceListModel.hpp
-    src/model/AudioGraphOutputDeviceListModel.cpp
-    src/model/AudioGraphOutputDeviceListModel.hpp
     src/model/AutomationModel.cpp
     src/model/AutomationModel.hpp
     src/model/LocalizationListModel.cpp

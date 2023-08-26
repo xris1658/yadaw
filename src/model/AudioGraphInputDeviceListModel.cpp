@@ -2,6 +2,8 @@
 
 #include "AudioGraphInputDeviceListModel.hpp"
 
+#include "audio/backend/AudioGraphBackend.hpp"
+
 namespace YADAW::Model
 {
 AudioGraphInputDeviceListModel::AudioGraphInputDeviceListModel(Audio::Backend::AudioGraphBackend& backend,
