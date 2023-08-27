@@ -32,11 +32,11 @@ void AudioDeviceGraph::setMetadataFromNode(
     AudioDeviceGraphBase::setMetadataFromNode(nodeHandle, std::move(metadata));
 }
 
-
-ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData)
+void AudioDeviceGraph::doAddLatencyCompensation(const ade::NodeHandle& nodeHandle)
 {
-    auto device = process.device();
-    auto nodeHandle = AudioDeviceGraphBase::addNode(std::move(process), std::move(audioProcessData));
+    auto& metadata = getMetadataFromNode(nodeHandle);
+    auto device = metadata.process.device();
+    const auto& audioProcessData = metadata.processData;
     if(auto audioInputGroupCount = device->audioInputGroupCount();
         audioInputGroupCount > 1)
     {
@@ -72,6 +72,19 @@ ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, AudioPro
     {
         multiOutputs_.emplace(nodeHandle);
     }
+}
+
+ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, const AudioProcessData<float>& audioProcessData)
+{
+    auto nodeHandle = AudioDeviceGraphBase::addNode(std::move(process), audioProcessData);
+    doAddLatencyCompensation(nodeHandle);
+    return nodeHandle;
+}
+
+ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData)
+{
+    auto nodeHandle = AudioDeviceGraphBase::addNode(std::move(process), std::move(audioProcessData));
+    doAddLatencyCompensation(nodeHandle);
     return nodeHandle;
 }
 

@@ -31,6 +31,14 @@ void AudioDeviceGraphBase::setMetadataFromNode(
     typedGraph_.metadata(nodeHandle).set<AudioDeviceProcessNode>(std::move(metadata));
 }
 
+ade::NodeHandle
+AudioDeviceGraphBase::addNode(AudioDeviceProcess&& process, const AudioProcessData<float>& audioProcessData)
+{
+    auto nodeHandle = graph_.createNode();
+    setMetadataFromNode(nodeHandle, AudioDeviceProcessNode{std::move(process), audioProcessData});
+    return nodeHandle;
+}
+
 ade::NodeHandle AudioDeviceGraphBase::addNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData)
 {
     auto nodeHandle = graph_.createNode();

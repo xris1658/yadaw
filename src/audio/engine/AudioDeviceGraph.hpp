@@ -29,7 +29,10 @@ public:
     const AudioDeviceProcessNode& getMetadataFromNode(const ade::NodeHandle& nodeHandle) const;
     AudioDeviceProcessNode& getMetadataFromNode(ade::NodeHandle& nodeHandle);
     void setMetadataFromNode(ade::NodeHandle& nodeHandle, AudioDeviceProcessNode&& metadata);
+private:
+    void doAddLatencyCompensation(const ade::NodeHandle& nodeHandle);
 public:
+    ade::NodeHandle addNode(AudioDeviceProcess&& process, const AudioProcessData<float>& audioProcessData);
     ade::NodeHandle addNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData);
     void removeNode(ade::NodeHandle nodeHandle);
     // Connects two nodes if no "to -> from" is found. Returns an invalid
