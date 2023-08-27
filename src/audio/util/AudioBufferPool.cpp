@@ -13,20 +13,20 @@ AudioBufferPool::Buffer::Buffer(
 {}
 
 AudioBufferPool::Buffer::Buffer(AudioBufferPool::Buffer&& rhs) noexcept:
+    pool_(std::move(rhs.pool_)),
     pointer_(rhs.pointer_),
     row_(rhs.row_),
-    column_(rhs.column_),
-    pool_(std::move(rhs.pool_))
+    column_(rhs.column_)
 {}
 
 AudioBufferPool::Buffer& AudioBufferPool::Buffer::operator=(AudioBufferPool::Buffer&& rhs) noexcept
 {
     if(this != &rhs)
     {
+        pool_ = std::move(rhs.pool_);
         pointer_ = rhs.pointer_;
         row_ = rhs.row_;
         column_ = rhs.column_;
-        pool_ = std::move(rhs.pool_);
     }
     return *this;
 }
