@@ -51,16 +51,16 @@ public:
     void setInputBuffer(std::uint32_t groupIndex, std::uint32_t channelIndex,
         std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer> buffer)
     {
-        inputBuffers_[groupIndex][channelIndex] = std::move(buffer);
         container_.setInput(groupIndex, channelIndex,
-            reinterpret_cast<SampleType*>(buffer.get()));
+            reinterpret_cast<SampleType*>(buffer->pointer()));
+        inputBuffers_[groupIndex][channelIndex] = std::move(buffer);
     }
     void setOutputBuffer(std::uint32_t groupIndex, std::uint32_t channelIndex,
         std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer> buffer)
     {
-        outputBuffers_[groupIndex][channelIndex] = std::move(buffer);
         container_.setOutput(groupIndex, channelIndex,
-            reinterpret_cast<SampleType*>(buffer.get()));
+            reinterpret_cast<SampleType*>(buffer->pointer()));
+        outputBuffers_[groupIndex][channelIndex] = std::move(buffer);
     }
     const YADAW::Audio::Device::AudioProcessData<SampleType>& audioProcessData() const
     {
