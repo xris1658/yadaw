@@ -20,6 +20,7 @@ public:
         inputCounts_.resize(inputGroupCount, 0);
         inputs_.resize(inputGroupCount, {});
         inputs2_.resize(inputGroupCount, {});
+        audioProcessData_.inputGroupCount = inputGroupCount;
         audioProcessData_.inputCounts = inputCounts_.data();
         audioProcessData_.inputs = inputs_.data();
     }
@@ -28,6 +29,7 @@ public:
         outputCounts_.resize(outputGroupCount, 0);
         outputs_.resize(outputGroupCount, {});
         outputs2_.resize(outputGroupCount, {});
+        audioProcessData_.outputGroupCount = outputGroupCount;
         audioProcessData_.outputCounts = outputCounts_.data();
         audioProcessData_.outputs = outputs_.data();
     }
