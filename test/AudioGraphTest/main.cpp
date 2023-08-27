@@ -1,199 +1,117 @@
 #include "audio/backend/AudioGraphBackend.hpp"
-#include "audio/base/Gain.hpp"
-#include "util/Constants.hpp"
-#include "util/Util.hpp"
+#include "audio/backend/AudioGraphBusConfiguration.hpp"
+#include "audio/engine/AudioProcessDataBufferContainer.hpp"
+#include "audio/engine/AudioDeviceGraph.hpp"
+#include "audio/util/AudioBufferPool.hpp"
+#include "util/IntegerRange.hpp"
 
-#include <QString>
+#include "common/DisableStreamBuffer.hpp"
 
-#include <atomic>
-#include <chrono>
-#include <clocale>
-#include <cmath>
 #include <cstdio>
-#include <thread>
-#include <vector>
+#include <execution>
 
-using YADAW::Audio::Backend::AudioGraphBackend;
+std::uint64_t sampleIndex;
 
-int inputIndex = -1;
+const YADAW::Audio::Device::AudioProcessData<float>* outputAudioProcessData = nullptr;
 
-int samplePosition = 0;
+YADAW::Audio::Backend::AudioGraphBusConfiguration* busConfiguration = nullptr;
+YADAW::Audio::Engine::AudioDeviceGraph graph;
+decltype(graph.topologicalSort()) topo;
 
-double pi = YADAW::Util::pi<float>();
-
-std::uint64_t callbackDuration = 0;
-
-double sampleRate = 0;
-
-void audioGraphCallback(int inputCount, const AudioGraphBackend::InterleaveAudioBuffer* inputs,
-    int outputCount, const AudioGraphBackend::InterleaveAudioBuffer* outputs)
+void callback(int inputCount, const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* inputs,
+    int outputCount, const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* outputs)
 {
-    auto start = YADAW::Util::currentTimeValueInNanosecond();
-    int frameCount = 0;
-    int firstAvailableInput = -1;
-    for(int i = 0; i < inputCount; ++i)
+    FOR_RANGE0(i, outputAudioProcessData->inputGroupCount)
     {
-        if(inputs[i].channelCount == 2)
+        FOR_RANGE0(j, outputAudioProcessData->inputCounts[i])
         {
-            firstAvailableInput = i;
-            break;
-        }
-    }
-    if(firstAvailableInput != -1)
-    {
-        for(int i = 0; i < outputCount; ++i)
-        {
-            const auto& output = outputs[i];
-            frameCount = output.frameCount;
-            for(int j = 0; j < output.channelCount; ++j)
+            FOR_RANGE0(k, outputAudioProcessData->singleBufferSize)
             {
-                for(int k = 0; k < output.frameCount; ++k)
-                {
-                    *reinterpret_cast<float*>(output.at(k, j)) = std::sinf((samplePosition + k) * 440 * 2 * pi / sampleRate) * 0.5 + *reinterpret_cast<float*>(inputs[firstAvailableInput].at(k, j)) * 0.5;
-                }
+                float value = 0.5f * std::sin(2 * std::acos(-1.0f) * (sampleIndex + k) / (static_cast<float>(outputAudioProcessData->singleBufferSize)));
+                outputAudioProcessData->inputs[i][j][k] = value;
             }
         }
     }
-    else
+    sampleIndex += outputAudioProcessData->singleBufferSize;
+    busConfiguration->setBuffers(inputs, outputs);
+    for(auto& row: topo)
     {
-        for(int i = 0; i < outputCount; ++i)
-        {
-            const auto& output = outputs[i];
-            frameCount = output.frameCount;
-            for(int j = 0; j < output.channelCount; ++j)
+        std::for_each(std::execution::par_unseq, row.begin(), row.end(),
+            [](std::vector<YADAW::Audio::Engine::AudioDeviceGraphBase::AudioDeviceProcessNode>& nodes)
             {
-                for(int k = 0; k < output.frameCount; ++k)
+                for(auto& node: nodes)
                 {
-                    *reinterpret_cast<float*>(output.at(k, j)) = std::sinf((samplePosition + k) * 440 * 2 * pi / sampleRate);
+                    node.doProcess();
                 }
             }
-        }
+        );
     }
-    samplePosition += frameCount;
-    callbackDuration = YADAW::Util::currentTimeValueInNanosecond() - start;
 }
 
 int main()
 {
-    std::setlocale(LC_ALL, "en_US.UTF-8");
-    AudioGraphBackend audioGraphBackend;
-    audioGraphBackend.initialize();
-    auto outputDeviceCount = audioGraphBackend.audioOutputDeviceCount();
-    auto defaultOutputDeviceIndex = audioGraphBackend.defaultAudioOutputDeviceIndex();
-    auto defaultInputDeviceIndex = audioGraphBackend.defaultAudioInputDeviceIndex();
-    std::vector<QString> ids;
-    for(decltype(outputDeviceCount) i = 0; i < outputDeviceCount; ++i)
+    disableStdOutBuffer();
+    YADAW::Audio::Backend::AudioGraphBackend backend;
+    if(backend.initialize())
     {
-        auto info = audioGraphBackend.audioOutputDeviceAt(i);
-        if(info.isEnabled)
+        auto outputDeviceCount = backend.audioOutputDeviceCount();
+        std::printf("%u output devices: \n", outputDeviceCount);
+        FOR_RANGE0(i, outputDeviceCount)
         {
-            std::printf("  ");
+            const auto& device = backend.audioOutputDeviceAt(i);
+            std::printf("\t%u: %s (%s)\n", i + 1,
+                device.name.toLocal8Bit().data(),
+                device.id.toLocal8Bit().data()
+            );
         }
-        else
+        std::uint32_t outputDeviceIndex;
+        do
         {
-            std::printf("X ");
-        }
-        if(defaultOutputDeviceIndex == i)
+            std::scanf("%u", &outputDeviceIndex);
+            if(outputDeviceIndex <= outputDeviceCount)
+            {
+                --outputDeviceIndex;
+                std::getchar();
+                break;
+            }
+        } while(true);
+        if(backend.createAudioGraph(backend.audioOutputDeviceAt(outputDeviceIndex).id))
         {
-            std::printf("> ");
+            auto busConfig = YADAW::Audio::Backend::AudioGraphBusConfiguration(backend);
+            auto bufferSize = backend.bufferSizeInFrames();
+            std::printf("Buffer size: %d sample(s)\n", bufferSize);
+            auto pool = YADAW::Audio::Util::AudioBufferPool::createPool(bufferSize);
+            busConfiguration = &busConfig;
+            {
+                std::vector<std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer>> outputs;
+                auto outputChannelCount = backend.channelCount(false, outputDeviceIndex);
+                auto& outputDevice = busConfig.getOutputBusAt(busConfig.appendBus(false, outputChannelCount))->get();
+                outputs.reserve(outputChannelCount);
+                YADAW::Audio::Engine::AudioProcessDataBufferContainer<float> outputProcessData;
+                outputProcessData.setSingleBufferSize(bufferSize);
+                outputProcessData.setInputGroupCount(1);
+                outputProcessData.setInputCount(0, outputChannelCount);
+                outputAudioProcessData = &outputProcessData.audioProcessData();
+                FOR_RANGE0(i, outputChannelCount)
+                {
+                    outputs.emplace_back(
+                        std::make_shared<YADAW::Audio::Util::AudioBufferPool::Buffer>(
+                            pool->lend()
+                        )
+                    );
+                    outputDevice.setChannel(i, YADAW::Audio::Device::Channel {outputDeviceIndex, i});
+                    outputProcessData.setInputBuffer(0, i, outputs.back());
+                }
+                auto node = graph.addNode(
+                    YADAW::Audio::Engine::AudioDeviceProcess(outputDevice),
+                    outputProcessData.audioProcessData()
+                );
+                topo = graph.topologicalSort();
+                backend.start(&callback);
+                std::getchar();
+                backend.stop();
+            }
+            backend.destroyAudioGraph();
         }
-        else
-        {
-            std::printf("  ");
-        }
-        std::wprintf(L"%d: %s\n", (i + 1),
-            reinterpret_cast<const wchar_t*>(info.name.data()));
-        ids.emplace_back(info.id);
     }
-    int output = -1;
-    while(1)
-    {
-        std::printf("Select primary output device (0 for default output): ");
-        if(std::scanf("%d", &output) != 1 || output < 0 || output > outputDeviceCount)
-        {
-            std::printf("The input is invalid. Please input again.\n");
-            continue;
-        }
-        break;
-    }
-    bool createAudioGraphResult = false;
-    if(output == 0)
-    {
-        createAudioGraphResult = audioGraphBackend.createAudioGraph();
-    }
-    else
-    {
-        createAudioGraphResult = audioGraphBackend.createAudioGraph(ids[output - 1]);
-    }
-    if(!createAudioGraphResult)
-    {
-        std::printf("Create audio graph failed!\n");
-        return 0;
-    }
-    sampleRate = audioGraphBackend.sampleRate();
-    std::printf("Created audio graph at %u Hz\n", sampleRate);
-    if(output == 0)
-    {
-        auto currentOutputDevice = audioGraphBackend.currentOutputDevice();
-        std::wprintf(L"Current device: %s\n",
-            reinterpret_cast<const wchar_t*>(currentOutputDevice.name.data()));
-    }
-    output = -1;
-    auto inputDeviceCount = audioGraphBackend.audioInputDeviceCount();
-    ids.clear();
-    for(decltype(inputDeviceCount) i = 0; i < inputDeviceCount; ++i)
-    {
-        auto info = audioGraphBackend.audioInputDeviceAt(i);
-        if(info.isEnabled)
-        {
-            std::printf("  ");
-        }
-        else
-        {
-            std::printf("X ");
-        }
-        if(defaultInputDeviceIndex == i)
-        {
-            std::printf("> ");
-        }
-        else
-        {
-            std::printf("  ");
-        }
-        std::wprintf(L"%d: %s\n", (i + 1),
-            reinterpret_cast<const wchar_t*>(info.name.data()));
-        ids.emplace_back(info.id);
-    }
-    while(1)
-    {
-        std::printf("Select primary input device: ");
-        if(std::scanf("%d", &output) != 1 || output < 0 || output > inputDeviceCount)
-        {
-            std::printf("The input is invalid. Please input again.\n");
-            continue;
-        }
-        break;
-    }
-    audioGraphBackend.activateDeviceInput(output - 1, true);
-    audioGraphBackend.start(&audioGraphCallback);
-    auto latencyInMilliseconds = audioGraphBackend.latencyInSamples() * 1000.0 / static_cast<double>(audioGraphBackend.sampleRate());
-    auto bufferDuration = audioGraphBackend.bufferSizeInFrames() * 1000.0 / static_cast<double>(audioGraphBackend.sampleRate());
-    std::printf("Latency: %d samples (%lf millisecond)\n", audioGraphBackend.latencyInSamples(), latencyInMilliseconds);
-    std::printf("Buffer size: %d samples (%lf milliseconds)\n", audioGraphBackend.bufferSizeInFrames(), bufferDuration);
-    std::getchar();
-    std::atomic_bool stop; stop.store(false);
-    std::thread([&stop, bufferDuration]()
-    {
-        while(!stop.load())
-        {
-            std::printf("%lf%%\n", callbackDuration / 1000000.0 / bufferDuration * 100.0);
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-    }).detach();
-    std::getchar();
-    stop.store(true);
-    audioGraphBackend.stop();
-    audioGraphBackend.destroyAudioGraph();
-    std::printf("Destroyed audio graph\n");
-    return 0;
 }

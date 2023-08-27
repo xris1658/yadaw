@@ -1,6 +1,20 @@
 if(WIN32)
     add_executable(AudioGraphTest
                    ../src/audio/backend/AudioGraphBackend.hpp
+                   ../src/audio/backend/AudioGraphBusConfiguration.cpp
+                   ../src/audio/backend/AudioGraphBusConfiguration.hpp
+                   ../src/audio/device/IAudioChannelGroup.cpp
+                   ../src/audio/device/IAudioChannelGroup.hpp
+                   ../src/audio/engine/AudioDeviceGraph.cpp
+                   ../src/audio/engine/AudioDeviceGraph.hpp
+                   ../src/audio/engine/AudioDeviceGraphBase.cpp
+                   ../src/audio/engine/AudioDeviceGraphBase.hpp
+                   ../src/audio/util/AudioBufferPool.cpp
+                   ../src/audio/util/AudioBufferPool.hpp
+                   ../src/audio/util/AudioChannelGroup.cpp
+                   ../src/audio/util/AudioChannelGroup.hpp
+                   ../src/audio/util/SampleDelay.cpp
+                   ../src/audio/util/SampleDelay.hpp
                    ../src/native/win/AudioGraphBackend.cpp
                    ../src/native/win/AudioGraphBackendImpl.cpp
                    ../src/native/win/AudioGraphBackendImpl.hpp
@@ -9,11 +23,15 @@ if(WIN32)
                    ../src/native/win/winrt/Forward.hpp
                    ../src/native/win/winrt/QStringFromHString.cpp
                    ../src/native/win/winrt/QStringFromHString.hpp
+                   ../src/util/ADEUtil.cpp
+                   ../src/util/ADEUtil.hpp
+                   ../src/util/IntegerRange.hpp
                    ../src/util/Util.cpp
                    ../src/util/Util.hpp
                    AudioGraphTest/main.cpp)
     target_precompile_headers(AudioGraphTest PRIVATE ../pch/WindowsAPI.hpp ../pch/QtCore.hpp)
     target_link_libraries(AudioGraphTest PRIVATE
+                          ade
                           Qt6::Core
                           version
                           windowsapp)
