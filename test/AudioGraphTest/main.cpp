@@ -80,7 +80,7 @@ int main()
             auto busConfig = YADAW::Audio::Backend::AudioGraphBusConfiguration(backend);
             auto bufferSize = backend.bufferSizeInFrames();
             std::printf("Buffer size: %d sample(s)\n", bufferSize);
-            auto pool = YADAW::Audio::Util::AudioBufferPool::createPool(bufferSize * sizeof(float));
+            auto pool = YADAW::Audio::Util::AudioBufferPool::createPool<float>(bufferSize);
             busConfiguration = &busConfig;
             {
                 std::vector<std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer>> outputs;

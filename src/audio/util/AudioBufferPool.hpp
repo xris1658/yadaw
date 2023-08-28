@@ -32,8 +32,13 @@ public:
     };
 private:
     AudioBufferPool(std::uint32_t singleBufferByteSize);
-public:
     static std::shared_ptr<AudioBufferPool> createPool(std::uint32_t singleBufferByteSize);
+public:
+    template<typename SampleType>
+    static std::shared_ptr<AudioBufferPool> createPool(std::uint32_t singleBufferSampleCount)
+    {
+        return createPool(singleBufferSampleCount * sizeof(SampleType));
+    }
 public:
     AudioBufferPool(const AudioBufferPool&) = delete;
     ~AudioBufferPool() = default;
