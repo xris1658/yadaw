@@ -26,13 +26,6 @@ public:
         Success,
         AlreadyDone
     };
-    enum class SampleFormat
-    {
-        Int16,
-        Int24,
-        Float32,
-        Float64
-    };
     struct DeviceInfo
     {
         QString name;
@@ -44,18 +37,13 @@ public:
         std::uint8_t* data = nullptr;
         int channelCount = 0;
         int frameCount = 0;
-        SampleFormat sampleFormat = SampleFormat::Int16;
-        static int sampleSizeInBytes(SampleFormat sampleFormat)
+        static constexpr int sampleSizeInBytes()
         {
-            return sampleFormat == SampleFormat::Int16? 2:
-            sampleFormat == SampleFormat::Int24? 3:
-            sampleFormat == SampleFormat::Float32? 4:
-            sampleFormat == SampleFormat::Float64? 8:
-            0;
+            return sizeof(float);
         }
         inline std::uint8_t* at(std::uint32_t frameIndex, std::uint32_t channelIndex) const
         {
-            return data + ((frameIndex * channelCount + channelIndex) * sampleSizeInBytes(sampleFormat));
+            return data + ((frameIndex * channelCount + channelIndex) * sampleSizeInBytes());
         }
     };
     using AudioCallbackType = void(int inputCount, const InterleaveAudioBuffer* inputs,

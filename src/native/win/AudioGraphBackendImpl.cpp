@@ -240,8 +240,7 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                                 inputAudioBuffer_[i] = AudioGraphBackend::InterleaveAudioBuffer {
                                     /*.data = */dataInBytes,
                                     /*.channelCount = */static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
-                                    /*.frameCount = */requiredSamples,
-                                    /*.sampleFormat = */SampleFormat::Float32
+                                    /*.frameCount = */requiredSamples
                                 };
                             }
                         }
@@ -264,8 +263,7 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                         {
                             dataInBytes,
                             static_cast<int>(properties.ChannelCount()),
-                            requiredSamples,
-                            SampleFormat::Float32
+                            requiredSamples
                         };
                         callback(inputAudioBuffer_.size(), inputAudioBuffer_.data(), 1, &interleaveAudioBuffer);
                     }
