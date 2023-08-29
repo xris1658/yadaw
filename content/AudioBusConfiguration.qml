@@ -5,8 +5,6 @@ import QtQuick.Layouts
 Rectangle {
     id: root
     color: Colors.background
-    property int minimumWidth: 400
-    property int minimumHeight: 300
     property var deviceListModel: ListModel {}
     property alias model: busList.model
 
@@ -167,7 +165,7 @@ Rectangle {
     StackLayout {
         id: stackLayout
         anchors.right: parent.right
-        width: root.minimumWidth - busList.width - separator.width
+        width: root.width - busList.width - separator.width
         height: root.height
         Repeater {
             model: busList.model

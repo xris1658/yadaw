@@ -16,13 +16,14 @@ Window {
     title: qsTr("Configure Audio Bus")
     modality: Qt.WindowModal
     color: Colors.background
-    width: column.width + padding * 2
-    height: column.height + padding * 2
+    width: 500
+    height: 300
     Column {
         id: column
         anchors.centerIn: parent
         Row {
             id: tabButtons
+            width: root.width - root.padding * 2
             TabButton {
                 id: inputButton
                 text: qsTr("Input")
@@ -34,22 +35,25 @@ Window {
             }
         }
         Rectangle {
-            width: stackLayout.width + border.width * 2
-            height: stackLayout.height + border.width * 2
-            border.color: Colors.controlBorder
+            id: tabContent
+            width: tabButtons.width
+            height: root.height - tabButtons.height - root.padding * 2
+            color: "transparent"
+            border.color: Colors.border
             StackLayout {
                 id: stackLayout
-                anchors.centerIn: parent
+                anchors.fill: parent
+                anchors.margins: parent.border.width
                 currentIndex: inputButton.checked? 0: 1
                 AudioBusConfiguration {
                     id: inputConfig
-                    width: minimumWidth
-                    height: minimumHeight
+                    width: stackLayout.width
+                    height: stackLayout.height
                 }
                 AudioBusConfiguration {
                     id: outputConfig
-                    width: minimumWidth
-                    height: minimumHeight
+                    width: stackLayout.width
+                    height: stackLayout.height
                 }
             }
         }
