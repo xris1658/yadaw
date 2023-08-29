@@ -77,26 +77,18 @@ void AudioChannelGroup::setMain(bool isMain)
 void AudioChannelGroup::setChannelGroupType(YADAW::Audio::Base::ChannelGroupType channelGroupType,
     std::uint32_t channelCount)
 {
-    auto channelCountOfType = YADAW::Audio::Device::IAudioChannelGroup::channelCount(channelGroupType);
-    if(channelCountOfType == -1)
+    speakers_.clear();
+    speakerNames_.clear();
+    if(channelCount == -1)
     {
-        speakers_.clear();
-        speakerNames_.clear();
-        speakers_.resize(channelCount, YADAW::Audio::Base::ChannelType::Custom);
-        speakerNames_.resize(channelCount, QString());
+        channelCount = YADAW::Audio::Device::IAudioChannelGroup::channelCount(channelGroupType);
     }
-    else if(channelCount == 0)
+    FOR_RANGE0(i, channelCount)
     {
-        channelCount = channelCountOfType;
-        speakers_.clear();
-        speakerNames_.clear();
-        FOR_RANGE0(i, channelCount)
-        {
-            speakers_.emplace_back(IAudioChannelGroup::channelAt(channelGroupType, i));
-        }
-        speakers_.resize(channelCount, YADAW::Audio::Base::ChannelType::Custom);
-        speakerNames_.resize(channelCount);
+        speakers_.emplace_back(IAudioChannelGroup::channelAt(channelGroupType, i));
     }
+    speakers_.resize(channelCount, YADAW::Audio::Base::ChannelType::Custom);
+    speakerNames_.resize(channelCount, QString());
 }
 
 bool AudioChannelGroup::setSpeakerType(std::uint32_t index, YADAW::Audio::Base::ChannelType type)
