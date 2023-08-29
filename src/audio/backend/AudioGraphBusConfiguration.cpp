@@ -91,14 +91,14 @@ void processInputs(
     const std::vector<YADAW::Audio::Device::Channel>& channels,
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    FOR_RANGE0(i, audioProcessData.inputGroupCount)
+    FOR_RANGE0(i, audioProcessData.outputGroupCount)
     {
-        FOR_RANGE0(j, audioProcessData.inputCounts[i])
+        FOR_RANGE0(j, audioProcessData.outputCounts[i])
         {
             FOR_RANGE0(k, audioProcessData.singleBufferSize)
             {
                 std::memcpy(
-                    audioProcessData.inputs[i][j] + k,
+                    audioProcessData.outputs[i][j] + k,
                     buffers[channels[i].deviceIndex].at(k, channels[i].channelIndex),
                     sizeof(float)
                 );
