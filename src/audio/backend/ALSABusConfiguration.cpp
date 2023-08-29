@@ -49,28 +49,28 @@ std::uint32_t ALSABusConfiguration::outputBusCount() const
 OptionalRef<const IBus> ALSABusConfiguration::inputBusAt(std::uint32_t index) const
 {
     return index < inputBusCount()?
-        OptionalRef<const IBus>(inputBusses_[index]):
+        OptionalRef<const IBus>(*inputBusses_[index]):
         std::nullopt;
 }
 
 OptionalRef<const IBus> ALSABusConfiguration::outputBusAt(std::uint32_t index) const
 {
     return index < outputBusCount()?
-       OptionalRef<const IBus>(outputBusses_[index]):
+       OptionalRef<const IBus>(*outputBusses_[index]):
        std::nullopt;
 }
 
 OptionalRef<IBus> ALSABusConfiguration::inputBusAt(std::uint32_t index)
 {
     return index < inputBusCount()?
-       OptionalRef<IBus>(inputBusses_[index]):
+       OptionalRef<IBus>(*inputBusses_[index]):
        std::nullopt;
 }
 
 OptionalRef<IBus> ALSABusConfiguration::outputBusAt(std::uint32_t index)
 {
     return index < outputBusCount()?
-       OptionalRef<IBus>(outputBusses_[index]):
+       OptionalRef<IBus>(*outputBusses_[index]):
        std::nullopt;
 }
 
@@ -80,9 +80,9 @@ ChannelPosition ALSABusConfiguration::channelPosition(bool isInput, Channel chan
     for(std::uint32_t i = 0; i < busses.size(); ++i)
     {
         const auto& bus = busses[i];
-        for(std::uint32_t j = 0; j < bus.channelCount(); ++j)
+        for(std::uint32_t j = 0; j < bus->channelCount(); ++j)
         {
-            auto channelInBus = bus.channelAt(j);
+            auto channelInBus = bus->channelAt(j);
             if(channelInBus == channel)
             {
                 return {i, j};
@@ -95,7 +95,7 @@ ChannelPosition ALSABusConfiguration::channelPosition(bool isInput, Channel chan
 uint32_t ALSABusConfiguration::appendBus(bool isInput, std::uint32_t channelCount)
 {
     auto& bus = isInput? inputBusses_: outputBusses_;
-    bus.emplace_back(channelCount);
+    bus.emplace_back(std::make_unique<Bus>(channelCount));
     return bus.size() - 1;
 }
 

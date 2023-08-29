@@ -7,7 +7,9 @@
 #include "audio/device/IAudioBusConfiguration.hpp"
 #include "util/OptionalUtil.hpp"
 
+#include <memory>
 #include <optional>
+#include <vector>
 
 namespace YADAW::Audio::Backend
 {
@@ -41,8 +43,8 @@ public:
     void clearBus(bool isInput) override;
 private:
     const ALSABackend* backend_;
-    std::vector<Bus> inputBusses_;
-    std::vector<Bus> outputBusses_;
+    std::vector<std::unique_ptr<Bus>> inputBusses_;
+    std::vector<std::unique_ptr<Bus>> outputBusses_;
 };
 }
 
