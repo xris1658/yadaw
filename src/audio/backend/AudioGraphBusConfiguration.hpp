@@ -9,7 +9,9 @@
 #include "audio/util/AudioChannelGroup.hpp"
 #include "util/OptionalUtil.hpp"
 
+#include <memory>
 #include <optional>
+#include <vector>
 
 namespace YADAW::Audio::Backend
 {
@@ -66,8 +68,8 @@ public:
         const AudioGraphBackend::InterleaveAudioBuffer* outputs);
 private:
     const AudioGraphBackend* backend_;
-    std::vector<Bus> inputBusses_;
-    std::vector<Bus> outputBusses_;
+    std::vector<std::unique_ptr<Bus>> inputBusses_;
+    std::vector<std::unique_ptr<Bus>> outputBusses_;
 };
 }
 

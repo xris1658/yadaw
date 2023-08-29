@@ -171,22 +171,22 @@ std::uint32_t AudioGraphBusConfiguration::outputBusCount() const
 
 OptionalRef<const IBus> AudioGraphBusConfiguration::inputBusAt(std::uint32_t index) const
 {
-    return index < inputBusCount()? OptionalRef<const IBus>(inputBusses_[index]): std::nullopt;
+    return index < inputBusCount()? OptionalRef<const IBus>(*inputBusses_[index]): std::nullopt;
 }
 
 OptionalRef<const IBus> AudioGraphBusConfiguration::outputBusAt(std::uint32_t index) const
 {
-    return index < outputBusCount()? OptionalRef<const IBus>(outputBusses_[index]): std::nullopt;
+    return index < outputBusCount()? OptionalRef<const IBus>(*outputBusses_[index]): std::nullopt;
 }
 
 OptionalRef<IBus> AudioGraphBusConfiguration::inputBusAt(std::uint32_t index)
 {
-    return index < inputBusCount()? OptionalRef<IBus>(inputBusses_[index]): std::nullopt;
+    return index < inputBusCount()? OptionalRef<IBus>(*inputBusses_[index]): std::nullopt;
 }
 
 OptionalRef<IBus> AudioGraphBusConfiguration::outputBusAt(std::uint32_t index)
 {
-    return index < outputBusCount()? OptionalRef<IBus>(outputBusses_[index]): std::nullopt;
+    return index < outputBusCount()? OptionalRef<IBus>(*outputBusses_[index]): std::nullopt;
 }
 
 ChannelPosition AudioGraphBusConfiguration::channelPosition(bool isInput, Channel channel) const
@@ -195,9 +195,9 @@ ChannelPosition AudioGraphBusConfiguration::channelPosition(bool isInput, Channe
     for(std::uint32_t i = 0; i < busses.size(); ++i)
     {
         const auto& bus = busses[i];
-        for(std::uint32_t j = 0; j < bus.channelCount(); ++j)
+        for(std::uint32_t j = 0; j < bus->channelCount(); ++j)
         {
-            auto channelInBus = bus.channelAt(j);
+            auto channelInBus = bus->channelAt(j);
             if(channelInBus == channel)
             {
                 return {i, j};
@@ -210,7 +210,7 @@ ChannelPosition AudioGraphBusConfiguration::channelPosition(bool isInput, Channe
 uint32_t AudioGraphBusConfiguration::appendBus(bool isInput, std::uint32_t channelCount)
 {
     auto& bus = isInput? inputBusses_: outputBusses_;
-    bus.emplace_back(isInput, channelCount);
+    bus.emplace_back(std::make_unique<Bus>(isInput, channelCount));
     return bus.size() - 1;
 }
 
@@ -234,25 +234,25 @@ void AudioGraphBusConfiguration::clearBus(bool isInput)
 OptionalRef<const AudioGraphBusConfiguration::Bus>
     AudioGraphBusConfiguration::getInputBusAt(std::uint32_t index) const
 {
-    return index < inputBusCount()? OptionalRef<const Bus>(inputBusses_[index]): std::nullopt;
+    return index < inputBusCount()? OptionalRef<const Bus>(*inputBusses_[index]): std::nullopt;
 }
 
 OptionalRef<const AudioGraphBusConfiguration::Bus>
     AudioGraphBusConfiguration::getOutputBusAt(std::uint32_t index) const
 {
-    return index < outputBusCount()? OptionalRef<const Bus>(outputBusses_[index]): std::nullopt;
+    return index < outputBusCount()? OptionalRef<const Bus>(*outputBusses_[index]): std::nullopt;
 }
 
 OptionalRef<AudioGraphBusConfiguration::Bus>
     AudioGraphBusConfiguration::getInputBusAt(std::uint32_t index)
 {
-    return index < inputBusCount()? OptionalRef<Bus>(inputBusses_[index]): std::nullopt;
+    return index < inputBusCount()? OptionalRef<Bus>(*inputBusses_[index]): std::nullopt;
 }
 
 OptionalRef<AudioGraphBusConfiguration::Bus>
     AudioGraphBusConfiguration::getOutputBusAt(std::uint32_t index)
 {
-    return index < outputBusCount()? OptionalRef<Bus>(outputBusses_[index]): std::nullopt;
+    return index < outputBusCount()? OptionalRef<Bus>(*outputBusses_[index]): std::nullopt;
 }
 
 void AudioGraphBusConfiguration::setBuffers(const AudioGraphBackend::InterleaveAudioBuffer* inputs,
@@ -260,11 +260,11 @@ void AudioGraphBusConfiguration::setBuffers(const AudioGraphBackend::InterleaveA
 {
     for(auto& bus: inputBusses_)
     {
-        bus.setInterleaveAudioBuffers(inputs);
+        bus->setInterleaveAudioBuffers(inputs);
     }
     for(auto& bus: outputBusses_)
     {
-        bus.setInterleaveAudioBuffers(outputs);
+        bus->setInterleaveAudioBuffers(outputs);
     }
 }
 }
