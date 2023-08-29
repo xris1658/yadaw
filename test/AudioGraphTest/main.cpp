@@ -207,10 +207,10 @@ int main()
                     YADAW::Audio::Engine::AudioDeviceProcess(outputDevice),
                     outputProcessData.audioProcessData()
                 );
-                // FOR_RANGE0(i, inputNodes.size())
-                // {
-                //     graph.connect(inputNodes[i], summingNode, 0, i);
-                // }
+                FOR_RANGE0(i, inputNodes.size())
+                {
+                    graph.connect(inputNodes[i], summingNode, 0, i);
+                }
                 graph.connect(summingNode, outputNode, 0, 0);
                 topo = graph.topologicalSort();
                 backend.start(&callback);
