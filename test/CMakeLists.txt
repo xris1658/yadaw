@@ -15,6 +15,8 @@ if(WIN32)
                    ../src/audio/util/AudioChannelGroup.hpp
                    ../src/audio/util/SampleDelay.cpp
                    ../src/audio/util/SampleDelay.hpp
+                   ../src/audio/util/Summing.cpp
+                   ../src/audio/util/Summing.hpp
                    ../src/native/win/AudioGraphBackend.cpp
                    ../src/native/win/AudioGraphBackendImpl.cpp
                    ../src/native/win/AudioGraphBackendImpl.hpp
