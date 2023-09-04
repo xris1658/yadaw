@@ -44,7 +44,7 @@ public:
     ade::NodeHandle addNode(AudioDeviceProcess&& process, const AudioProcessData<float>& audioProcessData);
     ade::NodeHandle addNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData);
     void removeNode(ade::NodeHandle nodeHandle);
-    ade::EdgeHandle connect(ade::NodeHandle from, ade::NodeHandle to, std::uint32_t fromChannel, std::uint32_t toChannel);
+    ade::EdgeHandle connect(ade::NodeHandle from, ade::NodeHandle to);
     void disconnect(ade::EdgeHandle edgeHandle);
 protected:
     ade::Graph graph_;

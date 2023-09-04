@@ -52,8 +52,7 @@ void AudioDeviceGraphBase::removeNode(ade::NodeHandle nodeHandle)
     typedGraph_.erase(nodeHandle);
 }
 
-ade::EdgeHandle AudioDeviceGraphBase::connect(ade::NodeHandle from, ade::NodeHandle to,
-    std::uint32_t fromChannel, std::uint32_t toChannel)
+ade::EdgeHandle AudioDeviceGraphBase::connect(ade::NodeHandle from, ade::NodeHandle to)
 {
     return typedGraph_.link(from, to);
 }

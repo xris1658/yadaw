@@ -136,8 +136,7 @@ ade::EdgeHandle AudioDeviceGraph::connect(ade::NodeHandle from, ade::NodeHandle 
         else
         {
             auto latencyReduced = getMetadataFromNode(from).sumLatency() > 0;
-            ret = AudioDeviceGraphBase::connect(
-                from, to, fromChannel, toChannel);
+            ret = AudioDeviceGraphBase::connect(from, to);
             if(latencyReduced)
             {
                 onSumLatencyChanged(to);
