@@ -4,6 +4,7 @@
 
 #include "native/linux/ALSADeviceEnumerator.hpp"
 #include "util/Base.hpp"
+#include "util/IntegerRange.hpp"
 #include "util/SampleFormat.hpp"
 
 #include <filesystem>
@@ -43,6 +44,76 @@ constexpr snd_pcm_access_t accesses[] = {
     SND_PCM_ACCESS_RW_INTERLEAVED
 };
 
+using PCMAccess = snd_pcm_sframes_t(snd_pcm_t*, std::byte*, void**, std::uint32_t frameSize);
+
+snd_pcm_sframes_t readMMapInterleaved(snd_pcm_t* pcm, std::byte* buffer, void**, std::uint32_t frameSize)
+{
+    // snd_pcm_mmap_begin
+    auto ret = snd_pcm_mmap_readi(pcm, buffer, frameSize);
+    // snd_pcm_mmap_commit
+    return ret;
+}
+
+snd_pcm_sframes_t readMMapNonInterleaved(snd_pcm_t* pcm, std::byte*, void** interleaveBuffer, std::uint32_t frameSize)
+{
+    // snd_pcm_mmap_begin
+    auto ret = snd_pcm_mmap_readn(pcm, interleaveBuffer, frameSize);
+    // snd_pcm_mmap_commit
+    return ret;
+}
+
+snd_pcm_sframes_t readInterleaved(snd_pcm_t* pcm, std::byte* buffer, void**, std::uint32_t frameSize)
+{
+    return snd_pcm_readi(pcm, buffer, frameSize);
+}
+
+snd_pcm_sframes_t readNonInterleaved(snd_pcm_t* pcm, std::byte* buffer, void** interleaveBuffer, std::uint32_t frameSize)
+{
+    return snd_pcm_readn(pcm, interleaveBuffer, frameSize);
+}
+
+constexpr PCMAccess* readFunc[] = {
+    &readMMapInterleaved,
+    &readMMapNonInterleaved,
+    nullptr,
+    &readInterleaved,
+    &readNonInterleaved,
+};
+
+snd_pcm_sframes_t writeMMapInterleaved(snd_pcm_t* pcm, std::byte* buffer, void**, std::uint32_t frameSize)
+{
+    // snd_pcm_mmap_begin
+    auto ret = snd_pcm_mmap_writei(pcm, buffer, frameSize);
+    // snd_pcm_mmap_commit
+    return ret;
+}
+
+snd_pcm_sframes_t writeMMapNonInterleaved(snd_pcm_t* pcm, std::byte*, void** interleaveBuffer, std::uint32_t frameSize)
+{
+    // snd_pcm_mmap_begin
+    auto ret = snd_pcm_mmap_writen(pcm, interleaveBuffer, frameSize);
+    // snd_pcm_mmap_commit
+    return ret;
+}
+
+snd_pcm_sframes_t writeInterleaved(snd_pcm_t* pcm, std::byte* buffer, void**, std::uint32_t frameSize)
+{
+    return snd_pcm_writei(pcm, buffer, frameSize);
+}
+
+snd_pcm_sframes_t writeNonInterleaved(snd_pcm_t* pcm, std::byte* buffer, void** interleaveBuffer, std::uint32_t frameSize)
+{
+    return snd_pcm_writen(pcm, interleaveBuffer, frameSize);
+}
+
+constexpr PCMAccess* writeFunc[] = {
+    &writeMMapInterleaved,
+    &writeMMapNonInterleaved,
+    nullptr,
+    &writeInterleaved,
+    &writeNonInterleaved,
+};
+
 using SampleFormat = std::tuple<
     double, YADAW::Util::DoubleRE,
     float, YADAW::Util::FloatRE,
@@ -56,17 +127,17 @@ constexpr std::size_t sampleSize[] = {
     8, 8, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 1
 };
 
+std::size_t getSampleSize(snd_pcm_format_t format)
+{
+    auto index = std::find(formats, formats + YADAW::Util::stackArraySize(formats), format) - formats;
+    if(index < YADAW::Util::stackArraySize(formats))
+    {
+        return sampleSize[index];
+    }
+    return 0;
+}
+
 std::once_flag flag;
-
-bool operator<(const std::shared_ptr<std::byte[]>& lhs, std::byte* const rhs)
-{
-    return lhs.get() < rhs;
-}
-
-bool operator<(std::byte* const lhs, const std::shared_ptr<std::byte[]>& rhs)
-{
-    return lhs < rhs.get();
-}
 
 namespace YADAW::Audio::Backend
 {
@@ -217,17 +288,58 @@ bool ALSABackend::Impl::start()
 {
     if(!runFlag_.test_and_set(std::memory_order::memory_order_acquire))
     {
-        std::vector<std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>> inputs;
-        std::vector<std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>> outputs;
+        std::vector<std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, std::vector<void*>>> inputs;
+        std::vector<std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, std::vector<void*>>> outputs;
+        inputs.reserve(inputs_.size());
+        for(const auto& [selector, pcm, channelCount, format, access, buffer]: inputs_)
+        {
+            std::vector<void*> nonInterleaveBuffers;
+            if(access == SND_PCM_ACCESS_MMAP_INTERLEAVED || access == SND_PCM_ACCESS_RW_INTERLEAVED)
+            {
+                nonInterleaveBuffers.resize(channelCount, nullptr);
+                auto ptr = buffer;
+                FOR_RANGE0(i, channelCount)
+                {
+                    nonInterleaveBuffers[i] = ptr;
+                    ptr += frameSize_ * getSampleSize(format);
+                }
+            }
+            inputs.emplace_back(
+                std::make_tuple(pcm, channelCount, format, access, buffer, std::move(nonInterleaveBuffers))
+            );
+        }
+        outputs.reserve(outputs_.size());
+        for(const auto& [selector, pcm, channelCount, format, access, buffer]: outputs_)
+        {
+            std::vector<void*> nonInterleaveBuffers;
+            if(access == SND_PCM_ACCESS_MMAP_INTERLEAVED || access == SND_PCM_ACCESS_RW_INTERLEAVED)
+            {
+                nonInterleaveBuffers.resize(channelCount, nullptr);
+                auto ptr = buffer;
+                FOR_RANGE0(i, channelCount)
+                {
+                    nonInterleaveBuffers[i] = ptr;
+                    ptr += frameSize_ * getSampleSize(format);
+                }
+            }
+            outputs.emplace_back(
+                std::make_tuple(pcm, channelCount, format, access, buffer, std::move(nonInterleaveBuffers))
+            );
+        }
         audioThread_ = std::thread(
-            [this, inputs = std::move(inputs), outputs = std::move(outputs)]()
+            [this, inputs = std::move(inputs), outputs = std::move(outputs)]() mutable
             {
                 int errorCode = 0;
                 while(runFlag_.test_and_set(std::memory_order::memory_order_acquire))
                 {
-                    for(const auto& [selector, pcm, channelCount, format, access]: inputs)
+                    for(auto& [pcm, channelCount, format, access, buffer, nonInterleaveBuffers]: inputs)
                     {
-                        // TODO: audio callback
+                        readFunc[access](pcm, buffer, nonInterleaveBuffers.data(), channelCount);
+                    }
+                    // audio callback
+                    for(auto& [pcm, channelCount, format, access, buffer, nonInterleaveBuffers]: outputs)
+                    {
+                        writeFunc[access](pcm, buffer, nonInterleaveBuffers.data(), channelCount);
                     }
                 }
                 runFlag_.clear(std::memory_order::memory_order_release);
