@@ -64,7 +64,7 @@ void AudioDeviceGraph::doAddLatencyCompensation(const ade::NodeHandle& nodeHandl
                 AudioDeviceProcess(pdc),
                 std::move(processData)
             );
-            AudioDeviceGraphBase::connect(pdcNode, nodeHandle, 0, i);
+            AudioDeviceGraphBase::connect(pdcNode, nodeHandle);
         }
     }
     if(auto audioOutputGroupCount = device->audioOutputGroupCount();
@@ -126,8 +126,7 @@ ade::EdgeHandle AudioDeviceGraph::connect(ade::NodeHandle from, ade::NodeHandle 
             auto it = multiInputs_.find(to);
             assert(it != multiInputs_.end());
             ret = AudioDeviceGraphBase::connect(
-                from, it->second[toChannel].first,
-                fromChannel, 0);
+                from, it->second[toChannel].first);
             if(getMetadataFromNode(from).sumLatency() > 0)
             {
                 onSumLatencyChanged(it->second[toChannel].first);
