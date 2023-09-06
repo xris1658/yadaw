@@ -43,21 +43,33 @@ constexpr snd_pcm_access_t accesses[] = {
     SND_PCM_ACCESS_RW_INTERLEAVED
 };
 
-using SampleFormat = std::tuple<double, YADAW::Util::DoubleRE,
+using SampleFormat = std::tuple<
+    double, YADAW::Util::DoubleRE,
     float, YADAW::Util::FloatRE,
     std::int32_t, YADAW::Util::Int32RE,
     std::int32_t, YADAW::Util::Int32RE,
-    char[3], char[3],
+    std::int32_t, YADAW::Util::Int32RE,
     std::int16_t, YADAW::Util::Int16RE,
     std::int8_t>;
 
+constexpr std::size_t sampleSize[] = {
+    8, 8, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 1
+};
+
 std::once_flag flag;
+
+bool operator<(const std::shared_ptr<std::byte[]>& lhs, std::byte* const rhs)
+{
+    return lhs.get() < rhs;
+}
+
+bool operator<(std::byte* const lhs, const std::shared_ptr<std::byte[]>& rhs)
+{
+    return lhs < rhs.get();
+}
 
 namespace YADAW::Audio::Backend
 {
-std::vector<ALSADeviceSelector> ALSABackend::Impl::inputDevices_;
-std::vector<ALSADeviceSelector> ALSABackend::Impl::outputDevices_;
-
 ALSABackend::Impl::Impl() {}
 
 ALSABackend::Impl::~Impl() {}
@@ -76,23 +88,28 @@ ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
     if(index < container.size())
     {
         auto it = container.begin() + index;
-        auto& [selector, pcm, r1, r2, r3, r4] = *it;
         if(activated == (std::get<TupleElementType::PCMHandle>(*it) != nullptr))
         {
             return ActivateDeviceResult::AlreadyDone;
         }
         if(activated)
         {
+            auto selector = std::get<TupleElementType::DeviceSelector>(*it);
             auto result = activateDevice(isInput, selector);
-            const auto& [pcm, r1, r2, r3] = result;
+            const auto& [pcm, r1, r2, r3, buffer] = result;
             if(pcm)
             {
-                *it = std::tuple_cat(std::make_tuple(selector), result, std::make_tuple(static_cast<void*>(nullptr)));
+                *it = std::tuple_cat(
+                    std::make_tuple(selector),
+                    result);
                 return ActivateDeviceResult::Success;
             }
         }
         else
         {
+            auto pcm = std::get<TupleElementType::PCMHandle>(*it);
+            auto buffer = std::get<TupleElementType::Buffer>(*it);
+            buffers_.erase(buffers_.find<std::byte*>(buffer));
             snd_pcm_close(pcm);
             pcm = nullptr;
             return ActivateDeviceResult::Success;
@@ -155,25 +172,19 @@ std::uint32_t ALSABackend::Impl::audioOutputCount()
 std::optional<ALSADeviceSelector>
     ALSABackend::Impl::audioInputDeviceAt(std::uint32_t index)
 {
-    if(inputDevices_.empty())
-    {
-        inputDevices_ = YADAW::Native::ALSADeviceEnumerator::audioInputDevices();
-    }
-    return index < inputDevices_.size()?
-        std::optional(inputDevices_[index]):
+    const auto& inputs = YADAW::Native::ALSADeviceEnumerator::audioInputDevices();
+    return index < inputs.size()?
+        std::optional(inputs[index]):
         std::nullopt;
 }
 
 std::optional<ALSADeviceSelector>
     ALSABackend::Impl::audioOutputDeviceAt(std::uint32_t index)
 {
-    if(outputDevices_.empty())
-    {
-        outputDevices_ = YADAW::Native::ALSADeviceEnumerator::audioOutputDevices();
-    }
-    return index < outputDevices_.size()?
-        std::optional(outputDevices_[index]):
-        std::nullopt;
+    const auto& outputs = YADAW::Native::ALSADeviceEnumerator::audioOutputDevices();
+    return index < outputs.size()?
+           std::optional(outputs[index]):
+           std::nullopt;
 }
 
 std::optional<std::string> ALSABackend::Impl::audioDeviceName(ALSADeviceSelector selector)
@@ -241,7 +252,7 @@ bool ALSABackend::Impl::stop()
     return false;
 }
 
-std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
+std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*>
     ALSABackend::Impl::activateDevice(bool isInput, ALSADeviceSelector selector)
 {
     char name[26]; // hw:[0-9]+,[0-9]+
@@ -270,11 +281,13 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
         return {};
     }
     snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
+    std::uint32_t formatIndex = 0;
     for(std::size_t i = 0; i < YADAW::Util::stackArraySize(formats); ++i)
     {
         if(snd_pcm_hw_params_set_format(pcm, hwParams, formats[i]) == 0)
         {
             format = formats[i];
+            formatIndex = i;
             break;
         }
     }
@@ -392,7 +405,38 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
         snd_pcm_close(pcm);
         return {};
     }
-    return {pcm, channelCount, format, static_cast<snd_pcm_access_t>(access)};
+    auto buffer = allocateBuffer(frameSize_, channelCount, formatIndex);
+    if(!buffer)
+    {
+        std::fprintf(stderr, "Allocate buffer failed\n");
+        snd_pcm_close(pcm);
+        return {};
+    }
+    auto ptr = buffer.get();
+    buffers_.emplace(std::move(buffer));
+    return {pcm, channelCount, format, static_cast<snd_pcm_access_t>(access), ptr};
+}
+
+std::shared_ptr<std::byte[]> ALSABackend::Impl::allocateBuffer(
+    std::uint32_t frameSize, std::uint32_t channelCount, std::uint32_t formatIndex)
+{
+    assert(formatIndex < YADAW::Util::stackArraySize(formats));
+    auto ptr = static_cast<std::byte*>(
+        ::operator new[](
+            frameSize * channelCount * sampleSize[formatIndex],
+            std::align_val_t(sampleSize[formatIndex]), std::nothrow
+        )
+    );
+    if(ptr)
+    {
+        auto deleter = [align = std::align_val_t(sampleSize[formatIndex])](void* ptr)
+        {
+            ::operator delete[](ptr, align);
+        };
+        std::shared_ptr<std::byte[]> buffer(ptr, deleter);
+        return buffer;
+    }
+    return nullptr;
 }
 }
 

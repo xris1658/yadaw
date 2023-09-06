@@ -18,7 +18,27 @@ namespace YADAW::Audio::Backend
 class ALSABackend::Impl
 {
 private:
-    using ContainerType = std::vector<std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, void*>>;
+    struct Comparison
+    {
+        using is_transparent = void;
+        bool operator()(std::byte* lhs, std::byte* rhs) const
+        {
+            return lhs < rhs;
+        }
+        bool operator()(const std::shared_ptr<std::byte[]>& lhs, std::byte* rhs) const
+        {
+            return lhs.get() < rhs;
+        }
+        bool operator()(std::byte* lhs, const std::shared_ptr<std::byte[]>& rhs) const
+        {
+            return lhs < rhs.get();
+        }
+        bool operator()(const std::shared_ptr<std::byte[]>& lhs, const std::shared_ptr<std::byte[]>& rhs) const
+        {
+            return lhs.get() < rhs.get();
+        }
+    };
+    using ContainerType = std::vector<std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*>>;
     enum TupleElementType
     {
         DeviceSelector,
@@ -48,16 +68,16 @@ public:
     bool start();
     bool stop();
 private:
-    std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t> activateDevice(bool isInput, ALSADeviceSelector selector);
+    std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*> activateDevice(bool isInput, ALSADeviceSelector selector);
+    static std::shared_ptr<std::byte[]> allocateBuffer(std::uint32_t frameSize, std::uint32_t channelCount, std::uint32_t formatIndex);
 private:
-    static std::vector<ALSADeviceSelector> inputDevices_;
-    static std::vector<ALSADeviceSelector> outputDevices_;
     std::uint32_t sampleRate_;
     std::uint32_t frameSize_;
     ContainerType inputs_;
     ContainerType outputs_;
     std::thread audioThread_;
     std::atomic_flag runFlag_ {ATOMIC_FLAG_INIT};
+    std::set<std::shared_ptr<std::byte[]>, Comparison> buffers_;
 };
 }
 
