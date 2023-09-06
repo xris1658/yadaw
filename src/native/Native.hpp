@@ -23,7 +23,7 @@ constexpr char PathSeparator = '\\';
 
 using WindowType = HWND;
 using ErrorCodeType = decltype(GetLastError());
-#elif(__linux__)
+#elif __linux__
 constexpr char PathSeparator = '/';
 
 using ErrorCodeType = int;

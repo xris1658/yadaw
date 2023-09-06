@@ -3,7 +3,7 @@
 
 #if _WIN32
 #include "native/win/MIDIInputDeviceImpl.hpp"
-#elif(__linux__)
+#elif __linux__
 #include "native/linux/MIDIInputDeviceImpl.hpp"
 #endif
 

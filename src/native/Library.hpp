@@ -14,7 +14,7 @@ class Library
 private:
 #if _WIN32
     using HandleType = HMODULE;
-#elif(__linux__)
+#elif __linux__
     using HandleType = void*;
 #else
 #error Unknown HandleType
@@ -22,7 +22,7 @@ private:
 public:
 #if _WIN32
     using ExportType = FARPROC;
-#elif(__linux__)
+#elif __linux__
     using ExportType = void*;
 #else
 #error Unknown ExportType

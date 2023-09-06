@@ -18,7 +18,7 @@ using InitEntry = bool(*)(void*);
 constexpr char vst3FilePattern[] = "*.so"; // *.dylib?
 constexpr char initEntryName[] = "BundleEntry";
 constexpr char exitEntryName[] = "BundleExit";
-#elif(__linux__)
+#elif __linux__
 using InitEntry = bool(*)(void*);
 constexpr char vst3FilePattern[] = "*.so";
 constexpr char initEntryName[] = "ModuleEntry";

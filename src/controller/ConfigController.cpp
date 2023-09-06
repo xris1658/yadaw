@@ -22,7 +22,7 @@ private:
         node_["general"]["system-font-rendering-while-debugging"] = false;
 #if _WIN32
         node_["audio-hardware"]["audio-api"] = "AudioGraph";
-#elif(__linux__)
+#elif __linux__
         node_["audio-hardware"]["audio-api"] = "ALSA";
         node_["audio-hardware"]["alsa"]["sample-rate"] = YADAW::Controller::DefaultSampleRate;
         node_["audio-hardware"]["alsa"]["buffer-size"] = YADAW::Controller::DefaultFrameSize;

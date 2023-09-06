@@ -3,7 +3,7 @@
 
 #if _WIN32
 #include <winrt/base.h>
-#elif(__linux__)
+#elif __linux__
 #include <cstdint>
 #endif
 
@@ -11,7 +11,7 @@ namespace YADAW::Native
 {
 #if _WIN32
 using MIDIDeviceID = winrt::hstring;
-#elif(__linux__)
+#elif __linux__
 struct MIDIDeviceID
 {
     std::uint32_t clientId;
