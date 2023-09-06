@@ -1,18 +1,21 @@
 #include "audio/backend/ALSABackend.hpp"
 #include "midi/MIDIInputDevice.hpp"
 #include "native/linux/ALSADeviceEnumerator.hpp"
+#include "common/DisableStreamBuffer.hpp"
 
 #include <cstdio>
 
 int main(int argc, char** argv)
 {
+    disableStdOutBuffer();
     auto audioInputCount = YADAW::Audio::Backend::ALSABackend::audioInputDeviceCount();
     std::printf("Audio input device count: %u", audioInputCount);
     for(decltype(audioInputCount) i = 0; i < audioInputCount; ++i)
     {
-        auto value = YADAW::Audio::Backend::ALSABackend::audioOutputDeviceAt(i).value();
+        auto value = YADAW::Audio::Backend::ALSABackend::audioInputDeviceAt(i).value();
         auto name = YADAW::Audio::Backend::ALSABackend::audioDeviceName(value).value();
-        std::printf("\n\t%u: %s (hw:%u,%u)", i + 1, name.c_str(), value.cIndex, value.dIndex);
+        auto cardName = YADAW::Audio::Backend::ALSABackend::cardName(value.cIndex).value();
+        std::printf("\n\t%u: %s (%s) (hw:%u,%u)", i + 1, name.c_str(), cardName.c_str(), value.cIndex, value.dIndex);
     }
     auto audioOutputCount = YADAW::Audio::Backend::ALSABackend::audioOutputDeviceCount();
     std::printf("\n\nAudio output device count: %u", audioOutputCount);
@@ -20,25 +23,37 @@ int main(int argc, char** argv)
     {
         auto value = YADAW::Audio::Backend::ALSABackend::audioOutputDeviceAt(i).value();
         auto name = YADAW::Audio::Backend::ALSABackend::audioDeviceName(value).value();
-        std::printf("\n\t%u: %s (hw:%u,%u)", i + 1, name.c_str(), value.cIndex, value.dIndex);
+        auto cardName = YADAW::Audio::Backend::ALSABackend::cardName(value.cIndex).value();
+        std::printf("\n\t%u: %s (%s) (hw:%u,%u)", i + 1, name.c_str(), cardName.c_str(), value.cIndex, value.dIndex);
     }
-    auto midiInputCount = YADAW::Native::ALSADeviceEnumerator::midiInputDeviceCount();
-    std::printf("\n\nMIDI device count: %u", midiInputCount);
+    auto midiInputCount = YADAW::Native::ALSADeviceEnumerator::midiInputDevices().size();
+    std::printf("\n\nMIDI input device count: %zu", midiInputCount);
     for(decltype(midiInputCount) i = 0; i < midiInputCount; ++i)
     {
-        auto value = YADAW::Native::ALSADeviceEnumerator::midiInputDeviceAt(i).value();
-        std::printf("\n\t%u: %s (Client %u, Port %u)", i + 1, value.name.toStdString().c_str(), value.id.clientId, value.id.portId);
+        auto value = YADAW::Native::ALSADeviceEnumerator::midiInputDevices()[i];
+        std::printf("\n\t%zu: %s (Client %u, Port %u)", i + 1, value.name.toStdString().c_str(), value.id.clientId, value.id.portId);
     }
-    auto midiOutputCount = YADAW::Native::ALSADeviceEnumerator::midiOutputDeviceCount();
-    std::printf("\n\nMIDI device count: %u", midiOutputCount);
+    auto midiOutputCount = YADAW::Native::ALSADeviceEnumerator::midiOutputDevices().size();
+    std::printf("\n\nMIDI output device count: %zu", midiOutputCount);
     for(decltype(midiOutputCount) i = 0; i < midiOutputCount; ++i)
     {
-        auto value = YADAW::Native::ALSADeviceEnumerator::midiOutputDeviceAt(i).value();
-        std::printf("\n\t%u: %s (Client %u, Port %u)", i + 1, value.name.toStdString().c_str(), value.id.clientId, value.id.portId);
+        auto value = YADAW::Native::ALSADeviceEnumerator::midiOutputDevices()[i];
+        std::printf("\n\t%zu: %s (Client %u, Port %u)", i + 1, value.name.toStdString().c_str(), value.id.clientId, value.id.portId);
     }
     YADAW::Audio::Backend::ALSABackend backend;
     backend.initialize(44100, 512);
     YADAW::Audio::Backend::ALSADeviceSelector selector(0, 0);
-    backend.setAudioInputDeviceActivated(selector, true);
-    backend.setAudioOutputDeviceActivated(selector, true);
+    auto inputIndex = YADAW::Audio::Backend::findDeviceBySelector(backend, true, selector);
+    auto outputIndex = findDeviceBySelector(backend, false, selector);
+    if(inputIndex.has_value())
+    {
+        backend.setAudioDeviceActivated(true, *inputIndex, true);
+    }
+    if(outputIndex.has_value())
+    {
+        backend.setAudioDeviceActivated(false, *outputIndex, true);
+    }
+    backend.start();
+    getchar();
+    backend.stop();
 }

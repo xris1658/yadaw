@@ -27,14 +27,16 @@ YADAW::Model::ALSAOutputDeviceListModel& appALSAOutputDeviceListModel()
 
 void activateDefaultDevice(Audio::Backend::ALSABackend& backend)
 {
-    backend.setAudioInputDeviceActivated(
-        YADAW::Audio::Backend::ALSADeviceSelector(0, 0),
-        true
-    );
-    backend.setAudioOutputDeviceActivated(
-        YADAW::Audio::Backend::ALSADeviceSelector(0, 0),
-        true
-    );
+    auto inputIndex = YADAW::Audio::Backend::findDeviceBySelector(backend, true, {0U, 0U});
+    if(inputIndex.has_value())
+    {
+        backend.setAudioDeviceActivated(true, *inputIndex, true);
+    }
+    auto outputIndex = YADAW::Audio::Backend::findDeviceBySelector(backend, false, {0U, 0U});
+    if(outputIndex.has_value())
+    {
+        backend.setAudioDeviceActivated(false, *outputIndex, true);
+    }
 }
 
 bool initializeALSAFromConfig(const YAML::Node& node)
@@ -53,13 +55,19 @@ bool initializeALSAFromConfig(const YAML::Node& node)
     {
         for(const auto& input: inputDevicesNode)
         {
-            backend.setAudioInputDeviceActivated(
+            auto index = YADAW::Audio::Backend::findDeviceBySelector(
+                backend, true,
                 YADAW::Audio::Backend::ALSADeviceSelector(
                     input["card-index"].as<std::uint32_t>(),
                     input["device-index"].as<std::uint32_t>()
-                ),
-                input["activated"].as<bool>()
+                )
             );
+            if(index.has_value())
+            {
+                backend.setAudioDeviceActivated(
+                    true, *index, input["activated"].as<bool>()
+                );
+            }
         }
     }
     if(const auto& outputDevicesNode = node["outputs"];
@@ -67,13 +75,19 @@ bool initializeALSAFromConfig(const YAML::Node& node)
     {
         for(const auto& output: outputDevicesNode)
         {
-            backend.setAudioOutputDeviceActivated(
+            auto index = YADAW::Audio::Backend::findDeviceBySelector(
+                backend, false,
                 YADAW::Audio::Backend::ALSADeviceSelector(
                     output["card-index"].as<std::uint32_t>(),
                     output["device-index"].as<std::uint32_t>()
-                ),
-                output["activated"].as<bool>()
+                )
             );
+            if(index.has_value())
+            {
+                backend.setAudioDeviceActivated(
+                    false, *index, output["activated"].as<bool>()
+                );
+            }
         }
     }
     return true;
@@ -102,20 +116,20 @@ YAML::Node deviceConfigFromALSA()
                 const auto& device = backend.audioInputDeviceAt(i).value();
                 emitter << YAML::Key << "card-index" << YAML::Value << device.cIndex;
                 emitter << YAML::Key << "device-index" << YAML::Value << device.dIndex;
-                emitter << YAML::Key << "activated" << YAML::Value << backend.isAudioInputDeviceActivated(device);
+                emitter << YAML::Key << "activated" << YAML::Value << backend.isAudioDeviceActivated(true, i);
             }
         }
         emitter << YAML::Key << "outputs" << YAML::Value;
         {
             YAMLSeq seq(emitter);
-            auto inputCount = backend.audioOutputDeviceCount();
-            FOR_RANGE0(i, inputCount)
+            auto outputCount = backend.audioOutputDeviceCount();
+            FOR_RANGE0(i, outputCount)
             {
                 YAMLMap map(emitter);
                 const auto& device = backend.audioOutputDeviceAt(i).value();
                 emitter << YAML::Key << "card-index" << YAML::Value << device.cIndex;
                 emitter << YAML::Key << "device-index" << YAML::Value << device.dIndex;
-                emitter << YAML::Key << "activated" << YAML::Value << backend.isAudioOutputDeviceActivated(device);
+                emitter << YAML::Key << "activated" << YAML::Value << backend.isAudioDeviceActivated(false, i);
             }
         }
         return YAML::Load(emitter.c_str());

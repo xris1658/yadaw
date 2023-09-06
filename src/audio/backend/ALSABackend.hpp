@@ -35,16 +35,17 @@ public:
     static std::optional<ALSADeviceSelector> audioOutputDeviceAt(std::uint32_t index);
     static std::optional<std::string> audioDeviceName(ALSADeviceSelector selector);
     static std::optional<std::string> cardName(int cardIndex);
-    ActivateDeviceResult setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated);
-    ActivateDeviceResult setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool activated);
-    bool isAudioInputDeviceActivated(ALSADeviceSelector selector) const;
-    bool isAudioOutputDeviceActivated(ALSADeviceSelector selector) const;
-    std::uint32_t channelCount(bool isInput, ALSADeviceSelector selector) const;
+    ActivateDeviceResult setAudioDeviceActivated(bool isInput, std::uint32_t index, bool activated);
+    bool isAudioDeviceActivated(bool isInput, std::uint32_t index) const;
+    std::uint32_t channelCount(bool isInput, std::uint32_t index) const;
     bool start();
     bool stop();
 private:
     std::unique_ptr<Impl> pImpl_;
 };
+
+std::optional<std::uint32_t> findDeviceBySelector(
+    const ALSABackend& backend, bool isInput, ALSADeviceSelector selector);
 }
 
 #endif

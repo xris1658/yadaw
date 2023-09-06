@@ -17,9 +17,21 @@ namespace YADAW::Audio::Backend
 {
 class ALSABackend::Impl
 {
+private:
+    using ContainerType = std::vector<std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>>;
+    enum TupleElementType
+    {
+        DeviceSelector,
+        PCMHandle,
+        ChannelCount,
+        Format,
+        Access
+    };
 public:
     Impl(std::uint32_t sampleRate, std::uint32_t frameSize);
     ~Impl();
+private:
+    static bool compareTupleWithElement(ContainerType::const_reference elem, ALSADeviceSelector selector);
 public:
     static std::uint32_t audioInputCount();
     static std::uint32_t audioOutputCount();
@@ -27,20 +39,22 @@ public:
     static std::optional<ALSADeviceSelector> audioOutputDeviceAt(std::uint32_t index);
     static std::optional<std::string> audioDeviceName(ALSADeviceSelector selector);
     static std::optional<std::string> cardName(int cardIndex);
-    ActivateDeviceResult setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated);
-    ActivateDeviceResult setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool activated);
-    bool isAudioInputDeviceActivated(ALSADeviceSelector selector) const;
-    bool isAudioOutputDeviceActivated(ALSADeviceSelector selector) const;
-    std::uint32_t channelCount(bool isInput, ALSADeviceSelector selector) const;
+    ActivateDeviceResult setAudioDeviceActivated(bool isInput, std::uint32_t index, bool activated);
+    bool isAudioDeviceActivated(bool isInput, std::uint32_t index) const;
+    std::uint32_t channelCount(bool isInput, std::uint32_t index) const;
     bool start();
     bool stop();
 private:
     std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t> activateDevice(bool isInput, ALSADeviceSelector selector);
 private:
+    static std::vector<ALSADeviceSelector> inputDevices_;
+    static std::vector<ALSADeviceSelector> outputDevices_;
     std::uint32_t sampleRate_;
     std::uint32_t frameSize_;
-    std::map<ALSADeviceSelector, std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>> inputs_;
-    std::map<ALSADeviceSelector, std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>> outputs_;
+    ContainerType inputs_;
+    ContainerType outputs_;
+    std::thread audioThread_;
+    std::atomic_flag runFlag_ {ATOMIC_FLAG_INIT};
 };
 }
 

@@ -29,7 +29,7 @@ private:
     YADAW::Native::MIDIDeviceID deviceId_;
     snd_seq_port_subscribe_t* subscription_ = nullptr;
     std::thread midiThread_;
-    std::atomic_bool run_ {true};
+    std::atomic_flag run_ {ATOMIC_FLAG_INIT};
     int queueId_ = -1;
     int seqPortId_ = -1;
 };

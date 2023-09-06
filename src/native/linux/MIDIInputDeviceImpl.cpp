@@ -17,13 +17,15 @@ namespace YADAW::MIDI
 using namespace YADAW::Native;
 std::size_t MIDIInputDevice::Impl::inputDeviceCount()
 {
-    return YADAW::Native::ALSADeviceEnumerator::midiInputDeviceCount();
+    return YADAW::Native::ALSADeviceEnumerator::midiInputDevices().size();
 }
 
 std::optional<YADAW::MIDI::DeviceInfo>
     MIDIInputDevice::Impl::inputDeviceAt(std::size_t index)
 {
-    return ALSADeviceEnumerator::midiInputDeviceAt(index);
+    return index < inputDeviceCount()?
+        std::optional(ALSADeviceEnumerator::midiInputDevices()[index]):
+        std::nullopt;
 }
 
 MIDIInputDevice::Impl::Impl(const MIDIInputDevice& device, const YADAW::Native::MIDIDeviceID& id):
@@ -55,84 +57,87 @@ MIDIInputDevice::Impl::~Impl()
 
 void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
 {
-    auto seq = Sequencer::instance().seq();
-    snd_seq_addr_t sender;
-    snd_seq_addr_t dest;
-    sender.client = deviceId_.clientId;
-    sender.port = deviceId_.portId;
-    dest.client = snd_seq_client_id(seq);
-    dest.port = seqPortId_;
-    snd_seq_queue_info_t* queueInfo;
-    snd_seq_queue_info_alloca(&queueInfo);
-    queueId_ = snd_seq_create_queue(seq, queueInfo);
-    if(queueId_ < 0)
+    if(!run_.test_and_set(std::memory_order::memory_order_acquire))
     {
-        auto errorMessage = snd_strerror(queueId_);
-        return;
-    }
-    snd_seq_port_subscribe_malloc(&subscription_);
-    snd_seq_port_subscribe_set_sender(subscription_, &sender);
-    snd_seq_port_subscribe_set_dest(subscription_, &dest);
-    snd_seq_port_subscribe_set_queue(subscription_, queueId_);
-    snd_seq_port_subscribe_set_time_update(subscription_, 1);
-    snd_seq_port_subscribe_set_time_real(subscription_, 1);
-    if(auto connectResult = snd_seq_subscribe_port(seq, subscription_);
-        connectResult < 0)
-    {
-        auto errorMessage = snd_strerror(connectResult);
-        snd_seq_port_subscribe_free(subscription_);
-        subscription_ = nullptr;
-        return;
-    }
-    snd_seq_control_queue(seq, queueId_, SND_SEQ_EVENT_START, 0, nullptr);
-    snd_seq_drain_output(seq);
-    midiThread_ = std::thread(
-        [this, func, seq]()
+        auto seq = Sequencer::instance().seq();
+        snd_seq_addr_t sender;
+        snd_seq_addr_t dest;
+        sender.client = deviceId_.clientId;
+        sender.port = deviceId_.portId;
+        dest.client = snd_seq_client_id(seq);
+        dest.port = seqPortId_;
+        snd_seq_queue_info_t* queueInfo;
+        snd_seq_queue_info_alloca(&queueInfo);
+        queueId_ = snd_seq_create_queue(seq, queueInfo);
+        if(queueId_ < 0)
         {
-            std::int64_t timestamp = YADAW::Util::currentTimeValueInNanosecond();
-            std::uint8_t midiBuffer[256];
-            snd_midi_event_t* midiEvent;
-            snd_midi_event_new(0, &midiEvent);
-            snd_midi_event_no_status(midiEvent, 1);
-            while(run_.load(std::memory_order::memory_order_acquire))
+            auto errorMessage = snd_strerror(queueId_);
+            return;
+        }
+        snd_seq_port_subscribe_malloc(&subscription_);
+        snd_seq_port_subscribe_set_sender(subscription_, &sender);
+        snd_seq_port_subscribe_set_dest(subscription_, &dest);
+        snd_seq_port_subscribe_set_queue(subscription_, queueId_);
+        snd_seq_port_subscribe_set_time_update(subscription_, 1);
+        snd_seq_port_subscribe_set_time_real(subscription_, 1);
+        if(auto connectResult = snd_seq_subscribe_port(seq, subscription_);
+            connectResult < 0)
+        {
+            auto errorMessage = snd_strerror(connectResult);
+            snd_seq_port_subscribe_free(subscription_);
+            subscription_ = nullptr;
+            return;
+        }
+        snd_seq_control_queue(seq, queueId_, SND_SEQ_EVENT_START, 0, nullptr);
+        snd_seq_drain_output(seq);
+        midiThread_ = std::thread(
+            [this, func, seq]()
             {
-                if(auto eventCount = snd_seq_event_input_pending(seq, 1);
-                    eventCount == 0)
+                std::int64_t timestamp = YADAW::Util::currentTimeValueInNanosecond();
+                std::uint8_t midiBuffer[256];
+                snd_midi_event_t* midiEvent;
+                snd_midi_event_new(0, &midiEvent);
+                snd_midi_event_no_status(midiEvent, 1);
+                while(run_.test_and_set(std::memory_order::memory_order_acquire))
                 {
-                    std::this_thread::yield();
-                }
-                else
-                {
-                    snd_seq_event_t* event;
-                    FOR_RANGE0(i, eventCount)
+                    if(auto eventCount = snd_seq_event_input_pending(seq, 1);
+                        eventCount == 0)
                     {
-                        auto getEventResult = snd_seq_event_input(seq, &event);
-                        if(getEventResult == -ENOSPC)
+                        std::this_thread::yield();
+                    }
+                    else
+                    {
+                        snd_seq_event_t* event;
+                        FOR_RANGE0(i, eventCount)
                         {
-                            // Input buffer overrun
-                        }
-                        else if(getEventResult < 0)
-                        {
-                            auto errorMessage = snd_strerror(getEventResult);
-                        }
-                        else
-                        {
-                            auto byteCount = snd_midi_event_decode(midiEvent,
-                                midiBuffer, YADAW::Util::stackArraySize(midiBuffer),
-                                event);
-                            YADAW::MIDI::Message message{};
-                            message.size = byteCount;
-                            message.data = midiBuffer;
-                            message.timestampInNanoseconds = timestamp + nanosecondFromRealTime(event->time.time);
-                            auto currentTimeFromClock = YADAW::Util::currentTimeValueInNanosecond();
-                            func(device_, message);
+                            auto getEventResult = snd_seq_event_input(seq, &event);
+                            if(getEventResult == -ENOSPC)
+                            {
+                                // Input buffer overrun
+                            }
+                            else if(getEventResult < 0)
+                            {
+                                auto errorMessage = snd_strerror(getEventResult);
+                            }
+                            else
+                            {
+                                auto byteCount = snd_midi_event_decode(midiEvent,
+                                    midiBuffer, YADAW::Util::stackArraySize(midiBuffer),
+                                    event);
+                                YADAW::MIDI::Message message{};
+                                message.size = byteCount;
+                                message.data = midiBuffer;
+                                message.timestampInNanoseconds = timestamp + nanosecondFromRealTime(event->time.time);
+                                auto currentTimeFromClock = YADAW::Util::currentTimeValueInNanosecond();
+                                func(device_, message);
+                            }
                         }
                     }
                 }
+                snd_midi_event_free(midiEvent);
             }
-            snd_midi_event_free(midiEvent);
-        }
-    );
+        );
+    }
 }
 
 void MIDIInputDevice::Impl::stop()
@@ -140,19 +145,19 @@ void MIDIInputDevice::Impl::stop()
     auto seq = Sequencer::instance().seq();
     if(midiThread_.joinable())
     {
-        run_.store(false, std::memory_order::memory_order_release);
+        run_.clear(std::memory_order::memory_order_release);
         midiThread_.join();
         snd_seq_control_queue(seq, queueId_, SND_SEQ_EVENT_STOP, 0, nullptr);
-    }
-    if(subscription_)
-    {
-        snd_seq_unsubscribe_port(seq, subscription_);
-        snd_seq_port_subscribe_free(subscription_);
-        subscription_ = nullptr;
-    }
-    if(queueId_ != -1)
-    {
-        snd_seq_free_queue(seq, queueId_);
+        if(subscription_)
+        {
+            snd_seq_unsubscribe_port(seq, subscription_);
+            snd_seq_port_subscribe_free(subscription_);
+            subscription_ = nullptr;
+        }
+        if(queueId_ != -1)
+        {
+            snd_seq_free_queue(seq, queueId_);
+        }
     }
 }
 }

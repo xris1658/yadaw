@@ -55,43 +55,130 @@ std::once_flag flag;
 
 namespace YADAW::Audio::Backend
 {
+std::vector<ALSADeviceSelector> ALSABackend::Impl::inputDevices_;
+std::vector<ALSADeviceSelector> ALSABackend::Impl::outputDevices_;
+
 ALSABackend::Impl::Impl(std::uint32_t sampleRate, std::uint32_t frameSize):
-    sampleRate_(sampleRate), frameSize_(frameSize) {}
+    sampleRate_(sampleRate), frameSize_(frameSize)
+{
+    const auto& inputDevices = YADAW::Native::ALSADeviceEnumerator::audioInputDevices();
+    inputDevices_ = inputDevices;
+    inputs_.reserve(inputDevices.size());
+    for(const auto& inputDevice: inputDevices)
+    {
+        inputs_.emplace_back(
+            inputDevice, nullptr, 0U, snd_pcm_format_t {}, snd_pcm_access_t {}
+        );
+    }
+    const auto& outputDevices = YADAW::Native::ALSADeviceEnumerator::audioOutputDevices();
+    outputDevices_ = outputDevices;
+    outputs_.reserve(outputDevices.size());
+    for(const auto& outputDevice: outputDevices)
+    {
+        outputs_.emplace_back(
+            outputDevice, nullptr, 0U, snd_pcm_format_t {}, snd_pcm_access_t {}
+        );
+    }
+}
 
 ALSABackend::Impl::~Impl()
 {
-    for(const auto& [key, tuple]: inputs_)
+    stop();
+    for(const auto& [selector, pcm, channelCount, format, access]: inputs_)
     {
-        const auto& [pcm, channelCount, format, access] = tuple;
-        snd_pcm_close(pcm);
+        if(pcm)
+        {
+            snd_pcm_close(pcm);
+        }
     }
-    for(const auto& [key, tuple]: outputs_)
+    for(const auto& [selector, pcm, channelCount, format, access]: outputs_)
     {
-        const auto& [pcm, channelCount, format, access] = tuple;
-        snd_pcm_close(pcm);
+        if(pcm)
+        {
+            snd_pcm_close(pcm);
+        }
     }
+}
+
+bool ALSABackend::Impl::compareTupleWithElement(
+    ALSABackend::Impl::ContainerType::const_reference elem,
+    ALSADeviceSelector selector)
+{
+    return selector < std::get<TupleElementType::DeviceSelector>(elem);
+}
+
+ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
+    bool isInput, std::uint32_t index, bool activated)
+{
+    auto& container = isInput? inputs_: outputs_;
+    if(index < container.size())
+    {
+        auto it = container.begin() + index;
+        auto& [selector, pcm, r1, r2, r3] = *it;
+        if(activated == (std::get<TupleElementType::PCMHandle>(*it) != nullptr))
+        {
+            return ActivateDeviceResult::AlreadyDone;
+        }
+        if(activated)
+        {
+            auto result = activateDevice(isInput, selector);
+            const auto& [pcm, r1, r2, r3] = result;
+            if(pcm)
+            {
+                *it = std::tuple_cat(std::make_tuple(selector), result);
+                return ActivateDeviceResult::Success;
+            }
+        }
+        else
+        {
+            snd_pcm_close(pcm);
+            pcm = nullptr;
+            return ActivateDeviceResult::Success;
+        }
+    }
+    return ActivateDeviceResult::Failed;
 }
 
 std::uint32_t ALSABackend::Impl::audioInputCount()
 {
-    return YADAW::Native::ALSADeviceEnumerator::audioInputDeviceCount();
+    if(inputDevices_.empty())
+    {
+        inputDevices_ = YADAW::Native::ALSADeviceEnumerator::audioInputDevices();
+    }
+    return inputDevices_.size();
 }
 
 std::uint32_t ALSABackend::Impl::audioOutputCount()
 {
-    return YADAW::Native::ALSADeviceEnumerator::audioOutputDeviceCount();
+    if(outputDevices_.empty())
+    {
+        outputDevices_ = YADAW::Native::ALSADeviceEnumerator::audioOutputDevices();
+    }
+    return outputDevices_.size();
 }
 
 std::optional<ALSADeviceSelector>
     ALSABackend::Impl::audioInputDeviceAt(std::uint32_t index)
 {
-    return YADAW::Native::ALSADeviceEnumerator::audioInputDeviceAt(index);
+    if(inputDevices_.empty())
+    {
+        inputDevices_ = YADAW::Native::ALSADeviceEnumerator::audioInputDevices();
+    }
+    return index < inputDevices_.size()?
+        std::optional(inputDevices_[index]):
+        std::nullopt;
 }
 
 std::optional<ALSADeviceSelector>
     ALSABackend::Impl::audioOutputDeviceAt(std::uint32_t index)
 {
-    return YADAW::Native::ALSADeviceEnumerator::audioOutputDeviceAt(index);
+    if(outputDevices_.empty())
+    {
+        outputDevices_ = YADAW::Native::ALSADeviceEnumerator::audioOutputDevices();
+    }
+    return index < outputDevices_.size()?
+        std::optional(outputDevices_[index]):
+        std::nullopt;
 }
 
 std::optional<std::string> ALSABackend::Impl::audioDeviceName(ALSADeviceSelector selector)
@@ -104,106 +191,58 @@ std::optional<std::string> ALSABackend::Impl::cardName(int cardIndex)
     return YADAW::Native::ALSADeviceEnumerator::cardName(cardIndex);
 }
 
-ALSABackend::ActivateDeviceResult
-ALSABackend::Impl::setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated)
+bool ALSABackend::Impl::isAudioDeviceActivated(bool isInput, std::uint32_t index) const
 {
-    auto key = selector;
-    if(activated)
-    {
-        if(inputs_.find(key) != inputs_.end())
-        {
-            return ActivateDeviceResult::AlreadyDone;
-        }
-        auto result = activateDevice(true, selector);
-        const auto& [pcm, r1, r2, r3] = result;
-        if(pcm)
-        {
-            inputs_.emplace(key, result);
-            return ActivateDeviceResult::Success;
-        }
-        return ActivateDeviceResult::Failed;
-    }
-    else
-    {
-        if(auto it = inputs_.find(key); it == inputs_.end())
-        {
-            return ActivateDeviceResult::AlreadyDone;
-        }
-        else
-        {
-            auto [pcm, r1, r2, r3] = it->second;
-            inputs_.erase(key);
-            snd_pcm_close(pcm);
-            return ActivateDeviceResult::Success;
-        }
-    }
+    return false;
 }
 
-ALSABackend::ActivateDeviceResult
-ALSABackend::Impl::setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool activated)
+std::uint32_t ALSABackend::Impl::channelCount(bool isInput, std::uint32_t index) const
 {
-    auto key = selector;
-    if(activated)
+    auto& container = isInput? inputs_: outputs_;
+    if(index < container.size())
     {
-        if(outputs_.find(key) != outputs_.end())
-        {
-            return ActivateDeviceResult::AlreadyDone;
-        }
-        auto result = activateDevice(false, selector);
-        const auto& [pcm, r1, r2, r3] = result;
-        if(pcm)
-        {
-            outputs_.emplace(key, result);
-            return ActivateDeviceResult::Success;
-        }
-        return ActivateDeviceResult::Failed;
-    }
-    else
-    {
-        if(auto it = outputs_.find(key); it == outputs_.end())
-        {
-            return ActivateDeviceResult::AlreadyDone;
-        }
-        else
-        {
-            auto [pcm, r1, r2, r3] = it->second;
-            outputs_.erase(key);
-            snd_pcm_close(pcm);
-            return ActivateDeviceResult::Success;
-        }
-    }
-}
-
-bool ALSABackend::Impl::isAudioInputDeviceActivated(ALSADeviceSelector selector) const
-{
-    auto key = selector;
-    return inputs_.find(key) != inputs_.end();
-}
-
-bool ALSABackend::Impl::isAudioOutputDeviceActivated(ALSADeviceSelector selector) const
-{
-    auto key = selector;
-    return outputs_.find(key) != outputs_.end();
-}
-
-std::uint32_t ALSABackend::Impl::channelCount(bool isInput, ALSADeviceSelector selector) const
-{
-    const auto& container = isInput? inputs_: outputs_;
-    if(auto it = container.find(selector); it != container.end())
-    {
-        const auto& [pcm, r1, r2, r3] = it->second;
-        return r1;
+        auto it = container.begin() + index;
+        return std::get<TupleElementType::ChannelCount>(*it);
     }
     return 0;
 }
 
 bool ALSABackend::Impl::start()
 {
+    if(!runFlag_.test_and_set(std::memory_order::memory_order_acquire))
+    {
+        std::vector<std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>> inputs;
+        std::vector<std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>> outputs;
+        audioThread_ = std::thread(
+            [this, inputs = std::move(inputs), outputs = std::move(outputs)]()
+            {
+                int errorCode = 0;
+                while(runFlag_.test_and_set(std::memory_order::memory_order_acquire))
+                {
+                    for(const auto& [selector, pcm, channelCount, format, access]: inputs)
+                    {
+                        // TODO: audio callback
+                    }
+                }
+                runFlag_.clear(std::memory_order::memory_order_release);
+            }
+        );
+        auto nativeHandle = audioThread_.native_handle();
+        pthread_setname_np(nativeHandle, "ALSABackend::Impl audio thread");
+        return true;
+    }
     return false;
 }
 
 bool ALSABackend::Impl::stop()
 {
+    if(runFlag_.test_and_set(std::memory_order::memory_order_acquire))
+    {
+        runFlag_.clear(std::memory_order::memory_order_release);
+        audioThread_.join();
+        return true;
+    }
+    runFlag_.clear(std::memory_order::memory_order_release);
     return false;
 }
 
@@ -214,23 +253,31 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
     auto count = std::sprintf(name, "hw:%d,%d", selector.cIndex, selector.dIndex);
     name[count] = 0;
     snd_pcm_t* pcm = nullptr;
-    if(auto err = snd_pcm_open(&pcm, name,
-        isInput? SND_PCM_STREAM_CAPTURE: SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
-        err < 0)
+    int errorCode = snd_pcm_open(&pcm, name,
+        isInput? SND_PCM_STREAM_CAPTURE: SND_PCM_STREAM_PLAYBACK,
+        SND_PCM_NONBLOCK);
+    if(errorCode < 0)
     {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_open` failed with error code %d: %s\n",
+            errorCode, errorMessage);
         return {};
     }
     snd_pcm_hw_params_t* hwParams = nullptr;
     snd_pcm_hw_params_alloca(&hwParams);
-    if(snd_pcm_hw_params_any(pcm, hwParams) < 0)
+    errorCode = snd_pcm_hw_params_any(pcm, hwParams);
+    if(errorCode < 0)
     {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_hw_params_any` failed with error code %d: %s\n",
+            errorCode, errorMessage);
         snd_pcm_close(pcm);
         return {};
     }
     snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
     for(std::size_t i = 0; i < YADAW::Util::stackArraySize(formats); ++i)
     {
-        if(auto err = snd_pcm_hw_params_set_format(pcm, hwParams, formats[i]); err == 0)
+        if(snd_pcm_hw_params_set_format(pcm, hwParams, formats[i]) == 0)
         {
             format = formats[i];
             break;
@@ -238,26 +285,44 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
     }
     if(format == SND_PCM_FORMAT_UNKNOWN)
     {
+        std::fprintf(stderr, "`snd_pcm_hw_params_set_format` failed: unsupported sample format\n");
         snd_pcm_close(pcm);
         return {};
     }
-    if(auto err = snd_pcm_hw_params_set_rate(pcm, hwParams, sampleRate_, 0);
-        err < 0)
+    errorCode = snd_pcm_hw_params_set_rate(pcm, hwParams, sampleRate_, 0);
+    if(errorCode < 0)
     {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_hw_params_set_rate` failed with error code %d: %s\n",
+            errorCode, errorMessage);
         snd_pcm_close(pcm);
         return {};
     }
-    if(auto err = snd_pcm_hw_params_set_buffer_size(pcm, hwParams, frameSize_);
-        err < 0)
+    errorCode = snd_pcm_hw_params_set_buffer_size(pcm, hwParams, frameSize_);
+    if(errorCode < 0)
     {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_hw_params_set_buffer_size` failed with error code %d: %s\n",
+            errorCode, errorMessage);
         snd_pcm_close(pcm);
         return {};
     }
     unsigned int channelCount = 0;
-    snd_pcm_hw_params_get_channels_max(hwParams, &channelCount);
-    if(auto err = snd_pcm_hw_params_set_channels(pcm, hwParams, channelCount);
-        err < 0)
+    errorCode = snd_pcm_hw_params_get_channels_max(hwParams, &channelCount);
+    if(errorCode < 0)
     {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_hw_params_get_channels_max` failed with error code %d: %s\n",
+            errorCode, errorMessage);
+        snd_pcm_close(pcm);
+        return {};
+    }
+    errorCode = snd_pcm_hw_params_set_channels(pcm, hwParams, channelCount);
+    if(errorCode < 0)
+    {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_hw_params_set_channels` failed with error code %d: %s\n",
+            errorCode, errorMessage);
         snd_pcm_close(pcm);
         return {};
     }
@@ -272,27 +337,63 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>
     }
     if(access > SND_PCM_ACCESS_LAST)
     {
+        std::fprintf(stderr, "`snd_pcm_hw_params_set_access` failed: unsupported access\n");
         snd_pcm_close(pcm);
         return {};
     }
-    snd_pcm_access_mask_t* mask;
-    snd_pcm_access_mask_alloca(&mask);
-    snd_pcm_hw_params_any(pcm, hwParams);
-    snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_RW_NONINTERLEAVED);
-    snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_RW_INTERLEAVED);
-    snd_pcm_hw_params_set_access_mask(pcm, hwParams, mask);
-    if(auto err = snd_pcm_hw_params(pcm, hwParams); err < 0)
+    errorCode = snd_pcm_hw_params(pcm, hwParams);
+    if(errorCode < 0)
     {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_hw_params` failed with error code %d: %s\n",
+            errorCode, errorMessage);
         snd_pcm_close(pcm);
         return {};
     }
     snd_pcm_sw_params_t* swParams;
     snd_pcm_sw_params_alloca(&swParams);
-    snd_pcm_sw_params_current(pcm, swParams);
-    snd_pcm_sw_params_set_avail_min(pcm, swParams, frameSize_);
-    snd_pcm_sw_params_set_start_threshold(pcm, swParams, 0U);
-    if(auto err = snd_pcm_sw_params(pcm, swParams); err < 0)
+    errorCode = snd_pcm_sw_params_current(pcm, swParams);
+    if(errorCode < 0)
     {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_sw_params_current` failed with error code %d: %s\n",
+            errorCode, errorMessage);
+        snd_pcm_close(pcm);
+        return {};
+    }
+    errorCode = snd_pcm_sw_params_set_avail_min(pcm, swParams, frameSize_);
+    if(errorCode < 0)
+    {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_sw_params_set_avail_min` failed with error code %d: %s\n",
+            errorCode, errorMessage);
+        snd_pcm_close(pcm);
+        return {};
+    }
+    errorCode = snd_pcm_sw_params_set_start_threshold(pcm, swParams, 0U);
+    if(errorCode < 0)
+    {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_sw_params_set_start_threshold` failed with error code %d: %s\n",
+            errorCode, errorMessage);
+        snd_pcm_close(pcm);
+        return {};
+    }
+    errorCode = snd_pcm_sw_params(pcm, swParams);
+    if(errorCode < 0)
+    {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_sw_params` failed with error code %d: %s\n",
+            errorCode, errorMessage);
+        snd_pcm_close(pcm);
+        return {};
+    }
+    errorCode = snd_pcm_prepare(pcm);
+    if(errorCode < 0)
+    {
+        auto errorMessage = snd_strerror(errorCode);
+        std::fprintf(stderr, "`snd_pcm_prepare` failed with error code %d: %s\n",
+            errorCode, errorMessage);
         snd_pcm_close(pcm);
         return {};
     }

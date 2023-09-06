@@ -2,6 +2,7 @@
 
 #include "audio/backend/ALSABackend.hpp"
 #include "native/linux/ALSABackendImpl.hpp"
+#include "util/IntegerRange.hpp"
 
 namespace YADAW::Audio::Backend
 {
@@ -65,34 +66,21 @@ bool ALSABackend::uninitialize()
 }
 
 ALSABackend::ActivateDeviceResult
-ALSABackend::setAudioInputDeviceActivated(ALSADeviceSelector selector, bool activated)
+ALSABackend::setAudioDeviceActivated(bool isInput, std::uint32_t index, bool activated)
 {
     return pImpl_.get()?
-        pImpl_->setAudioInputDeviceActivated(selector, activated):
+        pImpl_->setAudioDeviceActivated(isInput, index, activated):
         ActivateDeviceResult::Failed;
 }
 
-ALSABackend::ActivateDeviceResult
-ALSABackend::setAudioOutputDeviceActivated(ALSADeviceSelector selector, bool activated)
+bool ALSABackend::isAudioDeviceActivated(bool isInput, std::uint32_t index) const
 {
-    return pImpl_?
-        pImpl_->setAudioOutputDeviceActivated(selector, activated):
-        ActivateDeviceResult::Failed;
+    return pImpl_? pImpl_->isAudioDeviceActivated(isInput, index): false;
 }
 
-bool ALSABackend::isAudioInputDeviceActivated(ALSADeviceSelector selector) const
+std::uint32_t ALSABackend::channelCount(bool isInput, std::uint32_t index) const
 {
-    return pImpl_? pImpl_->isAudioInputDeviceActivated(selector): false;
-}
-
-bool ALSABackend::isAudioOutputDeviceActivated(ALSADeviceSelector selector) const
-{
-    return pImpl_? pImpl_->isAudioOutputDeviceActivated(selector): false;
-}
-
-std::uint32_t ALSABackend::channelCount(bool isInput, ALSADeviceSelector selector) const
-{
-    return pImpl_? pImpl_->channelCount(isInput, selector): 0;
+    return pImpl_? pImpl_->channelCount(isInput, index): 0;
 }
 
 bool ALSABackend::start()
@@ -103,6 +91,33 @@ bool ALSABackend::start()
 bool ALSABackend::stop()
 {
     return pImpl_? pImpl_->stop(): false;
+}
+
+std::optional<std::uint32_t> findDeviceBySelector(const ALSABackend& backend, bool isInput, ALSADeviceSelector selector)
+{
+    if(isInput)
+    {
+        auto inputCount = backend.audioInputDeviceCount();
+        FOR_RANGE0(i, inputCount)
+        {
+            if(selector == backend.audioInputDeviceAt(i))
+            {
+                return i;
+            }
+        }
+    }
+    else
+    {
+        auto outputCount = backend.audioOutputDeviceCount();
+        FOR_RANGE0(i, outputCount)
+        {
+            if(selector == backend.audioOutputDeviceAt(i))
+            {
+                return i;
+            }
+        }
+    }
+    return std::nullopt;
 }
 }
 

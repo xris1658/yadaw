@@ -19,8 +19,6 @@
 
 #include <cstring>
 
-namespace YADAW::Native
-{
 using YADAW::Audio::Backend::ALSADeviceSelector;
 std::vector<ALSADeviceSelector> audioInputDevices;
 std::map<int, std::string> cardNames;
@@ -30,6 +28,8 @@ std::vector<YADAW::MIDI::DeviceInfo> midiInputDevices;
 std::vector<YADAW::MIDI::DeviceInfo> midiOutputDevices;
 std::once_flag enumerateDeviceFlag;
 
+namespace YADAW::Native
+{
 void doEnumerateCardNames()
 {
     int cardIndex = -1;
@@ -201,12 +201,12 @@ void ALSADeviceEnumerator::enumerateDevices()
     std::call_once(enumerateDeviceFlag, []()
     {
         doEnumerateDevices();
-        std::sort(audioInputDevices.begin(), audioInputDevices.end());
-        std::sort(audioOutputDevices.begin(), audioOutputDevices.end());
-        std::sort(midiInputDevices.begin(), midiInputDevices.end(),
+        std::sort(::audioInputDevices.begin(), ::audioInputDevices.end());
+        std::sort(::audioOutputDevices.begin(), ::audioOutputDevices.end());
+        std::sort(::midiInputDevices.begin(), ::midiInputDevices.end(),
             &compareMIDIDeviceInfo
         );
-        std::sort(midiOutputDevices.begin(), midiOutputDevices.end(),
+        std::sort(::midiOutputDevices.begin(), ::midiOutputDevices.end(),
             &compareMIDIDeviceInfo
         );
         doEnumerateCardNames();
@@ -214,48 +214,28 @@ void ALSADeviceEnumerator::enumerateDevices()
     });
 }
 
-std::uint32_t ALSADeviceEnumerator::audioInputDeviceCount()
+const std::vector<ALSADeviceSelector>& ALSADeviceEnumerator::audioInputDevices()
 {
     enumerateDevices();
-    return audioInputDevices.size();
+    return ::audioInputDevices;
 }
 
-std::uint32_t ALSADeviceEnumerator::audioOutputDeviceCount()
+const std::vector<ALSADeviceSelector>& ALSADeviceEnumerator::audioOutputDevices()
 {
     enumerateDevices();
-    return audioOutputDevices.size();
+    return ::audioOutputDevices;
 }
 
-std::uint32_t ALSADeviceEnumerator::midiInputDeviceCount()
+const std::vector<YADAW::MIDI::DeviceInfo> ALSADeviceEnumerator::midiInputDevices()
 {
     enumerateDevices();
-    return midiInputDevices.size();
+    return ::midiInputDevices;
 }
 
-std::uint32_t ALSADeviceEnumerator::midiOutputDeviceCount()
+const std::vector<YADAW::MIDI::DeviceInfo> ALSADeviceEnumerator::midiOutputDevices()
 {
     enumerateDevices();
-    return midiOutputDevices.size();
-}
-
-std::optional<ALSADeviceSelector> ALSADeviceEnumerator::audioInputDeviceAt(std::uint32_t index)
-{
-    return index < audioInputDeviceCount()? std::optional(audioInputDevices[index]): std::nullopt;
-}
-
-std::optional<ALSADeviceSelector> ALSADeviceEnumerator::audioOutputDeviceAt(std::uint32_t index)
-{
-    return index < audioOutputDeviceCount()? std::optional(audioOutputDevices[index]): std::nullopt;
-}
-
-std::optional<YADAW::MIDI::DeviceInfo> ALSADeviceEnumerator::midiInputDeviceAt(std::uint32_t index)
-{
-    return index < midiInputDevices.size()? std::optional(midiInputDevices[index]): std::nullopt;
-}
-
-std::optional<YADAW::MIDI::DeviceInfo> ALSADeviceEnumerator::midiOutputDeviceAt(std::uint32_t index)
-{
-    return index < midiOutputDevices.size()? std::optional(midiOutputDevices[index]): std::nullopt;
+    return ::midiOutputDevices;
 }
 
 std::optional<std::string> ALSADeviceEnumerator::audioDeviceName(ALSADeviceSelector selector)

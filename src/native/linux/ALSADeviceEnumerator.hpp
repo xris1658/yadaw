@@ -16,15 +16,17 @@ using YADAW::Audio::Backend::ALSADeviceSelector;
 class ALSADeviceEnumerator
 {
 public:
+    enum RescanFlags
+    {
+        AudioDevices = 1 << 0,
+        MIDIDevices = 1 << 1
+    };
+public:
     static void enumerateDevices();
-    static std::uint32_t audioInputDeviceCount();
-    static std::uint32_t audioOutputDeviceCount();
-    static std::uint32_t midiInputDeviceCount();
-    static std::uint32_t midiOutputDeviceCount();
-    static std::optional<ALSADeviceSelector> audioInputDeviceAt(std::uint32_t index);
-    static std::optional<ALSADeviceSelector> audioOutputDeviceAt(std::uint32_t index);
-    static std::optional<YADAW::MIDI::DeviceInfo> midiInputDeviceAt(std::uint32_t index);
-    static std::optional<YADAW::MIDI::DeviceInfo> midiOutputDeviceAt(std::uint32_t index);
+    static const std::vector<ALSADeviceSelector>& audioInputDevices();
+    static const std::vector<ALSADeviceSelector>& audioOutputDevices();
+    static const std::vector<YADAW::MIDI::DeviceInfo> midiInputDevices();
+    static const std::vector<YADAW::MIDI::DeviceInfo> midiOutputDevices();
     static std::optional<std::string> audioDeviceName(ALSADeviceSelector selector);
     static std::optional<std::string> cardName(int cardIndex);
 };
