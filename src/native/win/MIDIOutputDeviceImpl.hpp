@@ -8,6 +8,12 @@
 
 #include "native/win/winrt/Forward.hpp"
 
+#include <winrt/base.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Devices.Enumeration.h>
+#include <winrt/Windows.Devices.Midi.h>
+
 namespace YADAW::MIDI
 {
 class MIDIOutputDevice::Impl
