@@ -8,8 +8,8 @@
 
 #include <alsa/asoundlib.h>
 
-#include <map>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -18,21 +18,24 @@ namespace YADAW::Audio::Backend
 class ALSABackend::Impl
 {
 private:
-    using ContainerType = std::vector<std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t>>;
+    using ContainerType = std::vector<std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, void*>>;
     enum TupleElementType
     {
         DeviceSelector,
         PCMHandle,
         ChannelCount,
         Format,
-        Access
+        Access,
+        Buffer
     };
 public:
-    Impl(std::uint32_t sampleRate, std::uint32_t frameSize);
+    Impl();
     ~Impl();
 private:
     static bool compareTupleWithElement(ContainerType::const_reference elem, ALSADeviceSelector selector);
 public:
+    void initialize(std::uint32_t sampleRate, std::uint32_t frameSize);
+    void uninitialize();
     static std::uint32_t audioInputCount();
     static std::uint32_t audioOutputCount();
     static std::optional<ALSADeviceSelector> audioInputDeviceAt(std::uint32_t index);

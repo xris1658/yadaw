@@ -6,13 +6,13 @@
 
 namespace YADAW::Audio::Backend
 {
-ALSABackend::ALSABackend()
+ALSABackend::ALSABackend():
+    pImpl_(std::make_unique<Impl>())
 {}
 
-ALSABackend::ALSABackend(ALSABackend&& rhs) noexcept
-{
-    pImpl_ = std::move(rhs.pImpl_);
-}
+ALSABackend::ALSABackend(ALSABackend&& rhs) noexcept:
+    pImpl_(std::move(rhs.pImpl_))
+{}
 
 ALSABackend::~ALSABackend() {}
 
@@ -48,49 +48,40 @@ std::optional<std::string> ALSABackend::cardName(int cardIndex)
 
 bool ALSABackend::initialize(std::uint32_t sampleRate, std::uint32_t frameSize)
 {
-    if(pImpl_)
-    {
-        return false;
-    }
-    pImpl_ = std::make_unique<Impl>(sampleRate, frameSize);
+    pImpl_->initialize(sampleRate, frameSize);
     return true;
 }
 
 bool ALSABackend::uninitialize()
 {
-    if(pImpl_)
-    {
-        pImpl_.reset();
-    }
+    pImpl_->uninitialize();
     return true;
 }
 
 ALSABackend::ActivateDeviceResult
 ALSABackend::setAudioDeviceActivated(bool isInput, std::uint32_t index, bool activated)
 {
-    return pImpl_.get()?
-        pImpl_->setAudioDeviceActivated(isInput, index, activated):
-        ActivateDeviceResult::Failed;
+    return pImpl_->setAudioDeviceActivated(isInput, index, activated);
 }
 
 bool ALSABackend::isAudioDeviceActivated(bool isInput, std::uint32_t index) const
 {
-    return pImpl_? pImpl_->isAudioDeviceActivated(isInput, index): false;
+    return pImpl_->isAudioDeviceActivated(isInput, index);
 }
 
 std::uint32_t ALSABackend::channelCount(bool isInput, std::uint32_t index) const
 {
-    return pImpl_? pImpl_->channelCount(isInput, index): 0;
+    return pImpl_->channelCount(isInput, index);
 }
 
 bool ALSABackend::start()
 {
-    return pImpl_? pImpl_->start(): false;
+    return pImpl_->start();
 }
 
 bool ALSABackend::stop()
 {
-    return pImpl_? pImpl_->stop(): false;
+    return pImpl_->stop();
 }
 
 std::optional<std::uint32_t> findDeviceBySelector(const ALSABackend& backend, bool isInput, ALSADeviceSelector selector)

@@ -38,8 +38,8 @@ constexpr snd_pcm_format_t formats[] = {
 
 constexpr snd_pcm_access_t accesses[] = {
     SND_PCM_ACCESS_MMAP_NONINTERLEAVED,
-    SND_PCM_ACCESS_RW_NONINTERLEAVED,
     SND_PCM_ACCESS_MMAP_INTERLEAVED,
+    SND_PCM_ACCESS_RW_NONINTERLEAVED,
     SND_PCM_ACCESS_RW_INTERLEAVED
 };
 
@@ -58,47 +58,9 @@ namespace YADAW::Audio::Backend
 std::vector<ALSADeviceSelector> ALSABackend::Impl::inputDevices_;
 std::vector<ALSADeviceSelector> ALSABackend::Impl::outputDevices_;
 
-ALSABackend::Impl::Impl(std::uint32_t sampleRate, std::uint32_t frameSize):
-    sampleRate_(sampleRate), frameSize_(frameSize)
-{
-    const auto& inputDevices = YADAW::Native::ALSADeviceEnumerator::audioInputDevices();
-    inputDevices_ = inputDevices;
-    inputs_.reserve(inputDevices.size());
-    for(const auto& inputDevice: inputDevices)
-    {
-        inputs_.emplace_back(
-            inputDevice, nullptr, 0U, snd_pcm_format_t {}, snd_pcm_access_t {}
-        );
-    }
-    const auto& outputDevices = YADAW::Native::ALSADeviceEnumerator::audioOutputDevices();
-    outputDevices_ = outputDevices;
-    outputs_.reserve(outputDevices.size());
-    for(const auto& outputDevice: outputDevices)
-    {
-        outputs_.emplace_back(
-            outputDevice, nullptr, 0U, snd_pcm_format_t {}, snd_pcm_access_t {}
-        );
-    }
-}
+ALSABackend::Impl::Impl() {}
 
-ALSABackend::Impl::~Impl()
-{
-    stop();
-    for(const auto& [selector, pcm, channelCount, format, access]: inputs_)
-    {
-        if(pcm)
-        {
-            snd_pcm_close(pcm);
-        }
-    }
-    for(const auto& [selector, pcm, channelCount, format, access]: outputs_)
-    {
-        if(pcm)
-        {
-            snd_pcm_close(pcm);
-        }
-    }
-}
+ALSABackend::Impl::~Impl() {}
 
 bool ALSABackend::Impl::compareTupleWithElement(
     ALSABackend::Impl::ContainerType::const_reference elem,
@@ -114,7 +76,7 @@ ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
     if(index < container.size())
     {
         auto it = container.begin() + index;
-        auto& [selector, pcm, r1, r2, r3] = *it;
+        auto& [selector, pcm, r1, r2, r3, r4] = *it;
         if(activated == (std::get<TupleElementType::PCMHandle>(*it) != nullptr))
         {
             return ActivateDeviceResult::AlreadyDone;
@@ -125,7 +87,7 @@ ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
             const auto& [pcm, r1, r2, r3] = result;
             if(pcm)
             {
-                *it = std::tuple_cat(std::make_tuple(selector), result);
+                *it = std::tuple_cat(std::make_tuple(selector), result, std::make_tuple(static_cast<void*>(nullptr)));
                 return ActivateDeviceResult::Success;
             }
         }
@@ -139,22 +101,55 @@ ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
     return ActivateDeviceResult::Failed;
 }
 
+void ALSABackend::Impl::initialize(std::uint32_t sampleRate, std::uint32_t frameSize)
+{
+    sampleRate_ = sampleRate;
+    frameSize_ = frameSize;
+    const auto& inputDevices = YADAW::Native::ALSADeviceEnumerator::audioInputDevices();
+    inputs_.reserve(inputDevices.size());
+    for(const auto& inputDevice: inputDevices)
+    {
+        inputs_.emplace_back(
+            inputDevice, nullptr, 0U, snd_pcm_format_t {}, snd_pcm_access_t {}, nullptr
+        );
+    }
+    const auto& outputDevices = YADAW::Native::ALSADeviceEnumerator::audioOutputDevices();
+    outputs_.reserve(outputDevices.size());
+    for(const auto& outputDevice: outputDevices)
+    {
+        outputs_.emplace_back(
+            outputDevice, nullptr, 0U, snd_pcm_format_t {}, snd_pcm_access_t {}, nullptr
+        );
+    }
+}
+
+void ALSABackend::Impl::uninitialize()
+{
+    stop();
+    for(const auto& [selector, pcm, channelCount, format, access, buffer]: inputs_)
+    {
+        if(pcm)
+        {
+            snd_pcm_close(pcm);
+        }
+    }
+    for(const auto& [selector, pcm, channelCount, format, access, buffer]: outputs_)
+    {
+        if(pcm)
+        {
+            snd_pcm_close(pcm);
+        }
+    }
+}
+
 std::uint32_t ALSABackend::Impl::audioInputCount()
 {
-    if(inputDevices_.empty())
-    {
-        inputDevices_ = YADAW::Native::ALSADeviceEnumerator::audioInputDevices();
-    }
-    return inputDevices_.size();
+    return YADAW::Native::ALSADeviceEnumerator::audioInputDevices().size();
 }
 
 std::uint32_t ALSABackend::Impl::audioOutputCount()
 {
-    if(outputDevices_.empty())
-    {
-        outputDevices_ = YADAW::Native::ALSADeviceEnumerator::audioOutputDevices();
-    }
-    return outputDevices_.size();
+    return YADAW::Native::ALSADeviceEnumerator::audioOutputDevices().size();
 }
 
 std::optional<ALSADeviceSelector>

@@ -78,6 +78,8 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/Library.cpp
     src/native/win/MIDIInputDeviceImpl.cpp
     src/native/win/MIDIInputDeviceImpl.hpp
+    src/native/win/MIDIOutputDeviceImpl.cpp
+    src/native/win/MIDIOutputDeviceImpl.hpp
     src/native/win/Native.cpp
     src/native/win/VST3Native.cpp
     src/native/win/VestifalNative.cpp
@@ -85,7 +87,7 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/winrt/Forward.hpp
     src/native/win/winrt/QStringFromHString.cpp
     src/native/win/winrt/QStringFromHString.hpp
-    )
+)
 
 set(LINUX_NATIVE_SOURCES
     src/audio/backend/ALSABackend.hpp
@@ -108,12 +110,14 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/Library.cpp
     src/native/linux/MIDIInputDeviceImpl.cpp
     src/native/linux/MIDIInputDeviceImpl.hpp
+    src/native/linux/MIDIOutputDeviceImpl.cpp
+    src/native/linux/MIDIOutputDeviceImpl.hpp
     src/native/linux/Native.cpp
     src/native/linux/Sequencer.cpp
     src/native/linux/Sequencer.hpp
     src/native/linux/VST3Native.cpp
     src/native/linux/VestifalNative.cpp
-    )
+)
 
 if(WIN32)
     set(NATIVE_SOURCES ${WIN32_NATIVE_SOURCES})
@@ -281,6 +285,7 @@ set(YADAW_COMMON_SOURCES
     src/midi/MIDIInputDevice.cpp
     src/midi/MIDIInputDevice.hpp
     src/midi/MIDIOutputDevice.hpp
+    src/midi/MIDIOutputDevice.cpp
     src/midi/Message.hpp
     src/midi/MessageToCLAPEvent.cpp
     src/midi/MessageToCLAPEvent.hpp
@@ -309,6 +314,7 @@ set(YADAW_COMMON_SOURCES
     src/native/Library.hpp
     src/native/MIDIDeviceID.hpp
     src/native/MIDIInputDeviceImpl.hpp
+    src/native/MIDIOutputDeviceImpl.hpp
     src/native/Native.hpp
     src/native/VST3Native.hpp
     src/native/VestifalNative.hpp

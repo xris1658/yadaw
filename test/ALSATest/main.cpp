@@ -1,5 +1,6 @@
 #include "audio/backend/ALSABackend.hpp"
 #include "midi/MIDIInputDevice.hpp"
+#include "midi/MIDIOutputDevice.hpp"
 #include "native/linux/ALSADeviceEnumerator.hpp"
 #include "common/DisableStreamBuffer.hpp"
 
@@ -40,6 +41,7 @@ int main(int argc, char** argv)
         auto value = YADAW::Native::ALSADeviceEnumerator::midiOutputDevices()[i];
         std::printf("\n\t%zu: %s (Client %u, Port %u)", i + 1, value.name.toStdString().c_str(), value.id.clientId, value.id.portId);
     }
+    std::printf("\n\n");
     YADAW::Audio::Backend::ALSABackend backend;
     backend.initialize(44100, 512);
     YADAW::Audio::Backend::ALSADeviceSelector selector(0, 0);
@@ -47,11 +49,19 @@ int main(int argc, char** argv)
     auto outputIndex = findDeviceBySelector(backend, false, selector);
     if(inputIndex.has_value())
     {
-        backend.setAudioDeviceActivated(true, *inputIndex, true);
+        auto activateInputResult = backend.setAudioDeviceActivated(true, *inputIndex, true);
+        if(activateInputResult == decltype(activateInputResult)::Failed)
+        {
+            std::printf("Activate default input failed!\n");
+        }
     }
     if(outputIndex.has_value())
     {
-        backend.setAudioDeviceActivated(false, *outputIndex, true);
+        auto activateOutputResult = backend.setAudioDeviceActivated(false, *outputIndex, true);
+        if(activateOutputResult == decltype(activateOutputResult)::Failed)
+        {
+            std::printf("Activate default output failed!\n");
+        }
     }
     backend.start();
     getchar();

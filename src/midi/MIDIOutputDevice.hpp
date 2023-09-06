@@ -18,7 +18,7 @@ public:
     static std::size_t outputDeviceCount();
     static std::optional<DeviceInfo> outputDeviceAt(std::size_t index);
 public:
-    MIDIInputDevice(const YADAW::Native::MIDIDeviceID& id);
+    MIDIOutputDevice(const YADAW::Native::MIDIDeviceID& id);
     MIDIOutputDevice(const MIDIOutputDevice&) = delete;
     MIDIOutputDevice(MIDIOutputDevice&&) = delete;
     ~MIDIOutputDevice();
