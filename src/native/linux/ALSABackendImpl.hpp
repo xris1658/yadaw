@@ -69,7 +69,7 @@ public:
     bool stop();
 private:
     std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*> activateDevice(bool isInput, ALSADeviceSelector selector);
-    static std::shared_ptr<std::byte[]> allocateBuffer(std::uint32_t frameSize, std::uint32_t channelCount, std::uint32_t formatIndex);
+    static std::shared_ptr<std::byte[]> allocateBuffer(std::uint32_t frameSize, std::uint32_t channelCount, snd_pcm_format_t format);
 private:
     std::uint32_t sampleRate_;
     std::uint32_t frameSize_;

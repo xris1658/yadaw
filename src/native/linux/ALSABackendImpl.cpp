@@ -44,31 +44,69 @@ constexpr snd_pcm_access_t accesses[] = {
     SND_PCM_ACCESS_RW_INTERLEAVED
 };
 
+using SampleFormat = std::tuple<
+    double, YADAW::Util::DoubleRE,
+    float, YADAW::Util::FloatRE,
+    std::int32_t, YADAW::Util::Int32RE,
+    std::int32_t, YADAW::Util::Int32RE,
+    std::int32_t, YADAW::Util::Int32RE,
+    std::int16_t, YADAW::Util::Int16RE,
+    std::int8_t>;
+
+snd_pcm_sframes_t operator ""_SF(unsigned long long int value)
+{
+    return static_cast<snd_pcm_sframes_t>(value);
+}
+
+snd_pcm_uframes_t operator ""_UF(unsigned long long int value)
+{
+    return static_cast<snd_pcm_uframes_t>(value);
+}
+
 using PCMAccess = snd_pcm_sframes_t(snd_pcm_t*, std::byte*, void**, std::uint32_t frameSize);
+
+std::byte* pointerFromChannelArea(const snd_pcm_channel_area_t& channelArea)
+{
+    return static_cast<std::byte*>(channelArea.addr) + (channelArea.first / CHAR_BIT);
+}
 
 snd_pcm_sframes_t readMMapInterleaved(snd_pcm_t* pcm, std::byte* buffer, void**, std::uint32_t frameSize)
 {
+    auto availableFrameSize = snd_pcm_avail_update(pcm);
     // snd_pcm_mmap_begin
+    const snd_pcm_channel_area_t* channelArea = nullptr;
+    auto offset = 0_UF;
+    auto frames = 0_UF;
+    snd_pcm_mmap_begin(pcm, &channelArea, &offset, &frames);
     auto ret = snd_pcm_mmap_readi(pcm, buffer, frameSize);
+    snd_pcm_mmap_commit(pcm, offset, frames);
     // snd_pcm_mmap_commit
     return ret;
 }
 
 snd_pcm_sframes_t readMMapNonInterleaved(snd_pcm_t* pcm, std::byte*, void** interleaveBuffer, std::uint32_t frameSize)
 {
+    auto availableFrameSize = snd_pcm_avail_update(pcm);
     // snd_pcm_mmap_begin
+    const snd_pcm_channel_area_t* channelArea = nullptr;
+    auto offset = 0_UF;
+    auto frames = 0_UF;
+    snd_pcm_mmap_begin(pcm, &channelArea, &offset, &frames);
     auto ret = snd_pcm_mmap_readn(pcm, interleaveBuffer, frameSize);
+    snd_pcm_mmap_commit(pcm, offset, frames);
     // snd_pcm_mmap_commit
     return ret;
 }
 
 snd_pcm_sframes_t readInterleaved(snd_pcm_t* pcm, std::byte* buffer, void**, std::uint32_t frameSize)
 {
+    auto availableFrameSize = snd_pcm_avail_update(pcm);
     return snd_pcm_readi(pcm, buffer, frameSize);
 }
 
 snd_pcm_sframes_t readNonInterleaved(snd_pcm_t* pcm, std::byte* buffer, void** interleaveBuffer, std::uint32_t frameSize)
 {
+    auto availableFrameSize = snd_pcm_avail_update(pcm);
     return snd_pcm_readn(pcm, interleaveBuffer, frameSize);
 }
 
@@ -83,15 +121,27 @@ constexpr PCMAccess* readFunc[] = {
 snd_pcm_sframes_t writeMMapInterleaved(snd_pcm_t* pcm, std::byte* buffer, void**, std::uint32_t frameSize)
 {
     // snd_pcm_mmap_begin
+    auto availableFrameSize = snd_pcm_avail_update(pcm);
+    const snd_pcm_channel_area_t* channelArea = nullptr;
+    auto offset = 0_UF;
+    auto frames = 0_UF;
+    snd_pcm_mmap_begin(pcm, &channelArea, &offset, &frames);
     auto ret = snd_pcm_mmap_writei(pcm, buffer, frameSize);
+    snd_pcm_mmap_commit(pcm, offset, frames);
     // snd_pcm_mmap_commit
     return ret;
 }
 
 snd_pcm_sframes_t writeMMapNonInterleaved(snd_pcm_t* pcm, std::byte*, void** interleaveBuffer, std::uint32_t frameSize)
 {
+    auto availableFrameSize = snd_pcm_avail_update(pcm);
     // snd_pcm_mmap_begin
+    const snd_pcm_channel_area_t* channelArea = nullptr;
+    auto offset = 0_UF;
+    auto frames = 0_UF;
+    snd_pcm_mmap_begin(pcm, &channelArea, &offset, &frames);
     auto ret = snd_pcm_mmap_writen(pcm, interleaveBuffer, frameSize);
+    snd_pcm_mmap_commit(pcm, offset, frames);
     // snd_pcm_mmap_commit
     return ret;
 }
@@ -113,29 +163,6 @@ constexpr PCMAccess* writeFunc[] = {
     &writeInterleaved,
     &writeNonInterleaved,
 };
-
-using SampleFormat = std::tuple<
-    double, YADAW::Util::DoubleRE,
-    float, YADAW::Util::FloatRE,
-    std::int32_t, YADAW::Util::Int32RE,
-    std::int32_t, YADAW::Util::Int32RE,
-    std::int32_t, YADAW::Util::Int32RE,
-    std::int16_t, YADAW::Util::Int16RE,
-    std::int8_t>;
-
-constexpr std::size_t sampleSize[] = {
-    8, 8, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 1
-};
-
-std::size_t getSampleSize(snd_pcm_format_t format)
-{
-    auto index = std::find(formats, formats + YADAW::Util::stackArraySize(formats), format) - formats;
-    if(index < YADAW::Util::stackArraySize(formats))
-    {
-        return sampleSize[index];
-    }
-    return 0;
-}
 
 std::once_flag flag;
 
@@ -293,20 +320,31 @@ bool ALSABackend::Impl::start()
         inputs.reserve(inputs_.size());
         for(const auto& [selector, pcm, channelCount, format, access, buffer]: inputs_)
         {
-            std::vector<void*> nonInterleaveBuffers;
-            if(access == SND_PCM_ACCESS_MMAP_INTERLEAVED || access == SND_PCM_ACCESS_RW_INTERLEAVED)
+            if(pcm)
             {
-                nonInterleaveBuffers.resize(channelCount, nullptr);
-                auto ptr = buffer;
-                FOR_RANGE0(i, channelCount)
+                std::vector<void*> nonInterleaveBuffers;
+                if(access == SND_PCM_ACCESS_MMAP_INTERLEAVED || access == SND_PCM_ACCESS_RW_INTERLEAVED)
                 {
-                    nonInterleaveBuffers[i] = ptr;
-                    ptr += frameSize_ * getSampleSize(format);
+                    nonInterleaveBuffers.resize(channelCount, nullptr);
+                    auto ptr = buffer;
+                    FOR_RANGE0(i, channelCount)
+                    {
+                        nonInterleaveBuffers[i] = ptr;
+                        ptr += frameSize_ * snd_pcm_format_physical_width(format);
+                    }
                 }
+                inputs.emplace_back(
+                    std::make_tuple(pcm, channelCount, format, access, buffer, std::move(nonInterleaveBuffers))
+                );
             }
-            inputs.emplace_back(
-                std::make_tuple(pcm, channelCount, format, access, buffer, std::move(nonInterleaveBuffers))
-            );
+            else
+            {
+                inputs.emplace_back(
+                    std::make_tuple(pcm, 0U,
+                        SND_PCM_FORMAT_UNKNOWN, SND_PCM_ACCESS_LAST,
+                        static_cast<std::byte*>(nullptr), std::vector<void*>())
+                );
+            }
         }
         outputs.reserve(outputs_.size());
         for(const auto& [selector, pcm, channelCount, format, access, buffer]: outputs_)
@@ -319,7 +357,7 @@ bool ALSABackend::Impl::start()
                 FOR_RANGE0(i, channelCount)
                 {
                     nonInterleaveBuffers[i] = ptr;
-                    ptr += frameSize_ * getSampleSize(format);
+                    ptr += frameSize_ * snd_pcm_format_physical_width(format);
                 }
             }
             outputs.emplace_back(
@@ -334,12 +372,18 @@ bool ALSABackend::Impl::start()
                 {
                     for(auto& [pcm, channelCount, format, access, buffer, nonInterleaveBuffers]: inputs)
                     {
-                        readFunc[access](pcm, buffer, nonInterleaveBuffers.data(), channelCount);
+                        if(pcm)
+                        {
+                            readFunc[access](pcm, buffer, nonInterleaveBuffers.data(), channelCount);
+                        }
                     }
                     // audio callback
                     for(auto& [pcm, channelCount, format, access, buffer, nonInterleaveBuffers]: outputs)
                     {
-                        writeFunc[access](pcm, buffer, nonInterleaveBuffers.data(), channelCount);
+                        if(pcm)
+                        {
+                            writeFunc[access](pcm, buffer, nonInterleaveBuffers.data(), channelCount);
+                        }
                     }
                 }
                 runFlag_.clear(std::memory_order::memory_order_release);
@@ -393,13 +437,11 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::b
         return {};
     }
     snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
-    std::uint32_t formatIndex = 0;
-    for(std::size_t i = 0; i < YADAW::Util::stackArraySize(formats); ++i)
+    FOR_RANGE0(i, YADAW::Util::stackArraySize(formats))
     {
         if(snd_pcm_hw_params_set_format(pcm, hwParams, formats[i]) == 0)
         {
             format = formats[i];
-            formatIndex = i;
             break;
         }
     }
@@ -447,7 +489,7 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::b
         return {};
     }
     int access = SND_PCM_ACCESS_LAST + 1;
-    for(std::size_t i = 0; i < YADAW::Util::stackArraySize(accesses); ++i)
+    FOR_RANGE0(i, YADAW::Util::stackArraySize(accesses))
     {
         if(snd_pcm_hw_params_set_access(pcm, hwParams, accesses[i]) == 0)
         {
@@ -517,7 +559,7 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::b
         snd_pcm_close(pcm);
         return {};
     }
-    auto buffer = allocateBuffer(frameSize_, channelCount, formatIndex);
+    auto buffer = allocateBuffer(frameSize_, channelCount, format);
     if(!buffer)
     {
         std::fprintf(stderr, "Allocate buffer failed\n");
@@ -529,19 +571,19 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::b
     return {pcm, channelCount, format, static_cast<snd_pcm_access_t>(access), ptr};
 }
 
-std::shared_ptr<std::byte[]> ALSABackend::Impl::allocateBuffer(
-    std::uint32_t frameSize, std::uint32_t channelCount, std::uint32_t formatIndex)
+std::shared_ptr<std::byte[]>
+ALSABackend::Impl::allocateBuffer(std::uint32_t frameSize, std::uint32_t channelCount, snd_pcm_format_t format)
 {
-    assert(formatIndex < YADAW::Util::stackArraySize(formats));
+    auto physicalWidth = snd_pcm_format_physical_width(format);
     auto ptr = static_cast<std::byte*>(
         ::operator new[](
-            frameSize * channelCount * sampleSize[formatIndex],
-            std::align_val_t(sampleSize[formatIndex]), std::nothrow
+            frameSize * channelCount * physicalWidth,
+            std::align_val_t(physicalWidth), std::nothrow
         )
     );
     if(ptr)
     {
-        auto deleter = [align = std::align_val_t(sampleSize[formatIndex])](void* ptr)
+        auto deleter = [align = std::align_val_t(physicalWidth)](void* ptr)
         {
             ::operator delete[](ptr, align);
         };
