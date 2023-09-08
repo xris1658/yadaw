@@ -7,6 +7,8 @@
 #include "util/IntegerRange.hpp"
 #include "util/SampleFormat.hpp"
 
+#include <alloca.h>
+
 #include <filesystem>
 #include <mutex>
 
@@ -65,109 +67,130 @@ snd_pcm_uframes_t operator ""_UF(unsigned long long int value)
 
 using PCMAccess = snd_pcm_sframes_t(snd_pcm_t*, std::byte*, void**, std::uint32_t frameSize);
 
-std::byte* pointerFromChannelArea(const snd_pcm_channel_area_t& channelArea)
-{
-    return static_cast<std::byte*>(channelArea.addr) + (channelArea.first / CHAR_BIT);
-}
-
-snd_pcm_sframes_t readMMapInterleaved(snd_pcm_t* pcm, std::byte* buffer, void**, std::uint32_t frameSize)
-{
-    auto availableFrameSize = snd_pcm_avail_update(pcm);
-    // snd_pcm_mmap_begin
-    const snd_pcm_channel_area_t* channelArea = nullptr;
-    auto offset = 0_UF;
-    auto frames = 0_UF;
-    snd_pcm_mmap_begin(pcm, &channelArea, &offset, &frames);
-    auto ret = snd_pcm_mmap_readi(pcm, buffer, frameSize);
-    snd_pcm_mmap_commit(pcm, offset, frames);
-    // snd_pcm_mmap_commit
-    return ret;
-}
-
-snd_pcm_sframes_t readMMapNonInterleaved(snd_pcm_t* pcm, std::byte*, void** interleaveBuffer, std::uint32_t frameSize)
-{
-    auto availableFrameSize = snd_pcm_avail_update(pcm);
-    // snd_pcm_mmap_begin
-    const snd_pcm_channel_area_t* channelArea = nullptr;
-    auto offset = 0_UF;
-    auto frames = 0_UF;
-    snd_pcm_mmap_begin(pcm, &channelArea, &offset, &frames);
-    auto ret = snd_pcm_mmap_readn(pcm, interleaveBuffer, frameSize);
-    snd_pcm_mmap_commit(pcm, offset, frames);
-    // snd_pcm_mmap_commit
-    return ret;
-}
-
-snd_pcm_sframes_t readInterleaved(snd_pcm_t* pcm, std::byte* buffer, void**, std::uint32_t frameSize)
-{
-    auto availableFrameSize = snd_pcm_avail_update(pcm);
-    return snd_pcm_readi(pcm, buffer, frameSize);
-}
-
-snd_pcm_sframes_t readNonInterleaved(snd_pcm_t* pcm, std::byte* buffer, void** interleaveBuffer, std::uint32_t frameSize)
-{
-    auto availableFrameSize = snd_pcm_avail_update(pcm);
-    return snd_pcm_readn(pcm, interleaveBuffer, frameSize);
-}
-
-constexpr PCMAccess* readFunc[] = {
-    &readMMapInterleaved,
-    &readMMapNonInterleaved,
-    nullptr,
-    &readInterleaved,
-    &readNonInterleaved,
-};
-
-snd_pcm_sframes_t writeMMapInterleaved(snd_pcm_t* pcm, std::byte* buffer, void**, std::uint32_t frameSize)
-{
-    // snd_pcm_mmap_begin
-    auto availableFrameSize = snd_pcm_avail_update(pcm);
-    const snd_pcm_channel_area_t* channelArea = nullptr;
-    auto offset = 0_UF;
-    auto frames = 0_UF;
-    snd_pcm_mmap_begin(pcm, &channelArea, &offset, &frames);
-    auto ret = snd_pcm_mmap_writei(pcm, buffer, frameSize);
-    snd_pcm_mmap_commit(pcm, offset, frames);
-    // snd_pcm_mmap_commit
-    return ret;
-}
-
-snd_pcm_sframes_t writeMMapNonInterleaved(snd_pcm_t* pcm, std::byte*, void** interleaveBuffer, std::uint32_t frameSize)
-{
-    auto availableFrameSize = snd_pcm_avail_update(pcm);
-    // snd_pcm_mmap_begin
-    const snd_pcm_channel_area_t* channelArea = nullptr;
-    auto offset = 0_UF;
-    auto frames = 0_UF;
-    snd_pcm_mmap_begin(pcm, &channelArea, &offset, &frames);
-    auto ret = snd_pcm_mmap_writen(pcm, interleaveBuffer, frameSize);
-    snd_pcm_mmap_commit(pcm, offset, frames);
-    // snd_pcm_mmap_commit
-    return ret;
-}
-
-snd_pcm_sframes_t writeInterleaved(snd_pcm_t* pcm, std::byte* buffer, void**, std::uint32_t frameSize)
-{
-    return snd_pcm_writei(pcm, buffer, frameSize);
-}
-
-snd_pcm_sframes_t writeNonInterleaved(snd_pcm_t* pcm, std::byte* buffer, void** interleaveBuffer, std::uint32_t frameSize)
-{
-    return snd_pcm_writen(pcm, interleaveBuffer, frameSize);
-}
-
-constexpr PCMAccess* writeFunc[] = {
-    &writeMMapInterleaved,
-    &writeMMapNonInterleaved,
-    nullptr,
-    &writeInterleaved,
-    &writeNonInterleaved,
-};
-
 std::once_flag flag;
 
 namespace YADAW::Audio::Backend
 {
+snd_pcm_sframes_t ALSABackend::Impl::readMMapInterleaved(
+    std::uint32_t frameSize, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer] = data;
+    auto availableFrameSize = snd_pcm_avail_update(pcm);
+    if(availableFrameSize >= frameSize)
+    {
+        const snd_pcm_channel_area_t* channelAreas = nullptr;
+        auto offset = 0_UF;
+        auto frames = 0_UF;
+        snd_pcm_mmap_begin(pcm, &channelAreas, &offset, &frames);
+        auto& channelArea = channelAreas[0];
+        auto ptr =
+            static_cast<std::byte*>(channelArea.addr)
+            + (channelArea.first >> 3)
+            + offset * (channelArea.step >> 3);
+        snd_pcm_mmap_readi(pcm, ptr, frameSize);
+        snd_pcm_mmap_commit(pcm, offset, frameSize);
+    }
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::readMMapNonInterleaved(
+    std::uint32_t frameSize, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer] = data;
+    auto availableFrameSize = snd_pcm_avail_update(pcm);
+    if(availableFrameSize >= frameSize)
+    {
+        const snd_pcm_channel_area_t* channelAreas = nullptr;
+        auto offset = 0_UF;
+        auto frames = 0_UF;
+        snd_pcm_mmap_begin(pcm, &channelAreas, &offset, &frames);
+        auto buffers = static_cast<void**>(alloca(sizeof(void*) * channelCount));
+        std::memset(buffers, 0, sizeof(void*) * channelCount);
+        FOR_RANGE0(i, channelCount)
+        {
+            auto& channelArea = channelAreas[i];
+            buffers[i] =
+                static_cast<std::byte*>(channelArea.addr)
+                + (channelArea.first >> 3)
+                + offset * (channelArea.step >> 3);
+        }
+        snd_pcm_mmap_readn(pcm, buffers, frameSize);
+        snd_pcm_mmap_commit(pcm, offset, frameSize);
+    }
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::readInterleaved(
+    std::uint32_t frameSize, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer] = data;
+    return snd_pcm_readi(pcm, buffer, frameSize);
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::readNonInterleaved(std::uint32_t frameSize, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer] = data;
+    return snd_pcm_readn(pcm, static_cast<void**>(buffer), frameSize);
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::writeMMapInterleaved(
+    std::uint32_t frameSize, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer] = data;
+    auto availableFrameSize = snd_pcm_avail_update(pcm);
+    if(availableFrameSize >= frameSize)
+    {
+        const snd_pcm_channel_area_t* channelAreas = nullptr;
+        auto offset = 0_UF;
+        auto frames = 0_UF;
+        snd_pcm_mmap_begin(pcm, &channelAreas, &offset, &frames);
+        auto& channelArea = channelAreas[0];
+        auto ptr =
+            static_cast<std::byte*>(channelArea.addr)
+            + (channelArea.first >> 3)
+            + offset * (channelArea.step >> 3);
+        snd_pcm_mmap_writei(pcm, ptr, frameSize);
+        snd_pcm_mmap_commit(pcm, offset, frameSize);
+    }
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::writeMMapNonInterleaved(
+    std::uint32_t frameSize, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer] = data;
+    auto availableFrameSize = snd_pcm_avail_update(pcm);
+    if(availableFrameSize >= frameSize)
+    {
+        const snd_pcm_channel_area_t* channelAreas = nullptr;
+        auto offset = 0_UF;
+        auto frames = 0_UF;
+        snd_pcm_mmap_begin(pcm, &channelAreas, &offset, &frames);
+        auto buffers = static_cast<void**>(alloca(sizeof(void*) * channelCount));
+        std::memset(buffers, 0, sizeof(void*) * channelCount);
+        FOR_RANGE0(i, channelCount)
+        {
+            auto& channelArea = channelAreas[i];
+            buffers[i] =
+                static_cast<std::byte*>(channelArea.addr)
+                + (channelArea.first >> 3)
+                + offset * (channelArea.step >> 3);
+        }
+        snd_pcm_mmap_writen(pcm, buffers, frameSize);
+        snd_pcm_mmap_commit(pcm, offset, frameSize);
+    }
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::writeInterleaved(
+    std::uint32_t frameSize, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer] = data;
+    return snd_pcm_writei(pcm, buffer, frameSize);
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::writeNonInterleaved(std::uint32_t frameSize, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer] = data;
+    return snd_pcm_writen(pcm, static_cast<void**>(buffer), frameSize);
+}
+
 ALSABackend::Impl::Impl() {}
 
 ALSABackend::Impl::~Impl() {}
@@ -199,7 +222,8 @@ ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
             {
                 *it = std::tuple_cat(
                     std::make_tuple(selector),
-                    result);
+                    result
+                );
                 return ActivateDeviceResult::Success;
             }
         }
@@ -207,7 +231,7 @@ ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
         {
             auto pcm = std::get<TupleElementType::PCMHandle>(*it);
             auto buffer = std::get<TupleElementType::Buffer>(*it);
-            buffers_.erase(buffers_.find<std::byte*>(buffer));
+            buffers_.erase(buffers_.find<std::byte*>(static_cast<std::byte*>(buffer)));
             snd_pcm_close(pcm);
             pcm = nullptr;
             return ActivateDeviceResult::Success;
@@ -315,15 +339,32 @@ bool ALSABackend::Impl::start()
 {
     if(!runFlag_.test_and_set(std::memory_order::memory_order_acquire))
     {
+        static RWFunc* readFuncs[] = {
+            &readMMapInterleaved,
+            &readMMapNonInterleaved,
+            nullptr,
+            &readInterleaved,
+            &readNonInterleaved
+        };
+        static RWFunc* writeFuncs[] = {
+            &writeMMapInterleaved,
+            &writeMMapNonInterleaved,
+            nullptr,
+            &writeInterleaved,
+            &writeNonInterleaved
+        };
+        std::vector<std::shared_ptr<float[]>> floatInputs;
+        std::vector<std::shared_ptr<float[]>> floatOutputs;
         std::vector<std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, std::vector<void*>>> inputs;
         std::vector<std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, std::vector<void*>>> outputs;
         inputs.reserve(inputs_.size());
+        floatInputs.reserve(inputs_.size());
         for(const auto& [selector, pcm, channelCount, format, access, buffer]: inputs_)
         {
             if(pcm)
             {
                 std::vector<void*> nonInterleaveBuffers;
-                if(access == SND_PCM_ACCESS_MMAP_INTERLEAVED || access == SND_PCM_ACCESS_RW_INTERLEAVED)
+                if(access == SND_PCM_ACCESS_RW_NONINTERLEAVED)
                 {
                     nonInterleaveBuffers.resize(channelCount, nullptr);
                     auto ptr = buffer;
@@ -333,56 +374,48 @@ bool ALSABackend::Impl::start()
                         ptr += frameSize_ * snd_pcm_format_physical_width(format);
                     }
                 }
-                inputs.emplace_back(
-                    std::make_tuple(pcm, channelCount, format, access, buffer, std::move(nonInterleaveBuffers))
-                );
-            }
-            else
-            {
-                inputs.emplace_back(
-                    std::make_tuple(pcm, 0U,
-                        SND_PCM_FORMAT_UNKNOWN, SND_PCM_ACCESS_LAST,
-                        static_cast<std::byte*>(nullptr), std::vector<void*>())
-                );
+                // Modify buffer
             }
         }
         outputs.reserve(outputs_.size());
         for(const auto& [selector, pcm, channelCount, format, access, buffer]: outputs_)
         {
-            std::vector<void*> nonInterleaveBuffers;
-            if(access == SND_PCM_ACCESS_MMAP_INTERLEAVED || access == SND_PCM_ACCESS_RW_INTERLEAVED)
+            if(pcm)
             {
-                nonInterleaveBuffers.resize(channelCount, nullptr);
-                auto ptr = buffer;
-                FOR_RANGE0(i, channelCount)
+                std::vector<void*> nonInterleaveBuffers;
+                if(access == SND_PCM_ACCESS_RW_NONINTERLEAVED)
                 {
-                    nonInterleaveBuffers[i] = ptr;
-                    ptr += frameSize_ * snd_pcm_format_physical_width(format);
+                    nonInterleaveBuffers.resize(channelCount, nullptr);
+                    auto ptr = buffer;
+                    FOR_RANGE0(i, channelCount)
+                    {
+                        nonInterleaveBuffers[i] = ptr;
+                        ptr += frameSize_ * snd_pcm_format_physical_width(format);
+                    }
                 }
+                // Modify buffer
             }
-            outputs.emplace_back(
-                std::make_tuple(pcm, channelCount, format, access, buffer, std::move(nonInterleaveBuffers))
-            );
         }
         audioThread_ = std::thread(
             [this, inputs = std::move(inputs), outputs = std::move(outputs)]() mutable
             {
-                int errorCode = 0;
                 while(runFlag_.test_and_set(std::memory_order::memory_order_acquire))
                 {
-                    for(auto& [pcm, channelCount, format, access, buffer, nonInterleaveBuffers]: inputs)
+                    for(auto& data: inputs_)
                     {
+                        auto& [selector, pcm, channelCount, format, access, buffer] = data;
                         if(pcm)
                         {
-                            readFunc[access](pcm, buffer, nonInterleaveBuffers.data(), channelCount);
+                            readFuncs[access](frameSize_, data);
                         }
                     }
-                    // audio callback
-                    for(auto& [pcm, channelCount, format, access, buffer, nonInterleaveBuffers]: outputs)
+                    // Insert audio callback here...
+                    for(auto& data: outputs_)
                     {
+                        auto& [selector, pcm, channelCount, format, access, buffer] = data;
                         if(pcm)
                         {
-                            writeFunc[access](pcm, buffer, nonInterleaveBuffers.data(), channelCount);
+                            writeFuncs[access](frameSize_, data);
                         }
                     }
                 }

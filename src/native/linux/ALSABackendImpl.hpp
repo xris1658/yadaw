@@ -11,6 +11,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace YADAW::Audio::Backend
@@ -18,27 +19,38 @@ namespace YADAW::Audio::Backend
 class ALSABackend::Impl
 {
 private:
+    template<typename T>
     struct Comparison
     {
         using is_transparent = void;
-        bool operator()(std::byte* lhs, std::byte* rhs) const
+        bool operator()(T* lhs, T* rhs) const
         {
             return lhs < rhs;
         }
-        bool operator()(const std::shared_ptr<std::byte[]>& lhs, std::byte* rhs) const
+        bool operator()(const std::shared_ptr<T[]>& lhs, T* rhs) const
         {
             return lhs.get() < rhs;
         }
-        bool operator()(std::byte* lhs, const std::shared_ptr<std::byte[]>& rhs) const
+        bool operator()(T* lhs, const std::shared_ptr<T[]>& rhs) const
         {
             return lhs < rhs.get();
         }
-        bool operator()(const std::shared_ptr<std::byte[]>& lhs, const std::shared_ptr<std::byte[]>& rhs) const
+        bool operator()(const std::shared_ptr<T[]>& lhs, const std::shared_ptr<T[]>& rhs) const
         {
             return lhs.get() < rhs.get();
         }
     };
-    using ContainerType = std::vector<std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*>>;
+    using DataType = std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, void*>;
+    using RWFunc = snd_pcm_sframes_t(std::uint32_t, DataType&);
+    static snd_pcm_sframes_t readMMapInterleaved(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t readMMapNonInterleaved(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t readInterleaved(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t readNonInterleaved(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeMMapInterleaved(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeMMapNonInterleaved(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeInterleaved(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeNonInterleaved(std::uint32_t frameSize, DataType& data);
+    using ContainerType = std::vector<DataType>;
     enum TupleElementType
     {
         DeviceSelector,
@@ -77,7 +89,7 @@ private:
     ContainerType outputs_;
     std::thread audioThread_;
     std::atomic_flag runFlag_ {ATOMIC_FLAG_INIT};
-    std::set<std::shared_ptr<std::byte[]>, Comparison> buffers_;
+    std::set<std::shared_ptr<std::byte[]>, Comparison<std::byte>> buffers_;
 };
 }
 
