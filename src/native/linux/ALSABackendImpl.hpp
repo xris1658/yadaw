@@ -40,16 +40,24 @@ private:
             return lhs.get() < rhs.get();
         }
     };
-    using DataType = std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, void*>;
+    using DataType = std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, void**, snd_pcm_uframes_t, snd_pcm_uframes_t>;
     using RWFunc = snd_pcm_sframes_t(std::uint32_t, DataType&);
-    static snd_pcm_sframes_t readMMapInterleaved(std::uint32_t frameSize, DataType& data);
-    static snd_pcm_sframes_t readMMapNonInterleaved(std::uint32_t frameSize, DataType& data);
-    static snd_pcm_sframes_t readInterleaved(std::uint32_t frameSize, DataType& data);
-    static snd_pcm_sframes_t readNonInterleaved(std::uint32_t frameSize, DataType& data);
-    static snd_pcm_sframes_t writeMMapInterleaved(std::uint32_t frameSize, DataType& data);
-    static snd_pcm_sframes_t writeMMapNonInterleaved(std::uint32_t frameSize, DataType& data);
-    static snd_pcm_sframes_t writeInterleaved(std::uint32_t frameSize, DataType& data);
-    static snd_pcm_sframes_t writeNonInterleaved(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t readMMapInterleavedBegin(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t readMMapNonInterleavedBegin(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t readInterleavedBegin(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t readNonInterleavedBegin(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeMMapInterleavedBegin(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeMMapNonInterleavedBegin(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeInterleavedBegin(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeNonInterleavedBegin(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t readMMapInterleavedEnd(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t readMMapNonInterleavedEnd(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t readInterleavedEnd(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t readNonInterleavedEnd(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeMMapInterleavedEnd(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeMMapNonInterleavedEnd(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeInterleavedEnd(std::uint32_t frameSize, DataType& data);
+    static snd_pcm_sframes_t writeNonInterleavedEnd(std::uint32_t frameSize, DataType& data);
     using ContainerType = std::vector<DataType>;
     enum TupleElementType
     {
@@ -58,7 +66,10 @@ private:
         ChannelCount,
         Format,
         Access,
-        Buffer
+        Buffer,
+        NonInterleaveArray,
+        MMapOffset,
+        MMapFrames
     };
 public:
     Impl();
@@ -80,7 +91,7 @@ public:
     bool start();
     bool stop();
 private:
-    std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*> activateDevice(bool isInput, ALSADeviceSelector selector);
+    std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, void**> activateDevice(bool isInput, ALSADeviceSelector selector);
     static std::shared_ptr<std::byte[]> allocateBuffer(std::uint32_t frameSize, std::uint32_t channelCount, snd_pcm_format_t format);
 private:
     std::uint32_t sampleRate_;
@@ -90,6 +101,7 @@ private:
     std::thread audioThread_;
     std::atomic_flag runFlag_ {ATOMIC_FLAG_INIT};
     std::set<std::shared_ptr<std::byte[]>, Comparison<std::byte>> buffers_;
+    std::set<std::shared_ptr<void*[]>, Comparison<void*>> nonInterleaveArrays_;
 };
 }
 
