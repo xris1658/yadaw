@@ -361,12 +361,9 @@ bool ALSABackend::Impl::start()
             &writeInterleaved,
             &writeNonInterleaved
         };
-        std::vector<std::shared_ptr<float[]>> floatInputs;
-        std::vector<std::shared_ptr<float[]>> floatOutputs;
         std::vector<std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, std::vector<void*>>> inputs;
         std::vector<std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, std::vector<void*>>> outputs;
         inputs.reserve(inputs_.size());
-        floatInputs.reserve(inputs_.size());
         for(const auto& [selector, pcm, channelCount, format, access, buffer]: inputs_)
         {
             if(pcm)
