@@ -87,9 +87,11 @@ snd_pcm_sframes_t ALSABackend::Impl::readMMapInterleaved(
             static_cast<std::byte*>(channelArea.addr)
             + (channelArea.first >> 3)
             + offset * (channelArea.step >> 3);
-        snd_pcm_mmap_readi(pcm, ptr, frameSize);
+        auto ret = snd_pcm_mmap_readi(pcm, ptr, frameSize);
         snd_pcm_mmap_commit(pcm, offset, frameSize);
+        return ret;
     }
+    return 0_SF;
 }
 
 snd_pcm_sframes_t ALSABackend::Impl::readMMapNonInterleaved(
@@ -113,9 +115,11 @@ snd_pcm_sframes_t ALSABackend::Impl::readMMapNonInterleaved(
                 + (channelArea.first >> 3)
                 + offset * (channelArea.step >> 3);
         }
-        snd_pcm_mmap_readn(pcm, buffers, frameSize);
+        auto ret = snd_pcm_mmap_readn(pcm, buffers, frameSize);
         snd_pcm_mmap_commit(pcm, offset, frameSize);
+        return ret;
     }
+    return 0_SF;
 }
 
 snd_pcm_sframes_t ALSABackend::Impl::readInterleaved(
@@ -147,9 +151,11 @@ snd_pcm_sframes_t ALSABackend::Impl::writeMMapInterleaved(
             static_cast<std::byte*>(channelArea.addr)
             + (channelArea.first >> 3)
             + offset * (channelArea.step >> 3);
-        snd_pcm_mmap_writei(pcm, ptr, frameSize);
+        auto ret = snd_pcm_mmap_writei(pcm, ptr, frameSize);
         snd_pcm_mmap_commit(pcm, offset, frameSize);
+        return ret;
     }
+    return 0_SF;
 }
 
 snd_pcm_sframes_t ALSABackend::Impl::writeMMapNonInterleaved(
@@ -173,9 +179,11 @@ snd_pcm_sframes_t ALSABackend::Impl::writeMMapNonInterleaved(
                 + (channelArea.first >> 3)
                 + offset * (channelArea.step >> 3);
         }
-        snd_pcm_mmap_writen(pcm, buffers, frameSize);
+        auto ret = snd_pcm_mmap_writen(pcm, buffers, frameSize);
         snd_pcm_mmap_commit(pcm, offset, frameSize);
+        return ret;
     }
+    return 0_SF;
 }
 
 snd_pcm_sframes_t ALSABackend::Impl::writeInterleaved(
