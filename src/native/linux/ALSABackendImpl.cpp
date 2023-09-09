@@ -372,7 +372,7 @@ bool ALSABackend::Impl::start()
                 if(access == SND_PCM_ACCESS_RW_NONINTERLEAVED)
                 {
                     nonInterleaveBuffers.resize(channelCount, nullptr);
-                    auto ptr = buffer;
+                    auto ptr = static_cast<std::byte*>(buffer);
                     FOR_RANGE0(i, channelCount)
                     {
                         nonInterleaveBuffers[i] = ptr;
@@ -391,7 +391,7 @@ bool ALSABackend::Impl::start()
                 if(access == SND_PCM_ACCESS_RW_NONINTERLEAVED)
                 {
                     nonInterleaveBuffers.resize(channelCount, nullptr);
-                    auto ptr = buffer;
+                    auto ptr = static_cast<std::byte*>(buffer);
                     FOR_RANGE0(i, channelCount)
                     {
                         nonInterleaveBuffers[i] = ptr;
