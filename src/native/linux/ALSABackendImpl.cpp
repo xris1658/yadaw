@@ -94,7 +94,7 @@ snd_pcm_sframes_t ALSABackend::Impl::readMMapInterleavedEnd(
     std::uint32_t frameSize, ALSABackend::Impl::DataType& data)
 {
     auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    return snd_pcm_mmap_commit(pcm, offset, frames);
+    return snd_pcm_mmap_commit(pcm, offset, frameSize);
 }
 
 snd_pcm_sframes_t ALSABackend::Impl::readMMapNonInterleavedBegin(
@@ -123,7 +123,7 @@ snd_pcm_sframes_t ALSABackend::Impl::readMMapNonInterleavedEnd(
     std::uint32_t frameSize, ALSABackend::Impl::DataType& data)
 {
     auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    return snd_pcm_mmap_commit(pcm, offset, frames);
+    return snd_pcm_mmap_commit(pcm, offset, frameSize);
 }
 
 snd_pcm_sframes_t ALSABackend::Impl::readInterleavedBegin(
@@ -184,7 +184,7 @@ snd_pcm_sframes_t ALSABackend::Impl::writeMMapInterleavedEnd(
 {
     auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
     auto ret = snd_pcm_mmap_writei(pcm, buffer, frameSize);
-    snd_pcm_mmap_commit(pcm, offset, frames);
+    snd_pcm_mmap_commit(pcm, offset, frameSize);
     return ret;
 }
 
@@ -215,7 +215,7 @@ snd_pcm_sframes_t ALSABackend::Impl::writeMMapNonInterleavedEnd(
 {
     auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
     auto ret = snd_pcm_mmap_writen(pcm, nonInterleaveArray, frameSize);
-    snd_pcm_mmap_commit(pcm, offset, frames);
+    snd_pcm_mmap_commit(pcm, offset, frameSize);
     return ret;
 }
 
