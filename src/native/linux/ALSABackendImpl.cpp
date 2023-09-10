@@ -46,15 +46,6 @@ constexpr snd_pcm_access_t accesses[] = {
     SND_PCM_ACCESS_RW_INTERLEAVED
 };
 
-using SampleFormat = std::tuple<
-    double, YADAW::Util::DoubleRE,
-    float, YADAW::Util::FloatRE,
-    std::int32_t, YADAW::Util::Int32RE,
-    std::int32_t, YADAW::Util::Int32RE,
-    std::int32_t, YADAW::Util::Int32RE,
-    std::int16_t, YADAW::Util::Int16RE,
-    std::int8_t>;
-
 snd_pcm_sframes_t operator ""_SF(unsigned long long int value)
 {
     return static_cast<snd_pcm_sframes_t>(value);
@@ -64,8 +55,6 @@ snd_pcm_uframes_t operator ""_UF(unsigned long long int value)
 {
     return static_cast<snd_pcm_uframes_t>(value);
 }
-
-using PCMAccess = snd_pcm_sframes_t(snd_pcm_t*, std::byte*, void**, std::uint32_t frameSize);
 
 std::once_flag flag;
 
@@ -258,13 +247,6 @@ snd_pcm_sframes_t ALSABackend::Impl::writeNonInterleavedEnd(
 ALSABackend::Impl::Impl() {}
 
 ALSABackend::Impl::~Impl() {}
-
-bool ALSABackend::Impl::compareTupleWithElement(
-    ALSABackend::Impl::ContainerType::const_reference elem,
-    ALSADeviceSelector selector)
-{
-    return selector < std::get<TupleElementType::DeviceSelector>(elem);
-}
 
 ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
     bool isInput, std::uint32_t index, bool activated)

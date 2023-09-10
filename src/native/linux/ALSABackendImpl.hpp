@@ -74,8 +74,6 @@ private:
 public:
     Impl();
     ~Impl();
-private:
-    static bool compareTupleWithElement(ContainerType::const_reference elem, ALSADeviceSelector selector);
 public:
     void initialize(std::uint32_t sampleRate, std::uint32_t frameSize);
     void uninitialize();
