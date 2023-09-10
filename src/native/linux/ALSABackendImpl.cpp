@@ -281,7 +281,7 @@ ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
         {
             auto selector = std::get<TupleElementType::DeviceSelector>(*it);
             auto result = activateDevice(isInput, selector);
-            const auto& [pcm, r1, r2, r3, buffer, nonInterleave] = result;
+            const auto& [pcm, r1, r2, r3, buffer, nonInterleaveArray] = result;
             if(pcm)
             {
                 *it = std::tuple_cat(
@@ -294,9 +294,9 @@ ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
         }
         else
         {
-            auto pcm = std::get<TupleElementType::PCMHandle>(*it);
-            auto buffer = std::get<TupleElementType::Buffer>(*it);
-            buffers_.erase(buffers_.find<std::byte*>(static_cast<std::byte*>(buffer)));
+            auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = *it;
+            buffers_.erase(buffers_.find<std::byte*>(buffer));
+            nonInterleaveArrays_.erase(nonInterleaveArrays_.find<void**>(nonInterleaveArray));
             snd_pcm_close(pcm);
             pcm = nullptr;
             return ActivateDeviceResult::Success;
