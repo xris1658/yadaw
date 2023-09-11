@@ -72,11 +72,13 @@ private:
         MMapFrames
     };
 public:
-    Impl();
+    Impl(ALSABackend* backend);
     ~Impl();
 public:
     void initialize(std::uint32_t sampleRate, std::uint32_t frameSize);
     void uninitialize();
+    std::uint32_t sampleRate() const;
+    std::uint32_t frameCount() const;
     static std::uint32_t audioInputCount();
     static std::uint32_t audioOutputCount();
     static std::optional<ALSADeviceSelector> audioInputDeviceAt(std::uint32_t index);
@@ -86,14 +88,15 @@ public:
     ActivateDeviceResult setAudioDeviceActivated(bool isInput, std::uint32_t index, bool activated);
     bool isAudioDeviceActivated(bool isInput, std::uint32_t index) const;
     std::uint32_t channelCount(bool isInput, std::uint32_t index) const;
-    bool start();
+    bool start(const ALSABackend::Callback* callback);
     bool stop();
 private:
     std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, void**> activateDevice(bool isInput, ALSADeviceSelector selector);
     static std::shared_ptr<std::byte[]> allocateBuffer(std::uint32_t frameSize, std::uint32_t channelCount, snd_pcm_format_t format);
 private:
-    std::uint32_t sampleRate_;
-    std::uint32_t frameSize_;
+    ALSABackend* backend_ = nullptr;
+    std::uint32_t sampleRate_ = 0U;
+    std::uint32_t frameCount_ = 0U;
     ContainerType inputs_;
     ContainerType outputs_;
     std::thread audioThread_;
