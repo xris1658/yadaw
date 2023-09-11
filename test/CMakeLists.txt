@@ -119,6 +119,12 @@ add_executable(AudioProcessDataBufferContainerTest
                ../src/audio/engine/AudioProcessDataBufferContainer.hpp
                AudioProcessDataBufferContainerTest/main.cpp)
 
+add_executable(BadMemoryAccessHandlerTest
+               ../src/native/Native.hpp
+               ../src/native/linux/Native.cpp
+               ../src/native/win/Native.cpp
+               BadMemoryAccessHandlerTest/main.cpp)
+
 add_executable(LockFreeQueueTest
                ../src/util/CompilerSpecifics.hpp
                ../src/util/LockFreeQueue.hpp
@@ -149,6 +155,12 @@ target_link_libraries(AudioDeviceGraphTest PRIVATE ade Qt6::Core)
 target_link_libraries(ADEUtilsTest PRIVATE ade)
 
 target_link_libraries(AudioProcessDataBufferContainerTest PRIVATE Qt6::Core)
+
+if(WIN32)
+    target_link_libraries(BadMemoryAccessHandlerTest Qt6::Core user32 version)
+elseif(LINUX)
+    target_link_libraries(BadMemoryAccessHandlerTest Qt6::Core)
+endif()
 
 target_link_libraries(QStringConversionTest PRIVATE Qt6::Core)
 

@@ -67,6 +67,8 @@ void sleepFor(std::chrono::steady_clock::duration duration);
 const std::vector<QString>& defaultPluginDirectoryList();
 
 void locateFileInExplorer(const QString& path);
+
+bool setBadMemoryAccessHandler();
 }
 
 #endif //  YADAW_SRC_NATIVE_NATIVE

@@ -741,7 +741,7 @@ if(${CMAKE_BUILD_TYPE} STREQUAL Release OR ${CMAKE_BUILD_TYPE} STREQUAL MinSizeR
 endif()
 
 if(WIN32)
-    set(NATIVE_LIBRARY version ole32 windowsapp)
+    set(NATIVE_LIBRARY version ole32 user32 windowsapp)
 elseif(LINUX)
     set(NATIVE_LIBRARY asound dl)
 endif()

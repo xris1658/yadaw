@@ -5,6 +5,7 @@
 
 #include <QStringList>
 
+#include <signal.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -95,6 +96,30 @@ void locateFileInExplorer(const QString& path)
     // KDE Plasma: dolphin [URI] --new-window --select
     // LXDE:       Not supported by pcmanfm?
     // Cinnamon:   nemo [URI]
+}
+
+void mySegFaultHandler()
+{
+    std::fprintf(stderr, "Access violation");
+    std::terminate();
+}
+
+void segFaultHandler(int sig, siginfo_t* si, void* unused)
+{
+    auto* uc = reinterpret_cast<ucontext_t*>(unused);
+    auto& gregs = uc->uc_mcontext.gregs;
+    gregs[REG_RIP] = reinterpret_cast<greg_t>(&mySegFaultHandler);
+    gregs[REG_RSP] -= sizeof(void*);
+    *reinterpret_cast<greg_t*>(gregs[REG_RSP]) = gregs[REG_RIP];
+}
+
+bool setBadMemoryAccessHandler()
+{
+    struct sigaction sigAction;
+    sigAction.sa_flags = SA_SIGINFO;
+    sigemptyset(&sigAction.sa_mask);
+    sigAction.sa_sigaction = &segFaultHandler;
+    return sigaction(SIGSEGV, &sigAction, NULL) == 0;
 }
 }
 

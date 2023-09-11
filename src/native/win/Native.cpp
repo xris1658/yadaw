@@ -264,6 +264,27 @@ void locateFileInExplorer(const QString& path)
     arg.append(path.toStdWString());
     ShellExecuteW(NULL, L"open", L"explorer.exe", arg.data(), NULL, SW_SHOWNORMAL);
 }
+
+void mySegFaultHandler()
+{
+    std::fprintf(stderr, "Access violation\n");
+    std::terminate();
+}
+
+LONG WINAPI accessViolationHandler(PEXCEPTION_POINTERS ptr)
+{
+    if(ptr->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
+    {
+        ptr->ContextRecord->Rip = reinterpret_cast<DWORD64>(&mySegFaultHandler);
+        SetThreadContext(GetCurrentThread(), ptr->ContextRecord);
+    }
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+
+bool setBadMemoryAccessHandler()
+{
+    return AddVectoredExceptionHandler(1, &accessViolationHandler) != NULL;
+}
 }
 
 #endif
