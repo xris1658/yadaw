@@ -4,7 +4,7 @@
 #define NOMINMAX
 
 // Windows API
-#if(WIN32)
+#if WIN32
 #define NOMINMAX
 #include <Windows.h>
 #include <winreg.h>
