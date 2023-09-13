@@ -2,16 +2,34 @@
 
 #include "ALSABusConfiguration.hpp"
 
+#include "util/IntegerRange.hpp"
+#include "util/SampleFormat.hpp"
+
 namespace YADAW::Audio::Backend
 {
+using YADAW::Audio::Device::IAudioDevice;
 using YADAW::Audio::Device::Channel;
 using YADAW::Audio::Device::IBus;
 using ChannelPosition = YADAW::Audio::Device::IAudioBusConfiguration::ChannelPosition;
 
-ALSABusConfiguration::Bus::Bus(std::uint32_t channelCount):
+ALSABusConfiguration::Bus::Bus(bool isInput, std::uint32_t channelCount):
     IBus(channelCount),
-    channels_(channelCount)
-{}
+    channels_(channelCount),
+    buffers_(nullptr),
+    isInput_(isInput),
+    audioChannelGroup_()
+{
+    audioChannelGroup_.setChannelGroupType(
+        YADAW::Audio::Base::ChannelGroupType::eCustomGroup,
+        channelCount);
+    audioChannelGroup_.setMain(true);
+    FOR_RANGE0(i, channelCount)
+    {
+        audioChannelGroup_.setSpeakerType(
+            i, YADAW::Audio::Base::ChannelType::Custom);
+        audioChannelGroup_.setSpeakerName(i, QString("N/A"));
+    }
+}
 
 std::optional<Channel> ALSABusConfiguration::Bus::channelAt(std::uint32_t index) const
 {
@@ -28,6 +46,369 @@ bool ALSABusConfiguration::Bus::setChannel(std::uint32_t index, Channel channel)
         return true;
     }
     return false;
+}
+
+std::uint32_t ALSABusConfiguration::Bus::audioInputGroupCount() const
+{
+    return isInput_? 0: 1;
+}
+
+std::uint32_t ALSABusConfiguration::Bus::audioOutputGroupCount() const
+{
+    return isInput_? 1: 0;
+}
+
+IAudioDevice::OptionalAudioChannelGroup ALSABusConfiguration::Bus::audioInputGroupAt(std::uint32_t index) const
+{
+    return index < audioInputGroupCount()?
+        OptionalAudioChannelGroup(std::ref(audioChannelGroup_)):
+        std::nullopt;
+}
+
+IAudioDevice::OptionalAudioChannelGroup ALSABusConfiguration::Bus::audioOutputGroupAt(std::uint32_t index) const
+{
+    return index < audioOutputGroupCount()?
+        OptionalAudioChannelGroup(std::ref(audioChannelGroup_)):
+        std::nullopt;
+}
+
+std::uint32_t ALSABusConfiguration::Bus::latencyInSamples() const
+{
+    return 0;
+}
+
+void processInputs(
+    const ALSABackend::AudioBuffer* buffers,
+    const std::vector<Channel>& channels,
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
+{
+    FOR_RANGE0(i, audioProcessData.outputCounts[0])
+    {
+        auto [deviceIndex, channelIndex] = channels[i];
+        if(auto& buffer = buffers[deviceIndex]; buffer.interleaved)
+        {
+            auto interleavedBuffer = buffer.buffer.interleavedBuffer;
+            switch(buffer.format)
+            {
+            case ALSABackend::SampleFormat::DoubleFloat:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<double*>(interleavedBuffer)[j * buffer.channelCount + i];
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::DoubleFloatRE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] = static_cast<double>(
+                        YADAW::Util::DoubleRE(
+                            static_cast<YADAW::Util::DoubleRE*>(interleavedBuffer)
+                        + (j * buffer.channelCount + i))
+                    );
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Float:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<float*>(interleavedBuffer)[j * buffer.channelCount + i];
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::FloatRE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] = static_cast<double>(
+                        YADAW::Util::FloatRE(
+                            static_cast<YADAW::Util::FloatRE*>(interleavedBuffer)
+                        + (j * buffer.channelCount + i))
+                    );
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int32:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + i] /
+                        static_cast<float>(1LL << 31);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int32RE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<double>(
+                            YADAW::Util::Int32RE(
+                               static_cast<YADAW::Util::Int32RE*>(interleavedBuffer) +
+                               (j * buffer.channelCount + i))) /
+                        static_cast<float>(1LL << 31);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int24:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + i] /
+                        static_cast<float>(1 << 23);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int24RE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<double>(
+                            YADAW::Util::Int32RE(
+                               static_cast<YADAW::Util::Int32RE*>(interleavedBuffer) +
+                               (j * buffer.channelCount + i))) /
+                        static_cast<float>(1 << 23);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int20:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + i] /
+                        static_cast<float>(1 << 19);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int20RE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<double>(
+                            YADAW::Util::Int32RE(
+                               static_cast<YADAW::Util::Int32RE*>(interleavedBuffer) +
+                               (j * buffer.channelCount + i))) /
+                        static_cast<float>(1 << 19);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int16:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<std::int16_t*>(interleavedBuffer)[j * buffer.channelCount + i] /
+                        static_cast<float>(1 << 15);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int16RE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<double>(
+                            YADAW::Util::Int16RE(
+                                static_cast<YADAW::Util::Int16RE*>(interleavedBuffer) +
+                                (j * buffer.channelCount + i))) /
+                        static_cast<float>(1 << 15);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int8:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<std::int8_t*>(interleavedBuffer)[j * buffer.channelCount + i] /
+                        static_cast<float>(1 << 7);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Unknown:
+                break;
+            }
+        }
+        else
+        {
+            auto nonInterleavedBuffer = buffer.buffer.nonInterleavedBuffer[channelIndex];
+            switch(buffer.format)
+            {
+            case ALSABackend::SampleFormat::Float:
+            {
+                auto dest = audioProcessData.inputs[0][i];
+                std::memcpy(dest, nonInterleavedBuffer,
+                    audioProcessData.singleBufferSize * sizeof(float)
+                );
+                break;
+            }
+            case ALSABackend::SampleFormat::DoubleFloat:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] = static_cast<double*>(nonInterleavedBuffer)[j];
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::DoubleFloatRE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] = static_cast<double>(
+                        static_cast<YADAW::Util::DoubleRE*>(nonInterleavedBuffer)[j]);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::FloatRE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] = static_cast<float>(
+                        static_cast<YADAW::Util::FloatRE*>(nonInterleavedBuffer)[j]);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int32:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<std::int32_t*>(nonInterleavedBuffer)[j]
+                        / static_cast<float>(1LL << 31);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int32RE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<YADAW::Util::Int32RE*>(nonInterleavedBuffer)[j]
+                        / static_cast<float>(1LL << 31);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int24:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<std::int32_t*>(nonInterleavedBuffer)[j]
+                        / static_cast<float>(1LL << 23);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int24RE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<YADAW::Util::Int32RE*>(nonInterleavedBuffer)[j]
+                        / static_cast<float>(1LL << 23);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int20:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<std::int32_t*>(nonInterleavedBuffer)[j]
+                        / static_cast<float>(1LL << 19);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int20RE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<YADAW::Util::Int32RE*>(nonInterleavedBuffer)[j]
+                        / static_cast<float>(1LL << 19);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int16:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<std::int16_t*>(nonInterleavedBuffer)[j]
+                        / static_cast<float>(1LL << 15);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int16RE:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<YADAW::Util::Int16RE*>(nonInterleavedBuffer)[j]
+                        / static_cast<float>(1LL << 15);
+                }
+                break;
+            }
+            case ALSABackend::SampleFormat::Int8:
+            {
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    audioProcessData.inputs[0][i][j] =
+                        static_cast<std::int8_t*>(nonInterleavedBuffer)[j]
+                        / static_cast<float>(1LL << 7);
+                }
+                break;
+            }
+            }
+        }
+    }
+}
+
+void processOutputs(
+    const ALSABackend::AudioBuffer* buffers,
+    const std::vector<Channel>& channels,
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
+{
+    FOR_RANGE0(i, audioProcessData.inputCounts[0])
+    {
+        auto [deviceIndex, channelIndex] = channels[i];
+        FOR_RANGE0(j, audioProcessData.singleBufferSize)
+        {
+            // Locate and convert samples
+        }
+    }
+}
+
+using ProcessFunc = decltype(processInputs);
+
+ProcessFunc* doProcessFunc[2] = {&processOutputs, &processInputs};
+
+void ALSABusConfiguration::Bus::process(const Device::AudioProcessData<float>& audioProcessData)
+{
+    doProcessFunc[isInput_](buffers_, channels_, audioProcessData);
+}
+
+void ALSABusConfiguration::Bus::setName(const QString& name)
+{
+    audioChannelGroup_.setName(name);
+}
+
+void ALSABusConfiguration::Bus::setName(QString&& name)
+{
+    audioChannelGroup_.setName(std::move(name));
+}
+
+void ALSABusConfiguration::Bus::setAudioBuffers(const YADAW::Audio::Backend::ALSABackend::AudioBuffer* buffers)
+{
+    buffers_ = buffers;
 }
 
 ALSABusConfiguration::ALSABusConfiguration(const ALSABackend& backend):
@@ -95,7 +476,7 @@ ChannelPosition ALSABusConfiguration::channelPosition(bool isInput, Channel chan
 uint32_t ALSABusConfiguration::appendBus(bool isInput, std::uint32_t channelCount)
 {
     auto& bus = isInput? inputBusses_: outputBusses_;
-    bus.emplace_back(std::make_unique<Bus>(channelCount));
+    bus.emplace_back(std::make_unique<Bus>(isInput, channelCount));
     return bus.size() - 1;
 }
 
