@@ -58,6 +58,13 @@ public:
     uint32_t appendBus(bool isInput, std::uint32_t channelCount) override;
     bool removeBus(bool isInput, std::uint32_t index) override;
     void clearBus(bool isInput) override;
+public:
+    OptionalRef<const Bus> getInputBusAt(std::uint32_t index) const;
+    OptionalRef<const Bus> getOutputBusAt(std::uint32_t index) const;
+    OptionalRef<Bus> getInputBusAt(std::uint32_t index);
+    OptionalRef<Bus> getOutputBusAt(std::uint32_t index);
+    void setBuffers(const ALSABackend::AudioBuffer* inputs,
+        const ALSABackend::AudioBuffer* outputs);
 private:
     const ALSABackend* backend_;
     std::vector<std::unique_ptr<Bus>> inputBusses_;
