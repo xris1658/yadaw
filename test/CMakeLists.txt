@@ -9,10 +9,12 @@ if(WIN32)
                    ../src/audio/engine/AudioDeviceGraph.hpp
                    ../src/audio/engine/AudioDeviceGraphBase.cpp
                    ../src/audio/engine/AudioDeviceGraphBase.hpp
+                   ../src/audio/engine/AudioProcessDataBufferContainer.hpp
                    ../src/audio/util/AudioBufferPool.cpp
                    ../src/audio/util/AudioBufferPool.hpp
                    ../src/audio/util/AudioChannelGroup.cpp
                    ../src/audio/util/AudioChannelGroup.hpp
+                   ../src/audio/util/AudioProcessDataPointerContainer.hpp
                    ../src/audio/util/SampleDelay.cpp
                    ../src/audio/util/SampleDelay.hpp
                    ../src/audio/util/Summing.cpp
@@ -43,6 +45,20 @@ if(LINUX)
     add_executable(ALSATest
                    ../src/audio/backend/ALSADeviceSelector.hpp
                    ../src/audio/backend/ALSABackend.hpp
+                   ../src/audio/backend/ALSABusConfiguration.cpp
+                   ../src/audio/backend/ALSABusConfiguration.hpp
+                   ../src/audio/device/IAudioChannelGroup.cpp
+                   ../src/audio/device/IAudioChannelGroup.hpp
+                   ../src/audio/engine/AudioDeviceGraph.cpp
+                   ../src/audio/engine/AudioDeviceGraph.hpp
+                   ../src/audio/engine/AudioDeviceGraphBase.cpp
+                   ../src/audio/engine/AudioDeviceGraphBase.hpp
+                   ../src/audio/util/AudioBufferPool.cpp
+                   ../src/audio/util/AudioBufferPool.hpp
+                   ../src/audio/util/AudioChannelGroup.cpp
+                   ../src/audio/util/AudioChannelGroup.hpp
+                   ../src/audio/util/SampleDelay.cpp
+                   ../src/audio/util/SampleDelay.hpp
                    ../src/native/linux/ALSABackend.cpp
                    ../src/native/linux/ALSABackendImpl.cpp
                    ../src/native/linux/ALSABackendImpl.hpp
@@ -50,10 +66,14 @@ if(LINUX)
                    ../src/native/linux/ALSADeviceEnumerator.hpp
                    ../src/native/linux/Sequencer.cpp
                    ../src/native/linux/Sequencer.hpp
+                   ../src/util/ADEUtil.cpp
+                   ../src/util/ADEUtil.hpp
+                   ../src/util/SampleFormat.hpp
                    ALSATest/main.cpp
                    )
     target_precompile_headers(ALSATest PRIVATE ../pch/LinuxAPI.hpp ../pch/QtCore.hpp)
     target_link_libraries(ALSATest PRIVATE
+                          ade
                           Qt6::Core
                           asound)
 endif()
