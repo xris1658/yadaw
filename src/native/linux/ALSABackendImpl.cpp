@@ -56,6 +56,33 @@ snd_pcm_uframes_t operator ""_UF(unsigned long long int value)
     return static_cast<snd_pcm_uframes_t>(value);
 }
 
+inline std::byte* bufferFromChannelArea(const snd_pcm_channel_area_t& channelArea)
+{
+    return reinterpret_cast<std::byte*>(channelArea.addr) + (channelArea.first >> 3);
+}
+
+inline int recoverFromXRun(snd_pcm_t* pcm, int errorCode)
+{
+    if(errorCode == -ESTRPIPE)
+    {
+        while((errorCode = snd_pcm_resume(pcm)) == -EAGAIN)
+        {
+            std::this_thread::yield();
+        }
+    }
+    if(errorCode == -EPIPE)
+    {
+        errorCode = snd_pcm_prepare(pcm);
+        if(errorCode < 0)
+        {
+            std::fprintf(stderr, "Recover from underrun / suspend failed with error code %d: %s\n",
+                errorCode, snd_strerror(errorCode));
+        }
+        return 0;
+    }
+    return errorCode;
+}
+
 std::once_flag flag;
 
 namespace YADAW::Audio::Backend
@@ -95,186 +122,7 @@ ALSABackend::SampleFormat fromPCMSampleFormat(snd_pcm_format_t format)
     }
 }
 
-snd_pcm_sframes_t ALSABackend::Impl::readMMapInterleavedBegin(
-    std::uint32_t frameCount, DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    const snd_pcm_channel_area_t* channelAreas = nullptr;
-    snd_pcm_mmap_begin(pcm, &channelAreas, &offset, &frames);
-    if(frames >= frameCount)
-    {
-        auto& channelArea = channelAreas[0];
-        buffer = static_cast<std::byte*>(channelArea.addr) + (channelArea.first >> 3) + offset * (channelArea.step >> 3);
-        return snd_pcm_mmap_readi(pcm, buffer, frameCount);
-    }
-    return 0_SF;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::readMMapInterleavedEnd(
-    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    return snd_pcm_mmap_commit(pcm, offset, frameCount);
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::readMMapNonInterleavedBegin(
-    std::uint32_t frameCount, DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    const snd_pcm_channel_area_t* channelAreas = nullptr;
-    snd_pcm_mmap_begin(pcm, &channelAreas, &offset, &frames);
-    FOR_RANGE0(i, channelCount)
-    {
-        auto& channelArea = channelAreas[i];
-        nonInterleaveArray[i] =
-            static_cast<std::byte*>(channelArea.addr) + (channelArea.first >> 3) + offset * (channelArea.step >> 3);
-    }
-    auto ret = snd_pcm_mmap_readn(pcm, nonInterleaveArray, frameCount);
-    return ret;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::readMMapNonInterleavedEnd(
-    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    return snd_pcm_mmap_commit(pcm, offset, frameCount);
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::readInterleavedBegin(
-    std::uint32_t frameCount, DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    auto ret = snd_pcm_avail_update(pcm);
-    if(ret >= frameCount)
-    {
-        ret = snd_pcm_readi(pcm, buffer, frameCount);
-    }
-    return ret;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::readInterleavedEnd(
-    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
-{
-    return frameCount;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::readNonInterleavedBegin(
-    std::uint32_t frameCount, DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    auto ret = snd_pcm_readn(pcm, nonInterleaveArray, frameCount);
-    return ret;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::readNonInterleavedEnd(
-    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
-{
-    return frameCount;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::writeMMapInterleavedBegin(
-    std::uint32_t frameCount, DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    const snd_pcm_channel_area_t* channelArea = nullptr;
-    auto ret = snd_pcm_mmap_begin(pcm, &channelArea, &offset, &frames);
-    if(ret < 0)
-    {
-        return ret;
-    }
-    buffer = static_cast<std::byte*>(channelArea->addr) + (channelArea->first >> 3) + offset * (channelArea->step >> 3);
-    return frameCount;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::writeMMapInterleavedEnd(
-    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    auto ret = snd_pcm_mmap_writei(pcm, buffer, frameCount);
-    if(ret < 0)
-    {
-        return ret;
-    }
-    ret = snd_pcm_mmap_commit(pcm, offset, frameCount);
-    return ret;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::writeMMapNonInterleavedBegin(
-    std::uint32_t frameCount, DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    auto ret = snd_pcm_avail_update(pcm);
-    if(ret >= frameCount)
-    {
-        const snd_pcm_channel_area_t* channelAreas = nullptr;
-        snd_pcm_mmap_begin(pcm, &channelAreas, &offset, &frames);
-        FOR_RANGE0(i, channelCount)
-        {
-            auto& channelArea = channelAreas[i];
-            nonInterleaveArray[i] =
-                static_cast<std::byte*>(channelArea.addr)
-                + (channelArea.first >> 3)
-                + offset * (channelArea.step >> 3);
-        }
-        ret = frameCount;
-    }
-    return ret;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::writeMMapNonInterleavedEnd(
-    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    auto ret = snd_pcm_mmap_writen(pcm, nonInterleaveArray, frameCount);
-    auto ret2 = snd_pcm_mmap_commit(pcm, offset, frameCount);
-    if(ret2 < 0)
-    {
-        ret = ret2;
-    }
-    return ret;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::writeInterleavedBegin(
-    std::uint32_t frameCount, DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    auto ret = snd_pcm_avail_update(pcm);
-    if(ret >= frameCount)
-    {
-        return frameCount;
-    }
-    return ret;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::writeInterleavedEnd(
-    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    return snd_pcm_writei(pcm, buffer, frameCount);
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::writeNonInterleavedBegin(
-    std::uint32_t frameCount, DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    auto ret = snd_pcm_avail_update(pcm);
-    if(ret >= frameCount)
-    {
-        return frameCount;
-    }
-    return ret;
-}
-
-snd_pcm_sframes_t ALSABackend::Impl::writeNonInterleavedEnd(
-    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
-{
-    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
-    return snd_pcm_writen(pcm, nonInterleaveArray, frameCount);
-}
-
-ALSABackend::Impl::Impl(ALSABackend* backend):
-    backend_(backend)
-{}
+ALSABackend::Impl::Impl(ALSABackend* backend): backend_(backend) {}
 
 ALSABackend::Impl::~Impl() {}
 
@@ -426,33 +274,33 @@ std::uint32_t ALSABackend::Impl::channelCount(bool isInput, std::uint32_t index)
 
 bool ALSABackend::Impl::start(const ALSABackend::Callback* callback)
 {
-    static RWFunc* writeBegin[] = {
-        &writeMMapInterleavedBegin,
-        &writeMMapNonInterleavedBegin,
+    static RWFunc* writeBeginFuncs[] = {
+        &mmapInterleavedBegin,
+        &mmapNonInterleavedBegin,
         nullptr,
-        &writeInterleavedBegin,
-        &writeNonInterleavedBegin
+        &writeBegin,
+        &writeBegin
     };
-    static RWFunc* writeEnd[] = {
-        &writeMMapInterleavedEnd,
-        &writeMMapNonInterleavedEnd,
+    static RWFunc* writeEndFuncs[] = {
+        &mmapEnd,
+        &mmapEnd,
         nullptr,
         &writeInterleavedEnd,
         &writeNonInterleavedEnd
     };
-    static RWFunc* readBegin[] = {
-        &readMMapInterleavedBegin,
-        &readMMapNonInterleavedBegin,
+    static RWFunc* readBeginFuncs[] = {
+        &mmapInterleavedBegin,
+        &mmapNonInterleavedBegin,
         nullptr,
         &readInterleavedBegin,
         &readNonInterleavedBegin
     };
-    static RWFunc* readEnd[] = {
-        &readMMapInterleavedEnd,
-        &readMMapNonInterleavedEnd,
+    static RWFunc* readEndFuncs[] = {
+        &mmapEnd,
+        &mmapEnd,
         nullptr,
-        &readInterleavedEnd,
-        &readNonInterleavedEnd
+        &readEnd,
+        &readEnd
     };
     if(!runFlag_.test_and_set(std::memory_order::memory_order_acquire))
     {
@@ -491,9 +339,7 @@ bool ALSABackend::Impl::start(const ALSABackend::Callback* callback)
                 snd_output_stdio_attach(&output, stdout, 0);
                 auto waitTimeInMillisecond = static_cast<int>(
                     std::ceil(
-                        frameCount_ * 1000 / static_cast<float>(sampleRate_)
-                    )
-                );
+                        frameCount_ * 1000 / static_cast<float>(sampleRate_)));
                 while(runFlag_.test_and_set(std::memory_order::memory_order_acquire))
                 {
                     FOR_RANGE0(i, inputs_.size())
@@ -502,18 +348,10 @@ bool ALSABackend::Impl::start(const ALSABackend::Callback* callback)
                         auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
                         if(pcm)
                         {
-                            auto waitRet = snd_pcm_wait(pcm, waitTimeInMillisecond);
-                            if(waitRet == -EPIPE)
-                            {
-                                snd_pcm_prepare(pcm);
-                            }
-                            auto ret = 0_SF;
-                            do
-                            {
-                                ret = readBegin[access](frameCount_, data);
-                            }
-                            while(ret >= frameCount_);
-                            inputBuffers[i].buffer.interleavedBuffer = buffer? buffer: static_cast<void*>(nonInterleaveArray);
+                            snd_pcm_wait(pcm, waitTimeInMillisecond);
+                            auto ret = readBeginFuncs[access](frameCount_, data);
+                            inputBuffers[i].buffer.interleavedBuffer =
+                                buffer? buffer: static_cast<void*>(nonInterleaveArray);
                         }
                     }
                     FOR_RANGE0(i, outputs_.size())
@@ -522,42 +360,21 @@ bool ALSABackend::Impl::start(const ALSABackend::Callback* callback)
                         auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
                         if(pcm)
                         {
-                            do
-                            {
-                                auto waitRet = snd_pcm_wait(pcm, waitTimeInMillisecond);
-                                if(waitRet == 1)
-                                {
-                                    break;
-                                }
-                                else if(waitRet == -EPIPE)
-                                {
-                                    snd_pcm_prepare(pcm);
-                                }
-
-                            }
-                            while(true);
-                            while(true)
-                            {
-                                auto ret = writeBegin[access](frameCount_, data);
-                                if(ret == frameCount_)
-                                {
-                                    break;
-                                }
-                            }
-                            outputBuffers[i].buffer.interleavedBuffer = buffer? buffer: static_cast<void*>(nonInterleaveArray);
+                            snd_pcm_wait(pcm, waitTimeInMillisecond);
+                            auto ret = writeBeginFuncs[access](frameCount_, data);
+                            outputBuffers[i].buffer.interleavedBuffer =
+                                buffer? buffer: static_cast<void*>(nonInterleaveArray);
                         }
                     }
-                    callback(backend_, inputBuffers.size(), inputBuffers.data(), outputBuffers.size(), outputBuffers.data());
+                    callback(
+                        backend_, inputBuffers.size(), inputBuffers.data(), outputBuffers.size(), outputBuffers.data());
                     for(auto& data: inputs_)
                     {
                         auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
                         if(pcm)
                         {
-                            auto ret = readEnd[access](frameCount_, data);
-                            while(ret == 0 && errno == -EPIPE)
-                            {
-                                ret = snd_pcm_prepare(pcm);
-                            }
+                            readEndFuncs[access](frameCount_, data);
+                            snd_pcm_prepare(pcm);
                         }
                     }
                     for(auto& data: outputs_)
@@ -565,12 +382,8 @@ bool ALSABackend::Impl::start(const ALSABackend::Callback* callback)
                         auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = data;
                         if(pcm)
                         {
-                            auto ret = writeEnd[access](frameCount_, data);
-                            while(ret == 0 && errno == -EPIPE)
-                            {
-                                ret = snd_pcm_prepare(pcm);
-                            }
-                            // std::printf("writeEnd returned %ld\n", ret);
+                            writeEndFuncs[access](frameCount_, data);
+                            snd_pcm_prepare(pcm);
                         }
                     }
                 }
@@ -720,7 +533,7 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::b
         snd_pcm_close(pcm);
         return {};
     }
-    errorCode = snd_pcm_sw_params_set_start_threshold(pcm, swParams, 0U);
+    errorCode = snd_pcm_sw_params_set_start_threshold(pcm, swParams, frameCount_);
     if(errorCode < 0)
     {
         auto errorMessage = snd_strerror(errorCode);
@@ -798,10 +611,8 @@ ALSABackend::Impl::allocateBuffer(std::uint32_t frameCount, std::uint32_t channe
     auto physicalWidth = snd_pcm_format_physical_width(format);
     auto ptr = static_cast<std::byte*>(
         ::operator new[](
-            frameCount * channelCount * physicalWidth,
-            std::align_val_t(physicalWidth), std::nothrow
-        )
-    );
+            frameCount * channelCount * physicalWidth, std::align_val_t(physicalWidth), std::nothrow
+        ));
     if(ptr)
     {
         auto deleter = [align = std::align_val_t(physicalWidth)](void* ptr)
@@ -812,6 +623,105 @@ ALSABackend::Impl::allocateBuffer(std::uint32_t frameCount, std::uint32_t channe
         return buffer;
     }
     return nullptr;
+}
+}
+
+namespace YADAW::Audio::Backend
+{
+snd_pcm_sframes_t ALSABackend::Impl::mmapInterleavedBegin(
+    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleavedArray, mmapOffset, mmapFrames] = data;
+    const snd_pcm_channel_area_t* channelAreas = nullptr;
+    auto errorCode = snd_pcm_avail_update(pcm);
+    if(errorCode < 0)
+    {
+        if((errorCode = recoverFromXRun(pcm, errorCode)) < 0)
+        {
+            return errorCode;
+        }
+    }
+    mmapFrames = frameCount;
+    errorCode = snd_pcm_mmap_begin(pcm, &channelAreas, &mmapOffset, &mmapFrames);
+    if(errorCode < 0)
+    {
+        if((errorCode = recoverFromXRun(pcm, errorCode)) < 0)
+        {
+            return errorCode;
+        }
+    }
+    buffer = bufferFromChannelArea(*channelAreas);
+    return frameCount;
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::mmapNonInterleavedBegin(
+    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleavedArray, mmapOffset, mmapFrames] = data;
+    const snd_pcm_channel_area_t* channelAreas = nullptr;
+    snd_pcm_avail_update(pcm);
+    mmapFrames = frameCount;
+    snd_pcm_mmap_begin(pcm, &channelAreas, &mmapOffset, &mmapFrames);
+    if(mmapFrames >= frameCount)
+    {
+        FOR_RANGE0(i, channelCount)
+        {
+            nonInterleavedArray[i] = bufferFromChannelArea(channelAreas[i]);
+        }
+        return frameCount;
+    }
+    else
+    {
+        // TODO
+    }
+    return 0_SF;
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::mmapEnd(
+    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleavedArray, mmapOffset, mmapFrames] = data;
+    return snd_pcm_mmap_commit(pcm, mmapOffset, frameCount);
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::readInterleavedBegin(
+    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleavedArray, mmapOffset, mmapFrames] = data;
+    return snd_pcm_readi(pcm, buffer, frameCount);
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::readNonInterleavedBegin(
+    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleavedArray, mmapOffset, mmapFrames] = data;
+    return snd_pcm_readn(pcm, nonInterleavedArray, frameCount);
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::readEnd(
+    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
+{
+    return frameCount;
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::writeBegin(
+    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
+{
+    return frameCount;
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::writeInterleavedEnd(
+    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleavedArray, mmapOffset, mmapFrames] = data;
+    return snd_pcm_writei(pcm, buffer, frameCount);
+}
+
+snd_pcm_sframes_t ALSABackend::Impl::writeNonInterleavedEnd(
+    std::uint32_t frameCount, ALSABackend::Impl::DataType& data)
+{
+    auto& [selector, pcm, channelCount, format, access, buffer, nonInterleavedArray, mmapOffset, mmapFrames] = data;
+    return snd_pcm_writen(pcm, nonInterleavedArray, frameCount);
 }
 }
 
