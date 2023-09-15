@@ -1,5 +1,7 @@
 #include "AudioBufferPool.hpp"
 
+#include "util/IntegerRange.hpp"
+
 namespace YADAW::Audio::Util
 {
 constexpr std::size_t bufferCount = 64;
@@ -66,13 +68,13 @@ std::size_t AudioBufferPool::singleBufferByteSize() const
 
 AudioBufferPool::Buffer AudioBufferPool::lend()
 {
-    std::size_t row = -1;
+    std::size_t row = pool_.size();
     std::size_t column = 0;
     {
         std::lock_guard<std::mutex> lg(mutex_);
-        for(std::size_t i = 0; row == -1 && i < pool_.size(); ++i)
+        FOR_RANGE0(i, pool_.size())
         {
-            for(std::size_t j = 0; j < bufferCount; ++j)
+            FOR_RANGE0(j, bufferCount)
             {
                 if(vacant_[i][j])
                 {
@@ -82,7 +84,7 @@ AudioBufferPool::Buffer AudioBufferPool::lend()
                 }
             }
         }
-        if(row == -1)
+        if(row == pool_.size())
         {
             pool_.emplace_back(
                 std::make_unique<std::vector<std::byte>>(
@@ -90,8 +92,6 @@ AudioBufferPool::Buffer AudioBufferPool::lend()
                 )
             );
             vacant_.emplace_back(bufferCount, true);
-            row = pool_.size() - 1;
-            column = 0;
         }
         vacant_[row][column] = false;
     }
