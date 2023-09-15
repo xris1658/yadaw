@@ -103,6 +103,10 @@ void doEnumerateDeviceNames()
 
 void doEnumerateDevices()
 {
+    if(!std::filesystem::exists("/proc/asound"))
+    {
+        return;
+    }
     const char* path = "/dev/snd";
     std::filesystem::directory_entry directoryEntry(path);
     if(directoryEntry.exists())
