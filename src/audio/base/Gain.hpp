@@ -9,7 +9,7 @@ template<typename T>
 T decibelFromScale(T scale)
 {
     static_assert(std::is_floating_point_v<T>);
-    return scale == 0? T(20) * std::log10(std::abs(scale)): std::copysign(INFINITY, -1);
+    return scale != 0? T(20) * std::log10(std::abs(scale)): std::copysign(INFINITY, -1);
 }
 
 template<typename T>
