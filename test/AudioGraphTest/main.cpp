@@ -38,7 +38,7 @@ void callback(int inputCount, const YADAW::Audio::Backend::AudioGraphBackend::In
     for(auto& row: topo)
     {
         std::for_each(std::execution::par_unseq, row.begin(), row.end(),
-            [](std::vector<YADAW::Audio::Engine::AudioDeviceGraphBase::AudioDeviceProcessNode>& nodes)
+            [](std::vector<YADAW::Audio::Engine::AudioDeviceGraph::AudioDeviceProcessNode>& nodes)
             {
                 for(auto& node: nodes)
                 {
@@ -194,19 +194,14 @@ int main()
                         ++activatedInputDeviceIndex;
                         inputNodes.emplace_back(
                             graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*(inputDevices.back())),
-                                processData.audioProcessData()
-                            )
+                                processData.audioProcessData())
                         );
                     }
                 }
-                auto summingNode = graph.addNode(
-                    YADAW::Audio::Engine::AudioDeviceProcess(summing),
-                    summingProcessData.audioProcessData()
-                );
-                auto outputNode = graph.addNode(
-                    YADAW::Audio::Engine::AudioDeviceProcess(outputDevice),
-                    outputProcessData.audioProcessData()
-                );
+                auto summingNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(summing),
+                    summingProcessData.audioProcessData());
+                auto outputNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(outputDevice),
+                    outputProcessData.audioProcessData());
                 FOR_RANGE0(i, inputNodes.size())
                 {
                     graph.connect(inputNodes[i], summingNode, 0, i);

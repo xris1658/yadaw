@@ -2,7 +2,6 @@
 #define YADAW_SRC_AUDIO_ENGINE_AUDIODEVICEGRAPH
 
 #include "audio/engine/AudioDeviceProcess.hpp"
-#include "audio/engine/AudioDeviceGraphBase.hpp"
 #include "audio/util/SampleDelay.hpp"
 #include "util/ADEUtil.hpp"
 
@@ -17,19 +16,46 @@
 
 namespace YADAW::Audio::Engine
 {
-class AudioDeviceGraph: private AudioDeviceGraphBase
+class AudioDeviceGraph
 {
 public:
-    using AudioDeviceProcessNode = AudioDeviceGraphBase::AudioDeviceProcessNode;
+    struct AudioDeviceProcessNode
+    {
+        AudioDeviceProcess process;
+        AudioProcessData<float> processData;
+        std::uint32_t upstreamLatency = 0U;
+        std::uint32_t sumLatency() const
+        {
+            return process.device()->latencyInSamples() + upstreamLatency;
+        }
+        inline void doProcess()
+        {
+            process.process(processData);
+        }
+        static const char* name() { return "AudioDeviceProcessNode"; }
+    };
+    struct EdgeData
+    {
+        ade::NodeHandle toNode;
+        std::uint32_t fromChannel;
+        std::uint32_t toChannel;
+        static const char* name() { return "EdgeData"; }
+    };
     using TopologicalSortResult =
         std::vector<std::vector<std::vector<AudioDeviceProcessNode>>>;
 public:
-    AudioDeviceGraph();
+    AudioDeviceGraph(bool latencyCompensationEnabled = true);
 public:
-    const AudioDeviceProcessNode& getMetadataFromNode(const ade::NodeHandle& nodeHandle) const;
-    AudioDeviceProcessNode& getMetadataFromNode(ade::NodeHandle& nodeHandle);
-    void setMetadataFromNode(ade::NodeHandle& nodeHandle, AudioDeviceProcessNode&& metadata);
+    const AudioDeviceProcessNode& getMetadata(const ade::NodeHandle& nodeHandle) const;
+    const EdgeData& getMetadata(const ade::EdgeHandle& edgeHandle);
+    AudioDeviceProcessNode& getMetadata(ade::NodeHandle& nodeHandle);
+    void setMetadata(ade::NodeHandle& nodeHandle, AudioDeviceProcessNode&& metadata);
 private:
+    ade::NodeHandle doAddNode(AudioDeviceProcess&& process, const AudioProcessData<float>& audioProcessData);
+    ade::NodeHandle doAddNode(AudioDeviceProcess&& process, AudioProcessData<float>& audioProcessData);
+    void doRemoveNode(ade::NodeHandle nodeHandle);
+    ade::EdgeHandle doConnect(ade::NodeHandle from, ade::NodeHandle to, EdgeData edgeData);
+    void doDisconnect(ade::EdgeHandle edgeHandle);
     void doAddLatencyCompensation(const ade::NodeHandle& nodeHandle);
 public:
     ade::NodeHandle addNode(AudioDeviceProcess&& process, const AudioProcessData<float>& audioProcessData);
@@ -53,6 +79,8 @@ public:
     bool latencyCompensationEnabled() const;
     void setLatencyCompensationEnabled(bool enabled);
 private:
+    ade::Graph graph_;
+    ade::TypedGraph<AudioDeviceProcessNode, EdgeData> typedGraph_;
     std::unordered_map<
         ade::NodeHandle,
         std::vector<

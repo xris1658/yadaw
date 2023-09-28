@@ -10,31 +10,74 @@ using YADAW::Audio::Util::SampleDelay;
 namespace YADAW::Audio::Engine
 {
 
-AudioDeviceGraph::AudioDeviceGraph():
-    AudioDeviceGraphBase()
+AudioDeviceGraph::AudioDeviceGraph(bool latencyCompensationEnabled):
+    graph_(),
+    typedGraph_(graph_),
+    latencyCompensationEnabled_(latencyCompensationEnabled)
 {}
 
 const AudioDeviceGraph::AudioDeviceProcessNode&
-    AudioDeviceGraph::getMetadataFromNode(const ade::NodeHandle& nodeHandle) const
+    AudioDeviceGraph::getMetadata(const ade::NodeHandle& nodeHandle) const
 {
-    return AudioDeviceGraphBase::getMetadataFromNode(nodeHandle);
+    return typedGraph_.metadata(nodeHandle).get<AudioDeviceProcessNode>();
+}
+
+const AudioDeviceGraph::EdgeData& AudioDeviceGraph::getMetadata(const ade::EdgeHandle& edgeHandle)
+{
+    return typedGraph_.metadata(edgeHandle).get<EdgeData>();
 }
 
 AudioDeviceGraph::AudioDeviceProcessNode&
-    AudioDeviceGraph::getMetadataFromNode(ade::NodeHandle& nodeHandle)
+    AudioDeviceGraph::getMetadata(ade::NodeHandle& nodeHandle)
 {
-    return AudioDeviceGraphBase::getMetadataFromNode(nodeHandle);
+    return typedGraph_.metadata(nodeHandle).get<AudioDeviceProcessNode>();
 }
 
-void AudioDeviceGraph::setMetadataFromNode(
-    ade::NodeHandle& nodeHandle, AudioDeviceGraph::AudioDeviceProcessNode&& metadata)
+void AudioDeviceGraph::setMetadata(
+    ade::NodeHandle& nodeHandle, AudioDeviceProcessNode&& metadata)
 {
-    AudioDeviceGraphBase::setMetadataFromNode(nodeHandle, std::move(metadata));
+    typedGraph_.metadata(nodeHandle).set<AudioDeviceProcessNode>(std::move(metadata));
+}
+
+ade::NodeHandle AudioDeviceGraph::doAddNode(
+    AudioDeviceProcess&& process, const AudioProcessData<float>& audioProcessData)
+{
+    auto nodeHandle = graph_.createNode();
+    setMetadata(nodeHandle, AudioDeviceProcessNode {std::move(process), audioProcessData});
+    return nodeHandle;
+}
+
+ade::NodeHandle AudioDeviceGraph::doAddNode(
+    AudioDeviceProcess&& process, AudioProcessData<float>& audioProcessData)
+{
+    auto nodeHandle = graph_.createNode();
+    setMetadata(nodeHandle, AudioDeviceProcessNode {std::move(process), audioProcessData});
+    return nodeHandle;
+}
+
+void AudioDeviceGraph::doRemoveNode(ade::NodeHandle nodeHandle)
+{
+    typedGraph_.metadata(nodeHandle).erase<AudioDeviceProcessNode>();
+    typedGraph_.erase(nodeHandle);
+}
+
+ade::EdgeHandle AudioDeviceGraph::doConnect(
+    ade::NodeHandle from, ade::NodeHandle to, EdgeData edgeData)
+{
+    auto ret = typedGraph_.link(from, to);
+    typedGraph_.metadata(ret).set<EdgeData>(std::move(edgeData));
+    return ret;
+}
+
+void AudioDeviceGraph::doDisconnect(ade::EdgeHandle edgeHandle)
+{
+    typedGraph_.metadata(edgeHandle->dstNode()).get<AudioDeviceProcessNode>().upstreamLatency = 0U;
+    typedGraph_.erase(edgeHandle);
 }
 
 void AudioDeviceGraph::doAddLatencyCompensation(const ade::NodeHandle& nodeHandle)
 {
-    auto& metadata = getMetadataFromNode(nodeHandle);
+    auto& metadata = getMetadata(nodeHandle);
     auto device = metadata.process.device();
     const auto& audioProcessData = metadata.processData;
     if(auto audioInputGroupCount = device->audioInputGroupCount();
@@ -60,11 +103,8 @@ void AudioDeviceGraph::doAddLatencyCompensation(const ade::NodeHandle& nodeHandl
             processData.inputCounts = processData.outputCounts;
             processData.inputs = processData.outputs;
             pdc.startProcessing();
-            pdcNode = AudioDeviceGraphBase::addNode(
-                AudioDeviceProcess(pdc),
-                std::move(processData)
-            );
-            AudioDeviceGraphBase::connect(pdcNode, nodeHandle);
+            pdcNode = doAddNode(AudioDeviceProcess(pdc), std::move(processData));
+            doConnect(pdcNode, nodeHandle, {0U, i});
         }
     }
     if(auto audioOutputGroupCount = device->audioOutputGroupCount();
@@ -76,14 +116,14 @@ void AudioDeviceGraph::doAddLatencyCompensation(const ade::NodeHandle& nodeHandl
 
 ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, const AudioProcessData<float>& audioProcessData)
 {
-    auto nodeHandle = AudioDeviceGraphBase::addNode(std::move(process), audioProcessData);
+    auto nodeHandle = doAddNode(std::move(process), audioProcessData);
     doAddLatencyCompensation(nodeHandle);
     return nodeHandle;
 }
 
 ade::NodeHandle AudioDeviceGraph::addNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData)
 {
-    auto nodeHandle = AudioDeviceGraphBase::addNode(std::move(process), std::move(audioProcessData));
+    auto nodeHandle = doAddNode(std::move(process), std::move(audioProcessData));
     doAddLatencyCompensation(nodeHandle);
     return nodeHandle;
 }
@@ -99,8 +139,8 @@ void AudioDeviceGraph::removeNode(ade::NodeHandle nodeHandle)
         for(auto& [pdcNodeHandle, pdc]: pdcs)
         {
             pdc.stopProcessing();
-            AudioDeviceGraphBase::disconnect(pdcNodeHandle->outEdges().front());
-            AudioDeviceGraphBase::removeNode(pdcNodeHandle);
+            doDisconnect(pdcNodeHandle->outEdges().front());
+            doRemoveNode(pdcNodeHandle);
         }
         pdcs.clear();
         multiInputs_.erase(it);
@@ -111,7 +151,7 @@ void AudioDeviceGraph::removeNode(ade::NodeHandle nodeHandle)
         assert(it != multiOutputs_.end());
         multiOutputs_.erase(it);
     }
-    AudioDeviceGraphBase::removeNode(nodeHandle);
+    doRemoveNode(nodeHandle);
 }
 
 ade::EdgeHandle AudioDeviceGraph::connect(ade::NodeHandle from, ade::NodeHandle to,
@@ -120,22 +160,21 @@ ade::EdgeHandle AudioDeviceGraph::connect(ade::NodeHandle from, ade::NodeHandle 
     ade::EdgeHandle ret;
     if(!YADAW::Util::pathExists(to, from))
     {
-        if(auto device = getMetadataFromNode(to).process.device();
+        if(auto device = getMetadata(to).process.device();
             device->audioInputGroupCount() > 1)
         {
             auto it = multiInputs_.find(to);
             assert(it != multiInputs_.end());
-            ret = AudioDeviceGraphBase::connect(
-                from, it->second[toChannel].first);
-            if(getMetadataFromNode(from).sumLatency() > 0)
+            ret = doConnect(from, it->second[toChannel].first, {to, fromChannel, toChannel});
+            if(getMetadata(from).sumLatency() > 0)
             {
                 onSumLatencyChanged(it->second[toChannel].first);
             }
         }
         else
         {
-            auto latencyReduced = getMetadataFromNode(from).sumLatency() > 0;
-            ret = AudioDeviceGraphBase::connect(from, to);
+            auto latencyReduced = getMetadata(from).sumLatency() > 0;
+            ret = doConnect(from, to, {to, fromChannel, toChannel});
             if(latencyReduced)
             {
                 onSumLatencyChanged(to);
@@ -150,7 +189,7 @@ void AudioDeviceGraph::disconnect(ade::EdgeHandle edgeHandle)
     if(edgeHandle.get())
     {
         auto destNode = edgeHandle->dstNode();
-        AudioDeviceGraphBase::disconnect(edgeHandle);
+        doDisconnect(edgeHandle);
         onSumLatencyChanged(destNode);
     }
 }
@@ -163,7 +202,7 @@ void AudioDeviceGraph::disconnect(const std::vector<ade::EdgeHandle>& edgeHandle
         if(edgeHandle.get())
         {
             auto destNode = edgeHandle->dstNode();
-            AudioDeviceGraphBase::disconnect(edgeHandle);
+            doDisconnect(edgeHandle);
             if(std::find(destNodes.begin(), destNodes.end(), destNode) == destNodes.end())
             {
                 destNodes.emplace_back(destNode);
@@ -179,7 +218,7 @@ void AudioDeviceGraph::disconnect(const std::vector<ade::EdgeHandle>& edgeHandle
 AudioDeviceGraph::TopologicalSortResult AudioDeviceGraph::topologicalSort() const
 {
     auto topoResult = YADAW::Util::topologicalSort(
-        YADAW::Util::squashGraph(AudioDeviceGraphBase::graph_)
+        YADAW::Util::squashGraph(graph_)
     );
     auto& result = *topoResult;
     TopologicalSortResult ret;
@@ -194,7 +233,7 @@ AudioDeviceGraph::TopologicalSortResult AudioDeviceGraph::topologicalSort() cons
             auto i = cell.first;
             while(true)
             {
-                cellInRet.emplace_back(getMetadataFromNode(i));
+                cellInRet.emplace_back(getMetadata(i));
                 if(i == cell.second)
                 {
                     break;
@@ -216,18 +255,18 @@ void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)
         FOR_RANGE0(i, size)
         {
             auto& front = deque.front();
-            auto& processNode = getMetadataFromNode(front);
+            auto& processNode = getMetadata(front);
             if(processNode.process.device()->audioInputGroupCount() > 1)
             {
                 auto inNodes = front->inNodes();
                 auto maxUpstreamLatencyNodeIterator = std::max_element(inNodes.begin(), inNodes.end(),
                     [this](const ade::NodeHandle& lhs, const ade::NodeHandle& rhs)
                     {
-                        return getMetadataFromNode(lhs).upstreamLatency < getMetadataFromNode(rhs).upstreamLatency;
+                        return getMetadata(lhs).upstreamLatency < getMetadata(rhs).upstreamLatency;
                     }
                 );
                 assert(maxUpstreamLatencyNodeIterator != inNodes.end());
-                auto maxUpstreamLatency = getMetadataFromNode(*maxUpstreamLatencyNodeIterator).upstreamLatency;
+                auto maxUpstreamLatency = getMetadata(*maxUpstreamLatencyNodeIterator).upstreamLatency;
                 processNode.upstreamLatency = maxUpstreamLatency;
             }
             else
@@ -238,7 +277,7 @@ void AudioDeviceGraph::onSumLatencyChanged(ade::NodeHandle nodeHandle)
                 }
                 else
                 {
-                    processNode.upstreamLatency = getMetadataFromNode(inNodes.front()).sumLatency();
+                    processNode.upstreamLatency = getMetadata(inNodes.front()).sumLatency();
                 }
             }
             for(auto&& outNode: front->outNodes())
@@ -257,7 +296,7 @@ void AudioDeviceGraph::compensate(bool latencyCompensationEnabled)
     {
         for(auto& [nodeHandle, pdcs]: multiInputs_)
         {
-            auto upstreamLatency = getMetadataFromNode(nodeHandle).upstreamLatency;
+            auto upstreamLatency = getMetadata(nodeHandle).upstreamLatency;
             for(auto& [pdcNode, pdc]: pdcs)
             {
                 if(!(pdcNode->inNodes().empty()))
@@ -267,7 +306,7 @@ void AudioDeviceGraph::compensate(bool latencyCompensationEnabled)
                     {
                         pdc.stopProcessing();
                     }
-                    pdc.setDelay(upstreamLatency - getMetadataFromNode(pdcNode).upstreamLatency);
+                    pdc.setDelay(upstreamLatency - getMetadata(pdcNode).upstreamLatency);
                     if(processing)
                     {
                         pdc.startProcessing();
