@@ -160,24 +160,32 @@ ade::EdgeHandle AudioDeviceGraph::connect(ade::NodeHandle from, ade::NodeHandle 
     ade::EdgeHandle ret;
     if(!YADAW::Util::pathExists(to, from))
     {
-        if(auto device = getMetadata(to).process.device();
-            device->audioInputGroupCount() > 1)
+        auto fromDevice = getMetadata(from).process.device();
+        auto toDevice = getMetadata(to).process.device();
+        if(fromChannel < fromDevice->audioOutputGroupCount()
+            && toChannel < toDevice->audioInputGroupCount()
+            && fromDevice->audioOutputGroupAt(fromChannel)->get().channelCount()
+                == toDevice->audioInputGroupAt(toChannel)->get().channelCount()
+        )
         {
-            auto it = multiInputs_.find(to);
-            assert(it != multiInputs_.end());
-            ret = doConnect(from, it->second[toChannel].first, {to, fromChannel, toChannel});
-            if(getMetadata(from).sumLatency() > 0)
+            if(toDevice->audioInputGroupCount() > 1)
             {
-                onSumLatencyChanged(it->second[toChannel].first);
+                auto it = multiInputs_.find(to);
+                assert(it != multiInputs_.end());
+                ret = doConnect(from, it->second[toChannel].first, {to, fromChannel, toChannel});
+                if(getMetadata(from).sumLatency() > 0)
+                {
+                    onSumLatencyChanged(it->second[toChannel].first);
+                }
             }
-        }
-        else
-        {
-            auto latencyReduced = getMetadata(from).sumLatency() > 0;
-            ret = doConnect(from, to, {to, fromChannel, toChannel});
-            if(latencyReduced)
+            else
             {
-                onSumLatencyChanged(to);
+                auto latencyReduced = getMetadata(from).sumLatency() > 0;
+                ret = doConnect(from, to, {to, fromChannel, toChannel});
+                if(latencyReduced)
+                {
+                    onSumLatencyChanged(to);
+                }
             }
         }
     }

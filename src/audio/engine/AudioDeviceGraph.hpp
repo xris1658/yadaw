@@ -61,8 +61,9 @@ public:
     ade::NodeHandle addNode(AudioDeviceProcess&& process, const AudioProcessData<float>& audioProcessData);
     ade::NodeHandle addNode(AudioDeviceProcess&& process, AudioProcessData<float>&& audioProcessData);
     void removeNode(ade::NodeHandle nodeHandle);
-    // Connects two nodes if no "to -> from" is found. Returns an invalid
-    // `ade::EdgeHandle` otherwise.
+    // Connects two nodes if no "`to` -> `from`" is found AND channel count of
+    // `fromChannel` is same as channel count of `toChannel`.
+    // Returns an invalid `ade::EdgeHandle` otherwise.
     ade::EdgeHandle connect(ade::NodeHandle from, ade::NodeHandle to,
         std::uint32_t fromChannel, std::uint32_t toChannel);
     // Remove an edge. It does nothing if `edgeHandle` is invalid.
