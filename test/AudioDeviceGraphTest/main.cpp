@@ -1,4 +1,4 @@
-#include "audio/engine/AudioDeviceGraph.hpp"
+#include "audio/engine/AudioDeviceGraphBase.hpp"
 #include "audio/util/SampleDelay.hpp"
 #include "audio/util/Summing.hpp"
 
@@ -15,7 +15,7 @@ int main()
     {
         data = randomDevice() / static_cast<float>(std::random_device::max() - std::random_device::min());
     }
-    YADAW::Audio::Engine::AudioDeviceGraph graph;
+    YADAW::Audio::Engine::AudioDeviceGraphBase graph;
     YADAW::Audio::Util::AudioChannelGroup audioChannelGroup;
     audioChannelGroup.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::eStereo);
     std::vector<YADAW::Audio::Util::SampleDelay> sd;
