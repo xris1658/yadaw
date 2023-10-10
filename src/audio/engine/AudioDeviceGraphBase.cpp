@@ -208,4 +208,34 @@ void AudioDeviceGraphBase::disconnect(const ade::EdgeHandle& edgeHandle)
     }
     typedGraph_.erase(edgeHandle);
 }
+
+AudioDeviceGraphBase::TopologicalSortResult AudioDeviceGraphBase::topologicalSort() const
+{
+    auto topoResult = YADAW::Util::topologicalSort(
+        YADAW::Util::squashGraph(graph_)
+    );
+    auto& result = *topoResult;
+    TopologicalSortResult ret;
+    ret.reserve(result.size());
+    for(const auto& row: result)
+    {
+        auto& rowInRet = ret.emplace_back();
+        rowInRet.reserve(row.size());
+        for(const auto& cell: row)
+        {
+            auto& cellInRet = rowInRet.emplace_back();
+            auto i = cell.first;
+            while(true)
+            {
+                cellInRet.emplace_back(getNodeData(i));
+                if(i == cell.second)
+                {
+                    break;
+                }
+                i = i->outNodes().front();
+            }
+        }
+    }
+    return ret;
+}
 }
