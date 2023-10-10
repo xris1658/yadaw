@@ -10,7 +10,7 @@ namespace YADAW::Audio::Util
 {
 class Splitter: public YADAW::Audio::Device::IAudioDevice
 {
-private:
+public:
     Splitter(std::uint32_t outputCount, YADAW::Audio::Base::ChannelGroupType channelGroupType,
         std::uint32_t channelCountInGroup = 0);
     Splitter(const Splitter&) = default;
