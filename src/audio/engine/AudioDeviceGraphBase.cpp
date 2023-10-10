@@ -85,7 +85,7 @@ void AudioDeviceGraphBase::setBufferSize(std::uint32_t bufferSize)
                 {
                     auto dstNode = (*oEdge)->dstNode();
                     auto& destContainer = getNodeData(dstNode).processData;
-                    auto& [fromChannel, toChannel] = getEdgeData(*oEdge);
+                    auto& [fromChannel, toChannel, data] = getEdgeData(*oEdge);
                     auto channelCount = processData.outputCounts[fromChannel];
                     FOR_RANGE0(i, channelCount)
                     {
@@ -106,8 +106,7 @@ void AudioDeviceGraphBase::setBufferSize(std::uint32_t bufferSize)
     bufferSize_ = bufferSize;
 }
 
-ade::NodeHandle AudioDeviceGraphBase::addNode(
-    AudioDeviceProcess&& process)
+ade::NodeHandle AudioDeviceGraphBase::addNode(AudioDeviceProcess&& process)
 {
     auto ret = typedGraph_.createNode();
     auto& device = *(process.device());
@@ -176,8 +175,8 @@ std::optional<ade::EdgeHandle> AudioDeviceGraphBase::connect(
             )
         )
         {
-            auto& [fromDeviceProcess, fromProcessData] = getNodeData(fromNode);
-            auto& [toDeviceProcess, toProcessData] = getNodeData(toNode);
+            auto& [fromDeviceProcess, fromProcessData, fromData] = getNodeData(fromNode);
+            auto& [toDeviceProcess, toProcessData, toData] = getNodeData(toNode);
             auto fromDevice = fromDeviceProcess.device();
             auto toDevice = toDeviceProcess.device();
             if(fromChannel < fromDevice->audioOutputGroupCount()
@@ -201,8 +200,8 @@ std::optional<ade::EdgeHandle> AudioDeviceGraphBase::connect(
 
 void AudioDeviceGraphBase::disconnect(const ade::EdgeHandle& edgeHandle)
 {
-    auto& [toDeviceProcess, toProcessData] = getNodeData(edgeHandle->dstNode());
-    auto& [fromChannel, toChannel] = getEdgeData(edgeHandle);
+    auto& [toDeviceProcess, toProcessData, toNodeData] = getNodeData(edgeHandle->dstNode());
+    auto& [fromChannel, toChannel, edgeData] = getEdgeData(edgeHandle);
     FOR_RANGE0(i, toProcessData.audioProcessData().inputCounts[toChannel])
     {
         toProcessData.setInputBuffer(toChannel, i, dummyInput_);

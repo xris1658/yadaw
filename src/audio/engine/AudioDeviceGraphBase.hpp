@@ -12,11 +12,8 @@
 #include <ade/typed_graph.hpp>
 #include <ade/typed_metadata.hpp>
 
-#include <deque>
 #include <memory>
 #include <optional>
-#include <set>
-#include <unordered_map>
 
 namespace YADAW::Audio::Engine
 {
@@ -27,6 +24,7 @@ public:
     {
         YADAW::Audio::Engine::AudioDeviceProcess process;
         YADAW::Audio::Engine::AudioProcessDataBufferContainer<float> processData;
+        void* data;
         inline void doProcess()
         {
             process.process(processData.audioProcessData());
@@ -37,6 +35,7 @@ public:
     {
         std::uint32_t fromChannel;
         std::uint32_t toChannel;
+        void* data;
         static const char* name() { return "EdgeData"; }
     };
 public:
