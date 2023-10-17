@@ -26,7 +26,8 @@ public:
     std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
 private:
-    std::vector<YADAW::Audio::Util::AudioChannelGroup> inputs_;
+     std::uint32_t inputCount_;
+    YADAW::Audio::Util::AudioChannelGroup inputs_;
     YADAW::Audio::Util::AudioChannelGroup output_;
 };
 }
