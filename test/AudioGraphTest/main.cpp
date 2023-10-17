@@ -1,7 +1,7 @@
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "audio/backend/AudioGraphBusConfiguration.hpp"
 #include "audio/engine/AudioProcessDataBufferContainer.hpp"
-#include "audio/engine/AudioDeviceGraph.hpp"
+#include "audio/engine/AudioDeviceGraphBase.hpp"
 #include "audio/util/AudioBufferPool.hpp"
 #include "audio/util/Summing.hpp"
 #include "util/IntegerRange.hpp"
@@ -16,8 +16,7 @@ std::uint64_t sampleIndex;
 const YADAW::Audio::Device::AudioProcessData<float>* outputAudioProcessData = nullptr;
 
 YADAW::Audio::Backend::AudioGraphBusConfiguration* busConfiguration = nullptr;
-YADAW::Audio::Engine::AudioDeviceGraph graph;
-decltype(graph.topologicalSort()) topo;
+std::vector<std::vector<std::vector<YADAW::Audio::Engine::AudioDeviceGraphBase::NodeData>>> topoNodes;
 
 void callback(int inputCount, const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* inputs,
     int outputCount, const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* outputs)
@@ -35,10 +34,10 @@ void callback(int inputCount, const YADAW::Audio::Backend::AudioGraphBackend::In
     // }
     // sampleIndex += outputAudioProcessData->singleBufferSize;
     busConfiguration->setBuffers(inputs, outputs);
-    for(auto& row: topo)
+    for(auto& row: topoNodes)
     {
         std::for_each(std::execution::par_unseq, row.begin(), row.end(),
-            [](std::vector<YADAW::Audio::Engine::AudioDeviceGraph::AudioDeviceProcessNode>& nodes)
+            [](std::vector<YADAW::Audio::Engine::AudioDeviceGraphBase::NodeData>& nodes)
             {
                 for(auto& node: nodes)
                 {
@@ -119,95 +118,60 @@ int main()
                 }
             }
             while(true);
-            auto busConfig = YADAW::Audio::Backend::AudioGraphBusConfiguration(backend);
-            auto bufferSize = backend.bufferSizeInFrames();
-            std::printf("Buffer size: %d sample(s)\n", bufferSize);
-            auto pool = YADAW::Audio::Util::AudioBufferPool::createPool<float>(bufferSize);
-            busConfiguration = &busConfig;
             {
-                std::vector<ade::NodeHandle> inputNodes;
-                std::vector<std::vector<std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer>>> inputs;
-                std::vector<std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer>> outputs;
-                auto outputChannelCount = backend.channelCount(false, outputDeviceIndex);
-                std::vector<YADAW::Audio::Backend::AudioGraphBusConfiguration::Bus*> inputDevices;
-                auto& outputDevice = busConfig.getOutputBusAt(busConfig.appendBus(false, outputChannelCount))->get();
-                inputs.reserve(outputChannelCount * inputDeviceCount);
-                outputs.reserve(outputChannelCount);
-                std::vector<YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>> inputProcessData;
-                inputProcessData.reserve(inputDeviceCount);
-                YADAW::Audio::Engine::AudioProcessDataBufferContainer<float> outputProcessData;
-                outputProcessData.setSingleBufferSize(bufferSize);
-                outputProcessData.setInputGroupCount(1);
-                outputProcessData.setInputCount(0, outputChannelCount);
-                outputAudioProcessData = &outputProcessData.audioProcessData();
-                YADAW::Audio::Util::Summing summing(
-                    activatedInputDeviceCount,
-                    YADAW::Audio::Base::ChannelGroupType::eCustomGroup,
-                    outputChannelCount
-                );
-                YADAW::Audio::Util::AudioProcessDataPointerContainer<float> summingProcessData;
-                summingProcessData.setSingleBufferSize(bufferSize);
-                summingProcessData.setInputGroupCount(activatedInputDeviceCount);
-                summingProcessData.setOutputGroupCount(1);
-                summingProcessData.setOutputCount(0, outputChannelCount);
-                FOR_RANGE0(i, outputChannelCount)
+                auto busConfig = YADAW::Audio::Backend::AudioGraphBusConfiguration(backend);
+                auto bufferSize = backend.bufferSizeInFrames();
+                std::printf("Buffer size: %d sample(s)\n", bufferSize);
+                auto channelCount = backend.channelCount(false, outputDeviceIndex);
+                busConfiguration = &busConfig;
+                YADAW::Audio::Engine::AudioDeviceGraphBase graph(bufferSize);
+                YADAW::Audio::Util::Summing summing(activatedInputDeviceCount,
+                    YADAW::Audio::Base::ChannelGroupType::eCustomGroup, channelCount);
+                auto& outputBus = busConfig.getOutputBusAt(busConfig.appendBus(false, channelCount))->get();
+                FOR_RANGE0(i, channelCount)
                 {
-                    outputs.emplace_back(
-                        std::make_shared<YADAW::Audio::Util::AudioBufferPool::Buffer>(
-                            pool->lend()
-                        )
-                    );
-                    outputDevice.setChannel(i, YADAW::Audio::Device::Channel {outputDeviceIndex, i});
-                    outputProcessData.setInputBuffer(0, i, outputs.back());
-                    summingProcessData.setOutput(0, i, reinterpret_cast<float*>(outputs.back().get()->pointer()));
+                    outputBus.setChannel(i, YADAW::Audio::Device::Channel{outputDeviceIndex, i});
                 }
-                auto activatedInputDeviceIndex = 0;
-                FOR_RANGE0(i, inputDeviceCount)
+                std::vector<YADAW::Audio::Backend::AudioGraphBusConfiguration::Bus*> inputBusses_;
+                inputBusses_.reserve(activatedInputDeviceCount);
+                FOR_RANGE0(i, backend.audioInputDeviceCount())
                 {
-                    auto& input = inputs.emplace_back(
-                        decltype(inputs)::value_type(
-                            outputChannelCount,
-                            decltype(inputs)::value_type::value_type(nullptr)
-                        )
-                    );
-                    inputDevices.emplace_back(nullptr);
-                    auto& processData = inputProcessData.emplace_back();
                     if(backend.isDeviceInputActivated(i))
                     {
-                        inputDevices.back() = &(busConfig.getInputBusAt(busConfig.appendBus(true, outputChannelCount))->get());
-                        processData.setSingleBufferSize(bufferSize);
-                        processData.setOutputGroupCount(1);
-                        processData.setOutputCount(0, outputChannelCount);
-                        summingProcessData.setInputCount(activatedInputDeviceIndex, outputChannelCount);
-                        FOR_RANGE0(j, outputChannelCount)
-                        {
-                            input[j] = std::make_shared<YADAW::Audio::Util::AudioBufferPool::Buffer>(
-                                pool->lend()
-                            );
-                            inputDevices.back()->setChannel(j, YADAW::Audio::Device::Channel {i, j});
-                            processData.setOutputBuffer(0, j, input[j]);
-                            summingProcessData.setInput(
-                                activatedInputDeviceIndex, j,
-                                reinterpret_cast<float*>(input[j].get()->pointer())
-                            );
-                        }
-                        ++activatedInputDeviceIndex;
-                        inputNodes.emplace_back(
-                            graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*(inputDevices.back())),
-                                processData.audioProcessData())
+                        auto& inputBus = inputBusses_.emplace_back(
+                            &(busConfig.getInputBusAt(busConfig.appendBus(true, channelCount))->get())
                         );
+                        FOR_RANGE0(j, channelCount)
+                        {
+                            inputBus->setChannel(j, YADAW::Audio::Device::Channel{i, j});
+                        }
                     }
                 }
-                auto summingNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(summing),
-                    summingProcessData.audioProcessData());
-                auto outputNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(outputDevice),
-                    outputProcessData.audioProcessData());
-                FOR_RANGE0(i, inputNodes.size())
+                std::vector<ade::NodeHandle> inputNodes;
+                ade::NodeHandle summingNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(summing));
+                ade::NodeHandle outputNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(outputBus));
+                graph.connect(summingNode, outputNode, 0U, 0U);
+                FOR_RANGE0(i, activatedInputDeviceCount)
                 {
-                    graph.connect(inputNodes[i], summingNode, 0, i);
+                    auto inputNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*inputBusses_[i]));
+                    graph.connect(inputNode, summingNode, 0U, i);
                 }
-                graph.connect(summingNode, outputNode, 0, 0);
-                topo = graph.topologicalSort();
+                auto topo = graph.topologicalSort();
+                topoNodes.reserve(topo.size());
+                for(auto& row: topo)
+                {
+                    auto& rowNodes = topoNodes.emplace_back();
+                    rowNodes.reserve(row.size());
+                    for(auto& cell: row)
+                    {
+                        auto& cellNodes = rowNodes.emplace_back();
+                        cellNodes.reserve(cell.size());
+                        for(auto& node: cell)
+                        {
+                            cellNodes.emplace_back(graph.getNodeData(node));
+                        }
+                    }
+                }
                 backend.start(&callback);
                 std::getchar();
                 backend.stop();
