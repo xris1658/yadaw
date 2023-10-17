@@ -194,6 +194,28 @@ public:
         }
         return false;
     }
+    std::size_t popBack(std::size_t count)
+    {
+        if(count >= count_)
+        {
+            auto ret = count_;
+            clear();
+            return ret;
+        }
+        if constexpr(std::is_trivially_destructible_v<T>)
+        {
+            start_ = (start_ + count) % capacity_;
+        }
+        else
+        {
+            FOR_RANGE0(i, count)
+            {
+                popBack();
+            }
+        }
+        count_ -= count;
+        return count;
+    }
     void clear()
     {
         FOR_RANGE0(i, count_)
