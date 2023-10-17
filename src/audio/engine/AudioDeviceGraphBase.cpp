@@ -209,30 +209,31 @@ void AudioDeviceGraphBase::disconnect(const ade::EdgeHandle& edgeHandle)
     typedGraph_.erase(edgeHandle);
 }
 
-AudioDeviceGraphBase::TopologicalSortResult AudioDeviceGraphBase::topologicalSort() const
+std::vector<std::vector<std::vector<ade::NodeHandle>>> AudioDeviceGraphBase::topologicalSort() const
 {
-    auto topoResult = YADAW::Util::topologicalSort(
-        YADAW::Util::squashGraph(graph_)
-    );
-    auto& result = *topoResult;
-    TopologicalSortResult ret;
-    ret.reserve(result.size());
-    for(const auto& row: result)
+    std::vector<std::vector<std::vector<ade::NodeHandle>>> ret;
+    auto topo = YADAW::Util::topologicalSort(YADAW::Util::squashGraph(graph_));
+    if(topo.has_value())
     {
-        auto& rowInRet = ret.emplace_back();
-        rowInRet.reserve(row.size());
-        for(const auto& cell: row)
+        auto& topoSortResult = *topo;
+        ret.reserve(topoSortResult.size());
+        for(auto& row: topoSortResult)
         {
-            auto& cellInRet = rowInRet.emplace_back();
-            auto i = cell.first;
-            while(true)
+            auto& retRow = ret.emplace_back();
+            retRow.reserve(row.size());
+            for(auto& [from, to]: row)
             {
-                cellInRet.emplace_back(getNodeData(i));
-                if(i == cell.second)
+                auto& retCell = retRow.emplace_back();
+                auto i = from;
+                while(true)
                 {
-                    break;
+                    retCell.emplace_back(i);
+                    if(i == to)
+                    {
+                        break;
+                    }
+                    i = i->outNodes().front();
                 }
-                i = i->outNodes().front();
             }
         }
     }

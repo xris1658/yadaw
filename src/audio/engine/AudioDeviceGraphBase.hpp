@@ -38,8 +38,6 @@ public:
         void* data;
         static const char* name() { return "EdgeData"; }
     };
-    using TopologicalSortResult =
-        std::vector<std::vector<std::vector<NodeData>>>;
 public:
     AudioDeviceGraphBase(std::uint32_t bufferSize);
     AudioDeviceGraphBase(const AudioDeviceGraphBase&) = delete;
@@ -62,7 +60,7 @@ public:
     );
     void disconnect(const ade::EdgeHandle& edgeHandle);
 public:
-    TopologicalSortResult topologicalSort() const;
+    std::vector<std::vector<std::vector<ade::NodeHandle>>> topologicalSort() const;
 private:
     ade::Graph graph_;
     ade::TypedGraph<NodeData, EdgeData> typedGraph_;
