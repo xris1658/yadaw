@@ -136,6 +136,8 @@ ade::NodeHandle AudioDeviceGraphBase::addNode(AudioDeviceProcess&& process)
             );
         }
     }
+    typedGraph_.metadata(ret).set<NodeData>(
+        NodeData{std::move(process), std::move(container), nullptr});
     return ret;
 }
 
