@@ -79,9 +79,14 @@ void AudioChannelGroup::setChannelGroupType(YADAW::Audio::Base::ChannelGroupType
 {
     speakers_.clear();
     speakerNames_.clear();
-    if(channelCount == -1)
+    if(channelCount == 0)
     {
-        channelCount = YADAW::Audio::Device::IAudioChannelGroup::channelCount(channelGroupType);
+        auto actualChannelCount = YADAW::Audio::Device::IAudioChannelGroup::channelCount(channelGroupType);
+        if(actualChannelCount == YADAW::Audio::Base::InvalidChannelCount)
+        {
+            throw std::invalid_argument("The channel count of the specified group type is unknown");
+        }
+        channelCount = actualChannelCount;
     }
     FOR_RANGE0(i, channelCount)
     {
@@ -89,6 +94,7 @@ void AudioChannelGroup::setChannelGroupType(YADAW::Audio::Base::ChannelGroupType
     }
     speakers_.resize(channelCount, YADAW::Audio::Base::ChannelType::Custom);
     speakerNames_.resize(channelCount, QString());
+    type_ = channelGroupType;
 }
 
 bool AudioChannelGroup::setSpeakerType(std::uint32_t index, YADAW::Audio::Base::ChannelType type)
