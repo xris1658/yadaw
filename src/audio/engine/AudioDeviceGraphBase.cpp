@@ -192,7 +192,7 @@ std::optional<ade::EdgeHandle> AudioDeviceGraphBase::connect(
                         toChannel, i, fromProcessData.outputBuffer(fromChannel, i));
                 }
                 auto ret = typedGraph_.link(fromNode, toNode);
-                typedGraph_.metadata(ret).set<EdgeData>({fromChannel, toChannel});
+                typedGraph_.metadata(ret).set<EdgeData>({fromChannel, toChannel, nullptr});
                 return {ret};
             }
         }
