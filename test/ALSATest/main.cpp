@@ -1,8 +1,6 @@
 #include "audio/backend/ALSABackend.hpp"
 #include "audio/backend/ALSABusConfiguration.hpp"
-#include "audio/engine/AudioDeviceGraph.hpp"
-#include "audio/engine/AudioProcessDataBufferContainer.hpp"
-#include "audio/util/AudioBufferPool.hpp"
+#include "audio/engine/AudioDeviceGraphBase.hpp"
 #include "midi/MIDIInputDevice.hpp"
 #include "midi/MIDIOutputDevice.hpp"
 #include "native/linux/ALSADeviceEnumerator.hpp"
@@ -16,9 +14,10 @@
 #include <thread>
 
 YADAW::Audio::Backend::ALSABusConfiguration* alsaBusConfiguration = nullptr;
-YADAW::Audio::Engine::AudioDeviceGraph* audioDeviceGraph = nullptr;
+YADAW::Audio::Engine::AudioDeviceGraphBase* audioDeviceGraph = nullptr;
 
-YADAW::Audio::Engine::AudioDeviceGraph::TopologicalSortResult topologicalSortResult;
+std::vector<std::vector<std::vector<ade::NodeHandle>>> topologicalSortResult;
+std::vector<std::vector<std::vector<YADAW::Audio::Engine::AudioDeviceGraphBase::NodeData>>> topoNodes;
 
 std::uint64_t totalFrameCount = 0;
 
@@ -67,7 +66,6 @@ int main(int argc, char** argv)
     YADAW::Audio::Backend::ALSABackend backend;
     auto frameCount = 512U;
     backend.initialize(44100, frameCount);
-    auto pool = YADAW::Audio::Util::AudioBufferPool::createPool<float>(frameCount);
     YADAW::Audio::Backend::ALSADeviceSelector selector(0, 0);
     auto inputIndex = YADAW::Audio::Backend::findDeviceBySelector(backend, true, selector);
     auto inputChannelCount = 0U;
@@ -101,34 +99,35 @@ int main(int argc, char** argv)
     alsaBusConfiguration = &busConfiguration;
     auto& inputBus = busConfiguration.getInputBusAt(busConfiguration.appendBus(true, inputChannelCount))->get();
     auto& outputBus = busConfiguration.getOutputBusAt(busConfiguration.appendBus(false, outputChannelCount))->get();
-    YADAW::Audio::Engine::AudioDeviceGraph graph;
+    YADAW::Audio::Engine::AudioDeviceGraphBase graph(frameCount);
     audioDeviceGraph = &graph;
-    YADAW::Audio::Engine::AudioProcessDataBufferContainer<float> inputProcessDataContainer;
-    inputProcessDataContainer.setSingleBufferSize(frameCount);
-    inputProcessDataContainer.setOutputGroupCount(1);
-    inputProcessDataContainer.setOutputCount(0, inputChannelCount);
     FOR_RANGE0(i, inputChannelCount)
     {
         inputBus.setChannel(i, {*inputIndex, i});
-        inputProcessDataContainer.setOutputBuffer(0, i, std::make_shared<YADAW::Audio::Util::AudioBufferPool::Buffer>(pool->lend()));
     }
-    YADAW::Audio::Engine::AudioProcessDataBufferContainer<float> outputProcessDataContainer;
-    outputProcessDataContainer.setSingleBufferSize(frameCount);
-    outputProcessDataContainer.setInputGroupCount(1);
-    outputProcessDataContainer.setInputCount(0, outputChannelCount);
     FOR_RANGE0(i, outputChannelCount)
     {
         outputBus.setChannel(i, {*outputIndex, i});
-        outputProcessDataContainer.setInputBuffer(0, i,
-            i < inputChannelCount?
-                inputProcessDataContainer.outputBuffer(0, i):
-                std::make_shared<YADAW::Audio::Util::AudioBufferPool::Buffer>(pool->lend())
-        );
     }
-    auto inputNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(inputBus), inputProcessDataContainer.audioProcessData());
-    auto outputNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(outputBus), outputProcessDataContainer.audioProcessData());
+    auto inputNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(inputBus));
+    auto outputNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(outputBus));
     graph.connect(inputNode, outputNode, 0, 0);
     topologicalSortResult = graph.topologicalSort();
+    topoNodes.reserve(topologicalSortResult.size());
+    for(auto& row: topologicalSortResult)
+    {
+        auto& dataRow = topoNodes.emplace_back();
+        dataRow.reserve(row.size());
+        for(auto& cell: row)
+        {
+            auto& cellRow = dataRow.emplace_back();
+            cellRow.reserve(cell.size());
+            for(auto& unit: cell)
+            {
+                cellRow.emplace_back(graph.getNodeData(unit));
+            }
+        }
+    }
     backend.start(callback);
     getchar();
     backend.stop();
@@ -139,10 +138,10 @@ void callback(const ALSABackend* backend,
     std::uint32_t outputCount, ALSABackend::AudioBuffer* outputBuffers)
 {
     alsaBusConfiguration->setBuffers(inputBuffers, outputBuffers);
-    for(auto& row: topologicalSortResult)
+    for(auto& row: topoNodes)
     {
         std::for_each(std::execution::par_unseq, row.begin(), row.end(),
-            [](std::vector<YADAW::Audio::Engine::AudioDeviceGraph::AudioDeviceProcessNode>& cell)
+            [](std::vector<YADAW::Audio::Engine::AudioDeviceGraphBase::NodeData>& cell)
             {
                 for(auto& item: cell)
                 {
