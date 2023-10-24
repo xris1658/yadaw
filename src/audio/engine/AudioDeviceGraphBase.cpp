@@ -7,12 +7,22 @@ namespace YADAW::Audio::Engine
 {
 using YADAW::Audio::Util::AudioBufferPool;
 
+void blankAfterConnectCallback(
+    const AudioDeviceGraphBase&, const ade::EdgeHandle&)
+{}
+
+void blankBeforeDisconnectCallback(
+    const AudioDeviceGraphBase&, const ade::EdgeHandle&)
+{}
+
 AudioDeviceGraphBase::AudioDeviceGraphBase(std::uint32_t bufferSize):
     graph_(),
     typedGraph_(graph_),
     bufferSize_(bufferSize),
     pool_(AudioBufferPool::createPool<float>(bufferSize)),
-    dummyInput_(std::make_shared<AudioBufferPool::Buffer>(pool_->lend()))
+    dummyInput_(std::make_shared<AudioBufferPool::Buffer>(pool_->lend())),
+    afterConnectCallback_(blankAfterConnectCallback),
+    beforeDisconnectCallback_(blankBeforeDisconnectCallback)
 {
     auto& rDummyInput = *dummyInput_;
     std::memset(rDummyInput.pointer(), 0, bufferSize_ * sizeof(float));
@@ -193,6 +203,7 @@ std::optional<ade::EdgeHandle> AudioDeviceGraphBase::connect(
                 }
                 auto ret = typedGraph_.link(fromNode, toNode);
                 typedGraph_.metadata(ret).set<EdgeData>({fromChannel, toChannel, nullptr});
+                afterConnectCallback_(*this, ret);
                 return {ret};
             }
         }
@@ -204,11 +215,32 @@ void AudioDeviceGraphBase::disconnect(const ade::EdgeHandle& edgeHandle)
 {
     auto& [toDeviceProcess, toProcessData, toNodeData] = getNodeData(edgeHandle->dstNode());
     auto& [fromChannel, toChannel, edgeData] = getEdgeData(edgeHandle);
+    beforeDisconnectCallback_(*this, edgeHandle);
     FOR_RANGE0(i, toProcessData.audioProcessData().inputCounts[toChannel])
     {
         toProcessData.setInputBuffer(toChannel, i, dummyInput_);
     }
     typedGraph_.erase(edgeHandle);
+}
+
+void AudioDeviceGraphBase::setAfterConnectCallback(std::function<AfterConnectCallback>&& func)
+{
+    afterConnectCallback_ = std::move(func);
+}
+
+void AudioDeviceGraphBase::setBeforeDisconnectCallback(std::function<BeforeDisconnectCallback>&& func)
+{
+    beforeDisconnectCallback_ = std::move(func);
+}
+
+void AudioDeviceGraphBase::resetAfterConnectCallback()
+{
+    afterConnectCallback_ = {blankAfterConnectCallback};
+}
+
+void AudioDeviceGraphBase::resetBeforeDisconnectCallback()
+{
+    beforeDisconnectCallback_ = {blankBeforeDisconnectCallback};
 }
 
 std::vector<std::vector<std::vector<ade::NodeHandle>>> AudioDeviceGraphBase::topologicalSort() const

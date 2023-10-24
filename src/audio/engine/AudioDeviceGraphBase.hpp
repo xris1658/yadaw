@@ -59,6 +59,13 @@ public:
         std::uint32_t fromChannel, std::uint32_t toChannel
     );
     void disconnect(const ade::EdgeHandle& edgeHandle);
+protected:
+    using AfterConnectCallback = void(const AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
+    using BeforeDisconnectCallback = void(const AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
+    void setAfterConnectCallback(std::function<AfterConnectCallback>&& func);
+    void setBeforeDisconnectCallback(std::function<BeforeDisconnectCallback>&& func);
+    void resetAfterConnectCallback();
+    void resetBeforeDisconnectCallback();
 public:
     std::vector<std::vector<std::vector<ade::NodeHandle>>> topologicalSort() const;
 private:
@@ -67,6 +74,8 @@ private:
     std::uint32_t bufferSize_;
     std::shared_ptr<YADAW::Audio::Util::AudioBufferPool> pool_;
     std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer> dummyInput_;
+    std::function<AfterConnectCallback> afterConnectCallback_;
+    std::function<BeforeDisconnectCallback> beforeDisconnectCallback_;
 };
 }
 
