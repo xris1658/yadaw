@@ -144,8 +144,6 @@ set(YADAW_COMMON_SOURCES
     src/audio/device/IAudioChannelGroup.cpp
     src/audio/device/IAudioChannelGroup.hpp
     src/audio/device/IAudioDevice.hpp
-    src/audio/engine/AudioDeviceGraph.cpp
-    src/audio/engine/AudioDeviceGraph.hpp
     src/audio/engine/AudioDeviceGraphBase.cpp
     src/audio/engine/AudioDeviceGraphBase.hpp
     src/audio/engine/AudioDeviceProcess.hpp
