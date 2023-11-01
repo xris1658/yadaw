@@ -94,12 +94,14 @@ add_executable(AudioDeviceGraphTest
                ../src/audio/engine/AudioDeviceGraph.hpp
                ../src/audio/engine/extension/UpstreamLatency.cpp
                ../src/audio/engine/extension/UpstreamLatency.hpp
-               ../src/audio/util/SampleDelay.cpp
-               ../src/audio/util/SampleDelay.hpp
                ../src/audio/util/AudioChannelGroup.cpp
                ../src/audio/util/AudioChannelGroup.hpp
                ../src/audio/util/AudioBufferPool.cpp
                ../src/audio/util/AudioBufferPool.hpp
+               ../src/audio/util/SampleDelay.cpp
+               ../src/audio/util/SampleDelay.hpp
+               ../src/audio/util/Summing.cpp
+               ../src/audio/util/Summing.hpp
                ../src/util/ADEUtil.cpp
                ../src/util/ADEUtil.hpp
                AudioDeviceGraphTest/main.cpp)
