@@ -66,8 +66,14 @@ protected:
     using AfterConnectCallback = void(AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
     using BeforeDisconnectCallback = void(AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
     void setAfterAddNodeCallback(std::function<AfterAddNodeCallback>&& func);
+    // This callback WILL be invoked on destructing the graph object.
+    // Since those `IAudioDevice` objects associated with nodes are accessible
+    // in the callback, the graph MUST NOT survive `IAudioDevice`s in the graph.
     void setBeforeRemoveNodeCallback(std::function<BeforeRemoveNodeCallback>&& func);
     void setAfterConnectCallback(std::function<AfterConnectCallback>&& func);
+    // This callback WILL be invoked on destructing the graph object.
+    // Since those `IAudioDevice` objects associated with nodes are accessible
+    // in the callback, the graph MUST NOT survive `IAudioDevice`s in the graph.
     void setBeforeDisconnectCallback(std::function<BeforeDisconnectCallback>&& func);
     void resetAfterAddNodeCallback();
     void resetBeforeRemoveNodeCallback();
