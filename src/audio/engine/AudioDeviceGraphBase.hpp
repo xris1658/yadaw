@@ -39,9 +39,9 @@ public:
         static const char* name() { return "EdgeData"; }
     };
 public:
-    AudioDeviceGraphBase(std::uint32_t bufferSize);
+    explicit AudioDeviceGraphBase(std::uint32_t bufferSize);
     AudioDeviceGraphBase(const AudioDeviceGraphBase&) = delete;
-    ~AudioDeviceGraphBase() = default;
+    virtual ~AudioDeviceGraphBase();
 public:
     const NodeData& getNodeData(const ade::NodeHandle& nodeHandle) const;
     NodeData& getNodeData(const ade::NodeHandle& nodeHandle);
@@ -59,11 +59,18 @@ public:
         std::uint32_t fromChannel, std::uint32_t toChannel
     );
     void disconnect(const ade::EdgeHandle& edgeHandle);
+    void clear();
 protected:
+    using AfterAddNodeCallback = void(const AudioDeviceGraphBase& graph, const ade::NodeHandle& nodeHandle);
+    using BeforeRemoveNodeCallback = void(const AudioDeviceGraphBase& graph, const ade::NodeHandle& nodeHandle);
     using AfterConnectCallback = void(const AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
     using BeforeDisconnectCallback = void(const AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
+    void setAfterAddNodeCallback(std::function<AfterAddNodeCallback>&& func);
+    void setBeforeRemoveNodeCallback(std::function<BeforeRemoveNodeCallback>&& func);
     void setAfterConnectCallback(std::function<AfterConnectCallback>&& func);
     void setBeforeDisconnectCallback(std::function<BeforeDisconnectCallback>&& func);
+    void resetAfterAddNodeCallback();
+    void resetBeforeRemoveNodeCallback();
     void resetAfterConnectCallback();
     void resetBeforeDisconnectCallback();
 public:
@@ -74,6 +81,8 @@ private:
     std::uint32_t bufferSize_;
     std::shared_ptr<YADAW::Audio::Util::AudioBufferPool> pool_;
     std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer> dummyInput_;
+    std::function<AfterAddNodeCallback> afterAddNodeCallback_;
+    std::function<BeforeRemoveNodeCallback> beforeRemoveNodeCallback_;
     std::function<AfterConnectCallback> afterConnectCallback_;
     std::function<BeforeDisconnectCallback> beforeDisconnectCallback_;
 };
