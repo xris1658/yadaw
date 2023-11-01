@@ -61,10 +61,10 @@ public:
     void disconnect(const ade::EdgeHandle& edgeHandle);
     void clear();
 protected:
-    using AfterAddNodeCallback = void(const AudioDeviceGraphBase& graph, const ade::NodeHandle& nodeHandle);
-    using BeforeRemoveNodeCallback = void(const AudioDeviceGraphBase& graph, const ade::NodeHandle& nodeHandle);
-    using AfterConnectCallback = void(const AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
-    using BeforeDisconnectCallback = void(const AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
+    using AfterAddNodeCallback = void(AudioDeviceGraphBase& graph, const ade::NodeHandle& nodeHandle);
+    using BeforeRemoveNodeCallback = void(AudioDeviceGraphBase& graph, const ade::NodeHandle& nodeHandle);
+    using AfterConnectCallback = void(AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
+    using BeforeDisconnectCallback = void(AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
     void setAfterAddNodeCallback(std::function<AfterAddNodeCallback>&& func);
     void setBeforeRemoveNodeCallback(std::function<BeforeRemoveNodeCallback>&& func);
     void setAfterConnectCallback(std::function<AfterConnectCallback>&& func);

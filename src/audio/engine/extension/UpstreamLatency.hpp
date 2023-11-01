@@ -22,6 +22,8 @@ public:
     void onNodeAboutToBeRemoved(const ade::NodeHandle& nodeHandle);
     void onConnected(const ade::EdgeHandle& edgeHandle);
     void onAboutToBeDisconnected(const ade::EdgeHandle& edgeHandle);
+public:
+    std::uint32_t getUpstreamLatency(const ade::NodeHandle& nodeHandle);
 private:
     AudioDeviceGraphBase& graph_;
     DataType&(*getData_)(AudioDeviceGraphBase&, const ade::NodeHandle&);

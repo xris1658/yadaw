@@ -8,19 +8,19 @@ namespace YADAW::Audio::Engine
 using YADAW::Audio::Util::AudioBufferPool;
 
 void blankAfterAddNodeCallback(
-    const AudioDeviceGraphBase&, const ade::NodeHandle&)
+    AudioDeviceGraphBase&, const ade::NodeHandle&)
 {}
 
 void blankBeforeRemoveNodeCallback(
-    const AudioDeviceGraphBase&, const ade::NodeHandle&)
+    AudioDeviceGraphBase&, const ade::NodeHandle&)
 {}
 
 void blankAfterConnectCallback(
-    const AudioDeviceGraphBase&, const ade::EdgeHandle&)
+    AudioDeviceGraphBase&, const ade::EdgeHandle&)
 {}
 
 void blankBeforeDisconnectCallback(
-    const AudioDeviceGraphBase&, const ade::EdgeHandle&)
+    AudioDeviceGraphBase&, const ade::EdgeHandle&)
 {}
 
 AudioDeviceGraphBase::AudioDeviceGraphBase(std::uint32_t bufferSize):

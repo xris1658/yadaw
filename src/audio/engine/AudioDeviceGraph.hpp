@@ -63,30 +63,34 @@ public:
         )
     {
         AudioDeviceGraphBase::setAfterAddNodeCallback(
-            [this](const ade::NodeHandle& nodeHandle)
+            [](AudioDeviceGraphBase& graph, const ade::NodeHandle& nodeHandle)
             {
                 auto data = new DataType();
-                this->getNodeData(nodeHandle).data = data;
-                afterAddNodeCallback(nodeHandle);
+                auto& audioDeviceGraph = static_cast<Self&>(graph);
+                audioDeviceGraph.getNodeData(nodeHandle).data = data;
+                audioDeviceGraph.afterAddNodeCallback(nodeHandle);
             }
         );
         AudioDeviceGraphBase::setBeforeRemoveNodeCallback(
-            [this](const ade::NodeHandle& nodeHandle)
+            [](AudioDeviceGraphBase& graph, const ade::NodeHandle& nodeHandle)
             {
-                beforeRemoveNodeCallback(nodeHandle);
-                delete getNodeData(nodeHandle).data;
+                auto& audioDeviceGraph = static_cast<Self&>(graph);
+                audioDeviceGraph.beforeRemoveNodeCallback(nodeHandle);
+                delete audioDeviceGraph.getNodeData(nodeHandle).data;
             }
         );
         AudioDeviceGraphBase::setAfterConnectCallback(
-            [this](const ade::EdgeHandle& edgeHandle)
+            [](AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle)
             {
-                afterConnectCallback(edgeHandle);
+                auto& audioDeviceGraph = static_cast<Self&>(graph);
+                audioDeviceGraph.afterConnectCallback(edgeHandle);
             }
         );
-        AudioDeviceGraphBase::setBeforeRemoveNodeCallback(
-            [this](const ade::EdgeHandle& edgeHandle)
+        AudioDeviceGraphBase::setBeforeDisconnectCallback(
+            [](AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle)
             {
-                beforeDisconnectCallback(edgeHandle);
+                auto& audioDeviceGraph = static_cast<Self&>(graph);
+                audioDeviceGraph.beforeDisconnectCallback(edgeHandle);
             }
         );
     }
@@ -101,19 +105,19 @@ public:
         return std::get<Extension>(extensions_);
     }
     template<typename Extension>
-    const typename Extension::DataType& doGetExtensionData(
-        const ade::NodeHandle& nodeHandle)
+    const typename Extension::DataType& getExtensionData(
+        const ade::NodeHandle& nodeHandle) const
     {
         return std::get<typename Extension::DataType>(
-            static_cast<DataType>(getNodeData(nodeHandle).data)
+            *static_cast<DataType*>(getNodeData(nodeHandle).data)
         );
     }
     template<typename Extension>
-    typename Extension::DataType& doGetExtensionData(
+    typename Extension::DataType& getExtensionData(
         const ade::NodeHandle& nodeHandle)
     {
         return const_cast<typename Extension::DataType&>(
-            static_cast<const Self*>(this)->doGetExtensionData<Extension>(nodeHandle)
+            static_cast<const Self*>(this)->getExtensionData<Extension>(nodeHandle)
         );
     }
 private:
@@ -122,14 +126,14 @@ private:
         const AudioDeviceGraphBase& graph,
         const ade::NodeHandle& nodeHandle)
     {
-        return static_cast<const Self&>(graph).doGetExtensionData<Extension>(nodeHandle);
+        return static_cast<const Self&>(graph).getExtensionData<Extension>(nodeHandle);
     }
     template<typename Extension>
     static typename Extension::DataType& getExtensionData(
         AudioDeviceGraphBase& graph,
         const ade::NodeHandle& nodeHandle)
     {
-        return static_cast<Self&>(graph).doGetExtensionData<Extension>(nodeHandle);
+        return static_cast<Self&>(graph).getExtensionData<Extension>(nodeHandle);
     }
 private:
     std::tuple<Extensions...> extensions_;

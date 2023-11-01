@@ -54,4 +54,9 @@ void UpstreamLatency::onAboutToBeDisconnected(const ade::EdgeHandle& edgeHandle)
     }
     upstreamLatency = newUpstreamLatency;
 }
+
+std::uint32_t UpstreamLatency::getUpstreamLatency(const ade::NodeHandle& nodeHandle)
+{
+    return getData_(graph_, nodeHandle).upstreamLatency;
+}
 }

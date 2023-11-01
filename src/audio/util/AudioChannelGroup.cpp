@@ -2,6 +2,8 @@
 
 #include "util/IntegerRange.hpp"
 
+#include <stdexcept>
+
 namespace YADAW::Audio::Util
 {
 AudioChannelGroup::AudioChannelGroup()
