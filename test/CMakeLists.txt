@@ -86,6 +86,24 @@ add_executable(AudioBufferPoolTest
                ../src/audio/util/AudioBufferPool.hpp
                AudioBufferPoolTest/main.cpp)
 
+add_executable(AudioDeviceGraphTest
+               ../src/audio/device/IAudioChannelGroup.cpp
+               ../src/audio/device/IAudioChannelGroup.hpp
+               ../src/audio/engine/AudioDeviceGraphBase.cpp
+               ../src/audio/engine/AudioDeviceGraphBase.hpp
+               ../src/audio/engine/AudioDeviceGraph.hpp
+               ../src/audio/engine/extension/UpstreamLatency.cpp
+               ../src/audio/engine/extension/UpstreamLatency.hpp
+               ../src/audio/util/SampleDelay.cpp
+               ../src/audio/util/SampleDelay.hpp
+               ../src/audio/util/AudioChannelGroup.cpp
+               ../src/audio/util/AudioChannelGroup.hpp
+               ../src/audio/util/AudioBufferPool.cpp
+               ../src/audio/util/AudioBufferPool.hpp
+               ../src/util/ADEUtil.cpp
+               ../src/util/ADEUtil.hpp
+               AudioDeviceGraphTest/main.cpp)
+
 add_executable(AudioProcessDataBufferContainerTest
                ../src/audio/util/AudioBufferPool.cpp
                ../src/audio/util/AudioBufferPool.hpp
@@ -117,6 +135,8 @@ add_executable(SampleDelayTest
                SampleDelayTest/main.cpp)
 
 add_executable(ZeckendorfLogarithmTest ZeckendorfLogarithmTest/main.cpp)
+
+target_link_libraries(AudioDeviceGraphTest PRIVATE ade Qt6::Core)
 
 target_link_libraries(ADEUtilsTest PRIVATE ade)
 
