@@ -1,5 +1,9 @@
 #include "UpstreamLatency.hpp"
 
+#include "util/IntegerRange.hpp"
+
+#include <queue>
+
 namespace YADAW::Audio::Engine::Extension
 {
 UpstreamLatency::UpstreamLatency(AudioDeviceGraphBase& graph,
@@ -25,14 +29,7 @@ void UpstreamLatency::onNodeAboutToBeRemoved(const ade::NodeHandle& nodeHandle)
 void UpstreamLatency::onConnected(const ade::EdgeHandle& edgeHandle)
 {
     auto toNode = edgeHandle->dstNode();
-    auto& upstreamLatency = getData_(graph_, toNode).upstreamLatency;
-    auto it = std::max_element(toNode->inNodes().begin(), toNode->inNodes().end(),
-        [this](const ade::NodeHandle& lhs, const ade::NodeHandle& rhs)
-        {
-            return sumLatency(lhs) < sumLatency(rhs);
-        }
-    );
-    upstreamLatency = sumLatency(*it);
+    updateUpstreamLatency(toNode);
 }
 
 void UpstreamLatency::onAboutToBeDisconnected(const ade::EdgeHandle& edgeHandle)
@@ -58,5 +55,31 @@ void UpstreamLatency::onAboutToBeDisconnected(const ade::EdgeHandle& edgeHandle)
 std::uint32_t UpstreamLatency::getUpstreamLatency(const ade::NodeHandle& nodeHandle)
 {
     return getData_(graph_, nodeHandle).upstreamLatency;
+}
+
+void UpstreamLatency::updateUpstreamLatency(const ade::NodeHandle& nodeHandle)
+{
+    std::queue<ade::NodeHandle> queue;
+    queue.emplace(nodeHandle);
+    while(!queue.empty())
+    {
+        FOR_RANGE0(i, queue.size())
+        {
+            auto nodeHandle = queue.front();
+            auto& upstreamLatency = getData_(graph_, nodeHandle).upstreamLatency;
+            auto it = std::max_element(nodeHandle->inNodes().begin(), nodeHandle->inNodes().end(),
+                [this](const ade::NodeHandle& lhs, const ade::NodeHandle& rhs)
+                {
+                    return sumLatency(lhs) < sumLatency(rhs);
+                }
+            );
+            upstreamLatency = sumLatency(*it);
+            for(const auto& outNode: nodeHandle->outNodes())
+            {
+                queue.emplace(outNode);
+            }
+            queue.pop();
+        }
+    }
 }
 }
