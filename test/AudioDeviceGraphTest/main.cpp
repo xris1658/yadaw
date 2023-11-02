@@ -30,11 +30,20 @@ int main()
                 )
             );
         }
-        FOR_RANGE0(i, nodeCount - 1)
-        {
-            edges.emplace_back(*graph.connect(nodes[i], nodes[i + 1], 0, 0));
-        }
         auto& upstreamLatencyExt = graph.getExtension<YADAW::Audio::Engine::Extension::UpstreamLatency>();
+        for(int i = nodeCount - 2; i >= 0; --i)
+        {
+            edges.emplace(edges.begin(), *graph.connect(nodes[i], nodes[i + 1], 0, 0));
+            for(const auto& node: nodes)
+            {
+                std::cout
+                    << upstreamLatencyExt.getUpstreamLatency(node)
+                    << ", "
+                    << graph.getNodeData(node).process.device()->latencyInSamples()
+                    << '\n';
+            }
+            std::cout << "----------------\n";
+        }
         for(const auto& node: nodes)
         {
             std::cout
