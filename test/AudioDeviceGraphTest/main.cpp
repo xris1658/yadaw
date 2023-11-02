@@ -44,17 +44,19 @@ int main()
             }
             std::cout << "----------------\n";
         }
-        for(const auto& node: nodes)
-        {
-            std::cout
-                << upstreamLatencyExt.getUpstreamLatency(node)
-                << ", "
-                << graph.getNodeData(node).process.device()->latencyInSamples()
-                << '\n';
-        }
+        std::cout << "Disconnecting\n";
         for(const auto& edge: edges)
         {
             graph.disconnect(edge);
+            for(const auto& node: nodes)
+            {
+                std::cout
+                    << upstreamLatencyExt.getUpstreamLatency(node)
+                    << ", "
+                    << graph.getNodeData(node).process.device()->latencyInSamples()
+                    << '\n';
+            }
+            std::cout << "----------------\n";
         }
         for(const auto& node: nodes)
         {

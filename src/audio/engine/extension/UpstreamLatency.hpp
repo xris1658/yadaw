@@ -25,7 +25,7 @@ public:
 public:
     std::uint32_t getUpstreamLatency(const ade::NodeHandle& nodeHandle);
 private:
-    void updateUpstreamLatency(const ade::NodeHandle& nodeHandle);
+    void updateUpstreamLatency(const ade::NodeHandle& nodeHandle, std::uint32_t newUpstreamLatency);
 private:
     AudioDeviceGraphBase& graph_;
     DataType&(*getData_)(AudioDeviceGraphBase&, const ade::NodeHandle&);
