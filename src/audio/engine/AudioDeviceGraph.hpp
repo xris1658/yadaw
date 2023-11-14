@@ -51,8 +51,8 @@ private:
         }
     }
 public:
-    explicit AudioDeviceGraph(std::uint32_t bufferSize):
-        YADAW::Audio::Engine::AudioDeviceGraphBase(bufferSize),
+    explicit AudioDeviceGraph():
+        YADAW::Audio::Engine::AudioDeviceGraphBase(),
         extensions_(
             std::make_tuple(
                 Extensions(
@@ -76,7 +76,7 @@ public:
             {
                 auto& audioDeviceGraph = static_cast<Self&>(graph);
                 audioDeviceGraph.beforeRemoveNodeCallback(nodeHandle);
-                delete audioDeviceGraph.getNodeData(nodeHandle).data;
+                delete static_cast<DataType*>(audioDeviceGraph.getNodeData(nodeHandle).data);
             }
         );
         AudioDeviceGraphBase::setAfterConnectCallback(

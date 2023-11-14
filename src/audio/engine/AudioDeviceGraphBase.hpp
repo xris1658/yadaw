@@ -23,12 +23,7 @@ public:
     struct NodeData
     {
         YADAW::Audio::Engine::AudioDeviceProcess process;
-        YADAW::Audio::Engine::AudioProcessDataBufferContainer<float> processData;
         void* data;
-        inline void doProcess()
-        {
-            process.process(processData.audioProcessData());
-        }
         static const char* name() { return "NodeData"; }
     };
     struct EdgeData
@@ -39,7 +34,7 @@ public:
         static const char* name() { return "EdgeData"; }
     };
 public:
-    explicit AudioDeviceGraphBase(std::uint32_t bufferSize);
+    explicit AudioDeviceGraphBase();
     AudioDeviceGraphBase(const AudioDeviceGraphBase&) = delete;
     virtual ~AudioDeviceGraphBase();
 public:
@@ -47,9 +42,6 @@ public:
     NodeData& getNodeData(const ade::NodeHandle& nodeHandle);
     const EdgeData& getEdgeData(const ade::EdgeHandle& edgeHandle) const;
     EdgeData& getEdgeData(const ade::EdgeHandle& edgeHandle);
-public:
-    std::uint32_t bufferSize() const;
-    void setBufferSize(std::uint32_t bufferSize);
 public:
     ade::NodeHandle addNode(
         YADAW::Audio::Engine::AudioDeviceProcess&& process);
@@ -60,6 +52,10 @@ public:
     );
     void disconnect(const ade::EdgeHandle& edgeHandle);
     void clear();
+    auto nodes() const
+    {
+        return graph_.nodes();
+    }
 protected:
     using AfterAddNodeCallback = void(AudioDeviceGraphBase& graph, const ade::NodeHandle& nodeHandle);
     using BeforeRemoveNodeCallback = void(AudioDeviceGraphBase& graph, const ade::NodeHandle& nodeHandle);
@@ -84,9 +80,6 @@ public:
 private:
     ade::Graph graph_;
     ade::TypedGraph<NodeData, EdgeData> typedGraph_;
-    std::uint32_t bufferSize_;
-    std::shared_ptr<YADAW::Audio::Util::AudioBufferPool> pool_;
-    std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer> dummyInput_;
     std::function<AfterAddNodeCallback> afterAddNodeCallback_;
     std::function<BeforeRemoveNodeCallback> beforeRemoveNodeCallback_;
     std::function<AfterConnectCallback> afterConnectCallback_;
