@@ -29,6 +29,7 @@ public:
         audioDevice_(static_cast<YADAW::Audio::Device::IAudioDevice*>(&audioDevice)),
         func_(&doProcess<T>)
     {}
+    AudioDeviceProcess(const AudioDeviceProcess& rhs) = default;
 private:
     template<typename T>
     static void doProcess(YADAW::Audio::Device::IAudioDevice* ptr,
