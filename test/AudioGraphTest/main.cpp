@@ -1,7 +1,8 @@
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "audio/backend/AudioGraphBusConfiguration.hpp"
 #include "audio/engine/AudioProcessDataBufferContainer.hpp"
-#include "audio/engine/AudioDeviceGraphBase.hpp"
+#include "audio/engine/AudioDeviceGraph.hpp"
+#include "audio/engine/extension/Buffer.hpp"
 #include "audio/util/AudioBufferPool.hpp"
 #include "audio/util/Summing.hpp"
 #include "util/IntegerRange.hpp"
@@ -16,6 +17,16 @@ std::uint64_t sampleIndex;
 const YADAW::Audio::Device::AudioProcessData<float>* outputAudioProcessData = nullptr;
 
 YADAW::Audio::Backend::AudioGraphBusConfiguration* busConfiguration = nullptr;
+std::vector<
+    std::vector<
+        std::vector<
+            std::pair<
+                YADAW::Audio::Engine::AudioDeviceProcess,
+                YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>
+            >
+        >
+    >
+> topoEntities;
 std::vector<std::vector<std::vector<YADAW::Audio::Engine::AudioDeviceGraphBase::NodeData>>> topoNodes;
 
 void callback(int inputCount, const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* inputs,
@@ -34,14 +45,19 @@ void callback(int inputCount, const YADAW::Audio::Backend::AudioGraphBackend::In
     // }
     // sampleIndex += outputAudioProcessData->singleBufferSize;
     busConfiguration->setBuffers(inputs, outputs);
-    for(auto& row: topoNodes)
+    for(auto& row: topoEntities)
     {
         std::for_each(std::execution::par_unseq, row.begin(), row.end(),
-            [](std::vector<YADAW::Audio::Engine::AudioDeviceGraphBase::NodeData>& nodes)
+            [](std::vector<
+                std::pair<
+                    YADAW::Audio::Engine::AudioDeviceProcess,
+                    YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>
+                >
+            >& nodes)
             {
-                for(auto& node: nodes)
+                for(auto& [process, container]: nodes)
                 {
-                    node.doProcess();
+                    process.process(container.audioProcessData());
                 }
             }
         );
@@ -124,7 +140,10 @@ int main()
                 std::printf("Buffer size: %d sample(s)\n", bufferSize);
                 auto channelCount = backend.channelCount(false, outputDeviceIndex);
                 busConfiguration = &busConfig;
-                YADAW::Audio::Engine::AudioDeviceGraphBase graph(bufferSize);
+                YADAW::Audio::Engine::AudioDeviceGraph<
+                    YADAW::Audio::Engine::Extension::Buffer> graph;
+                auto& bufferExtension = graph.getExtension<YADAW::Audio::Engine::Extension::Buffer>();
+                bufferExtension.setBufferSize(bufferSize);
                 YADAW::Audio::Util::Summing summing(activatedInputDeviceCount,
                     YADAW::Audio::Base::ChannelGroupType::eCustomGroup, channelCount);
                 auto& outputBus = busConfig.getOutputBusAt(busConfig.appendBus(false, channelCount))->get();
@@ -157,18 +176,23 @@ int main()
                     graph.connect(inputNode, summingNode, 0U, i);
                 }
                 auto topo = graph.topologicalSort();
-                topoNodes.reserve(topo.size());
+                topoEntities.reserve(topo.size());
                 for(auto& row: topo)
                 {
-                    auto& rowNodes = topoNodes.emplace_back();
-                    rowNodes.reserve(row.size());
+                    auto& rowEntities = topoEntities.emplace_back();
+                    rowEntities.reserve(row.size());
                     for(auto& cell: row)
                     {
-                        auto& cellNodes = rowNodes.emplace_back();
-                        cellNodes.reserve(cell.size());
+                        auto& cellEntities = rowEntities.emplace_back();
+                        cellEntities.reserve(cell.size());
                         for(auto& node: cell)
                         {
-                            cellNodes.emplace_back(graph.getNodeData(node));
+                            cellEntities.emplace_back(
+                                std::make_pair(
+                                    static_cast<const YADAW::Audio::Engine::AudioDeviceProcess&>(graph.getNodeData(node).process),
+                                    graph.getExtensionData<YADAW::Audio::Engine::Extension::Buffer>(node).container
+                                )
+                            );
                         }
                     }
                 }

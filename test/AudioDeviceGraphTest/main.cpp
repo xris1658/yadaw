@@ -20,7 +20,7 @@ int main()
     YADAW::Audio::Util::Summing summing(nodeCount, channelGroup.type());
     {
         YADAW::Audio::Engine::AudioDeviceGraph<
-            YADAW::Audio::Engine::Extension::UpstreamLatency> graph(512);
+            YADAW::Audio::Engine::Extension::UpstreamLatency> graph;
         FOR_RANGE0(i, nodeCount)
         {
             sampleDelay.emplace_back((i * 5) % nodeCount + 1, channelGroup);
