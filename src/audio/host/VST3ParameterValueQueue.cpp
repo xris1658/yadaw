@@ -51,6 +51,15 @@ tresult VST3ParameterValueQueue::getPoint(int32 index, int32& sampleOffset, Vst:
 
 tresult VST3ParameterValueQueue::addPoint(int32 sampleOffset, Vst::ParamValue value, int32& index)
 {
+    if(!container_.empty())
+    {
+        if(container_.back().sampleOffset_ == sampleOffset)
+        {
+            index = container_.size() - 1;
+            container_.back().paramValue_ = value;
+            return kResultOk;
+        }
+    }
     if(!container_.full())
     {
         index = container_.size();
