@@ -9,6 +9,29 @@ namespace YADAW::Audio::Host
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
+uint32 VST3Host::PlugInterfaceSupport::addRef()
+{
+    return 1;
+}
+
+uint32 VST3Host::PlugInterfaceSupport::release()
+{
+    return 1;
+}
+
+tresult VST3Host::PlugInterfaceSupport::queryInterface(const char* _iid, void** obj)
+{
+    QUERY_INTERFACE(_iid, obj, FUnknown::iid, FUnknown)
+    QUERY_INTERFACE(_iid, obj, IPlugInterfaceSupport::iid, IPlugInterfaceSupport)
+    *obj = nullptr;
+    return kNoInterface;
+}
+
+tresult VST3Host::PlugInterfaceSupport::isPlugInterfaceSupported(const char* _iid)
+{
+    return Steinberg::kNotImplemented;
+}
+
 VST3Host& VST3Host::instance()
 {
     static VST3Host ret;
@@ -27,6 +50,11 @@ uint32 VST3Host::release()
 
 tresult VST3Host::queryInterface(const char* _iid, void** obj)
 {
+    if(FUnknownPrivate::iidEqual(_iid, IPlugInterfaceSupport::iid))
+    {
+        *obj = &plugInterfaceSupport_;
+        return kResultOk;
+    }
     QUERY_INTERFACE(_iid, obj, FUnknown::iid, IHostApplication)
     QUERY_INTERFACE(_iid, obj, IHostApplication::iid, IHostApplication)
     *obj = nullptr;
