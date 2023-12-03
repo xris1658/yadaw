@@ -125,6 +125,12 @@ add_executable(BadMemoryAccessHandlerTest
                ../src/native/win/Native.cpp
                BadMemoryAccessHandlerTest/main.cpp)
 
+add_executable(IntrusivePointerTest
+               ../src/util/IntrusivePointer.hpp
+               ../src/util/IntrusiveRefCounter.cpp
+               ../src/util/IntrusiveRefCounter.hpp
+               IntrusivePointerTest/main.cpp)
+
 add_executable(LockFreeQueueTest
                ../src/util/CompilerSpecifics.hpp
                ../src/util/LockFreeQueue.hpp

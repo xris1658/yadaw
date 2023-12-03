@@ -344,6 +344,9 @@ set(YADAW_COMMON_SOURCES
     src/util/IntegerRange.hpp
     src/util/Integration.cpp
     src/util/Integration.hpp
+    src/util/IntrusivePointer.hpp
+    src/util/IntrusiveRefCounter.cpp
+    src/util/IntrusiveRefCounter.hpp
     src/util/Literal.hpp
     src/util/LockFreeQueue.hpp
     src/util/OptionalUtil.hpp
