@@ -31,6 +31,9 @@ if(WIN32)
                    ../src/util/ADEUtil.cpp
                    ../src/util/ADEUtil.hpp
                    ../src/util/IntegerRange.hpp
+                   ../src/util/IntrusivePointer.hpp
+                   ../src/util/IntrusiveRefCounter.cpp
+                   ../src/util/IntrusiveRefCounter.hpp
                    ../src/util/Util.cpp
                    ../src/util/Util.hpp
                    AudioGraphTest/main.cpp)
