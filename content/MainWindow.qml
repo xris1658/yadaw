@@ -39,6 +39,8 @@ ApplicationWindow {
     property alias clapPluginListModel: assets.clapPluginListModel
     property alias pluginDirectoryListModel: preferencesWindow.pluginDirectoryListModel
 
+    property alias trackListModel: arrangement.trackList
+
     onCurrentTranslationIndexChanged: {
         if(opened) {
             EventSender.setTranslationIndex(currentTranslationIndex);
@@ -681,6 +683,7 @@ ApplicationWindow {
                     color: "transparent"
                     border.color: Colors.controlBorder
                     Arrangement {
+                        id: arrangement
                         anchors.fill: parent
                         anchors.margins: parent.border.width
                         clip: true

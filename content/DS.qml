@@ -1,4 +1,5 @@
 import QtQuick
+import QtQml.Models
 
 MainWindow {
     id: mainWindow
@@ -226,6 +227,22 @@ MainWindow {
                     abclm_channel_index: 1
                 }
             ]
+        }
+    }
+
+    trackListModel: ListModel {
+        ListElement {
+            tlm_name: "Track 1"
+            tlm_type: 0
+            tlm_color: "#000000"
+            tlm_height: 50
+            tlm_mute: false
+            tlm_solo: false
+            tlm_invert_polarity: false
+            tlm_arm_recording: false
+            tlm_volume: 1.0
+            tlm_panning: 0.0
+            tlm_mono: false
         }
     }
 

@@ -12,6 +12,8 @@ SplitView {
     property alias instrumentList: addTrackWindow.instrumentList
     property alias audioEffectList: addTrackWindow.audioEffectList
 
+    property alias trackList: trackHeaderListView.model
+
     enum TimelineUnit {
         Beat,
         Second,
@@ -56,6 +58,8 @@ SplitView {
             id: trackHeaderListView
             anchors.top: topLeft.bottom
             anchors.bottom: bottomLeft.top
+            anchors.left: parent.left
+            anchors.right: parent.right
 
             footer: MouseArea {
                 id: trackHeaderListBlankArea
@@ -116,6 +120,21 @@ SplitView {
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
                 visible: size !== 1.0
+            }
+            delegate: Column {
+                TrackHeader {
+                    width: trackHeaderListView.width
+                    height: tlm_height
+                    clip: true
+                    name: tlm_name
+                    trackColor: tlm_color
+                    color: Colors.controlBackground
+                }
+                Rectangle {
+                    width: trackHeaderListView.width
+                    height: 1
+                    color: Colors.border
+                }
             }
         }
     }

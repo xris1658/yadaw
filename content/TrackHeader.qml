@@ -36,25 +36,55 @@ Rectangle {
                     horizontalAlignment: Label.AlignLeft
                     topPadding: 3
                     bottomPadding: 3
+                    TextField {
+                        id: nameTextField
+                        anchors.fill: parent
+                        anchors.leftMargin: leftPadding * -1
+                        z: 2
+                        text: nameText.text
+                        visible: false
+                        padding: 0
+                        Keys.onEscapePressed: (event) => {
+                            visible = false;
+                        }
+                        onAccepted: {
+                            root.name = nameTextField.text;
+                            visible = false;
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        z: 1
+                        acceptedButtons: Qt.LeftButton
+                        onDoubleClicked: {
+                            nameTextField.selectAll();
+                            nameTextField.forceActiveFocus();
+                            nameTextField.visible = true;
+                        }
+                    }
                 }
                 Row {
                     spacing: 3
                     Button {
+                        width: height
                         text: "M"
                         topPadding: 1
                         bottomPadding: 1
                     }
                     Button {
+                        width: height
                         text: "S"
                         topPadding: 1
                         bottomPadding: 1
                     }
                     Button {
-                        text: "∅"
+                        width: height
+                        text: "\u2205"
                         topPadding: 1
                         bottomPadding: 1
                     }
                     Button {
+                        width: height
                         text: "R"
                         topPadding: 1
                         bottomPadding: 1
