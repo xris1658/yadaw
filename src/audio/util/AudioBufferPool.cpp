@@ -6,43 +6,6 @@ namespace YADAW::Audio::Util
 {
 constexpr std::size_t bufferCount = 64;
 
-AudioBufferPool::Buffer::Buffer(
-    std::size_t row, std::size_t column, std::shared_ptr<AudioBufferPool> pool):
-    pool_(std::move(pool)),
-    pointer_(pool_->pool_[row]->data() + pool_->singleBufferByteSize_ * column),
-    row_(row),
-    column_(column)
-{}
-
-AudioBufferPool::Buffer::Buffer(AudioBufferPool::Buffer&& rhs) noexcept:
-    pool_(std::move(rhs.pool_)),
-    pointer_(rhs.pointer_),
-    row_(rhs.row_),
-    column_(rhs.column_)
-{}
-
-AudioBufferPool::Buffer& AudioBufferPool::Buffer::operator=(AudioBufferPool::Buffer&& rhs) noexcept
-{
-    if(this != &rhs)
-    {
-        pool_ = std::move(rhs.pool_);
-        pointer_ = rhs.pointer_;
-        row_ = rhs.row_;
-        column_ = rhs.column_;
-    }
-    return *this;
-}
-
-AudioBufferPool::Buffer::~Buffer()
-{
-    if(pool_)
-    {
-        std::lock_guard<std::mutex> lg(pool_->mutex_);
-        pool_->vacant_[row_][column_] = true;
-        // std::memset(ptr, 0, pool->singleBufferByteSize_);
-    }
-}
-
 AudioBufferPool::AudioBufferPool(std::uint32_t singleBufferByteSize):
     singleBufferByteSize_(singleBufferByteSize),
     pool_(),
@@ -52,13 +15,11 @@ AudioBufferPool::AudioBufferPool(std::uint32_t singleBufferByteSize):
     vacant_.emplace_back(bufferCount, true);
 }
 
-std::shared_ptr<AudioBufferPool> AudioBufferPool::createPool(std::uint32_t singleBufferByteSize)
+YADAW::Util::IntrusivePointer<AudioBufferPool> AudioBufferPool::createPool(
+    std::uint32_t singleBufferSampleCount)
 {
-    struct MakeSharedEnabler: public AudioBufferPool
-    {
-        MakeSharedEnabler(std::uint32_t singleBufferByteSize): AudioBufferPool(singleBufferByteSize) {}
-    };
-    return std::make_shared<MakeSharedEnabler>(singleBufferByteSize);
+    return YADAW::Util::IntrusivePointer<AudioBufferPool>(
+        new(std::nothrow) AudioBufferPool(singleBufferSampleCount));
 }
 
 std::size_t AudioBufferPool::singleBufferByteSize() const
@@ -66,10 +27,10 @@ std::size_t AudioBufferPool::singleBufferByteSize() const
     return singleBufferByteSize_;
 }
 
-AudioBufferPool::Buffer AudioBufferPool::lend()
+Buffer AudioBufferPool::lend()
 {
-    std::size_t row = pool_.size();
-    std::size_t column = 0;
+    std::uint32_t row = pool_.size();
+    std::uint32_t column = 0U;
     {
         std::lock_guard<std::mutex> lg(mutex_);
         FOR_RANGE0(i, pool_.size())
@@ -95,6 +56,50 @@ AudioBufferPool::Buffer AudioBufferPool::lend()
         }
         vacant_[row][column] = false;
     }
-    return {row, column, shared_from_this()};
+    return {row, column, intrusiveFromThis()};
+}
+
+YADAW::Util::IntrusivePointer<AudioBufferPool> AudioBufferPool::intrusiveFromThis()
+{
+    addRef();
+    return YADAW::Util::IntrusivePointer<AudioBufferPool>(this);
+}
+
+Buffer::Buffer(
+    std::uint32_t row, std::uint32_t column,
+    YADAW::Util::IntrusivePointer<AudioBufferPool> pool):
+    pool_(pool),
+    pointer_(pool_->pool_[row]->data() + pool_->singleBufferByteSize_ * column),
+    row_(row),
+    column_(column)
+{}
+
+Buffer::Buffer(Buffer&& rhs) noexcept:
+    pool_(std::move(rhs.pool_)),
+    pointer_(rhs.pointer_),
+    row_(rhs.row_),
+    column_(rhs.column_)
+{}
+
+Buffer& Buffer::operator=(Buffer&& rhs) noexcept
+{
+    if(this != &rhs)
+    {
+        pool_ = std::move(rhs.pool_);
+        pointer_ = rhs.pointer_;
+        row_ = rhs.row_;
+        column_ = rhs.column_;
+    }
+    return *this;
+}
+
+Buffer::~Buffer()
+{
+    if(auto pool = pool_.get(); pool)
+    {
+        std::lock_guard<std::mutex> lg(pool->mutex_);
+        pool->vacant_[row_][column_] = true;
+        // std::memset(ptr, 0, pool->singleBufferByteSize_);
+    }
 }
 }

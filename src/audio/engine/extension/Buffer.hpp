@@ -28,7 +28,7 @@ private:
     AudioDeviceGraphBase& graph_;
     DataType&(*getData_)(AudioDeviceGraphBase&, const ade::NodeHandle&);
     std::uint32_t bufferSize_ = 0U;
-    std::shared_ptr<YADAW::Audio::Util::AudioBufferPool> pool_;
+    YADAW::Util::IntrusivePointer<YADAW::Audio::Util::AudioBufferPool> pool_;
     std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer> dummyInput_;
 };
 }

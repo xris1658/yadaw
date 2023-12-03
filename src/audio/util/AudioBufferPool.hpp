@@ -1,41 +1,28 @@
 #ifndef YADAW_SRC_AUDIO_UTIL_AUDIOBUFFERPOOL
 #define YADAW_SRC_AUDIO_UTIL_AUDIOBUFFERPOOL
 
+#include "util/IntrusivePointer.hpp"
+
 #include <memory>
 #include <mutex>
 #include <vector>
 
 namespace YADAW::Audio::Util
 {
-class AudioBufferPool: public std::enable_shared_from_this<AudioBufferPool>
+class Buffer;
+
+class AudioBufferPool:
+    public YADAW::Util::IntrusiveRefCounter
 {
+    friend class Buffer;
 public:
-    class Buffer
-    {
-        friend AudioBufferPool;
-    public:
-        Buffer() {}
-    private:
-        Buffer(std::size_t row, std::size_t column, std::shared_ptr<AudioBufferPool> pool);
-    public:
-        Buffer(const Buffer&) = delete;
-        Buffer(Buffer&& rhs) noexcept;
-        Buffer& operator=(Buffer&& rhs) noexcept;
-        ~Buffer();
-    public:
-        std::byte* pointer() const { return pointer_; }
-    private:
-        std::shared_ptr<AudioBufferPool> pool_ = nullptr;
-        std::byte* pointer_ = nullptr;
-        std::size_t row_;
-        std::size_t column_;
-    };
+    using Buffer = YADAW::Audio::Util::Buffer;
 private:
     AudioBufferPool(std::uint32_t singleBufferByteSize);
-    static std::shared_ptr<AudioBufferPool> createPool(std::uint32_t singleBufferByteSize);
+    static YADAW::Util::IntrusivePointer<AudioBufferPool> createPool(std::uint32_t singleBufferSampleCount);
 public:
     template<typename SampleType>
-    static std::shared_ptr<AudioBufferPool> createPool(std::uint32_t singleBufferSampleCount)
+    static YADAW::Util::IntrusivePointer<AudioBufferPool> createPool(std::uint32_t singleBufferSampleCount)
     {
         return createPool(singleBufferSampleCount * sizeof(SampleType));
     }
@@ -46,10 +33,34 @@ public:
     std::size_t singleBufferByteSize() const;
     Buffer lend();
 private:
+    YADAW::Util::IntrusivePointer<AudioBufferPool> intrusiveFromThis();
+private:
     std::uint32_t singleBufferByteSize_;
     std::vector<std::unique_ptr<std::vector<std::byte>>> pool_;
     std::vector<std::vector<bool>> vacant_;
     std::mutex mutex_;
+};
+
+class Buffer
+{
+    friend AudioBufferPool;
+public:
+    Buffer() {}
+private:
+    Buffer(std::uint32_t row, std::uint32_t column,
+        YADAW::Util::IntrusivePointer<AudioBufferPool> pool);
+public:
+    Buffer(const Buffer&) = delete;
+    Buffer(Buffer&& rhs) noexcept;
+    Buffer& operator=(Buffer&& rhs) noexcept;
+    ~Buffer();
+public:
+    std::byte* pointer() const { return pointer_; }
+private:
+    YADAW::Util::IntrusivePointer<AudioBufferPool> pool_;
+    std::byte* pointer_ = nullptr;
+    std::uint32_t row_;
+    std::uint32_t column_;
 };
 }
 
