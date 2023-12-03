@@ -76,7 +76,7 @@ void Buffer::onAboutToBeDisconnected(const ade::EdgeHandle& edgeHandle)
 
 std::uint32_t Buffer::bufferSize() const
 {
-    return pool_->singleBufferByteSize() / sizeof(float);
+    return bufferSize_;
 }
 
 void Buffer::setBufferSize(std::uint32_t bufferSize)
