@@ -83,6 +83,9 @@ T.ComboBox {
                 listView.itemAtIndex(i).width = root.popup.width;
             }
         }
+        onOpened: {
+            root.forceActiveFocus();
+        }
     }
     delegate: MenuItem {
         id: menuItem
