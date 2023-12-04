@@ -81,6 +81,30 @@ public:
     {
         return get() != nullptr;
     }
+    friend bool operator==(const IntrusivePointer& lhs, const IntrusivePointer& rhs)
+    {
+        return lhs.ptr_ == rhs.ptr_;
+    }
+    friend bool operator!=(const IntrusivePointer& lhs, const IntrusivePointer& rhs)
+    {
+        return lhs.ptr_ != rhs.ptr_;
+    }
+    friend bool operator<(const IntrusivePointer& lhs, const IntrusivePointer& rhs)
+    {
+        return lhs.ptr_ < rhs.ptr_;
+    }
+    friend bool operator>(const IntrusivePointer& lhs, const IntrusivePointer& rhs)
+    {
+        return lhs.ptr_ > rhs.ptr_;
+    }
+    friend bool operator<=(const IntrusivePointer& lhs, const IntrusivePointer& rhs)
+    {
+        return lhs.ptr_ <= rhs.ptr_;
+    }
+    friend bool operator>=(const IntrusivePointer& lhs, const IntrusivePointer& rhs)
+    {
+        return lhs.ptr_ >= rhs.ptr_;
+    }
 private:
     IntrusiveRefCounter* ptr_;
 };
