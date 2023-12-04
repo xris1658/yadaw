@@ -9,6 +9,7 @@
 #include "util/IntegerRange.hpp"
 #include "util/Endian.hpp"
 #include "common/DisableStreamBuffer.hpp"
+#include "common/SineWaveGenerator.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -110,6 +111,9 @@ int main(int argc, char** argv)
     alsaBusConfiguration = &busConfiguration;
     auto& inputBus = busConfiguration.getInputBusAt(busConfiguration.appendBus(true, inputChannelCount))->get();
     auto& outputBus = busConfiguration.getOutputBusAt(busConfiguration.appendBus(false, outputChannelCount))->get();
+    auto sineWaveGenerator = SineWaveGenerator(YADAW::Audio::Base::ChannelGroupType::eCustomGroup, 2);
+    sineWaveGenerator.setFrequency(440);
+    sineWaveGenerator.setSampleRate(backend.sampleRate());
     YADAW::Audio::Engine::AudioDeviceGraph<
         YADAW::Audio::Engine::Extension::Buffer> graph;
     auto& bufferExt = graph.getExtension<YADAW::Audio::Engine::Extension::Buffer>();
@@ -124,7 +128,9 @@ int main(int argc, char** argv)
     }
     auto inputNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(inputBus));
     auto outputNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(outputBus));
-    graph.connect(inputNode, outputNode, 0, 0);
+    auto swgNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(sineWaveGenerator));
+    // graph.connect(inputNode, outputNode, 0, 0);
+    graph.connect(swgNode, outputNode, 0, 0);
     topologicalSortResult = graph.topologicalSort();
     topoNodes.reserve(topologicalSortResult.size());
     topoEntities.reserve(topologicalSortResult.size());

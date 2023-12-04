@@ -77,6 +77,8 @@ if(LINUX)
                    ../src/util/IntrusiveRefCounter.cpp
                    ../src/util/IntrusiveRefCounter.hpp
                    ../src/util/SampleFormat.hpp
+                   common/SineWaveGenerator.cpp
+                   common/SineWaveGenerator.hpp
                    ALSATest/main.cpp
                    )
     target_precompile_headers(ALSATest PRIVATE ../pch/LinuxAPI.hpp ../pch/QtCore.hpp)
