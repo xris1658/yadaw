@@ -73,6 +73,9 @@ if(LINUX)
                    ../src/native/linux/Sequencer.hpp
                    ../src/util/ADEUtil.cpp
                    ../src/util/ADEUtil.hpp
+                   ../src/util/IntrusivePointer.hpp
+                   ../src/util/IntrusiveRefCounter.cpp
+                   ../src/util/IntrusiveRefCounter.hpp
                    ../src/util/SampleFormat.hpp
                    ALSATest/main.cpp
                    )
