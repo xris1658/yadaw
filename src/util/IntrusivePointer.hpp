@@ -11,7 +11,7 @@ template<typename T>
 class IntrusivePointer
 {
     static_assert(std::is_base_of_v<YADAW::Util::IntrusiveRefCounter, T>,
-        "Error: T is not derived from YADAW::Util::RefCounterBase");
+        "Error: T is not derived from YADAW::Util::IntrusiveRefCounter");
     using Self = IntrusivePointer<T>;
 public:
     IntrusivePointer(): ptr_(nullptr) {}
