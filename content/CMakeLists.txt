@@ -88,6 +88,7 @@ set(CONTENT_QML_FILES
     PlayIcon.qml
     PluginIcon.qml
     PluginListView.qml
+    PluginSelector.qml
     PluginSettings.qml
     PreferencesWindow.qml
     ProgressBar.qml

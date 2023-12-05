@@ -60,6 +60,7 @@ PianoKeysIcon 1.0 PianoKeysIcon.qml
 PlayIcon 1.0 PlayIcon.qml
 PluginIcon 1.0 PluginIcon.qml
 PluginListView 1.0 PluginListView.qml
+PluginSelector 1.0 PluginSelector.qml
 PluginSettings 1.0 PluginSettings.qml
 PreferencesWindow 1.0 PreferencesWindow.qml
 ProgressBar 1.0 ProgressBar.qml
@@ -77,6 +78,7 @@ Switch 1.0 Switch.qml
 TabBar 1.0 TabBar.qml
 TabButton 1.0 TabButton.qml
 TapTempoWindow 1.0 TapTempoWindow.qml
+TagIcon 1.0 TagIcon.qml
 TextField 1.0 TextField.qml
 ThirdPartySoftware 1.0 ThirdPartySoftware.qml
 TimeIndicator 1.0 TimeIndicator.qml
