@@ -308,6 +308,8 @@ set(YADAW_COMMON_SOURCES
     src/model/LocalizationListModel.hpp
     src/model/ModelInitializer.cpp
     src/model/ModelInitializer.hpp
+    src/model/PluginCategoryListModel.cpp
+    src/model/PluginCategoryListModel.hpp
     src/model/PluginDirectoryListModel.cpp
     src/model/PluginDirectoryListModel.hpp
     src/model/PluginListModel.cpp

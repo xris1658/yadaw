@@ -23,6 +23,7 @@ set(CONTENT_CPP_FILES
     model/IAutomationModel.hpp
     model/ILocalizationListModel.hpp
     model/ModelBase.hpp
+    model/IPluginCategoryListModel.hpp
     model/IPluginDirectoryListModel.hpp
     model/IPluginListModel.hpp
     model/ITrackListModel.hpp
@@ -105,6 +106,7 @@ set(CONTENT_QML_FILES
     Switch.qml
     TabBar.qml
     TabButton.qml
+    TagIcon.qml
     TapTempoWindow.qml
     TextField.qml
     ThirdPartySoftware.qml
