@@ -82,6 +82,8 @@ int getAllPluginCount(sqlite::database& database = appDatabase());
 
 PluginInfoInDatabase selectPluginById(int id, sqlite::database& database = appDatabase());
 
+std::vector<PluginInfoInDatabase> selectPluginByUID(const std::vector<char>& uid, sqlite::database& database = appDatabase());
+
 std::vector<PluginInfoInDatabase> selectPluginByPath(const QString& path, sqlite::database& database = appDatabase());
 
 std::vector<QString> selectDistinctPluginPath(sqlite::database& database = appDatabase());

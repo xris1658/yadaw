@@ -92,6 +92,12 @@ const char16_t* selectPluginByPathCommand()
         u"SELECT * FROM plugin WHERE path = ?";
     return ret;
 }
+const char16_t* selectPluginByUIDCommand()
+{
+    static char16_t ret[] =
+        u"SELECT * FROM plugin WHERE uid = ?";
+    return ret;
+}
 const char16_t* selectCountOfDistinctPluginPathCommand()
 {
     static char16_t ret[] =
@@ -248,6 +254,35 @@ PluginInfoInDatabase selectPluginById(int id, sqlite::database& database)
                 format,
                 type
             };
+        };
+    return ret;
+}
+
+std::vector<PluginInfoInDatabase> selectPluginByUID(const std::vector<char>& uid, sqlite::database& database)
+{
+    std::vector<PluginInfoInDatabase> ret;
+    int count = 0; database << Impl::selectCountOfPluginByPathCommand() >> count;
+    ret.reserve(count);
+    database << Impl::selectPluginByUIDCommand() << uid
+        >> [&ret](int id,
+            const std::string& path,
+            const std::vector<char>& uid,
+            const std::string& name,
+            const std::string& vendor,
+            const std::string& version,
+            int format,
+            int type)
+        {
+            ret.emplace_back(
+                id,
+                QString::fromStdString(path),
+                uid,
+                QString::fromStdString(name),
+                QString::fromStdString(vendor),
+                QString::fromStdString(version),
+                format,
+                type
+            );
         };
     return ret;
 }
