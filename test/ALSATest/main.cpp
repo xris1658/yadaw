@@ -114,6 +114,7 @@ int main(int argc, char** argv)
     auto sineWaveGenerator = SineWaveGenerator(YADAW::Audio::Base::ChannelGroupType::eCustomGroup, 2);
     sineWaveGenerator.setFrequency(440);
     sineWaveGenerator.setSampleRate(backend.sampleRate());
+    sineWaveGenerator.startProcessing();
     YADAW::Audio::Engine::AudioDeviceGraph<
         YADAW::Audio::Engine::Extension::Buffer> graph;
     auto& bufferExt = graph.getExtension<YADAW::Audio::Engine::Extension::Buffer>();
@@ -160,6 +161,7 @@ int main(int argc, char** argv)
     }
     backend.start(callback);
     getchar();
+    sineWaveGenerator.stopProcessing();
     backend.stop();
 }
 

@@ -74,15 +74,18 @@ std::uint32_t SineWaveGenerator::latencyInSamples() const
 }
 void SineWaveGenerator::process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    auto cycle = sampleRate_ / frequency_;
-    const auto _2pi = 2.0f * std::acos(-1.0f);
-    FOR_RANGE0(j, audioProcessData.singleBufferSize)
+    if(processing_)
     {
-        auto value = std::sin(_2pi * (frameCount_ + j) / cycle);
-        FOR_RANGE0(i, channelGroup_.channelCount())
+        auto cycle = sampleRate_ / frequency_;
+        const auto _2pi = 2.0f * std::acos(-1.0f);
+        FOR_RANGE0(j, audioProcessData.singleBufferSize)
         {
-            audioProcessData.outputs[0][i][j] = value;
+            auto value = std::sin(_2pi * (frameCount_ + j) / cycle);
+            FOR_RANGE0(i, channelGroup_.channelCount())
+            {
+                audioProcessData.outputs[0][i][j] = value;
+            }
         }
+        frameCount_ += audioProcessData.singleBufferSize;
     }
-    frameCount_ += audioProcessData.singleBufferSize;
 }
