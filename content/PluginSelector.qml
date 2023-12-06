@@ -362,9 +362,7 @@ QC.Popup {
                                 delegate: ItemDelegate {
                                     id: itemDelegate
                                     width: headerListView.width
-                                    function getProperty(fieldName: string) {
-                                        return pluginList.model.get(index)[fieldName];
-                                    }
+                                    property var itemData: Array.isArray(pluginList.model)? modelData: model
                                     Row {
                                         Repeater {
                                             model: headerListView.model
@@ -373,7 +371,7 @@ QC.Popup {
                                                 leftPadding: headerListView.textPadding
                                                 topPadding: headerListView.textPadding
                                                 bottomPadding: headerListView.textPadding
-                                                text: itemDelegate.getProperty(field)
+                                                text: itemData[field]
                                                 clip: true
                                                 elide: Label.ElideRight
                                             }
