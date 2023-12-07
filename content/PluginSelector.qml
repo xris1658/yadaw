@@ -209,7 +209,7 @@ QC.Popup {
                                 id: categoryItemDelegate
                                 width: parent.width - 3 * 2
                                 height: implicitHeight
-                                text: modelData
+                                text: pclm_name
                                 leftPadding: height
                                 rightPadding: 2
                                 topPadding: 2
@@ -268,7 +268,9 @@ QC.Popup {
                                 width: parent.width
                                 property int textPadding: 2
                                 property int minimumColumnWidth: 10
-                                // interactive: false
+                                interactive: false
+                                clip: true
+                                ScrollBar.horizontal: hbar
                                 model: ListModel {
                                     dynamicRoles: true
                                     Component.onCompleted: {
@@ -358,6 +360,7 @@ QC.Popup {
                                 anchors.bottomMargin: hbar.height
                                 ScrollBar.vertical: vbar
                                 ScrollBar.horizontal: hbar
+                                contentWidth: headerListView.contentWidth
                                 clip: true
                                 delegate: ItemDelegate {
                                     id: itemDelegate
@@ -382,7 +385,7 @@ QC.Popup {
                             ScrollBar {
                                 id: vbar
                                 anchors.right: parent.right
-                                width: pluginList.contentHeight > pluginList.height? implicitWidth: 0
+                                width: pluginList.contentHeight > pluginList.height? thickness: 0
                                 height: pluginList.height
                                 orientation: Qt.Vertical
                             }
@@ -390,7 +393,7 @@ QC.Popup {
                                 id: hbar
                                 anchors.bottom: parent.bottom
                                 width: pluginList.width
-                                height: pluginList.contentWidth > pluginList.width? implicitHeight: 0
+                                height: headerListView.contentWidth > pluginList.width? thickness: 0
                                 orientation: Qt.Horizontal
                             }
                         }
