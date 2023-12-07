@@ -411,7 +411,7 @@ QC.Popup {
                                     path.strokeColor: "transparent"
                                 }
                             }
-                            Text {
+                            Label {
                                 font.pointSize: Qt.application.font.pointSize * 1.5
                                 text: qsTr("No plugins available")
                                 color: Colors.secondaryContent
