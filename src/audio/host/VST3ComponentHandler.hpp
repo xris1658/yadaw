@@ -21,18 +21,14 @@ namespace YADAW::Audio::Host
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
-// A VST3 plugin uses a `IParameterChanges` pair for `IAudioProcessor::process`, with one being
-// the input and the other being the output.
-// For consistent processing, this class uses a double-buffering model. The component handler reads
-// the output from plugin, calls `IEditController::setParamNormalized` for plugin GUI playback, and
-// writes the input. In the meantime, the plugin reads the input from component handler by setting
-// `ProcessData::inputParameterChanges` followed by `IAudioProcessor::process`, which fills the
-// output.
-// For lack of a clearer contract, this class can cause severe problems as follows, thus NOT ready
-// for actual use.
-// QUES: Detail of contract: Which end is responsible for clearing the parameter changes?
-//  The component handler or the plugin? Why?
-// QUES: Detail of contract: Which end is responsible for switching buffers?
+// A VST3 plugin uses a `IParameterChanges` pair for `IAudioProcessor::process`,
+// with one being the input and the other being the output.
+// For consistent processing, this class uses a double-buffering model. The
+// component handler reads the output from plugin, calls
+// `IEditController::setParamNormalized` for plugin GUI playback, and
+// writes the input. In the meantime, the plugin reads the input from component
+// handler by setting `ProcessData::inputParameterChanges` followed by
+// `IAudioProcessor::process`, which fills the output.
 class VST3ComponentHandler:
     public Steinberg::Vst::IComponentHandler
 {
