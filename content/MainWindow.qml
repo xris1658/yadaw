@@ -712,6 +712,7 @@ ApplicationWindow {
                         Mixer {
                             inputModel: audioInputBusConfigurationModel
                             outputModel: audioOutputBusConfigurationModel
+                            pluginSelector: pluginSelector
                         }
                     }
 
@@ -758,5 +759,8 @@ ApplicationWindow {
     }
     TapTempoWindow {
         id: tapTempoWindow
+    }
+    PluginSelector {
+        id: pluginSelector
     }
 }

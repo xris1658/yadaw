@@ -15,6 +15,9 @@ Rectangle {
     property alias showFader: faderButton.checked
     property alias showInputBus: showInputBusButton.checked
     property alias showOutputBus: showOutputBusButton.checked
+
+    property PluginSelector pluginSelector: null
+
     Item {
         id: leftBar
         width: 20
@@ -149,6 +152,7 @@ Rectangle {
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
+                pluginSelector: root.pluginSelector
             }
             Rectangle {
                 id: inputMixerChannelBorder
@@ -188,6 +192,7 @@ Rectangle {
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
+                pluginSelector: root.pluginSelector
             }
         }
     }

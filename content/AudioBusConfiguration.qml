@@ -195,7 +195,7 @@ Rectangle {
                     ComboBox {
                         id: deviceSelector
                         width: channelList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0) - channelSelector.width - indexIndicator.width
-                        property int channelCount: model.data(model.index(currentIndex, 0), Qt.UserRole + 3)
+                        property int channelCount: model.data(model.index(currentIndex, 0), Qt.UserRole + 3) // FIXME
                         model: deviceListModel
                         textRole: "adlm_name"
                         valueRole: "adlm_id"

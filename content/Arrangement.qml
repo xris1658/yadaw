@@ -64,7 +64,7 @@ SplitView {
             footer: MouseArea {
                 id: trackHeaderListBlankArea
                 property int minimumHeight: 60
-                anchors.bottom: parent.bottom
+                // anchors.bottom: parent.bottom
                 width: arrangementHeader.width
                 height: Math.max(trackHeaderListView.height - trackHeaderListView.contentHeight + minimumHeight, minimumHeight)
 
@@ -112,7 +112,7 @@ SplitView {
                     trackHeaderBlankOptions.open();
                 }
             }
-            footerPositioning: ListView.OverlayFooter
+            footerPositioning: ListView.PullBackFooter
             ScrollBar.vertical: ScrollBar {
                 id: vbar
                 parent: vbarPlaceholder

@@ -19,6 +19,8 @@ Rectangle {
     property bool showSendSlot: true
     property bool showFader: true
 
+    property PluginSelector pluginSelector: null
+
     width: 120
     height: 400
 
@@ -103,9 +105,18 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: impl.padding
                 Repeater {
+                    id: insertRepeater
                     model: 1
                     Button {
                         width: insertPlaceholder.width - impl.padding * 2
+                        onClicked: {
+                            if(index === insertRepeater.count - 1) {
+                                pluginSelector.parent = this;
+                                pluginSelector.x = 0;
+                                pluginSelector.y = height + impl.padding;
+                                pluginSelector.open();
+                            }
+                        }
                     }
                 }
             }
@@ -290,7 +301,7 @@ Rectangle {
         Rectangle {
             id: infoPlaceholder
             width: root.width
-            Layout.preferredHeight: nameLabel.height + impl.padding * 4
+            Layout.preferredHeight: nameLabel.height + impl.padding * 2
             Layout.fillHeight: false
             Label {
                 id: nameLabel
