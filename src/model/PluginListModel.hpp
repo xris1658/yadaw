@@ -23,7 +23,7 @@ public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
 public:
-    Q_INVOKABLE void clear() override;
+    void clear();
 public:
     void update();
 private:
