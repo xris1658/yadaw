@@ -105,11 +105,6 @@ void PluginListModel::clear()
     }
 }
 
-void PluginListModel::asyncUpdate()
-{
-    std::thread(std::mem_fn(&PluginListModel::update), this).detach();
-}
-
 void PluginListModel::update()
 {
     const auto& list = updateListFunc_();

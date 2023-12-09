@@ -52,11 +52,6 @@ QVariant PluginCategoryListModel::data(const QModelIndex& index, int role) const
     return {};
 }
 
-void PluginCategoryListModel::asyncUpdate()
-{
-    std::thread(std::mem_fn(&PluginCategoryListModel::update), this).detach();
-}
-
 void PluginCategoryListModel::update()
 {
     const auto& list = updateListFunc_();

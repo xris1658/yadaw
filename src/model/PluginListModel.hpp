@@ -24,7 +24,6 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
 public:
     Q_INVOKABLE void clear() override;
-    Q_INVOKABLE void asyncUpdate() override;
 public:
     void update();
 private:

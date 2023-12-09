@@ -49,7 +49,6 @@ public:
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:
     Q_INVOKABLE virtual void clear() = 0;
-    Q_INVOKABLE virtual void asyncUpdate() = 0;
 protected:
     RoleNames roleNames() const override
     {

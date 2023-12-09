@@ -27,8 +27,6 @@ public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
     static constexpr int columnCount() { return 1; }
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
-public:
-    Q_INVOKABLE virtual void asyncUpdate() = 0;
 protected:
     RoleNames roleNames() const override
     {
