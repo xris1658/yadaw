@@ -314,6 +314,10 @@ set(YADAW_COMMON_SOURCES
     src/model/PluginDirectoryListModel.hpp
     src/model/PluginListModel.cpp
     src/model/PluginListModel.hpp
+    src/model/SortOrderModel.cpp
+    src/model/SortOrderModel.hpp
+    src/model/SortFilterProxyListModel.cpp
+    src/model/SortFilterProxyListModel.hpp
     src/native/AudioBackendSupport.hpp
     src/native/CLAPNative.hpp
     src/native/Library.hpp

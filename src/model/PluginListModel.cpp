@@ -35,6 +35,37 @@ YADAW::Model::IPluginListModel::PluginType getPluginType(int type)
         return YADAW::Model::IPluginListModel::PluginType::UnknownType;
     }
 }
+
+template<std::size_t I>
+const auto& get(const YADAW::DAO::PluginInfoInDatabase& info)
+{
+    auto tie = info.createConstTie();
+    return std::get<I>(tie);
+}
+
+template<std::size_t I>
+auto& get(YADAW::DAO::PluginInfoInDatabase& info)
+{
+    auto tie = info.createTie();
+    return std::get<I>(tie);
+}
+
+template<std::size_t I>
+bool isLess(const YADAW::DAO::PluginInfoInDatabase& lhs, const YADAW::DAO::PluginInfoInDatabase& rhs)
+{
+    return Impl::get<I>(lhs) < Impl::get<I>(rhs);
+}
+
+constexpr decltype(&isLess<0>) isLessFuncs[] = {
+        &isLess<0>,
+        &isLess<1>,
+        &isLess<2>,
+        &isLess<3>,
+        &isLess<4>,
+        &isLess<5>,
+        &isLess<6>,
+        &isLess<7>,
+    };
 }
 
 PluginListModel::PluginListModel(const std::function<List()>& updateListFunc, QObject* parent):

@@ -64,6 +64,14 @@ struct PluginInfoInDatabase
     QString version;
     int format;
     int type;
+    auto createTie()
+    {
+        return std::tie(id, path, uid, name, vendor, version, format, type);
+    }
+    auto createConstTie() const
+    {
+        return std::tie(id, path, uid, name, vendor, version, format, type);
+    }
 };
 
 void createPluginTable(sqlite::database& database = appDatabase());

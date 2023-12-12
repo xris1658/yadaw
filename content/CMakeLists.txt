@@ -21,11 +21,14 @@ set(CONTENT_CPP_FILES
     model/IAudioChannelGroupModel.hpp
     model/IAudioDeviceListModel.hpp
     model/IAutomationModel.hpp
+    model/IComparableListModel.hpp
     model/ILocalizationListModel.hpp
     model/ModelBase.hpp
     model/IPluginCategoryListModel.hpp
     model/IPluginDirectoryListModel.hpp
     model/IPluginListModel.hpp
+    model/ISortFilterProxyListModel.hpp
+    model/ISortOrderModel.hpp
     model/ITrackListModel.hpp
     )
 

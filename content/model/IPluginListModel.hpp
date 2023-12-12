@@ -1,13 +1,14 @@
 #ifndef YADAW_CONTENT_MODEL_IPLUGINLISTMODEL
 #define YADAW_CONTENT_MODEL_IPLUGINLISTMODEL
 
+#include "IComparableListModel.hpp"
 #include "ModelBase.hpp"
 
 #include <QAbstractListModel>
 
 namespace YADAW::Model
 {
-class IPluginListModel: public QAbstractListModel
+class IPluginListModel: public IComparableListModel
 {
     Q_OBJECT
 public:
@@ -41,7 +42,7 @@ public:
     };
     Q_ENUM(PluginType)
 public:
-    IPluginListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
+    IPluginListModel(QObject* parent = nullptr): IComparableListModel(parent) {}
     virtual ~IPluginListModel() {}
 public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }

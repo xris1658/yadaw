@@ -23,6 +23,9 @@ public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
 public:
+    Q_INVOKABLE bool isComparable(int roleIndex) const override;
+    Q_INVOKABLE bool isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const override;
+public:
     void clear();
 public:
     void update();
