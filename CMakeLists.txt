@@ -276,6 +276,7 @@ set(YADAW_COMMON_SOURCES
     src/entity/AudioBackendSupport.cpp
     src/entity/EntityInitializer.cpp
     src/entity/EntityInitializer.hpp
+    src/entity/PluginFormatSupport.cpp
     src/event/EventBase.cpp
     src/event/EventBase.hpp
     src/event/EventHandler.cpp

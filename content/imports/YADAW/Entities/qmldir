@@ -1,3 +1,4 @@
 module YADAW.Entities
 
 AudioBackendSupport 1.0 AudioBackendSupport.qml
+PluginFormatSupport 1.0 PluginFormatSupport.qml

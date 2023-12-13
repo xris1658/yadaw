@@ -2,6 +2,9 @@ import QtQuick
 import QtQuick.Controls as QC
 import QtQuick.Shapes
 
+import YADAW.Entities
+import YADAW.Models
+
 QC.Popup {
     id: root
 
@@ -11,6 +14,7 @@ QC.Popup {
     QtObject {
         id: impl
         property int contentWidth: 600
+        readonly property PluginFormatSupport pluginFormatSupport: PluginFormatSupport {}
     }
 
     topInset: 0
@@ -150,6 +154,7 @@ QC.Popup {
                                 topPadding: 2
                                 bottomPadding: 2
                                 highlighted: leftLists.currentIndex == 1 && formatList.currentIndex === index
+                                visible: impl.pluginFormatSupport.isPluginFormatSupported(format)
                                 background: Rectangle {
                                     width: pluginItemDelegate.width
                                     height: pluginItemDelegate.height
