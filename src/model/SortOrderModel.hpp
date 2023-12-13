@@ -3,6 +3,7 @@
 
 #include "model/ISortOrderModel.hpp"
 #include "model/IComparableListModel.hpp"
+#include "util/OptionalUtil.hpp"
 
 #include <vector>
 
@@ -15,6 +16,10 @@ public:
     ~SortOrderModel();
 public:
     int itemCount() const;
+    OptionalRef<const std::pair<int, Qt::SortOrder>> at(std::size_t index) const;
+    OptionalRef<std::pair<int, Qt::SortOrder>> at(std::size_t index);
+    const std::pair<int, Qt::SortOrder>& operator[](std::size_t index) const;
+    std::pair<int, Qt::SortOrder>& operator[](std::size_t index);
 public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;

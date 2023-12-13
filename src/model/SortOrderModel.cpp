@@ -15,6 +15,34 @@ int SortOrderModel::itemCount() const
     return sortOrder_.size();
 }
 
+OptionalRef<const std::pair<int, Qt::SortOrder>> SortOrderModel::at(std::size_t index) const
+{
+    if(index < itemCount())
+    {
+        return {operator[](index)};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<std::pair<int, Qt::SortOrder>> SortOrderModel::at(std::size_t index)
+{
+    if(index < itemCount())
+    {
+        return {operator[](index)};
+    }
+    return std::nullopt;
+}
+
+const std::pair<int, Qt::SortOrder>& SortOrderModel::operator[](std::size_t index) const
+{
+    return sortOrder_[index];
+}
+
+std::pair<int, Qt::SortOrder>& SortOrderModel::operator[](std::size_t index)
+{
+    return sortOrder_[index];
+}
+
 int SortOrderModel::rowCount(const QModelIndex&) const
 {
     return itemCount();
