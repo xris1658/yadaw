@@ -57,15 +57,15 @@ bool isLess(const YADAW::DAO::PluginInfoInDatabase& lhs, const YADAW::DAO::Plugi
 }
 
 constexpr decltype(&isLess<0>) isLessFuncs[] = {
-        &isLess<0>,
-        &isLess<1>,
-        &isLess<2>,
-        &isLess<3>,
-        &isLess<4>,
-        &isLess<5>,
-        &isLess<6>,
-        &isLess<7>,
-    };
+    &isLess<0>,
+    &isLess<1>,
+    &isLess<2>,
+    &isLess<3>,
+    &isLess<4>,
+    &isLess<5>,
+    &isLess<6>,
+    &isLess<7>,
+};
 }
 
 PluginListModel::PluginListModel(const std::function<List()>& updateListFunc, QObject* parent):
@@ -124,6 +124,27 @@ QVariant PluginListModel::data(const QModelIndex& index, int role) const
         }
     }
     return {};
+}
+
+bool PluginListModel::isComparable(int role) const
+{
+    if(role >= Qt::UserRole && role < RoleCount)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool PluginListModel::isLess(int role, const QModelIndex& lhs, const QModelIndex& rhs) const
+{
+    if(role >= Qt::UserRole && role < RoleCount)
+    {
+        if(lhs.model() == this && rhs.model() == this)
+        {
+            return Impl::isLessFuncs[role - Qt::UserRole](data_[lhs.row()], data_[rhs.row()]);
+        }
+    }
+    return false;
 }
 
 void PluginListModel::clear()
