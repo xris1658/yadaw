@@ -20,6 +20,10 @@ public:
     const IComparableListModel* sourceModel() const;
     ISortOrderModel* sortOrderModel();
     const ISortOrderModel* sortOrderModel() const;
+public:
+    int itemCount() const;
+    int rowCount(const QModelIndex&) const override;
+    int columnCount(const QModelIndex&) const override;
 private slots:
     void sourceModelRowsAboutToBeInserted(const QModelIndex& parent, int first, int last);
     void sourceModelRowsInserted(const QModelIndex& parent, int first, int last);
@@ -31,6 +35,8 @@ private slots:
     void sortOrderModelRowsInserted(const QModelIndex& parent, int first, int last);
     void sortOrderModelRowsRemoved(const QModelIndex& parent, int first, int last);
     void sortOrderModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles);
+public:
+    bool isLess(int lhs, int rhs) const;
 private:
     IComparableListModel* sourceModel_;
     SortOrderModel sortOrderModel_;
