@@ -316,7 +316,6 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 if(gui)
                 {
                     pluginWindowThread.start();
-                    pluginWindowThread.window()->showNormal();
                     auto factory = plugin.factory();
                     auto classCount = plugin.factory()->countClasses();
                     for(int i = 0; i < classCount; ++i)
@@ -333,6 +332,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                         }
                     }
                     gui->attachToWindow(pluginWindowThread.window());
+                    pluginWindowThread.window()->showNormal();
                 }
                 QTimer timer;
                 timer.setInterval(std::chrono::milliseconds(10));
@@ -464,7 +464,7 @@ int main(int argc, char* argv[])
     std::printf("Max underflow: %d\n", maxUnderflow);
     std::printf("Max overflow:  %d\n", maxOverflow);
     std::printf("Max event translation duration: %lld\n", translateEventDuration);
-    std::wprintf(L"Press <ENTER> to continue...");
+    std::printf("Press <ENTER> to continue...");
     getchar();
     return 0;
 }
