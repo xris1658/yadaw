@@ -24,7 +24,9 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
 public:
     Q_INVOKABLE bool isComparable(int roleIndex) const override;
-    Q_INVOKABLE bool isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const override;
+    Q_INVOKABLE bool isFilterable(int roleIndex) const override;
+    bool isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const override;
+    bool isPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string, Qt::CaseSensitivity) const override;
 public:
     void clear();
 public:

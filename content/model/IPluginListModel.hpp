@@ -1,14 +1,14 @@
 #ifndef YADAW_CONTENT_MODEL_IPLUGINLISTMODEL
 #define YADAW_CONTENT_MODEL_IPLUGINLISTMODEL
 
-#include "IComparableListModel.hpp"
+#include "ISortFilterListModel.hpp"
 #include "ModelBase.hpp"
 
 #include <QAbstractListModel>
 
 namespace YADAW::Model
 {
-class IPluginListModel: public IComparableListModel
+class IPluginListModel: public ISortFilterListModel
 {
     Q_OBJECT
 public:
@@ -24,6 +24,7 @@ public:
         Type,
         RoleCount
     };
+    Q_ENUM(Role)
 public:
     enum PluginFormat
     {
@@ -42,7 +43,7 @@ public:
     };
     Q_ENUM(PluginType)
 public:
-    IPluginListModel(QObject* parent = nullptr): IComparableListModel(parent) {}
+    IPluginListModel(QObject* parent = nullptr): ISortFilterListModel(parent) {}
     virtual ~IPluginListModel() {}
 public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }

@@ -305,6 +305,8 @@ set(YADAW_COMMON_SOURCES
     src/model/AudioChannelGroupModel.hpp
     src/model/AutomationModel.cpp
     src/model/AutomationModel.hpp
+    src/model/FilterRoleModel.cpp
+    src/model/FilterRoleModel.hpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
     src/model/ModelInitializer.cpp

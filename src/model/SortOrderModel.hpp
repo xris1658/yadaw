@@ -2,7 +2,7 @@
 #define YADAW_SRC_MODEL_SORTORDERMODEL
 
 #include "model/ISortOrderModel.hpp"
-#include "model/IComparableListModel.hpp"
+#include "model/ISortFilterListModel.hpp"
 #include "util/OptionalUtil.hpp"
 
 #include <vector>
@@ -12,7 +12,7 @@ namespace YADAW::Model
 class SortOrderModel: public ISortOrderModel
 {
 public:
-    SortOrderModel(IComparableListModel* model, QObject* parent = nullptr);
+    SortOrderModel(ISortFilterListModel* model, QObject* parent = nullptr);
     ~SortOrderModel();
 public:
     int itemCount() const;
@@ -28,8 +28,9 @@ public:
     Q_INVOKABLE bool append(int role, Qt::SortOrder sortOrder) override;
     Q_INVOKABLE int getIndexOfRole(int role) const override;
     Q_INVOKABLE bool remove(int index) override;
+    Q_INVOKABLE void clear() override;
 private:
-    IComparableListModel* model_;
+    ISortFilterListModel* model_;
     std::vector<std::pair<int, Qt::SortOrder>> sortOrder_;
 };
 }

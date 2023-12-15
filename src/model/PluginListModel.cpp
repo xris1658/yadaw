@@ -56,6 +56,36 @@ bool isLess(const YADAW::DAO::PluginInfoInDatabase& lhs, const YADAW::DAO::Plugi
     return Impl::get<I>(lhs) < Impl::get<I>(rhs);
 }
 
+template<std::size_t I>
+bool isPassed(const YADAW::DAO::PluginInfoInDatabase& info, const QString& string, Qt::CaseSensitivity caseSensitivity)
+{
+    return false;
+}
+
+template<>
+bool isPassed<1>(const YADAW::DAO::PluginInfoInDatabase& info, const QString& string, Qt::CaseSensitivity caseSensitivity)
+{
+    return info.path.contains(string, caseSensitivity);
+}
+
+template<>
+bool isPassed<3>(const YADAW::DAO::PluginInfoInDatabase& info, const QString& string, Qt::CaseSensitivity caseSensitivity)
+{
+    return info.name.contains(string, caseSensitivity);
+}
+
+template<>
+bool isPassed<4>(const YADAW::DAO::PluginInfoInDatabase& info, const QString& string, Qt::CaseSensitivity caseSensitivity)
+{
+    return info.vendor.contains(string, caseSensitivity);
+}
+
+template<>
+bool isPassed<5>(const YADAW::DAO::PluginInfoInDatabase& info, const QString& string, Qt::CaseSensitivity caseSensitivity)
+{
+    return info.version.contains(string, caseSensitivity);
+}
+
 constexpr decltype(&isLess<0>) isLessFuncs[] = {
     &isLess<0>,
     &isLess<1>,
@@ -66,6 +96,17 @@ constexpr decltype(&isLess<0>) isLessFuncs[] = {
     &isLess<6>,
     &isLess<7>,
 };
+
+constexpr decltype(&isPassed<0>) isPassedFuncs[] = {
+    &isPassed<0>,
+    &isPassed<1>,
+    &isPassed<2>,
+    &isPassed<3>,
+    &isPassed<4>,
+    &isPassed<5>,
+    &isPassed<6>,
+    &isPassed<7>,
+}
 }
 
 PluginListModel::PluginListModel(const std::function<List()>& updateListFunc, QObject* parent):
@@ -135,6 +176,16 @@ bool PluginListModel::isComparable(int role) const
     return false;
 }
 
+bool PluginListModel::isFilterable(int roleIndex) const
+{
+    return roleIndex == Role::Path
+        || roleIndex == Role::Name
+        || roleIndex == Role::Vendor
+        || roleIndex == Role::Version
+        || roleIndex == Role::Format
+        || roleIndex == Role::Type;
+}
+
 bool PluginListModel::isLess(int role, const QModelIndex& lhs, const QModelIndex& rhs) const
 {
     if(role >= Qt::UserRole && role < RoleCount)
@@ -142,6 +193,20 @@ bool PluginListModel::isLess(int role, const QModelIndex& lhs, const QModelIndex
         if(lhs.model() == this && rhs.model() == this)
         {
             return Impl::isLessFuncs[role - Qt::UserRole](data_[lhs.row()], data_[rhs.row()]);
+        }
+    }
+    return false;
+}
+
+bool PluginListModel::isPassed(int role, const QModelIndex& modelIndex,
+    const QString& string, Qt::CaseSensitivity caseSensitivity) const
+{
+    if(role >= Qt::UserRole && role < RoleCount)
+    {
+        if(modelIndex.model() == this)
+        {
+            return Impl::isPassedFuncs[role - Qt::UserRole](
+                data_[modelIndex.row()], string, caseSensitivity);
         }
     }
     return false;

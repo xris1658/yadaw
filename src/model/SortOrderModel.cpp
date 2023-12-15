@@ -2,7 +2,7 @@
 
 namespace YADAW::Model
 {
-SortOrderModel::SortOrderModel(IComparableListModel* model, QObject* parent):
+SortOrderModel::SortOrderModel(ISortFilterListModel* model, QObject* parent):
     ISortOrderModel(parent),
     model_(model)
 {}
@@ -53,11 +53,11 @@ QVariant SortOrderModel::data(const QModelIndex& index, int role) const
     auto row = index.row();
     if(row >= 0 && row < itemCount())
     {
-        auto& [role, order] = sortOrder_[row];
+        auto& [sortRole, order] = sortOrder_[row];
         switch(role)
         {
         case Role::SortRole:
-            return QVariant::fromValue(role);
+            return QVariant::fromValue(sortRole);
         case Role::SortOrder:
             return QVariant::fromValue<int>(order);
         }
@@ -111,5 +111,15 @@ bool SortOrderModel::remove(int index)
         return true;
     }
     return false;
+}
+
+void SortOrderModel::clear()
+{
+    if(auto count = itemCount(); count != 0)
+    {
+        beginRemoveRows(QModelIndex(), 0, count - 1);
+        sortOrder_.clear();
+        endRemoveRows();
+    }
 }
 }

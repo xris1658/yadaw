@@ -1,0 +1,25 @@
+#ifndef YADAW_CONTENT_MODEL_ICOMPARABLE
+#define YADAW_CONTENT_MODEL_ICOMPARABLE
+
+#include <QAbstractListModel>
+
+namespace YADAW::Model
+{
+class ISortFilterListModel: public QAbstractListModel
+{
+    Q_OBJECT
+    Q_PROPERTY(filterCaseSensitivity READ getFilterCaseSensitivity WRITE setFilterCaseSensitivity NOTIFY filterCaseSensitivityChanged)
+public:
+    ISortFilterListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
+public:
+    Q_INVOKABLE virtual bool isComparable(int roleIndex) const = 0;
+    Q_INVOKABLE virtual bool isFilterable(int roleIndex) const = 0;
+    virtual bool isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const = 0;
+    virtual bool isPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string,
+        Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive) const = 0;
+signals:
+    void filterCaseSensitivityChanged();
+};
+}
+
+#endif //YADAW_CONTENT_MODEL_ICOMPARABLE
