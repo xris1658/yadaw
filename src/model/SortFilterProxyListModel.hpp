@@ -23,6 +23,9 @@ public:
     const ISortOrderModel* sortOrderModel() const;
     IFilterRoleModel* filterRoleModel();
     const IFilterRoleModel* filterRoleModel() const;
+    const QString& getFilterString() const override;
+    QString& getFilterString() override;
+    void setFilterString(const QString& filterString) override;
 public:
     int itemCount() const;
     int rowCount(const QModelIndex&) const override;
@@ -40,17 +43,24 @@ private slots:
     void sortOrderModelRowsInserted(const QModelIndex& parent, int first, int last);
     void sortOrderModelRowsRemoved(const QModelIndex& parent, int first, int last);
     void sortOrderModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles);
+    void filterRoleModelRowsInserted(const QModelIndex& parent, int first, int last);
+    void filterRoleModelRowsRemoved(const QModelIndex& parent, int first, int last);
+    void filterRoleModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles);
 private:
     bool isLess(int lhs, int rhs) const;
-    bool isPassed(int row, const QString& string) const;
+    bool isAccepted(int row, const QString& string) const;
+    bool isAccepted(int row, const QString& string, int begin, int end) const;
     void doSort();
-    void doFilter(const QString& string);
+    void doFilter();
+    void doFilter(int begin, int end);
 private:
     ISortFilterListModel* sourceModel_;
     FilterRoleModel filterRoleModel_;
     SortOrderModel sortOrderModel_;
     std::vector<int> srcToDst_;
     std::vector<int> dstToSrc_;
+    std::vector<int>::iterator filteredOutFirst_;
+    QString filterString_;
 };
 }
 
