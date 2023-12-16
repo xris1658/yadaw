@@ -762,5 +762,6 @@ ApplicationWindow {
     }
     PluginSelector {
         id: pluginSelector
+        pluginListModel: root.pluginListModel
     }
 }

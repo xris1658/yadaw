@@ -39,6 +39,9 @@ QC.Popup {
             id: searchTextField
             placeholderText: "<i>" + qsTr("Search (Ctrl+F)") + "</i>"
             width: impl.contentWidth
+            onTextChanged: {
+                pluginListModel.filterString = text;
+            }
         }
         Rectangle {
             width: impl.contentWidth
@@ -132,14 +135,17 @@ QC.Popup {
                                 ListElement {
                                     name: "Vestifal"
                                     iconSource: "VestifalIcon.qml"
+                                    format: PluginFormatSupport.Vestifal
                                 }
                                 ListElement {
                                     name: "VST3"
                                     iconSource: "VST3Icon.qml"
+                                    format: PluginFormatSupport.VST3
                                 }
                                 ListElement {
                                     name: "CLAP"
                                     iconSource: "CLAPIcon.qml"
+                                    format: PluginFormatSupport.CLAP
                                 }
                             }
                             width: parent.width
@@ -191,6 +197,7 @@ QC.Popup {
                                 onClicked: {
                                     leftLists.currentIndex = 1;
                                     formatList.currentIndex = index;
+                                    // pluginListModel.setfilterRole(IPluginListModel)
                                 }
                             }
                         }
@@ -272,17 +279,20 @@ QC.Popup {
                                 append({
                                     "title": qsTr("Name"),
                                     "field": "plm_name",
-                                    "columnWidth": 100
+                                    "columnWidth": 200,
+                                    "roleId": IPluginListModel.Name
                                 });
                                 append({
                                     "title": qsTr("Vendor"),
                                     "field": "plm_vendor",
-                                    "columnWidth": 100
+                                    "columnWidth": 181,
+                                    "roleId": IPluginListModel.Vendor
                                 });
                                 append({
                                     "title": qsTr("Version"),
                                     "field": "plm_version",
-                                    "columnWidth": 100
+                                    "columnWidth": 100,
+                                    "roleId": IPluginListModel.Version
                                 });
                             }
                         }
@@ -312,9 +322,10 @@ QC.Popup {
                                     color: Colors.border
                                 }
                             }
-                            delegate: Item {
+                            delegate: MouseArea {
                                 id: headerItemDelegate
                                 height: headerLabel.height
+                                acceptedButtons: Qt.LeftButton
                                 Label {
                                     id: headerLabel
                                     leftPadding: headerListView.textPadding
@@ -323,6 +334,16 @@ QC.Popup {
                                     bottomPadding: headerListView.textPadding
                                     text: title
                                     clip: true
+                                }
+                                Label {
+                                    id: sortOrderLabel
+                                    anchors.right: parent.right
+                                    anchors.rightMargin: headerListView.textPadding
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    font.pointSize: Qt.application.font.pointSize * 0.75
+                                    text: "\u25bc"
+                                    clip: true
+                                    color: Colors.secondaryContent
                                 }
                                 Rectangle {
                                     anchors.right: parent.right
@@ -342,23 +363,30 @@ QC.Popup {
                                         originalMouseX = mouseX;
                                     }
                                     onMouseXChanged: (mouse) => {
-                                        if(true) {
-                                            const delta = mouseX - originalMouseX;
-                                            if(headerItemDelegate.width + delta < headerListView.minimumColumnWidth) {
-                                                headerItemDelegate.width = headerListView.width;
-                                            }
-                                            else {
-                                                headerItemDelegate.width += delta;
-                                                originalMouseX = mouseX;
-                                            }
+                                        const delta = mouseX - originalMouseX;
+                                        if(headerItemDelegate.width + delta < headerListView.minimumColumnWidth) {
+                                            headerItemDelegate.width = headerListView.width;
+                                        }
+                                        else {
+                                            headerItemDelegate.width += delta;
+                                            originalMouseX = mouseX;
                                         }
                                     }
                                 }
                                 onWidthChanged: {
                                     headerListView.model.setProperty(index, "columnWidth", width);
                                 }
+                                onClicked: (mouse) => {
+                                    if(mouse.modifiers & Qt.ControlModifier) {
+                                        //
+                                    }
+                                    // TODO:
+                                    //  Behavior w/o Ctrl/Cmd modifier: Remove other sorts, toggle column sort as not sorted -> ascending -> descending -> not sorted
+                                    //  Behavior w/  Ctrl/Cmd modifier: add/remove sort order
+                                }
                                 Component.onCompleted: {
-                                    width = headerLabel.width * 2;
+                                    // width = headerLabel.width * 2;
+                                    width = headerListView.model.get(index).columnWidth;
                                     if(index === 0) {
                                         headerListView.height = height;
                                     }

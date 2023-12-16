@@ -16,6 +16,7 @@
 #include "controller/PluginListController.hpp"
 #include "controller/LocalizationController.hpp"
 #include "event/EventBase.hpp"
+#include "model/SortFilterProxyListModel.hpp"
 #include "native/Native.hpp"
 #include "ui/MessageDialog.hpp"
 #include "ui/UI.hpp"
@@ -171,8 +172,13 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAssetDirectoryListModel()));
     YADAW::UI::mainWindow->setProperty("pluginDirectoryListModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appPluginDirectoryListModel()));
+    static YADAW::Model::SortFilterProxyListModel pluginListModel(YADAW::Controller::appPluginListModel(), nullptr);
+    auto* filterRoleModel = pluginListModel.getFilterRoleModel();
+    filterRoleModel->setFilterRole(YADAW::Model::IPluginListModel::Role::Name, true);
+    filterRoleModel->setFilterRole(YADAW::Model::IPluginListModel::Role::Vendor, true);
+    filterRoleModel->setFilterRole(YADAW::Model::IPluginListModel::Role::Version, true);
     YADAW::UI::mainWindow->setProperty("pluginListModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appPluginListModel()));
+        QVariant::fromValue<QObject*>(&pluginListModel));
     YADAW::UI::mainWindow->setProperty("midiEffectListModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appMIDIEffectListModel()));
     YADAW::UI::mainWindow->setProperty("instrumentListModel",

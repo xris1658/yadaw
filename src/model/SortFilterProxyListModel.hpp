@@ -19,10 +19,10 @@ public:
 public:
     ISortFilterListModel* sourceModel();
     const ISortFilterListModel* sourceModel() const;
-    ISortOrderModel* sortOrderModel();
-    const ISortOrderModel* sortOrderModel() const;
-    IFilterRoleModel* filterRoleModel();
-    const IFilterRoleModel* filterRoleModel() const;
+    ISortOrderModel* getSortOrderModel();
+    const ISortOrderModel* getSortOrderModel() const;
+    IFilterRoleModel* getFilterRoleModel();
+    const IFilterRoleModel* getFilterRoleModel() const;
     const QString& getFilterString() const override;
     QString& getFilterString() override;
     void setFilterString(const QString& filterString) override;
