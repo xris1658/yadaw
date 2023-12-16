@@ -106,7 +106,7 @@ constexpr decltype(&isPassed<0>) isPassedFuncs[] = {
     &isPassed<5>,
     &isPassed<6>,
     &isPassed<7>,
-}
+};
 }
 
 PluginListModel::PluginListModel(const std::function<List()>& updateListFunc, QObject* parent):

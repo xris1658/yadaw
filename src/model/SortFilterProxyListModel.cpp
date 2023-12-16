@@ -122,6 +122,11 @@ bool SortFilterProxyListModel::setData(const QModelIndex& index, const QVariant&
     return false;
 }
 
+YADAW::Model::RoleNames SortFilterProxyListModel::roleNames() const
+{
+    return sourceModel_->roleNames();
+}
+
 void SortFilterProxyListModel::sourceModelRowsAboutToBeInserted(const QModelIndex& parent, int first, int last)
 {}
 
@@ -201,8 +206,6 @@ void SortFilterProxyListModel::sourceModelRowsRemoved(const QModelIndex& parent,
 void SortFilterProxyListModel::sourceModelDataChanged(
     const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles)
 {
-    auto first = topLeft.row();
-    auto last = bottomRight.row();
 
 }
 
@@ -298,6 +301,7 @@ bool SortFilterProxyListModel::isLess(int lhsRow, int rhsRow) const
             }
         }
     }
+    return false;
 }
 
 bool SortFilterProxyListModel::isAccepted(int row, const QString& string) const

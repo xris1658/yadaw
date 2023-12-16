@@ -8,7 +8,6 @@ namespace YADAW::Model
 class ISortFilterListModel: public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(filterCaseSensitivity READ getFilterCaseSensitivity WRITE setFilterCaseSensitivity NOTIFY filterCaseSensitivityChanged)
 public:
     ISortFilterListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
 public:

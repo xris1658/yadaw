@@ -12,6 +12,7 @@ namespace YADAW::Model
 class ISortFilterProxyListModel: public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(QString filterString READ getFilterString WRITE setFilterString NOTIFY filterStringChanged)
 public:
     ISortFilterProxyListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
 public:
@@ -21,6 +22,11 @@ public:
     virtual const ISortOrderModel* sortOrderModel() const = 0;
     virtual Q_INVOKABLE IFilterRoleModel* filterRoleModel() = 0;
     virtual const IFilterRoleModel* filterRoleModel() const = 0;
+    virtual Q_INVOKABLE QString& getFilterString() = 0;
+    virtual const QString& getFilterString() const = 0;
+    virtual Q_INVOKABLE void setFilterString(const QString& filterString) = 0;
+signals:
+    void filterStringChanged();
 };
 }
 

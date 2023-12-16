@@ -49,7 +49,7 @@ OptionalRef<const std::pair<int, Qt::CaseSensitivity>> FilterRoleModel::at(std::
 {
     if(index < itemCount())
     {
-        return {operator[](index)};
+        return {filterRoles_[index]};
     }
     return std::nullopt;
 }
@@ -58,7 +58,7 @@ OptionalRef<std::pair<int, Qt::CaseSensitivity>> FilterRoleModel::at(std::size_t
 {
     if(index < itemCount())
     {
-        return {operator[](index)};
+        return {filterRoles_[index]};
     }
     return std::nullopt;
 }

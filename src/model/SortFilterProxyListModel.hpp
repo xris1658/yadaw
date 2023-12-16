@@ -32,6 +32,8 @@ public:
     int columnCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex&index, int role) const override;
     bool setData(const QModelIndex&index, const QVariant& value, int role) override;
+protected:
+    RoleNames roleNames() const override;
 private slots:
     void sourceModelRowsAboutToBeInserted(const QModelIndex& parent, int first, int last);
     void sourceModelRowsInserted(const QModelIndex& parent, int first, int last);
