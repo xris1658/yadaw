@@ -18,16 +18,24 @@ class ISortFilterProxyListModel: public QAbstractListModel
 public:
     ISortFilterProxyListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
 public:
-    virtual Q_INVOKABLE ISortFilterListModel* sourceModel() = 0;
+    Q_INVOKABLE virtual ISortFilterListModel* sourceModel() = 0;
     virtual const ISortFilterListModel* sourceModel() const = 0;
-    virtual Q_INVOKABLE ISortOrderModel* getSortOrderModel() = 0;
+    Q_INVOKABLE virtual ISortOrderModel* getSortOrderModel() = 0;
     virtual const ISortOrderModel* getSortOrderModel() const = 0;
-    virtual Q_INVOKABLE IFilterRoleModel* getFilterRoleModel() = 0;
+    Q_INVOKABLE virtual IFilterRoleModel* getFilterRoleModel() = 0;
     virtual const IFilterRoleModel* getFilterRoleModel() const = 0;
-    virtual Q_INVOKABLE QString& getFilterString() = 0;
+    Q_INVOKABLE virtual QString& getFilterString() = 0;
     virtual const QString& getFilterString() const = 0;
-    virtual Q_INVOKABLE void setFilterString(const QString& filterString) = 0;
-signals:
+    Q_INVOKABLE virtual void setFilterString(const QString& filterString) = 0;
+    Q_INVOKABLE virtual bool insertSortOrder(int role, Qt::SortOrder sortOrder, int position) = 0;
+    Q_INVOKABLE virtual bool appendSortOrder(int role, Qt::SortOrder sortOrder) = 0;
+    Q_INVOKABLE virtual int getSortIndexOfRole(int role) const = 0;
+    Q_INVOKABLE virtual bool removeSortOrder(int index) = 0;
+    Q_INVOKABLE virtual void clearSortOrder() = 0;
+    Q_INVOKABLE virtual bool setFilter(int role, bool filterEnabled,
+        Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive) = 0;
+    Q_INVOKABLE virtual void clearFilter() = 0;
+    signals:
     void filterStringChanged();
 };
 }

@@ -174,9 +174,6 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appPluginDirectoryListModel()));
     static YADAW::Model::SortFilterProxyListModel pluginListModel(YADAW::Controller::appPluginListModel(), nullptr);
     auto* filterRoleModel = pluginListModel.getFilterRoleModel();
-    filterRoleModel->setFilterRole(YADAW::Model::IPluginListModel::Role::Name, true);
-    filterRoleModel->setFilterRole(YADAW::Model::IPluginListModel::Role::Vendor, true);
-    filterRoleModel->setFilterRole(YADAW::Model::IPluginListModel::Role::Version, true);
     YADAW::UI::mainWindow->setProperty("pluginListModel",
         QVariant::fromValue<QObject*>(&pluginListModel));
     YADAW::UI::mainWindow->setProperty("midiEffectListModel",

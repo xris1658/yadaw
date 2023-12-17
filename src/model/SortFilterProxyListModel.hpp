@@ -26,6 +26,14 @@ public:
     const QString& getFilterString() const override;
     QString& getFilterString() override;
     void setFilterString(const QString& filterString) override;
+    bool insertSortOrder(int role, Qt::SortOrder sortOrder, int position) override;
+    bool appendSortOrder(int role, Qt::SortOrder sortOrder) override;
+    int getSortIndexOfRole(int role) const override;
+    bool removeSortOrder(int index) override;
+    void clearSortOrder() override;
+    bool setFilter(int role, bool filterEnabled,
+        Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive) override;
+    void clearFilter() override;
 public:
     int itemCount() const;
     int rowCount(const QModelIndex&) const override;

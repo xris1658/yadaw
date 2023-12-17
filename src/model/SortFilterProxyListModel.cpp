@@ -88,6 +88,41 @@ void SortFilterProxyListModel::setFilterString(const QString& filterString)
     filterStringChanged();
 }
 
+bool SortFilterProxyListModel::insertSortOrder(int role, Qt::SortOrder sortOrder, int position)
+{
+    return sortOrderModel_.insert(role, sortOrder, position);
+}
+
+bool SortFilterProxyListModel::appendSortOrder(int role, Qt::SortOrder sortOrder)
+{
+    return sortOrderModel_.append(role, sortOrder);
+}
+
+int SortFilterProxyListModel::getSortIndexOfRole(int role) const
+{
+    return sortOrderModel_.getIndexOfRole(role);
+}
+
+bool SortFilterProxyListModel::removeSortOrder(int index)
+{
+    return sortOrderModel_.remove(index);
+}
+
+void SortFilterProxyListModel::clearSortOrder()
+{
+    sortOrderModel_.clear();
+}
+
+bool SortFilterProxyListModel::setFilter(int role, bool filterEnabled, Qt::CaseSensitivity caseSensitivity)
+{
+    return filterRoleModel_.setFilterRole(role, filterEnabled, caseSensitivity);
+}
+
+void SortFilterProxyListModel::clearFilter()
+{
+    return filterRoleModel_.clear();
+}
+
 int SortFilterProxyListModel::itemCount() const
 {
     return filteredOutFirst_ - dstToSrc_.begin();

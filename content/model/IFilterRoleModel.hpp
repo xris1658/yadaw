@@ -23,9 +23,9 @@ public:
     static constexpr int columnCount() { return 1; }
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:
-    Q_INVOKABLE virtual bool setFilterRole(int role, bool filter,
+    virtual bool setFilterRole(int role, bool filter,
         Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive) = 0;
-    Q_INVOKABLE virtual void clear() = 0;
+    virtual void clear() = 0;
 protected:
     RoleNames roleNames() const override
     {

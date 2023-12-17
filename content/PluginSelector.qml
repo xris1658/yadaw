@@ -497,5 +497,8 @@ QC.Popup {
     }
     onOpened: {
         searchTextField.forceActiveFocus();
+        for(let i = 0; i < pluginList.headerListModel.count; ++i) {
+            pluginListModel.setFilter(pluginList.headerListModel.get(i).roleId, true);
+        }
     }
 }
