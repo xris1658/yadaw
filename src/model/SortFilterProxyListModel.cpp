@@ -360,9 +360,10 @@ void SortFilterProxyListModel::doFilter(int begin, int end)
     dstToSrc_.resize(sourceModel_->rowCount());
     std::iota(srcToDst_.begin(), srcToDst_.end(), 0);
     std::iota(dstToSrc_.begin(), dstToSrc_.end(), 0);
+    beginRemoveRows(QModelIndex(), 0, itemCount() - 1);
+    endRemoveRows();
     filteredOutFirst_ = dstToSrc_.end();
     doSort();
-    beginRemoveRows(QModelIndex(), 0, itemCount() - 1);
     auto outFirst = std::stable_partition(dstToSrc_.begin() + begin, dstToSrc_.begin() + end,
         [this](int row)
         {
@@ -375,7 +376,6 @@ void SortFilterProxyListModel::doFilter(int begin, int end)
             srcToDst_[row] = -1;
         }
     );
-    endRemoveRows();
     filteredOutFirst_ = outFirst;
     auto newItemCount = filteredOutFirst_ - dstToSrc_.begin();
     beginInsertRows(QModelIndex(), 0, filteredOutFirst_ - dstToSrc_.begin() - 1);
