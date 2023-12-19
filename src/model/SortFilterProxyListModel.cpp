@@ -188,9 +188,9 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
         }
     );
     auto firstNewItem = filteredOutFirst_;
+    auto beforeLast = firstNewItem + newAcceptedItemCount - 1;
     FOR_RANGE0(i, newAcceptedItemCount)
     {
-        auto beforeLast = firstNewItem + newAcceptedItemCount - 1 - i;
         auto newFirstNewIterator = std::upper_bound(dstToSrc_.begin(), firstNewItem,
             *beforeLast,
             [this](int lhs, int rhs)
@@ -203,6 +203,7 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
         srcToDst_[first + i] = newFirstIndex + newAcceptedItemCount - 1 - i;
         std::rotate(newFirstNewIterator, beforeLast, beforeLast + 1);
         endInsertRows();
+        ++firstNewItem;
     }
     filteredOutFirst_ = filteredOutFirst;
 }
