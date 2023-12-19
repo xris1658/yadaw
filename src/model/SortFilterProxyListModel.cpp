@@ -179,7 +179,7 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
         }
     );
     auto newAcceptedItemCount = filteredOutFirst - filteredOutFirst_;
-    std::stable_sort(filteredOutFirst_, filteredOutFirst,
+    std::sort(filteredOutFirst_, filteredOutFirst,
         [this](int lhs, int rhs)
         {
             return isLess(lhs, rhs);
@@ -337,7 +337,7 @@ bool SortFilterProxyListModel::isLess(int lhsRow, int rhsRow) const
             }
         }
     }
-    return false;
+    return lhs < rhs;
 }
 
 bool SortFilterProxyListModel::isAccepted(int row, const QString& string) const
@@ -360,7 +360,7 @@ bool SortFilterProxyListModel::isAccepted(int row, const QString& string, int be
 
 void SortFilterProxyListModel::doSort()
 {
-    std::stable_sort(dstToSrc_.begin(), dstToSrc_.end(),
+    std::sort(dstToSrc_.begin(), dstToSrc_.end(),
         [this](int lhs, int rhs)
         {
             return isLess(lhs, rhs);

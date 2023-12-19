@@ -59,7 +59,7 @@ private slots:
 private:
     bool isLess(int lhs, int rhs) const;
     bool isAccepted(int row, const QString& string) const;
-    bool isAccepted(int row, const QString& string, int begin, int end) const;
+    bool isAccepted(int row, const QString& string, int filterRoleBegin, int filterRoleEnd) const;
     void doSort();
     void doFilter();
     void doFilter(int begin, int end);
