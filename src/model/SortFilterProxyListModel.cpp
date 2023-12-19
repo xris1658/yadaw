@@ -170,9 +170,11 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
 {
     const auto oldCount = itemCount();
     const auto newItemCount = last - first + 1;
-    dstToSrc_.insert(dstToSrc_.begin() + itemCount(), newItemCount, -1);
-    std::iota(dstToSrc_.begin() + oldCount, dstToSrc_.begin() + oldCount + newItemCount, first);
-    auto filteredOutFirst = std::stable_partition(dstToSrc_.begin() + oldCount, dstToSrc_.begin() + oldCount + newItemCount,
+    dstToSrc_.insert(filteredOutFirst_, newItemCount, -1);
+    srcToDst_.insert(srcToDst_.begin() + first, newItemCount, -1);
+    filteredOutFirst_ = dstToSrc_.begin() + oldCount;
+    std::iota(filteredOutFirst_, filteredOutFirst_ + newItemCount, first);
+    auto filteredOutFirst = std::stable_partition(filteredOutFirst_, filteredOutFirst_ + newItemCount,
         [this](int row)
         {
             return isAccepted(row, filterString_);
@@ -188,21 +190,19 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
     auto firstNewItem = filteredOutFirst_;
     FOR_RANGE0(i, newAcceptedItemCount)
     {
-        auto upperBound = std::upper_bound(dstToSrc_.begin(), firstNewItem,
-            *firstNewItem,
+        auto beforeLast = firstNewItem + newAcceptedItemCount - 1 - i;
+        auto newFirstNewIterator = std::upper_bound(dstToSrc_.begin(), firstNewItem,
+            *beforeLast,
             [this](int lhs, int rhs)
             {
                 return isLess(lhs, rhs);
             }
         );
-        auto rotateFirst = dstToSrc_.rend() - 1 - (firstNewItem - dstToSrc_.begin());
-        auto rotateNewFirst = rotateFirst + i + 1;
-        const auto upperBoundIndex = upperBound - dstToSrc_.begin();
-        auto rotateEnd = dstToSrc_.rend() - upperBoundIndex;
-        beginInsertRows(QModelIndex(), upperBoundIndex, upperBoundIndex);
-        std::rotate(rotateFirst, rotateNewFirst, rotateEnd);
+        const auto newFirstIndex = newFirstNewIterator - dstToSrc_.begin();
+        beginInsertRows(QModelIndex(), newFirstIndex, newFirstIndex);
+        srcToDst_[first + i] = newFirstIndex + newAcceptedItemCount - 1 - i;
+        std::rotate(newFirstNewIterator, beforeLast, beforeLast + 1);
         endInsertRows();
-        firstNewItem = upperBound;
     }
     filteredOutFirst_ = filteredOutFirst;
 }
@@ -345,10 +345,11 @@ bool SortFilterProxyListModel::isAccepted(int row, const QString& string) const
     return isAccepted(row, string, 0, filterRoleModel_.itemCount());
 }
 
-bool SortFilterProxyListModel::isAccepted(int row, const QString& string, int begin, int end) const
+bool SortFilterProxyListModel::isAccepted(int row, const QString& string,
+    int filterRoleBegin, int filterRoleEnd) const
 {
     return filterRoleModel_.itemCount() == 0 || std::any_of(
-        filterRoleModel_.cbegin() + begin, filterRoleModel_.cbegin() + end,
+        filterRoleModel_.cbegin() + filterRoleBegin, filterRoleModel_.cbegin() + filterRoleEnd,
         [sourceModel = this->sourceModel_, &string, index = sourceModel_->index(row)]
         (const std::pair<int, Qt::CaseSensitivity>& pair)
         {
