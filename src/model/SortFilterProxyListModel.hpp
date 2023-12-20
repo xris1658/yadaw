@@ -63,6 +63,7 @@ private:
     void doSort();
     void doFilter();
     void doFilter(int begin, int end);
+    void mergeNewAcceptedItems(std::vector<int>::iterator filteredOutFirst);
 private:
     ISortFilterListModel* sourceModel_;
     FilterRoleModel filterRoleModel_;

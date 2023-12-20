@@ -4,6 +4,31 @@
 
 namespace YADAW::Model
 {
+bool validateMapping(const std::vector<int>& srcToDst, const std::vector<int>& dstToSrc,
+    std::vector<int>::iterator filteredOutFirst)
+{
+    if(srcToDst.size() == dstToSrc.size())
+    {
+        auto acceptedItemCount = filteredOutFirst - dstToSrc.begin();
+        FOR_RANGE0(i, acceptedItemCount)
+        {
+            if(srcToDst[dstToSrc[i]] != i)
+            {
+                return false;
+            }
+        }
+        FOR_RANGE(i, acceptedItemCount, dstToSrc.end() - dstToSrc.begin())
+        {
+            if(srcToDst[i] != -1)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    return true;
+}
+
 SortFilterProxyListModel::SortFilterProxyListModel(ISortFilterListModel& sourceModel, QObject* parent):
     ISortFilterProxyListModel(parent),
     sourceModel_(&sourceModel),
@@ -180,32 +205,7 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
             return isAccepted(row, filterString_);
         }
     );
-    auto newAcceptedItemCount = filteredOutFirst - filteredOutFirst_;
-    std::sort(filteredOutFirst_, filteredOutFirst,
-        [this](int lhs, int rhs)
-        {
-            return isLess(lhs, rhs);
-        }
-    );
-    auto firstNewItem = filteredOutFirst_;
-    auto beforeLast = firstNewItem + newAcceptedItemCount - 1;
-    FOR_RANGE0(i, newAcceptedItemCount)
-    {
-        auto newFirstNewIterator = std::upper_bound(dstToSrc_.begin(), firstNewItem,
-            *beforeLast,
-            [this](int lhs, int rhs)
-            {
-                return isLess(lhs, rhs);
-            }
-        );
-        const auto newFirstIndex = newFirstNewIterator - dstToSrc_.begin();
-        beginInsertRows(QModelIndex(), newFirstIndex, newFirstIndex);
-        srcToDst_[first + i] = newFirstIndex + newAcceptedItemCount - 1 - i;
-        std::rotate(newFirstNewIterator, beforeLast, beforeLast + 1);
-        endInsertRows();
-        ++firstNewItem;
-    }
-    filteredOutFirst_ = filteredOutFirst;
+    mergeNewAcceptedItems(filteredOutFirst);
 }
 
 void SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last)
@@ -264,20 +264,20 @@ void SortFilterProxyListModel::sourceModelReset()
 void SortFilterProxyListModel::sortOrderModelRowsInserted(const QModelIndex& parent, int first, int last)
 {
     doSort();
-    dataChanged(this->index(0), this->index(itemCount()));
+    dataChanged(this->index(0), this->index(itemCount() - 1));
 }
 
 void SortFilterProxyListModel::sortOrderModelRowsRemoved(const QModelIndex& parent, int first, int last)
 {
     doSort();
-    dataChanged(this->index(0), this->index(itemCount()));
+    dataChanged(this->index(0), this->index(itemCount() - 1));
 }
 
 void SortFilterProxyListModel::sortOrderModelDataChanged(
     const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles)
 {
     doSort();
-    dataChanged(this->index(0), this->index(itemCount()));
+    dataChanged(this->index(0), this->index(itemCount() - 1));
 }
 
 void SortFilterProxyListModel::filterRoleModelRowsInserted(const QModelIndex& parent, int first, int last)
@@ -295,17 +295,25 @@ void SortFilterProxyListModel::filterRoleModelRowsInserted(const QModelIndex& pa
             srcToDst_[row] = -1;
         }
     );
+    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
 }
 
-void SortFilterProxyListModel::filterRoleModelRowsRemoved(const QModelIndex& parent, int first, int last)
+void SortFilterProxyListModel::filterRoleModelRowsRemoved(
+    const QModelIndex& parent, int first, int last)
 {
-
+    auto filteredOutFirst = std::stable_partition(filteredOutFirst_, dstToSrc_.end(),
+        [this, first, last](int row)
+        {
+            return isAccepted(row, filterString_, first, last + 1);
+        }
+    );
+    mergeNewAcceptedItems(filteredOutFirst);
 }
 
-void SortFilterProxyListModel::filterRoleModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight,
-    const QList<int>& roles)
+void SortFilterProxyListModel::filterRoleModelDataChanged(
+    const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles)
 {
-
+    //
 }
 
 bool SortFilterProxyListModel::isLess(int lhsRow, int rhsRow) const
@@ -372,6 +380,7 @@ void SortFilterProxyListModel::doSort()
     {
         srcToDst_[dstToSrc_[i]] = i;
     }
+    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
 }
 
 void SortFilterProxyListModel::doFilter()
@@ -389,6 +398,7 @@ void SortFilterProxyListModel::doFilter()
             srcToDst_[row] = -1;
         }
     );
+    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
 }
 
 void SortFilterProxyListModel::doFilter(int begin, int end)
@@ -417,5 +427,38 @@ void SortFilterProxyListModel::doFilter(int begin, int end)
     auto newItemCount = filteredOutFirst_ - dstToSrc_.begin();
     beginInsertRows(QModelIndex(), 0, filteredOutFirst_ - dstToSrc_.begin() - 1);
     endInsertRows();
+    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
+}
+
+void SortFilterProxyListModel::mergeNewAcceptedItems(
+    std::vector<int>::iterator filteredOutFirst)
+{
+    auto newAcceptedItemCount = filteredOutFirst - filteredOutFirst_;
+    std::sort(filteredOutFirst_, filteredOutFirst,
+        [this](int lhs, int rhs)
+        {
+            return isLess(lhs, rhs);
+        }
+    );
+    auto firstNewItem = filteredOutFirst_;
+    auto beforeLast = firstNewItem + newAcceptedItemCount - 1;
+    FOR_RANGE0(i, newAcceptedItemCount)
+    {
+        auto newFirstNewIterator = std::upper_bound(dstToSrc_.begin(), firstNewItem,
+            *beforeLast,
+            [this](int lhs, int rhs)
+            {
+                return isLess(lhs, rhs);
+            }
+        );
+        const auto newFirstIndex = newFirstNewIterator - dstToSrc_.begin();
+        beginInsertRows(QModelIndex(), newFirstIndex, newFirstIndex);
+        srcToDst_[*beforeLast] = newFirstIndex + newAcceptedItemCount - 1 - i;
+        std::rotate(newFirstNewIterator, beforeLast, beforeLast + 1);
+        endInsertRows();
+        ++firstNewItem;
+    }
+    filteredOutFirst_ = filteredOutFirst;
+    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
 }
 }
