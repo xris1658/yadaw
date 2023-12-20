@@ -26,6 +26,7 @@ public:
 public:
     virtual bool insert(int role, Qt::SortOrder sortOrder, int position) = 0;
     virtual bool append(int role, Qt::SortOrder sortOrder) = 0;
+    // Returns -1 if the given role is not sorted
     virtual int getIndexOfRole(int role) const = 0;
     virtual bool remove(int index) = 0;
     virtual void clear() = 0;

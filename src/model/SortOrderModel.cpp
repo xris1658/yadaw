@@ -98,7 +98,7 @@ int SortOrderModel::getIndexOfRole(int role) const
             return sortRole == role;
         }
     );
-    return it - sortOrder_.begin();
+    return it == sortOrder_.end()? -1: it - sortOrder_.begin();
 }
 
 bool SortOrderModel::remove(int index)
