@@ -43,10 +43,8 @@ public:
 protected:
     RoleNames roleNames() const override;
 private slots:
-    void sourceModelRowsAboutToBeInserted(const QModelIndex& parent, int first, int last);
     void sourceModelRowsInserted(const QModelIndex& parent, int first, int last);
     void sourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last);
-    void sourceModelRowsRemoved(const QModelIndex& parent, int first, int last);
     void sourceModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles);
     void sourceModelAboutToBeReset();
     void sourceModelReset();
@@ -62,7 +60,7 @@ private:
     bool isAccepted(int row, const QString& string, int filterRoleBegin, int filterRoleEnd) const;
     void doSort();
     void doFilter();
-    void doFilter(int begin, int end);
+
     void mergeNewAcceptedItems(std::vector<int>::iterator filteredOutFirst);
 private:
     ISortFilterListModel* sourceModel_;
