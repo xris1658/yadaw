@@ -184,9 +184,6 @@ YADAW::Model::RoleNames SortFilterProxyListModel::roleNames() const
     return sourceModel_->roleNames();
 }
 
-void SortFilterProxyListModel::sourceModelRowsAboutToBeInserted(const QModelIndex& parent, int first, int last)
-{}
-
 void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent, int first, int last)
 {
     const auto oldCount = itemCount();
