@@ -387,6 +387,12 @@ void SortFilterProxyListModel::doFilter()
             oldFilteredOutFirst - dstToSrc_.begin(),
             outFirst - dstToSrc_.begin() - 1
         );
+        std::sort(dstToSrc_.begin(), outFirst,
+            [this](int lhs, int rhs)
+            {
+                return isLess(lhs, rhs);
+            }
+        );
         filteredOutFirst_ = outFirst;
         endInsertRows();
         dataChanged(this->index(0), this->index(oldFilteredOutFirst - dstToSrc_.begin() - 1));
