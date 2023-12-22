@@ -428,7 +428,15 @@ QC.Popup {
                                     }
                                 }
                             }
+                            onClicked: {
+                                pluginList.currentIndex = index;
+                            }
                         }
+                        highlight: Rectangle {
+                            color: Colors.highlightControlBackground
+                        }
+                        highlightFollowsCurrentItem: true
+                        highlightMoveDuration: 0
                         Grid {
                             columns: 1
                             anchors.centerIn: parent
@@ -449,6 +457,9 @@ QC.Popup {
                                 text: qsTr("No plugins available")
                                 color: Colors.secondaryContent
                             }
+                        }
+                        onModelChanged: {
+                            currentIndex = -1;
                         }
                     }
                     ScrollBar {
