@@ -60,8 +60,8 @@ private:
     bool isAccepted(int row, const QString& string, int filterRoleBegin, int filterRoleEnd) const;
     void doSort();
     void doFilter();
-
     void mergeNewAcceptedItems(std::vector<int>::iterator filteredOutFirst);
+    void filterOutItems();
 private:
     ISortFilterListModel* sourceModel_;
     FilterRoleModel filterRoleModel_;
