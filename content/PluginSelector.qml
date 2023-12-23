@@ -11,17 +11,23 @@ QC.Popup {
     property alias pluginListModel: pluginList.model
     property alias categoryListModel: categoryList.model
 
-    QtObject {
-        id: impl
-        property int contentWidth: 600
-        readonly property PluginFormatSupport pluginFormatSupport: PluginFormatSupport {}
-    }
+    signal accepted()
 
     topInset: 0
     bottomInset: 0
     leftInset: 0
     rightInset: 0
     padding: 10
+
+    QtObject {
+        id: impl
+        property int contentWidth: 600
+        readonly property PluginFormatSupport pluginFormatSupport: PluginFormatSupport {}
+        function accept() {
+            root.accepted();
+            root.close();
+        }
+    }
 
     background: Rectangle {
         anchors.fill: parent
@@ -431,6 +437,10 @@ QC.Popup {
                             onClicked: {
                                 pluginList.currentIndex = index;
                             }
+                            onDoubleClicked: {
+                                pluginList.currentIndex = index;
+                                impl.accept();
+                            }
                         }
                         highlight: Rectangle {
                             color: Colors.highlightControlBackground
@@ -490,10 +500,10 @@ QC.Popup {
                 spacing: 5
                 Button {
                     id: okButton
+                    enabled: pluginList.currentIndex !== -1
                     text: Constants.okTextWithMnemonic
                     onClicked: {
-                        // TODO
-                        root.close();
+                        impl.accept();
                     }
                 }
                 Button {
