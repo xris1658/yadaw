@@ -61,13 +61,37 @@ SplitView {
             anchors.left: parent.left
             anchors.right: parent.right
 
-            footer: MouseArea {
-                id: trackHeaderListBlankArea
-                property int minimumHeight: 60
-                // anchors.bottom: parent.bottom
+            footer: Item {
                 width: arrangementHeader.width
-                height: Math.max(trackHeaderListView.height - trackHeaderListView.contentHeight + minimumHeight, minimumHeight)
-
+                height: 60
+            }
+            ScrollBar.vertical: ScrollBar {
+                id: vbar
+                parent: vbarPlaceholder
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                visible: size !== 1.0
+            }
+            delegate: Column {
+                TrackHeader {
+                    width: trackHeaderListView.width
+                    height: tlm_height
+                    clip: true
+                    name: tlm_name
+                    trackColor: tlm_color
+                    color: Colors.controlBackground
+                }
+                Rectangle {
+                    width: trackHeaderListView.width
+                    height: 1
+                    color: Colors.border
+                }
+            }
+            MouseArea {
+                id: trackHeaderListBlankArea
+                anchors.fill: parent
+                z: 0
                 acceptedButtons: Qt.RightButton
                 Menu {
                     id: trackHeaderBlankOptions
@@ -110,30 +134,6 @@ SplitView {
                     trackHeaderBlankOptions.x = mouseX;
                     trackHeaderBlankOptions.y = mouseY;
                     trackHeaderBlankOptions.open();
-                }
-            }
-            footerPositioning: ListView.PullBackFooter
-            ScrollBar.vertical: ScrollBar {
-                id: vbar
-                parent: vbarPlaceholder
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                visible: size !== 1.0
-            }
-            delegate: Column {
-                TrackHeader {
-                    width: trackHeaderListView.width
-                    height: tlm_height
-                    clip: true
-                    name: tlm_name
-                    trackColor: tlm_color
-                    color: Colors.controlBackground
-                }
-                Rectangle {
-                    width: trackHeaderListView.width
-                    height: 1
-                    color: Colors.border
                 }
             }
         }
