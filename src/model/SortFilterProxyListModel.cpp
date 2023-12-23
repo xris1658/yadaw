@@ -388,34 +388,42 @@ void SortFilterProxyListModel::mergeNewAcceptedItems(
     std::vector<int>::iterator filteredOutFirst)
 {
     auto newAcceptedItemCount = filteredOutFirst - filteredOutFirst_;
-    std::sort(filteredOutFirst_, filteredOutFirst,
-        [this](int lhs, int rhs)
-        {
-            return isLess(lhs, rhs);
-        }
-    );
-    auto firstNewItem = filteredOutFirst_;
-    auto beforeLast = firstNewItem + newAcceptedItemCount - 1;
-    FOR_RANGE0(i, newAcceptedItemCount)
+    // Some STL implementations (e.g. MSVC STL) does NOT allow an iterator which
+    // is before begin() of the `std::vector`. To prevent this, we have to check
+    // if no items are added to the empty list, which calculates `begin() - 1`.
+    // While coding for multi-platform applications, please check the different
+    // implementations of the same modules.
+    if(newAcceptedItemCount != 0)
     {
-        auto newFirstNewIterator = std::upper_bound(dstToSrc_.begin(), firstNewItem,
-            *beforeLast,
+        std::sort(filteredOutFirst_, filteredOutFirst,
             [this](int lhs, int rhs)
             {
                 return isLess(lhs, rhs);
             }
         );
-        const auto newFirstIndex = newFirstNewIterator - dstToSrc_.begin();
-        beginInsertRows(QModelIndex(), newFirstIndex, newFirstIndex);
-        srcToDst_[*beforeLast] = newFirstIndex + newAcceptedItemCount - 1 - i;
-        std::rotate(newFirstNewIterator, beforeLast, beforeLast + 1);
-        endInsertRows();
-        ++firstNewItem;
-    }
-    filteredOutFirst_ = filteredOutFirst;
-    FOR_RANGE0(i, itemCount())
-    {
-        srcToDst_[dstToSrc_[i]] = i;
+        auto firstNewItem = filteredOutFirst_;
+        // See the comment above
+        auto beforeLast = firstNewItem + newAcceptedItemCount - 1;
+        FOR_RANGE0(i, newAcceptedItemCount)
+        {
+            auto newFirstNewIterator = std::upper_bound(dstToSrc_.begin(), firstNewItem, *beforeLast,
+                [this](int lhs, int rhs)
+                {
+                    return isLess(lhs, rhs);
+                }
+            );
+            const auto newFirstIndex = newFirstNewIterator - dstToSrc_.begin();
+            beginInsertRows(QModelIndex(), newFirstIndex, newFirstIndex);
+            srcToDst_[*beforeLast] = newFirstIndex + newAcceptedItemCount - 1 - i;
+            std::rotate(newFirstNewIterator, beforeLast, beforeLast + 1);
+            endInsertRows();
+            ++firstNewItem;
+        }
+        filteredOutFirst_ = filteredOutFirst;
+        FOR_RANGE0(i, itemCount())
+        {
+            srcToDst_[dstToSrc_[i]] = i;
+        }
     }
     assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
 }
