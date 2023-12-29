@@ -118,6 +118,9 @@ add_executable(AudioDeviceGraphTest
                ../src/audio/util/Summing.hpp
                ../src/util/ADEUtil.cpp
                ../src/util/ADEUtil.hpp
+               ../src/util/IntrusivePointer.hpp
+               ../src/util/IntrusiveRefCounter.cpp
+               ../src/util/IntrusiveRefCounter.hpp
                AudioDeviceGraphTest/main.cpp)
 
 add_executable(AudioProcessDataBufferContainerTest

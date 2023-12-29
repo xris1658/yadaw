@@ -149,6 +149,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/engine/AudioDeviceGraphBase.hpp
     src/audio/engine/AudioDeviceProcess.hpp
     src/audio/engine/AudioProcessDataBufferContainer.hpp
+    src/audio/engine/MultiInputDeviceWithPDC.cpp
+    src/audio/engine/MultiInputDeviceWithPDC.hpp
     src/audio/engine/extension/Buffer.cpp
     src/audio/engine/extension/Buffer.hpp
     src/audio/engine/extension/UpstreamLatency.cpp

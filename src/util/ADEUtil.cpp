@@ -130,4 +130,9 @@ std::optional<std::vector<std::vector<Link>>>
     }
     return {ret};
 }
+
+bool CompareNodeHandle::operator()(const ade::NodeHandle& lhs, const ade::NodeHandle& rhs) const
+{
+    return lhs.get() < rhs.get();
+}
 }

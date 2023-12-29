@@ -84,6 +84,11 @@ std::vector<Link> squashGraph(const ade::Graph& graph);
 std::optional<std::vector<std::vector<Link>>> topologicalSort(
     const std::vector<Link>& squashedGraph
 );
+
+struct CompareNodeHandle
+{
+    bool operator()(const ade::NodeHandle& lhs, const ade::NodeHandle& rhs) const;
+};
 }
 
 #endif // YADAW_SRC_UTIL_ADEUTIL
