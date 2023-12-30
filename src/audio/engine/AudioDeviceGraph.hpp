@@ -38,7 +38,7 @@ private:
         std::get<Index>(extensions_).onConnected(edgeHandle);
         if constexpr(Index + 1 < std::tuple_size_v<decltype(extensions_)>)
         {
-            afterConnectCallback(edgeHandle);
+            afterConnectCallback<Index + 1>(edgeHandle);
         }
     }
     template<std::size_t Index = 0>
@@ -47,7 +47,7 @@ private:
         std::get<Index>(extensions_).onAboutToBeDisconnected(edgeHandle);
         if constexpr(Index + 1 < std::tuple_size_v<decltype(extensions_)>)
         {
-            beforeDisconnectCallback(edgeHandle);
+            beforeDisconnectCallback<Index + 1>(edgeHandle);
         }
     }
 public:
