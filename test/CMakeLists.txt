@@ -106,6 +106,12 @@ add_executable(AudioDeviceGraphTest
                ../src/audio/engine/AudioDeviceGraphBase.cpp
                ../src/audio/engine/AudioDeviceGraphBase.hpp
                ../src/audio/engine/AudioDeviceGraph.hpp
+               ../src/audio/engine/AudioDeviceGraphWithPDC.cpp
+               ../src/audio/engine/AudioDeviceGraphWithPDC.hpp
+               ../src/audio/engine/MultiInputDeviceWithPDC.cpp
+               ../src/audio/engine/MultiInputDeviceWithPDC.hpp
+               ../src/audio/engine/extension/Buffer.cpp
+               ../src/audio/engine/extension/Buffer.hpp
                ../src/audio/engine/extension/UpstreamLatency.cpp
                ../src/audio/engine/extension/UpstreamLatency.hpp
                ../src/audio/util/AudioChannelGroup.cpp
@@ -121,6 +127,8 @@ add_executable(AudioDeviceGraphTest
                ../src/util/IntrusivePointer.hpp
                ../src/util/IntrusiveRefCounter.cpp
                ../src/util/IntrusiveRefCounter.hpp
+               common/SineWaveGenerator.cpp
+               common/SineWaveGenerator.hpp
                AudioDeviceGraphTest/main.cpp)
 
 add_executable(AudioProcessDataBufferContainerTest

@@ -46,19 +46,7 @@ YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
 
 std::uint32_t MultiInputDeviceWithPDC::latencyInSamples() const
 {
-    using YADAW::Audio::Util::SampleDelay;
-    auto ret = process_.device()->latencyInSamples();
-    auto maxPDC = std::max_element(pdcs_.begin(), pdcs_.end(),
-        [](const SampleDelay& lhs, const SampleDelay& rhs)
-        {
-            return lhs.latencyInSamples() < rhs.latencyInSamples();
-        }
-    );
-    if(maxPDC != pdcs_.end())
-    {
-        ret += maxPDC->latencyInSamples();
-    }
-    return ret;
+    return process_.device()->latencyInSamples();
 }
 
 void MultiInputDeviceWithPDC::process(const AudioProcessData<float>& audioProcessData)
@@ -78,11 +66,37 @@ void MultiInputDeviceWithPDC::process(const AudioProcessData<float>& audioProces
     process_.process(audioProcessData);
 }
 
-void MultiInputDeviceWithPDC::setDelay(std::uint32_t audioInputGroupIndex, std::uint32_t delay)
+void MultiInputDeviceWithPDC::setDelayOfPDC(std::uint32_t audioInputGroupIndex, std::uint32_t delay)
 {
     if(audioInputGroupIndex < pdcs_.size())
     {
         pdcs_[audioInputGroupIndex].setDelay(delay);
     }
+}
+
+std::optional<std::uint32_t> MultiInputDeviceWithPDC::getDelayOfPDC(
+    std::uint32_t audioInputGroupIndex) const
+{
+    if(audioInputGroupIndex < pdcs_.size())
+    {
+        return {pdcs_[audioInputGroupIndex].latencyInSamples()};
+    }
+    return std::nullopt;
+}
+
+std::optional<std::uint32_t>
+MultiInputDeviceWithPDC::getPDCIndexOfMaximumDelay() const
+{
+    if(pdcs_.empty())
+    {
+        return std::nullopt;
+    }
+    using YADAW::Audio::Util::SampleDelay;
+    return std::max_element(pdcs_.begin(), pdcs_.end(),
+        [](const SampleDelay& lhs, const SampleDelay& rhs)
+        {
+            return lhs.latencyInSamples() < rhs.latencyInSamples();
+        }
+    ) - pdcs_.begin();
 }
 }

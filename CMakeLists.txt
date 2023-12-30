@@ -147,6 +147,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/engine/AudioDeviceGraph.hpp
     src/audio/engine/AudioDeviceGraphBase.cpp
     src/audio/engine/AudioDeviceGraphBase.hpp
+    src/audio/engine/AudioDeviceGraphWithPDC.cpp
+    src/audio/engine/AudioDeviceGraphWithPDC.hpp
     src/audio/engine/AudioDeviceProcess.hpp
     src/audio/engine/AudioProcessDataBufferContainer.hpp
     src/audio/engine/MultiInputDeviceWithPDC.cpp

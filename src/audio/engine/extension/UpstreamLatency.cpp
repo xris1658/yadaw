@@ -52,7 +52,7 @@ void UpstreamLatency::onAboutToBeDisconnected(const ade::EdgeHandle& edgeHandle)
 }
 
 std::optional<std::uint32_t> UpstreamLatency::getUpstreamLatency(
-    const ade::NodeHandle& nodeHandle, std::uint32_t audioInputGroupIndex)
+    const ade::NodeHandle& nodeHandle, std::uint32_t audioInputGroupIndex) const
 {
     const auto& upstreamLatencies = getData_(graph_, nodeHandle).upstreamLatencies;
     if(audioInputGroupIndex < upstreamLatencies.size())

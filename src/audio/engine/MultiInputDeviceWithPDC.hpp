@@ -14,23 +14,29 @@ class MultiInputDeviceWithPDC:
 public:
     MultiInputDeviceWithPDC(YADAW::Audio::Engine::AudioDeviceProcess&& process);
     MultiInputDeviceWithPDC(const Self&) = delete;
-    MultiInputDeviceWithPDC(Self&&) = delete;
+    MultiInputDeviceWithPDC(Self&&) noexcept = delete;
     ~MultiInputDeviceWithPDC() override;
 public:
     std::uint32_t audioInputGroupCount() const override;
     std::uint32_t audioOutputGroupCount() const override;
     OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const override;
     OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
+    // The maximum latency introduced by PDCs is not included. If you need the latency info of PDCs,
+    // use `getDelayOfPDC` and `getPDCIndexOfMaximumDelay` instead.
+    // Ideally, this class is used for compensating the upstream latencies, in which case it does
+    // not introduce extra latencies. Use cases of this class without any other facilities that does
+    // latency compensation is certainly a terrible idea.
     std::uint32_t latencyInSamples() const override;
 public:
     void process(const AudioProcessData<float> &audioProcessData) override;
 public:
-    void setDelay(std::uint32_t audioInputGroupIndex, std::uint32_t delay);
+    std::optional<std::uint32_t> getDelayOfPDC(std::uint32_t audioInputGroupIndex) const;
+    std::optional<std::uint32_t> getPDCIndexOfMaximumDelay() const;
+    void setDelayOfPDC(std::uint32_t audioInputGroupIndex, std::uint32_t delay);
 private:
     YADAW::Audio::Engine::AudioDeviceProcess process_;
     std::vector<YADAW::Audio::Util::SampleDelay> pdcs_;
     std::vector<YADAW::Audio::Device::AudioProcessData<float>> pdcAudioProcessData_;
-    std::vector<std::uint32_t> upstreamLatencies_;
 };
 }
 

@@ -27,7 +27,7 @@ public:
 public:
     std::optional<std::uint32_t> getUpstreamLatency(
         const ade::NodeHandle& nodeHandle, std::uint32_t audioInputGroupIndex = 0U
-    );
+    ) const;
     std::uint32_t getMaxUpstreamLatency(const ade::NodeHandle& nodeHandle) const;
     void setLatencyOfNodeUpdatedCallback(std::function<LatencyOfNodeUpdatedCallback> function);
     void resetLatencyOfNodeUpdatedCallback();
