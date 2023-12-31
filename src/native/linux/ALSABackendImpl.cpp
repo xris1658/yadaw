@@ -416,6 +416,14 @@ std::optional<std::string> ALSABackend::Impl::cardName(int cardIndex)
 
 bool ALSABackend::Impl::isAudioDeviceActivated(bool isInput, std::uint32_t index) const
 {
+    constexpr decltype(&audioInputCount) audioDeviceCount[] = {&audioOutputCount, &audioInputCount};
+    constexpr decltype(&audioInputDeviceAt) audioDeviceAt[] = {&audioOutputDeviceAt, &audioInputDeviceAt};
+    const auto& container = isInput? inputs_: outputs_;
+    auto count = audioDeviceCount[isInput]();
+    if(index < count)
+    {
+        return std::get<TupleElementType::PCMHandle>(container[index]);
+    }
     return false;
 }
 
