@@ -21,8 +21,8 @@ Window {
         Label {
             id: label
             anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.margins: 24
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.margins: 33
             text: qsTr("Starting...")
             font.pixelSize: 14
             verticalAlignment: Text.AlignLeft
