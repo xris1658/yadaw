@@ -307,8 +307,14 @@ ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
         else
         {
             auto& [selector, pcm, channelCount, format, access, buffer, nonInterleaveArray, offset, frames] = *it;
-            buffers_.erase(buffers_.find<std::byte*>(buffer));
-            nonInterleaveArrays_.erase(nonInterleaveArrays_.find<void**>(nonInterleaveArray));
+            if(access == SND_PCM_ACCESS_MMAP_INTERLEAVED || access == SND_PCM_ACCESS_RW_INTERLEAVED)
+            {
+                buffers_.erase(buffers_.find<std::byte*>(buffer));
+            }
+            else
+            {
+                nonInterleaveArrays_.erase(nonInterleaveArrays_.find<void**>(nonInterleaveArray));
+            }
             snd_pcm_close(pcm);
             pcm = nullptr;
             return ActivateDeviceResult::Success;
