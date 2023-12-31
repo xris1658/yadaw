@@ -8,6 +8,7 @@
 #elif __linux__
 #include "controller/ALSABackendController.hpp"
 #endif
+#include "controller/AudioBackendController.hpp"
 #include "controller/AudioBusConfigurationController.hpp"
 #include "controller/ConfigController.hpp"
 #include "controller/GeneralSettingsController.hpp"
@@ -114,6 +115,7 @@ void EventHandler::onStartInitializingApplication()
 void EventHandler::onOpenMainWindow()
 {
     auto appConfig = YADAW::Controller::loadConfig();
+    auto currentBackend = YADAW::Controller::backendFromConfig(appConfig["audio-hardware"]);
     // initialize audio backend
 #if _WIN32
     auto& backend = YADAW::Controller::appAudioGraphBackend();
@@ -168,6 +170,8 @@ void EventHandler::onOpenMainWindow()
     }
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
+    YADAW::UI::mainWindow->setProperty("currentAudioBackend",
+        QVariant::fromValue<int>(currentBackend));
     YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAssetDirectoryListModel()));
     YADAW::UI::mainWindow->setProperty("pluginDirectoryListModel",
@@ -250,6 +254,8 @@ void EventHandler::onOpenMainWindow()
     QObject::connect(&appAudioBusOutputConfigurationModel,
         &QAbstractItemModel::dataChanged,
         saveAudioBusConfigurationLambda);
+    QObject::connect(YADAW::Event::eventSender, SIGNAL(currentAudioBackendChanged()),
+        this, SLOT(onCurrentAudioBackendChanged()));
 #if _WIN32
     QObject::connect(YADAW::Event::eventSender, SIGNAL(audioGraphOutputDeviceIndexChanged(int)),
         this, SLOT(onAudioGraphOutputDeviceIndexChanged(int)));
@@ -361,6 +367,15 @@ void EventHandler::onSetTranslationIndex(int index)
         YADAW::UI::mainWindow->setProperty("currentTranslationIndex",
             QVariant::fromValue<int>(YADAW::Controller::currentTranslationIndex));
     }
+}
+
+void EventHandler::onCurrentAudioBackendChanged()
+{
+    auto backend = static_cast<YADAW::Entity::AudioBackendSupport::Backend>(YADAW::UI::mainWindow->property("currentAudioBackend").value<int>());
+    auto config = YADAW::Controller::loadConfig();
+    auto audioHardwareNode = config["audio-hardware"];
+    YADAW::Controller::saveBackendToConfig(backend, audioHardwareNode);
+    YADAW::Controller::saveConfig(config);
 }
 
 void EventHandler::onAudioGraphOutputDeviceIndexChanged(int index)

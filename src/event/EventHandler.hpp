@@ -30,6 +30,7 @@ public slots:
     void onSetSystemFontRendering(bool enabled);
     void onSetSystemFontRenderingWhileDebugging(bool enabled);
     void onSetTranslationIndex(int index);
+    void onCurrentAudioBackendChanged();
     void onAudioGraphOutputDeviceIndexChanged(int index);
 private:
     QObject* eventSender_;

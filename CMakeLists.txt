@@ -244,6 +244,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/AppController.hpp
     src/controller/AssetDirectoryController.cpp
     src/controller/AssetDirectoryController.hpp
+    src/controller/AudioBackendController.cpp
+    src/controller/AudioBackendController.hpp
     src/controller/AudioBusConfigurationController.cpp
     src/controller/AudioBusConfigurationController.hpp
     src/controller/AudioEngineController.hpp

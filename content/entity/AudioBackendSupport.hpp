@@ -18,6 +18,12 @@ public:
     };
     Q_ENUM(Backend)
 public:
+    static constexpr const char* backendNames[] = {
+        "Off",
+        "AudioGraph",
+        "ALSA"
+    };
+public:
     AudioBackendSupport(QObject* parent = nullptr);
 public:
     Q_INVOKABLE bool isBackendSupported(Backend backend) const;

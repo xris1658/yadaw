@@ -11,6 +11,8 @@ Item {
     property int firstColumnWidth
     property int secondColumnWidth
 
+    property alias currentBackend: audioEngineSelector.currentIndex
+
     property alias audioInputDeviceList: audioBusConfigurationWindow.inputDeviceListModel
     property alias audioOutputDeviceList: audioBusConfigurationWindow.outputDeviceListModel
 
