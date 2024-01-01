@@ -127,6 +127,8 @@ add_executable(AudioDeviceGraphTest
                ../src/util/IntrusivePointer.hpp
                ../src/util/IntrusiveRefCounter.cpp
                ../src/util/IntrusiveRefCounter.hpp
+               ../src/util/Util.cpp
+               ../src/util/Util.hpp
                common/SineWaveGenerator.cpp
                common/SineWaveGenerator.hpp
                AudioDeviceGraphTest/main.cpp)

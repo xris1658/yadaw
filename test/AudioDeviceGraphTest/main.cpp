@@ -5,14 +5,17 @@
 #include "audio/util/SampleDelay.hpp"
 #include "audio/util/Summing.hpp"
 #include "util/IntegerRange.hpp"
+#include "util/Util.hpp"
 
+#include "common/DisableStreamBuffer.hpp"
 #include "common/SineWaveGenerator.hpp"
 
-#include <iostream>
+#include <cstdio>
 
 int main()
 {
     using namespace YADAW::Audio::Engine::Extension;
+    disableStdOutBuffer();
     std::vector<YADAW::Audio::Util::SampleDelay> sampleDelay;
     const auto nodeCount = 8;
     sampleDelay.reserve(nodeCount);
@@ -24,12 +27,13 @@ int main()
     std::vector<ade::EdgeHandle> edges;
     edges.reserve(nodeCount - 1);
     YADAW::Audio::Util::AudioChannelGroup channelGroup;
-    channelGroup.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::eStereo);
+    channelGroup.setChannelGroupType(YADAW::Audio::Base::ChannelGroupType::eMono);
     YADAW::Audio::Util::Summing summing(nodeCount, channelGroup.type());
     {
         YADAW::Audio::Engine::AudioDeviceGraph<Buffer, UpstreamLatency> graph;
+        auto bufferSize = 32;
         auto& bufferExt = graph.getExtension<Buffer>();
-        bufferExt.setBufferSize(32);
+        bufferExt.setBufferSize(bufferSize);
         FOR_RANGE0(i, nodeCount)
         {
             auto& generator = generators.emplace_back(channelGroup.type());
@@ -54,17 +58,15 @@ int main()
             FOR_RANGE0(j, sampleDelayNodes.size())
             {
                 const auto& node = sampleDelayNodes[j];
-                std::cout
-                    << upstreamLatencyExt.getMaxUpstreamLatency(node)
-                    << ", "
-                    << graph.getNodeData(node).process.device()->latencyInSamples()
-                    << ' '
-                    << ((j >= i && j != sampleDelayNodes.size() - 1)? '|': ' ')
-                    << '\n';
+                std::printf("%d, %d %c\n",
+                    upstreamLatencyExt.getMaxUpstreamLatency(node),
+                    graph.getNodeData(node).process.device()->latencyInSamples(),
+                    (j >= i && j != sampleDelayNodes.size() - 1)? '|': ' '
+                );
             }
-            std::cout << "----------------\n";
+            std::printf("----------------\n");
         }
-        std::cout << "Disconnecting\n";
+        std::printf("Disconnecting\n");
         FOR_RANGE0(i, edges.size())
         {
             const auto& edge = edges[i];
@@ -72,23 +74,20 @@ int main()
             FOR_RANGE0(j, sampleDelayNodes.size())
             {
                 const auto& node = sampleDelayNodes[j];
-                std::cout
-                    << upstreamLatencyExt.getMaxUpstreamLatency(node)
-                    << ", "
-                    << graph.getNodeData(node).process.device()->latencyInSamples()
-                    << ' '
-                    << ((j > i && j != sampleDelayNodes.size() - 1)? '|': ' ')
-                    << '\n';
+                std::printf("%d, %d %c\n",
+                    upstreamLatencyExt.getMaxUpstreamLatency(node),
+                    graph.getNodeData(node).process.device()->latencyInSamples(),
+                    (j > i && j != sampleDelayNodes.size() - 1)? '|': ' '
+                );
             }
-            std::cout << "----------------\n";
+            std::printf("----------------\n");
         }
         for(const auto& node: sampleDelayNodes)
         {
-            std::cout
-                << upstreamLatencyExt.getMaxUpstreamLatency(node)
-                << ", "
-                << graph.getNodeData(node).process.device()->latencyInSamples()
-                << '\n';
+            std::printf("%u, %u\n",
+                upstreamLatencyExt.getMaxUpstreamLatency(node),
+                graph.getNodeData(node).process.device()->latencyInSamples()
+            );
         }
         YADAW::Audio::Engine::AudioDeviceGraphWithPDC graphWithPDC(graph);
         auto summingNode = graphWithPDC.addNode(YADAW::Audio::Engine::AudioDeviceProcess{summing});
@@ -98,10 +97,18 @@ int main()
         {
             graph.connect(generatorNodes[i], sampleDelayNodes[i], 0, 0);
             edges.emplace_back(*(graph.connect(sampleDelayNodes[i], summingNode, 0, i)));
-            std::cout << upstreamLatencyExt.getMaxUpstreamLatency(summingNode) << '\n';
+            std::printf("%u\n", upstreamLatencyExt.getMaxUpstreamLatency(summingNode));
         }
         const auto& summingAudioProcessData = graph.getExtensionData<Buffer>(summingNode).container.audioProcessData();
-        FOR_RANGE0(i, 10)
+        for(auto& device: sampleDelay)
+        {
+            device.startProcessing();
+        }
+        for(auto& device: generators)
+        {
+            device.startProcessing();
+        }
+        FOR_RANGE0(z, 10)
         {
             for(auto& generatorNode: generatorNodes)
             {
@@ -115,24 +122,67 @@ int main()
                     graph.getExtensionData<Buffer>(sampleDelayNode).container.audioProcessData()
                 );
             }
-            graph.getNodeData(summingNode).process.process(summingAudioProcessData);
-            FOR_RANGE0(i2, summingAudioProcessData.outputGroupCount)
+            FOR_RANGE0(i, summingAudioProcessData.inputGroupCount)
             {
-                FOR_RANGE0(i3, summingAudioProcessData.outputCounts[i2])
+                FOR_RANGE0(j, summingAudioProcessData.singleBufferSize)
                 {
-                    auto buffer = summingAudioProcessData.outputs[i2][i3];
-                    auto nulled = std::all_of(
-                        buffer, buffer + summingAudioProcessData.singleBufferSize,
-                        [](float data) { return data == 0; }
-                    );
-                    assert(nulled);
+                    auto data = summingAudioProcessData.inputs[i][0][j];
+                    if(!std::signbit(data))
+                    {
+                        std::printf("+");
+                    }
+                    std::printf("%f\t", data);
                 }
+                std::printf("\n");
             }
+            std::printf("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
+            graph.getNodeData(summingNode).process.process(summingAudioProcessData);
+            FOR_RANGE0(i, summingAudioProcessData.inputGroupCount)
+            {
+                FOR_RANGE0(j, summingAudioProcessData.singleBufferSize)
+                {
+                    auto data = summingAudioProcessData.inputs[i][0][j];
+                    if(!std::signbit(data))
+                    {
+                        std::printf("+");
+                    }
+                    std::printf("%f\t", data);
+                }
+                std::printf("\n");
+            }
+            auto outputCount = summingAudioProcessData.outputCounts[0];
+            auto outputs = summingAudioProcessData.outputs[0];
+            FOR_RANGE0(i, outputCount)
+            {
+                auto buffer = outputs[i];;
+                auto nulled = std::all_of(
+                    buffer, buffer + summingAudioProcessData.singleBufferSize,
+                    [](float data) { return data == 0; }
+                );
+                assert(nulled);
+                std::printf("Process #%d passed\n", z + 1);
+            }
+            // auto updateLatencyIndex = std::rand() % nodeCount;
+            // auto& device = sampleDelay[updateLatencyIndex];
+            // device.stopProcessing();
+            // auto newDelay = std::rand() % 32;
+            // std::printf("New delay of device %d: %d\n", updateLatencyIndex, newDelay);
+            // device.setDelay(newDelay);
+            // upstreamLatencyExt.onLatencyOfNodeUpdated(sampleDelayNodes[updateLatencyIndex]);
+            // device.startProcessing();
+        }
+        for(auto& device: sampleDelay)
+        {
+            device.stopProcessing();
+        }
+        for(auto& device: generators)
+        {
+            device.stopProcessing();
         }
         FOR_RANGE0(i, nodeCount)
         {
             graph.disconnect(edges[(i + 1) * 3 % nodeCount]);
-            std::cout << upstreamLatencyExt.getMaxUpstreamLatency(summingNode) << '\n';
+            std::printf("%u\n", upstreamLatencyExt.getMaxUpstreamLatency(summingNode));
         }
     }
 }
