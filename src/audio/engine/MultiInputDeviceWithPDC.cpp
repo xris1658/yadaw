@@ -12,7 +12,8 @@ MultiInputDeviceWithPDC::MultiInputDeviceWithPDC(AudioDeviceProcess&& process):
     FOR_RANGE0(i, inputCount)
     {
         auto& inputGroup = device->audioInputGroupAt(i)->get();
-        pdcs_.emplace_back(0U, inputGroup);
+        auto& pdc = pdcs_.emplace_back(0U, inputGroup);
+        pdc.startProcessing();
         auto& audioProcessData = pdcAudioProcessData_.emplace_back();
         audioProcessData.inputGroupCount = 1;
         audioProcessData.outputGroupCount = 1;
@@ -70,7 +71,10 @@ void MultiInputDeviceWithPDC::setDelayOfPDC(std::uint32_t audioInputGroupIndex, 
 {
     if(audioInputGroupIndex < pdcs_.size())
     {
+        auto& pdc = pdcs_[audioInputGroupIndex];
+        pdc.stopProcessing();
         pdcs_[audioInputGroupIndex].setDelay(delay);
+        pdc.startProcessing();
     }
 }
 
