@@ -31,6 +31,7 @@ public:
     std::uint32_t getMaxUpstreamLatency(const ade::NodeHandle& nodeHandle) const;
     void setLatencyOfNodeUpdatedCallback(std::function<LatencyOfNodeUpdatedCallback> function);
     void resetLatencyOfNodeUpdatedCallback();
+    void onLatencyOfNodeUpdated(const ade::NodeHandle& nodeHandle);
 private:
     void updateUpstreamLatency(
         const ade::NodeHandle& outNode,

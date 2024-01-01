@@ -9,6 +9,16 @@
 
 namespace YADAW::Audio::Engine::Extension
 {
+struct OutNodeElement
+{
+    ade::NodeHandle outNode;
+    std::uint32_t audioInputGroupIndex;
+    std::uint32_t latency;
+    OutNodeElement(const ade::NodeHandle& outNode,
+        std::uint32_t audioInputGroupIndex, std::uint32_t latency):
+        outNode(outNode), audioInputGroupIndex(audioInputGroupIndex), latency(latency) {}
+};
+
 void blankCallback(const UpstreamLatency& sender, const ade::NodeHandle& nodeHandle)
 {}
 
@@ -85,20 +95,44 @@ void UpstreamLatency::resetLatencyOfNodeUpdatedCallback()
     callback_ = &blankCallback;
 }
 
+void UpstreamLatency::onLatencyOfNodeUpdated(const ade::NodeHandle& nodeHandle)
+{
+    std::queue<OutNodeElement> queue;
+    std::set<ade::NodeHandle, YADAW::Util::CompareNodeHandle> latencyUpdatedNodes;
+    for(const auto& outEdge: nodeHandle->outEdges())
+    {
+        queue.emplace(outEdge->dstNode(), graph_.getEdgeData(outEdge).toChannel, sumLatency(nodeHandle));
+    }
+    do
+    {
+        FOR_RANGE0(i, queue.size())
+        {
+            auto& [outNode, audioInputGroupIndex, latency] = queue.front();
+            auto it = latencyUpdatedNodes.find(outNode);
+            if(it == latencyUpdatedNodes.end())
+            {
+                latencyUpdatedNodes.emplace_hint(it, outNode);
+            }
+            getData_(graph_, outNode).upstreamLatencies[audioInputGroupIndex] = latency;
+            for(const auto& outEdge: outNode->outEdges())
+            {
+                queue.emplace(outEdge->dstNode(), graph_.getEdgeData(outEdge).toChannel, sumLatency(outNode));
+            }
+            queue.pop();
+        }
+    }
+    while(!queue.empty());
+    for(const auto& node: latencyUpdatedNodes)
+    {
+        callback_(*this, node);
+    }
+}
+
 void UpstreamLatency::updateUpstreamLatency(
     const ade::NodeHandle& outNode,
     std::optional<ade::EdgeHandle> edge,
     std::uint32_t audioInputGroupIndex)
 {
-    struct OutNodeElement
-    {
-        ade::NodeHandle outNode;
-        std::uint32_t audioInputGroupIndex;
-        std::uint32_t latency;
-        OutNodeElement(const ade::NodeHandle& outNode,
-            std::uint32_t audioInputGroupIndex, std::uint32_t latency):
-            outNode(outNode), audioInputGroupIndex(audioInputGroupIndex), latency(latency) {}
-    };
     std::queue<OutNodeElement> queue;
     std::set<ade::NodeHandle, YADAW::Util::CompareNodeHandle> latencyUpdatedNodes;
     auto latency = edge.has_value()? sumLatency((*edge)->srcNode()): 0U;
