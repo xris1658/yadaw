@@ -1,5 +1,6 @@
 #include "ConfigController.hpp"
 
+#include "entity/AudioBackendSupport.hpp"
 #if __linux__
 #include "controller/ALSABackendController.hpp"
 #endif
@@ -17,16 +18,18 @@ class YAMLNodeInitializer
 private:
     YAMLNodeInitializer()
     {
+        auto backend = YADAW::Entity::AudioBackendSupport::Backend::Off;
         node_["general"]["language"] = "English";
         node_["general"]["system-font-rendering"] = false;
         node_["general"]["system-font-rendering-while-debugging"] = false;
 #if _WIN32
-        node_["audio-hardware"]["audio-api"] = "AudioGraph";
+        backend = YADAW::Entity::AudioBackendSupport::Backend::AudioGraph;
 #elif __linux__
-        node_["audio-hardware"]["audio-api"] = "ALSA";
+        backend = YADAW::Entity::AudioBackendSupport::Backend::ALSA;
         node_["audio-hardware"]["alsa"]["sample-rate"] = YADAW::Controller::DefaultSampleRate;
         node_["audio-hardware"]["alsa"]["buffer-size"] = YADAW::Controller::DefaultFrameSize;
 #endif
+        node_["audio-hardware"]["audio-api"] = YADAW::Entity::AudioBackendSupport::backendNames[backend];
         node_["plugin"]["scan-shortcuts"] = false;
         node_["plugin"]["scan-on-startup"] = false;
     }
