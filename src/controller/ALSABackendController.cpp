@@ -43,9 +43,9 @@ bool initializeALSAFromConfig(const YAML::Node& node)
 {
     auto& backend = appALSABackend();
     const auto& sampleRateNode = node["sample-rate"];
-    auto sampleRate = sampleRateNode.IsDefined()? sampleRateNode.as<std::uint32_t>(): DefaultSampleRate;
+    auto sampleRate = sampleRateNode.as<std::uint32_t>(DefaultSampleRate);
     const auto& frameSizeNode = node["buffer-size"];
-    auto frameSize = frameSizeNode.IsDefined()? frameSizeNode.as<std::uint32_t>(): DefaultFrameSize;
+    auto frameSize = frameSizeNode.as<std::uint32_t>(DefaultFrameSize);
     if(!backend.initialize(sampleRate, frameSize))
     {
         return false;
@@ -58,14 +58,14 @@ bool initializeALSAFromConfig(const YAML::Node& node)
             auto index = YADAW::Audio::Backend::findDeviceBySelector(
                 backend, true,
                 YADAW::Audio::Backend::ALSADeviceSelector(
-                    input["card-index"].as<std::uint32_t>(),
-                    input["device-index"].as<std::uint32_t>()
+                    input["card-index"].as<std::uint32_t>(YADAW::Audio::Backend::InvalidIndex),
+                    input["device-index"].as<std::uint32_t>(YADAW::Audio::Backend::InvalidIndex)
                 )
             );
             if(index.has_value())
             {
                 backend.setAudioDeviceActivated(
-                    true, *index, input["activated"].as<bool>()
+                    true, *index, input["activated"].as<bool>(false)
                 );
             }
         }
@@ -78,14 +78,14 @@ bool initializeALSAFromConfig(const YAML::Node& node)
             auto index = YADAW::Audio::Backend::findDeviceBySelector(
                 backend, false,
                 YADAW::Audio::Backend::ALSADeviceSelector(
-                    output["card-index"].as<std::uint32_t>(),
-                    output["device-index"].as<std::uint32_t>()
+                    output["card-index"].as<std::uint32_t>(YADAW::Audio::Backend::InvalidIndex),
+                    output["device-index"].as<std::uint32_t>(YADAW::Audio::Backend::InvalidIndex)
                 )
             );
             if(index.has_value())
             {
                 backend.setAudioDeviceActivated(
-                    false, *index, output["activated"].as<bool>()
+                    false, *index, output["activated"].as<bool>(false)
                 );
             }
         }

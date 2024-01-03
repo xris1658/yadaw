@@ -5,6 +5,8 @@
 #include "util/IntegerRange.hpp"
 #include "util/YAMLCppUtil.hpp"
 
+#include <string>
+
 namespace YADAW::Controller
 {
 void loadAudioBusConfiguration(const YAML::Node& node,
@@ -17,7 +19,7 @@ void loadAudioBusConfiguration(const YAML::Node& node,
         {
             const auto& bus = node[i];
             const auto& name =
-                QString::fromStdString(bus["name"].as<std::string>());
+                QString::fromStdString(bus["name"].as<std::string>(std::string{}));
             if(const auto& channels = bus["channels"];
                 channels.IsSequence())
             {
@@ -27,8 +29,8 @@ void loadAudioBusConfiguration(const YAML::Node& node,
                 for(decltype(channelCount) j = 0; j < channelCount; ++j)
                 {
                     const auto& channel = channels[j];
-                    auto deviceIndex = channel["device-index"].as<std::uint32_t>();
-                    auto channelIndex = channel["channel-index"].as<std::uint32_t>();
+                    auto deviceIndex = channel["device-index"].as<std::uint32_t>(YADAW::Audio::Device::InvalidIndex);
+                    auto channelIndex = channel["channel-index"].as<std::uint32_t>(YADAW::Audio::Device::InvalidIndex);
                     model.setChannel(i, j, deviceIndex, channelIndex);
                 }
             }

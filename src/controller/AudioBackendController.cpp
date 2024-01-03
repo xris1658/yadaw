@@ -9,7 +9,7 @@ using YADAW::Entity::AudioBackendSupport;
 AudioBackendSupport::Backend backendFromConfig(const YAML::Node& node)
 {
     const auto& audioBackendStringNode = node["audio-api"];
-    auto audioBackendString = node.IsDefined()?
+    auto audioBackendString = audioBackendStringNode.IsDefined()?
         std::optional(audioBackendStringNode.as<std::string>()):
         std::nullopt;
     if(audioBackendString.has_value())

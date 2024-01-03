@@ -6,12 +6,12 @@ namespace YADAW::Controller
 {
 bool GeneralSettingsController::systemFontRendering()
 {
-    return YADAW::Controller::loadConfig()["general"]["system-font-rendering"].as<bool>();
+    return YADAW::Controller::loadConfig()["general"]["system-font-rendering"].as<bool>(false);
 }
 
 bool GeneralSettingsController::systemFontRenderingWhileDebugging()
 {
-    return YADAW::Controller::loadConfig()["general"]["system-font-rendering-while-debugging"].as<bool>();
+    return YADAW::Controller::loadConfig()["general"]["system-font-rendering-while-debugging"].as<bool>(false);
 }
 
 void GeneralSettingsController::setSystemFontRendering(bool enabled)

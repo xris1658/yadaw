@@ -2,9 +2,11 @@
 #define YADAW_SRC_AUDIO_BACKEND_ALSADEVICESELECTOR
 
 #include <cstdint>
+#include <limits>
 
 namespace YADAW::Audio::Backend
 {
+constexpr std::uint32_t InvalidIndex = std::numeric_limits<std::uint32_t>::max();
 struct ALSADeviceSelector
 {
     ALSADeviceSelector(std::uint32_t c, std::uint32_t d): cIndex(c), dIndex(d) {}

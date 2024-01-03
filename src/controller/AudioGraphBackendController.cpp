@@ -68,7 +68,7 @@ bool createAudioGraphFromConfig(const YAML::Node& node)
     else
     {
         if(!backend.createAudioGraph(
-            QString::fromStdString(defaultOutputIdNode.as<std::string>())))
+            QString::fromStdString(defaultOutputIdNode.as<std::string>(std::string{}))))
         {
             return false;
         }
@@ -80,8 +80,8 @@ bool createAudioGraphFromConfig(const YAML::Node& node)
         auto deviceInputCount = backend.audioInputDeviceCount();
         FOR_RANGE0(i, configInputCount)
         {
-            const auto& id = inputsNode[i]["id"].as<std::string>();
-            if(inputsNode[i]["activated"].as<bool>())
+            const auto& id = inputsNode[i]["id"].as<std::string>(std::string{});
+            if(inputsNode[i]["activated"].as<bool>(false))
             {
                 for(decltype(deviceInputCount) j = 0; j < deviceInputCount; ++j)
                 {
