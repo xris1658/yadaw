@@ -21,22 +21,23 @@ Window {
     Column {
         id: column
         anchors.centerIn: parent
-        Row {
+        TabBar {
             id: tabButtons
-            width: root.width - root.padding * 2
             TabButton {
                 id: inputButton
+                width: implicitWidth
                 text: qsTr("Input")
                 checked: true
             }
             TabButton {
                 id: outputButton
+                width: implicitWidth
                 text: qsTr("Output")
             }
         }
         Rectangle {
             id: tabContent
-            width: tabButtons.width
+            width: root.width - root.padding * 2
             height: root.height - tabButtons.height - root.padding * 2
             color: "transparent"
             border.color: Colors.border
@@ -44,7 +45,7 @@ Window {
                 id: stackLayout
                 anchors.fill: parent
                 anchors.margins: parent.border.width
-                currentIndex: inputButton.checked? 0: 1
+                currentIndex: tabButtons.currentIndex
                 AudioBusConfiguration {
                     id: inputConfig
                     width: stackLayout.width
@@ -56,6 +57,31 @@ Window {
                     height: stackLayout.height
                 }
             }
+        }
+    }
+    Shortcut {
+        context: Qt.WindowShortcut
+        sequence: "Ctrl+Tab"
+        onActivated: {
+            let index = tabButtons.currentIndex === tabButtons.count - 1?
+                0: tabButtons.currentIndex + 1;
+            tabButtons.currentIndex = index;
+        }
+    }
+    Shortcut {
+        context: Qt.WindowShortcut
+        sequence: "Ctrl+Shift+Tab"
+        onActivated: {
+            let index = tabButtons.currentIndex === 0?
+                tabButtons.count - 1: tabButtons.currentIndex - 1;
+            tabButtons.currentIndex = index;
+        }
+    }
+    Shortcut {
+        context: Qt.WindowShortcut
+        sequence: "Esc"
+        onActivated: {
+            root.close();
         }
     }
 }
