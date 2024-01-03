@@ -271,7 +271,7 @@ Window {
     }
     Shortcut {
         context: Qt.WindowShortcut
-        sequence: StandardKey.NextChild
+        sequence: "Ctrl+Tab"
         onActivated: {
             let index = trackType === trackTypeTabBar.count - 1? 0: trackType + 1;
             root.trackType = index;
@@ -279,7 +279,7 @@ Window {
     }
     Shortcut {
         context: Qt.WindowShortcut
-        sequence: StandardKey.PreviousChild
+        sequence: "Ctrl+Shift+Tab"
         onActivated: {
             let index = trackType === 0? trackTypeTabBar.count - 1: trackType - 1;
             root.trackType = index;
