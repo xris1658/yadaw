@@ -749,7 +749,7 @@ ApplicationWindow {
                 EventSender.setSystemFontRendering(systemFontRendering);
                 Global.messageDialog(qsTr("The settings are saved. Please restart the application to apply the new settings."),
                     "YADAW",
-                    MessageDialog.Icon.Info);
+                    MessageDialog.Info);
             }
         }
         onSystemFontRenderingWhileDebuggingChanged: {
@@ -757,7 +757,7 @@ ApplicationWindow {
                 EventSender.setSystemFontRenderingWhileDebugging(systemFontRenderingWhileDebugging);
                 Global.messageDialog(qsTr("The settings are saved. Please restart the application to apply the new settings."),
                     "YADAW",
-                    MessageDialog.Icon.Info);
+                    MessageDialog.Info);
             }
         }
     }

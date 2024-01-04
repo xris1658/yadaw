@@ -12,7 +12,6 @@ QtObject {
             let dialog = component.createObject(null);
             dialog.message = message;
             dialog.title = title;
-            dialog.standardButtons = QC.DialogButtonBox.Ok;
             dialog.icon = icon;
             if(modal) {
                 dialog.modality = Qt.NonModal;

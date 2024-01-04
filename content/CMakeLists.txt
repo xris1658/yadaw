@@ -61,6 +61,7 @@ set(CONTENT_QML_FILES
     Constants.qml
     Detail.qml
     Dial.qml
+    DialogButtons.qml
     EventReceiver.qml
     EventSender.qml
     FaderIcon.qml

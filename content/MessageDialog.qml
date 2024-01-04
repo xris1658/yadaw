@@ -17,21 +17,18 @@ Window {
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
     color: Colors.background
-    height: icon.height + dialogButtonBox.height + row.padding * 2
-    minimumHeight: row.height + dialogButtonBox.height
+    height: icon.height + dialogButtonBox.height + row.padding * 3
+    minimumHeight: row.height + dialogButtonBox.height + row.padding
     width: Math.max(dialogButtonBox.contentWidth + dialogButtonBox.padding * 2, row.width)
     minimumWidth: row.width
     x: (screen.width - width) / 2
     y: (screen.height - height) / 2
     property string message: "Message Text"
-    property alias standardButtons: dialogButtonBox.standardButtons
-    signal accepted()
     title: "Title of dialog"
-    signal clicked(button: QC.AbstractButton)
-    onClicked: (button) => {
-        //
+    signal clicked(buttonRole: int)
+    onClicked: (buttonRole) => {
+        close();
     }
-    property QC.DialogButtonBox dialogButtonBox: dialogButtonBox
     Row {
         id: row
         padding: 10
@@ -59,23 +56,37 @@ Window {
             color: Colors.content
         }
     }
-    QC.DialogButtonBox {
+    DialogButtons {
         id: dialogButtonBox
-        background: Rectangle {
-            color: Colors.background
-        }
-        alignment: Qt.AlignRight
-        anchors.bottom: parent.bottom
+        anchors.top: row.bottom
         anchors.right: parent.right
-        width: parent.width
-        spacing: 5
-        padding: 5
-        onClicked: {
-            root.close();
+        anchors.rightMargin: 10
+        model: ListModel {
+            ListElement {
+                buttonRole: DialogButtons.Ok
+            }
         }
-        delegate: Button {
+        onButtonClicked: (buttonRole) => {
+            root.clicked(buttonRole);
         }
     }
+    // QC.DialogButtonBox {
+    //     id: dialogButtonBox
+    //     background: Rectangle {
+    //         color: Colors.background
+    //     }
+    //     alignment: Qt.AlignRight
+    //     anchors.bottom: parent.bottom
+    //     anchors.right: parent.right
+    //     width: parent.width
+    //     spacing: 5
+    //     padding: 5
+    //     onClicked: {
+    //         root.close();
+    //     }
+    //     delegate: Button {
+    //     }
+    // }
     Component.onCompleted: {
     }
 }
