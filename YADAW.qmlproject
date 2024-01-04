@@ -49,7 +49,7 @@ Project {
     qt6Project: true
 
     /* List of plugin directories passed to QML runtime */
-    importPaths: [ ".", "content/imports", "asset_imports", "content/model" ]
+    importPaths: [ ".", "content/imports", "content/model", "content/entity" ]
 
     /* Required for deployment */
     targetDirectory: "/opt/YADAW"
