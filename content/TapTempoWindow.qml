@@ -40,7 +40,7 @@ Window {
                     text: qsTr("&Round")
                 }
                 Button {
-                    text: qsTr("&Apply")
+                    text: Constants.applyTextWithMnemonic
                 }
             }
         }
