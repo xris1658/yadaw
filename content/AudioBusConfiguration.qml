@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Controls as QC
 import QtQuick.Layouts
 
+import YADAW.Models
+
 Rectangle {
     id: root
     color: Colors.background
@@ -195,7 +197,7 @@ Rectangle {
                     ComboBox {
                         id: deviceSelector
                         width: channelList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0) - channelSelector.width - indexIndicator.width
-                        property int channelCount: model.data(model.index(currentIndex, 0), Qt.UserRole + 3) // FIXME
+                        property int channelCount: model.data(model.index(currentIndex, 0), IAudioDeviceListModel.ChannelCount)
                         model: deviceListModel
                         textRole: "adlm_name"
                         valueRole: "adlm_id"

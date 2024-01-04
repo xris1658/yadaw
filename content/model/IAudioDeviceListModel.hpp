@@ -19,6 +19,7 @@ public:
         ChannelCount,
         RoleCount
     };
+    Q_ENUM(Role)
 public:
     IAudioDeviceListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
     virtual ~IAudioDeviceListModel() {}
