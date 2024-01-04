@@ -12,16 +12,16 @@ Row {
     QtObject {
         id: impl
         readonly property var buttonText: [
-            Constants.okText,
-            Constants.cancelText,
-            Constants.applyText,
-            Constants.yesText,
-            Constants.noText,
-            Constants.yesToAllText,
-            Constants.noToAllText,
-            Constants.abortText,
-            Constants.retryText,
-            Constants.ignoreText
+            Constants.okTextWithMnemonic,
+            Constants.cancelTextWithMnemonic,
+            Constants.applyTextWithMnemonic,
+            Constants.yesTextWithMnemonic,
+            Constants.noTextWithMnemonic,
+            Constants.yesToAllTextWithMnemonic,
+            Constants.noToAllTextWithMnemonic,
+            Constants.abortTextWithMnemonic,
+            Constants.retryTextWithMnemonic,
+            Constants.ignoreTextWithMnemonic
         ]
     }
     spacing: 3
