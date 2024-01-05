@@ -98,10 +98,7 @@ std::optional<ade::EdgeHandle> AudioDeviceGraphBase::connect(
                     (const ade::EdgeHandle& edgeHandle)
                 {
                     const auto& edgeData = getEdgeData(edgeHandle);
-                    return edgeData.fromChannel != fromChannel && (
-                        edgeHandle->dstNode() != toNode ||
-                        edgeData.toChannel != toChannel
-                    );
+                    return edgeHandle->dstNode() != toNode || edgeData.toChannel != toChannel;
                 }
             )
         )
