@@ -14,6 +14,7 @@ Window {
         Info
     }
     property int icon: MessageDialog.Icon.None
+    property alias buttonModel: dialogButtonBox.model
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
     color: Colors.background
@@ -70,23 +71,6 @@ Window {
             root.clicked(buttonRole);
         }
     }
-    // QC.DialogButtonBox {
-    //     id: dialogButtonBox
-    //     background: Rectangle {
-    //         color: Colors.background
-    //     }
-    //     alignment: Qt.AlignRight
-    //     anchors.bottom: parent.bottom
-    //     anchors.right: parent.right
-    //     width: parent.width
-    //     spacing: 5
-    //     padding: 5
-    //     onClicked: {
-    //         root.close();
-    //     }
-    //     delegate: Button {
-    //     }
-    // }
     Component.onCompleted: {
     }
 }
