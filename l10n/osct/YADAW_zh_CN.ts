@@ -390,14 +390,8 @@
 <context>
     <name>AudioHardwareSettings</name>
     <message>
-        <source>The audio backend will be switched to &lt;b&gt;%1&lt;/b&gt;, so the audio capture and playback will be interrupted.
-Proceed?</source>
-        <translation type="vanished">音频后端将切换至 &lt;b&gt;%1&lt;/b&gt;，因此音频录制和回放会中断。
-要继续吗？</translation>
-    </message>
-    <message>
         <location filename="../../content/AudioHardwareSettings.qml" line="42"/>
-        <source>The audio backend will be switched from &lt;b&gt;%1&lt;/b&gt;to &lt;b&gt;%2&lt;/b&gt;, so the audio capture and playback will be interrupted.
+        <source>The audio backend will be switched from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt;, so the audio capture and playback will be interrupted.
 Proceed?</source>
         <translation>音频后端将从&lt;b&gt;%1&lt;/b&gt;切换至&lt;b&gt;%2&lt;/b&gt;，因此音频录制和回放会中断。
             要继续吗？</translation>
