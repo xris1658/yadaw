@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <map>
 #include <mutex>
 #include <string>
@@ -53,7 +54,7 @@ void doEnumerateDeviceNames()
         char lineBuffer[128];
         while(true)
         {
-            ifs.getline(lineBuffer, YADAW::Util::stackArraySize(lineBuffer));
+            ifs.getline(lineBuffer, std::size(lineBuffer));
             ALSADeviceSelector selector(-1, -1);
             std::sscanf(lineBuffer, "%d-%d", &(selector.cIndex), &(selector.dIndex));
             if(selector.cIndex != UINT32_MAX && selector.dIndex != UINT32_MAX)

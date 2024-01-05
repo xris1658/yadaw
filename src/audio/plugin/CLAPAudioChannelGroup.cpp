@@ -1,7 +1,8 @@
 #include "CLAPAudioChannelGroup.hpp"
 
 #include "audio/util/CLAPHelper.hpp"
-#include "util/Base.hpp"
+
+#include <iterator>
 
 namespace YADAW::Audio::Plugin
 {
@@ -95,13 +96,13 @@ template<> std::uint8_t clapSpeakers<ChannelGroupType::e71>[] = {
 };
 
 template<ChannelGroupType C>
-std::basic_string_view<std::uint8_t> clapSpeakerView(clapSpeakers<C>, stackArraySize(clapSpeakers<C>));
+std::basic_string_view<std::uint8_t> clapSpeakerView(clapSpeakers<C>, std::size(clapSpeakers<C>));
 
 template<ChannelGroupType C>
 bool mappingIsChannelGroupType(const std::vector<std::uint8_t>& mapping)
 {
     return
-        mapping.size() == stackArraySize(clapSpeakers<C>)
+        mapping.size() == std::size(clapSpeakers<C>)
         && std::for_each(mapping.begin(), mapping.end(),
             [](std::uint8_t speaker)
             {

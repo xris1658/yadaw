@@ -3,9 +3,10 @@
 #include "MIDIInputDeviceImpl.hpp"
 
 #include "native/linux/ALSADeviceEnumerator.hpp"
-#include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
 #include "util/Util.hpp"
+
+#include <iterator>
 
 inline std::int64_t nanosecondFromRealTime(snd_seq_real_time time)
 {
@@ -122,7 +123,7 @@ void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
                             else
                             {
                                 auto byteCount = snd_midi_event_decode(midiEvent,
-                                    midiBuffer, YADAW::Util::stackArraySize(midiBuffer),
+                                    midiBuffer, std::size(midiBuffer),
                                     event);
                                 YADAW::MIDI::Message message{};
                                 message.size = byteCount;

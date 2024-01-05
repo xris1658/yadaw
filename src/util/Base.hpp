@@ -8,12 +8,6 @@
 
 namespace YADAW::Util
 {
-template<typename T, std::size_t N>
-constexpr std::size_t stackArraySize(const T(&)[N]) noexcept
-{
-    return N;
-}
-
 // null-terminator is not included
 template<typename T, std::size_t N>
 constexpr std::size_t stringLength(const T(&)[N]) noexcept

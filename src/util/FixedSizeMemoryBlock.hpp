@@ -1,8 +1,6 @@
 #ifndef YADAW_SRC_UTIL_FIXEDSIZEMEMORYBLOCK
 #define YADAW_SRC_UTIL_FIXEDSIZEMEMORYBLOCK
 
-#include "util/Base.hpp"
-
 #include <cstddef>
 
 namespace YADAW::Util

@@ -2,6 +2,8 @@
 
 #include "util/Base.hpp"
 
+#include <iterator>
+
 namespace YADAW::Model
 {
 using namespace YADAW::Audio::Base;
@@ -48,7 +50,7 @@ QVariant AudioChannelGroupModel::data(const QModelIndex& index, int role) const
         case Role::ChannelType:
         {
             auto type = YADAW::Util::underlyingValue(group_->speakerAt(row));
-            if(type >= 0 && type < YADAW::Util::stackArraySize(channelType))
+            if(type >= 0 && type < std::size(channelType))
             {
                 return QVariant::fromValue<IAudioChannelGroupModel::Channel>(channelType[type]);
             }

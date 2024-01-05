@@ -2,7 +2,6 @@
 
 #include "native/Native.hpp"
 
-#include "util/Base.hpp"
 #include "util/FixedSizeMemoryBlock.hpp"
 
 #include <QList>
@@ -117,7 +116,7 @@ void openSpecialCharacterInput()
 void showFileInExplorer(const QString& path)
 {
     constexpr char part1Raw[] = "explorer /select,";
-    constexpr auto size = YADAW::Util::stackArraySize(part1Raw) - 1;
+    constexpr auto size = YADAW::Util::stringLength(part1Raw);
     QString command = part1Raw;
     for(int i = 0; i < path.size(); ++i)
     {

@@ -9,7 +9,6 @@
 #include "native/CLAPNative.hpp"
 #include "native/VST3Native.hpp"
 #include "native/VestifalNative.hpp"
-#include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
 
 #include <pluginterfaces/vst/ivstaudioprocessor.h>
@@ -18,6 +17,8 @@
 
 #include <QDir>
 #include <QStringList>
+
+#include <iterator>
 
 #include <cstring>
 
@@ -108,11 +109,11 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                 {
                     bool isInstrument = false;
                     bool isAudioEffect = false;
-                    std::memset(classInfoW.subCategories, 0, YADAW::Util::stackArraySize(classInfoW.subCategories));
+                    std::memset(classInfoW.subCategories, 0, std::size(classInfoW.subCategories));
                     if(factory3->getClassInfoUnicode(i, &classInfoW) == Steinberg::kResultOk
                     && std::strcmp(classInfoW.category, kVstAudioEffectClass) == 0)
                     {
-                        char* subCategoryCollection[YADAW::Util::stackArraySize(classInfoW.subCategories)];
+                        char* subCategoryCollection[std::size(classInfoW.subCategories)];
                         auto subCategoryCount = YADAW::Audio::Util::splitSubCategories(
                             classInfoW.subCategories, subCategoryCollection);
                         std::vector<QString> subCategories;
@@ -176,11 +177,11 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                 {
                     bool isInstrument = false;
                     bool isAudioEffect = false;
-                    std::memset(classInfo2.subCategories, 0, YADAW::Util::stackArraySize(classInfo2.subCategories));
+                    std::memset(classInfo2.subCategories, 0, std::size(classInfo2.subCategories));
                     if(factory2->getClassInfo2(i, &classInfo2) == Steinberg::kResultOk
                     && std::strcmp(classInfo2.category, kVstAudioEffectClass) == 0)
                     {
-                        char* subCategoryCollection[YADAW::Util::stackArraySize(classInfo2.subCategories)];
+                        char* subCategoryCollection[std::size(classInfo2.subCategories)];
                         auto subCategoryCount = YADAW::Audio::Util::splitSubCategories(
                             classInfo2.subCategories, subCategoryCollection);
                         std::vector<QString> subCategories;
@@ -433,7 +434,7 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                 while(true)
                 {
                     auto nextId = runDispatcher(effect, EffectOpcode::effectShellGetNextPlugin, 0, 0,
-                        name, YADAW::Util::stackArraySize(name));
+                        name, std::size(name));
                     if(nextId == 0 || name[0] == 0)
                     {
                         break;
@@ -446,9 +447,9 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                 std::memcpy(uidAsVector.data(), &effect->uniqueId, sizeof(std::int32_t));
                 auto version = QString::number(effect->version, 16);
                 runDispatcher(effect, EffectOpcode::effectGetEffectName, 0, 0,
-                    name, YADAW::Util::stackArraySize(name));
+                    name, std::size(name));
                 runDispatcher(effect, EffectOpcode::effectGetVendorName, 0, 0,
-                    vendor, YADAW::Util::stackArraySize(vendor));
+                    vendor, std::size(vendor));
                 auto type = (effect->flags & EffectFlag::effectIsSynth)?
                             YADAW::DAO::PluginType::PluginTypeInstrument:
                             YADAW::DAO::PluginType::PluginTypeAudioEffect;
@@ -478,9 +479,9 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                     std::memcpy(uidAsVector.data(), &effect->uniqueId, sizeof(std::int32_t));
                     auto version = QString::number(effect->version, 16);
                     runDispatcher(effect, EffectOpcode::effectGetEffectName, 0, 0,
-                        name, YADAW::Util::stackArraySize(name));
+                        name, std::size(name));
                     runDispatcher(effect, EffectOpcode::effectGetVendorName, 0, 0,
-                        vendor, YADAW::Util::stackArraySize(vendor));
+                        vendor, std::size(vendor));
                     auto type = (effect->flags & EffectFlag::effectIsSynth)?
                                YADAW::DAO::PluginType::PluginTypeInstrument:
                                YADAW::DAO::PluginType::PluginTypeAudioEffect;

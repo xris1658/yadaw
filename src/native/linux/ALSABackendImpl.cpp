@@ -3,13 +3,13 @@
 #include "ALSABackendImpl.hpp"
 
 #include "native/linux/ALSADeviceEnumerator.hpp"
-#include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
 #include "util/SampleFormat.hpp"
 
 #include <alloca.h>
 
 #include <filesystem>
+#include <iterator>
 #include <mutex>
 
 constexpr auto SND_PCM_FORMAT_FLOAT64_RE = SND_PCM_FORMAT_FLOAT64 == SND_PCM_FORMAT_FLOAT64_LE? SND_PCM_FORMAT_FLOAT64_BE: SND_PCM_FORMAT_FLOAT64_LE;
@@ -641,7 +641,7 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::b
         return {};
     }
     snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
-    FOR_RANGE0(i, YADAW::Util::stackArraySize(formats))
+    FOR_RANGE0(i, std::size(formats))
     {
         if(snd_pcm_hw_params_set_format(pcm, hwParams, formats[i]) == 0)
         {
@@ -702,7 +702,7 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::b
         return {};
     }
     int access = SND_PCM_ACCESS_LAST + 1;
-    FOR_RANGE0(i, YADAW::Util::stackArraySize(accesses))
+    FOR_RANGE0(i, std::size(accesses))
     {
         if(snd_pcm_hw_params_set_access(pcm, hwParams, accesses[i]) == 0)
         {

@@ -1,9 +1,8 @@
 #include "IAudioChannelGroup.hpp"
 
-#include "util/Base.hpp"
+#include <iterator>
 
 using namespace YADAW::Audio::Base;
-using namespace YADAW::Util;
 
 template<ChannelGroupType>
 ChannelType speakers[] = {};
@@ -63,7 +62,7 @@ ChannelType speakers<ChannelGroupType::e71>[] = {
 template<ChannelGroupType C>
 ChannelType getChannelFromGroup(std::uint32_t index)
 {
-    return index < stackArraySize(speakers<C>)?
+    return index < std::size(speakers<C>)?
         speakers<C>[index]:
             ChannelType::Invalid;
 }
@@ -87,35 +86,35 @@ int IAudioChannelGroup::channelCount(ChannelGroupType channelGroupType)
 {
     if(constexpr auto C = ChannelGroupType::eMono; channelGroupType == C)
     {
-        return stackArraySize(speakers<C>);
+        return std::size(speakers<C>);
     }
     if(constexpr auto C = ChannelGroupType::eStereo; channelGroupType == C)
     {
-        return stackArraySize(speakers<C>);
+        return std::size(speakers<C>);
     }
     if(constexpr auto C = ChannelGroupType::eLRC; channelGroupType == C)
     {
-        return stackArraySize(speakers<C>);
+        return std::size(speakers<C>);
     }
     if(constexpr auto C = ChannelGroupType::eQuad; channelGroupType == C)
     {
-        return stackArraySize(speakers<C>);
+        return std::size(speakers<C>);
     }
     if(constexpr auto C = ChannelGroupType::e50; channelGroupType == C)
     {
-        return stackArraySize(speakers<C>);
+        return std::size(speakers<C>);
     }
     if(constexpr auto C = ChannelGroupType::e51; channelGroupType == C)
     {
-        return stackArraySize(speakers<C>);
+        return std::size(speakers<C>);
     }
     if(constexpr auto C = ChannelGroupType::e61; channelGroupType == C)
     {
-        return stackArraySize(speakers<C>);
+        return std::size(speakers<C>);
     }
     if(constexpr auto C = ChannelGroupType::e71; channelGroupType == C)
     {
-        return stackArraySize(speakers<C>);
+        return std::size(speakers<C>);
     }
     return InvalidChannelCount;
 }

@@ -1,7 +1,8 @@
 #include "AudioBackendController.hpp"
 
-#include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
+
+#include <iterator>
 
 namespace YADAW::Controller
 {
@@ -14,7 +15,7 @@ AudioBackendSupport::Backend backendFromConfig(const YAML::Node& node)
         std::nullopt;
     if(audioBackendString.has_value())
     {
-        FOR_RANGE0(i, YADAW::Util::stackArraySize(AudioBackendSupport::backendNames))
+        FOR_RANGE0(i, std::size(AudioBackendSupport::backendNames))
         {
             if(audioBackendString == AudioBackendSupport::backendNames[i])
             {

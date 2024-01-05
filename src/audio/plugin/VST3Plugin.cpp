@@ -56,10 +56,9 @@ YADAW::Audio::Base::ChannelGroupType fromSpeakerArrangement(SpeakerArrangement s
 
 Steinberg::Vst::SpeakerArrangement fromChannelGroup(YADAW::Audio::Base::ChannelGroupType channelGroup)
 {
-    using namespace YADAW::Util;
-    if(auto index = underlyingValue(channelGroup);
+    if(auto index = YADAW::Util::underlyingValue(channelGroup);
         index >= 0
-        && index < underlyingValue(YADAW::Audio::Base::ChannelGroupType::eEnd))
+        && index < YADAW::Util::underlyingValue(YADAW::Audio::Base::ChannelGroupType::eEnd))
     {
         return vst3ChannelGroupMapping[index];
     }

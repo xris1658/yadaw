@@ -11,6 +11,7 @@
 
 #include <ctime>
 #include <fstream>
+#include <iterator>
 #include <mutex>
 
 namespace YADAW::Native
@@ -33,10 +34,10 @@ bool isDebuggerPresent()
     std::sprintf(path.data(), "/proc/%d/status", pid);
     std::ifstream ifs(path.data());
     char lineBuffer[128];
-    std::memset(lineBuffer, 0, YADAW::Util::stackArraySize(lineBuffer));
+    std::memset(lineBuffer, 0, std::size(lineBuffer));
     while(ifs.peek() != EOF)
     {
-        ifs.getline(lineBuffer, YADAW::Util::stackArraySize(lineBuffer));
+        ifs.getline(lineBuffer, std::size(lineBuffer));
         int tracerPid = 0;
         if(std::sscanf(lineBuffer, "TracerPid:\t%d", &tracerPid) != 0)
         {
