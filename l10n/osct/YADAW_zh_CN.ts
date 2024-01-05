@@ -390,22 +390,45 @@
 <context>
     <name>AudioHardwareSettings</name>
     <message>
-        <location filename="../../content/AudioHardwareSettings.qml" line="43"/>
+        <source>The audio backend will be switched to &lt;b&gt;%1&lt;/b&gt;, so the audio capture and playback will be interrupted.
+Proceed?</source>
+        <translation type="vanished">音频后端将切换至 &lt;b&gt;%1&lt;/b&gt;，因此音频录制和回放会中断。
+要继续吗？</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioHardwareSettings.qml" line="42"/>
+        <source>The audio backend will be switched from &lt;b&gt;%1&lt;/b&gt;to &lt;b&gt;%2&lt;/b&gt;, so the audio capture and playback will be interrupted.
+Proceed?</source>
+        <translation>音频后端将从&lt;b&gt;%1&lt;/b&gt;切换至&lt;b&gt;%2&lt;/b&gt;，因此音频录制和回放会中断。
+            要继续吗？</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioHardwareSettings.qml" line="48"/>
+        <source>&amp;Switch</source>
+        <translation>切换(&amp;S)</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioHardwareSettings.qml" line="52"/>
+        <source>&amp;Keep</source>
+        <translation>保持(&amp;K)</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioHardwareSettings.qml" line="74"/>
         <source>Audio Engine</source>
         <translation>音频引擎</translation>
     </message>
     <message>
-        <location filename="../../content/AudioHardwareSettings.qml" line="52"/>
+        <location filename="../../content/AudioHardwareSettings.qml" line="83"/>
         <source>Audio Backend</source>
         <translation>音频后端</translation>
     </message>
     <message>
-        <location filename="../../content/AudioHardwareSettings.qml" line="104"/>
+        <location filename="../../content/AudioHardwareSettings.qml" line="140"/>
         <source>Off</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../../content/AudioHardwareSettings.qml" line="75"/>
+        <location filename="../../content/AudioHardwareSettings.qml" line="111"/>
         <source>&amp;Configure Audio Bus...</source>
         <translation>配置音频总线(&amp;C)...</translation>
     </message>

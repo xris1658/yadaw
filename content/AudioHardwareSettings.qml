@@ -11,7 +11,11 @@ Item {
     property int firstColumnWidth
     property int secondColumnWidth
 
-    property alias currentBackend: audioEngineSelector.currentIndex
+    property int currentBackend: -1
+
+    onCurrentBackendChanged: {
+        audioEngineSelector.currentIndex = currentBackend;
+    }
 
     property alias audioInputDeviceList: audioBusConfigurationWindow.inputDeviceListModel
     property alias audioOutputDeviceList: audioBusConfigurationWindow.outputDeviceListModel
@@ -29,6 +33,33 @@ Item {
     QtObject {
         id: impl
         readonly property AudioBackendSupport audioBackendSupport: AudioBackendSupport {}
+    }
+
+    MessageDialog {
+        id: messageDialog
+        visible: false
+        icon: MessageDialog.Warning
+        message: qsTr("The audio backend will be switched from <b>%1</b>to <b>%2</b>, so the audio capture and playback will be interrupted.\nProceed?")
+            .arg(audioEngineSelector.model.get(currentBackend).name).arg(audioEngineSelector.currentText)
+        title: "YADAW"
+        buttonModel: ListModel {
+            ListElement {
+                buttonRole: DialogButtons.Yes
+                buttonText: qsTr("&Switch")
+            }
+            ListElement {
+                buttonRole: DialogButtons.No
+                buttonText: qsTr("&Keep")
+            }
+        }
+        onClicked: (buttonRole) => {
+            if(buttonRole === DialogButtons.Yes) {
+                currentBackend = audioEngineSelector.currentIndex;
+            }
+            else {
+                audioEngineSelector.currentIndex = currentBackend;
+            }
+        }
     }
 
     Grid {
@@ -59,6 +90,11 @@ Item {
             textRole: "name"
             valueRole: "value"
             enabledRole: "enabled"
+            onActivated: (index) => {
+                if(currentBackend !== audioEngineSelector.currentIndex) {
+                    messageDialog.show();
+                }
+            }
         }
         Item {
             visible: audioEngineSelector.currentValue !== AudioBackendSupport.Off
