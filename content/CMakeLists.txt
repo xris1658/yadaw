@@ -90,6 +90,7 @@ set(CONTENT_QML_FILES
     MIDIEffectIcon.qml
     Mixer.qml
     MixerChannel.qml
+    MixerInsertSlot.qml
     Mnemonic.qml
     MnemonicFunctions.js
     PianoKeys.qml
