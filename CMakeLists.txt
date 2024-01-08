@@ -309,10 +309,10 @@ set(YADAW_COMMON_SOURCES
     src/model/AudioBusConfigurationModel.hpp
     src/model/AudioChannelGroupModel.cpp
     src/model/AudioChannelGroupModel.hpp
+    src/model/AudioDeviceIOGroupListModel.cpp
+    src/model/AudioDeviceIOGroupListModel.hpp
     src/model/AutomationModel.cpp
     src/model/AutomationModel.hpp
-    src/model/DeviceIOGroupListModel.cpp
-    src/model/DeviceIOGroupListModel.hpp
     src/model/FilterRoleModel.cpp
     src/model/FilterRoleModel.hpp
     src/model/LocalizationListModel.cpp
@@ -380,6 +380,8 @@ set(YADAW_COMMON_SOURCES
     src/util/VectorUtil.hpp
     src/util/YAMLCppUtil.hpp
     src/util/ZeckendorfLogarithm.hpp
+    src/model/SpeakerListModel.cpp
+    src/model/SpeakerListModel.hpp
 )
 
 qt_add_executable(YADAW

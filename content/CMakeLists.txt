@@ -20,9 +20,9 @@ set(CONTENT_CPP_FILES
     model/IAudioBusChannelListModel.hpp
     model/IAudioBusConfigurationModel.hpp
     model/IAudioChannelGroupModel.hpp
+    model/IAudioDeviceIOGroupListModel.hpp
     model/IAudioDeviceListModel.hpp
     model/IAutomationModel.hpp
-    model/IDeviceIOGroupListModel.hpp
     model/IFilterRoleModel.hpp
     model/ILocalizationListModel.hpp
     model/ModelBase.hpp
@@ -32,6 +32,7 @@ set(CONTENT_CPP_FILES
     model/ISortFilterListModel.hpp
     model/ISortFilterProxyListModel.hpp
     model/ISortOrderModel.hpp
+    model/ISpeakerListModel.hpp
     model/ITrackListModel.hpp
     )
 
