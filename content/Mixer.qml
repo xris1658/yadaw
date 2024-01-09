@@ -7,8 +7,8 @@ Rectangle {
     color: Colors.background
     clip: true
 
-    property var inputModel: null
-    property var outputModel: null
+    property alias inputModel: inputChannels.model
+    property alias outputModel: outputChannels.model
     property alias showIO: ioButton.checked
     property alias showInsert: insertButton.checked
     property alias showSend: sendButton.checked
@@ -129,13 +129,13 @@ Rectangle {
         }
     }
     ListView {
+        id: inputChannels
         visible: showInputBus
         anchors.left: leftBar.right
         width: contentWidth
         height: root.height
         orientation: Qt.Horizontal
         boundsBehavior: ListView.StopAtBounds
-        model: inputModel
         delegate: Row {
             width: inputMixerChannel.width + inputMixerChannelBorder.width
             MixerChannel {
@@ -163,13 +163,13 @@ Rectangle {
         }
     }
     ListView {
+        id: outputChannels
         visible: showOutputBus
         anchors.right: root.right
         width: contentWidth
         height: root.height
         orientation: Qt.Horizontal
         boundsBehavior: ListView.StopAtBounds
-        model: outputModel
         delegate: Row {
             width: outputMixerChannel.width + outputMixerChannelBorder.width
             Rectangle {

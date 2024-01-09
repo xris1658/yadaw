@@ -1,6 +1,8 @@
 import QtQuick
 import QtQml.Models
 
+import YADAW.Models
+
 MainWindow {
     id: mainWindow
     assetDirectoryListModel: ListModel {
@@ -253,5 +255,37 @@ MainWindow {
         Global.qtVersion = "6.5.1";
         Global.qtCopyrightYear = "2023";
         mainWindowReady();
+    }
+
+    pluginListModel: IPluginListModel {
+        Component.onCompleted: {
+            append(
+                {
+                    "plm_name": "Plugin Name",
+                    "plm_vendor": "Plugin Vendor",
+                    "plm_version": "1.0.0.0",
+                    "plm_format": IPluginListModel.Vestifal,
+                    "plm_type": IPluginListModel.Instrument
+                }
+            );
+            append(
+                {
+                    "plm_name": "Plugin Name",
+                    "plm_vendor": "Plugin Vendor",
+                    "plm_version": "1.0.0.0",
+                    "plm_format": IPluginListModel.VST3,
+                    "plm_type": IPluginListModel.AudioEffect
+                }
+            );
+            append(
+                {
+                    "plm_name": "Plugin Name",
+                    "plm_vendor": "Plugin Vendor",
+                    "plm_version": "1.0.0.0",
+                    "plm_format": IPluginListModel.CLAP,
+                    "plm_type": IPluginListModel.MIDIEffect
+                }
+            );
+        }
     }
 }

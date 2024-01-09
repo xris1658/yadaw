@@ -99,24 +99,56 @@ Rectangle {
             Layout.verticalStretchFactor: 1
             visible: root.showInsertSlot
             clip: true
-            Column {
+            Rectangle {
+                id: insertHeader
                 anchors.top: parent.top
+                width: parent.width
+                height: insertLabel.height + impl.padding
+                color: Colors.border
+                Label {
+                    id: insertLabel
+                    text: "INSERTS"
+                    font.pointSize: Qt.application.font.pointSize * 0.8
+                    anchors.centerIn: parent
+                }
+                Button {
+                    id: bypassedButton
+                    anchors.right: parent.right
+                    width: height
+                    height: parent.height
+                    z: 2
+                    property int contentDiameter: parent.height / 2
+                    leftInset: (width - contentDiameter) / 2
+                    rightInset: leftInset
+                    topInset: (height - contentDiameter) / 2
+                    bottomInset: topInset
+                    background: Rectangle {
+                        anchors.centerIn: parent
+                        width: parent.contentDiameter
+                        height: width
+                        radius: width / 2
+                        color: Colors.background
+                        border.color: Colors.secondaryBackground
+                    }
+                }
+            }
+            ListView {
+                id: insertList
+                anchors.top: insertHeader.bottom
                 anchors.topMargin: impl.padding
                 anchors.horizontalCenter: parent.horizontalCenter
+                width: insertPlaceholder.width - impl.padding * 2
                 spacing: impl.padding
-                Repeater {
-                    id: insertRepeater
-                    model: 1
-                    Button {
-                        width: insertPlaceholder.width - impl.padding * 2
-                        onClicked: {
-                            if(index === insertRepeater.count - 1) {
-                                pluginSelector.parent = this;
-                                pluginSelector.x = 0;
-                                pluginSelector.y = height + impl.padding;
-                                pluginSelector.open();
-                            }
-                        }
+                delegate: MixerInsertSlot {
+                    width: insertList.width
+                }
+                footer: Button {
+                    width: insertList.width
+                    onClicked: {
+                        pluginSelector.parent = this;
+                        pluginSelector.x = 0;
+                        pluginSelector.y = height + impl.padding;
+                        pluginSelector.open();
                     }
                 }
             }
@@ -135,8 +167,44 @@ Rectangle {
             Layout.verticalStretchFactor: 1
             visible: root.showSendSlot
             clip: true
-            Column {
+            Rectangle {
+                id: sendHeader
                 anchors.top: parent.top
+                width: parent.width
+                height: sendLabel.height + impl.padding
+                color: Colors.border
+                Label {
+                    id: sendLabel
+                    text: "SENDS"
+                    font.pointSize: Qt.application.font.pointSize * 0.8
+                    anchors.centerIn: parent
+                }
+                Button {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: height
+                    height: sendLabel.height
+                    anchors.rightMargin: (parent.height - height) / 2
+                    radius: height / 2
+                }
+            }
+            ListView {
+                id: sendList
+                anchors.top: sendHeader.bottom
+                anchors.topMargin: impl.padding
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: sendPlaceholder.width - impl.padding * 2
+                spacing: impl.padding
+                delegate: Button {
+                    width: sendList.width
+                }
+                footer: Button {
+                    width: sendList.width
+                }
+            }
+
+            Column {
+                anchors.top: sendHeader.bottom
                 anchors.topMargin: impl.padding
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: impl.padding
@@ -303,11 +371,13 @@ Rectangle {
             width: root.width
             Layout.preferredHeight: nameLabel.height + impl.padding * 2
             Layout.fillHeight: false
+            color: Colors.controlBackground
             Label {
                 id: nameLabel
                 anchors.centerIn: parent
                 width: parent.width - impl.padding * 2
                 horizontalAlignment: Label.AlignHCenter
+                text: "Channel"
             }
         }
     }

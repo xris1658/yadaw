@@ -1,0 +1,3 @@
+module YADAW.Models
+
+IPluginListModel 1.0 IPluginListModel.qml

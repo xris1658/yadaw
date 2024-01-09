@@ -330,6 +330,8 @@ set(YADAW_COMMON_SOURCES
     src/model/SortOrderModel.hpp
     src/model/SortFilterProxyListModel.cpp
     src/model/SortFilterProxyListModel.hpp
+    src/model/SpeakerListModel.cpp
+    src/model/SpeakerListModel.hpp
     src/native/AudioBackendSupport.hpp
     src/native/CLAPNative.hpp
     src/native/Library.hpp
@@ -381,8 +383,6 @@ set(YADAW_COMMON_SOURCES
     src/util/VectorUtil.hpp
     src/util/YAMLCppUtil.hpp
     src/util/ZeckendorfLogarithm.hpp
-    src/model/SpeakerListModel.cpp
-    src/model/SpeakerListModel.hpp
 )
 
 qt_add_executable(YADAW

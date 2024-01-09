@@ -1,5 +1,7 @@
 qt_add_library(content STATIC)
 
+# If Qt 6.5.3 is used, then the application crashes while a Singleton object is
+# sending a signal. See https://bugreports.qt.io/browse/QTBUG-117852
 set_source_files_properties(Colors.qml
                             Constants.qml
                             EventReceiver.qml

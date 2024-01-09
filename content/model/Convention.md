@@ -1,7 +1,7 @@
 # Conventions of defining and implementing Models used in YADAW
 
 ## Defining Models
-- Derive your Model from QAbstractListModel.
+- Derive your Model from `QAbstractListModel`.
 - Provide a constructor, virtual destructor and a public `static constexpr int columnCount()`.
 
 ## Naming convention
