@@ -213,16 +213,23 @@ void SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved(const QModelIndex
     auto removeLast = srcToDst_.begin() + last + 1;
     std::sort(removeFirst, removeLast);
     auto oldItemCount = itemCount();
-    for(auto it = removeLast; it != removeFirst; --it)
+    // `for(auto it = removeLast; it-- > removeFirst;)` might cause an assertion
+    // failure when `removeFirst == srcToDst_.begin()`.
+    // See comment of `mergeNewAcceptedItems`.
+    for(auto i = last + 1; i-- > first;)
     {
+        auto it = srcToDst_.begin() + i;
         auto dstRow = *it;
         if(dstRow != -1)
         {
             beginRemoveRows(QModelIndex(), dstRow, dstRow);
+            // Both expressions assigning to `filteredOutFirst_` are needed.
+            // Removing either of them causes an assertion failure called
+            // "vector iterators incompatible" on MSVC.
+            filteredOutFirst_ = dstToSrc_.begin() + (--oldItemCount);
             dstToSrc_.erase(dstToSrc_.begin() + dstRow);
             endRemoveRows();
-            --oldItemCount;
-            --filteredOutFirst_;
+            filteredOutFirst_ = dstToSrc_.begin() + oldItemCount;
         }
         else
         {
