@@ -22,20 +22,7 @@ public:
         SpeakerList,
         RoleCount
     };
-    enum GroupType
-    {
-        Custom,
-        Empty,
-        Mono,
-        Stereo,
-        LRC,
-        Quad,
-        _50,
-        _51,
-        _61,
-        _71
-    };
-    Q_ENUM(GroupType)
+    using GroupType = YADAW::Entity::ChannelConfig::Config;
 public:
     IAudioDeviceIOGroupListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
     virtual ~IAudioDeviceIOGroupListModel() {}
