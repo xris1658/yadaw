@@ -5,16 +5,10 @@
 
 #include <QString>
 
-namespace YADAW::Entity
-{
-class ChannelConfig;
-}
-
 namespace YADAW::Audio::Device
 {
 class IAudioChannelGroup
 {
-    friend class YADAW::Entity::ChannelConfig;
 public:
     virtual ~IAudioChannelGroup() = default;
 public:
