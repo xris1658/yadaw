@@ -3,6 +3,8 @@
 
 #include "ModelBase.hpp"
 
+#include "entity/ChannelConfig.hpp"
+
 #include <QAbstractListModel>
 
 namespace YADAW::Model
