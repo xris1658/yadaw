@@ -2,6 +2,7 @@
 
 #include "native/Native.hpp"
 
+#include "util/Base.hpp"
 #include "util/FixedSizeMemoryBlock.hpp"
 
 #include <QList>
