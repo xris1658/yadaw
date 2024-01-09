@@ -417,14 +417,18 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
         auto effect = plugin.effect();
         if(effect)
         {
+            runDispatcher(effect, EffectOpcode::effectOpen);
             char name[128];
             char vendor[128];
             std::vector<char> uidAsVector(sizeof(std::uint32_t) + 1, 0);
             if(runDispatcher(effect, EffectOpcode::effectGetPlugCategory) == PluginCategory::PluginUnknown)
             {
                 YADAW::Audio::Host::setUniquePluginShouldBeZeroOnCurrentThread(true);
+                runDispatcher(effect, EffectOpcode::effectClose);
                 plugin = {};
                 plugin = YADAW::Audio::Util::createVestifalFromLibrary(library);
+                effect = plugin.effect();
+                runDispatcher(effect, EffectOpcode::effectOpen);
             }
             std::vector<std::int32_t> uids;
             if(runDispatcher(effect, EffectOpcode::effectGetPlugCategory) == PluginCategory::PluginShell)
@@ -462,10 +466,9 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                     YADAW::DAO::PluginFormat::PluginFormatVestifal,
                     type
                 );
+                runDispatcher(effect, EffectOpcode::effectClose);
                 return {PluginScanResult {pluginInfo, {}}};
             }
-            plugin = {};
-            library = {};
             std::vector<PluginScanResult> ret;
             ret.reserve(uids.size());
             for(auto uid: uids)
@@ -497,6 +500,9 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                     ret.emplace_back(PluginScanResult {pluginInfo, {}});
                 }
             }
+            runDispatcher(effect, EffectOpcode::effectClose);
+            plugin = {};
+            library = {};
             return ret;
         }
     }
