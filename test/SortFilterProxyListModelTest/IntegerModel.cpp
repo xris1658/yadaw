@@ -83,7 +83,7 @@ bool IntegerModel::append(const QList<int>& data)
 bool IntegerModel::remove(int position, int count)
 {
     if(position >= 0 && position < itemCount()
-        && position + count < itemCount())
+        && position + count <= itemCount())
     {
         beginRemoveRows(QModelIndex(), position, position + count - 1);
         data_.erase(data_.begin() + position, data_.begin() + position + count);

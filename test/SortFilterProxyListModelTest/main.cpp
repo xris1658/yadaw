@@ -38,5 +38,6 @@ int main(int argc, char* argv[])
         list.append((i * 3) % 16 + 1);
     }
     model.append(list);
+    model.clear();
     return app.exec();
 }
