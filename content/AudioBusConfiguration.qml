@@ -44,33 +44,29 @@ Rectangle {
                         id: popupRow
                         anchors.centerIn: parent
                         spacing: 3
-                        TextField {
-                            id: channelCountTextField
-                            width: height * 5
-                            placeholderText: qsTr("Channel count")
-                            onAccepted: {
-                                okAddBusButton.clicked();
-                            }
+                        Label {
+                            text: qsTr("Channel Config") + ":"
+                        }
+                        ComboBox {
+                            id: channelConfigComboBox
+                            model: Constants.channelConfigProperties
+                            textRole: "name"
+                            valueRole: "type"
                         }
                         Button {
                             id: okAddBusButton
                             text: Constants.okTextWithMnemonic
                             onClicked: {
-                                let value = Functions.parseStringAsInt(channelCountTextField.text);
-                                if(!isNaN(value) && value > 0) {
-                                    root.model.append(value);
-                                    popup.close();
-                                }
-                                else {
-                                    channelCountTextField.selectAll();
-                                    channelCountTextField.forceActiveFocus();
-                                }
+                                popup.close();
+                                let channelCount = Constants.channelConfig.channelCount(
+                                    channelConfigComboBox.currentValue
+                                );
+                                root.model.append(channelCount);
                             }
                         }
                     }
                     onOpened: {
-                        channelCountTextField.clear();
-                        channelCountTextField.forceActiveFocus();
+                        channelConfigComboBox.forceActiveFocus();
                     }
                 }
                 onClicked: {
@@ -91,7 +87,7 @@ Rectangle {
             delegate: Row {
                 id: audioBusRow
                 property int busIndex: index
-                 function renameAudioBus() {
+                function renameAudioBus() {
                     audioBusNameTextField.visible = true;
                     audioBusNameTextField.text = audioBusButton.text;
                     audioBusNameTextField.forceActiveFocus();
@@ -152,7 +148,7 @@ Rectangle {
                 }
                 ListView.onAdd: {
                     stackLayout.currentIndex = index;
-                    renameAudioBus();
+                    audioBusRow.renameAudioBus();
                 }
             }
         }
