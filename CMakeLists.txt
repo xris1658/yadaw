@@ -182,6 +182,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VST3ParameterValueQueue.hpp
     src/audio/host/VestifalCallback.cpp
     src/audio/host/VestifalCallback.hpp
+    src/audio/mixer/Insert.cpp
+    src/audio/mixer/Insert.hpp
     src/audio/plugin/CLAPAudioChannelGroup.cpp
     src/audio/plugin/CLAPAudioChannelGroup.hpp
     src/audio/plugin/CLAPEventBusInfo.cpp
@@ -223,6 +225,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/util/AudioBufferPool.hpp
     src/audio/util/AudioChannelGroup.cpp
     src/audio/util/AudioChannelGroup.hpp
+    src/audio/util/AudioDeviceUtil.cpp
+    src/audio/util/AudioDeviceUtil.hpp
     src/audio/util/AudioProcessDataPointerContainer.hpp
     src/audio/util/CLAPHelper.cpp
     src/audio/util/CLAPHelper.hpp
