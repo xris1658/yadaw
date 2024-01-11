@@ -1,14 +1,14 @@
-#ifndef YADAW_SRC_AUDIO_MIXER_INSERT
-#define YADAW_SRC_AUDIO_MIXER_INSERT
+#ifndef YADAW_SRC_AUDIO_MIXER_INSERTS
+#define YADAW_SRC_AUDIO_MIXER_INSERTS
 
 #include "audio/engine/AudioDeviceGraphBase.hpp"
 
 namespace YADAW::Audio::Mixer
 {
-class Insert
+class Inserts
 {
 public:
-    Insert(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
+    Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
         ade::NodeHandle inNode, ade::NodeHandle outNode,
         std::uint32_t inChannel, std::uint32_t outChannel);
 public:
@@ -30,4 +30,4 @@ private:
 };
 }
 
-#endif //YADAW_SRC_AUDIO_MIXER_INSERT
+#endif //YADAW_SRC_AUDIO_MIXER_INSERTS

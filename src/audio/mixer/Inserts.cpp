@@ -1,11 +1,11 @@
-#include "Insert.hpp"
+#include "Inserts.hpp"
 
 #include "audio/util/AudioDeviceUtil.hpp"
 #include "util/IntegerRange.hpp"
 
 namespace YADAW::Audio::Mixer
 {
-Insert::Insert(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
+Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     ade::NodeHandle inNode, ade::NodeHandle outNode,
     std::uint32_t inChannel, std::uint32_t outChannel):
     graph_(graph),
@@ -13,17 +13,17 @@ Insert::Insert(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     inChannel_(inChannel), outChannel_(outChannel)
 {}
 
-std::uint32_t Insert::insertCount() const noexcept
+std::uint32_t Inserts::insertCount() const noexcept
 {
     return nodes_.size();
 }
 
-bool Insert::empty() const noexcept
+bool Inserts::empty() const noexcept
 {
     return nodes_.empty();
 }
 
-std::optional<ade::NodeHandle> Insert::insertAt(std::uint32_t index) const
+std::optional<ade::NodeHandle> Inserts::insertAt(std::uint32_t index) const
 {
     if(index < insertCount())
     {
@@ -32,7 +32,7 @@ std::optional<ade::NodeHandle> Insert::insertAt(std::uint32_t index) const
     return std::nullopt;
 }
 
-bool Insert::insert(const ade::NodeHandle& nodeHandle, std::uint32_t position)
+bool Inserts::insert(const ade::NodeHandle& nodeHandle, std::uint32_t position)
 {
     auto fromNode = position == 0? inNode_: nodes_[position - 1];
     auto fromOutEdges = fromNode->outEdges();
@@ -62,12 +62,12 @@ bool Insert::insert(const ade::NodeHandle& nodeHandle, std::uint32_t position)
     return true;
 }
 
-bool Insert::append(const ade::NodeHandle& nodeHandle)
+bool Inserts::append(const ade::NodeHandle& nodeHandle)
 {
     return insert(nodeHandle, insertCount());
 }
 
-bool Insert::remove(std::uint32_t position, std::uint32_t removeCount)
+bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
 {
     if(removeCount > 0 && position < insertCount() && position + removeCount <= insertCount())
     {
@@ -109,7 +109,7 @@ bool Insert::remove(std::uint32_t position, std::uint32_t removeCount)
     return false;
 }
 
-void Insert::clear()
+void Inserts::clear()
 {
     remove(0, insertCount());
 }
