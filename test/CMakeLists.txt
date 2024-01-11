@@ -146,11 +146,6 @@ add_executable(BadMemoryAccessHandlerTest
                ../src/native/win/Native.cpp
                BadMemoryAccessHandlerTest/main.cpp)
 
-add_executable(InPlaceMergeTest
-               ../src/util/Algorithm.hpp
-               ../src/util/IntegerRange.hpp
-               InPlaceMergeTest/main.cpp)
-
 add_executable(IntrusivePointerTest
                ../src/util/IntrusivePointer.hpp
                ../src/util/IntrusiveRefCounter.cpp
