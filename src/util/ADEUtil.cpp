@@ -75,11 +75,10 @@ std::vector<Link> squashGraph(const ade::Graph& graph)
         [&linkEndNodes, &ret](const ade::NodeHandle& nodeHandle)
         {
             auto i = nodeHandle;
-            for(;
-                linkEndNodes.find(i) == linkEndNodes.end();
-                i = i->outNodes().front()
-            )
-            {}
+            while(linkEndNodes.find(i) == linkEndNodes.end())
+            {
+                i = i->outNodes().front();
+            }
             ret.emplace_back(nodeHandle, i);
         }
     );

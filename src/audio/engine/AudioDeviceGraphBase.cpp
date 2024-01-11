@@ -124,8 +124,6 @@ std::optional<ade::EdgeHandle> AudioDeviceGraphBase::connect(
 
 void AudioDeviceGraphBase::disconnect(const ade::EdgeHandle& edgeHandle)
 {
-    auto& [toDeviceProcess, toNodeData] = getNodeData(edgeHandle->dstNode());
-    auto& [fromChannel, toChannel, edgeData] = getEdgeData(edgeHandle);
     beforeDisconnectCallback_(*this, edgeHandle);
     typedGraph_.erase(edgeHandle);
 }
