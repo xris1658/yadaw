@@ -16,6 +16,8 @@
 #include <realtimeapiset.h>
 #include <timezoneapi.h>
 #include <combaseapi.h>
+#include <ShlObj_core.h>
+#include <synchapi.h>
 
 #include <MemoryBuffer.h>
 
@@ -31,6 +33,7 @@
 #include <winrt/Windows.Media.Devices.h>
 #include <winrt/Windows.Media.MediaProperties.h>
 #include <winrt/Windows.Media.Render.h>
+#include <winrt/Windows.Storage.Streams.h>
 #endif
 
 #endif // YADAW_PCH_WINDOWSAPI

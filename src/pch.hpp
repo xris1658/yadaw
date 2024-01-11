@@ -16,6 +16,7 @@
 #include "../pch/QtQuick.hpp"
 
 #include "../pch/WindowsAPI.hpp"
+#include "../pch/LinuxAPI.hpp"
 
 // C/C++ header without templates
 #include <cstring>
