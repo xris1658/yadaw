@@ -25,6 +25,7 @@ set(CONTENT_CPP_FILES
     model/IAudioChannelGroupModel.hpp
     model/IAudioDeviceIOGroupListModel.hpp
     model/IAudioDeviceListModel.hpp
+    model/IAudioInsertListModel.hpp
     model/IAutomationModel.hpp
     model/IFilterRoleModel.hpp
     model/ILocalizationListModel.hpp
