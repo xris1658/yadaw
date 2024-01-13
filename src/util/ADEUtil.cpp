@@ -38,96 +38,20 @@ bool pathExists(ade::NodeHandle from, ade::NodeHandle to)
     return pathExists(from, to, visitedNodes);
 }
 
+constexpr bool alwaysReturnTrue(const ade::Graph&, const ade::EdgeHandle&)
+{
+    return true;
+}
+
 std::vector<Link> squashGraph(const ade::Graph& graph)
 {
-    std::unordered_set<ade::NodeHandle, ade::HandleHasher<ade::Node>> linkStartNodes;
-    std::unordered_set<ade::NodeHandle, ade::HandleHasher<ade::Node>> linkEndNodes;
-    auto nodes = graph.nodes();
-    std::for_each(nodes.begin(), nodes.end(),
-        [&linkStartNodes, &linkEndNodes](const ade::NodeHandle& nodeHandle)
-        {
-            auto inNodes = nodeHandle->inNodes();
-            auto outNodes = nodeHandle->outNodes();
-            if(inNodes.empty() || inNodes.size() > 1)
-            {
-                linkStartNodes.emplace(nodeHandle);
-                std::for_each(inNodes.begin(), inNodes.end(),
-                    [&linkEndNodes](const ade::NodeHandle& inNode)
-                    {
-                        linkEndNodes.emplace(inNode);
-                    }
-                );
-            }
-            if(outNodes.empty() || outNodes.size() > 1)
-            {
-                linkEndNodes.emplace(nodeHandle);
-                std::for_each(outNodes.begin(), outNodes.end(),
-                    [&linkStartNodes](const ade::NodeHandle& outNode)
-                    {
-                        linkStartNodes.emplace(outNode);
-                    }
-                );
-            }
-        }
-    );
-    std::vector<Link> ret;
-    std::for_each(linkStartNodes.begin(), linkStartNodes.end(),
-        [&linkEndNodes, &ret](const ade::NodeHandle& nodeHandle)
-        {
-            auto i = nodeHandle;
-            while(linkEndNodes.find(i) == linkEndNodes.end())
-            {
-                i = i->outNodes().front();
-            }
-            ret.emplace_back(nodeHandle, i);
-        }
-    );
-    return ret;
+    return squashGraphWithEdgeCheck(graph, &alwaysReturnTrue);
 }
 
 std::optional<std::vector<std::vector<Link>>>
-    topologicalSort(const std::vector<Link>& squashedGraph)
+    topologicalSort(const ade::Graph& graph, const std::vector<Link>& squashedGraph)
 {
-    std::vector<std::vector<Link>> ret;
-    if(!squashedGraph.empty())
-    {
-        std::vector<Link> visitedLinks;
-        std::vector<Link> unvisitedLinks = squashedGraph;
-        while(!unvisitedLinks.empty())
-        {
-            auto partitionPoint = std::partition(
-                unvisitedLinks.begin(), unvisitedLinks.end(),
-                [&visitedLinks](const Link& link)
-                {
-                    auto inNodes = link.first->inNodes();
-                    return !(inNodes.empty() || std::all_of(
-                        inNodes.begin(), inNodes.end(),
-                        [&visitedLinks](const ade::NodeHandle& nodeHandle)
-                        {
-                            return std::find_if(
-                                visitedLinks.begin(), visitedLinks.end(),
-                                [&nodeHandle](const Link& visitedLink)
-                                {
-                                    return visitedLink.second == nodeHandle;
-                                }
-                            ) != visitedLinks.end();
-                        }
-                    ));
-                }
-            );
-            if(partitionPoint == unvisitedLinks.end())
-            {
-                return std::nullopt;
-            }
-            auto& currentPass = ret.emplace_back();
-            std::copy(partitionPoint, unvisitedLinks.end(),
-                std::back_inserter(visitedLinks));
-            std::move(partitionPoint, unvisitedLinks.end(),
-                std::back_inserter(currentPass));
-            unvisitedLinks.erase(partitionPoint, unvisitedLinks.end());
-        }
-    }
-    return {ret};
+    return topologicalSort(graph, squashedGraph, &alwaysReturnTrue);
 }
 
 bool CompareNodeHandle::operator()(const ade::NodeHandle& lhs, const ade::NodeHandle& rhs) const

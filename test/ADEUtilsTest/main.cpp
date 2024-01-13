@@ -80,7 +80,7 @@ int main()
         std::fprintf(stderr, "Wrong Answer\n");
         return -1;
     }
-    auto topoResult = YADAW::Util::topologicalSort(squashedGraph);
+    auto topoResult = YADAW::Util::topologicalSort(graph, squashedGraph);
     for(const auto& row: *topoResult)
     {
         const char sep[2][2] = {
