@@ -1,6 +1,8 @@
 #include "IAudioChannelGroup.hpp"
 
-#include <iterator>
+#include "util/Base.hpp"
+
+#include <iterator> // std::size
 
 using namespace YADAW::Audio::Base;
 
@@ -84,113 +86,59 @@ namespace YADAW::Audio::Device
 {
 int IAudioChannelGroup::channelCount(ChannelGroupType channelGroupType)
 {
-    if(constexpr auto C = ChannelGroupType::eMono; channelGroupType == C)
-    {
-        return std::size(speakers<C>);
-    }
-    if(constexpr auto C = ChannelGroupType::eStereo; channelGroupType == C)
-    {
-        return std::size(speakers<C>);
-    }
-    if(constexpr auto C = ChannelGroupType::eLRC; channelGroupType == C)
-    {
-        return std::size(speakers<C>);
-    }
-    if(constexpr auto C = ChannelGroupType::eQuad; channelGroupType == C)
-    {
-        return std::size(speakers<C>);
-    }
-    if(constexpr auto C = ChannelGroupType::e50; channelGroupType == C)
-    {
-        return std::size(speakers<C>);
-    }
-    if(constexpr auto C = ChannelGroupType::e51; channelGroupType == C)
-    {
-        return std::size(speakers<C>);
-    }
-    if(constexpr auto C = ChannelGroupType::e61; channelGroupType == C)
-    {
-        return std::size(speakers<C>);
-    }
-    if(constexpr auto C = ChannelGroupType::e71; channelGroupType == C)
-    {
-        return std::size(speakers<C>);
-    }
-    return InvalidChannelCount;
+    int channelCountArray[] = {
+        std::size(speakers<ChannelGroupType::eMono>),
+        std::size(speakers<ChannelGroupType::eStereo>),
+        std::size(speakers<ChannelGroupType::eLRC>),
+        std::size(speakers<ChannelGroupType::eQuad>),
+        std::size(speakers<ChannelGroupType::e50>),
+        std::size(speakers<ChannelGroupType::e51>),
+        std::size(speakers<ChannelGroupType::e61>),
+        std::size(speakers<ChannelGroupType::e71>)
+    };
+    return channelGroupType > ChannelGroupType::eEmpty
+        && channelGroupType < ChannelGroupType::eEnd?
+        channelCountArray[YADAW::Util::underlyingValue(channelGroupType) - 1]:
+        InvalidChannelCount;
 }
 
 ChannelType IAudioChannelGroup::channelAt(
     ChannelGroupType channelGroupType, std::uint32_t index)
 {
-    if(constexpr auto C = ChannelGroupType::eMono; channelGroupType == C)
-    {
-        return getChannelFromGroup<C>(index);
-    }
-    if(constexpr auto C = ChannelGroupType::eStereo; channelGroupType == C)
-    {
-        return getChannelFromGroup<C>(index);
-    }
-    if(constexpr auto C = ChannelGroupType::eLRC; channelGroupType == C)
-    {
-        return getChannelFromGroup<C>(index);
-    }
-    if(constexpr auto C = ChannelGroupType::eQuad; channelGroupType == C)
-    {
-        return getChannelFromGroup<C>(index);
-    }
-    if(constexpr auto C = ChannelGroupType::e50; channelGroupType == C)
-    {
-        return getChannelFromGroup<C>(index);
-    }
-    if(constexpr auto C = ChannelGroupType::e51; channelGroupType == C)
-    {
-        return getChannelFromGroup<C>(index);
-    }
-    if(constexpr auto C = ChannelGroupType::e61; channelGroupType == C)
-    {
-        return getChannelFromGroup<C>(index);
-    }
-    if(constexpr auto C = ChannelGroupType::e71; channelGroupType == C)
-    {
-        return getChannelFromGroup<C>(index);
-    }
-    return ChannelType::Invalid;
+    using GetChannelAtFunc = ChannelType(std::uint32_t);
+    GetChannelAtFunc* func[] = {
+        &getChannelFromGroup<ChannelGroupType::eMono>,
+        &getChannelFromGroup<ChannelGroupType::eStereo>,
+        &getChannelFromGroup<ChannelGroupType::eLRC>,
+        &getChannelFromGroup<ChannelGroupType::eQuad>,
+        &getChannelFromGroup<ChannelGroupType::e50>,
+        &getChannelFromGroup<ChannelGroupType::e51>,
+        &getChannelFromGroup<ChannelGroupType::e61>,
+        &getChannelFromGroup<ChannelGroupType::e71>
+    };
+    return channelGroupType > ChannelGroupType::eEmpty
+        && channelGroupType < ChannelGroupType::eEnd?
+        func[YADAW::Util::underlyingValue(channelGroupType) - 1](index):
+        ChannelType::Invalid;
 }
 
-bool IAudioChannelGroupchannelIsInGroup(ChannelType channelType, ChannelGroupType channelGroupType)
+bool IAudioChannelGroupchannelIsInGroup(
+    ChannelType channelType, ChannelGroupType channelGroupType)
 {
-    if(constexpr auto C = ChannelGroupType::eMono; channelGroupType == C)
-    {
-        return channelIsInGroup<C>(channelType);
-    }
-    if(constexpr auto C = ChannelGroupType::eStereo; channelGroupType == C)
-    {
-        return channelIsInGroup<C>(channelType);
-    }
-    if(constexpr auto C = ChannelGroupType::eLRC; channelGroupType == C)
-    {
-        return channelIsInGroup<C>(channelType);
-    }
-    if(constexpr auto C = ChannelGroupType::eQuad; channelGroupType == C)
-    {
-        return channelIsInGroup<C>(channelType);
-    }
-    if(constexpr auto C = ChannelGroupType::e50; channelGroupType == C)
-    {
-        return channelIsInGroup<C>(channelType);
-    }
-    if(constexpr auto C = ChannelGroupType::e51; channelGroupType == C)
-    {
-        return channelIsInGroup<C>(channelType);
-    }
-    if(constexpr auto C = ChannelGroupType::e61; channelGroupType == C)
-    {
-        return channelIsInGroup<C>(channelType);
-    }
-    if(constexpr auto C = ChannelGroupType::e71; channelGroupType == C)
-    {
-        return channelIsInGroup<C>(channelType);
-    }
-    return false;
+    using ChannelIsInGroupFunc = bool(ChannelType);
+    ChannelIsInGroupFunc* func[] = {
+        &channelIsInGroup<ChannelGroupType::eMono>,
+        &channelIsInGroup<ChannelGroupType::eStereo>,
+        &channelIsInGroup<ChannelGroupType::eLRC>,
+        &channelIsInGroup<ChannelGroupType::eQuad>,
+        &channelIsInGroup<ChannelGroupType::e50>,
+        &channelIsInGroup<ChannelGroupType::e51>,
+        &channelIsInGroup<ChannelGroupType::e61>,
+        &channelIsInGroup<ChannelGroupType::e71>
+    };
+    return channelGroupType > ChannelGroupType::eEmpty
+        && channelGroupType < ChannelGroupType::eEnd?
+        func[YADAW::Util::underlyingValue(channelGroupType) - 1](channelType):
+        false;
 }
 }
