@@ -76,6 +76,12 @@ bool AudioInsertListModel::setData(const QModelIndex& index, const QVariant& val
             dataChanged(this->index(row), this->index(row), {Role::Name});
             return true;
         }
+        case Role::Bypassed:
+        {
+            inserts_->setBypassed(row, value.value<bool>());
+            dataChanged(this->index(row), this->index(row), {Role::Bypassed});
+            return true;
+        }
         }
     }
     return false;
