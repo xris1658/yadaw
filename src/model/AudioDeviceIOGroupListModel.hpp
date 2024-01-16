@@ -16,6 +16,7 @@ public:
         const YADAW::Audio::Device::IAudioDevice& audioDevice,
         bool isInput,
         QObject* parent = nullptr);
+    AudioDeviceIOGroupListModel(const AudioDeviceIOGroupListModel& rhs);
     ~AudioDeviceIOGroupListModel();
 public:
     int itemCount() const;

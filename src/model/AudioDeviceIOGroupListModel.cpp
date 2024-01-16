@@ -26,6 +26,14 @@ AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(
     }
 }
 
+AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(
+    const AudioDeviceIOGroupListModel& rhs):
+    IAudioDeviceIOGroupListModel(rhs.parent()),
+    device_(rhs.device_),
+    speakerListModel_(rhs.speakerListModel_),
+    isInput_(rhs.isInput_)
+{}
+
 AudioDeviceIOGroupListModel::~AudioDeviceIOGroupListModel()
 {}
 
