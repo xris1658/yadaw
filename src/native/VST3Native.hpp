@@ -9,12 +9,12 @@ namespace YADAW::Native
 {
 extern const Steinberg::FIDString ViewType;
 #if _WIN32
-using InitEntry = bool(*)();
+using VST3InitEntry = bool(*)();
 constexpr char vst3FilePattern[] = "*.vst3";
 constexpr char initEntryName[] = "InitDll";
 constexpr char exitEntryName[] = "ExitDll";
 #elif(TARGET_OS_MAC)
-using InitEntry = bool(*)(void*);
+using VST3InitEntry = bool(*)(void*);
 constexpr char vst3FilePattern[] = "*.so"; // *.dylib?
 constexpr char initEntryName[] = "BundleEntry";
 constexpr char exitEntryName[] = "BundleExit";
