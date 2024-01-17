@@ -38,7 +38,9 @@ int main(int argc, char** argv)
             std::printf("\nTesting plugin: %ls...\n", reinterpret_cast<const wchar_t*>(record.name.data()));
             auto library = YADAW::Native::Library(record.path);
             {
-                auto plugin = YADAW::Audio::Util::createVestifalFromLibrary(library);
+                std::int32_t pluginId;
+                std::memcpy(&pluginId, record.uid.data(), sizeof(pluginId));
+                auto plugin = YADAW::Audio::Util::createVestifalFromLibrary(library, pluginId);
                 if(initializePlugin)
                 {
                     plugin.initialize(48000, 480);
