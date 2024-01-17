@@ -25,7 +25,7 @@ public:
     using ExitEntry = bool(*)();
 public:
     VST3Plugin();
-    VST3Plugin(YADAW::Native::InitEntry initEntry, FactoryEntry factoryEntry, ExitEntry exitEntry,
+    VST3Plugin(YADAW::Native::VST3InitEntry initEntry, FactoryEntry factoryEntry, ExitEntry exitEntry,
         void* libraryHandle = nullptr);
     bool createPlugin(const Steinberg::TUID& uid);
     void destroyPlugin();

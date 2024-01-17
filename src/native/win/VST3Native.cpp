@@ -8,7 +8,7 @@ namespace YADAW::Native
 {
 const Steinberg::FIDString ViewType = Steinberg::kPlatformTypeHWND;
 
-bool initVST3Entry(InitEntry initEntry, void*)
+bool initVST3Entry(VST3InitEntry initEntry, void*)
 {
     if(initEntry)
     {

@@ -70,7 +70,7 @@ VST3Plugin::VST3Plugin()
 }
 
 VST3Plugin::VST3Plugin(
-    YADAW::Native::InitEntry initEntry,
+    YADAW::Native::VST3InitEntry initEntry,
     VST3Plugin::FactoryEntry factoryEntry,
     VST3Plugin::ExitEntry exitEntry,
     void* libraryHandle):

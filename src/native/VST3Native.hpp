@@ -19,13 +19,13 @@ constexpr char vst3FilePattern[] = "*.so"; // *.dylib?
 constexpr char initEntryName[] = "BundleEntry";
 constexpr char exitEntryName[] = "BundleExit";
 #elif __linux__
-using InitEntry = bool(*)(void*);
+using VST3InitEntry = bool(*)(void*);
 constexpr char vst3FilePattern[] = "*.so";
 constexpr char initEntryName[] = "ModuleEntry";
 constexpr char exitEntryName[] = "ModuleExit";
 #endif
 
-bool initVST3Entry(InitEntry initEntry, void*);
+bool initVST3Entry(VST3InitEntry initEntry, void*);
 }
 
 #endif // YADAW_SRC_NATIVE_VST3NATIVE
