@@ -1,8 +1,8 @@
 #ifndef YADAW_SRC_CONTROLLER_PLUGINCONTROLLER
 #define YADAW_SRC_CONTROLLER_PLUGINCONTROLLER
 
-#include "audio/plugin/CLAPPlugin.hpp"
-#include "audio/plugin/VST3Plugin.hpp"
+#include "audio/plugin/IAudioPlugin.hpp"
+#include "audio/engine/AudioDeviceProcess.hpp"
 #include "dao/PluginTable.hpp"
 #include "dao/PluginCategoryTable.hpp"
 #include "native/Library.hpp"
@@ -16,6 +16,17 @@ namespace YADAW::Controller
 {
 using namespace YADAW::Audio::Plugin;
 
+struct PluginAndProcess
+{
+    PluginAndProcess(std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>&& plugin,
+        YADAW::Audio::Engine::AudioDeviceProcess&& process):
+        plugin(std::move(plugin)), process(std::move(process))
+    {}
+    PluginAndProcess(PluginAndProcess&&) noexcept = default;
+    std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin> plugin;
+    YADAW::Audio::Engine::AudioDeviceProcess process;
+};
+
 struct PluginScanResult
 {
     YADAW::DAO::PluginInfo pluginInfo;
@@ -27,6 +38,10 @@ std::vector<QString> scanDirectory(const QDir& dir, bool recursive, bool include
 std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path);
 
 void savePluginScanResult(const PluginScanResult& result);
+
+std::optional<std::pair<YADAW::Native::Library, PluginAndProcess>> createPlugin(
+    const QString& path, YADAW::DAO::PluginFormat format,
+    const std::vector<char>& uid);
 }
 
 #endif // YADAW_SRC_CONTROLLER_PLUGINCONTROLLER
