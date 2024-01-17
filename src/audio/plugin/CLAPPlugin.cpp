@@ -52,10 +52,7 @@ CLAPPlugin::~CLAPPlugin()
     {
         CLAPPlugin::uninitialize();
     }
-    if(status_ == IAudioPlugin::Status::Created)
-    {
-    }
-    if(status_ == IAudioPlugin::Status::Loaded)
+    if(entry_)
     {
         entry_->deinit();
         entry_ = nullptr;
@@ -110,10 +107,11 @@ bool CLAPPlugin::uninitialize()
     eventProcessor_.reset();
     gui_.reset();
     parameter_.reset();
+    status_ = IAudioPlugin::Status::Created;
     if(plugin_)
     {
         plugin_->destroy(plugin_);
-        status_ = IAudioPlugin::Status::Created;
+        status_ = IAudioPlugin::Status::Loaded;
     }
     return true;
 }
