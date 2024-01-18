@@ -8,6 +8,7 @@ SpeakerListModel::SpeakerListModel(const Audio::Device::IAudioChannelGroup& grou
 {}
 
 SpeakerListModel::SpeakerListModel(const SpeakerListModel& rhs):
+    ISpeakerListModel(rhs.parent()),
     group_(rhs.group_)
 {}
 
