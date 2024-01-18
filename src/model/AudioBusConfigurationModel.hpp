@@ -23,7 +23,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 public:
-    Q_INVOKABLE bool append(int channelCount) override;
+    Q_INVOKABLE bool append(int channelConfig) override;
     Q_INVOKABLE bool remove(int index) override;
     Q_INVOKABLE void clear() override;
 public:

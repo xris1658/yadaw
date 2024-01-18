@@ -58,10 +58,7 @@ Rectangle {
                             text: Constants.okTextWithMnemonic
                             onClicked: {
                                 popup.close();
-                                let channelCount = Constants.channelConfig.channelCount(
-                                    channelConfigComboBox.currentValue
-                                );
-                                root.model.append(channelCount);
+                                root.model.append(channelConfigComboBox.currentValue);
                             }
                         }
                     }

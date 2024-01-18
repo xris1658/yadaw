@@ -12,18 +12,20 @@ using YADAW::Audio::Device::Channel;
 using YADAW::Audio::Device::IBus;
 using ChannelPosition = YADAW::Audio::Device::IAudioBusConfiguration::ChannelPosition;
 
-ALSABusConfiguration::Bus::Bus(bool isInput, std::uint32_t channelCount):
-    IBus(channelCount),
-    channels_(channelCount),
+ALSABusConfiguration::Bus::Bus(bool isInput,
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    std::uint32_t channelCount):
+    IBus(channelGroupType, channelCount),
+    channels_(channelCount_),
     buffers_(nullptr),
     isInput_(isInput),
     audioChannelGroup_()
 {
     audioChannelGroup_.setChannelGroupType(
-        YADAW::Audio::Base::ChannelGroupType::eCustomGroup,
-        channelCount);
+        channelGroupType_,
+        channelCount_);
     audioChannelGroup_.setMain(true);
-    FOR_RANGE0(i, channelCount)
+    FOR_RANGE0(i, channelCount_)
     {
         audioChannelGroup_.setSpeakerType(
             i, YADAW::Audio::Base::ChannelType::Custom);
@@ -707,10 +709,14 @@ ChannelPosition ALSABusConfiguration::channelPosition(bool isInput, Channel chan
     return {};
 }
 
-uint32_t ALSABusConfiguration::appendBus(bool isInput, std::uint32_t channelCount)
+std::uint32_t ALSABusConfiguration::appendBus(bool isInput,
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    std::uint32_t channelCount)
 {
     auto& bus = isInput? inputBusses_: outputBusses_;
-    bus.emplace_back(std::make_unique<Bus>(isInput, channelCount));
+    bus.emplace_back(
+        std::make_unique<Bus>(isInput, channelGroupType, channelCount)
+    );
     return bus.size() - 1;
 }
 

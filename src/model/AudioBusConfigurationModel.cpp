@@ -1,5 +1,7 @@
 #include "AudioBusConfigurationModel.hpp"
 
+#include "entity/ChannelConfigHelper.hpp"
+
 namespace YADAW::Model
 {
 AudioBusConfigurationModel::AudioBusConfigurationModel(
@@ -40,6 +42,15 @@ QVariant AudioBusConfigurationModel::data(const QModelIndex& index, int role) co
         {
         case Role::Name:
             return QVariant::fromValue(name_[row]);
+        case Role::ChannelConfig:
+            return QVariant::fromValue<int>(
+                static_cast<int>(
+                    (isInput_?
+                        configuration_->inputBusAt(row):
+                        configuration_->outputBusAt(row)
+                    )->get().channelGroupType()
+                ) + 1
+            );
         case Role::ChannelList:
             // Some crappy code right here
             return QVariant::fromValue<QObject*>(
@@ -68,18 +79,27 @@ bool AudioBusConfigurationModel::setData(const QModelIndex& index, const QVarian
     return false;
 }
 
-bool AudioBusConfigurationModel::append(int channelCount)
+bool AudioBusConfigurationModel::append(int channelConfig)
 {
-    if(channelCount <= 0)
+    try
+    {
+        auto oldItemCount = itemCount();
+        auto newIndex = configuration_->appendBus(
+            isInput_,
+            YADAW::Entity::groupTypeFromConfig(
+                static_cast<YADAW::Entity::ChannelConfig::Config>(channelConfig)
+            )
+        );
+        beginInsertRows(QModelIndex(), oldItemCount, oldItemCount);
+        channelList_.emplace_back(*configuration_, *this, isInput_, newIndex);
+        name_.emplace_back();
+        endInsertRows();
+        return true;
+    }
+    catch(...)
     {
         return false;
     }
-    beginInsertRows(QModelIndex(), itemCount(), itemCount());
-    auto newIndex = configuration_->appendBus(isInput_, channelCount);
-    channelList_.emplace_back(*configuration_, *this, isInput_, newIndex);
-    name_.emplace_back();
-    endInsertRows();
-    return true;
 }
 
 bool AudioBusConfigurationModel::remove(int index)

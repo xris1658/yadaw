@@ -30,6 +30,27 @@ AudioGraphBusConfiguration::Bus::Bus(
     }
 }
 
+AudioGraphBusConfiguration::Bus::Bus(bool isInput,
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    std::uint32_t channelCount):
+    IBus(channelGroupType, channelCount),
+    channels_(channelCount_),
+    buffers_(nullptr),
+    isInput_(isInput),
+    audioChannelGroup_()
+{
+    audioChannelGroup_.setChannelGroupType(
+        channelGroupType_,
+        channelCount_);
+    audioChannelGroup_.setMain(true);
+    FOR_RANGE0(i, channelCount_)
+    {
+        audioChannelGroup_.setSpeakerType(
+            i, YADAW::Audio::Base::ChannelType::Custom);
+        audioChannelGroup_.setSpeakerName(i, QString("N/A"));
+    }
+}
+
 std::optional<Channel> AudioGraphBusConfiguration::Bus::channelAt(std::uint32_t index) const
 {
     return index < channelCount_?
@@ -207,10 +228,14 @@ ChannelPosition AudioGraphBusConfiguration::channelPosition(bool isInput, Channe
     return {};
 }
 
-uint32_t AudioGraphBusConfiguration::appendBus(bool isInput, std::uint32_t channelCount)
+std::uint32_t AudioGraphBusConfiguration::appendBus(bool isInput,
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    std::uint32_t channelCount)
 {
     auto& bus = isInput? inputBusses_: outputBusses_;
-    bus.emplace_back(std::make_unique<Bus>(isInput, channelCount));
+    bus.emplace_back(
+        std::make_unique<Bus>(isInput, channelGroupType, channelCount)
+    );
     return bus.size() - 1;
 }
 

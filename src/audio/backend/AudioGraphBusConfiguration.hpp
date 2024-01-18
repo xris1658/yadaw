@@ -4,6 +4,7 @@
 #if _WIN32
 
 #include "audio/backend/AudioGraphBackend.hpp"
+#include "audio/base/Channel.hpp"
 #include "audio/device/IAudioBusConfiguration.hpp"
 #include "audio/device/IAudioDevice.hpp"
 #include "audio/util/AudioChannelGroup.hpp"
@@ -24,6 +25,8 @@ public:
     {
     public:
         Bus(bool isInput, std::uint32_t channelCount);
+        Bus(bool isInput, YADAW::Audio::Base::ChannelGroupType channelGroupType,
+            std::uint32_t channelCount = 0);
     public: // IBus interfaces
         std::optional<Channel> channelAt(std::uint32_t index) const override;
         bool setChannel(std::uint32_t index, Channel channel) override;
@@ -55,7 +58,9 @@ public:
     OptionalRef<IBus> inputBusAt(std::uint32_t index) override;
     OptionalRef<IBus> outputBusAt(std::uint32_t index) override;
     ChannelPosition channelPosition(bool isInput, Channel channel) const override;
-    uint32_t appendBus(bool isInput, std::uint32_t channelCount) override;
+    std::uint32_t appendBus(bool isInput,
+        YADAW::Audio::Base::ChannelGroupType channelGroupType,
+        std::uint32_t channelCount = 0) override;
     bool removeBus(bool isInput, std::uint32_t index) override;
     void clearBus(bool isInput) override;
 public:

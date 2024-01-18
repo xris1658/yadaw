@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_AUDIO_DEVICE_IAUDIOBUSCONFIGURATION
 #define YADAW_SRC_AUDIO_DEVICE_IAUDIOBUSCONFIGURATION
 
+#include "audio/base/Channel.hpp"
+#include "audio/device/IAudioChannelGroup.hpp"
 #include "util/OptionalUtil.hpp"
 
 #include <cstdint>
@@ -28,13 +30,33 @@ struct Channel
 class IBus
 {
 public:
+    IBus(YADAW::Audio::Base::ChannelGroupType channelGroupType, std::uint32_t channelCount = 0):
+        channelGroupType_(channelGroupType),
+        channelCount_(0)
+    {
+        if(channelCount == 0)
+        {
+            auto actualChannelCount = YADAW::Audio::Device::IAudioChannelGroup::channelCount(channelGroupType_);
+            if(actualChannelCount == YADAW::Audio::Base::InvalidChannelCount)
+            {
+                throw std::invalid_argument("The channel count of the specified group type is unknown");
+            }
+            channelCount = actualChannelCount;
+        }
+        channelCount_ = channelCount;
+    }
     IBus(std::uint32_t channelCount): channelCount_(channelCount) {}
     virtual ~IBus() = default;
 public:
-    virtual std::uint32_t channelCount() const { return channelCount_; }
+    YADAW::Audio::Base::ChannelGroupType channelGroupType() const
+    {
+        return channelGroupType_;
+    }
+    std::uint32_t channelCount() const { return channelCount_; }
     virtual std::optional<Channel> channelAt(std::uint32_t index) const = 0;
     virtual bool setChannel(std::uint32_t index, Channel channel) = 0;
 protected:
+    YADAW::Audio::Base::ChannelGroupType channelGroupType_;
     std::uint32_t channelCount_;
 };
 
@@ -54,7 +76,9 @@ public:
     virtual OptionalRef<IBus> inputBusAt(std::uint32_t index) = 0;
     virtual OptionalRef<IBus> outputBusAt(std::uint32_t index) = 0;
     virtual ChannelPosition channelPosition(bool isInput, Channel channel) const = 0;
-    virtual std::uint32_t appendBus(bool isInput, std::uint32_t channelCount) = 0;
+    virtual std::uint32_t appendBus(bool isInput,
+        YADAW::Audio::Base::ChannelGroupType channelGroupType,
+        std::uint32_t channelCount = 0) = 0;
     virtual bool removeBus(bool isInput, std::uint32_t index) = 0;
     virtual void clearBus(bool isInput) = 0;
 };

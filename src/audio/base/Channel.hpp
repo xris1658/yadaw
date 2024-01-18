@@ -20,7 +20,8 @@ enum class ChannelType
 
 enum class ChannelGroupType
 {
-    eCustomGroup = -1,
+    eInvalid = -2,
+    eCustomGroup,
     eEmpty,
     eMono,
     eStereo,

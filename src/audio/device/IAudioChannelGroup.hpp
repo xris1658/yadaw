@@ -18,7 +18,7 @@ public:
     virtual YADAW::Audio::Base::ChannelType speakerAt(std::uint32_t index) const = 0;
     virtual QString speakerNameAt(std::uint32_t index) const = 0;
     virtual bool isMain() const = 0;
-protected:
+public:
     static int channelCount(YADAW::Audio::Base::ChannelGroupType channelGroupType);
     static YADAW::Audio::Base::ChannelType channelAt(YADAW::Audio::Base::ChannelGroupType channelGroupType,
         std::uint32_t index);

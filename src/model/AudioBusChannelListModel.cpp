@@ -107,12 +107,13 @@ bool AudioBusChannelListModel::setChannel(std::uint32_t index,
     {
         auto& bus = (
             isInput_?
-                configuration_->inputBusAt(index_)->get():
-                configuration_->outputBusAt(index_)->get());
+                configuration_->inputBusAt(index_):
+                configuration_->outputBusAt(index_))
+        ->get();
         auto ret = bus.setChannel(index, {deviceIndex, channelIndex});
         if(ret)
         {
-            dataChanged(this->index(index, 0), this->index(index, 0),
+            dataChanged(this->index(index), this->index(index),
                 {Role::DeviceIndex, Role::ChannelIndex});
             configurationModel_->dataChanged(
                 configurationModel_->index(index_, 0),
