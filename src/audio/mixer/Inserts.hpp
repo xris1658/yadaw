@@ -26,6 +26,7 @@ public:
     void clear();
     void setName(std::uint32_t position, const QString& name);
     void setBypassed(std::uint32_t position, bool bypassed);
+    bool move(std::uint32_t position, std::uint32_t count, Inserts& rhs, std::uint32_t destPosition);
 private:
     YADAW::Audio::Engine::AudioDeviceGraphBase& graph_;
     ade::NodeHandle inNode_;
