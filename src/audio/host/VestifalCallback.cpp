@@ -1,5 +1,7 @@
 #include "VestifalCallback.hpp"
 
+#include "audio/plugin/VestifalPlugin.hpp"
+
 #include <cstring>
 #include <mutex>
 
@@ -23,11 +25,8 @@ std::intptr_t vestifalHostCallback(AEffect* effect, std::int32_t opcode, std::in
     }
     case audioMasterGetTime:
     {
-        // Temporary workaround for plugins that don't check if the return value
-        // is valid.
-        // FIXME: Update this after the timing support is implemented
-        static TimeInfo timeInfo;
-        return reinterpret_cast<std::intptr_t>(&timeInfo);
+        auto plugin = static_cast<YADAW::Audio::Plugin::VestifalPlugin*>(effect->user);
+        return reinterpret_cast<std::intptr_t>(plugin->timeInfo());
     }
     case audioMasterGetVendorName:
         std::strcpy(static_cast<char*>(ptr), "xris1658");

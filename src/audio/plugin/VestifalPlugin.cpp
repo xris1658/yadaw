@@ -160,4 +160,14 @@ void VestifalPlugin::process(const Device::AudioProcessData<float>& audioProcess
     // TODO
     effect_->processReplacing(effect_, inputs_.data(), outputs_.data(), audioProcessData.singleBufferSize);
 }
+
+TimeInfo* VestifalPlugin::timeInfo() const
+{
+    return timeInfo_;
+}
+
+void VestifalPlugin::setTimeInfo(TimeInfo& timeInfo)
+{
+    timeInfo_ = &timeInfo;
+}
 }

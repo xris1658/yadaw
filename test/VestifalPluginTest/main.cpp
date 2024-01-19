@@ -3,6 +3,7 @@
 #include "dao/PluginTable.hpp"
 #include "native/Library.hpp"
 #include "native/VestifalNative.hpp"
+#include "util/Util.hpp"
 #include "test/common/PluginWindowThread.hpp"
 
 #include <QGuiApplication>
@@ -16,6 +17,8 @@ using namespace std::literals;
 bool initializePlugin = true;
 bool activatePlugin = true;
 bool processPlugin = true;
+
+TimeInfo timeInfo;
 
 int main(int argc, char** argv)
 {
@@ -50,6 +53,8 @@ int main(int argc, char** argv)
                         if(processPlugin)
                         {
                             QGuiApplication application(argc, argv);
+                            timeInfo.sampleRate = 48000;
+                            plugin.setTimeInfo(timeInfo);
                             std::vector<std::uint32_t> inputCounts(plugin.audioInputGroupCount(), 1);
                             std::vector<std::uint32_t> outputCounts(plugin.audioOutputGroupCount(), 1);
                             std::vector<std::vector<float>> inputs;
@@ -84,6 +89,7 @@ int main(int argc, char** argv)
                                     {
                                         auto next = std::chrono::steady_clock::now() + 10ms;
                                         plugin.effect()->processReplacing(plugin.effect(), inputsAsPtr.data(), outputsAsPtr.data(), 480);
+                                        timeInfo.samplePosition += 480;
                                         while(std::chrono::steady_clock::now() < next)
                                         {
                                             std::this_thread::yield();

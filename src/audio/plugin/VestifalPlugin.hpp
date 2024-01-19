@@ -42,6 +42,9 @@ public:
     IAudioDevice::OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
     std::uint32_t latencyInSamples() const override;
     void process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData) override;
+public:
+    TimeInfo* timeInfo() const;
+    void setTimeInfo(TimeInfo& timeInfo);
 private:
     AEffect* effect_ = nullptr;
     std::int32_t uniqueId = 0;
@@ -49,6 +52,7 @@ private:
     std::unique_ptr<VestifalPluginGUI> gui_;
     std::vector<float*> inputs_;
     std::vector<float*> outputs_;
+    TimeInfo* timeInfo_ = nullptr;
 };
 }
 
