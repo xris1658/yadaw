@@ -21,6 +21,14 @@ std::intptr_t vestifalHostCallback(AEffect* effect, std::int32_t opcode, std::in
             effect->uniqueId: uniquePluginId;
         return ret;
     }
+    case audioMasterGetTime:
+    {
+        // Temporary workaround for plugins that don't check if the return value
+        // is valid.
+        // FIXME: Update this after the timing support is implemented
+        static TimeInfo timeInfo;
+        return reinterpret_cast<std::intptr_t>(&timeInfo);
+    }
     case audioMasterGetVendorName:
         std::strcpy(static_cast<char*>(ptr), "xris1658");
         return 0;
