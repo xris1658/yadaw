@@ -4,6 +4,7 @@
 #include "native/Library.hpp"
 #include "native/VestifalNative.hpp"
 #include "util/Util.hpp"
+#include "test/common/DisableStreamBuffer.hpp"
 #include "test/common/PluginWindowThread.hpp"
 
 #include <QGuiApplication>
@@ -22,6 +23,7 @@ TimeInfo timeInfo;
 
 int main(int argc, char** argv)
 {
+    disableStdOutBuffer();
     if(argc < 2)
     {
         std::printf("Usage: VestifalTest [record id in database]\nPress any key to continue...");
@@ -41,17 +43,20 @@ int main(int argc, char** argv)
             std::printf("\nTesting plugin: %ls...\n", reinterpret_cast<const wchar_t*>(record.name.data()));
             auto library = YADAW::Native::Library(record.path);
             {
+                std::printf("[INFO] Library loaded\n");
                 std::int32_t pluginId;
                 std::memcpy(&pluginId, record.uid.data(), sizeof(pluginId));
                 auto plugin = YADAW::Audio::Util::createVestifalFromLibrary(library, pluginId);
-                if(initializePlugin)
+                std::printf("[INFO] Plugin created\n");
+                if(initializePlugin && plugin.initialize(48000, 480))
                 {
-                    plugin.initialize(48000, 480);
-                    if(activatePlugin)
+                    std::printf("[INFO] Plugin initialized\n");
+                    if(activatePlugin && plugin.activate())
                     {
-                        plugin.activate();
-                        if(processPlugin)
+                        std::printf("[INFO] Plugin activated\n");
+                        if(processPlugin && plugin.startProcessing())
                         {
+                            std::printf("[INFO] Plugin started processing\n");
                             QGuiApplication application(argc, argv);
                             timeInfo.sampleRate = 48000;
                             plugin.setTimeInfo(timeInfo);
