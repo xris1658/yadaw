@@ -362,6 +362,8 @@ set(YADAW_COMMON_SOURCES
     src/util/AtomicMutex.cpp
     src/util/AtomicMutex.hpp
     src/util/Base.hpp
+    src/util/ButlerThread.cpp
+    src/util/ButlerThread.hpp
     src/util/CircularDeque.hpp
     src/util/CompilerSpecifics.hpp
     src/util/Constants.hpp
