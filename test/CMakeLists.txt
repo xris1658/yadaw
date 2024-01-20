@@ -163,6 +163,10 @@ add_executable(CircularDequeTest
                ../src/util/FixedSizeCircularDeque.hpp
                CircularDequeTest/main.cpp)
 
+add_executable(PassDataToRealtimeThreadTest
+               ../src/concurrent/PassDataToRealtimeThread.hpp
+               PassDataToRealtimeThreadTest/main.cpp)
+
 add_executable(QStringConversionTest
                QStringConversionTest/main.cpp)
 

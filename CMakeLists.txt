@@ -245,6 +245,7 @@ set(YADAW_COMMON_SOURCES
     src/audio/util/VestifalHelper.cpp
     src/audio/util/VestifalHelper.hpp
     src/base/Constants.hpp
+    src/concurrent/PassDataToRealtimeThread.hpp
     src/controller/AppController.cpp
     src/controller/AppController.hpp
     src/controller/AssetDirectoryController.cpp
