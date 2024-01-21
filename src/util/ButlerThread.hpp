@@ -20,7 +20,7 @@ public:
     bool emplaceTask(Args&&... args)
     {
         std::unique_lock<std::mutex> lg(mutex_);
-        auto ret = tasks_.emplaceBack(std::forward<Args>(args)...);
+        auto ret = tasks_.emplace(std::forward<Args>(args)...);
         if(ret)
         {
             cv_.notify_one();
