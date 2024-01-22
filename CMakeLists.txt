@@ -184,6 +184,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VestifalCallback.hpp
     src/audio/mixer/Inserts.cpp
     src/audio/mixer/Inserts.hpp
+    src/audio/mixer/Mixer.cpp
+    src/audio/mixer/Mixer.hpp
     src/audio/plugin/CLAPAudioChannelGroup.cpp
     src/audio/plugin/CLAPAudioChannelGroup.hpp
     src/audio/plugin/CLAPEventBusInfo.cpp
@@ -289,6 +291,8 @@ set(YADAW_COMMON_SOURCES
     src/entity/ChannelConfig.cpp
     src/entity/ChannelConfigHelper.cpp
     src/entity/ChannelConfigHelper.hpp
+    src/entity/ChannelInfo.cpp
+    src/entity/ChannelInfo.hpp
     src/entity/EntityInitializer.cpp
     src/entity/EntityInitializer.hpp
     src/entity/PluginFormatSupport.cpp

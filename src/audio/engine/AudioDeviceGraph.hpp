@@ -100,6 +100,11 @@ public:
     }
 public:
     template<typename Extension>
+    const Extension& getExtension() const
+    {
+        return std::get<Extension>(extensions_);
+    }
+    template<typename Extension>
     Extension& getExtension()
     {
         return std::get<Extension>(extensions_);
