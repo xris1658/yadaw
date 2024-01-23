@@ -6,17 +6,17 @@ AutomationPoint::AutomationPoint(std::int64_t time, double value, double curve):
     time_(time), value_(value), curve_(curve)
 {}
 
-AutomationPoint::TimeType AutomationPoint::time() const
+AutomationPoint::Time AutomationPoint::time() const
 {
     return time_;
 }
 
-void AutomationPoint::setTime(AutomationPoint::TimeType time)
+void AutomationPoint::setTime(AutomationPoint::Time time)
 {
     time_ = time;
 }
 
-AutomationPoint::ValueType AutomationPoint::value() const
+AutomationPoint::Value AutomationPoint::value() const
 {
     return value_;
 }
@@ -46,27 +46,51 @@ bool AutomationPoint::operator!=(const AutomationPoint& rhs) const
     return !(rhs == *this);
 }
 
-bool timeFromPointIsLessThanTime(const AutomationPoint& point, const AutomationPoint::TimeType& time)
+bool timeFromPointIsLessThanTime(const AutomationPoint& point, const AutomationPoint::Time& time)
 {
     return point.time() < time;
 }
 
-bool timeIsLessThanTimeFromPoint(const AutomationPoint::TimeType& time, const AutomationPoint& point)
+bool timeIsLessThanTimeFromPoint(const AutomationPoint::Time& time, const AutomationPoint& point)
 {
     return time < point.time();
 }
 
-Automation::Automation(double minValue, double maxValue): members_{{}, minValue, maxValue} {}
+Automation::Automation(Value defaultValue,
+    Value minValue, Value maxValue):
+    points_(),
+    defaultValue_(defaultValue),
+    minValue_(minValue),
+    maxValue_(maxValue)
+{
+    if(defaultValue_ < minValue_ || defaultValue_ > maxValue_)
+    {
+        throw std::invalid_argument("Default value of automation should be between min and max value");
+    }
+}
 
-Automation::Automation(const Self& rhs): members_(rhs.members_) {}
+Automation::Automation(const Self& rhs):
+    points_(rhs.points_),
+    defaultValue_(rhs.defaultValue_),
+    minValue_(rhs.minValue_),
+    maxValue_(rhs.maxValue_)
+{}
 
-Automation::Automation(Self&& rhs) noexcept: members_(std::move(rhs.members_)) {}
+Automation::Automation(Self&& rhs) noexcept:
+    points_(std::move(rhs.points_)),
+    defaultValue_(rhs.defaultValue_),
+    minValue_(rhs.minValue_),
+    maxValue_(rhs.maxValue_)
+{}
 
 Automation::Self& Automation::operator=(const Self& rhs)
 {
     if (this != &rhs)
     {
-        members_ = rhs.members_;
+        points_ = rhs.points_;
+        defaultValue_ = rhs.defaultValue_;
+        minValue_ = rhs.minValue_;
+        maxValue_ = rhs.maxValue_;
     }
     return *this;
 }
@@ -75,39 +99,44 @@ Automation::Self& Automation::operator=(Self&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        members_ = std::move(rhs.members_);
+        points_ = std::move(rhs.points_);
+        defaultValue_ = rhs.defaultValue_;
+        minValue_ = rhs.minValue_;
+        maxValue_ = rhs.maxValue_;
     }
     return *this;
 }
 
 Automation::~Automation() noexcept {}
 
-Automation::PointVectorConstIterator Automation::lowerBound(const AutomationPoint::TimeType& time) const
+Automation::PointVectorConstIterator Automation::lowerBound(Time time) const
 {
     return std::lower_bound(points_.cbegin(), points_.cend(), time, &timeFromPointIsLessThanTime);
 }
 
-Automation::PointVectorConstIterator Automation::upperBound(const AutomationPoint::TimeType& time) const
+Automation::PointVectorConstIterator Automation::upperBound(Time time) const
 {
     return std::upper_bound(points_.cbegin(), points_.cend(), time, &timeIsLessThanTimeFromPoint);
 }
 
-Automation::PointVectorIterator Automation::lowerBound(const AutomationPoint::TimeType& time)
+Automation::PointVectorIterator Automation::lowerBound(Time time)
 {
-    return std::lower_bound(points_.begin(), points_.end(), time, timeFromPointIsLessThanTime);
+    return std::lower_bound(points_.begin(), points_.end(), time,
+        &timeFromPointIsLessThanTime);
 }
 
-Automation::PointVectorIterator Automation::upperBound(const AutomationPoint::TimeType& time)
+Automation::PointVectorIterator Automation::upperBound(Time time)
 {
-    auto ret = lowerBound(time);
-    if (ret != points_.cend() && ret->time() == time)
-    {
-        ++ret;
-    }
-    return ret;
+    return std::upper_bound(points_.begin(), points_.end(), time,
+        &timeIsLessThanTimeFromPoint);
 }
 
 Automation::PointVectorIterator Automation::begin() noexcept
+{
+    return points_.begin();
+}
+
+Automation::PointVectorConstIterator Automation::begin() const noexcept
 {
     return points_.begin();
 }
@@ -118,6 +147,11 @@ Automation::PointVectorConstIterator Automation::cbegin() const noexcept
 }
 
 Automation::PointVectorIterator Automation::end() noexcept
+{
+    return points_.end();
+}
+
+Automation::PointVectorConstIterator Automation::end() const noexcept
 {
     return points_.end();
 }
@@ -161,12 +195,27 @@ bool Automation::empty() const noexcept
     return points_.empty();
 }
 
-AutomationPoint::ValueType Automation::minValue() const noexcept
+Automation::Value Automation::defaultValue() const noexcept
+{
+    return defaultValue_;
+}
+
+bool Automation::setDefaultValue(Automation::Value defaultValue)
+{
+    if(defaultValue < minValue_ || defaultValue_ > maxValue_)
+    {
+        return false;
+    }
+    defaultValue_ = defaultValue;
+    return true;
+}
+
+AutomationPoint::Value Automation::minValue() const noexcept
 {
     return minValue_;
 }
 
-AutomationPoint::ValueType Automation::maxValue() const noexcept
+AutomationPoint::Value Automation::maxValue() const noexcept
 {
     return maxValue_;
 }
@@ -199,7 +248,7 @@ Automation::Point& Automation::at(std::size_t index)
     );
 }
 
-std::size_t Automation::pointCountAtTime(const AutomationPoint::TimeType& time) const
+std::size_t Automation::pointCountAtTime(Time time) const
 {
     auto lower = lowerBound(time);
     if (lower == points_.end() || lower->time() != time)
@@ -214,7 +263,7 @@ std::size_t Automation::pointCountAtTime(const AutomationPoint::TimeType& time) 
     return ret;
 }
 
-std::size_t Automation::firstPointIndexAtTime(const AutomationPoint::TimeType& time) const
+std::size_t Automation::firstPointIndexAtTime(Time time) const
 {
     auto lower = lowerBound(time);
     if(lower == points_.end())
@@ -227,8 +276,12 @@ std::size_t Automation::firstPointIndexAtTime(const AutomationPoint::TimeType& t
     }
 }
 
-double Automation::operator()(const AutomationPoint::TimeType& time, std::size_t index) const
+double Automation::operator()(Time time, std::size_t index) const
 {
+    if(empty())
+    {
+        return defaultValue_;
+    }
     if(pointCount() == 1)
     {
         return operator[](0).value();
@@ -327,7 +380,7 @@ void Automation::setValueOfPoint(std::size_t index, double value)
     }
     (*this)[index].setValue(value);
 }
-std::size_t Automation::ifSetTimeOfPoint(std::size_t index, Automation::TimeType time, std::size_t indexInEqualTimePoint)
+std::size_t Automation::ifSetTimeOfPoint(std::size_t index, Time time, std::size_t indexInEqualTimePoint)
 {
     auto oldTime = operator[](index).time();
     if(time == oldTime)
@@ -349,7 +402,7 @@ std::size_t Automation::ifSetTimeOfPoint(std::size_t index, Automation::TimeType
 // Move a point, then returns the new index of the point.
 // There is another parameter `indexInEqualTimePoint`,
 // meaning that this function is similar with `insertPoint`.
-std::size_t Automation::movePoint(std::size_t index, AutomationPoint::TimeType time, std::size_t indexInEqualTimePoint)
+std::size_t Automation::movePoint(std::size_t index, AutomationPoint::Time time, std::size_t indexInEqualTimePoint)
 {
     auto newIndex = ifSetTimeOfPoint(index, time, indexInEqualTimePoint);
     operator[](index).setTime(time);
