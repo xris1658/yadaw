@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_AUDIO_UTIL_VST3HELPER
 #define YADAW_SRC_AUDIO_UTIL_VST3HELPER
 
+#include "audio/base/Automation.hpp"
+#include "audio/host/VST3ParameterValueQueue.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "native/Library.hpp"
 
@@ -34,6 +36,13 @@ using SplittedSubCategories = char*[Steinberg::PClassInfo2::kSubCategoriesSize];
 int splitSubCategories(SubCategories& subCategories, SplittedSubCategories& splittedSubCategories);
 
 YADAW::Audio::Plugin::VST3Plugin createVST3FromLibrary(YADAW::Native::Library& library);
+
+bool fillAutomationInParamValueQueue(
+    const YADAW::Audio::Base::Automation& automation,
+    YADAW::Audio::Host::VST3ParameterValueQueue& emptyQueue,
+    YADAW::Audio::Base::Automation::Time from,
+    YADAW::Audio::Base::Automation::Time length,
+    YADAW::Audio::Base::Automation::Time precision = 8);
 }
 
 
