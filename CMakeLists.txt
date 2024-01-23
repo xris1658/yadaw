@@ -186,6 +186,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/mixer/Inserts.hpp
     src/audio/mixer/Mixer.cpp
     src/audio/mixer/Mixer.hpp
+    src/audio/mixer/VolumeFader.cpp
+    src/audio/mixer/VolumeFader.hpp
     src/audio/plugin/CLAPAudioChannelGroup.cpp
     src/audio/plugin/CLAPAudioChannelGroup.hpp
     src/audio/plugin/CLAPEventBusInfo.cpp
