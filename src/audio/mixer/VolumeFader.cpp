@@ -5,7 +5,7 @@
 namespace YADAW::Audio::Mixer
 {
 VolumeFader::VolumeFader(
-    const YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
     std::uint32_t channelCountInGroup):
     input_(), output_()
 {
@@ -54,9 +54,6 @@ std::uint32_t VolumeFader::latencyInSamples() const
     return 0;
 }
 
-
-
-
 void VolumeFader::process(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
@@ -101,6 +98,6 @@ void VolumeFader::setAutomation(
 
 void VolumeFader::unsetAutomation(const Base::Automation& automation)
 {
-    auomation_ = nullptr;
+    automation_ = nullptr;
 }
 }

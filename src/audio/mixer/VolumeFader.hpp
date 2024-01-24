@@ -12,7 +12,7 @@ class VolumeFader: public YADAW::Audio::Device::IAudioDevice
 private:
     using ProcessFunc = void(VolumeFader::*)(const YADAW::Audio::Device::AudioProcessData<float>&);
 public:
-    VolumeFader(const YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    VolumeFader(YADAW::Audio::Base::ChannelGroupType channelGroupType,
         std::uint32_t channelCountInGroup = 0);
     VolumeFader(const VolumeFader&) = default;
     VolumeFader(VolumeFader&&) noexcept = default;
