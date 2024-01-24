@@ -19,6 +19,12 @@ public:
     std::optional<QString> insertNameAt(std::uint32_t index) const;
     std::optional<std::uint32_t> insertLatencyAt(std::uint32_t index) const;
     std::optional<bool> insertBypassed(std::uint32_t index) const;
+    const ade::NodeHandle& inNode() const;
+    const ade::NodeHandle& outNode() const;
+    std::uint32_t inChannel() const;
+    std::uint32_t outChannel() const;
+    bool setInNode(const ade::NodeHandle& inNode, std::uint32_t inChannel);
+    bool setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChannel);
 public:
     bool insert(const ade::NodeHandle& nodeHandle, std::uint32_t position, const QString& name);
     bool append(const ade::NodeHandle& nodeHandle, const QString& name);
@@ -34,6 +40,7 @@ private:
     std::uint32_t inChannel_;
     std::uint32_t outChannel_;
     std::vector<ade::NodeHandle> nodes_;
+    std::vector<ade::EdgeHandle> edges_;
     std::vector<QString> names_;
     std::vector<bool> bypassed_;
     std::vector<std::pair<std::uint32_t, std::uint32_t>> channel_;

@@ -12,7 +12,16 @@ Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     inNode_(std::move(inNode)), outNode_(std::move(outNode)),
     inChannel_(inChannel), outChannel_(outChannel)
 {
-    graph_.connect(inNode_, outNode_, inChannel_, outChannel_);
+    auto inDevice = graph_.getNodeData(inNode).process.device();
+    auto outDevice = graph_.getNodeData(outNode).process.device();
+    if(inChannel < inDevice->audioInputGroupCount()
+        && outChannel < outDevice->audioOutputGroupCount()
+        && inDevice->audioInputGroupAt(inChannel)->get().channelCount()
+            == outDevice->audioOutputGroupAt(outChannel)->get().channelCount())
+    {
+        graph_.connect(inNode_, outNode_, inChannel_, outChannel_);
+    }
+    throw std::invalid_argument("");
 }
 
 YADAW::Audio::Engine::AudioDeviceGraphBase& Inserts::graph() const
@@ -65,6 +74,110 @@ std::optional<bool> Inserts::insertBypassed(std::uint32_t index) const
         return {static_cast<bool>(bypassed_[index])};
     }
     return std::nullopt;
+}
+
+const ade::NodeHandle& Inserts::inNode() const
+{
+    return inNode_;
+}
+
+const ade::NodeHandle& Inserts::outNode() const
+{
+    return outNode_;
+}
+
+std::uint32_t Inserts::inChannel() const
+{
+    return inChannel_;
+}
+
+std::uint32_t Inserts::outChannel() const
+{
+    return outChannel_;
+}
+
+bool Inserts::setInNode(const ade::NodeHandle& inNode, std::uint32_t inChannel)
+{
+    auto inDevice = graph_.getNodeData(inNode).process.device();
+    if(inChannel < inDevice->audioOutputGroupCount())
+    {
+        auto toNode = outNode_;
+        auto toChannel = outChannel_;
+        FOR_RANGE0(i, insertCount())
+        {
+            if(!bypassed_[i])
+            {
+                toNode = nodes_[i];
+                toChannel = channel_[i].first;
+                break;
+            }
+        }
+        auto outDevice = graph_.getNodeData(toNode).process.device();
+        if(inDevice->audioOutputGroupAt(inChannel)->get().channelCount()
+            == outDevice->audioInputGroupAt(toChannel)->get().channelCount())
+        {
+            auto outEdges = inNode_->outEdges();
+            auto it = std::find_if(outEdges.begin(), outEdges.end(),
+                [this, &toNode, toChannel](const ade::EdgeHandle& edgeHandle)
+                {
+                    return edgeHandle->dstNode() == toNode
+                        && graph_.getEdgeData(edgeHandle).fromChannel == inChannel_
+                        && graph_.getEdgeData(edgeHandle).toChannel == toChannel;
+                }
+            );
+            if(it != outEdges.end())
+            {
+                graph_.disconnect(*it);
+            }
+            graph_.connect(inNode, toNode, inChannel, toChannel);
+            inNode_ = inNode;
+            inChannel_ = inChannel;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Inserts::setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChannel)
+{
+    auto outDevice = graph_.getNodeData(outNode).process.device();
+    if(outChannel < outDevice->audioInputGroupCount())
+    {
+        auto fromNode = inNode_;
+        auto fromChannel = inChannel_;
+        for(auto i = insertCount(); i-- > 0;)
+        {
+            if(!bypassed_[i])
+            {
+                fromNode = nodes_[i];
+                fromChannel = channel_[i].second;
+                break;
+            }
+        }
+        auto inDevice = graph_.getNodeData(fromNode).process.device();
+        if(outDevice->audioInputGroupAt(outChannel)->get().channelCount()
+            && inDevice->audioOutputGroupAt(fromChannel)->get().channelCount())
+        {
+            auto inEdges = outNode_->inEdges();
+            auto it = std::find_if(inEdges.begin(), inEdges.end(),
+                [this, &fromNode, fromChannel](const ade::EdgeHandle& edgeHandle)
+                {
+                    return edgeHandle->srcNode() == fromNode
+                        && graph_.getEdgeData(edgeHandle).fromChannel == fromChannel
+                        && graph_.getEdgeData(edgeHandle).toChannel == outChannel_;
+                }
+            );
+            if(it != inEdges.end())
+            {
+                graph_.disconnect(*it);
+            }
+            graph_.connect(fromNode, outNode, fromChannel, outChannel);
+            outNode_ = outNode;
+            outChannel_ = outChannel;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Inserts::insert(const ade::NodeHandle& nodeHandle,
