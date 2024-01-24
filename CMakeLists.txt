@@ -182,6 +182,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VST3ParameterValueQueue.hpp
     src/audio/host/VestifalCallback.cpp
     src/audio/host/VestifalCallback.hpp
+    src/audio/mixer/BlankGenerator.cpp
+    src/audio/mixer/BlankGenerator.hpp
     src/audio/mixer/Inserts.cpp
     src/audio/mixer/Inserts.hpp
     src/audio/mixer/Mixer.cpp
