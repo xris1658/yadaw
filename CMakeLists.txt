@@ -186,6 +186,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/mixer/BlankGenerator.hpp
     src/audio/mixer/Inserts.cpp
     src/audio/mixer/Inserts.hpp
+    src/audio/mixer/Meter.cpp
+    src/audio/mixer/Meter.hpp
     src/audio/mixer/Mixer.cpp
     src/audio/mixer/Mixer.hpp
     src/audio/mixer/VolumeFader.cpp
