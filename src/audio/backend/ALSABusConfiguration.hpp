@@ -20,7 +20,7 @@ using YADAW::Audio::Device::IBus;
 class ALSABusConfiguration: public YADAW::Audio::Device::IAudioBusConfiguration
 {
 public:
-    class Bus: public YADAW::Audio::Device::IBus, public YADAW::Audio::Device::IAudioDevice
+    class Bus: public YADAW::Audio::Device::IBus
     {
     public:
         Bus(bool isInput, YADAW::Audio::Base::ChannelGroupType channelGroupType,
@@ -35,6 +35,8 @@ public:
         OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
         std::uint32_t latencyInSamples() const override;
         void process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData) override;
+        uint32_t audioChannelMapCount() const override;
+        OptionalChannelMap audioChannelMapAt(std::uint32_t index) const override;
     public:
         void setName(const QString& name);
         void setName(QString&& name);

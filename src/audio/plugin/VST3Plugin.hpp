@@ -64,6 +64,8 @@ public:
     bool activateAudioOutputGroup(std::uint32_t index, bool state);
     std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
+    std::uint32_t audioChannelMapCount() const override;
+    OptionalChannelMap audioChannelMapAt(std::uint32_t index) const override;
 public:
     Steinberg::Vst::IComponentHandler* componentHandler();
     YADAW::Audio::Plugin::VST3EventProcessor* eventProcessor();

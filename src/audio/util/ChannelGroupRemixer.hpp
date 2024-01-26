@@ -21,6 +21,8 @@ public:
     OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
     std::uint32_t latencyInSamples() const override;
     void process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData) override;
+    std::uint32_t audioChannelMapCount() const override;
+    OptionalChannelMap audioChannelMapAt(std::uint32_t index) const override;
 public:
     float getGain(std::uint32_t from, std::uint32_t to) const;
     void setGain(std::uint32_t from, std::uint32_t to, float gain);

@@ -3,6 +3,7 @@
 
 #include "audio/base/Channel.hpp"
 #include "audio/device/IAudioChannelGroup.hpp"
+#include "audio/device/IAudioDevice.hpp"
 #include "util/OptionalUtil.hpp"
 
 #include <cstdint>
@@ -27,7 +28,7 @@ struct Channel
     }
 };
 
-class IBus
+class IBus: public YADAW::Audio::Device::IAudioDevice
 {
 public:
     IBus(YADAW::Audio::Base::ChannelGroupType channelGroupType, std::uint32_t channelCount = 0):

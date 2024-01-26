@@ -27,8 +27,9 @@ public:
     // not introduce extra latencies. Use cases of this class without any other facilities that does
     // latency compensation is certainly a terrible idea.
     std::uint32_t latencyInSamples() const override;
-public:
     void process(const AudioProcessData<float> &audioProcessData) override;
+    std::uint32_t audioChannelMapCount() const override;
+    OptionalChannelMap audioChannelMapAt(std::uint32_t index) const override;
 public:
     std::optional<std::uint32_t> getDelayOfPDC(std::uint32_t audioInputGroupIndex) const;
     std::optional<std::uint32_t> getPDCIndexOfMaximumDelay() const;

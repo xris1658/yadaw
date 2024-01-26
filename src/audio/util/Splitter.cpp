@@ -54,4 +54,15 @@ void Splitter::process(const Device::AudioProcessData<float>& audioProcessData)
         }
     }
 }
+
+std::uint32_t Splitter::audioChannelMapCount() const
+{
+    return 0;
+}
+
+YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
+    Splitter::audioChannelMapAt(std::uint32_t index) const
+{
+    return std::nullopt;
+}
 }

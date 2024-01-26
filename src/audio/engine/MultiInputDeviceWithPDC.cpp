@@ -67,6 +67,16 @@ void MultiInputDeviceWithPDC::process(const AudioProcessData<float>& audioProces
     process_.process(audioProcessData);
 }
 
+std::uint32_t MultiInputDeviceWithPDC::audioChannelMapCount() const
+{
+    return 0;
+}
+
+Device::IAudioDevice::OptionalChannelMap MultiInputDeviceWithPDC::audioChannelMapAt(std::uint32_t index) const
+{
+    return std::nullopt;
+}
+
 void MultiInputDeviceWithPDC::setDelayOfPDC(std::uint32_t audioInputGroupIndex, std::uint32_t delay)
 {
     if(audioInputGroupIndex < pdcs_.size())

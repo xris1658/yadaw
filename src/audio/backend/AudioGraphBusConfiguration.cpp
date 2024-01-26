@@ -156,6 +156,17 @@ void AudioGraphBusConfiguration::Bus::process(
     doProcessFunc[isInput_](buffers_, channels_, audioProcessData);
 }
 
+std::uint32_t AudioGraphBusConfiguration::Bus::audioChannelMapCount() const
+{
+    return 0;
+}
+
+YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
+    AudioGraphBusConfiguration::Bus::audioChannelMapAt(std::uint32_t index) const
+{
+    return std::nullopt;
+}
+
 void AudioGraphBusConfiguration::Bus::setName(const QString& name)
 {
     audioChannelGroup_.setName(name);

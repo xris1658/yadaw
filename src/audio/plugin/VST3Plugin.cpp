@@ -473,6 +473,17 @@ void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData
     audioProcessor_->process(processData_);
 }
 
+std::uint32_t VST3Plugin::audioChannelMapCount() const
+{
+    return 0;
+}
+
+YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
+    VST3Plugin::audioChannelMapAt(std::uint32_t index) const
+{
+    return std::nullopt;
+}
+
 Steinberg::Vst::IComponentHandler* VST3Plugin::componentHandler()
 {
     return componentHandler_;

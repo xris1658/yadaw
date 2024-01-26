@@ -63,6 +63,16 @@ void ChannelGroupRemixer::process(const Device::AudioProcessData<float>& audioPr
     }
 }
 
+std::uint32_t ChannelGroupRemixer::audioChannelMapCount() const
+{
+    return 0;
+}
+
+YADAW::Audio::Device::IAudioDevice::OptionalChannelMap ChannelGroupRemixer::audioChannelMapAt(std::uint32_t index) const
+{
+    return std::nullopt;
+}
+
 float ChannelGroupRemixer::getGain(std::uint32_t from, std::uint32_t to) const
 {
     return gain_[to][from];
