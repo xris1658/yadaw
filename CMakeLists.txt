@@ -184,6 +184,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VestifalCallback.hpp
     src/audio/mixer/BlankGenerator.cpp
     src/audio/mixer/BlankGenerator.hpp
+    src/audio/mixer/BlankReceiver.cpp
+    src/audio/mixer/BlankReceiver.hpp
     src/audio/mixer/Inserts.cpp
     src/audio/mixer/Inserts.hpp
     src/audio/mixer/Meter.cpp
