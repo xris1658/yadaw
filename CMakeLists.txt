@@ -244,6 +244,7 @@ set(YADAW_COMMON_SOURCES
     src/audio/util/SampleDelay.hpp
     src/audio/util/Splitter.cpp
     src/audio/util/Splitter.hpp
+    src/audio/util/SquareSum.hpp
     src/audio/util/Summing.cpp
     src/audio/util/Summing.hpp
     src/audio/util/VST3Helper.cpp
