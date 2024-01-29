@@ -17,12 +17,12 @@ FILESUBTYPE 0x0L
 BEGIN
     BLOCK "StringFileInfo"
 BEGIN
-    BLOCK "080404b0"
+    BLOCK "040904b0"
 BEGIN
     VALUE "CompanyName", "xris1658\0"
 VALUE "FileDescription", "YADAW\0"
 VALUE "FileVersion", "0.0.0.1\0"
-VALUE "LegalCopyright", "Copyright (c) 2023 xris1658. All rights reserved (for now).\0"
+VALUE "LegalCopyright", "Copyright (c) 2023-2024 xris1658\0"
 VALUE "OriginalFilename", "YADAW.exe\0"
 VALUE "ProductName", "YADAW\0"
 VALUE "ProductVersion", "0.0.0.1\0"
@@ -30,6 +30,6 @@ END
     END
 BLOCK "VarFileInfo"
 BEGIN
-    VALUE "Translation", 0x0804, 1200
+    VALUE "Translation", 0x0409, 1200
 END
     END
