@@ -1,5 +1,7 @@
 #include "Mixer.hpp"
 
+#include "audio/mixer/BlankGenerator.hpp"
+
 namespace YADAW::Audio::Mixer
 {
 Mixer::Mixer():
@@ -314,25 +316,193 @@ void Mixer::clearAudioOutputChannels()
     removeAudioOutputChannel(0, audioOutputChannelCount());
 }
 
-bool Mixer::insertChannel(std::uint32_t position, Mixer::ChannelType channelType,
-    YADAW::Audio::Base::ChannelGroupType chanelGroupType, std::uint32_t channelCount)
+bool Mixer::insertChannel(
+    std::uint32_t position, Mixer::ChannelType channelType,
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    std::uint32_t channelCountInGroup)
 {
+    if(position <= channelCount())
+    {
+        switch(channelType)
+        {
+        case ChannelType::Audio:
+        case ChannelType::Instrument:
+        {
+            auto blankGenerator = new (std::nothrow) YADAW::Audio::Mixer::BlankGenerator(
+                channelGroupType, channelCountInGroup
+            );
+            if(!blankGenerator)
+            {
+                break;
+            }
+            std::unique_ptr<YADAW::Audio::Device::IAudioDevice> inputDevice(blankGenerator);
+            auto inputDeviceNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*blankGenerator));
+            auto fader = std::make_unique<YADAW::Audio::Mixer::VolumeFader>(
+                channelGroupType, channelCountInGroup
+            );
+            auto faderNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*fader));
+            auto meter = std::make_unique<YADAW::Audio::Mixer::Meter>(
+                8192, channelGroupType, channelCountInGroup
+            );
+            auto meterNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*meter));
+            auto preFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
+                graph_, inputDeviceNode, faderNode, 0, 0
+            );
+            auto postFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
+                graph_, faderNode, meterNode, 0, 0
+            );
+            channelTypes_.emplace(channelTypes_.begin() + position, channelType);
+            inputDevices_.emplace(inputDevices_.begin() + position,
+                std::move(inputDevice), inputDeviceNode
+            );
+            preFaderInserts_.emplace(preFaderInserts_.begin() + position,
+                std::move(preFaderInserts)
+            );
+            faders_.emplace(faders_.begin() + position,
+                std::move(fader), faderNode
+            );
+            postFaderInserts_.emplace(postFaderInserts_.begin() + position,
+                std::move(postFaderInserts)
+            );
+            meters_.emplace(meters_.begin() + position,
+                std::move(meter), meterNode
+            );
+            outputDevices_.emplace(outputDevices_.begin() + position,
+                std::unique_ptr<YADAW::Audio::Device::IAudioDevice>(nullptr),
+                ade::NodeHandle()
+            );
+            return true;
+        }
+        case ChannelType::AudioFX:
+        case ChannelType::AudioBus:
+        {
+            auto summing = new (std::nothrow) YADAW::Audio::Util::Summing(
+                1, channelGroupType, channelCountInGroup
+            );
+            if(!summing)
+            {
+                break;
+            }
+            std::unique_ptr<YADAW::Audio::Device::IAudioDevice> inputDevice(summing);
+            auto inputDeviceNode = graphWithPDC_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*summing));
+            auto fader = std::make_unique<YADAW::Audio::Mixer::VolumeFader>(
+                channelGroupType, channelCountInGroup
+            );
+            auto faderNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*fader));
+            auto meter = std::make_unique<YADAW::Audio::Mixer::Meter>(
+                8192, channelGroupType, channelCountInGroup
+            );
+            auto meterNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*meter));
+            auto preFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
+                graph_, inputDeviceNode, faderNode, 0, 0
+            );
+            auto postFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
+                graph_, faderNode, meterNode, 0, 0
+            );
+            channelTypes_.emplace(channelTypes_.begin() + position, channelType);
+            inputDevices_.emplace(inputDevices_.begin() + position,
+                std::move(inputDevice), inputDeviceNode
+            );
+            preFaderInserts_.emplace(preFaderInserts_.begin() + position,
+                std::move(preFaderInserts)
+            );
+            faders_.emplace(faders_.begin() + position,
+                std::move(fader), faderNode
+            );
+            postFaderInserts_.emplace(postFaderInserts_.begin() + position,
+                std::move(postFaderInserts)
+            );
+            meters_.emplace(meters_.begin() + position,
+                std::move(meter), meterNode
+            );
+            outputDevices_.emplace(outputDevices_.begin() + position,
+                std::unique_ptr<YADAW::Audio::Device::IAudioDevice>(nullptr),
+                ade::NodeHandle()
+            );
+            return true;
+        }
+        }
+    }
     return false;
 }
 
-bool Mixer::appendChannel(Mixer::ChannelType channelType, YADAW::Audio::Base::ChannelGroupType channelGroupType,
-    std::uint32_t channelCount)
+bool Mixer::appendChannel(
+    Mixer::ChannelType channelType,
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    std::uint32_t channelCountInGroup)
 {
-    return false;
+    return insertChannel(
+        channelCount(), channelType, channelGroupType, channelCountInGroup);
 }
 
-void Mixer::removeChannel(std::uint32_t position, std::uint32_t removeCount)
+bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
 {
-
+    if(auto last = first + removeCount;
+        first < channelCount() && last <= channelCount())
+    {
+        preFaderInserts_.erase(
+            preFaderInserts_.begin() + first,
+            preFaderInserts_.begin() + last
+        );
+        postFaderInserts_.erase(
+            postFaderInserts_.begin() + first,
+            postFaderInserts_.begin() + last
+        );
+        std::for_each_n(inputDevices_.begin() + first, removeCount,
+            [this](auto& deviceAndNode)
+            {
+                auto& [device, nodeHandle] = deviceAndNode;
+                graph_.removeNode(nodeHandle);
+            }
+        );
+        std::for_each_n(faders_.begin() + first, removeCount,
+            [this](auto& deviceAndNode)
+            {
+                auto& [device, nodeHandle] = deviceAndNode;
+                graph_.removeNode(nodeHandle);
+            }
+        );
+        std::for_each_n(meters_.begin() + first, removeCount,
+            [this](auto& deviceAndNode)
+            {
+                auto& [device, nodeHandle] = deviceAndNode;
+                graph_.removeNode(nodeHandle);
+            }
+        );
+        std::for_each_n(outputDevices_.begin() + first, removeCount,
+            [this](auto& deviceAndNode)
+            {
+                auto& [device, nodeHandle] = deviceAndNode;
+                graph_.removeNode(nodeHandle);
+            }
+        );
+        channelTypes_.erase(
+            channelTypes_.begin() + first,
+            channelTypes_.begin() + last
+        );
+        inputDevices_.erase(
+            inputDevices_.begin() + first,
+            inputDevices_.begin() + last
+        );
+        meters_.erase(
+            meters_.begin() + first,
+            meters_.begin() + last
+        );
+        faders_.erase(
+            faders_.begin() + first,
+            faders_.begin() + last
+        );
+        outputDevices_.erase(
+            outputDevices_.begin() + first,
+            outputDevices_.begin() + last
+        );
+        return true;
+    }
+    return false;
 }
 
 void Mixer::clearChannels()
 {
-
+    removeChannel(0, channelCount());
 }
 }

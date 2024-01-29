@@ -7,7 +7,7 @@ namespace YADAW::Audio::Mixer
 {
 bool compareAbs(float lhs, float rhs)
 {
-return std::abs(lhs) < std::abs(rhs);
+    return std::abs(lhs) < std::abs(rhs);
 }
 
 Meter::Meter(

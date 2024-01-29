@@ -22,7 +22,7 @@ public:
         Audio,
         Instrument,
         AudioFX,
-        Group
+        AudioBus
     };
 public:
     Mixer();
@@ -60,14 +60,14 @@ public:
         std::uint32_t position,
         ChannelType channelType,
         YADAW::Audio::Base::ChannelGroupType chanelGroupType = YADAW::Audio::Base::ChannelGroupType::eInvalid,
-        std::uint32_t channelCount = 0
+        std::uint32_t channelCountInGroup = 0
     );
     bool appendChannel(
         ChannelType channelType,
         YADAW::Audio::Base::ChannelGroupType channelGroupType = YADAW::Audio::Base::ChannelGroupType::eInvalid,
-        std::uint32_t channelCount = 0
+        std::uint32_t channelCountInGroup = 0
     );
-    void removeChannel(
+    bool removeChannel(
         std::uint32_t position,
         std::uint32_t removeCount = 1
     );
@@ -85,6 +85,10 @@ private:
         std::unique_ptr<YADAW::Audio::Util::Summing>,
         ade::NodeHandle
     >;
+    using DeviceAndNode = std::pair<
+        std::unique_ptr<YADAW::Audio::Device::IAudioDevice>,
+        ade::NodeHandle
+    >;
 private:
     YADAW::Audio::Engine::AudioDeviceGraph<
         YADAW::Audio::Engine::Extension::Buffer,
@@ -96,11 +100,13 @@ private:
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioInputPostFaderInserts_;
     std::vector<MeterAndNode> audioInputMeters_;
 
-    std::vector<ade::NodeHandle> instruments_;
+    std::vector<ChannelType> channelTypes_;
+    std::vector<DeviceAndNode> inputDevices_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts_;
     std::vector<FaderAndNode> faders_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts_;
     std::vector<MeterAndNode> meters_;
+    std::vector<DeviceAndNode> outputDevices_;
 
     std::vector<SummingAndNode> audioOutputSummings_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPreFaderInserts_;
