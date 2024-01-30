@@ -22,7 +22,15 @@ public:
         Audio,
         Instrument,
         AudioFX,
-        AudioBus
+        AudioBus,
+        AudioHardwareInput,
+        AudioHardwareOutput
+    };
+    struct ChannelInfo
+    {
+        QString name;
+        QColor color;
+        ChannelType channelType;
     };
 public:
     Mixer();
@@ -47,6 +55,12 @@ public:
     OptionalRef<YADAW::Audio::Mixer::Inserts> channelPostFaderInsertsAt(std::uint32_t index);
     OptionalRef<YADAW::Audio::Mixer::Inserts> audioOutputChannelPreFaderInsertsAt(std::uint32_t index);
     OptionalRef<YADAW::Audio::Mixer::Inserts> audioOutputChannelPostFaderInsertsAt(std::uint32_t index);
+    OptionalRef<const ChannelInfo> audioInputChannelInfoAt(std::uint32_t index) const;
+    OptionalRef<const ChannelInfo> audioOutputChannelInfoAt(std::uint32_t index) const;
+    OptionalRef<const ChannelInfo> channelInfoAt(std::uint32_t index) const;
+    OptionalRef<ChannelInfo> audioInputChannelInfoAt(std::uint32_t index);
+    OptionalRef<ChannelInfo> audioOutputChannelInfoAt(std::uint32_t index);
+    OptionalRef<ChannelInfo> channelInfoAt(std::uint32_t index);
 public:
     bool appendAudioInputChannel(
         const ade::NodeHandle& inNode, std::uint32_t channel);
@@ -99,6 +113,7 @@ private:
     std::vector<FaderAndNode> audioInputFaders_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioInputPostFaderInserts_;
     std::vector<MeterAndNode> audioInputMeters_;
+    std::vector<ChannelInfo> audioInputChannelInfo_;
 
     std::vector<ChannelType> channelTypes_;
     std::vector<DeviceAndNode> inputDevices_;
@@ -107,12 +122,14 @@ private:
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts_;
     std::vector<MeterAndNode> meters_;
     std::vector<DeviceAndNode> outputDevices_;
+    std::vector<ChannelInfo> channelInfo_;
 
     std::vector<SummingAndNode> audioOutputSummings_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPreFaderInserts_;
     std::vector<FaderAndNode> audioOutputFaders_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPostFaderInserts_;
     std::vector<MeterAndNode> audioOutputMeters_;
+    std::vector<ChannelInfo> audioOutputChannelInfo_;
 };
 }
 

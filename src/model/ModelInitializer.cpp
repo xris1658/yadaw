@@ -9,6 +9,7 @@
 #include "model/IAutomationModel.hpp"
 #include "model/IFilterRoleModel.hpp"
 #include "model/ILocalizationListModel.hpp"
+#include "model/IMixerChannelListModel.hpp"
 #include "model/IPluginDirectoryListModel.hpp"
 #include "model/IPluginListModel.hpp"
 #include "model/ISortFilterListModel.hpp"
@@ -27,6 +28,7 @@ void initializeModel()
     QML_REGISTER_TYPE(IAutomationModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IFilterRoleModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(ILocalizationListModel, YADAW.Models, 1, 0);
+    QML_REGISTER_TYPE(IMixerChannelListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IPluginDirectoryListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IPluginListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(ISortFilterListModel, YADAW.Models, 1, 0);

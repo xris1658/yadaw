@@ -298,8 +298,6 @@ set(YADAW_COMMON_SOURCES
     src/entity/ChannelConfig.cpp
     src/entity/ChannelConfigHelper.cpp
     src/entity/ChannelConfigHelper.hpp
-    src/entity/ChannelInfo.cpp
-    src/entity/ChannelInfo.hpp
     src/entity/EntityInitializer.cpp
     src/entity/EntityInitializer.hpp
     src/entity/PluginFormatSupport.cpp
@@ -339,6 +337,8 @@ set(YADAW_COMMON_SOURCES
     src/model/FilterRoleModel.hpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
+    src/model/MixerChannelListModel.cpp
+    src/model/MixerChannelListModel.hpp
     src/model/ModelInitializer.cpp
     src/model/ModelInitializer.hpp
     src/model/PluginCategoryListModel.cpp

@@ -164,6 +164,60 @@ OptionalRef<YADAW::Audio::Mixer::Inserts>
     return std::nullopt;
 }
 
+OptionalRef<const Mixer::ChannelInfo> Mixer::audioInputChannelInfoAt(std::uint32_t index) const
+{
+    if(index < audioInputChannelCount())
+    {
+        return {std::ref(audioInputChannelInfo_[index])};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const Mixer::ChannelInfo> Mixer::audioOutputChannelInfoAt(std::uint32_t index) const
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {std::ref(audioOutputChannelInfo_[index])};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const Mixer::ChannelInfo> Mixer::channelInfoAt(std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        return {std::ref(channelInfo_[index])};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<Mixer::ChannelInfo> Mixer::audioInputChannelInfoAt(std::uint32_t index)
+{
+    if(index < audioInputChannelCount())
+    {
+        return {std::ref(audioInputChannelInfo_[index])};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<Mixer::ChannelInfo> Mixer::audioOutputChannelInfoAt(std::uint32_t index)
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {std::ref(audioOutputChannelInfo_[index])};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<Mixer::ChannelInfo> Mixer::channelInfoAt(std::uint32_t index)
+{
+    if(index < channelCount())
+    {
+        return {std::ref(channelInfo_[index])};
+    }
+    return std::nullopt;
+}
+
 bool Mixer::appendAudioInputChannel(
     const ade::NodeHandle& inNode, std::uint32_t channel)
 {
@@ -195,6 +249,8 @@ bool Mixer::appendAudioInputChannel(
         );
         audioInputFaders_.emplace_back(std::move(fader), faderNode);
         audioInputMeters_.emplace_back(std::move(meter), meterNode);
+        auto& info = audioInputChannelInfo_.emplace_back();
+        info.channelType = ChannelType::AudioBus;
         return true;
     }
     return false;
@@ -203,7 +259,6 @@ bool Mixer::appendAudioInputChannel(
 bool Mixer::removeAudioInputChannel(
     std::uint32_t first, std::uint32_t removeCount)
 {
-
     if(auto last = first + removeCount;
         first < audioInputChannelCount()
             && last <= audioInputChannelCount()
@@ -211,19 +266,23 @@ bool Mixer::removeAudioInputChannel(
     {
         audioInputPreFaderInserts_.erase(
             audioInputPreFaderInserts_.begin() + first,
-            audioInputPreFaderInserts_.begin() + first + removeCount
+            audioInputPreFaderInserts_.begin() + last
         );
         audioInputPostFaderInserts_.erase(
             audioInputPostFaderInserts_.begin() + first,
-            audioInputPostFaderInserts_.begin() + first + removeCount
+            audioInputPostFaderInserts_.begin() + last
         );
         audioInputFaders_.erase(
             audioInputFaders_.begin() + first,
-            audioInputFaders_.begin() + first + removeCount
+            audioInputFaders_.begin() + last
         );
         audioInputMeters_.erase(
             audioInputMeters_.begin() + first,
-            audioInputMeters_.begin() + first + removeCount
+            audioInputMeters_.begin() + last
+        );
+        audioInputChannelInfo_.erase(
+            audioInputChannelInfo_.begin() + first,
+            audioInputChannelInfo_.begin() + last
         );
         return true;
     }
@@ -274,6 +333,8 @@ bool Mixer::appendAudioOutputChannel(
         audioOutputSummings_.emplace_back(std::move(summing), summingNode);
         audioOutputFaders_.emplace_back(std::move(fader), faderNode);
         audioOutputMeters_.emplace_back(std::move(meter), meterNode);
+        auto& info = audioOutputChannelInfo_.emplace_back();
+        info.channelType = ChannelType::AudioBus;
         return true;
     }
     return false;
@@ -305,6 +366,10 @@ bool Mixer::removeAudioOutputChannel(std::uint32_t first, std::uint32_t removeCo
         audioOutputFaders_.erase(
             audioOutputFaders_.begin() + first,
             audioOutputFaders_.begin() + last
+        );
+        audioOutputChannelInfo_.erase(
+            audioOutputChannelInfo_.begin() + first,
+            audioOutputChannelInfo_.begin() + last
         );
         return true;
     }
@@ -371,6 +436,8 @@ bool Mixer::insertChannel(
                 std::unique_ptr<YADAW::Audio::Device::IAudioDevice>(nullptr),
                 ade::NodeHandle()
             );
+            auto it = channelInfo_.emplace(channelInfo_.begin() + position);
+            it->channelType = channelType;
             return true;
         }
         case ChannelType::AudioFX:
@@ -419,6 +486,8 @@ bool Mixer::insertChannel(
                 std::unique_ptr<YADAW::Audio::Device::IAudioDevice>(nullptr),
                 ade::NodeHandle()
             );
+            auto it = channelInfo_.emplace(channelInfo_.begin() + position);
+            it->channelType = channelType;
             return true;
         }
         }
@@ -495,6 +564,10 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         outputDevices_.erase(
             outputDevices_.begin() + first,
             outputDevices_.begin() + last
+        );
+        channelInfo_.erase(
+            channelInfo_.begin() + first,
+            channelInfo_.begin() + last
         );
         return true;
     }
