@@ -19,6 +19,16 @@ YADAW::Audio::Engine::AudioDeviceGraphWithPDC& Mixer::graph()
     return graphWithPDC_;
 }
 
+const YADAW::Audio::Engine::Extension::Buffer& Mixer::bufferExtension() const
+{
+    return graph_.getExtension<YADAW::Audio::Engine::Extension::Buffer>();
+}
+
+YADAW::Audio::Engine::Extension::Buffer& Mixer::bufferExtension()
+{
+    return graph_.getExtension<YADAW::Audio::Engine::Extension::Buffer>();
+}
+
 const YADAW::Audio::Engine::Extension::Buffer& Mixer::buffer() const
 {
     return graph_.getExtension<YADAW::Audio::Engine::Extension::Buffer>();
@@ -416,7 +426,6 @@ bool Mixer::insertChannel(
             auto postFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, faderNode, meterNode, 0, 0
             );
-            channelTypes_.emplace(channelTypes_.begin() + position, channelType);
             inputDevices_.emplace(inputDevices_.begin() + position,
                 std::move(inputDevice), inputDeviceNode
             );
@@ -466,7 +475,6 @@ bool Mixer::insertChannel(
             auto postFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, faderNode, meterNode, 0, 0
             );
-            channelTypes_.emplace(channelTypes_.begin() + position, channelType);
             inputDevices_.emplace(inputDevices_.begin() + position,
                 std::move(inputDevice), inputDeviceNode
             );
@@ -544,10 +552,6 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
                 auto& [device, nodeHandle] = deviceAndNode;
                 graph_.removeNode(nodeHandle);
             }
-        );
-        channelTypes_.erase(
-            channelTypes_.begin() + first,
-            channelTypes_.begin() + last
         );
         inputDevices_.erase(
             inputDevices_.begin() + first,

@@ -37,6 +37,8 @@ public:
 public:
     const YADAW::Audio::Engine::AudioDeviceGraphWithPDC& graph() const;
     YADAW::Audio::Engine::AudioDeviceGraphWithPDC& graph();
+    const YADAW::Audio::Engine::Extension::Buffer& bufferExtension() const;
+    YADAW::Audio::Engine::Extension::Buffer& bufferExtension();
     const YADAW::Audio::Engine::Extension::Buffer& buffer() const;
     YADAW::Audio::Engine::Extension::Buffer& buffer();
 public:
@@ -115,7 +117,6 @@ private:
     std::vector<MeterAndNode> audioInputMeters_;
     std::vector<ChannelInfo> audioInputChannelInfo_;
 
-    std::vector<ChannelType> channelTypes_;
     std::vector<DeviceAndNode> inputDevices_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts_;
     std::vector<FaderAndNode> faders_;
