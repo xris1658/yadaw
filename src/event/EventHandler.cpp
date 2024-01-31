@@ -3,6 +3,9 @@
 #include "base/Constants.hpp"
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
+#include "controller/AudioEngineController.hpp"
+#include "model/MixerChannelListModel.hpp"
+#include "util/IntegerRange.hpp"
 #if _WIN32
 #include "controller/AudioGraphBackendController.hpp"
 #elif __linux__
@@ -116,7 +119,9 @@ void EventHandler::onOpenMainWindow()
 {
     auto appConfig = YADAW::Controller::loadConfig();
     auto currentBackend = YADAW::Controller::backendFromConfig(appConfig["audio-hardware"]);
-    // initialize audio backend
+    // -------------------------------------------------------------------------
+    // initialize audio backend ------------------------------------------------
+    // -------------------------------------------------------------------------
 #if _WIN32
     auto& backend = YADAW::Controller::appAudioGraphBackend();
     backend.initialize();
@@ -158,16 +163,53 @@ void EventHandler::onOpenMainWindow()
         &QAbstractItemModel::dataChanged, &saveAudioBackendState);
     YADAW::Controller::initializeALSAFromConfig(appConfig["audio-hardware"]["alsa"]);
 #endif
+    // -------------------------------------------------------------------------
+    // initialize audio bus configuration --------------------------------------
+    // -------------------------------------------------------------------------
+    auto& audioBusConfiguration = YADAW::Controller::appAudioBusConfiguration();
     static YADAW::Model::AudioBusConfigurationModel appAudioBusInputConfigurationModel(
-        YADAW::Controller::appAudioBusConfiguration(), true);
+        audioBusConfiguration, true);
     static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
-        YADAW::Controller::appAudioBusConfiguration(), false);
+        audioBusConfiguration, false);
     if(auto audioBusConfigNode = appConfig["audio-bus"];
         audioBusConfigNode.IsDefined())
     {
         YADAW::Controller::loadAudioBusConfiguration(audioBusConfigNode,
             appAudioBusInputConfigurationModel, appAudioBusOutputConfigurationModel);
     }
+    // -------------------------------------------------------------------------
+    // initialize device graph and mixer----------------------------------------
+    // -------------------------------------------------------------------------
+    auto& mixer = YADAW::Controller::appMixer();
+    auto& appGraphWithPDC = mixer.graph();
+    auto& appGraph = appGraphWithPDC.graph();
+    auto& bufferExt = mixer.bufferExtension();
+#if _WIN32
+    bufferExt.setBufferSize(backend.bufferSizeInFrames());
+#elif __linux__
+    bufferExt.setBufferSize(backend.frameCount());
+#endif
+    FOR_RANGE0(i, audioBusConfiguration.inputBusCount())
+    {
+        auto& bus = audioBusConfiguration.inputBusAt(i)->get();
+        auto node = appGraphWithPDC.addNode(YADAW::Audio::Engine::AudioDeviceProcess(bus));
+        mixer.appendAudioInputChannel(node, 0);
+    }
+    FOR_RANGE0(i, audioBusConfiguration.outputBusCount())
+    {
+        auto& bus = audioBusConfiguration.outputBusAt(i)->get();
+        auto node = appGraphWithPDC.addNode(YADAW::Audio::Engine::AudioDeviceProcess(bus));
+        mixer.appendAudioOutputChannel(node, 0);
+    }
+    YADAW::Model::MixerChannelListModel mixerAudioInputChannelListModel(
+        mixer, YADAW::Model::MixerChannelListModel::ListType::AudioHardwareInput);
+    YADAW::Model::MixerChannelListModel mixerChannelListModel(
+        mixer, YADAW::Model::MixerChannelListModel::ListType::Regular);
+    YADAW::Model::MixerChannelListModel mixerAudioOutputChannelListModel(
+        mixer, YADAW::Model::MixerChannelListModel::ListType::AudioHardwareOutput);
+    // -------------------------------------------------------------------------
+    // Open main window---------------------------------------------------------
+    // -------------------------------------------------------------------------
     const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
     YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
     YADAW::UI::mainWindow->setProperty("currentAudioBackend",
@@ -279,6 +321,10 @@ void EventHandler::onMainWindowClosing()
 #elif __linux__
     YADAW::Controller::appALSABackend().uninitialize();
 #endif
+    auto& mixer = YADAW::Controller::appMixer();
+    mixer.clearChannels();
+    mixer.clearAudioInputChannels();
+    mixer.clearAudioOutputChannels();
     mainWindowCloseAccepted();
 }
 

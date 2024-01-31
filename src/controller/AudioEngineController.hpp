@@ -2,6 +2,7 @@
 #define YADAW_SRC_CONTROLLER_AUDIOENGINECONTROLLER
 
 #include "audio/device/IAudioDevice.hpp"
+#include "audio/mixer/Mixer.hpp"
 
 namespace YADAW::Controller
 {
@@ -16,6 +17,8 @@ void process(YADAW::Audio::Device::IAudioDevice* device,
     static_cast<T*>(device)->process(audioProcessData);
 }
 }
+
+YADAW::Audio::Mixer::Mixer& appMixer();
 }
 
 #endif // YADAW_SRC_CONTROLLER_AUDIOENGINECONTROLLER

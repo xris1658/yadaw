@@ -263,6 +263,7 @@ set(YADAW_COMMON_SOURCES
     src/controller/AudioBackendController.hpp
     src/controller/AudioBusConfigurationController.cpp
     src/controller/AudioBusConfigurationController.hpp
+    src/controller/AudioEngineController.cpp
     src/controller/AudioEngineController.hpp
     src/controller/ConfigController.cpp
     src/controller/ConfigController.hpp
