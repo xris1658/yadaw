@@ -12,16 +12,19 @@ Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     inNode_(std::move(inNode)), outNode_(std::move(outNode)),
     inChannel_(inChannel), outChannel_(outChannel)
 {
-    auto inDevice = graph_.getNodeData(inNode).process.device();
-    auto outDevice = graph_.getNodeData(outNode).process.device();
-    if(inChannel < inDevice->audioInputGroupCount()
-        && outChannel < outDevice->audioOutputGroupCount()
-        && inDevice->audioInputGroupAt(inChannel)->get().channelCount()
-            == outDevice->audioOutputGroupAt(outChannel)->get().channelCount())
+    auto inDevice = graph_.getNodeData(inNode_).process.device();
+    auto outDevice = graph_.getNodeData(outNode_).process.device();
+    if(inChannel < inDevice->audioOutputGroupCount()
+        && outChannel < outDevice->audioInputGroupCount()
+        && inDevice->audioOutputGroupAt(inChannel)->get().channelCount()
+            == outDevice->audioInputGroupAt(outChannel)->get().channelCount())
     {
         graph_.connect(inNode_, outNode_, inChannel_, outChannel_);
     }
-    throw std::invalid_argument("");
+    else
+    {
+        throw std::invalid_argument("");
+    }
 }
 
 YADAW::Audio::Engine::AudioDeviceGraphBase& Inserts::graph() const

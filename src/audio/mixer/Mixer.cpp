@@ -36,12 +36,12 @@ std::uint32_t Mixer::audioInputChannelCount() const
 
 std::uint32_t Mixer::channelCount() const
 {
-    return audioOutputFaders_.size();
+    return faders_.size();
 }
 
 std::uint32_t Mixer::audioOutputChannelCount() const
 {
-    return faders_.size();
+    return audioOutputFaders_.size();
 }
 
 OptionalRef<const YADAW::Audio::Mixer::Inserts>
@@ -244,7 +244,7 @@ bool Mixer::appendAudioInputChannel(
         );
         audioInputPostFaderInserts_.emplace_back(
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, meterNode, faderNode, 0, 0
+                graph_, faderNode, meterNode, 0, 0
             )
         );
         audioInputFaders_.emplace_back(std::move(fader), faderNode);
@@ -298,9 +298,9 @@ bool Mixer::appendAudioOutputChannel(
     const ade::NodeHandle& outNode, std::uint32_t channel)
 {
     auto device = graph_.getNodeData(outNode).process.device();
-    if(channel < device->audioInputGroupCount())
+    if(channel < device->audioOutputGroupCount())
     {
-        const auto& channelGroup = device->audioInputGroupAt(channel)->get();
+        const auto& channelGroup = device->audioOutputGroupAt(channel)->get();
         auto summing = std::make_unique<YADAW::Audio::Util::Summing>(
             1, channelGroup.type(), channelGroup.channelCount()
         );
@@ -326,7 +326,7 @@ bool Mixer::appendAudioOutputChannel(
         );
         audioOutputPostFaderInserts_.emplace_back(
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, meterNode, faderNode, 0, 0
+                graph_, faderNode, meterNode, 0, 0
             )
         );
         graph_.connect(meterNode, outNode, 0, channel);
