@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_CONTROLLER_ALSABACKENDCONTROLLER
 #define YADAW_SRC_CONTROLLER_ALSABACKENDCONTROLLER
 
+#if __linux__
+
 #include "audio/backend/ALSABackend.hpp"
 #include "audio/backend/ALSABusConfiguration.hpp"
 #include "model/ALSAInputDeviceListModel.hpp"
@@ -28,5 +30,7 @@ YAML::Node deviceConfigFromALSA();
 
 YADAW::Audio::Backend::ALSABusConfiguration& appAudioBusConfiguration();
 }
+
+#endif
 
 #endif // YADAW_SRC_CONTROLLER_ALSABACKENDCONTROLLER
