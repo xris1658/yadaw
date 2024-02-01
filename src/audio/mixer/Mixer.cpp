@@ -308,9 +308,9 @@ bool Mixer::appendAudioOutputChannel(
     const ade::NodeHandle& outNode, std::uint32_t channel)
 {
     auto device = graph_.getNodeData(outNode).process.device();
-    if(channel < device->audioOutputGroupCount())
+    if(channel < device->audioInputGroupCount())
     {
-        const auto& channelGroup = device->audioOutputGroupAt(channel)->get();
+        const auto& channelGroup = device->audioInputGroupAt(channel)->get();
         auto summing = std::make_unique<YADAW::Audio::Util::Summing>(
             1, channelGroup.type(), channelGroup.channelCount()
         );
