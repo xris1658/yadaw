@@ -32,7 +32,7 @@ public:
     ~CircularDeque()
     {
         clear();
-        std::free(data_);
+        delete[] data_;
     }
 private:
     const T* get(std::size_t index) const
