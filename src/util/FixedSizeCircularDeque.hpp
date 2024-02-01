@@ -12,9 +12,10 @@
 namespace YADAW::Util
 {
 template<typename T, std::size_t Capacity>
-class FixedSizeCircularDeque
+class FixedSizeCircularDeque: AlignHelper<T>
 {
     using Self = FixedSizeCircularDeque<T, Capacity>;
+    using Aligned = typename AlignHelper<T>::Aligned;
 public:
     class ConstIterator;
     class Iterator
@@ -119,6 +120,19 @@ public:
     FixedSizeCircularDeque(Self&& rhs) noexcept = default;
     Self& operator=(Self&& rhs) noexcept = default;
     ~FixedSizeCircularDeque() noexcept = default;
+private:
+    const T* get(std::size_t index) const
+    {
+        return AlignHelper<T>::fromAligned(data_.data() + ((start_ + index) % Capacity));
+    }
+    const T* getFront() const
+    {
+        return get(0);
+    }
+    const T* getBack() const
+    {
+        return get(count_ - 1);
+    }
 public:
     Iterator begin() noexcept
     {
@@ -138,7 +152,7 @@ public:
     }
     const T& front() const
     {
-        return operator[](0);
+        return *getFront();
     }
     T& front()
     {
@@ -146,7 +160,7 @@ public:
     }
     const T& back() const
     {
-        return operator[](count_ - 1);
+        return *getBack();
     }
     T& back()
     {
@@ -154,7 +168,7 @@ public:
     }
     const T& operator[](std::size_t index) const
     {
-        return reinterpret_cast<const T&>(data_[(start_ + index) % Capacity]);
+        return *get(index);
     }
     T& operator[](std::size_t index)
     {
@@ -241,7 +255,7 @@ public:
         {
             if(!std::is_trivially_destructible_v<T>)
             {
-                (&front())->~T();
+                getFront()->~T();
             }
             ++start_;
             if(start_ == Capacity)
@@ -290,7 +304,7 @@ public:
         {
             if(!std::is_trivially_destructible_v<T>)
             {
-                (&back())->~T();
+                getBack()->~T();
             }
             --count_;
             return true;
@@ -316,7 +330,6 @@ public:
                 popBack();
             }
         }
-        count_ -= count;
         return count;
     }
     void clear()
@@ -325,13 +338,13 @@ public:
         {
             FOR_RANGE0(i, count_)
             {
-                (&(operator[](i)))->~T();
+                get(i)->~T();
             }
         }
         count_ = 0;
     }
 private:
-    std::array<std::byte[sizeof(T)], Capacity> data_;
+    std::array<Aligned, Capacity> data_;
     std::size_t start_ = 0;
     std::size_t count_ = 0;
 };

@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_UTIL_FIXEDSIZELOCKFREEQUEUE
 #define YADAW_SRC_UTIL_FIXEDSIZELOCKFREEQUEUE
 
+#include "util/AlignHelper.hpp"
 #include "util/CompilerSpecifics.hpp"
 
 #include <array>
@@ -11,9 +12,10 @@ namespace YADAW::Util
 {
 // Single producer + single consumer
 template<typename T, std::size_t Capacity>
-class FixedSizeLockFreeQueue
+class FixedSizeLockFreeQueue: AlignHelper<T>
 {
     using Self = FixedSizeLockFreeQueue<T, Capacity>;
+    using Aligned = typename AlignHelper<T>::Aligned;
 public:
     FixedSizeLockFreeQueue() {}
     FixedSizeLockFreeQueue(const Self&) = delete;
@@ -58,7 +60,7 @@ public:
             // 1. Construct at tail
             auto dest = end_.load(std::memory_order::memory_order_acquire) % (Capacity + 1);
             new(data_.data() + dest) T(obj);
-            // 2. Incrument tail
+            // 2. Increase tail
             bumpUpEnd();
             return true;
         }
@@ -71,7 +73,7 @@ public:
             // 1. Construct at tail
             auto dest = end_.load(std::memory_order::memory_order_acquire) % (Capacity + 1);
             new(data_.data() + dest) T(std::move(obj));
-            // 2. Incrument tail
+            // 2. Increase tail
             bumpUpEnd();
             return true;
         }
@@ -85,7 +87,7 @@ public:
             // 1. Construct at tail
             auto dest = end_.load(std::memory_order::memory_order_acquire) % (Capacity + 1);
             new(data_.data() + dest) T(std::forward<Args>(args)...);
-            // 2. Incrument tail
+            // 2. Increase tail
             bumpUpEnd();
             return true;
         }
@@ -96,7 +98,7 @@ public:
         if(!empty())
         {
             // 1. Move and destruct at head
-            auto ptr = reinterpret_cast<T*>(data_.data()) +
+            auto ptr = AlignHelper<T>::fromAligned(data_.data()) +
                 (begin_.load(std::memory_order::memory_order_acquire) % (Capacity + 1));
             if(std::is_move_assignable_v<T>)
             {
@@ -110,7 +112,7 @@ public:
             {
                 ptr->~T();
             }
-            // 2. Increment head
+            // 2. Increase head
             bumpUpBegin();
             return true;
         }
@@ -121,7 +123,7 @@ public:
         if(!empty())
         {
             // 1. Move and destruct at head
-            auto ptr = reinterpret_cast<T*>(data_.data()) +
+            auto ptr = AlignHelper<T>::fromAligned(data_.data()) +
                 (begin_.load(std::memory_order::memory_order_acquire) % (Capacity + 1));
             if(!std::is_trivially_destructible_v<T>)
             {
@@ -134,7 +136,7 @@ public:
         return false;
     }
 private:
-    std::array<std::byte[sizeof(T)], Capacity + 1> data_;
+    std::array<Aligned, Capacity + 1> data_;
     std::atomic_size_t begin_{0};
     std::atomic_size_t end_{0};
 };

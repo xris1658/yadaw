@@ -1,21 +1,31 @@
 #ifndef YADAW_SRC_UTIL_LOCKFREEQUEUE
 #define YADAW_SRC_UTIL_LOCKFREEQUEUE
 
+#include "util/AlignHelper.hpp"
 #include "util/CompilerSpecifics.hpp"
 
 #include <atomic>
 #include <cstdlib>
+#include <new>
 
 namespace YADAW::Util
 {
+#ifdef __cpp_lib_hardware_interference_size
+using std::hardware_destructive_interference_size;
+using std::hardware_destructive_interference_size;
+#else
+inline const std::size_t hardware_destructive_interference_size = 64;
+inline const std::size_t hardware_destructive_interference_size = 64;
+#endif
 // Single producer + single consumer
 template<typename T>
-class LockFreeQueue
+class LockFreeQueue: AlignHelper<T>
 {
     using Self = LockFreeQueue<T>;
+    using Aligned = typename AlignHelper<T>::Aligned;
 public:
     LockFreeQueue(std::size_t capacity):
-    data_(reinterpret_cast<T*>(std::malloc(sizeof(T) * (capacity + 1)))),
+    data_(new(std::nothrow) Aligned[capacity + 1]),
     capacity_(capacity)
     {
         if(!data_)
@@ -30,7 +40,7 @@ public:
     ~LockFreeQueue()
     {
         while(pop()) {}
-        std::free(data_);
+        delete[] data_;
     }
 public:
     std::size_t size() const noexcept
@@ -97,7 +107,7 @@ public:
     {
         if(!empty())
         {
-            auto ptr = data_ + (begin_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1));
+            auto ptr = AlignHelper<T>::fromAligned(data_ + (begin_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1)));
             if(std::is_move_assignable_v<T>)
             {
                 obj = std::move(*ptr);
@@ -119,7 +129,7 @@ public:
     {
         if(!empty())
         {
-            auto ptr = data_ + (begin_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1));
+            auto ptr = AlignHelper<T>::fromAligned(data_ + (begin_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1)));
             if(!std::is_trivially_destructible_v<T>)
             {
                 ptr->~T();
@@ -130,10 +140,10 @@ public:
         return false;
     }
 private:
-    T* data_;
+    Aligned* data_;
     std::size_t capacity_;
-    std::atomic_size_t begin_{0};
-    std::atomic_size_t end_{0};
+    alignas(hardware_destructive_interference_size) std::atomic_size_t begin_{0};
+    alignas(hardware_destructive_interference_size) std::atomic_size_t end_{0};
 };
 }
 

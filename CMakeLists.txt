@@ -370,7 +370,7 @@ set(YADAW_COMMON_SOURCES
     src/util/ADEUtil.cpp
     src/util/ADEUtil.hpp
     src/util/Algorithm.hpp
-    src/util/Alignment.hpp
+    src/util/AlignHelper.hpp
     src/util/ArrayAccess.hpp
     src/util/AtomicMutex.cpp
     src/util/AtomicMutex.hpp
