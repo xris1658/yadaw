@@ -145,8 +145,8 @@ Rectangle {
                 outputModel: 0
                 inputAvailable: false
                 outputAvailable: false
-                channelColor: Colors.controlBackground
-                name: abcm_name
+                channelColor: mclm_color
+                name: mclm_name
                 showIO: root.showIO
                 hasInstrument: false
                 showInsertSlot: root.showInsert
@@ -185,8 +185,8 @@ Rectangle {
                 outputModel: 0
                 inputAvailable: false
                 outputAvailable: false
-                channelColor: Colors.controlBackground
-                name: abcm_name
+                channelColor: mclm_color
+                name: mclm_name
                 showIO: root.showIO
                 hasInstrument: false
                 showInsertSlot: root.showInsert

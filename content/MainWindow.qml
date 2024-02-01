@@ -40,6 +40,9 @@ ApplicationWindow {
     property alias clapPluginListModel: assets.clapPluginListModel
     property alias pluginDirectoryListModel: preferencesWindow.pluginDirectoryListModel
 
+    property alias mixerAudioInputChannelModel: mixer.inputModel
+    property alias mixerAudioOutputChannelModel: mixer.outputModel
+
     property alias trackListModel: arrangement.trackList
 
     onCurrentTranslationIndexChanged: {
@@ -714,8 +717,7 @@ ApplicationWindow {
                         MIDIEditor {
                         }
                         Mixer {
-                            inputModel: audioInputBusConfigurationModel
-                            outputModel: audioOutputBusConfigurationModel
+                            id: mixer
                             pluginSelector: pluginSelector
                         }
                     }
