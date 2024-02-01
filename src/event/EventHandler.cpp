@@ -191,21 +191,31 @@ void EventHandler::onOpenMainWindow()
 #endif
     FOR_RANGE0(i, audioBusConfiguration.inputBusCount())
     {
-        auto& bus = audioBusConfiguration.inputBusAt(i)->get();
+        auto& bus = audioBusConfiguration.getInputBusAt(i)->get();
         auto node = appGraphWithPDC.addNode(YADAW::Audio::Engine::AudioDeviceProcess(bus));
         mixer.appendAudioInputChannel(node, 0);
+        auto& channelInfo = mixer.audioInputChannelInfoAt(i)->get();
+        channelInfo.name = appAudioBusInputConfigurationModel.data(
+            appAudioBusInputConfigurationModel.index(i),
+            YADAW::Model::IAudioBusConfigurationModel::Role::Name
+        ).value<QString>();
     }
     FOR_RANGE0(i, audioBusConfiguration.outputBusCount())
     {
-        auto& bus = audioBusConfiguration.outputBusAt(i)->get();
+        auto& bus = audioBusConfiguration.getOutputBusAt(i)->get();
         auto node = appGraphWithPDC.addNode(YADAW::Audio::Engine::AudioDeviceProcess(bus));
         mixer.appendAudioOutputChannel(node, 0);
+        auto& channelInfo = mixer.audioOutputChannelInfoAt(i)->get();
+        channelInfo.name = appAudioBusOutputConfigurationModel.data(
+            appAudioBusOutputConfigurationModel.index(i),
+            YADAW::Model::IAudioBusConfigurationModel::Role::Name
+        ).value<QString>();
     }
-    YADAW::Model::MixerChannelListModel mixerAudioInputChannelListModel(
+    static YADAW::Model::MixerChannelListModel mixerAudioInputChannelListModel(
         mixer, YADAW::Model::MixerChannelListModel::ListType::AudioHardwareInput);
-    YADAW::Model::MixerChannelListModel mixerChannelListModel(
+    static YADAW::Model::MixerChannelListModel mixerChannelListModel(
         mixer, YADAW::Model::MixerChannelListModel::ListType::Regular);
-    YADAW::Model::MixerChannelListModel mixerAudioOutputChannelListModel(
+    static YADAW::Model::MixerChannelListModel mixerAudioOutputChannelListModel(
         mixer, YADAW::Model::MixerChannelListModel::ListType::AudioHardwareOutput);
     // -------------------------------------------------------------------------
     // Open main window---------------------------------------------------------
@@ -266,6 +276,11 @@ void EventHandler::onOpenMainWindow()
     YADAW::UI::mainWindow->setProperty("audioOutputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAOutputDeviceListModel()));
 #endif
+    YADAW::UI::mainWindow->setProperty("mixerAudioInputChannelModel",
+        QVariant::fromValue<QObject*>(&mixerAudioInputChannelListModel));
+    YADAW::UI::mainWindow->setProperty("mixerAudioOutputChannelModel",
+        QVariant::fromValue<QObject*>(&mixerAudioOutputChannelListModel));
+
     YADAW::UI::mainWindow->setProperty("audioInputBusConfigurationModel",
         QVariant::fromValue<QObject*>(&appAudioBusInputConfigurationModel));
     YADAW::UI::mainWindow->setProperty("audioOutputBusConfigurationModel",
