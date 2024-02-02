@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_UTIL_FIXEDSIZECIRCULARDEQUE
 #define YADAW_SRC_UTIL_FIXEDSIZECIRCULARDEQUE
 
+#include "util/AlignHelper.hpp"
 #include "util/IntegerRange.hpp"
 
 #include <array>
