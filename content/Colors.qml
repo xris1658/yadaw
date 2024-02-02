@@ -33,6 +33,8 @@ QtObject {
     readonly property color mouseOverCheckedButtonBackground: "#CCCCCC"
     readonly property color pressedCheckedButtonBackground: "#AAAAAA"
     readonly property color checkedButtonContent: "#202020"
+    readonly property color highlightListViewItemBackground: "#3050FF"
+    readonly property color sliderWithValueFilledBackground: "#3050FF"
 
     readonly property color bigClockBackground: background
     readonly property color bigClockText: content

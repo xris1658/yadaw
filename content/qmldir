@@ -37,6 +37,7 @@ FaderIcon 1.0 FaderIcon.qml
 FolderIcon 1.0 FolderIcon.qml
 FollowIcon 1.0 FollowIcon.qml
 GeneralSettings 1.0 GeneralSettings.qml
+GenericPluginEditor 1.0 GenericPluginEditor.qml
 GroupIcon 1.0 GroupIcon.qml
 IOIcon 1.0 IOIcon.qml
 InsertIcon 1.0 InsertIcon.qml
@@ -72,6 +73,7 @@ ScrollBar 1.0 ScrollBar.qml
 SendIcon 1.0 SendIcon.qml
 ShowLeftPaneIcon 1.0 ShowLeftPaneIcon.qml
 Slider 1.0 Slider.qml
+SliderWithValue 1.0 SliderWithValue.qml
 SortIcon 1.0 SortIcon.qml
 SpinBox 1.0 SpinBox.qml
 SplashScreen 1.0 SplashScreen.qml

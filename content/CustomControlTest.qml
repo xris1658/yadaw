@@ -265,10 +265,18 @@ ApplicationWindow {
             indeterminate: true
         }
         Row {
+            spacing: 5
             TextField {
                 id: textField
                 width: 200
                 placeholderText: "abcd"
+            }
+            SliderWithValue {
+                from: 0
+                to: 10
+                stepSize: 1
+                width: 100
+                snapMode: Slider.SnapOnRelease
             }
         }
         Row {

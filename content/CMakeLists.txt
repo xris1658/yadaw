@@ -76,6 +76,7 @@ set(CONTENT_QML_FILES
     FollowIcon.qml
     Functions.qml
     GeneralSettings.qml
+    GenericPluginEditor.qml
     Global.qml
     GroupIcon.qml
     IOIcon.qml
@@ -113,6 +114,7 @@ set(CONTENT_QML_FILES
     SendIcon.qml
     ShowLeftPaneIcon.qml
     Slider.qml
+    SliderWithValue.qml
     SortIcon.qml
     SpinBox.qml
     SplashScreen.qml
