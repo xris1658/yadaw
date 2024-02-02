@@ -232,19 +232,19 @@ MainWindow {
         }
     }
 
-    trackListModel: ListModel {
+    mixerChannelModel: ListModel {
         ListElement {
-            tlm_name: "Track 1"
-            tlm_type: 0
-            tlm_color: "#000000"
-            tlm_height: 50
-            tlm_mute: false
-            tlm_solo: false
-            tlm_invert_polarity: false
-            tlm_arm_recording: false
-            tlm_volume: 1.0
-            tlm_panning: 0.0
-            tlm_mono: false
+            mclm_name: "Track 1"
+            mclm_type: 0
+            mclm_color: "#000000"
+            mclm_height: 50
+            mclm_mute: false
+            mclm_solo: false
+            mclm_invert_polarity: false
+            mclm_arm_recording: false
+            mclm_volume: 1.0
+            mclm_panning: 0.0
+            mclm_mono: false
         }
     }
 

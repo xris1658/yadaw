@@ -3,16 +3,15 @@ import QtQuick
 SplitView {
     id: root
 
-    property Window mainWindow: null
-
-    property alias audioInputList: addTrackWindow.audioInputList
-    property alias audioOutputList: addTrackWindow.audioOutputList
-    property alias midiInputList: addTrackWindow.midiInputList
-    property alias midiOutputList: addTrackWindow.midiOutputList
-    property alias instrumentList: addTrackWindow.instrumentList
-    property alias audioEffectList: addTrackWindow.audioEffectList
+    property alias showAudioInputs: showAudioInputsItem.checked
+    property alias showAudioOutputs: showAudioOutputsItem.checked
 
     property alias trackList: trackHeaderListView.model
+
+    signal insertTrack(position: int, type: int) // AddTrackWindow.TrackType
+    function appendTrack(type: int) { // AddTrackWindow.TrackType
+        insertTrack(trackHeaderListView.count - 1, type);
+    }
 
     enum TimelineUnit {
         Beat,
@@ -76,10 +75,10 @@ SplitView {
             delegate: Column {
                 TrackHeader {
                     width: trackHeaderListView.width
-                    height: tlm_height
+                    height: mclm_height
                     clip: true
-                    name: tlm_name
-                    trackColor: tlm_color
+                    name: mclm_name
+                    trackColor: mclm_color
                     color: Colors.controlBackground
                 }
                 Rectangle {
@@ -99,35 +98,42 @@ SplitView {
                     Menu {
                         id: appendTrackMenu
                         title: qsTr("&Append Track")
-                        function openAddTrackWindow(trackType: int) {
-                            addTrackWindow.transientParent = root.mainWindow;
-                            addTrackWindow.trackType = trackType;
-                            addTrackWindow.showNormal();
-                        }
                         MenuItem {
                             text: qsTr("&Audio") + "..."
                             onTriggered: {
-                                appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.Audio);
+                                root.appendTrack(AddTrackWindow.TrackType.Audio);
                             }
                         }
                         MenuItem {
                             text: qsTr("&Instrument") + "..."
                             onTriggered: {
-                                appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.Instrument);
+                                root.appendTrack(AddTrackWindow.TrackType.Instrument);
                             }
                         }
                         MenuItem {
                             text: qsTr("&MIDI") + "..."
                             onTriggered: {
-                                appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.MIDI);
+                                root.appendTrack(AddTrackWindow.TrackType.MIDI);
                             }
                         }
                         MenuItem {
                             text: qsTr("Audio &Effect") + "..."
                             onTriggered: {
-                                appendTrackMenu.openAddTrackWindow(AddTrackWindow.TrackType.AudioEffect);
+                                root.appendTrack(AddTrackWindow.TrackType.AudioEffect);
                             }
                         }
+                    }
+                    MenuItem {
+                        id: showAudioInputsItem
+                        text: qsTr("Show Audio &Inputs")
+                        checkable: true
+                        checked: false
+                    }
+                    MenuItem {
+                        id: showAudioOutputsItem
+                        text: qsTr("Show Audio &Outputs")
+                        checkable: true
+                        checked: false
                     }
                 }
                 onClicked: {
@@ -264,9 +270,5 @@ SplitView {
                 anchors.bottom: hbar.top
             }
         }
-    }
-    AddTrackWindow {
-        id: addTrackWindow
-        modality: Qt.WindowModal
     }
 }

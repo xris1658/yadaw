@@ -22,6 +22,10 @@ Window {
     property var instrumentList: null
     property var audioEffectList: null
 
+    signal accepted()
+
+    property int position: 0
+
     enum TrackType {
         Audio,
         Instrument,

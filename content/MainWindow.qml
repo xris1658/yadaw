@@ -42,8 +42,7 @@ ApplicationWindow {
 
     property alias mixerAudioInputChannelModel: mixer.inputModel
     property alias mixerAudioOutputChannelModel: mixer.outputModel
-
-    property alias trackListModel: arrangement.trackList
+    property alias mixerChannelModel: mixer.channelsModel
 
     onCurrentTranslationIndexChanged: {
         if(opened) {
@@ -357,13 +356,19 @@ ApplicationWindow {
                 id: actionShowAudioInputTrack
                 text: qsTr("Show Audio &Inputs")
                 checkable: true
-                checked: false
+                checked: arrangement.showAudioInputs
+                onCheckedChanged: {
+                    arrangement.showAudioInputs = checked;
+                }
             }
             Action {
                 id: actionShowAudioOutputTrack
                 text: qsTr("Show Audio &Outputs")
                 checkable: true
-                checked: false
+                checked: arrangement.showAudioOutputs
+                onCheckedChanged: {
+                    arrangement.showAudioOutputs = checked;
+                }
             }
             Action {
                 id: actionShowTempoAutomation
@@ -694,11 +699,10 @@ ApplicationWindow {
                         anchors.fill: parent
                         anchors.margins: parent.border.width
                         clip: true
-                        mainWindow: root
-                        audioInputList: root.audioInputBusConfigurationModel
-                        audioOutputList: root.audioOutputBusConfigurationModel
-                        instrumentList: root.instrumentListModel
-                        audioEffectList: root.audioEffectListModel
+                        onInsertTrack: (position, type) => {
+                            addTrackWindow.openWindow(position, type);
+                        }
+                        trackList: root.mixerChannelModel
                     }
                 }
             }
@@ -719,9 +723,11 @@ ApplicationWindow {
                         Mixer {
                             id: mixer
                             pluginSelector: pluginSelector
+                            onInsertTrack: (position, type) => {
+                                addTrackWindow.openWindow(position, type);
+                            }
                         }
                     }
-
                 }
                 Row {
                     id: editorAndMixerTabButtonRow
@@ -769,5 +775,20 @@ ApplicationWindow {
     PluginSelector {
         id: pluginSelector
         pluginListModel: root.pluginListModel
+    }
+    AddTrackWindow {
+        id: addTrackWindow
+        audioInputList: root.audioInputBusConfigurationModel
+        audioOutputList: root.audioOutputBusConfigurationModel
+        instrumentList: root.instrumentListModel
+        audioEffectList: root.audioEffectListModel
+        function openWindow(position: int, type: int) {
+            addTrackWindow.trackType = type;
+            addTrackWindow.position = position;
+            addTrackWindow.showNormal();
+        }
+        onAccepted: {
+            //
+        }
     }
 }

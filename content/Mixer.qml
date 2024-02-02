@@ -9,6 +9,7 @@ Rectangle {
 
     property alias inputModel: inputChannels.model
     property alias outputModel: outputChannels.model
+    property alias channelsModel: channels.model
     property alias showIO: ioButton.checked
     property alias showInsert: insertButton.checked
     property alias showSend: sendButton.checked
@@ -17,6 +18,12 @@ Rectangle {
     property alias showOutputBus: showOutputBusButton.checked
 
     property PluginSelector pluginSelector: null
+
+    signal insertTrack(position: int, type: int) // AddTrackWindow.TrackType
+
+    function appendTrack(type: int) { // AddTrackWindow.TrackType
+        insertTrack(channels.count - 1, type);
+    }
 
     Item {
         id: leftBar
@@ -132,7 +139,7 @@ Rectangle {
         id: inputChannels
         visible: showInputBus
         anchors.left: leftBar.right
-        width: contentWidth
+        width: Math.min(contentWidth, 400)
         height: root.height
         orientation: Qt.Horizontal
         boundsBehavior: ListView.StopAtBounds
@@ -163,10 +170,95 @@ Rectangle {
         }
     }
     ListView {
+        id: channels
+        anchors.left: inputChannels.right
+        anchors.leftMargin: 5
+        anchors.right: outputChannels.left
+        anchors.rightMargin: 5
+        height: root.height
+        orientation: Qt.Horizontal
+        boundsBehavior: ListView.StopAtBounds
+        property int borderWidth: 1
+        spacing: -1 * borderWidth
+        delegate: Row {
+            Rectangle {
+                id: channelLeftBorder
+                width: channels.borderWidth
+                height: root.height
+                color: Colors.secondaryBorder
+            }
+            MixerChannel {
+                id: mixerChannel
+                height: root.height
+                inputModel: 0
+                outputModel: 0
+                inputAvailable: false
+                outputAvailable: false
+                channelColor: mclm_color
+                name: mclm_name
+                showIO: root.showIO
+                hasInstrument: false
+                showInsertSlot: root.showInsert
+                showSendSlot: root.showSend
+                showFader: root.showFader
+                pluginSelector: root.pluginSelector
+            }
+            Rectangle {
+                id: channelRightBorder
+                width: channels.borderWidth
+                height: root.height
+                color: Colors.secondaryBorder
+            }
+        }
+        MouseArea {
+            id: mixerChannelBlankArea
+            anchors.fill: parent
+            z: 0
+            acceptedButtons: Qt.RightButton
+            Menu {
+                id: mixerChannelBlankAreaOptions
+                title: qsTr("Mixer Channel Blank Area Options")
+                Menu {
+                    id: appendTrackMenu
+                    title: qsTr("&Append Track")
+                    MenuItem {
+                        text: qsTr("&Audio") + "..."
+                        onTriggered: {
+                            root.appendTrack(AddTrackWindow.TrackType.Audio);
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("&Instrument") + "..."
+                        onTriggered: {
+                            root.appendTrack(AddTrackWindow.TrackType.Instrument);
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("&MIDI") + "..."
+                        onTriggered: {
+                            root.appendTrack(AddTrackWindow.TrackType.MIDI);
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("Audio &Effect") + "..."
+                        onTriggered: {
+                            root.appendTrack(AddTrackWindow.TrackType.AudioEffect);
+                        }
+                    }
+                }
+            }
+            onClicked: {
+                mixerChannelBlankAreaOptions.x = mouseX;
+                mixerChannelBlankAreaOptions.y = mouseY;
+                mixerChannelBlankAreaOptions.open();
+            }
+        }
+    }
+    ListView {
         id: outputChannels
         visible: showOutputBus
         anchors.right: root.right
-        width: contentWidth
+        width: Math.min(contentWidth, 400)
         height: root.height
         orientation: Qt.Horizontal
         boundsBehavior: ListView.StopAtBounds
