@@ -63,6 +63,13 @@ public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
     static constexpr int columnCount() { return 1; }
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
+public:
+    Q_INVOKABLE virtual bool insert(int position, ChannelTypes type) = 0;
+    Q_INVOKABLE virtual bool append(ChannelTypes type) = 0;
+    Q_INVOKABLE virtual bool remove(int position, int removeCount) = 0;
+    Q_INVOKABLE virtual bool move(int position, int moveCount, int newPosition) = 0;
+    Q_INVOKABLE virtual bool copy(int position, int copyCount, int newPosition) = 0;
+    Q_INVOKABLE virtual void clear() = 0;
 protected:
     RoleNames roleNames() const override
     {

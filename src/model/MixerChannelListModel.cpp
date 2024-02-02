@@ -94,7 +94,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
     {
     case Role::Name:
     {
-        const auto& optionalInfo = (mixer_.*getChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+        const auto& optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
         if(optionalInfo.has_value())
         {
             return QVariant::fromValue(optionalInfo->get().name);
@@ -102,7 +102,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
     }
     case Role::Color:
     {
-        const auto& optionalInfo = (mixer_.*getChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+        const auto& optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
         if(optionalInfo.has_value())
         {
             return QVariant::fromValue(optionalInfo->get().color);
@@ -110,7 +110,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
     }
     case Role::ChannelType:
     {
-        const auto& optionalInfo = (mixer_.*getChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+        auto optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
         if(optionalInfo.has_value())
         {
             return QVariant::fromValue(getChannelType(optionalInfo->get().channelType));
@@ -119,5 +119,67 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
     }
     }
     return QVariant();
+}
+
+bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+    auto row = index.row();
+    if(row >= 0 && row < itemCount())
+    {
+        switch(role)
+        {
+        case Role::Name:
+        {
+            auto optionalInfo = (mixer_.*getChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+            if(optionalInfo.has_value())
+            {
+                optionalInfo->get().name = value.value<QString>();
+                dataChanged(index, index, {Role::Name});
+                return true;
+            }
+        }
+        case Role::Color:
+        {
+            auto optionalInfo = (mixer_.*getChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+            if(optionalInfo.has_value())
+            {
+                optionalInfo->get().color = value.value<QColor>();
+                dataChanged(index, index, {Role::Color});
+                return true;
+            }
+        }
+        }
+    }
+    return false;
+}
+
+bool MixerChannelListModel::insert(int position, IMixerChannelListModel::ChannelTypes type)
+{
+    return false;
+}
+
+bool MixerChannelListModel::append(IMixerChannelListModel::ChannelTypes type)
+{
+    return false;
+}
+
+bool MixerChannelListModel::remove(int position, int removeCount)
+{
+    return false;
+}
+
+bool MixerChannelListModel::move(int position, int moveCount, int newPosition)
+{
+    return false;
+}
+
+bool MixerChannelListModel::copy(int position, int copyCount, int newPosition)
+{
+    return false;
+}
+
+void MixerChannelListModel::clear()
+{
+
 }
 }

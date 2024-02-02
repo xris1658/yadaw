@@ -27,6 +27,14 @@ public:
 public:
     int rowCount(const QModelIndex& parent) const override;
     QVariant data(const QModelIndex& index, int role) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+public:
+    bool insert(int position, ChannelTypes type) override;
+    bool append(ChannelTypes type) override;
+    bool remove(int position, int removeCount) override;
+    bool move(int position, int moveCount, int newPosition) override;
+    bool copy(int position, int copyCount, int newPosition) override;
+    void clear() override;
 private:
     YADAW::Audio::Mixer::Mixer& mixer_;
     ListType listType_;
