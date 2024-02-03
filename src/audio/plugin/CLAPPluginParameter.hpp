@@ -54,8 +54,9 @@ public:
     Self& operator=(Self&&) = default;
     ~CLAPPluginParameter() noexcept;
 public:
-    std::uint32_t parameterCount() override;
+    std::uint32_t parameterCount() const override;
     IParameter* parameter(std::uint32_t index) override;
+    const IParameter* parameter(std::uint32_t index) const override;
 public:
     void swap(Self& rhs) noexcept;
 private:

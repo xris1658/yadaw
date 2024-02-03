@@ -31,9 +31,11 @@ set(CONTENT_CPP_FILES
     model/ILocalizationListModel.hpp
     model/IMixerChannelListModel.hpp
     model/ModelBase.hpp
+    model/IParameterValueAndTextListModel.hpp
     model/IPluginCategoryListModel.hpp
     model/IPluginDirectoryListModel.hpp
     model/IPluginListModel.hpp
+    model/IPluginParameterListModel.hpp
     model/ISortFilterListModel.hpp
     model/ISortFilterProxyListModel.hpp
     model/ISortOrderModel.hpp

@@ -121,12 +121,17 @@ CLAPPluginParameter::~CLAPPluginParameter() noexcept
     params_ = nullptr;
 }
 
-std::uint32_t CLAPPluginParameter::parameterCount()
+std::uint32_t CLAPPluginParameter::parameterCount() const
 {
     return params_->count(plugin_);
 }
 
 IParameter* CLAPPluginParameter::parameter(std::uint32_t index)
+{
+    return YADAW::Util::getOrNull(parameters_, index);
+}
+
+const IParameter* CLAPPluginParameter::parameter(std::uint32_t index) const
 {
     return YADAW::Util::getOrNull(parameters_, index);
 }

@@ -163,12 +163,17 @@ VST3PluginParameter::~VST3PluginParameter() noexcept
     editController_ = nullptr;
 }
 
-std::uint32_t VST3PluginParameter::parameterCount()
+std::uint32_t VST3PluginParameter::parameterCount() const
 {
     return parameters_.size();
 }
 
 IParameter* VST3PluginParameter::parameter(std::uint32_t index)
+{
+    return YADAW::Util::getOrNull(parameters_, index);
+}
+
+const IParameter* VST3PluginParameter::parameter(std::uint32_t index) const
 {
     return YADAW::Util::getOrNull(parameters_, index);
 }
