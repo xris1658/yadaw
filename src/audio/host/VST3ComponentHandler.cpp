@@ -75,6 +75,7 @@ tresult VST3ComponentHandler::doEndEdit(ParamID id)
 
 tresult VST3ComponentHandler::beginEdit(ParamID id)
 {
+    // TODO: Add mechanism recording automations here
     // std::printf("beginEdit(%u)\n", id);
     auto hostBufferIndex = hostBufferIndex_.load(
         std::memory_order::memory_order_acquire);
@@ -88,6 +89,7 @@ tresult VST3ComponentHandler::beginEdit(ParamID id)
 
 tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue)
 {
+    // TODO: Add mechanism recording automations here
     // std::printf("performEdit(%u, %lf)\n", id, normalizedValue);
     auto hostBufferIndex = hostBufferIndex_.load(
         std::memory_order::memory_order_acquire);
@@ -122,7 +124,7 @@ tresult VST3ComponentHandler::endEdit(ParamID id)
     auto hostBufferIndex = hostBufferIndex_.load(
         std::memory_order::memory_order_acquire);
     // std::printf("endEdit(%u)\n", id);
-    // TODO: Not sure what to do yet :(
+    // TODO: Add mechanism recording automations here
     return doEndEdit(id);
 }
 

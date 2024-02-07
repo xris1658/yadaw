@@ -15,6 +15,10 @@ std::intptr_t vestifalHostCallback(AEffect* effect, std::int32_t opcode, std::in
 {
     switch(opcode)
     {
+    case audioMasterAutomate:
+        // TODO: Add mechanism recording automations here (a `performEdit`)
+        effect->setParameter(effect, input, opt);
+        return 0;
     case audioMasterVersion:
         return 2400;
     case audioMasterGetCurrentUniqueId:
@@ -37,6 +41,12 @@ std::intptr_t vestifalHostCallback(AEffect* effect, std::int32_t opcode, std::in
     case audioMasterCanDo:
         return std::strcmp(reinterpret_cast<const char*>(ptr), "shellCategory") == 0
             || std::strcmp(reinterpret_cast<const char*>(ptr), "supportShell") == 0;
+    case audioMasterBeginEdit:
+        // TODO: Add mechanism recording automations here (a `beginEdit`)
+        return 0;
+    case audioMasterEndEdit:
+        // TODO: Add mechanism recording automations here (an `endEdit`)
+        return 0;
     }
     return 0;
 }
