@@ -231,6 +231,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/VestifalPlugin.hpp
     src/audio/plugin/VestifalPluginGUI.cpp
     src/audio/plugin/VestifalPluginGUI.hpp
+    src/audio/plugin/VestifalPluginParameter.cpp
+    src/audio/plugin/VestifalPluginParameter.hpp
     src/audio/util/AudioBufferPool.cpp
     src/audio/util/AudioBufferPool.hpp
     src/audio/util/AudioChannelGroup.cpp
@@ -342,12 +344,16 @@ set(YADAW_COMMON_SOURCES
     src/model/MixerChannelListModel.hpp
     src/model/ModelInitializer.cpp
     src/model/ModelInitializer.hpp
+    src/model/ParameterValueAndTextListModel.cpp
+    src/model/ParameterValueAndTextListModel.hpp
     src/model/PluginCategoryListModel.cpp
     src/model/PluginCategoryListModel.hpp
     src/model/PluginDirectoryListModel.cpp
     src/model/PluginDirectoryListModel.hpp
     src/model/PluginListModel.cpp
     src/model/PluginListModel.hpp
+    src/model/PluginParameterListModel.cpp
+    src/model/PluginParameterListModel.hpp
     src/model/SortOrderModel.cpp
     src/model/SortOrderModel.hpp
     src/model/SortFilterProxyListModel.cpp
