@@ -49,10 +49,14 @@ public:
     Status status() override;
     std::uint32_t tailSizeInSamples() override;
     IPluginGUI* gui() override;
+    const IPluginGUI* gui() const override;
     IPluginParameter* parameter() override;
+    const IPluginParameter* parameter() const override;
 public:
     VST3PluginGUI* pluginGUI();
+    const VST3PluginGUI* pluginGUI() const;
     VST3PluginParameter* pluginParameter();
+    const VST3PluginParameter* pluginParameter() const;
 public:
     std::uint32_t audioInputGroupCount() const override;
     std::uint32_t audioOutputGroupCount() const override;
@@ -91,7 +95,7 @@ private:
     Steinberg::IPluginFactory* factory_ = nullptr;
     Steinberg::Vst::IComponent* component_ = nullptr;
     Steinberg::Vst::IAudioProcessor* audioProcessor_ = nullptr;
-    Steinberg::Vst::IEditController* editController_ = nullptr;
+    mutable Steinberg::Vst::IEditController* editController_ = nullptr;
     Steinberg::Vst::IConnectionPoint* componentPoint_ = nullptr;
     Steinberg::Vst::IConnectionPoint* editControllerPoint_ = nullptr;
     std::vector<YADAW::Audio::Plugin::VST3AudioChannelGroup> audioInputChannelGroup_;
@@ -102,8 +106,8 @@ private:
     Steinberg::Vst::ProcessData processData_= {};
     std::vector<Steinberg::Vst::AudioBusBuffers> inputBuffers_;
     std::vector<Steinberg::Vst::AudioBusBuffers> outputBuffers_;
-    std::unique_ptr<VST3PluginGUI> gui_;
-    std::unique_ptr<VST3PluginParameter> parameter_;
+    mutable std::unique_ptr<VST3PluginGUI> gui_;
+    mutable std::unique_ptr<VST3PluginParameter> parameter_;
     Steinberg::Vst::IComponentHandler* componentHandler_ = nullptr;
     std::unique_ptr<YADAW::Audio::Plugin::VST3EventProcessor> eventProcessor_;
 };

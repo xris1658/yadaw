@@ -342,6 +342,8 @@ set(YADAW_COMMON_SOURCES
     src/model/FilterRoleModel.hpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
+    src/model/MixerChannelInsertListModel.cpp
+    src/model/MixerChannelInsertListModel.hpp
     src/model/MixerChannelListModel.cpp
     src/model/MixerChannelListModel.hpp
     src/model/ModelInitializer.cpp

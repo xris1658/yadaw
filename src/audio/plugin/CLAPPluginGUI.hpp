@@ -22,6 +22,7 @@ public:
     ~CLAPPluginGUI() override;
 public:
     bool attachToWindow(QWindow* window) override;
+    const QWindow* window() const override;
     QWindow* window() override;
     bool detachWithWindow() override;
 private:

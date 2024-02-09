@@ -12,6 +12,7 @@ Rectangle {
     property bool hasInstrument: true
     property alias inputModel: inputButton.model
     property alias outputModel: outputButton.model
+    property alias insertModel: insertList.model
     property alias name: nameLabel.text
     property bool showIO: true
     property bool showInstrumentSlot: true
@@ -141,6 +142,8 @@ Rectangle {
                 spacing: impl.padding
                 delegate: MixerInsertSlot {
                     width: insertList.width
+                    text: mcilm_name
+                    bypassed: mcilm_bypassed
                 }
                 footer: Button {
                     width: insertList.width

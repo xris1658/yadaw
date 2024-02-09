@@ -34,7 +34,12 @@ public:
     Status status() override;
     std::uint32_t tailSizeInSamples() override;
     IPluginGUI* gui() override;
+    const IPluginGUI* gui() const override;
     IPluginParameter* parameter() override;
+    const IPluginParameter* parameter() const override;
+public:
+    VestifalPluginGUI* pluginGUI();
+    const VestifalPluginGUI* pluginGUI() const;
 public:
     std::uint32_t audioInputGroupCount() const override;
     std::uint32_t audioOutputGroupCount() const override;
@@ -51,7 +56,7 @@ private:
     AEffect* effect_ = nullptr;
     std::int32_t uniqueId = 0;
     Status status_ = Status::Empty;
-    std::unique_ptr<VestifalPluginGUI> gui_;
+    mutable std::unique_ptr<VestifalPluginGUI> gui_;
     std::vector<float*> inputs_;
     std::vector<float*> outputs_;
     TimeInfo* timeInfo_ = nullptr;

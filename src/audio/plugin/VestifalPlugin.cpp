@@ -117,6 +117,26 @@ std::uint32_t VestifalPlugin::tailSizeInSamples()
 
 IPluginGUI* VestifalPlugin::gui()
 {
+    return pluginGUI();
+}
+
+const IPluginGUI* VestifalPlugin::gui() const
+{
+    return pluginGUI();
+}
+
+IPluginParameter* VestifalPlugin::parameter()
+{
+    return nullptr;
+}
+
+const IPluginParameter* VestifalPlugin::parameter() const
+{
+    return nullptr;
+}
+
+const VestifalPluginGUI* VestifalPlugin::pluginGUI() const
+{
     if(effect_ && (effect_->flags & EffectFlag::effectHasEditor))
     {
         gui_ = std::make_unique<VestifalPluginGUI>(*effect_);
@@ -124,9 +144,11 @@ IPluginGUI* VestifalPlugin::gui()
     return gui_.get();
 }
 
-IPluginParameter* VestifalPlugin::parameter()
+VestifalPluginGUI* VestifalPlugin::pluginGUI()
 {
-    return nullptr;
+    return const_cast<VestifalPluginGUI*>(
+        static_cast<const VestifalPlugin&>(*this).pluginGUI()
+    );
 }
 
 std::uint32_t VestifalPlugin::audioInputGroupCount() const

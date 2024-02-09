@@ -63,6 +63,11 @@ QWindow* VST3PluginGUI::window()
     return window_;
 }
 
+const QWindow* VST3PluginGUI::window() const
+{
+    return window_;
+}
+
 bool VST3PluginGUI::detachWithWindow()
 {
     if(!window_)

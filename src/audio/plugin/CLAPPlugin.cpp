@@ -174,9 +174,19 @@ std::uint32_t CLAPPlugin::tailSizeInSamples()
     return 0;
 }
 
+const IPluginGUI* CLAPPlugin::gui() const
+{
+    return pluginGUI();
+}
+
 IPluginGUI* CLAPPlugin::gui()
 {
     return pluginGUI();
+}
+
+const IPluginParameter* CLAPPlugin::parameter() const
+{
+    return pluginParameter();
 }
 
 IPluginParameter* CLAPPlugin::parameter()
@@ -184,7 +194,7 @@ IPluginParameter* CLAPPlugin::parameter()
     return pluginParameter();
 }
 
-CLAPPluginGUI* CLAPPlugin::pluginGUI()
+const CLAPPluginGUI* CLAPPlugin::pluginGUI() const
 {
     if(!gui_)
     {
@@ -196,6 +206,13 @@ CLAPPluginGUI* CLAPPlugin::pluginGUI()
         }
     }
     return gui_.get();
+}
+
+CLAPPluginGUI* CLAPPlugin::pluginGUI()
+{
+    return const_cast<CLAPPluginGUI*>(
+        static_cast<const CLAPPlugin&>(*this).pluginGUI()
+    );
 }
 
 CLAPPluginParameter* CLAPPlugin::pluginParameter()

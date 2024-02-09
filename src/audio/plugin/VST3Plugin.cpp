@@ -347,13 +347,22 @@ IPluginGUI* VST3Plugin::gui()
     return pluginGUI();
 }
 
+const IPluginGUI* VST3Plugin::gui() const
+{
+    return pluginGUI();
+}
+
 IPluginParameter* VST3Plugin::parameter()
 {
     return pluginParameter();
 }
 
-// FIXME: Not thread-safe
-VST3PluginGUI* VST3Plugin::pluginGUI()
+const IPluginParameter* VST3Plugin::parameter() const
+{
+    return pluginParameter();
+}
+
+const VST3PluginGUI* VST3Plugin::pluginGUI() const
 {
     if(editController_ && (!gui_))
     {
@@ -371,13 +380,28 @@ VST3PluginGUI* VST3Plugin::pluginGUI()
 }
 
 // FIXME: Not thread-safe
-VST3PluginParameter* VST3Plugin::pluginParameter()
+VST3PluginGUI* VST3Plugin::pluginGUI()
+{
+    return const_cast<VST3PluginGUI*>(
+        static_cast<const VST3Plugin&>(*this).pluginGUI()
+    );
+}
+
+// FIXME: Not thread-safe
+const VST3PluginParameter* VST3Plugin::pluginParameter() const
 {
     if(editController_ && (!parameter_))
     {
         parameter_ = std::make_unique<VST3PluginParameter>(editController_);
     }
     return parameter_.get();
+}
+
+VST3PluginParameter* VST3Plugin::pluginParameter()
+{
+    return const_cast<VST3PluginParameter*>(
+        static_cast<const VST3Plugin&>(*this).pluginParameter()
+    );
 }
 
 std::uint32_t VST3Plugin::audioInputGroupCount() const

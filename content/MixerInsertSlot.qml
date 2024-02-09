@@ -6,20 +6,35 @@ Button {
     anchors.fill: parent
     leftPadding: bypassedButton.width
     rightPadding: replaceButton.width
+    implicitWidth: label.contentWidth + leftPadding + rightPadding
+    implicitHeight: label.contentHeight + topPadding + bottomPadding
     z: 1
+    contentItem: Label {
+        id: label
+        text: root.text
+        color: Colors.content
+        anchors.fill: root
+        anchors.leftMargin: root.leftPadding
+        anchors.rightMargin: root.rightPadding
+        anchors.topMargin: root.topPadding
+        anchors.bottomMargin: root.bottomPadding
+        horizontalAlignment: Text.AlignLeft
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
+    }
     Button {
         id: bypassedButton
-        width: height * 0.75
+        width: height
         height: parent.height
         z: 2
-        property int contentDiameter: parent.height / 3
+        property int contentDiameter: parent.height * 0.625
         leftInset: (width - contentDiameter) / 2
         rightInset: leftInset
         topInset: (height - contentDiameter) / 2
         bottomInset: topInset
         background: Rectangle {
             anchors.centerIn: parent
-            width: parent.contentDiameter
+            width: bypassedButton.contentDiameter
             height: width
             radius: width / 2
             color: root.bypassed? Colors.background: "#40FF88"
@@ -45,7 +60,6 @@ Button {
             anchors.centerIn: parent
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            font.pointSize: Qt.application.font.pointSize * 0.5
             anchors.leftMargin: (parent.width - contentWidth) / 2
             anchors.topMargin: (parent.height - contentHeight) / 2
         }

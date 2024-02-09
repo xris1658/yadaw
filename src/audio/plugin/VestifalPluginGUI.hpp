@@ -15,6 +15,7 @@ public:
 public:
     bool attachToWindow(QWindow* window) override;
     QWindow* window() override;
+    const QWindow* window() const override;
     bool detachWithWindow() override;
 private:
     AEffect* effect_;

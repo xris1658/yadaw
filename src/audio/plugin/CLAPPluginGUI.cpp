@@ -44,6 +44,11 @@ bool CLAPPluginGUI::attachToWindow(QWindow* window)
     return false;
 }
 
+const QWindow* CLAPPluginGUI::window() const
+{
+    return window_;
+}
+
 QWindow* CLAPPluginGUI::window()
 {
     return window_;

@@ -47,10 +47,14 @@ public:
     Format format() override;
     Status status() override;
     std::uint32_t tailSizeInSamples() override;
+    const IPluginGUI* gui() const override;
     IPluginGUI* gui() override;
+    const IPluginParameter* parameter() const override;
     IPluginParameter* parameter() override;
 public:
+    const CLAPPluginGUI* pluginGUI() const;
     CLAPPluginGUI* pluginGUI();
+    const CLAPPluginParameter* pluginParameter() const;
     CLAPPluginParameter* pluginParameter();
 public:
     std::uint32_t audioInputGroupCount() const override;
@@ -104,8 +108,8 @@ private:
         nullptr
     };
     std::unique_ptr<CLAPEventProcessor> eventProcessor_;
-    std::unique_ptr<CLAPPluginGUI> gui_;
-    std::unique_ptr<CLAPPluginParameter> parameter_;
+    mutable std::unique_ptr<CLAPPluginGUI> gui_;
+    mutable std::unique_ptr<CLAPPluginParameter> parameter_;
 };
 }
 

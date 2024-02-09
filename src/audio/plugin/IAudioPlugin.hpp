@@ -42,8 +42,10 @@ public:
 public:
     // Owned by `IPlugin`
     virtual IPluginGUI* gui() = 0;
+    virtual const IPluginGUI* gui() const = 0;
     // Owned by `IPlugin`
     virtual IPluginParameter* parameter() = 0;
+    virtual const IPluginParameter* parameter() const = 0;
 };
 }
 

@@ -29,6 +29,7 @@ set(CONTENT_CPP_FILES
     model/IAutomationModel.hpp
     model/IFilterRoleModel.hpp
     model/ILocalizationListModel.hpp
+    model/IMixerChannelInsertListModel.hpp
     model/IMixerChannelListModel.hpp
     model/ModelBase.hpp
     model/IParameterValueAndTextListModel.hpp

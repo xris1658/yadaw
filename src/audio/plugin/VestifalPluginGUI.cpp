@@ -41,6 +41,11 @@ QWindow* VestifalPluginGUI::window()
     return window_;
 }
 
+const QWindow* VestifalPluginGUI::window() const
+{
+    return window_;
+}
+
 bool VestifalPluginGUI::detachWithWindow()
 {
     if(window_)

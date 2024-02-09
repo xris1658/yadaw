@@ -31,6 +31,8 @@ public:
     std::uint32_t audioChannelMapCount() const override;
     OptionalChannelMap audioChannelMapAt(std::uint32_t index) const override;
 public:
+    const YADAW::Audio::Engine::AudioDeviceProcess process() const;
+    YADAW::Audio::Engine::AudioDeviceProcess process();
     std::optional<std::uint32_t> getDelayOfPDC(std::uint32_t audioInputGroupIndex) const;
     std::optional<std::uint32_t> getPDCIndexOfMaximumDelay() const;
     void setDelayOfPDC(std::uint32_t audioInputGroupIndex, std::uint32_t delay);

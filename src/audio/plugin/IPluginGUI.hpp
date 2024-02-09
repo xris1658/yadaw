@@ -12,6 +12,7 @@ public:
 public:
     virtual bool attachToWindow(QWindow* window) = 0;
     virtual QWindow* window() = 0;
+    virtual const QWindow* window() const = 0;
     virtual bool detachWithWindow() = 0;
 };
 }

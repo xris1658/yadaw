@@ -88,6 +88,16 @@ void MultiInputDeviceWithPDC::setDelayOfPDC(std::uint32_t audioInputGroupIndex, 
     }
 }
 
+const YADAW::Audio::Engine::AudioDeviceProcess MultiInputDeviceWithPDC::process() const
+{
+    return process_;
+}
+
+YADAW::Audio::Engine::AudioDeviceProcess MultiInputDeviceWithPDC::process()
+{
+    return process_;
+}
+
 std::optional<std::uint32_t> MultiInputDeviceWithPDC::getDelayOfPDC(
     std::uint32_t audioInputGroupIndex) const
 {
