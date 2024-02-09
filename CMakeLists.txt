@@ -281,6 +281,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/PluginDirectoryController.hpp
     src/controller/PluginListController.cpp
     src/controller/PluginListController.hpp
+    src/controller/PluginPoolController.cpp
+    src/controller/PluginPoolController.hpp
     src/dao/AssetDirectoryTable.cpp
     src/dao/AssetDirectoryTable.hpp
     src/dao/Config.cpp
