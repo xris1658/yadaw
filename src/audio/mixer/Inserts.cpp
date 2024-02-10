@@ -297,7 +297,7 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
                 prevChannel = channel_[i].second;
             }
         }
-        for(auto i = position; i < insertCount; ++i)
+        for(auto i = position + 1; i < insertCount; ++i)
         {
             if(!bypassed_[i])
             {
