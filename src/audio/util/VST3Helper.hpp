@@ -35,7 +35,7 @@ using SubCategories = decltype(Steinberg::PClassInfo2::subCategories);
 using SplittedSubCategories = char*[Steinberg::PClassInfo2::kSubCategoriesSize];
 int splitSubCategories(SubCategories& subCategories, SplittedSubCategories& splittedSubCategories);
 
-YADAW::Audio::Plugin::VST3Plugin createVST3FromLibrary(YADAW::Native::Library& library);
+YADAW::Audio::Plugin::VST3Plugin createVST3FromLibrary(const YADAW::Native::Library& library);
 
 bool fillAutomationInParamValueQueue(
     const YADAW::Audio::Base::Automation& automation,

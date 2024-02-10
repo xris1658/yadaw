@@ -34,7 +34,7 @@ void getExtension(const clap_plugin* plugin, const char* id, To** to)
 
 namespace YADAW::Audio::Util
 {
-YADAW::Audio::Plugin::CLAPPlugin createCLAPFromLibrary(YADAW::Native::Library& library);
+YADAW::Audio::Plugin::CLAPPlugin createCLAPFromLibrary(const YADAW::Native::Library& library);
 }
 
 #endif // YADAW_SRC_AUDIO_UTIL_CLAPHELPER

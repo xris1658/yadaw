@@ -14,10 +14,10 @@ inline intptr_t runDispatcher(AEffect* effect, std::int32_t opcode, std::int32_t
 
 namespace YADAW::Audio::Util
 {
-VestifalEntry vestifalEntryFromLibrary(YADAW::Native::Library& library);
+VestifalEntry vestifalEntryFromLibrary(const YADAW::Native::Library& library);
 
 YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(
-    YADAW::Native::Library& library, std::int32_t uid = 0);
+    const YADAW::Native::Library& library, std::int32_t uid = 0);
 }
 
 

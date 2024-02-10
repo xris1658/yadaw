@@ -2,7 +2,7 @@
 
 namespace YADAW::Audio::Util
 {
-VestifalEntry vestifalEntryFromLibrary(YADAW::Native::Library& library)
+VestifalEntry vestifalEntryFromLibrary(const YADAW::Native::Library& library)
 {
     auto entry = library.getExport<VestifalEntry>(VESTIFAL_ENTRY_NAME);
     if(!entry)
@@ -12,7 +12,7 @@ VestifalEntry vestifalEntryFromLibrary(YADAW::Native::Library& library)
     return entry;
 }
 
-YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(YADAW::Native::Library& library, std::int32_t uid)
+YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(const YADAW::Native::Library& library, std::int32_t uid)
 {
     auto entry = vestifalEntryFromLibrary(library);
     if(!entry)

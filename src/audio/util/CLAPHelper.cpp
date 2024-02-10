@@ -2,7 +2,7 @@
 
 namespace YADAW::Audio::Util
 {
-YADAW::Audio::Plugin::CLAPPlugin createCLAPFromLibrary(YADAW::Native::Library& library)
+YADAW::Audio::Plugin::CLAPPlugin createCLAPFromLibrary(const YADAW::Native::Library& library)
 {
     auto entry = library.getExport<const clap_plugin_entry*>("clap_entry");
     if(entry)

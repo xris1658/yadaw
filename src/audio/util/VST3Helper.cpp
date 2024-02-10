@@ -34,7 +34,7 @@ int splitSubCategories(SubCategories& subCategories, SplittedSubCategories& spli
     return splittedSubCategoryCount;
 }
 
-YADAW::Audio::Plugin::VST3Plugin createVST3FromLibrary(Native::Library& library)
+YADAW::Audio::Plugin::VST3Plugin createVST3FromLibrary(const YADAW::Native::Library& library)
 {
     auto factory = library.getExport<YADAW::Audio::Plugin::VST3Plugin::FactoryEntry>("GetPluginFactory");
     if(!factory)
