@@ -357,10 +357,6 @@ bool Mixer::removeAudioOutputChannel(std::uint32_t first, std::uint32_t removeCo
             && last <= audioOutputChannelCount()
     )
     {
-        audioOutputMeters_.erase(
-            audioOutputMeters_.begin() + first,
-            audioOutputMeters_.begin() + last
-        );
         audioOutputPreFaderInserts_.erase(
             audioOutputPreFaderInserts_.begin() + first,
             audioOutputPreFaderInserts_.begin() + last
@@ -372,6 +368,10 @@ bool Mixer::removeAudioOutputChannel(std::uint32_t first, std::uint32_t removeCo
         audioOutputSummings_.erase(
             audioOutputSummings_.begin() + first,
             audioOutputSummings_.begin() + last
+        );
+        audioOutputMeters_.erase(
+            audioOutputMeters_.begin() + first,
+            audioOutputMeters_.begin() + last
         );
         audioOutputFaders_.erase(
             audioOutputFaders_.begin() + first,
