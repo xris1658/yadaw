@@ -92,6 +92,10 @@ QVariant MixerChannelInsertListModel::data(const QModelIndex& index, int role) c
             }
             return QVariant::fromValue<bool>(ret);
         }
+        case Role::Latency:
+        {
+            return QVariant::fromValue(device->latencyInSamples());
+        }
         }
     }
     return {};
