@@ -180,14 +180,17 @@ void EventHandler::onOpenMainWindow()
     // -------------------------------------------------------------------------
     // initialize device graph and mixer----------------------------------------
     // -------------------------------------------------------------------------
-    auto& mixer = YADAW::Controller::appMixer();
+    auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
+    auto& mixer = engine.mixer();
     auto& appGraphWithPDC = mixer.graph();
     auto& appGraph = appGraphWithPDC.graph();
     auto& bufferExt = mixer.bufferExtension();
 #if _WIN32
-    bufferExt.setBufferSize(backend.bufferSizeInFrames());
+    engine.setSampleRate(backend.sampleRate());
+    engine.setBufferSize(backend.bufferSizeInFrames());
 #elif __linux__
-    bufferExt.setBufferSize(backend.frameCount());
+    engine.setSampleRate(backend.sampleRate());
+    engine.setBufferSize(backend.frameCount());
 #endif
     FOR_RANGE0(i, audioBusConfiguration.inputBusCount())
     {
@@ -331,15 +334,12 @@ void EventHandler::onOpenMainWindow()
 
 void EventHandler::onMainWindowClosing()
 {
+    YADAW::Controller::AudioEngine::appAudioEngine().uninitialize();
 #if _WIN32
     YADAW::Controller::appAudioGraphBackend().uninitialize();
 #elif __linux__
     YADAW::Controller::appALSABackend().uninitialize();
 #endif
-    auto& mixer = YADAW::Controller::appMixer();
-    mixer.clearChannels();
-    mixer.clearAudioInputChannels();
-    mixer.clearAudioOutputChannels();
     mainWindowCloseAccepted();
 }
 

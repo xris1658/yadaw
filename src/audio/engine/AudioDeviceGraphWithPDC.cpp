@@ -57,6 +57,15 @@ void AudioDeviceGraphWithPDC::removeNode(const ade::NodeHandle& nodeHandle)
     return graph_.removeNode(nodeHandle);
 }
 
+void AudioDeviceGraphWithPDC::clearMultiInputNodes()
+{
+    auto count = multiInputNodes_.size();
+    FOR_RANGE0(i, count)
+    {
+        removeNode(multiInputNodes_.begin()->first);
+    }
+}
+
 YADAW::Audio::Engine::AudioDeviceGraphBase& AudioDeviceGraphWithPDC::graph() const
 {
     return graph_;

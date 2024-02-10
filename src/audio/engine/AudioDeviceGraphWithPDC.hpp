@@ -28,6 +28,7 @@ public:
 public:
     ade::NodeHandle addNode(YADAW::Audio::Engine::AudioDeviceProcess&& process);
     void removeNode(const ade::NodeHandle& nodeHandle);
+    void clearMultiInputNodes();
 public:
     YADAW::Audio::Engine::AudioDeviceGraphBase& graph() const;
     YADAW::Audio::Engine::Extension::UpstreamLatency& upstreamLatency() const;
