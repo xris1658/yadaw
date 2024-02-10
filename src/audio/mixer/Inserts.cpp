@@ -250,10 +250,6 @@ bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
         {
             setBypassed(i, true);
         }
-        FOR_RANGE(i, position, position + removeCount)
-        {
-            graph_.removeNode(nodes_[i]);
-        }
         nodes_.erase(nodes_.begin() + position,
             nodes_.begin() + position + removeCount);
         names_.erase(names_.begin() + position,
