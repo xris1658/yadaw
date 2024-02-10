@@ -152,9 +152,58 @@ Rectangle {
                 width: insertPlaceholder.width - impl.padding * 2
                 spacing: impl.padding
                 delegate: MixerInsertSlot {
+                    id: mixerInsertSlot
                     width: insertList.width
                     text: mcilm_name
                     bypassed: mcilm_bypassed
+                    property int itemIndex: index
+                    function removeThis() {
+                        insertModel.remove(itemIndex, 1);
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        anchors.leftMargin: root.leftInset
+                        anchors.rightMargin: root.rightInset
+                        anchors.topMargin: root.topInset
+                        anchors.bottomMargin: root.bottomInset
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onClicked: (mouse) => {
+                            if(mouse.button === Qt.LeftButton) {
+                                root.clicked();
+                            }
+                            else if(mouse.button === Qt.RightButton) {
+                                insertSlotOptions.x = 0;
+                                insertSlotOptions.y = height;
+                                insertSlotOptions.open();
+                            }
+                        }
+                        Menu {
+                            id: insertSlotOptions
+                            title: qsTr("Insert Slot Options")
+                            MenuItem {
+                                id: latencyMenuItem
+                                visible: mcilm_latency !== 0
+                                height: visible? implicitHeight: 0
+                                text: qsTr("Latency: ") + mcilm_latency + " " + qsTr("samples")
+                            }
+                            MenuSeparator {
+                                visible: mcilm_latency !== 0
+                                height: visible? implicitHeight: 0
+                            }
+                            MenuItem {
+                                text: qsTr("&Edit Route...")
+                            }
+                            MenuItem {
+                                text: qsTr("&Replace...")
+                            }
+                            MenuItem {
+                                text: qsTr("&Delete")
+                                onClicked: {
+                                    mixerInsertSlot.removeThis();
+                                }
+                            }
+                        }
+                    }
                 }
                 footer: Button {
                     topInset: insertList.count !== 0? impl.padding: 0

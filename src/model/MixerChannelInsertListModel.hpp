@@ -4,6 +4,7 @@
 #include "model/IMixerChannelInsertListModel.hpp"
 
 #include "audio/mixer/Inserts.hpp"
+#include "controller/PluginPoolController.hpp"
 
 namespace YADAW::Model
 {
@@ -27,6 +28,7 @@ public:
     void clear() override;
 private:
     YADAW::Audio::Mixer::Inserts* inserts_;
+    std::vector<YADAW::Controller::PluginPool::iterator> poolIterators_;
 };
 }
 

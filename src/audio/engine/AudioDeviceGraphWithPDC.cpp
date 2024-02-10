@@ -48,13 +48,16 @@ ade::NodeHandle AudioDeviceGraphWithPDC::addNode(AudioDeviceProcess&& process)
 
 void AudioDeviceGraphWithPDC::removeNode(const ade::NodeHandle& nodeHandle)
 {
-    if(graph_.getNodeData(nodeHandle).process.device()->audioInputGroupCount() > 1)
+    if(auto device = graph_.getNodeData(nodeHandle).process.device();
+        device->audioInputGroupCount() > 1)
     {
         auto it = multiInputNodes_.find(nodeHandle);
-        assert(it != multiInputNodes_.end());
-        multiInputNodes_.erase(it);
+        if(it != multiInputNodes_.end())
+        {
+            multiInputNodes_.erase(it);
+        }
     }
-    return graph_.removeNode(nodeHandle);
+    graph_.removeNode(nodeHandle);
 }
 
 void AudioDeviceGraphWithPDC::clearMultiInputNodes()

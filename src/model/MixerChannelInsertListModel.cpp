@@ -159,7 +159,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
     {
         using PluginFormat = YADAW::DAO::PluginFormat;
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
-        auto& graph = inserts_->graph();
+        auto& graph = engine.mixer().graph();
         auto& pool = YADAW::Controller::appPluginPool();
         const auto& pluginListModel = YADAW::Controller::appPluginListModel();
         auto pluginInfo = YADAW::DAO::selectPluginById(pluginId);
@@ -248,6 +248,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             break;
         }
         }
+        poolIterators_.emplace(poolIterators_.begin() + position, it);
     }
     if(ret)
     {
@@ -264,11 +265,50 @@ bool YADAW::Model::MixerChannelInsertListModel::append(int pluginId)
 
 bool MixerChannelInsertListModel::remove(int position, int removeCount)
 {
-    auto ret = inserts_->remove(position, removeCount);
-    if(ret)
+    auto ret = false;
+    if(position >= 0 && position < inserts_->insertCount()
+        && position + removeCount >= 0 && position + removeCount <= inserts_->insertCount())
     {
+        ret = true;
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
+        std::vector<ade::NodeHandle> removingNodes;
+        std::vector<YADAW::Controller::PluginPool::iterator> removingIterators;
+        removingNodes.reserve(removeCount);
+        removingIterators.reserve(removeCount);
+        FOR_RANGE(i, position, position + removeCount)
+        {
+            removingNodes.emplace_back(*(inserts_->insertAt(i)));
+        }
+        inserts_->remove(position, removeCount);
         endRemoveRows();
+        auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
+        auto& graphWithPDC = audioEngine.mixer().graph();
+        auto& graph = graphWithPDC.graph();
+        FOR_RANGE0(i, removingNodes.size())
+        {
+            // `static_cast` is okay since we only add
+            // `IAudioPlugin`s into the inserts.
+            auto device = graph.getNodeData(removingNodes[i]).process.device();
+            auto plugin = static_cast<YADAW::Audio::Plugin::IAudioPlugin*>(
+                device
+            );
+            graphWithPDC.removeNode(removingNodes[i]);
+            auto& plugins = poolIterators_[i + position]->second;
+            auto it = plugins.find(plugin);
+            if(it != plugins.end())
+            {
+                plugins.erase(it);
+            }
+            if(plugins.empty())
+            {
+                removingIterators.emplace_back(poolIterators_[i + position]);
+            }
+        }
+        auto& pluginPool = YADAW::Controller::appPluginPool();
+        // for(auto it: removingIterators)
+        // {
+        //     pluginPool.erase(it);
+        // }
     }
     return ret;
 }

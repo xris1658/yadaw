@@ -3,7 +3,7 @@ import QtQuick.Templates as T
 
 T.MenuSeparator {
     id: root
-    height: 5
+    implicitHeight: 5
     background: Rectangle {
         color: Colors.controlBackground
     }
