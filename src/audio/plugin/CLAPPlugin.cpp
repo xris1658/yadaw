@@ -215,7 +215,7 @@ CLAPPluginGUI* CLAPPlugin::pluginGUI()
     );
 }
 
-CLAPPluginParameter* CLAPPlugin::pluginParameter()
+const CLAPPluginParameter* CLAPPlugin::pluginParameter() const
 {
     if(!parameter_)
     {
@@ -227,6 +227,13 @@ CLAPPluginParameter* CLAPPlugin::pluginParameter()
         }
     }
     return parameter_.get();
+}
+
+CLAPPluginParameter* CLAPPlugin::pluginParameter()
+{
+    return const_cast<CLAPPluginParameter*>(
+        static_cast<const CLAPPlugin&>(*this).pluginParameter()
+    );
 }
 
 std::uint32_t CLAPPlugin::audioInputGroupCount() const
