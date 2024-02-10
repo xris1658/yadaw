@@ -14,21 +14,19 @@ namespace Impl
 using YADAW::Native::Library;
 struct CompareLibrary
 {
-using is_transparent = void;
-bool operator()(const Library& lhs, const Library& rhs)
-{
-    return lhs.path() < rhs.path();
-}
-
-bool operator()(const Library& lhs, const QString& rhs)
-{
-    return lhs.path() < rhs;
-}
-
-bool operator()(const QString& lhs, const Library& rhs)
-{
-    return lhs < rhs.path();
-}
+    using is_transparent = void;
+    bool operator()(const Library& lhs, const Library& rhs) const
+    {
+        return lhs.path() < rhs.path();
+    }
+    bool operator()(const Library& lhs, const QString& rhs) const
+    {
+        return lhs.path() < rhs;
+    }
+    bool operator()(const QString& lhs, const Library& rhs) const
+    {
+        return lhs < rhs.path();
+    }
 };
 }
 
