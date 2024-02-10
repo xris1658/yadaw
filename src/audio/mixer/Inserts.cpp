@@ -289,7 +289,7 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
         ade::NodeHandle nextNode = outNode_;
         std::uint32_t prevChannel = inChannel_;
         std::uint32_t nextChannel = outChannel_;
-        for(auto i = position; i-- > 0; --i)
+        for(auto i = position; i-- > 0;)
         {
             if(!bypassed_[i])
             {
