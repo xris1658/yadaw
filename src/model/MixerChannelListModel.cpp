@@ -70,7 +70,18 @@ MixerChannelListModel::MixerChannelListModel(
     IMixerChannelListModel(parent),
     mixer_(mixer),
     listType_(listType)
-{}
+{
+    auto count = itemCount();
+    insertModels_.reserve(count);
+    FOR_RANGE0(i, count)
+    {
+        insertModels_.emplace_back(
+            std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
+                (mixer_.*getPreFaderInserts[YADAW::Util::underlyingValue(listType_)])(i)->get()
+            )
+        );
+    }
+}
 
 MixerChannelListModel::~MixerChannelListModel()
 {}
@@ -115,6 +126,10 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         {
             return QVariant::fromValue(getChannelType(optionalInfo->get().channelType));
         }
+    }
+    case Role::Inserts:
+    {
+        return QVariant::fromValue<QObject*>(insertModels_[row].get());
     }
     }
     }

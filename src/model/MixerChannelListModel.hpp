@@ -4,6 +4,10 @@
 #include "model/IMixerChannelListModel.hpp"
 
 #include "audio/mixer/Mixer.hpp"
+#include "model/MixerChannelInsertListModel.hpp"
+
+#include <memory>
+#include <vector>
 
 namespace YADAW::Model
 {
@@ -37,6 +41,7 @@ public:
     void clear() override;
 private:
     YADAW::Audio::Mixer::Mixer& mixer_;
+    std::vector<std::unique_ptr<YADAW::Model::MixerChannelInsertListModel>> insertModels_;
     ListType listType_;
 };
 }
