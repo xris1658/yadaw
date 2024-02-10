@@ -249,7 +249,7 @@ bool Mixer::appendAudioInputChannel(
         );
         audioInputPreFaderInserts_.emplace_back(
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, inNode, meterNode, channel, 0
+                graph_, inNode, faderNode, channel, 0
             )
         );
         audioInputPostFaderInserts_.emplace_back(
@@ -331,7 +331,7 @@ bool Mixer::appendAudioOutputChannel(
         );
         audioOutputPreFaderInserts_.emplace_back(
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, summingNode, meterNode, 0, 0
+                graph_, summingNode, faderNode, 0, 0
             )
         );
         audioOutputPostFaderInserts_.emplace_back(
