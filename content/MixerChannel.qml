@@ -147,6 +147,8 @@ Rectangle {
                 anchors.top: insertHeader.bottom
                 anchors.topMargin: impl.padding
                 anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: impl.padding
                 width: insertPlaceholder.width - impl.padding * 2
                 spacing: impl.padding
                 delegate: MixerInsertSlot {
@@ -155,6 +157,7 @@ Rectangle {
                     bypassed: mcilm_bypassed
                 }
                 footer: Button {
+                    topInset: insertList.count !== 0? impl.padding: 0
                     width: insertList.width
                     onClicked: {
                         impl.insertPosition = insertList.count;
