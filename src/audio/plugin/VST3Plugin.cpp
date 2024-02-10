@@ -83,10 +83,36 @@ VST3Plugin::VST3Plugin(
             if(auto factory = factoryEntry(); factory)
             {
                 factory_ = factory;
+                status_ = IAudioPlugin::Status::Loaded;
             }
         }
         exitEntry_ = exitEntry;
     }
+}
+
+VST3Plugin::VST3Plugin(VST3Plugin&& rhs):
+    status_(rhs.status_),
+    unified_(rhs.unified_),
+    exitEntry_(rhs.exitEntry_),
+    factory_(rhs.factory_),
+    component_(rhs.component_),
+    audioProcessor_(rhs.audioProcessor_),
+    componentPoint_(rhs.componentPoint_),
+    editControllerPoint_(rhs.editControllerPoint_),
+    audioInputChannelGroup_(std::move(rhs.audioInputChannelGroup_)),
+    audioOutputChannelGroup_(std::move(rhs.audioOutputChannelGroup_)),
+    audioInputBusActivated_(std::move(rhs.audioInputBusActivated_)),
+    audioOutputBusActivated_(std::move(rhs.audioOutputBusActivated_)),
+    processSetup_(rhs.processSetup_),
+    processData_(rhs.processData_),
+    inputBuffers_(rhs.inputBuffers_),
+    outputBuffers_(rhs.outputBuffers_),
+    gui_(std::move(rhs.gui_)),
+    parameter_(std::move(rhs.parameter_)),
+    componentHandler_(std::move(rhs.componentHandler_)),
+    eventProcessor_(std::move(rhs.eventProcessor_))
+{
+    rhs.status_ = YADAW::Audio::Plugin::IAudioPlugin::Status::Empty;
 }
 
 bool VST3Plugin::createPlugin(const Steinberg::TUID& uid)

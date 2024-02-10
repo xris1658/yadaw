@@ -27,6 +27,7 @@ public:
     VST3Plugin();
     VST3Plugin(YADAW::Native::VST3InitEntry initEntry, FactoryEntry factoryEntry, ExitEntry exitEntry,
         void* libraryHandle = nullptr);
+    VST3Plugin(VST3Plugin&& rhs);
     bool createPlugin(const Steinberg::TUID& uid);
     void destroyPlugin();
     ~VST3Plugin();
@@ -103,7 +104,7 @@ private:
     std::vector<bool> audioInputBusActivated_;
     std::vector<bool> audioOutputBusActivated_;
     Steinberg::Vst::ProcessSetup processSetup_ = {};
-    Steinberg::Vst::ProcessData processData_= {};
+    Steinberg::Vst::ProcessData processData_ = {};
     std::vector<Steinberg::Vst::AudioBusBuffers> inputBuffers_;
     std::vector<Steinberg::Vst::AudioBusBuffers> outputBuffers_;
     mutable std::unique_ptr<VST3PluginGUI> gui_;
