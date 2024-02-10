@@ -2,6 +2,8 @@
 #define YADAW_SRC_CONTROLLER_AUDIOENGINECONTROLLER
 
 #include "audio/device/IAudioDevice.hpp"
+#include "audio/engine/AudioDeviceGraph.hpp"
+#include "audio/engine/AudioDeviceGraphWithPDC.hpp"
 #include "audio/mixer/Mixer.hpp"
 
 namespace YADAW::Controller
@@ -18,7 +20,26 @@ void process(YADAW::Audio::Device::IAudioDevice* device,
 }
 }
 
-YADAW::Audio::Mixer::Mixer& appMixer();
+class AudioEngine
+{
+private:
+    AudioEngine();
+public:
+    static AudioEngine& appAudioEngine();
+public:
+    double sampleRate() const;
+    std::uint32_t bufferSize() const;
+    void setSampleRate(double sampleRate);
+    void setBufferSize(std::uint32_t bufferSize);
+    const YADAW::Audio::Mixer::Mixer& mixer() const;
+    YADAW::Audio::Mixer::Mixer& mixer();
+public:
+    void uninitialize();
+private:
+    double sampleRate_ = 0.0;
+    std::uint32_t bufferSize_ = 0U;
+    YADAW::Audio::Mixer::Mixer mixer_;
+};
 }
 
 #endif // YADAW_SRC_CONTROLLER_AUDIOENGINECONTROLLER
