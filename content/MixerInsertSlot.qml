@@ -3,12 +3,11 @@ import QtQuick
 Button {
     id: root
     property bool bypassed: false
-    anchors.fill: parent
     leftPadding: bypassedButton.width
     rightPadding: replaceButton.width
+
     implicitWidth: label.contentWidth + leftPadding + rightPadding
     implicitHeight: label.contentHeight + topPadding + bottomPadding
-    z: 1
     contentItem: Label {
         id: label
         text: root.text

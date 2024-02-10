@@ -22,13 +22,22 @@ Rectangle {
 
     property PluginSelector pluginSelector: null
 
+
     width: 120
     height: 400
 
     QtObject {
         id: impl
+        property int insertPosition: -1
         readonly property int padding: 3
         readonly property int borderWidth: 1
+    }
+    Connections {
+        target: pluginSelector
+        function onAccepted() {
+            let pluginId = pluginSelector.currentPluginId();
+            insertModel.insert(impl.insertPosition, pluginId);
+        }
     }
     ColumnLayout {
         width: root.width
@@ -148,6 +157,7 @@ Rectangle {
                 footer: Button {
                     width: insertList.width
                     onClicked: {
+                        impl.insertPosition = insertList.count;
                         pluginSelector.parent = this;
                         pluginSelector.x = 0;
                         pluginSelector.y = height + impl.padding;

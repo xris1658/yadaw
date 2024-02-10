@@ -150,6 +150,7 @@ Rectangle {
                 height: root.height
                 inputModel: 0
                 outputModel: 0
+                insertModel: mclm_inserts
                 inputAvailable: false
                 outputAvailable: false
                 channelColor: mclm_color
@@ -192,6 +193,7 @@ Rectangle {
                 height: root.height
                 inputModel: 0
                 outputModel: 0
+                insertModel: mclm_inserts
                 inputAvailable: false
                 outputAvailable: false
                 channelColor: mclm_color
@@ -275,6 +277,7 @@ Rectangle {
                 height: root.height
                 inputModel: 0
                 outputModel: 0
+                insertModel: mclm_inserts
                 inputAvailable: false
                 outputAvailable: false
                 channelColor: mclm_color

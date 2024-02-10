@@ -13,6 +13,10 @@ QC.Popup {
 
     signal accepted()
 
+    function currentPluginId() {
+        return pluginList.currentItem.pluginId;
+    }
+
     topInset: 0
     bottomInset: 0
     leftInset: 0
@@ -418,6 +422,7 @@ QC.Popup {
                         headerPositioning: ListView.OverlayHeader
                         delegate: ItemDelegate {
                             id: itemDelegate
+                            property int pluginId: plm_id
                             width: Math.max(pluginList.contentWidth, pluginList.width)
                             property var itemData: Array.isArray(pluginList.model)? modelData: model
                             Row {
