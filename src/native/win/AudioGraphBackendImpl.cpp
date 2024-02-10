@@ -96,6 +96,11 @@ DeviceInformation AudioGraphBackend::Impl::audioOutputDeviceAt(std::uint32_t ind
     return audioOutputDeviceInformationCollection_.GetAt(index);
 }
 
+std::uint32_t AudioGraphBackend::Impl::sampleRate() const
+{
+    return audioGraph_.EncodingProperties().SampleRate();
+}
+
 winrt::hstring AudioGraphBackend::Impl::defaultAudioInputDeviceId() const
 {
     return MediaDevice::GetDefaultAudioCaptureId(AudioDeviceRole::Default);
@@ -106,9 +111,13 @@ winrt::hstring AudioGraphBackend::Impl::defaultAudioOutputDeviceId() const
     return MediaDevice::GetDefaultAudioRenderId(AudioDeviceRole::Default);
 }
 
-bool AudioGraphBackend::Impl::createAudioGraph()
+bool AudioGraphBackend::Impl::createAudioGraph(std::uint32_t sampleRate)
 {
     auto settings = createAudioGraphSettings();
+    if(sampleRate != 0)
+    {
+        settings.EncodingProperties().SampleRate(sampleRate);
+    }
     auto createGraphResult = asyncResult(AudioGraph::CreateAsync(settings));
     if(createGraphResult.Status() != decltype(createGraphResult.Status())::Success)
     {
@@ -126,10 +135,16 @@ bool AudioGraphBackend::Impl::createAudioGraph()
     return true;
 }
 
-bool AudioGraphBackend::Impl::createAudioGraph(const DeviceInformation& audioOutputDevice)
+bool AudioGraphBackend::Impl::createAudioGraph(
+    const DeviceInformation& audioOutputDevice,
+    std::uint32_t sampleRate)
 {
     auto settings = createAudioGraphSettings();
     settings.PrimaryRenderDevice(audioOutputDevice);
+    if(sampleRate != 0)
+    {
+        settings.EncodingProperties().SampleRate(sampleRate);
+    }
     auto createGraphResult = asyncResult(AudioGraph::CreateAsync(settings));
     if(createGraphResult.Status() != decltype(createGraphResult.Status())::Success)
     {
@@ -293,11 +308,6 @@ int AudioGraphBackend::Impl::bufferSizeInFrames() const
 int AudioGraphBackend::Impl::latencyInSamples() const
 {
     return audioGraph_.LatencyInSamples();
-}
-
-std::uint32_t AudioGraphBackend::Impl::sampleRate() const
-{
-    return audioGraph_.EncodingProperties().SampleRate();
 }
 
 std::uint32_t AudioGraphBackend::Impl::channelCount(bool isInput, std::uint32_t deviceIndex) const

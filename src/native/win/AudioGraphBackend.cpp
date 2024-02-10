@@ -117,7 +117,7 @@ AudioGraphBackend::DeviceInfo AudioGraphBackend::audioOutputDeviceAt(std::uint32
     return {qStringFromHString(info.Name()), qStringFromHString(info.Id()), info.IsEnabled()};
 }
 
-bool AudioGraphBackend::createAudioGraph()
+bool AudioGraphBackend::createAudioGraph(std::uint32_t sampleRate)
 {
     if(pImpl_->createAudioGraph())
     {
@@ -127,12 +127,12 @@ bool AudioGraphBackend::createAudioGraph()
     return false;
 }
 
-bool AudioGraphBackend::createAudioGraph(const QString& id)
+bool AudioGraphBackend::createAudioGraph(const QString& id, std::uint32_t sampleRate)
 {
     winrt::hstring idAsHString(reinterpret_cast<const wchar_t*>(id.data()));
     auto async = DeviceInformation::CreateFromIdAsync(idAsHString);
     auto deviceInformation = asyncResult(async);
-    if(deviceInformation && pImpl_->createAudioGraph(deviceInformation))
+    if(deviceInformation && pImpl_->createAudioGraph(deviceInformation, sampleRate))
     {
         status_ = Status::Created;
         return true;

@@ -64,8 +64,8 @@ public:
     QString defaultAudioOutputDeviceId() const;
     DeviceInfo audioInputDeviceAt(std::uint32_t index) const;
     DeviceInfo audioOutputDeviceAt(std::uint32_t index) const;
-    bool createAudioGraph();
-    bool createAudioGraph(const QString& id);
+    bool createAudioGraph(std::uint32_t sampleRate = 0);
+    bool createAudioGraph(const QString& id, std::uint32_t sampleRate = 0);
     bool isDeviceInputActivated(std::uint32_t deviceInputIndex) const;
     DeviceInputResult activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
     DeviceInfo currentOutputDevice() const;
