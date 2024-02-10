@@ -11,6 +11,7 @@ public:
     Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
         ade::NodeHandle inNode, ade::NodeHandle outNode,
         std::uint32_t inChannel, std::uint32_t outChannel);
+    ~Inserts();
 public:
     YADAW::Audio::Engine::AudioDeviceGraphBase& graph() const;
     std::uint32_t insertCount() const noexcept;

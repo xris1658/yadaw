@@ -27,6 +27,23 @@ Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     }
 }
 
+Inserts::~Inserts()
+{
+    clear();
+    for(const auto& edgeHandle: inNode_->outEdges())
+    {
+        if(auto& edgeData = graph_.getEdgeData(edgeHandle);
+            edgeData.fromChannel == inChannel_
+            && edgeHandle->dstNode() == outNode_
+            && edgeData.toChannel == outChannel_
+        )
+        {
+            graph_.disconnect(edgeHandle);
+            break;
+        }
+    }
+}
+
 YADAW::Audio::Engine::AudioDeviceGraphBase& Inserts::graph() const
 {
     return graph_;
