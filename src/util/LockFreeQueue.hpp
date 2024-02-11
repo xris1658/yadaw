@@ -12,10 +12,10 @@ namespace YADAW::Util
 {
 #ifdef __cpp_lib_hardware_interference_size
 using std::hardware_destructive_interference_size;
-using std::hardware_destructive_interference_size;
+using std::hardware_constructive_interference_size;
 #else
 inline const std::size_t hardware_destructive_interference_size = 64;
-inline const std::size_t hardware_destructive_interference_size = 64;
+inline const std::size_t hardware_constructive_interference_size = 64;
 #endif
 // Single producer + single consumer
 template<typename T>
