@@ -4,6 +4,7 @@
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
 #include "controller/AudioEngineController.hpp"
+#include "controller/MixerChannelListModelController.hpp"
 #include "model/MixerChannelListModel.hpp"
 #include "util/IntegerRange.hpp"
 #if _WIN32
@@ -214,12 +215,6 @@ void EventHandler::onOpenMainWindow()
             YADAW::Model::IAudioBusConfigurationModel::Role::Name
         ).value<QString>();
     }
-    static YADAW::Model::MixerChannelListModel mixerAudioInputChannelListModel(
-        mixer, YADAW::Model::MixerChannelListModel::ListType::AudioHardwareInput);
-    static YADAW::Model::MixerChannelListModel mixerChannelListModel(
-        mixer, YADAW::Model::MixerChannelListModel::ListType::Regular);
-    static YADAW::Model::MixerChannelListModel mixerAudioOutputChannelListModel(
-        mixer, YADAW::Model::MixerChannelListModel::ListType::AudioHardwareOutput);
     // -------------------------------------------------------------------------
     // Open main window---------------------------------------------------------
     // -------------------------------------------------------------------------
@@ -280,9 +275,9 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAOutputDeviceListModel()));
 #endif
     YADAW::UI::mainWindow->setProperty("mixerAudioInputChannelModel",
-        QVariant::fromValue<QObject*>(&mixerAudioInputChannelListModel));
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioInputMixerChannels()));
     YADAW::UI::mainWindow->setProperty("mixerAudioOutputChannelModel",
-        QVariant::fromValue<QObject*>(&mixerAudioOutputChannelListModel));
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioOutputMixerChannels()));
 
     YADAW::UI::mainWindow->setProperty("audioInputBusConfigurationModel",
         QVariant::fromValue<QObject*>(&appAudioBusInputConfigurationModel));
@@ -334,6 +329,9 @@ void EventHandler::onOpenMainWindow()
 
 void EventHandler::onMainWindowClosing()
 {
+    YADAW::Controller::appAudioInputMixerChannels().clear();
+    YADAW::Controller::appMixerChannels().clear();
+    YADAW::Controller::appAudioOutputMixerChannels().clear();
     YADAW::Controller::AudioEngine::appAudioEngine().uninitialize();
 #if _WIN32
     YADAW::Controller::appAudioGraphBackend().uninitialize();
