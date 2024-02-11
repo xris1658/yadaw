@@ -58,7 +58,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     if(${CMAKE_BUILD_TYPE} STREQUAL Debug OR ${CMAKE_BUILD_TYPE} STREQUAL RelWithDebInfo)
         add_compile_options(-g3)
     endif()
-    add_compile_options(-Wextra)
+    add_compile_options(-Wextra -Werror=return-type)
 endif()
 
 set(WIN32_NATIVE_SOURCES
