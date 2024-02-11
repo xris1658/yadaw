@@ -128,6 +128,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         {
             return QVariant::fromValue(optionalInfo->get().name);
         }
+        return QVariant();
     }
     case Role::Color:
     {
@@ -136,6 +137,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         {
             return QVariant::fromValue(optionalInfo->get().color);
         }
+        return QVariant();
     }
     case Role::ChannelType:
     {
@@ -144,6 +146,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         {
             return QVariant::fromValue(getChannelType(optionalInfo->get().channelType));
         }
+        return QVariant();
     }
     case Role::Inserts:
     {
@@ -170,6 +173,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                 dataChanged(index, index, {Role::Name});
                 return true;
             }
+            return false;
         }
         case Role::Color:
         {
@@ -180,6 +184,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                 dataChanged(index, index, {Role::Color});
                 return true;
             }
+            return false;
         }
         }
     }
