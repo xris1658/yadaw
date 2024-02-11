@@ -14,6 +14,7 @@
 
 namespace YADAW::Model
 {
+using YADAW::Audio::Engine::AudioDeviceProcess;
 using YADAW::Audio::Engine::MultiInputDeviceWithPDC;
 using YADAW::Audio::Plugin::IAudioPlugin;
 
@@ -159,7 +160,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
     {
         using PluginFormat = YADAW::DAO::PluginFormat;
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
-        auto& graph = engine.mixer().graph();
+        auto& graphWithPDC = engine.mixer().graph();
         auto& pool = YADAW::Controller::appPluginPool();
         const auto& pluginListModel = YADAW::Controller::appPluginListModel();
         auto pluginInfo = YADAW::DAO::selectPluginById(pluginId);
@@ -171,13 +172,13 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 YADAW::Controller::PluginPool::value_type::second_type()
             );
         }
-        std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin> plugin(nullptr);
+        std::unique_ptr<IAudioPlugin> plugin(nullptr);
         switch(pluginInfo.format)
         {
         case PluginFormat::PluginFormatVST3:
         {
             auto pluginPtr = std::make_unique<YADAW::Audio::Plugin::VST3Plugin>(
-                std::move(YADAW::Audio::Util::createVST3FromLibrary(it->first))
+                YADAW::Audio::Util::createVST3FromLibrary(it->first)
             );
             if(pluginPtr && pluginPtr->status() != IAudioPlugin::Status::Empty)
             {
@@ -195,9 +196,9 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                     outputChannels.size());
                 pluginPtr->activate();
                 pluginPtr->startProcessing();
-                auto nodeHandle = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*pluginPtr));
+                auto nodeHandle = graphWithPDC.addNode(AudioDeviceProcess(*pluginPtr));
                 inserts_->insert(nodeHandle, position, pluginInfo.name);
-                plugin = std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>(std::move(pluginPtr));
+                plugin = std::unique_ptr<IAudioPlugin>(std::move(pluginPtr));
                 it->second.emplace(std::move(plugin));
                 ret = true;
             }
@@ -217,9 +218,9 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
                 pluginPtr->activate();
                 pluginPtr->startProcessing();
-                auto nodeHandle = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*pluginPtr));
+                auto nodeHandle = graphWithPDC.addNode(AudioDeviceProcess(*pluginPtr));
                 inserts_->insert(nodeHandle, position, pluginInfo.name);
-                plugin = std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>(std::move(pluginPtr));
+                plugin = std::unique_ptr<IAudioPlugin>(std::move(pluginPtr));
                 it->second.emplace(std::move(plugin));
                 ret = true;
             }
@@ -239,9 +240,9 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
                 pluginPtr->activate();
                 pluginPtr->startProcessing();
-                auto nodeHandle = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*pluginPtr));
+                auto nodeHandle = graphWithPDC.addNode(AudioDeviceProcess(*pluginPtr));
                 inserts_->insert(nodeHandle, position, pluginInfo.name);
-                plugin = std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>(std::move(pluginPtr));
+                plugin = std::unique_ptr<IAudioPlugin>(std::move(pluginPtr));
                 it->second.emplace(std::move(plugin));
                 ret = true;
             }
@@ -286,29 +287,40 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         auto& graph = graphWithPDC.graph();
         FOR_RANGE0(i, removingNodes.size())
         {
-            // `static_cast` is okay since we only add
-            // `IAudioPlugin`s into the inserts.
             auto device = graph.getNodeData(removingNodes[i]).process.device();
-            auto plugin = static_cast<YADAW::Audio::Plugin::IAudioPlugin*>(
-                device
-            );
-            graphWithPDC.removeNode(removingNodes[i]);
-            auto& plugins = poolIterators_[i + position]->second;
-            auto it = plugins.find(plugin);
-            if(it != plugins.end())
+            if(device->audioInputGroupCount() > 1)
             {
-                plugins.erase(it);
+                // `static_cast` is okay since we always call
+                // `AudioDeviceGraphWithPDC::addNode` to add devices (those with
+                // multiple inputs also included) into the graph.
+                auto multiInput = static_cast<MultiInputDeviceWithPDC*>(device);
+                // `static_cast` is okay since we only add
+                // `IAudioPlugin`s into the inserts.
+                auto plugin = static_cast<IAudioPlugin*>(
+                    multiInput->process().device()
+                );
+                graphWithPDC.removeNode(removingNodes[i]);
+                auto& plugins = poolIterators_[i + position]->second;
+                auto it = plugins.find(plugin);
+                if(it != plugins.end())
+                {
+                    plugins.erase(it);
+                }
+                if(plugins.empty())
+                {
+                    removingIterators.emplace_back(poolIterators_[i + position]);
+                }
             }
-            if(plugins.empty())
+            else
             {
-                removingIterators.emplace_back(poolIterators_[i + position]);
+                graphWithPDC.removeNode(removingNodes[i]);
             }
         }
         auto& pluginPool = YADAW::Controller::appPluginPool();
-        // for(auto it: removingIterators)
-        // {
-        //     pluginPool.erase(it);
-        // }
+        for(auto it: removingIterators)
+        {
+            pluginPool.erase(it);
+        }
     }
     return ret;
 }
