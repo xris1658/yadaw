@@ -275,6 +275,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/GeneralSettingsController.hpp
     src/controller/LocalizationController.cpp
     src/controller/LocalizationController.hpp
+    src/controller/MixerChannelListModelController.cpp
+    src/controller/MixerChannelListModelController.hpp
     src/controller/PluginController.cpp
     src/controller/PluginController.hpp
     src/controller/PluginDirectoryController.cpp
