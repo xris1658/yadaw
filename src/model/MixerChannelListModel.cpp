@@ -60,6 +60,24 @@ GetConstChannelInfo getConstChannelInfo[3] = {
     static_cast<GetConstChannelInfo>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelInfoAt)
 };
 
+using RemoveChannels =
+    decltype(&YADAW::Audio::Mixer::Mixer::removeChannel);
+
+RemoveChannels removeChannels[3] = {
+    &YADAW::Audio::Mixer::Mixer::removeAudioInputChannel,
+    &YADAW::Audio::Mixer::Mixer::removeChannel,
+    &YADAW::Audio::Mixer::Mixer::removeAudioOutputChannel
+};
+
+using ClearChannels =
+    decltype(&YADAW::Audio::Mixer::Mixer::clearChannels);
+
+ClearChannels clearChannels[3] = {
+    &YADAW::Audio::Mixer::Mixer::clearAudioInputChannels,
+    &YADAW::Audio::Mixer::Mixer::clearChannels,
+    &YADAW::Audio::Mixer::Mixer::clearAudioOutputChannels,
+};
+
 IMixerChannelListModel::ChannelTypes getChannelType(YADAW::Audio::Mixer::Mixer::ChannelType type)
 {
     return static_cast<IMixerChannelListModel::ChannelTypes>(YADAW::Util::underlyingValue(type));
@@ -180,7 +198,16 @@ bool MixerChannelListModel::append(IMixerChannelListModel::ChannelTypes type)
 
 bool MixerChannelListModel::remove(int position, int removeCount)
 {
-    return false;
+    auto ret = (mixer_.*removeChannels[YADAW::Util::underlyingValue(listType_)])(
+        position, removeCount
+    );
+    if(ret)
+    {
+        insertModels_.erase(
+            insertModels_.begin() + position,
+            insertModels_.begin() + position + removeCount
+        );
+    }
 }
 
 bool MixerChannelListModel::move(int position, int moveCount, int newPosition)
@@ -195,6 +222,9 @@ bool MixerChannelListModel::copy(int position, int copyCount, int newPosition)
 
 void MixerChannelListModel::clear()
 {
-
+    for(auto& insertModel: insertModels_)
+    {
+        insertModel->clear();
+    }
 }
 }
