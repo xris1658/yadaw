@@ -208,6 +208,7 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             insertModels_.begin() + position + removeCount
         );
     }
+    return ret;
 }
 
 bool MixerChannelListModel::move(int position, int moveCount, int newPosition)
