@@ -80,6 +80,7 @@ bool SortOrderModel::insert(int role, Qt::SortOrder sortOrder, int position)
         beginInsertRows(QModelIndex(), position, position);
         sortOrder_.emplace(sortOrder_.begin() + position, role, sortOrder);
         endInsertRows();
+        return true;
     }
     return false;
 }
