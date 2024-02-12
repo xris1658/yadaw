@@ -209,17 +209,40 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
 
 void SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last)
 {
+    auto oldItemCount = itemCount();
     auto removeFirst = srcToDst_.begin() + first;
     auto removeLast = srcToDst_.begin() + last + 1;
-    std::sort(removeFirst, removeLast);
-    auto oldItemCount = itemCount();
+    std::vector<std::pair<std::size_t, int>> rowsToRemove;
+    rowsToRemove.reserve(removeLast - removeFirst);
+    for(auto it = removeFirst; it != removeLast; ++it)
+    {
+        rowsToRemove.emplace_back(it - srcToDst_.begin(), *it);
+    }
+    std::sort(rowsToRemove.begin(), rowsToRemove.end(),
+        [](decltype(rowsToRemove)::const_reference lhs, decltype(rowsToRemove)::const_reference rhs)
+        {
+            return lhs.second < rhs.second;
+        }
+    );
+    auto middle = std::find_if_not(rowsToRemove.begin(), rowsToRemove.end(),
+        [](decltype(rowsToRemove)::const_reference value)
+        {
+            return value.second != -1;
+        }
+    );
+    auto filteredInItemCountToRemove = middle - rowsToRemove.begin();
+    std::rotate(
+        rowsToRemove.begin(),
+        middle,
+        rowsToRemove.end()
+    );
     // `for(auto it = removeLast; it-- > removeFirst;)` might cause an assertion
     // failure when `removeFirst == srcToDst_.begin()`.
     // See comment of `mergeNewAcceptedItems`.
-    for(auto i = last + 1; i-- > first;)
+    for(auto i = rowsToRemove.size(); i-- > 0;)
     {
-        auto it = srcToDst_.begin() + i;
-        auto dstRow = *it;
+        auto it = rowsToRemove.begin() + i;
+        const auto& [srcRow, dstRow] = *it;
         if(dstRow != -1)
         {
             beginRemoveRows(QModelIndex(), dstRow, dstRow);
@@ -235,12 +258,14 @@ void SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved(const QModelIndex
         {
             dstToSrc_.erase(
                 std::remove(
-                    filteredOutFirst_, dstToSrc_.end(), it - srcToDst_.begin()
+                    filteredOutFirst_, dstToSrc_.end(), srcRow
                 )
             );
         }
     }
     srcToDst_.erase(removeFirst, removeLast);
+    filteredOutFirst_ = dstToSrc_.begin() + oldItemCount;
+    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
 }
 
 void SortFilterProxyListModel::sourceModelDataChanged(
