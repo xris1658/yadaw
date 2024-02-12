@@ -119,7 +119,7 @@ AudioGraphBackend::DeviceInfo AudioGraphBackend::audioOutputDeviceAt(std::uint32
 
 bool AudioGraphBackend::createAudioGraph(std::uint32_t sampleRate)
 {
-    if(pImpl_->createAudioGraph())
+    if(pImpl_->createAudioGraph(sampleRate))
     {
         status_ = Status::Created;
         return true;
