@@ -190,10 +190,12 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
                 auto inputCount = pluginPtr->audioInputGroupCount();
                 auto outputCount = pluginPtr->audioOutputGroupCount();
+                auto device = graphWithPDC.graph().getNodeData(inserts_->inNode()).process.device();
+                auto channelGroupType = device->audioOutputGroupAt(inserts_->inChannel())->get().type();
                 std::vector<YADAW::Audio::Base::ChannelGroupType> inputChannels(inputCount,
-                    YADAW::Audio::Base::ChannelGroupType::eStereo); // FIXME: Pass channel group type here
+                    channelGroupType);
                 std::vector<YADAW::Audio::Base::ChannelGroupType> outputChannels(outputCount,
-                    YADAW::Audio::Base::ChannelGroupType::eStereo);
+                    channelGroupType);
                 pluginPtr->setChannelGroups(inputChannels.data(), inputChannels.size(), outputChannels.data(),
                     outputChannels.size());
                 pluginPtr->activate();
