@@ -751,197 +751,197 @@ Proceed?</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../content/MainWindow.qml" line="98"/>
+        <location filename="../../content/MainWindow.qml" line="97"/>
         <source>&amp;About YADAW...</source>
         <translation>关于 YADAW(&amp;A)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="108"/>
+        <location filename="../../content/MainWindow.qml" line="107"/>
         <source>About &amp;Qt...</source>
         <translation>关于 Qt(&amp;Q)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="119"/>
+        <location filename="../../content/MainWindow.qml" line="118"/>
         <source>&amp;Keyboard Shortcuts...</source>
         <translation>键盘快捷键(&amp;K)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="122"/>
+        <location filename="../../content/MainWindow.qml" line="121"/>
         <source>Check for &amp;Updates...</source>
         <translation>检查更新(&amp;U)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="126"/>
+        <location filename="../../content/MainWindow.qml" line="125"/>
         <source>&amp;Preferences...</source>
         <translation>首选项(&amp;P)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="134"/>
+        <location filename="../../content/MainWindow.qml" line="133"/>
         <source>E&amp;xit</source>
         <translation>退出(&amp;X)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="142"/>
+        <location filename="../../content/MainWindow.qml" line="141"/>
         <source>&amp;File</source>
         <translation>文件(&amp;F)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="145"/>
+        <location filename="../../content/MainWindow.qml" line="144"/>
         <source>&amp;New</source>
         <translation>新建(&amp;N)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="149"/>
+        <location filename="../../content/MainWindow.qml" line="148"/>
         <source>&amp;Open</source>
         <translation>打开(&amp;O)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="153"/>
+        <location filename="../../content/MainWindow.qml" line="152"/>
         <source>Recent files</source>
         <translation>最近文件</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="156"/>
+        <location filename="../../content/MainWindow.qml" line="155"/>
         <source>Empty list</source>
         <translation>列表为空</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="161"/>
+        <location filename="../../content/MainWindow.qml" line="160"/>
         <source>Clear list</source>
         <translation>清空列表</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="166"/>
+        <location filename="../../content/MainWindow.qml" line="165"/>
         <source>&amp;Save</source>
         <translation>保存(&amp;S)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="171"/>
+        <location filename="../../content/MainWindow.qml" line="170"/>
         <source>Save &amp;As...</source>
         <translation>另存为(&amp;A)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="176"/>
+        <location filename="../../content/MainWindow.qml" line="175"/>
         <source>&amp;Export</source>
         <translation>导出(&amp;E)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="179"/>
+        <location filename="../../content/MainWindow.qml" line="178"/>
         <source>&amp;Mixdown...</source>
         <translation>并轨(&amp;M)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="183"/>
+        <location filename="../../content/MainWindow.qml" line="182"/>
         <source>Multiple &amp;Tracks...</source>
         <translation>多个轨道(&amp;T)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="187"/>
+        <location filename="../../content/MainWindow.qml" line="186"/>
         <source>&amp;Packed Project...</source>
         <translation>打包项目(&amp;P)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="190"/>
+        <location filename="../../content/MainWindow.qml" line="189"/>
         <source>Music&amp;XML...</source>
         <translation>MusicXML(&amp;X)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="194"/>
+        <location filename="../../content/MainWindow.qml" line="193"/>
         <source>&amp;Score...</source>
         <translation>乐谱(&amp;S)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="199"/>
+        <location filename="../../content/MainWindow.qml" line="198"/>
         <source>&amp;Project Properties...</source>
         <translation>项目属性(&amp;P)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="204"/>
+        <location filename="../../content/MainWindow.qml" line="203"/>
         <source>&amp;Revert to Last Save...</source>
         <translation>恢复至上次保存(&amp;R)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="209"/>
+        <location filename="../../content/MainWindow.qml" line="208"/>
         <source>&amp;Edit</source>
         <translation>编辑(&amp;E)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="222"/>
+        <location filename="../../content/MainWindow.qml" line="221"/>
         <source>&amp;History...</source>
         <translation>历史记录(&amp;H)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="251"/>
+        <location filename="../../content/MainWindow.qml" line="250"/>
         <source>Jump to Start</source>
         <translation>跳转至开始</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="255"/>
+        <location filename="../../content/MainWindow.qml" line="254"/>
         <source>Jump to End</source>
         <translation>跳转至结束</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="261"/>
+        <location filename="../../content/MainWindow.qml" line="260"/>
         <source>Loop</source>
         <translation>循环</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="335"/>
+        <location filename="../../content/MainWindow.qml" line="334"/>
         <source>Fo&amp;llow</source>
         <translation>跟随(&amp;L)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="358"/>
+        <location filename="../../content/MainWindow.qml" line="357"/>
         <source>Show Audio &amp;Inputs</source>
         <translation>显示音频输入(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="367"/>
+        <location filename="../../content/MainWindow.qml" line="366"/>
         <source>Show Audio &amp;Outputs</source>
         <translation>显示音频输出(&amp;O)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="376"/>
+        <location filename="../../content/MainWindow.qml" line="375"/>
         <source>Show &amp;Tempo Automation</source>
         <translation>显示速度自动化(&amp;T)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="402"/>
+        <location filename="../../content/MainWindow.qml" line="401"/>
         <source>&amp;Metronome</source>
         <translation>节拍器(&amp;M)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="412"/>
+        <location filename="../../content/MainWindow.qml" line="411"/>
         <source>Map &amp;Keyboard</source>
         <translation>电脑键盘映射为琴键(&amp;K)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="421"/>
+        <location filename="../../content/MainWindow.qml" line="420"/>
         <source>&amp;Record Countdown</source>
         <translation>录音倒计时(&amp;R)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="431"/>
+        <location filename="../../content/MainWindow.qml" line="430"/>
         <source>&amp;Tap Tempo...</source>
         <translation>测速(&amp;T)...</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="625"/>
+        <location filename="../../content/MainWindow.qml" line="624"/>
         <source>Ready</source>
         <translation>就绪</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="650"/>
+        <location filename="../../content/MainWindow.qml" line="649"/>
         <source>Assets</source>
         <translation>素材</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="671"/>
+        <location filename="../../content/MainWindow.qml" line="670"/>
         <source>Detail</source>
         <translation>详情</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="691"/>
+        <location filename="../../content/MainWindow.qml" line="690"/>
         <source>Arrangement</source>
         <translation>编排</translation>
     </message>
@@ -956,110 +956,110 @@ Proceed?</source>
         <translation>混音器</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="287"/>
+        <location filename="../../content/MainWindow.qml" line="286"/>
         <source>&amp;View</source>
         <translation>查看(&amp;V)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="292"/>
+        <location filename="../../content/MainWindow.qml" line="291"/>
         <source>&amp;Fullscreen</source>
         <translation>全屏(&amp;F)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="313"/>
+        <location filename="../../content/MainWindow.qml" line="312"/>
         <source>&amp;Assets</source>
         <translation>素材(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="320"/>
+        <location filename="../../content/MainWindow.qml" line="319"/>
         <source>&amp;Clip Editor</source>
         <translation>片段编辑器(&amp;C)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="327"/>
+        <location filename="../../content/MainWindow.qml" line="326"/>
         <source>&amp;Mixer</source>
         <translation>混音器(&amp;M)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="345"/>
+        <location filename="../../content/MainWindow.qml" line="344"/>
         <source>Show &amp;Key Scale</source>
         <translation>键盘显示音阶(&amp;K)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="351"/>
+        <location filename="../../content/MainWindow.qml" line="350"/>
         <source>&amp;Snap</source>
         <translation>对齐(&amp;S)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="381"/>
+        <location filename="../../content/MainWindow.qml" line="380"/>
         <source>Arrangement Snap Unit</source>
         <translation>编排视图对齐单位</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="389"/>
+        <location filename="../../content/MainWindow.qml" line="388"/>
         <source>Editor Snap Unit</source>
         <translation>编辑器对齐单位</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="384"/>
-        <location filename="../../content/MainWindow.qml" line="392"/>
+        <location filename="../../content/MainWindow.qml" line="383"/>
+        <location filename="../../content/MainWindow.qml" line="391"/>
         <source>Triplets</source>
         <translation>三连音</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="51"/>
+        <location filename="../../content/MainWindow.qml" line="50"/>
         <location filename="../../content/MainWindow.qml" line="758"/>
         <location filename="../../content/MainWindow.qml" line="766"/>
         <source>The settings are saved. Please restart the application to apply the new settings.</source>
         <translation>设置已保存。请重新启动程序，以使新设置生效。</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="270"/>
+        <location filename="../../content/MainWindow.qml" line="269"/>
         <source>Jump to Loop In</source>
         <translation>跳转至循环起点</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="274"/>
+        <location filename="../../content/MainWindow.qml" line="273"/>
         <source>Jump to Loop Out</source>
         <translation>跳转至循环终点</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="278"/>
+        <location filename="../../content/MainWindow.qml" line="277"/>
         <source>Set Loop In Here</source>
         <translation>将循环起点设为此处</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="282"/>
+        <location filename="../../content/MainWindow.qml" line="281"/>
         <source>Set Loop Out Here</source>
         <translation>将循环终点设为此处</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="398"/>
+        <location filename="../../content/MainWindow.qml" line="397"/>
         <source>&amp;Tools</source>
         <translation>工具(&amp;T)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="438"/>
+        <location filename="../../content/MainWindow.qml" line="437"/>
         <source>&amp;Help</source>
         <translation>帮助(&amp;H)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="441"/>
+        <location filename="../../content/MainWindow.qml" line="440"/>
         <source>&amp;Manual</source>
         <translation>用户手册(&amp;M)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="445"/>
+        <location filename="../../content/MainWindow.qml" line="444"/>
         <source>&amp;Quick Start</source>
         <translation>快速上手(&amp;Q)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="449"/>
+        <location filename="../../content/MainWindow.qml" line="448"/>
         <source>&amp;Register Product</source>
         <translation>注册产品(&amp;R)</translation>
     </message>
     <message>
-        <location filename="../../content/MainWindow.qml" line="452"/>
+        <location filename="../../content/MainWindow.qml" line="451"/>
         <source>User Support</source>
         <translation>用户支持</translation>
     </message>
@@ -1067,32 +1067,32 @@ Proceed?</source>
 <context>
     <name>Mixer</name>
     <message>
-        <location filename="../../content/Mixer.qml" line="219"/>
+        <location filename="../../content/Mixer.qml" line="222"/>
         <source>Mixer Channel Blank Area Options</source>
         <translation>混音器空白处选项</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="222"/>
+        <location filename="../../content/Mixer.qml" line="225"/>
         <source>&amp;Append Track</source>
         <translation>在末尾添加轨道(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="224"/>
+        <location filename="../../content/Mixer.qml" line="227"/>
         <source>&amp;Audio</source>
         <translation>音频(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="230"/>
+        <location filename="../../content/Mixer.qml" line="233"/>
         <source>&amp;Instrument</source>
         <translation>乐器(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="236"/>
+        <location filename="../../content/Mixer.qml" line="239"/>
         <source>&amp;MIDI</source>
         <translation>MIDI(&amp;M)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="242"/>
+        <location filename="../../content/Mixer.qml" line="245"/>
         <source>Audio &amp;Effect</source>
         <translation>音频效果(&amp;E)</translation>
     </message>
@@ -1100,63 +1100,93 @@ Proceed?</source>
 <context>
     <name>MixerChannel</name>
     <message>
-        <location filename="../../content/MixerChannel.qml" line="52"/>
         <location filename="../../content/MixerChannel.qml" line="62"/>
+        <location filename="../../content/MixerChannel.qml" line="72"/>
         <source>No Bus Available</source>
         <translation>无可用总线</translation>
     </message>
     <message>
-        <location filename="../../content/MixerChannel.qml" line="52"/>
         <location filename="../../content/MixerChannel.qml" line="62"/>
+        <location filename="../../content/MixerChannel.qml" line="72"/>
         <source>Bus</source>
         <translation>总线</translation>
     </message>
     <message>
-        <location filename="../../content/MixerChannel.qml" line="52"/>
         <location filename="../../content/MixerChannel.qml" line="62"/>
+        <location filename="../../content/MixerChannel.qml" line="72"/>
         <source>Select Bus...</source>
         <translation>选择总线...</translation>
+    </message>
+    <message>
+        <location filename="../../content/MixerChannel.qml" line="179"/>
+        <source>Insert Slot Options</source>
+        <translation>插入槽选项</translation>
+    </message>
+    <message>
+        <location filename="../../content/MixerChannel.qml" line="184"/>
+        <source>Latency: </source>
+        <translation>延迟：</translation>
+    </message>
+    <message>
+        <location filename="../../content/MixerChannel.qml" line="184"/>
+        <source>samples</source>
+        <translation>采样</translation>
+    </message>
+    <message>
+        <location filename="../../content/MixerChannel.qml" line="191"/>
+        <source>&amp;Edit Route...</source>
+        <translation>编辑链路(&amp;E)...</translation>
+    </message>
+    <message>
+        <location filename="../../content/MixerChannel.qml" line="194"/>
+        <source>&amp;Replace...</source>
+        <translation>替换(&amp;R)...</translation>
+    </message>
+    <message>
+        <location filename="../../content/MixerChannel.qml" line="197"/>
+        <source>&amp;Delete</source>
+        <translation>删除(&amp;D)</translation>
     </message>
 </context>
 <context>
     <name>PluginSelector</name>
     <message>
-        <location filename="../../content/PluginSelector.qml" line="46"/>
+        <location filename="../../content/PluginSelector.qml" line="47"/>
         <source>Search (Ctrl+F)</source>
         <translation>搜索 (Ctrl+F)</translation>
     </message>
     <message>
-        <location filename="../../content/PluginSelector.qml" line="82"/>
+        <location filename="../../content/PluginSelector.qml" line="83"/>
         <source>All</source>
         <translation>全部</translation>
     </message>
     <message>
-        <location filename="../../content/PluginSelector.qml" line="127"/>
+        <location filename="../../content/PluginSelector.qml" line="128"/>
         <source>Format</source>
         <translation>格式</translation>
     </message>
     <message>
-        <location filename="../../content/PluginSelector.qml" line="211"/>
+        <location filename="../../content/PluginSelector.qml" line="212"/>
         <source>Categories</source>
         <translation>分类</translation>
     </message>
     <message>
-        <location filename="../../content/PluginSelector.qml" line="286"/>
+        <location filename="../../content/PluginSelector.qml" line="287"/>
         <source>Name</source>
         <translation>名称</translation>
     </message>
     <message>
-        <location filename="../../content/PluginSelector.qml" line="292"/>
+        <location filename="../../content/PluginSelector.qml" line="293"/>
         <source>Vendor</source>
         <translation>厂商</translation>
     </message>
     <message>
-        <location filename="../../content/PluginSelector.qml" line="298"/>
+        <location filename="../../content/PluginSelector.qml" line="299"/>
         <source>Version</source>
         <translation>版本</translation>
     </message>
     <message>
-        <location filename="../../content/PluginSelector.qml" line="467"/>
+        <location filename="../../content/PluginSelector.qml" line="469"/>
         <source>No plugins available</source>
         <translation>无可用插件</translation>
     </message>
