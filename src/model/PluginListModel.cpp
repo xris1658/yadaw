@@ -225,6 +225,7 @@ void PluginListModel::clear()
 void PluginListModel::update()
 {
     const auto& list = updateListFunc_();
+    clear();
     if(!list.empty())
     {
         beginInsertRows(QModelIndex(), 0, list.size() - 1);
