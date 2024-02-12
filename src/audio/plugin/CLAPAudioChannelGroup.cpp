@@ -119,31 +119,53 @@ CLAPAudioChannelGroup::CLAPAudioChannelGroup(const clap_plugin* plugin,
     const clap_plugin_audio_ports* audioPorts, bool isInput, std::uint32_t index)
 {
     assert(audioPorts->get(plugin, index, isInput, &audioPortInfo_));
-    if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_STEREO) == 0)
+    if(auto portType = audioPortInfo_.port_type; portType)
     {
-        mapping_ = {CLAP_SURROUND_FL, CLAP_SURROUND_FR};
+        if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_STEREO) == 0)
+        {
+            mapping_ = {CLAP_SURROUND_FL, CLAP_SURROUND_FR};
+        }
+        else if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_MONO) == 0)
+        {
+            mapping_ = {CLAP_SURROUND_FC};
+        }
+        else if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_SURROUND) == 0)
+        {
+            const clap_plugin_surround* surround = nullptr;
+            getExtension(plugin, CLAP_EXT_SURROUND, &surround);
+            assert(surround);
+            mapping_.resize(audioPortInfo_.channel_count, std::numeric_limits<std::uint8_t>::max());
+            auto storedCount = surround->get_channel_map(plugin, isInput, index, mapping_.data(), mapping_.size());
+            assert(storedCount == mapping_.size());
+            isSurround_ = true;
+        }
+        else if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_AMBISONIC) == 0)
+        {
+            const clap_plugin_ambisonic* ambisonic = nullptr;
+            getExtension(plugin, CLAP_EXT_AMBISONIC, &ambisonic);
+            assert(ambisonic);
+            mapping_.resize(audioPortInfo_.channel_count, std::numeric_limits<std::uint8_t>::max());
+            isAmbisonic_ = true;
+        }
     }
-    else if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_MONO) == 0)
+    else
     {
-        mapping_ = {CLAP_SURROUND_FC};
-    }
-    else if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_SURROUND) == 0)
-    {
-        const clap_plugin_surround* surround = nullptr;
-        getExtension(plugin, CLAP_EXT_SURROUND, &surround);
-        assert(surround);
-        mapping_.resize(audioPortInfo_.channel_count, std::numeric_limits<std::uint8_t>::max());
-        auto storedCount = surround->get_channel_map(plugin, isInput, index, mapping_.data(), mapping_.size());
-        assert(storedCount == mapping_.size());
-        isSurround_ = true;
-    }
-    else if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_AMBISONIC) == 0)
-    {
-        const clap_plugin_ambisonic* ambisonic = nullptr;
-        getExtension(plugin, CLAP_EXT_AMBISONIC, &ambisonic);
-        assert(ambisonic);
-        mapping_.resize(audioPortInfo_.channel_count, std::numeric_limits<std::uint8_t>::max());
-        isAmbisonic_ = true;
+        if(audioPortInfo_.channel_count == 1)
+        {
+            mapping_ = {CLAP_SURROUND_FC};
+        }
+        else if(audioPortInfo_.channel_count == 2)
+        {
+            mapping_ = {CLAP_SURROUND_FL, CLAP_SURROUND_FR};
+        }
+        else if(audioPortInfo_.channel_count != 0)
+        {
+            // FIXME: Set mapping according to channel count?
+        }
+        else
+        {
+            mapping_ = {};
+        }
     }
 }
 
