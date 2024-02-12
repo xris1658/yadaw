@@ -41,6 +41,12 @@ AudioGraphSettings createAudioGraphSettings()
     return ret;
 }
 
+void setChannelCount(AudioEncodingProperties& properties, std::uint32_t channelCount)
+{
+    properties.ChannelCount(channelCount);
+    properties.Bitrate(properties.SampleRate() * channelCount * 32);
+}
+
 namespace YADAW::Audio::Backend
 {
 AudioGraphBackend::Impl::DeviceInput::DeviceInput():
@@ -182,15 +188,22 @@ AudioGraphBackend::Impl::activateDeviceInput(std::uint32_t deviceInputIndex, boo
             {
                 return DeviceInputResult::AlreadyDone;
             }
-            auto result = asyncResult(audioGraph_.CreateDeviceInputNodeAsync(
-                MediaCategory::Media,
-                audioGraph_.EncodingProperties(), // FIXME: make channel count configurable or use max channel count
-                audioInputDeviceInformationCollection_.GetAt(deviceInputIndex)
-            ));
-            if(auto status = result.Status(); status == decltype(status)::Success)
+            auto encodingProperties = audioGraph_.EncodingProperties();
+            for(std::uint32_t i = 8; i > 0; --i)
             {
-                deviceInputNodes_[deviceInputIndex] = {result.DeviceInputNode(), audioGraph_.CreateFrameOutputNode()};
-                return DeviceInputResult::Success;
+                setChannelCount(encodingProperties, i);
+                auto result = asyncResult(
+                    audioGraph_.CreateDeviceInputNodeAsync(
+                        MediaCategory::Media,
+                        encodingProperties,
+                        audioInputDeviceInformationCollection_.GetAt(deviceInputIndex)
+                    )
+                );
+                if(auto status = result.Status(); status == decltype(status)::Success)
+                {
+                    deviceInputNodes_[deviceInputIndex] = {result.DeviceInputNode(), audioGraph_.CreateFrameOutputNode()};
+                    return DeviceInputResult::Success;
+                }
             }
         }
         else

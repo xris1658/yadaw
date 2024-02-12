@@ -134,14 +134,13 @@ void EventHandler::onOpenMainWindow()
     // -------------------------------------------------------------------------
 #if _WIN32
     auto& backend = YADAW::Controller::appAudioGraphBackend();
-    backend.initialize();
-    backend.createAudioGraph();
     auto audioGraphNode = appConfig["audio-hardware"]["audiograph"];
     if(audioGraphNode.IsNull())
     {
+        YADAW::Controller::saveConfig(appConfig);
+        backend.initialize();
         YADAW::Controller::activateDefaultDevice(backend);
         appConfig["audio-hardware"]["audiograph"] = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
-        YADAW::Controller::saveConfig(appConfig);
     }
     else
     {
