@@ -179,12 +179,9 @@ Rectangle {
                             title: qsTr("Insert Slot Options")
                             MenuItem {
                                 id: latencyMenuItem
-                                visible: mcilm_latency !== 0
-                                height: visible? implicitHeight: 0
                                 text: qsTr("Latency: ") + mcilm_latency + " " + qsTr("samples")
                             }
                             MenuSeparator {
-                                visible: mcilm_latency !== 0
                                 height: visible? implicitHeight: 0
                             }
                             MenuItem {

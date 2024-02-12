@@ -19,7 +19,7 @@ QtObject {
             dialog.showNormal();
         }
         else {
-            console.log(component.errorString());
+            console.log("messageDialog() failed with error:", component.errorString());
         }
     }
 }
