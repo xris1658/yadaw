@@ -162,14 +162,15 @@ std::uint32_t VestifalPlugin::audioOutputGroupCount() const
 }
 
 YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
-VestifalPlugin::audioInputGroupAt(std::uint32_t index) const
+    VestifalPlugin::audioInputGroupAt(std::uint32_t index) const
 {
-    return std::nullopt;
+    return std::nullopt; // FIXME
 }
 
-YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup VestifalPlugin::audioOutputGroupAt(std::uint32_t index) const
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
+    VestifalPlugin::audioOutputGroupAt(std::uint32_t index) const
 {
-    return std::nullopt;
+    return std::nullopt; // FIXME
 }
 
 std::uint32_t VestifalPlugin::latencyInSamples() const

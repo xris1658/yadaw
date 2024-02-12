@@ -226,27 +226,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             }
             break;
         }
-        case PluginFormat::PluginFormatVestifal:
-        {
-            std::uint32_t uid;
-            std::memcpy(&uid, pluginInfo.uid.data(), sizeof(uid));
-            auto pluginPtr = new(std::nothrow) YADAW::Audio::Plugin::VestifalPlugin(
-                YADAW::Audio::Util::createVestifalFromLibrary(
-                    it->first, uid
-                )
-            );
-            if(pluginPtr && pluginPtr->status() != IAudioPlugin::Status::Empty)
-            {
-                pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
-                pluginPtr->activate();
-                pluginPtr->startProcessing();
-                auto nodeHandle = graphWithPDC.addNode(AudioDeviceProcess(*pluginPtr));
-                inserts_->insert(nodeHandle, position, pluginInfo.name);
-                plugin = std::unique_ptr<IAudioPlugin>(std::move(pluginPtr));
-                ret = true;
-            }
-            break;
-        }
+        // VST plugings are not loaded since is implementation is problematic.
         }
         poolIterators_.emplace(poolIterators_.begin() + position, it);
         if(ret)
