@@ -5,6 +5,7 @@
 #include "controller/AssetDirectoryController.hpp"
 #include "controller/AudioEngineController.hpp"
 #include "controller/MixerChannelListModelController.hpp"
+#include "controller/PluginWindowController.hpp"
 #include "model/MixerChannelListModel.hpp"
 #include "util/IntegerRange.hpp"
 #if _WIN32
@@ -88,6 +89,10 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onLocateFileInExplorer(QString)));
     QObject::connect(sender, SIGNAL(startPluginScan()),
         this, SLOT(onStartPluginScan()));
+    QObject::connect(sender, SIGNAL(pluginWindowReady()),
+        this, SLOT(onPluginWindowReady()));
+    QObject::connect(sender, SIGNAL(genericPluginEditorReady()),
+        this, SLOT(onGenericPluginEditorReady()));
 }
 
 void EventHandler::connectToEventReceiver(QObject* receiver)
@@ -106,6 +111,10 @@ void EventHandler::connectToEventReceiver(QObject* receiver)
         receiver, SIGNAL(pluginScanComplete()));
     QObject::connect(this, SIGNAL(messageDialog(QString, QString, int, bool)),
         receiver, SIGNAL(messageDialog(QString, QString, int, bool)));
+    QObject::connect(this, SIGNAL(createPluginWindow()),
+        receiver, SIGNAL(createPluginWindow()));
+    QObject::connect(this, SIGNAL(createGenericPluginEditor()),
+        receiver, SIGNAL(createGenericPluginEditor()));
 }
 
 void EventHandler::onStartInitializingApplication()
@@ -442,5 +451,23 @@ void EventHandler::onAudioGraphOutputDeviceIndexChanged(int index)
 #if _WIN32
     YADAW::Controller::appAudioGraphOutputDeviceListModel().setOutputDeviceIndex(index);
 #endif
+}
+
+void EventHandler::onPluginWindowReady()
+{
+    auto pluginWindow = YADAW::UI::mainWindow->property("pluginWindow").value<QWindow*>();
+    if(YADAW::Controller::pluginNeedsWindow->gui()->attachToWindow(pluginWindow))
+    {
+        YADAW::Controller::appPluginWindowPool()[YADAW::Controller::pluginNeedsWindow].pluginWindow = pluginWindow;
+    }
+}
+
+void EventHandler::onGenericPluginEditorReady()
+{
+    auto genericPluginEditor = YADAW::UI::mainWindow->property("genericPluginEditor").value<QWindow*>();
+    if(YADAW::Controller::pluginNeedsWindow->gui()->attachToWindow(genericPluginEditor))
+    {
+        YADAW::Controller::appPluginWindowPool()[YADAW::Controller::pluginNeedsWindow].genericEditorWindow = genericPluginEditor;
+    }
 }
 }

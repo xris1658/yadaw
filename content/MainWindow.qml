@@ -44,6 +44,9 @@ ApplicationWindow {
     property alias mixerAudioOutputChannelModel: mixer.outputModel
     property alias mixerChannelModel: mixer.channelsModel
 
+    property var pluginWindow: null
+    property var genericPluginEditor: null
+
     onCurrentTranslationIndexChanged: {
         if(opened) {
             EventSender.setTranslationIndex(currentTranslationIndex);
@@ -749,7 +752,6 @@ ApplicationWindow {
     PreferencesWindow {
         id: preferencesWindow
         onStartPluginScan: {
-            console.log("startPluginScan");
             EventSender.startPluginScan();
         }
         onSystemFontRenderingChanged: {

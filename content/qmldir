@@ -65,6 +65,7 @@ PluginIcon 1.0 PluginIcon.qml
 PluginListView 1.0 PluginListView.qml
 PluginSelector 1.0 PluginSelector.qml
 PluginSettings 1.0 PluginSettings.qml
+PluginWindow 1.0 PluginWindow.qml
 PreferencesWindow 1.0 PreferencesWindow.qml
 ProgressBar 1.0 ProgressBar.qml
 RemoveIcon 1.0 RemoveIcon.qml

@@ -21,7 +21,9 @@ signals:
     void setSplashScreenText(const QString& text);
     void pluginScanComplete();
     void messageDialog(const QString& message, const QString& title, int icon, bool modal);
-public slots:
+    void createPluginWindow();
+    void createGenericPluginEditor();
+    public slots:
     void onStartInitializingApplication();
     void onOpenMainWindow();
     void onMainWindowClosing();
@@ -32,6 +34,8 @@ public slots:
     void onSetTranslationIndex(int index);
     void onCurrentAudioBackendChanged();
     void onAudioGraphOutputDeviceIndexChanged(int index);
+    void onPluginWindowReady();
+    void onGenericPluginEditorReady();
 private:
     QObject* eventSender_;
     QObject* eventReceiver_;

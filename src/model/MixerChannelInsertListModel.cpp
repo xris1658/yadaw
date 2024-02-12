@@ -8,6 +8,8 @@
 #include "controller/AudioEngineController.hpp"
 #include "controller/PluginListController.hpp"
 #include "controller/PluginPoolController.hpp"
+#include "controller/PluginWindowController.hpp"
+#include "event/EventBase.hpp"
 #include "dao/PluginTable.hpp"
 
 #include <new>
@@ -199,7 +201,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 auto nodeHandle = graphWithPDC.addNode(AudioDeviceProcess(*pluginPtr));
                 inserts_->insert(nodeHandle, position, pluginInfo.name);
                 plugin = std::unique_ptr<IAudioPlugin>(std::move(pluginPtr));
-                it->second.emplace(std::move(plugin));
                 ret = true;
             }
             break;
@@ -221,7 +222,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 auto nodeHandle = graphWithPDC.addNode(AudioDeviceProcess(*pluginPtr));
                 inserts_->insert(nodeHandle, position, pluginInfo.name);
                 plugin = std::unique_ptr<IAudioPlugin>(std::move(pluginPtr));
-                it->second.emplace(std::move(plugin));
                 ret = true;
             }
             break;
@@ -243,18 +243,32 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 auto nodeHandle = graphWithPDC.addNode(AudioDeviceProcess(*pluginPtr));
                 inserts_->insert(nodeHandle, position, pluginInfo.name);
                 plugin = std::unique_ptr<IAudioPlugin>(std::move(pluginPtr));
-                it->second.emplace(std::move(plugin));
                 ret = true;
             }
             break;
         }
         }
         poolIterators_.emplace(poolIterators_.begin() + position, it);
-    }
-    if(ret)
-    {
-        beginInsertRows(QModelIndex(), position, position);
-        endInsertRows();
+        if(ret)
+        {
+            YADAW::Controller::pluginNeedsWindow = plugin.get();
+            if(plugin->gui())
+            {
+                YADAW::Event::eventHandler->createPluginWindow();
+            }
+            YADAW::Event::eventHandler->createGenericPluginEditor();
+            auto& appPluginWindowPool = YADAW::Controller::appPluginWindowPool();
+            if(auto it = appPluginWindowPool.find(plugin.get());
+                it != appPluginWindowPool.end())
+            {
+                auto [pluginWindow, genericEditor] = it->second;
+                pluginWindow->setTitle(pluginInfo.name);
+                pluginWindow->show();
+            }
+            it->second.emplace(std::move(plugin));
+            beginInsertRows(QModelIndex(), position, position);
+            endInsertRows();
+        }
     }
     return ret;
 }
@@ -272,6 +286,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
     {
         ret = true;
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
+        auto& pluginWindowPool = YADAW::Controller::appPluginWindowPool();
         std::vector<ade::NodeHandle> removingNodes;
         std::vector<YADAW::Controller::PluginPool::iterator> removingIterators;
         removingNodes.reserve(removeCount);
@@ -301,6 +316,22 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 );
                 graphWithPDC.removeNode(removingNodes[i]);
                 auto& plugins = poolIterators_[i + position]->second;
+                if(auto pluginWindowIt = pluginWindowPool.find(plugin);
+                    pluginWindowIt != pluginWindowPool.end())
+                {
+                    auto& [pluginWindow, genericEditor] = pluginWindowIt->second;
+                    if(pluginWindow)
+                    {
+                        pluginWindow->setProperty("destroyingPlugin", QVariant::fromValue(true));
+                        delete pluginWindow;
+                    }
+                    if(genericEditor)
+                    {
+                        pluginWindow->setProperty("destroyingPlugin", QVariant::fromValue(true));
+                        delete genericEditor;
+                    }
+                    pluginWindowPool.erase(pluginWindowIt);
+                }
                 auto it = plugins.find(plugin);
                 if(it != plugins.end())
                 {

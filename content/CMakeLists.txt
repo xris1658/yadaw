@@ -109,6 +109,7 @@ set(CONTENT_QML_FILES
     PluginListView.qml
     PluginSelector.qml
     PluginSettings.qml
+    PluginWindow.qml
     PreferencesWindow.qml
     ProgressBar.qml
     RemoveIcon.qml
