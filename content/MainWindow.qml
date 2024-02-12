@@ -722,7 +722,7 @@ ApplicationWindow {
                         }
                         Mixer {
                             id: mixer
-                            pluginSelector: pluginSelector
+                            pluginSelectorWindow: pluginSelectorWindow
                             onInsertTrack: (position, type) => {
                                 addTrackWindow.openWindow(position, type);
                             }
@@ -772,9 +772,38 @@ ApplicationWindow {
     TapTempoWindow {
         id: tapTempoWindow
     }
-    PluginSelector {
-        id: pluginSelector
-        pluginListModel: root.pluginListModel
+    Window {
+        id: pluginSelectorWindow
+        width: pluginSelector.width
+        height: pluginSelector.height
+        color: Colors.background
+        flags: Qt.Tool | Qt.FramelessWindowHint
+        readonly property PluginSelector pluginSelector: pluginSelector
+        PluginSelector {
+            id: pluginSelector
+            pluginListModel: root.pluginListModel
+            onAccepted: {
+                // TODO
+                pluginSelectorWindow.hide();
+            }
+            onCancelled: {
+                pluginSelectorWindow.hide();
+            }
+            onActiveFocusChanged: {
+                if(!activeFocus) {
+                    cancelled();
+                }
+            }
+        }
+        onVisibleChanged: {
+            if(visible) {
+                pluginSelector.open();
+                requestActivate();
+            }
+            else {
+                pluginSelector.close();
+            }
+        }
     }
     AddTrackWindow {
         id: addTrackWindow

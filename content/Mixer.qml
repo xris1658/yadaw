@@ -17,7 +17,7 @@ Rectangle {
     property alias showInputBus: showInputBusButton.checked
     property alias showOutputBus: showOutputBusButton.checked
 
-    property PluginSelector pluginSelector: null
+    property Window pluginSelectorWindow: null
 
     signal insertTrack(position: int, type: int) // AddTrackWindow.TrackType
 
@@ -160,7 +160,7 @@ Rectangle {
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
-                pluginSelector: root.pluginSelector
+                pluginSelectorWindow: root.pluginSelectorWindow
             }
             Rectangle {
                 id: inputMixerChannelBorder
@@ -203,7 +203,7 @@ Rectangle {
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
-                pluginSelector: root.pluginSelector
+                pluginSelectorWindow: root.pluginSelectorWindow
             }
             Rectangle {
                 id: channelRightBorder
@@ -287,7 +287,7 @@ Rectangle {
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
-                pluginSelector: root.pluginSelector
+                pluginSelectorWindow: root.pluginSelectorWindow
             }
         }
     }

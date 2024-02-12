@@ -20,7 +20,7 @@ Rectangle {
     property bool showSendSlot: true
     property bool showFader: true
 
-    property PluginSelector pluginSelector: null
+    property Window pluginSelectorWindow: null
 
 
     width: 120
@@ -33,9 +33,9 @@ Rectangle {
         readonly property int borderWidth: 1
     }
     Connections {
-        target: pluginSelector
+        target: pluginSelectorWindow.pluginSelector
         function onAccepted() {
-            let pluginId = pluginSelector.currentPluginId();
+            let pluginId = pluginSelectorWindow.pluginSelector.currentPluginId();
             insertModel.insert(impl.insertPosition, pluginId);
         }
     }
@@ -166,12 +166,9 @@ Rectangle {
                         anchors.rightMargin: root.rightInset
                         anchors.topMargin: root.topInset
                         anchors.bottomMargin: root.bottomInset
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        acceptedButtons: Qt.RightButton
                         onClicked: (mouse) => {
-                            if(mouse.button === Qt.LeftButton) {
-                                root.clicked();
-                            }
-                            else if(mouse.button === Qt.RightButton) {
+                            if(mouse.button === Qt.RightButton) {
                                 insertSlotOptions.x = 0;
                                 insertSlotOptions.y = height;
                                 insertSlotOptions.open();
@@ -210,10 +207,10 @@ Rectangle {
                     width: insertList.width
                     onClicked: {
                         impl.insertPosition = insertList.count;
-                        pluginSelector.parent = this;
-                        pluginSelector.x = 0;
-                        pluginSelector.y = height + impl.padding;
-                        pluginSelector.open();
+                        let windowCoordinate = mapToGlobal(0, height + impl.padding);
+                        pluginSelectorWindow.x = windowCoordinate.x;
+                        pluginSelectorWindow.y = windowCoordinate.y;
+                        pluginSelectorWindow.showNormal();
                     }
                 }
             }

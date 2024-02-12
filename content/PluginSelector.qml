@@ -12,6 +12,7 @@ QC.Popup {
     property alias categoryListModel: categoryList.model
 
     signal accepted()
+    signal cancelled()
 
     function currentPluginId() {
         return pluginList.currentItem.pluginId;
@@ -27,10 +28,6 @@ QC.Popup {
         id: impl
         property int contentWidth: 600
         readonly property PluginFormatSupport pluginFormatSupport: PluginFormatSupport {}
-        function accept() {
-            root.accepted();
-            root.close();
-        }
     }
 
     background: Rectangle {
@@ -444,7 +441,7 @@ QC.Popup {
                             }
                             onDoubleClicked: {
                                 pluginList.currentIndex = index;
-                                impl.accept();
+                                root.accepted();
                             }
                         }
                         highlight: Rectangle {
@@ -508,14 +505,14 @@ QC.Popup {
                     enabled: pluginList.currentIndex !== -1
                     text: Constants.okTextWithMnemonic
                     onClicked: {
-                        impl.accept();
+                        root.accepted();
                     }
                 }
                 Button {
                     id: cancelButton
                     text: Constants.cancelTextWithMnemonic
                     onClicked: {
-                        root.close();
+                        root.cancelled();
                     }
                 }
             }
@@ -523,6 +520,7 @@ QC.Popup {
     }
     onOpened: {
         searchTextField.forceActiveFocus();
+        searchTextField.selectAll();
         for(let i = 0; i < pluginList.headerListModel.count; ++i) {
             pluginListModel.setFilter(pluginList.headerListModel.get(i).roleId, true);
         }
