@@ -253,6 +253,18 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
     Steinberg::MemoryStream stream;
     if((component_->getState(&stream) == Steinberg::kResultOk) && editController_)
     {
+        Steinberg::int64 result;
+        // https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical+Documentation/API+Documentation/Index.html#initialization-of-communication-from-host-point-of-view
+        // `stream.rewind()` appeared in the above code snippet, indicating that
+        // we should rewind the stream object before passing it to the
+        // `IEditController` object.
+        // Since `Steinberg::MemoryStream::rewind()` does NOT exist, we'll just
+        // rewind it manually.
+        // This is checked on initializing VST3 Host Checker. It tries to break
+        // if the stream is not rewinded and the program is being debugged on
+        // Linux. This problem does not exist on Windows, even if we forgot to
+        // rewind the stream.
+        stream.seek(0, Steinberg::IBStream::IStreamSeekMode::kIBSeekSet, &result);
         // component_->setState(&stream);
         editController_->setComponentState(&stream);
     }
