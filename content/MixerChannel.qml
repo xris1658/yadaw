@@ -31,12 +31,18 @@ Rectangle {
         property int insertPosition: -1
         readonly property int padding: 3
         readonly property int borderWidth: 1
+        property bool usingPluginSelector: false
     }
     Connections {
-        target: pluginSelectorWindow.pluginSelector
+        id: connectToPluginSelector
+        target: impl.usingPluginSelector? pluginSelectorWindow.pluginSelector: null
         function onAccepted() {
+            impl.usingPluginSelector = false;
             let pluginId = pluginSelectorWindow.pluginSelector.currentPluginId();
             insertModel.insert(impl.insertPosition, pluginId);
+        }
+        function onCancelled() {
+            impl.usingPluginSelector = false;
         }
     }
     ColumnLayout {
@@ -203,6 +209,7 @@ Rectangle {
                     topInset: insertList.count !== 0? impl.padding: 0
                     width: insertList.width
                     onClicked: {
+                        impl.usingPluginSelector = true;
                         impl.insertPosition = insertList.count;
                         let windowCoordinate = mapToGlobal(0, height + impl.padding);
                         pluginSelectorWindow.x = windowCoordinate.x;
