@@ -58,54 +58,46 @@ std::uint32_t Meter::latencyInSamples() const
 void Meter::process(const Device::AudioProcessData<float>& audioProcessData)
 {
     const auto bufferSize = audioProcessData.singleBufferSize;
-    if(auto firstSize = rmsWindowSize_ - index_;
-        rmsWindowSize_ - index_ <= bufferSize)
+    if(bufferSize >= rmsWindowSize_)
     {
         FOR_RANGE0(i, input_.channelCount())
         {
-            std::memcpy(samples_[i].data() + rmsWindowSize_ - index_,
-                audioProcessData.inputs[0][i],
-                bufferSize * sizeof(float)
+            std::memcpy(samples_[i].data(),
+                audioProcessData.inputs[0][i] + (bufferSize - rmsWindowSize_),
+                sizeof(bufferSize) * sizeof(float)
             );
         }
-        index_ += bufferSize;
-        if(index_ == rmsWindowSize_)
-        {
-            index_ = 0;
-        }
+        index_ = 0;
     }
     else
     {
-        if(rmsWindowSize_ >= bufferSize)
+        auto oldIndex = index_;
+        index_ += bufferSize;
+        if(index_ >= rmsWindowSize_)
         {
-            auto secondSize = bufferSize - firstSize;
             FOR_RANGE0(i, input_.channelCount())
             {
-                std::memcpy(samples_[i].data() + index_,
+                std::memcpy(samples_[i].data() + oldIndex,
                     audioProcessData.inputs[0][i],
-                    firstSize * sizeof(float)
+                    (rmsWindowSize_ - oldIndex) * sizeof(float)
                 );
                 std::memcpy(samples_[i].data(),
-                    audioProcessData.inputs[0][i] + firstSize,
-                    secondSize * sizeof(float)
+                    audioProcessData.inputs[0][i] + (rmsWindowSize_ - oldIndex),
+                    (index_ - rmsWindowSize_) * sizeof(float)
                 );
             }
-            index_ = secondSize;
+            index_ -= rmsWindowSize_;
         }
-        else // FIXME
+        else
         {
-            auto secondSize = rmsWindowSize_ - firstSize;
             FOR_RANGE0(i, input_.channelCount())
             {
-                std::memcpy(samples_[i].data() + index_,
-                    audioProcessData.inputs[0][i] + bufferSize - rmsWindowSize_,
-                    firstSize * sizeof(float)
-                );
-                std::memcpy(samples_[i].data(),
-                    audioProcessData.inputs[0][i] + bufferSize - secondSize,
-                    secondSize * sizeof(float)
+                std::memcpy(samples_[i].data() + oldIndex,
+                    audioProcessData.inputs[0][i],
+                    bufferSize * sizeof(float)
                 );
             }
+
         }
     }
     FOR_RANGE0(i, input_.channelCount())
