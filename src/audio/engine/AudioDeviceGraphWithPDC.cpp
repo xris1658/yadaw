@@ -74,7 +74,7 @@ YADAW::Audio::Engine::AudioDeviceGraphBase& AudioDeviceGraphWithPDC::graph() con
     return graph_;
 }
 
-YADAW::Audio::Engine::Extension::UpstreamLatency& AudioDeviceGraphWithPDC::upstreamLatency() const
+YADAW::Audio::Engine::Extension::UpstreamLatency& AudioDeviceGraphWithPDC::upstreamLatencyExtension() const
 {
     return upstreamLatency_;
 }

@@ -31,7 +31,7 @@ public:
     void clearMultiInputNodes();
 public:
     YADAW::Audio::Engine::AudioDeviceGraphBase& graph() const;
-    YADAW::Audio::Engine::Extension::UpstreamLatency& upstreamLatency() const;
+    YADAW::Audio::Engine::Extension::UpstreamLatency& upstreamLatencyExtension() const;
 private:
     void onLatencyOfNodeUpdated(const ade::NodeHandle& nodeHandle);
 private:

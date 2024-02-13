@@ -30,6 +30,7 @@ public:
         func_(&doProcess<T>)
     {}
     AudioDeviceProcess(const AudioDeviceProcess& rhs) = default;
+    AudioDeviceProcess(AudioDeviceProcess&& rhs) = default;
 private:
     template<typename T>
     static void doProcess(YADAW::Audio::Device::IAudioDevice* ptr,

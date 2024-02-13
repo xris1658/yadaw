@@ -1,6 +1,7 @@
 #include "MixerChannelInsertListModel.hpp"
 
 #include "audio/plugin/IAudioPlugin.hpp"
+#include "audio/engine/AudioDeviceGraphProcess.hpp"
 #include "audio/engine/MultiInputDeviceWithPDC.hpp"
 #include "audio/util/CLAPHelper.hpp"
 #include "audio/util/VestifalHelper.hpp"
@@ -233,6 +234,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         poolIterators_.emplace(poolIterators_.begin() + position, it);
         if(ret)
         {
+            auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
             YADAW::Controller::pluginNeedsWindow = plugin.get();
             if(plugin->gui())
             {
@@ -250,6 +252,16 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             it->second.emplace(std::move(plugin));
             beginInsertRows(QModelIndex(), position, position);
             endInsertRows();
+            auto& graph = audioEngine.mixer().graph().graph();
+            auto& bufferExt = audioEngine.mixer().bufferExtension();
+            auto& processSequence = audioEngine.processSequence();
+            YADAW::Concurrent::updateAndDispose(
+                processSequence,
+                std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
+                    YADAW::Audio::Engine::getProcessSequence(graph, bufferExt)
+                )
+            );
+
         }
     }
     return ret;
@@ -267,6 +279,12 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         && position + removeCount >= 0 && position + removeCount <= inserts_->insertCount())
     {
         ret = true;
+        auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
+        auto& graphWithPDC = audioEngine.mixer().graph();
+        auto& graph = audioEngine.mixer().graph().graph();
+        auto& bufferExt = audioEngine.mixer().bufferExtension();
+        std::set<std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>> pluginsToRemove;
+        std::vector<YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>> processDataToRemove;
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
         auto& pluginWindowPool = YADAW::Controller::appPluginWindowPool();
         std::vector<ade::NodeHandle> removingNodes;
@@ -278,13 +296,15 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             removingNodes.emplace_back(*(inserts_->insertAt(i)));
         }
         inserts_->remove(position, removeCount);
+        for(const auto& removingNode: removingNodes)
+        {
+            processDataToRemove.emplace_back(std::move(bufferExt.getData(removingNode).container));
+        }
         endRemoveRows();
-        auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
-        auto& graphWithPDC = audioEngine.mixer().graph();
-        auto& graph = graphWithPDC.graph();
         FOR_RANGE0(i, removingNodes.size())
         {
             auto device = graph.getNodeData(removingNodes[i]).process.device();
+            YADAW::Audio::Plugin::IAudioPlugin* pluginToRemove = nullptr;
             if(device->audioInputGroupCount() > 1)
             {
                 // `static_cast` is okay since we always call
@@ -293,42 +313,55 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 auto multiInput = static_cast<MultiInputDeviceWithPDC*>(device);
                 // `static_cast` is okay since we only add
                 // `IAudioPlugin`s into the inserts.
-                auto plugin = static_cast<IAudioPlugin*>(
+                pluginToRemove = static_cast<IAudioPlugin*>(
                     multiInput->process().device()
                 );
-                graphWithPDC.removeNode(removingNodes[i]);
-                auto& plugins = poolIterators_[i + position]->second;
-                if(auto pluginWindowIt = pluginWindowPool.find(plugin);
-                    pluginWindowIt != pluginWindowPool.end())
-                {
-                    auto& [pluginWindow, genericEditor] = pluginWindowIt->second;
-                    if(pluginWindow)
-                    {
-                        pluginWindow->setProperty("destroyingPlugin", QVariant::fromValue(true));
-                        delete pluginWindow;
-                    }
-                    if(genericEditor)
-                    {
-                        pluginWindow->setProperty("destroyingPlugin", QVariant::fromValue(true));
-                        delete genericEditor;
-                    }
-                    pluginWindowPool.erase(pluginWindowIt);
-                }
-                auto it = plugins.find(plugin);
-                if(it != plugins.end())
-                {
-                    plugins.erase(it);
-                }
-                if(plugins.empty())
-                {
-                    removingIterators.emplace_back(poolIterators_[i + position]);
-                }
             }
             else
             {
-                graphWithPDC.removeNode(removingNodes[i]);
+                // `static_cast` is okay since we only add
+                // `IAudioPlugin`s into the inserts.
+                pluginToRemove = static_cast<IAudioPlugin*>(device);
             }
+            auto libraryIt = poolIterators_[i + position];
+            auto& [library, plugins] = *libraryIt;
+            if(auto pluginWindowIt = pluginWindowPool.find(pluginToRemove);
+                pluginWindowIt != pluginWindowPool.end())
+            {
+                auto& [pluginWindow, genericEditor] = pluginWindowIt->second;
+                if(pluginWindow)
+                {
+                    pluginWindow->setProperty("destroyingPlugin", QVariant::fromValue(true));
+                    pluginToRemove->gui()->detachWithWindow();
+                    delete pluginWindow;
+                }
+                if(genericEditor)
+                {
+                    pluginWindow->setProperty("destroyingPlugin", QVariant::fromValue(true));
+                    delete genericEditor;
+                }
+                pluginWindowPool.erase(pluginWindowIt);
+            }
+            auto it = plugins.find(pluginToRemove);
+            if(it != plugins.end())
+            {
+                pluginsToRemove.insert(plugins.extract(it));
+            }
+            if(plugins.empty())
+            {
+                removingIterators.emplace_back(libraryIt);
+            }
+            graphWithPDC.removeNode(removingNodes[i]);
         }
+        auto& processSequence = audioEngine.processSequence();
+        YADAW::Concurrent::updateAndDispose(
+            processSequence,
+            std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
+                YADAW::Audio::Engine::getProcessSequence(graph, bufferExt)
+            )
+        );
+        pluginsToRemove.clear();
+        processDataToRemove.clear();
         auto& pluginPool = YADAW::Controller::appPluginPool();
         for(auto it: removingIterators)
         {

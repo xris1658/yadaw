@@ -13,6 +13,12 @@ namespace YADAW::Audio::Engine
 template<typename SampleType>
 class AudioProcessDataBufferContainer
 {
+    using Self = AudioProcessDataBufferContainer;
+public:
+    AudioProcessDataBufferContainer() = default;
+    AudioProcessDataBufferContainer(const Self& rhs) = default;
+    AudioProcessDataBufferContainer(Self&& rhs) noexcept = default;
+    ~AudioProcessDataBufferContainer() = default;
 public:
     void setSingleBufferSize(std::uint32_t singleBufferSize)
     {

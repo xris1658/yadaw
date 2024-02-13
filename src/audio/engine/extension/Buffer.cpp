@@ -135,4 +135,14 @@ void Buffer::setBufferSize(std::uint32_t bufferSize)
     }
     bufferSize_ = bufferSize;
 }
+
+const Buffer::DataType& Buffer::getData(const ade::NodeHandle& nodeHandle) const
+{
+    return getData_(graph_, nodeHandle);
+}
+
+Buffer::DataType& Buffer::getData(const ade::NodeHandle& nodeHandle)
+{
+    return getData_(graph_, nodeHandle);
+}
 }

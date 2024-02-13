@@ -24,6 +24,9 @@ public:
 public:
     std::uint32_t bufferSize() const;
     void setBufferSize(std::uint32_t bufferSize);
+public:
+    const DataType& getData(const ade::NodeHandle& nodeHandle) const;
+    DataType& getData(const ade::NodeHandle& nodeHandle);
 private:
     AudioDeviceGraphBase& graph_;
     DataType&(*getData_)(AudioDeviceGraphBase&, const ade::NodeHandle&);
