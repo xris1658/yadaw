@@ -39,8 +39,6 @@ public:
     YADAW::Audio::Engine::AudioDeviceGraphWithPDC& graph();
     const YADAW::Audio::Engine::Extension::Buffer& bufferExtension() const;
     YADAW::Audio::Engine::Extension::Buffer& bufferExtension();
-    const YADAW::Audio::Engine::Extension::Buffer& buffer() const;
-    YADAW::Audio::Engine::Extension::Buffer& buffer();
 public:
     std::uint32_t audioInputChannelCount() const;
     std::uint32_t channelCount() const;
