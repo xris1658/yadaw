@@ -21,7 +21,7 @@ template<typename... Extensions>
 ProcessSequence getProcessSequence(YADAW::Audio::Engine::AudioDeviceGraph<Extensions...>& graph)
 {
     return getProcessSequence(graph,
-        graph.getExtension<YADAW::Audio::Engine::Extension::Buffer>()
+        graph.template getExtension<YADAW::Audio::Engine::Extension::Buffer>()
     );
 }
 
