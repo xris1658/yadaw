@@ -1,8 +1,11 @@
 #include "AudioEngineController.hpp"
 
+#include <execution>
+
 namespace YADAW::Controller
 {
-AudioEngine::AudioEngine()
+AudioEngine::AudioEngine():
+    processSequence_(std::make_unique<YADAW::Audio::Engine::ProcessSequence>())
 {
     mixer_.bufferExtension().setBufferSize(bufferSize_);
 }
@@ -46,6 +49,17 @@ YADAW::Audio::Mixer::Mixer& AudioEngine::mixer()
     return mixer_;
 }
 
+const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>&
+AudioEngine::processSequence() const
+{
+    return processSequence_;
+}
+
+YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>& AudioEngine::processSequence()
+{
+    return processSequence_;
+}
+
 void AudioEngine::uninitialize()
 {
     mixer_.clearChannels();
@@ -55,5 +69,28 @@ void AudioEngine::uninitialize()
     auto& graph = graphWithPDC.graph();
     graphWithPDC.clearMultiInputNodes();
     graph.clear();
+}
+
+void AudioEngine::process()
+{
+    processSequence_.swapIfNeeded();
+    auto& processSequence = *(processSequence_.get());
+    std::for_each(processSequence.begin(), processSequence.end(),
+        [](Vector2D<YADAW::Audio::Engine::ProcessPair>& row)
+        {
+        // TODO: Replace this with implementation based on thread pool
+            std::for_each(std::execution::par_unseq, row.begin(), row.end(),
+                [](std::vector<YADAW::Audio::Engine::ProcessPair>& cell)
+                {
+                    std::for_each(cell.begin(), cell.end(),
+                        [](YADAW::Audio::Engine::ProcessPair& pair)
+                        {
+                            pair.first.process(pair.second);
+                        }
+                    );
+                }
+            );
+        }
+    );
 }
 }

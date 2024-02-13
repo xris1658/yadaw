@@ -1,5 +1,6 @@
 #include "ALSABackendController.hpp"
 
+#include "controller/AudioEngineController.hpp"
 #include "util/IntegerRange.hpp"
 #include "util/YAMLCppUtil.hpp"
 
@@ -134,5 +135,13 @@ YAML::Node deviceConfigFromALSA()
         }
         return YAML::Load(emitter.c_str());
     }
+}
+
+void alsaCallback(const YADAW::Audio::Backend::ALSABackend* backend,
+    std::uint32_t inputCount, YADAW::Audio::Backend::ALSABackend::AudioBuffer* const inputBuffers,
+    std::uint32_t outputCount, YADAW::Audio::Backend::ALSABackend::AudioBuffer* const outputBuffers)
+{
+    appAudioBusConfiguration.setBuffers(inputBuffers, outputBuffers);
+    YADAW::Controller::AudioEngine::appAudioEngine().process();
 }
 }

@@ -28,6 +28,9 @@ bool createAudioGraphFromConfig(const YAML::Node& node);
 YAML::Node deviceConfigFromCurrentAudioGraph();
 
 YADAW::Audio::Backend::AudioGraphBusConfiguration& appAudioBusConfiguration();
+
+void audioGraphCallback(int inputCount, const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* inputs,
+    int outputCount, const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* outputs);
 }
 
 #endif

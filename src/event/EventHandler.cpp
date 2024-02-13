@@ -223,6 +223,12 @@ void EventHandler::onOpenMainWindow()
             YADAW::Model::IAudioBusConfigurationModel::Role::Name
         ).value<QString>();
     }
+    // Start the audio backend
+#if _WIN32
+    backend.start(&YADAW::Controller::audioGraphCallback);
+#elif __linux__
+    backend.start(&YADAW::Controller::alsaCallback);
+#endif
     // -------------------------------------------------------------------------
     // Open main window---------------------------------------------------------
     // -------------------------------------------------------------------------

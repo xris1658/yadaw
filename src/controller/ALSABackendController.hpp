@@ -29,6 +29,10 @@ bool initializeALSAFromConfig(const YAML::Node& node);
 YAML::Node deviceConfigFromALSA();
 
 YADAW::Audio::Backend::ALSABusConfiguration& appAudioBusConfiguration();
+
+void alsaCallback(const YADAW::Audio::Backend::ALSABackend* backend,
+        std::uint32_t inputCount, YADAW::Audio::Backend::ALSABackend::AudioBuffer* const inputBuffers,
+        std::uint32_t outputCount, YADAW::Audio::Backend::ALSABackend::AudioBuffer* const outputBuffers);
 }
 
 #endif

@@ -147,6 +147,7 @@ set(YADAW_COMMON_SOURCES
     src/audio/engine/AudioDeviceGraph.hpp
     src/audio/engine/AudioDeviceGraphBase.cpp
     src/audio/engine/AudioDeviceGraphBase.hpp
+    src/audio/engine/AudioDeviceGraphProcess.cpp
     src/audio/engine/AudioDeviceGraphProcess.hpp
     src/audio/engine/AudioDeviceGraphWithPDC.cpp
     src/audio/engine/AudioDeviceGraphWithPDC.hpp
@@ -407,6 +408,7 @@ set(YADAW_COMMON_SOURCES
     src/util/IntrusiveRefCounter.hpp
     src/util/Literal.hpp
     src/util/LockFreeQueue.hpp
+    src/util/MDVector.hpp
     src/util/OptionalUtil.hpp
     src/util/QStringUtil.hpp
     src/util/QmlUtil.hpp

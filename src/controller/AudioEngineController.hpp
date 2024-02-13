@@ -3,8 +3,11 @@
 
 #include "audio/device/IAudioDevice.hpp"
 #include "audio/engine/AudioDeviceGraph.hpp"
+#include "audio/engine/AudioDeviceGraphProcess.hpp"
 #include "audio/engine/AudioDeviceGraphWithPDC.hpp"
 #include "audio/mixer/Mixer.hpp"
+
+#include "concurrent/PassDataToRealtimeThread.hpp"
 
 namespace YADAW::Controller
 {
@@ -33,12 +36,16 @@ public:
     void setBufferSize(std::uint32_t bufferSize);
     const YADAW::Audio::Mixer::Mixer& mixer() const;
     YADAW::Audio::Mixer::Mixer& mixer();
+    const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>& processSequence() const;
+    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>& processSequence();
 public:
     void uninitialize();
+    void process();
 private:
     double sampleRate_ = 0.0;
     std::uint32_t bufferSize_ = 0U;
     YADAW::Audio::Mixer::Mixer mixer_;
+    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence> processSequence_;
 };
 }
 

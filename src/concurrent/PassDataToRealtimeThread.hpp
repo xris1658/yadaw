@@ -46,6 +46,14 @@ private:
     std::array<std::unique_ptr<T>, 2> data_;
     std::atomic<bool> updated_;
 };
+
+template<typename T>
+void updateAndDispose(PassDataToRealtimeThread<T>& passDataToRealtimeThread,
+    std::unique_ptr<T>&& data)
+{
+    passDataToRealtimeThread.update(std::move(data));
+    passDataToRealtimeThread.disposeOld();
+}
 }
 
 #endif // YADAW_SRC_CONCURRENT_PASSDATATOREALTIMETHREAD

@@ -2,7 +2,7 @@
 
 #include "AudioGraphBackendController.hpp"
 
-
+#include "controller/AudioEngineController.hpp"
 #include "util/YAMLCppUtil.hpp"
 #include "util/IntegerRange.hpp"
 
@@ -127,6 +127,14 @@ YADAW::Audio::Backend::AudioGraphBusConfiguration& appAudioBusConfiguration()
 {
     static YADAW::Audio::Backend::AudioGraphBusConfiguration ret(appAudioGraphBackend());
     return ret;
+}
+
+void audioGraphCallback(
+    int inputCount, const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* inputs,
+    int outputCount, const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* outputs)
+{
+    appAudioBusConfiguration().setBuffers(inputs, outputs);
+    YADAW::Controller::AudioEngine::appAudioEngine().process();
 }
 }
 
