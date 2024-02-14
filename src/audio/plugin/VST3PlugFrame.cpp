@@ -12,10 +12,10 @@ VST3PlugFrame::~VST3PlugFrame()
 {
 }
 
-Steinberg::tresult VST3PlugFrame::queryInterface(const char* iid, void** obj)
+Steinberg::tresult VST3PlugFrame::queryInterface(const char* _iid, void** obj)
 {
-    QUERY_INTERFACE(iid, obj, Steinberg::FUnknown::iid, Steinberg::IPlugFrame)
-    QUERY_INTERFACE(iid, obj, Steinberg::IPlugFrame::iid, Steinberg::IPlugFrame)
+    QUERY_INTERFACE(_iid, obj, Steinberg::FUnknown::iid, Steinberg::IPlugFrame)
+    QUERY_INTERFACE(_iid, obj, Steinberg::IPlugFrame::iid, Steinberg::IPlugFrame)
     *obj = nullptr;
     return Steinberg::kNoInterface;
 }

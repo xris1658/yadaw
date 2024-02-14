@@ -9,7 +9,7 @@
 namespace YADAW::Audio::Host
 {
 using namespace Steinberg;
-class VST3ParameterValueQueue: public Vst::IParamValueQueue
+class VST3ParameterValueQueue final: public Vst::IParamValueQueue
 {
     struct Point
     {

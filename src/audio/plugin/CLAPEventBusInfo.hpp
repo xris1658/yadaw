@@ -11,6 +11,7 @@ class CLAPEventBusInfo: public YADAW::Audio::Event::IEventBusInfo
 {
 public:
     CLAPEventBusInfo(const clap_note_port_info& notePortInfo);
+    ~CLAPEventBusInfo() override;
 public:
     QString name() const override;
     std::uint32_t channelCount() const override;

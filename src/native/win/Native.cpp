@@ -271,7 +271,7 @@ void mySegFaultHandler()
     std::terminate();
 }
 
-LONG WINAPI accessViolationHandler(PEXCEPTION_POINTERS ptr)
+LONG WINAPI accessViolationHandler(PEXCEPTION_POINTERS ptr) noexcept
 {
     if(ptr->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
     {

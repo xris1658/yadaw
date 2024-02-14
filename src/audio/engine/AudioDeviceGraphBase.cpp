@@ -62,7 +62,6 @@ AudioDeviceGraphBase::EdgeData& AudioDeviceGraphBase::getEdgeData(
 ade::NodeHandle AudioDeviceGraphBase::addNode(AudioDeviceProcess&& process)
 {
     auto ret = typedGraph_.createNode();
-    auto& device = *(process.device());
     typedGraph_.metadata(ret).set<NodeData>(
         NodeData{std::move(process), nullptr});
     afterAddNodeCallback_(*this, ret);
@@ -94,7 +93,7 @@ std::optional<ade::EdgeHandle> AudioDeviceGraphBase::connect(
         if(auto outEdges = fromNode->outEdges();
             std::all_of(
                 outEdges.begin(), outEdges.end(),
-                [this, &toNode, fromChannel, toChannel]
+                [this, &toNode, toChannel]
                     (const ade::EdgeHandle& edgeHandle)
                 {
                     const auto& edgeData = getEdgeData(edgeHandle);

@@ -29,7 +29,7 @@ using namespace Steinberg::Vst;
 // writes the input. In the meantime, the plugin reads the input from component
 // handler by setting `ProcessData::inputParameterChanges` followed by
 // `IAudioProcessor::process`, which fills the output.
-class VST3ComponentHandler:
+class VST3ComponentHandler final:
     public Steinberg::Vst::IComponentHandler
 {
     using Self = VST3ComponentHandler;

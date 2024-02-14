@@ -10,14 +10,14 @@ namespace YADAW::Audio::Host
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
-class VST3Host: public IHostApplication
+class VST3Host final: public IHostApplication
 {
 private:
     // A separate class aggregated with the `VST3Host` is used to implement
     // `IPlugInterfaceSupport` so that
     // `static_cast<SpecifiedInterface*>(&VST3Host::instance())` is not needed
     // in `IPluginBase::initialize`.
-    class PlugInterfaceSupport: public IPlugInterfaceSupport
+    class PlugInterfaceSupport final: public IPlugInterfaceSupport
     {
     public:
         PlugInterfaceSupport() = default;

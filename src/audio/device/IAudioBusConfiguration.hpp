@@ -70,6 +70,8 @@ public:
         std::uint32_t channelIndex = InvalidIndex;
     };
 public:
+    virtual ~IAudioBusConfiguration() {}
+public:
     virtual std::uint32_t inputBusCount() const = 0;
     virtual std::uint32_t outputBusCount() const = 0;
     virtual OptionalRef<const IBus> inputBusAt(std::uint32_t index) const = 0;

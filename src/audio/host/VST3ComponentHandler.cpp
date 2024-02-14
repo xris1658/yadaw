@@ -170,7 +170,6 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
         plugin_->stopProcessing();
         plugin_->deactivate();
         plugin_->activate();
-        auto latency = plugin_->audioProcessor()->getLatencySamples();
         latencyChanged_();
         if(status >= IAudioPlugin::Status::Processing)
         {

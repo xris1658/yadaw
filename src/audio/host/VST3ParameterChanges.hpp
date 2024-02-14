@@ -9,7 +9,7 @@ namespace YADAW::Audio::Host
 {
 using namespace Steinberg;
 
-class VST3ParameterChanges: public Vst::IParameterChanges
+class VST3ParameterChanges final: public Vst::IParameterChanges
 {
 public:
     VST3ParameterChanges(std::size_t reserveParameterCount = 0);

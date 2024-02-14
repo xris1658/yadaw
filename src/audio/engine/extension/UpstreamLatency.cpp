@@ -50,14 +50,11 @@ void UpstreamLatency::onNodeAboutToBeRemoved(const ade::NodeHandle& nodeHandle)
 
 void UpstreamLatency::onConnected(const ade::EdgeHandle& edgeHandle)
 {
-    auto toChannel = graph_.getEdgeData(edgeHandle).toChannel;
     updateUpstreamLatency(edgeHandle->dstNode(), {edgeHandle}, graph_.getEdgeData(edgeHandle).toChannel);
 }
 
 void UpstreamLatency::onAboutToBeDisconnected(const ade::EdgeHandle& edgeHandle)
 {
-    auto toChannel = graph_.getEdgeData(edgeHandle).toChannel;
-    auto& upstreamLatencies = getData_(graph_, edgeHandle->dstNode()).upstreamLatencies;
     updateUpstreamLatency(edgeHandle->dstNode(), std::nullopt, graph_.getEdgeData(edgeHandle).toChannel);
 }
 

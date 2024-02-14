@@ -9,7 +9,7 @@
 namespace YADAW::Audio::Host
 {
 using namespace Steinberg;
-class VST3EventList: public Vst::IEventList
+class VST3EventList final: public Vst::IEventList
 {
 public:
     VST3EventList();
