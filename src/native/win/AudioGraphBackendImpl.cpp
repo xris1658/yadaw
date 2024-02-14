@@ -293,6 +293,7 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                             static_cast<int>(properties.ChannelCount()),
                             requiredSamples
                         };
+                        std::memset(dataInBytes, 0, capacityInBytes);
                         callback(inputAudioBuffer_.size(), inputAudioBuffer_.data(), 1, &interleaveAudioBuffer);
                     }
                 }

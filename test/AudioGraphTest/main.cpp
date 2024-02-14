@@ -146,7 +146,7 @@ int main()
                 bufferExtension.setBufferSize(bufferSize);
                 YADAW::Audio::Util::Summing summing(activatedInputDeviceCount,
                     YADAW::Audio::Base::ChannelGroupType::eCustomGroup, channelCount);
-                auto& outputBus = busConfig.getOutputBusAt(busConfig.appendBus(false, channelCount))->get();
+                auto& outputBus = busConfig.getOutputBusAt(busConfig.appendBus(false, YADAW::Audio::Base::ChannelGroupType::eCustomGroup, channelCount))->get();
                 FOR_RANGE0(i, channelCount)
                 {
                     outputBus.setChannel(i, YADAW::Audio::Device::Channel{outputDeviceIndex, i});
@@ -158,7 +158,7 @@ int main()
                     if(backend.isDeviceInputActivated(i))
                     {
                         auto& inputBus = inputBusses_.emplace_back(
-                            &(busConfig.getInputBusAt(busConfig.appendBus(true, channelCount))->get())
+                            &(busConfig.getInputBusAt(busConfig.appendBus(true, YADAW::Audio::Base::ChannelGroupType::eCustomGroup, channelCount))->get())
                         );
                         FOR_RANGE0(j, channelCount)
                         {

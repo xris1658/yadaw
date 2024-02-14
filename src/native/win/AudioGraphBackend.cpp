@@ -19,18 +19,7 @@ AudioGraphBackend::AudioGraphBackend(AudioGraphBackend&& rhs) noexcept
 
 AudioGraphBackend::~AudioGraphBackend()
 {
-    if(status_ == Status::Processing)
-    {
-        stop();
-    }
-    if(status_ == Status::Created)
-    {
-        destroyAudioGraph();
-    }
-    if(status_ == Status::Initialized)
-    {
-        uninitialize();
-    }
+    uninitialize();
 }
 
 bool AudioGraphBackend::initialize()
@@ -50,8 +39,19 @@ bool AudioGraphBackend::initialize()
 
 bool AudioGraphBackend::uninitialize()
 {
-    pImpl_.reset();
-    status_ = Status::Empty;
+    if(status_ == Status::Processing)
+    {
+        stop();
+    }
+    if(status_ == Status::Created)
+    {
+        destroyAudioGraph();
+    }
+    if(status_ == Status::Initialized)
+    {
+        pImpl_.reset();
+        status_ = Status::Empty;
+    }
     return true;
 }
 
