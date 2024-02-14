@@ -352,6 +352,11 @@ void EventHandler::onMainWindowClosing()
 #elif __linux__
     YADAW::Controller::appALSABackend().uninitialize();
 #endif
+    auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
+    auto& graphWithPDC = audioEngine.mixer().graph();
+    auto& graph = graphWithPDC.graph();
+    graphWithPDC.clearMultiInputNodes();
+    graph.clear();
     mainWindowCloseAccepted();
 }
 
@@ -470,9 +475,6 @@ void EventHandler::onPluginWindowReady()
 void EventHandler::onGenericPluginEditorReady()
 {
     auto genericPluginEditor = YADAW::UI::mainWindow->property("genericPluginEditor").value<QWindow*>();
-    if(YADAW::Controller::pluginNeedsWindow->gui()->attachToWindow(genericPluginEditor))
-    {
-        YADAW::Controller::appPluginWindowPool()[YADAW::Controller::pluginNeedsWindow].genericEditorWindow = genericPluginEditor;
-    }
+    YADAW::Controller::appPluginWindowPool()[YADAW::Controller::pluginNeedsWindow].genericEditorWindow = genericPluginEditor;
 }
 }

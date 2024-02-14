@@ -65,10 +65,6 @@ void AudioEngine::uninitialize()
     mixer_.clearChannels();
     mixer_.clearAudioInputChannels();
     mixer_.clearAudioOutputChannels();
-    auto& graphWithPDC = mixer_.graph();
-    auto& graph = graphWithPDC.graph();
-    graphWithPDC.clearMultiInputNodes();
-    graph.clear();
 }
 
 void AudioEngine::process()
