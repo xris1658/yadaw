@@ -112,17 +112,20 @@ void processInputs(
     const std::vector<YADAW::Audio::Device::Channel>& channels,
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    FOR_RANGE0(i, audioProcessData.outputGroupCount)
+    if(buffers->data)
     {
-        FOR_RANGE0(j, audioProcessData.outputCounts[i])
+        FOR_RANGE0(i, audioProcessData.outputCounts[0])
         {
-            FOR_RANGE0(k, audioProcessData.singleBufferSize)
+            if(auto& buffer = buffers[channels[i].deviceIndex]; buffer.data)
             {
-                std::memcpy(
-                    audioProcessData.outputs[i][j] + k,
-                    buffers[channels[i].deviceIndex].at(k, channels[i].channelIndex),
-                    sizeof(float)
-                );
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    std::memcpy(
+                        audioProcessData.outputs[0][i] + j,
+                        buffer.at(j, channels[i].channelIndex),
+                        sizeof(float)
+                    );
+                }
             }
         }
     }
@@ -133,14 +136,14 @@ void processOutputs(
     const std::vector<YADAW::Audio::Device::Channel>& channels,
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    FOR_RANGE0(i, audioProcessData.inputGroupCount)
+    if(buffers[0].data)
     {
-        FOR_RANGE0(j, audioProcessData.inputCounts[i])
+        FOR_RANGE0(i, audioProcessData.inputCounts[0])
         {
-            FOR_RANGE0(k, audioProcessData.singleBufferSize)
+            FOR_RANGE0(j, audioProcessData.singleBufferSize)
             {
-                std::memcpy(buffers[0].at(k, channels[j].channelIndex),
-                    audioProcessData.inputs[i][j] + k,
+                std::memcpy(buffers[0].at(j, channels[i].channelIndex),
+                    audioProcessData.inputs[0][i] + j,
                     sizeof(float)
                 );
             }
