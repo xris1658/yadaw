@@ -8,10 +8,14 @@ Button {
 
     implicitWidth: label.contentWidth + leftPadding + rightPadding
     implicitHeight: label.contentHeight + topPadding + bottomPadding
+
+    checkable: true
     contentItem: Label {
         id: label
         text: root.text
-        color: Colors.content
+        color: root.checked?
+            Colors.checkedButtonContent:
+            Colors.content
         anchors.fill: root
         anchors.leftMargin: root.leftPadding
         anchors.rightMargin: root.rightPadding
@@ -56,6 +60,9 @@ Button {
         background: Item {}
         contentItem: Label {
             text: "\u25bc"
+            color: root.checked?
+                Colors.checkedButtonContent:
+                Colors.content
             anchors.centerIn: parent
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter

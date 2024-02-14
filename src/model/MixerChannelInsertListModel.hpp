@@ -5,6 +5,7 @@
 
 #include "audio/mixer/Inserts.hpp"
 #include "controller/PluginPoolController.hpp"
+#include "model/PluginParameterListModel.hpp"
 
 namespace YADAW::Model
 {
@@ -28,6 +29,8 @@ public:
     void clear() override;
 private:
     YADAW::Audio::Mixer::Inserts* inserts_;
+    std::vector<QWindow*> genericEditors_;
+    std::vector<std::unique_ptr<YADAW::Model::PluginParameterListModel>> paramListModel_;
     std::vector<YADAW::Controller::PluginPool::iterator> poolIterators_;
 };
 }

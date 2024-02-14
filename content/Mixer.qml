@@ -143,6 +143,7 @@ Rectangle {
         height: root.height
         orientation: Qt.Horizontal
         boundsBehavior: ListView.StopAtBounds
+        clip: true
         delegate: Row {
             width: inputMixerChannel.width + inputMixerChannelBorder.width
             MixerChannel {
@@ -168,6 +169,12 @@ Rectangle {
                 height: root.height
                 color: Colors.secondaryBorder
             }
+        }
+        Rectangle {
+            anchors.right: parent.right
+            width: 1
+            height: root.height
+            color: Colors.secondaryBorder
         }
     }
     ListView {
@@ -264,6 +271,7 @@ Rectangle {
         height: root.height
         orientation: Qt.Horizontal
         boundsBehavior: ListView.StopAtBounds
+        clip: true
         delegate: Row {
             width: outputMixerChannel.width + outputMixerChannelBorder.width
             Rectangle {
@@ -289,6 +297,12 @@ Rectangle {
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
             }
+        }
+        Rectangle {
+            anchors.left: parent.left
+            width: 1
+            height: root.height
+            color: Colors.secondaryBorder
         }
     }
 }

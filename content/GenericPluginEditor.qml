@@ -1,5 +1,6 @@
 import QtQml
 import QtQuick
+import QtQuick.Layouts
 
 Window {
     id: root
@@ -48,9 +49,32 @@ Window {
             boundsBehavior: Flickable.StopAtBounds
             delegate: Item {
                 width: parent.width
+                height: label.height
                 Label {
-                    anchors.fill: parent
+                    id: label
                     text: pplm_name
+                }
+                Slider {
+                    anchors.right: parent.right
+                    visible: !(pplm_show_as_list || pplm_show_as_switch)
+                    from: pplm_min_value
+                    to: pplm_max_value
+                    value: pplm_value
+                    stepSize: pplm_step_size
+                    snapMode: Slider.SnapAlways
+                }
+                ComboBox {
+                    anchors.right: parent.right
+                    visible: pplm_show_as_list
+                    // model: pplm_value_and_text_list
+                    // textRole: pvatlm_text
+                    // valueRole: pvatlm_value
+                    // currentIndex: indexOfValue(pplm_value)
+                }
+                Switch {
+                    anchors.right: parent.right
+                    visible: pplm_show_as_switch
+                    checked: pplm_value
                 }
             }
             reuseItems: true

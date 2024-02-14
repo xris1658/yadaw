@@ -21,6 +21,7 @@ public:
         EventOutputs,
         HasUI,
         WindowVisible,
+        GenericEditorVisible,
         Latency,
         RoleCount
     };
@@ -48,8 +49,9 @@ protected:
             std::make_pair(Role::AudioOutputs, "mcilm_audio_outputs"),
             std::make_pair(Role::EventInputs, "mcilm_event_inputs"),
             std::make_pair(Role::EventOutputs, "mcilm_event_outputs"),
-            std::make_pair(Role::HasUI, "mcilm_event_has_ui"),
+            std::make_pair(Role::HasUI, "mcilm_has_ui"),
             std::make_pair(Role::WindowVisible, "mcilm_window_visible"),
+            std::make_pair(Role::GenericEditorVisible, "mcilm_generic_editor_visible"),
             std::make_pair(Role::Latency, "mcilm_latency")
         };
         return ret;

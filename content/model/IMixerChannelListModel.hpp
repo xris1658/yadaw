@@ -57,7 +57,7 @@ public:
         RoleCount
     };
 public:
-    IMixerChannelListModel(QObject* parent = nullptr) {}
+    IMixerChannelListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
     virtual ~IMixerChannelListModel() {}
 public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }

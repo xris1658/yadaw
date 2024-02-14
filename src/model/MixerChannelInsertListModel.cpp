@@ -96,6 +96,10 @@ QVariant MixerChannelInsertListModel::data(const QModelIndex& index, int role) c
             }
             return QVariant::fromValue<bool>(ret);
         }
+        case Role::GenericEditorVisible:
+        {
+            return QVariant::fromValue<bool>(genericEditors_[row]->isVisible());
+        }
         case Role::Latency:
         {
             return QVariant::fromValue(device->latencyInSamples());
@@ -122,6 +126,7 @@ bool MixerChannelInsertListModel::setData(const QModelIndex& index, const QVaria
                 device = multiInput->process().device();
             }
         }
+        auto plugin = static_cast<YADAW::Audio::Plugin::IAudioPlugin*>(device);
         switch(role)
         {
         case Role::Bypassed:
@@ -132,24 +137,26 @@ bool MixerChannelInsertListModel::setData(const QModelIndex& index, const QVaria
         }
         case Role::WindowVisible:
         {
-            auto plugin = dynamic_cast<IAudioPlugin*>(device);
-            if(plugin)
+            auto gui = plugin->gui();
+            if(gui)
             {
-                auto gui = plugin->gui();
-                if(gui)
+                auto window = gui->window();
+                if(window)
                 {
-                    auto window = gui->window();
-                    if(window)
+                    auto visible = value.value<bool>();
+                    if(window->isVisible() != visible)
                     {
-                        auto visible = value.value<bool>();
-                        if(window->isVisible() != visible)
-                        {
-                            window->setVisible(visible);
-                            dataChanged(index, index, {Role::WindowVisible});
-                        }
+                        window->setVisible(visible);
+                        dataChanged(index, index, {Role::WindowVisible});
                     }
                 }
             }
+        }
+        case Role::GenericEditorVisible:
+        {
+            genericEditors_[row]->setVisible(value.value<bool>());
+            dataChanged(index, index, {Role::GenericEditorVisible});
+            return true;
         }
         }
     }
@@ -188,6 +195,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 Steinberg::TUID tuid;
                 std::memcpy(tuid, pluginInfo.uid.data(), std::size(tuid));
                 pluginPtr->createPlugin(tuid);
+                pluginPtr->setComponentHandler(*(new YADAW::Audio::Host::VST3ComponentHandler(*pluginPtr)));
                 pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
                 auto inputCount = pluginPtr->audioInputGroupCount();
                 auto outputCount = pluginPtr->audioOutputGroupCount();
@@ -246,8 +254,32 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 it != appPluginWindowPool.end())
             {
                 auto [pluginWindow, genericEditor] = it->second;
-                pluginWindow->setTitle(pluginInfo.name);
-                pluginWindow->show();
+                if(pluginWindow)
+                {
+                    pluginWindow->setTitle(pluginInfo.name);
+                    pluginWindow->show();
+                }
+                else
+                {
+                    genericEditor->show();
+                }
+                paramListModel_.emplace(paramListModel_.begin() + position,
+                    std::make_unique<YADAW::Model::PluginParameterListModel>(
+                        *plugin->parameter()
+                    )
+                );
+                genericEditor->setProperty(
+                    "pluginName",
+                    QVariant::fromValue(pluginInfo.name)
+                );
+                genericEditor->setProperty(
+                    "parameterListModel",
+                    QVariant::fromValue<QObject*>(paramListModel_[position].get())
+                );
+                genericEditor->setTitle(pluginInfo.name);
+                genericEditors_.emplace(genericEditors_.begin() + position,
+                    genericEditor
+                );
             }
             it->second.emplace(std::move(plugin));
             beginInsertRows(QModelIndex(), position, position);
@@ -337,7 +369,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 }
                 if(genericEditor)
                 {
-                    pluginWindow->setProperty("destroyingPlugin", QVariant::fromValue(true));
+                    genericEditor->setProperty("destroyingPlugin", QVariant::fromValue(true));
                     delete genericEditor;
                 }
                 pluginWindowPool.erase(pluginWindowIt);
@@ -360,6 +392,29 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 YADAW::Audio::Engine::getProcessSequence(graph, bufferExt)
             )
         );
+        for(auto& pluginToRemove: pluginsToRemove)
+        {
+            switch(pluginToRemove->format())
+            {
+            case IAudioPlugin::Format::VST3:
+            {
+                auto vst3Plugin = static_cast<YADAW::Audio::Plugin::VST3Plugin*>(pluginToRemove.get());
+                vst3Plugin->stopProcessing();
+                vst3Plugin->deactivate();
+                vst3Plugin->uninitialize();
+                delete vst3Plugin->componentHandler();
+                break;
+            }
+            case IAudioPlugin::Format::CLAP:
+            {
+                break;
+            }
+            case IAudioPlugin::Format::Vestifal:
+            {
+                break;
+            }
+            }
+        }
         pluginsToRemove.clear();
         processDataToRemove.clear();
         auto& pluginPool = YADAW::Controller::appPluginPool();
@@ -367,6 +422,18 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         {
             pluginPool.erase(it);
         }
+        paramListModel_.erase(
+            paramListModel_.begin() + position,
+            paramListModel_.begin() + position + removeCount
+        );
+        genericEditors_.erase(
+            genericEditors_.begin() + position,
+            genericEditors_.begin() + position + removeCount
+        );
+        poolIterators_.erase(
+            poolIterators_.begin() + position,
+            poolIterators_.begin() + position + removeCount
+        );
     }
     return ret;
 }

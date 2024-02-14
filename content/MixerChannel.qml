@@ -162,6 +162,23 @@ Rectangle {
                     width: insertList.width
                     text: mcilm_name
                     bypassed: mcilm_bypassed
+                    property bool windowVisible: mcilm_window_visible
+                    property bool genericEditorVisible: mcilm_generic_editor_visible
+                    checked: windowVisible | genericEditorVisible
+                    onClicked: {
+                        if(!checked) {
+                            mcilm_window_visible = false;
+                            mcilm_generic_editor_visible = false;
+                        }
+                        else {
+                            if(mcilm_has_ui) {
+                                mcilm_window_visible = true;
+                            }
+                            else {
+                                mcilm_generic_editor_visible = true;
+                            }
+                        }
+                    }
                     property int itemIndex: index
                     function removeThis() {
                         insertModel.remove(itemIndex, 1);
@@ -189,6 +206,23 @@ Rectangle {
                             }
                             MenuSeparator {
                                 height: visible? implicitHeight: 0
+                            }
+                            MenuItem {
+                                text: mixerInsertSlot.windowVisible?
+                                    qsTr("Hide &Plugin Editor"):
+                                    qsTr("Show &Plugin Editor")
+                                enabled: mcilm_has_ui
+                                onClicked: {
+                                    mcilm_window_visible = !mcilm_window_visible;
+                                }
+                            }
+                            MenuItem {
+                                text: mixerInsertSlot.genericEditorVisible?
+                                    qsTr("Hide &Generic Editor"):
+                                    qsTr("Show &Generic Editor")
+                                onClicked: {
+                                    mcilm_generic_editor_visible = !mcilm_generic_editor_visible;
+                                }
                             }
                             MenuItem {
                                 text: qsTr("&Edit Route...")
