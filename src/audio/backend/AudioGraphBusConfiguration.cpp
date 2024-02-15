@@ -112,20 +112,17 @@ void processInputs(
     const std::vector<YADAW::Audio::Device::Channel>& channels,
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    if(buffers->data)
+    FOR_RANGE0(i, audioProcessData.outputCounts[0])
     {
-        FOR_RANGE0(i, audioProcessData.outputCounts[0])
+        if(auto& buffer = buffers[channels[i].deviceIndex]; buffer.data)
         {
-            if(auto& buffer = buffers[channels[i].deviceIndex]; buffer.data)
+            FOR_RANGE0(j, audioProcessData.singleBufferSize)
             {
-                FOR_RANGE0(j, audioProcessData.singleBufferSize)
-                {
-                    std::memcpy(
-                        audioProcessData.outputs[0][i] + j,
-                        buffer.at(j, channels[i].channelIndex),
-                        sizeof(float)
-                    );
-                }
+                std::memcpy(
+                    audioProcessData.outputs[0][i] + j,
+                    buffer.at(j, channels[i].channelIndex),
+                    sizeof(float)
+                );
             }
         }
     }
@@ -165,7 +162,7 @@ std::uint32_t AudioGraphBusConfiguration::Bus::audioChannelMapCount() const
 }
 
 YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
-    AudioGraphBusConfiguration::Bus::audioChannelMapAt(std::uint32_t index) const
+AudioGraphBusConfiguration::Bus::audioChannelMapAt(std::uint32_t index) const
 {
     return std::nullopt;
 }
@@ -271,25 +268,25 @@ void AudioGraphBusConfiguration::clearBus(bool isInput)
 }
 
 OptionalRef<const AudioGraphBusConfiguration::Bus>
-    AudioGraphBusConfiguration::getInputBusAt(std::uint32_t index) const
+AudioGraphBusConfiguration::getInputBusAt(std::uint32_t index) const
 {
     return index < inputBusCount()? OptionalRef<const Bus>(*inputBusses_[index]): std::nullopt;
 }
 
 OptionalRef<const AudioGraphBusConfiguration::Bus>
-    AudioGraphBusConfiguration::getOutputBusAt(std::uint32_t index) const
+AudioGraphBusConfiguration::getOutputBusAt(std::uint32_t index) const
 {
     return index < outputBusCount()? OptionalRef<const Bus>(*outputBusses_[index]): std::nullopt;
 }
 
 OptionalRef<AudioGraphBusConfiguration::Bus>
-    AudioGraphBusConfiguration::getInputBusAt(std::uint32_t index)
+AudioGraphBusConfiguration::getInputBusAt(std::uint32_t index)
 {
     return index < inputBusCount()? OptionalRef<Bus>(*inputBusses_[index]): std::nullopt;
 }
 
 OptionalRef<AudioGraphBusConfiguration::Bus>
-    AudioGraphBusConfiguration::getOutputBusAt(std::uint32_t index)
+AudioGraphBusConfiguration::getOutputBusAt(std::uint32_t index)
 {
     return index < outputBusCount()? OptionalRef<Bus>(*outputBusses_[index]): std::nullopt;
 }
