@@ -168,7 +168,7 @@ AudioGraphBackend::DeviceInfo AudioGraphBackend::currentOutputDevice() const
 void AudioGraphBackend::destroyAudioGraph()
 {
     pImpl_->destroyAudioGraph();
-    status_ = Status::Empty;
+    status_ = Status::Initialized;
 }
 
 void AudioGraphBackend::start(AudioGraphBackend::AudioCallbackType* callback)
