@@ -201,6 +201,7 @@ void EventHandler::onOpenMainWindow()
     engine.setSampleRate(backend.sampleRate());
     engine.setBufferSize(backend.frameCount());
 #endif
+    // Add audio input channels
     FOR_RANGE0(i, audioBusConfiguration.inputBusCount())
     {
         auto& bus = audioBusConfiguration.getInputBusAt(i)->get();
@@ -212,6 +213,7 @@ void EventHandler::onOpenMainWindow()
             YADAW::Model::IAudioBusConfigurationModel::Role::Name
         ).value<QString>();
     }
+    // Add audio output channels
     FOR_RANGE0(i, audioBusConfiguration.outputBusCount())
     {
         auto& bus = audioBusConfiguration.getOutputBusAt(i)->get();
@@ -223,6 +225,17 @@ void EventHandler::onOpenMainWindow()
             YADAW::Model::IAudioBusConfigurationModel::Role::Name
         ).value<QString>();
     }
+    // Pass the process sequence into the audio callback
+    auto& processSequence = engine.processSequence();
+    processSequence.update(
+        std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
+            YADAW::Audio::Engine::getProcessSequence(appGraph, bufferExt)
+        )
+    );
+    // The following statement can be omitted since `AudioEngine::process`
+    // already does that. But it's not a bad idea to do this in order to lessen
+    // the work of the first callback.
+    processSequence.swapIfNeeded();
     // Start the audio backend
 #if _WIN32
     backend.start(&YADAW::Controller::audioGraphCallback);
