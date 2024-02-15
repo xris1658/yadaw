@@ -105,6 +105,10 @@ const Steinberg::Vst::ParameterInfo& VST3Parameter::getParameterInfo() const
 void VST3Parameter::refreshParameterInfo()
 {
     editController_->getParameterInfo(index_, parameterInfo_);
+    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsHidden)
+    {
+        IParameter::flags_ |= ParameterFlags::Hidden;
+    }
     if(parameterInfo_.stepCount != 0)
     {
         IParameter::flags_ |= ParameterFlags::Discrete;

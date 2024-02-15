@@ -86,6 +86,10 @@ void CLAPParameter::refreshInfo()
 {
     params_->get_info(plugin_, index_, &paramInfo_);
     auto flags = paramInfo_.flags;
+    if(flags & CLAP_PARAM_IS_HIDDEN)
+    {
+        flags_ |= ParameterFlags::Hidden;
+    }
     if(flags & CLAP_PARAM_IS_STEPPED)
     {
         flags_ |= ParameterFlags::Discrete;
