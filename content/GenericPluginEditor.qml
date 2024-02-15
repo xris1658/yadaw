@@ -49,14 +49,19 @@ Window {
             boundsBehavior: Flickable.StopAtBounds
             delegate: Item {
                 width: parent.width
-                height: label.height
+                 height: label.height + 5 * 2
+                visible: pplm_is_visible
                 Label {
                     id: label
                     text: pplm_name
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 3
                 }
                 Slider {
                     anchors.right: parent.right
                     visible: !(pplm_show_as_list || pplm_show_as_switch)
+                    anchors.verticalCenter: parent.verticalCenter
                     from: pplm_min_value
                     to: pplm_max_value
                     value: pplm_value
@@ -64,15 +69,19 @@ Window {
                     snapMode: Slider.SnapAlways
                 }
                 ComboBox {
+                    id: comboBox
+                    enabled: pplm_show_as_list
                     anchors.right: parent.right
-                    visible: pplm_show_as_list
-                    // model: pplm_value_and_text_list
-                    // textRole: pvatlm_text
-                    // valueRole: pvatlm_value
-                    // currentIndex: indexOfValue(pplm_value)
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: enabled? implicitWidth: 0
+                    model: pplm_value_and_text_list
+                    textRole: "pvatlm_text"
+                    valueRole: "pvatlm_value"
+                    currentIndex: indexOfValue(pplm_value)
                 }
                 Switch {
                     anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
                     visible: pplm_show_as_switch
                     checked: pplm_value
                 }

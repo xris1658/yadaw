@@ -16,6 +16,8 @@ T.ComboBox {
     rightPadding: 5
     spacing: 3
 
+    clip: true
+
     implicitWidth: 0
     implicitHeight: contentItem.contentHeight + topPadding + bottomPadding
 
