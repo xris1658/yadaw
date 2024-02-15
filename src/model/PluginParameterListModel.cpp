@@ -1,12 +1,25 @@
 #include "PluginParameterListModel.hpp"
 
+#include "util/IntegerRange.hpp"
+
 namespace YADAW::Model
 {
 PluginParameterListModel::PluginParameterListModel(
     YADAW::Audio::Plugin::IPluginParameter& pluginParameter, QObject* parent):
     IPluginParameterListModel(parent),
     pluginParameter_(&pluginParameter)
-{}
+{
+    auto count = itemCount();
+    valueAndTextList_.reserve(count);
+    FOR_RANGE0(i, count)
+    {
+        valueAndTextList_.emplace_back(
+            std::make_unique<ParameterValueAndTextListModel>(
+                *this, i
+            )
+        );
+    }
+}
 
 PluginParameterListModel::~PluginParameterListModel()
 {}
@@ -14,6 +27,12 @@ PluginParameterListModel::~PluginParameterListModel()
 int PluginParameterListModel::itemCount() const
 {
     return pluginParameter_->parameterCount();
+}
+
+const YADAW::Audio::Plugin::IPluginParameter&
+    PluginParameterListModel::parameter() const
+{
+    return *pluginParameter_;
 }
 
 int PluginParameterListModel::rowCount(const QModelIndex& parent) const
@@ -69,6 +88,8 @@ QVariant PluginParameterListModel::data(const QModelIndex& index, int role) cons
                 return parameter->flags() & ParameterFlags::ShowAsList;
             case Role::ShowAsSwitch:
                 return parameter->flags() & ParameterFlags::ShowAsSwitch;
+            case Role::ValueAndTextList:
+                return QVariant::fromValue<QObject*>(valueAndTextList_[row].get());
             }
         }
     }

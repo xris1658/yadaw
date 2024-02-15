@@ -4,6 +4,9 @@
 #include "model/IPluginParameterListModel.hpp"
 
 #include "audio/plugin/IPluginParameter.hpp"
+#include "model/ParameterValueAndTextListModel.hpp"
+
+#include <vector>
 
 namespace YADAW::Model
 {
@@ -17,6 +20,7 @@ public:
     ~PluginParameterListModel() override;
 public:
     int itemCount() const;
+    const YADAW::Audio::Plugin::IPluginParameter& parameter() const;
 public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
@@ -26,6 +30,7 @@ public:
     double valueFromString(int index, const QString& string) const override;
 private:
     YADAW::Audio::Plugin::IPluginParameter* pluginParameter_;
+    std::vector<std::unique_ptr<ParameterValueAndTextListModel>> valueAndTextList_;
 };
 }
 

@@ -7,13 +7,23 @@
 
 namespace YADAW::Model
 {
+class PluginParameterListModel;
 class ParameterValueAndTextListModel: public IParameterValueAndTextListModel
 {
     Q_OBJECT
 public:
-    // ParameterValueAndTextListModel()
+    ParameterValueAndTextListModel(YADAW::Model::PluginParameterListModel& model,
+        int index,
+        QObject* parent = nullptr);
+    ~ParameterValueAndTextListModel() override;
+public:
+    int itemCount() const;
+public:
+    int rowCount(const QModelIndex&) const override;
+    QVariant data(const QModelIndex& index, int role) const override;
 private:
-    const YADAW::Audio::Plugin::IParameter* parameter_;
+    YADAW::Model::PluginParameterListModel* model_;
+    int index_;
 };
 }
 
