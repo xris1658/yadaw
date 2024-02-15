@@ -22,6 +22,7 @@ public:
     double value() const override;
     void setValue(double value) override;
     double stepSize() const override;
+    std::uint32_t stepCount() const override;
 public:
     QString valueToString(double value) const override;
     double stringToValue(const QString& string) const override;

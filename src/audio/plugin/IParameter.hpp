@@ -34,6 +34,7 @@ public:
     virtual double value() const = 0;
     virtual void setValue(double value) = 0;
     virtual double stepSize() const = 0;
+    virtual std::uint32_t stepCount() const = 0;
 public:
     virtual QString valueToString(double value) const = 0;
     virtual double stringToValue(const QString& string) const = 0;

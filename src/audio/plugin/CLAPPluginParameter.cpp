@@ -58,6 +58,11 @@ double CLAPParameter::stepSize() const
     return flags_ & ParameterFlags::Discrete? 1: 0;
 }
 
+std::uint32_t CLAPParameter::stepCount() const
+{
+    return flags_ & ParameterFlags::Discrete? maxValue() - minValue(): 0;
+}
+
 QString CLAPParameter::valueToString(double value) const
 {
     constexpr std::uint32_t bufferSize = 128;

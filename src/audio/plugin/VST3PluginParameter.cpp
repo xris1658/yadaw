@@ -36,37 +36,26 @@ QString VST3Parameter::name() const
 
 double VST3Parameter::minValue() const
 {
-    return editController_->normalizedParamToPlain(parameterInfo_.id, 0.0);
+    return 0.0;
 }
 
 double VST3Parameter::maxValue() const
 {
-    return editController_->normalizedParamToPlain(parameterInfo_.id, 1.0);
+    return 1.0;
 }
 
 double VST3Parameter::defaultValue() const
 {
-    return editController_->normalizedParamToPlain(parameterInfo_.id, parameterInfo_.defaultNormalizedValue);
+    return parameterInfo_.defaultNormalizedValue;
 }
 
 double VST3Parameter::value() const
 {
-    auto normalizedValue = editController_->getParamNormalized(parameterInfo_.id);
-    return parameterInfo_.stepCount?
-        editController_->normalizedParamToPlain(parameterInfo_.id, normalizedValue):
-        normalizedValue;
+    return editController_->getParamNormalized(parameterInfo_.id);
 }
 
 void VST3Parameter::setValue(double value)
 {
-    // FIXME
-    if(auto stepCount = parameterInfo_.stepCount)
-    {
-        editController_->setParamNormalized(
-            parameterInfo_.id,
-            editController_->plainParamToNormalized(parameterInfo_.id, value)
-        );
-    }
     editController_->setParamNormalized(parameterInfo_.id, value);
 }
 
@@ -77,11 +66,15 @@ double VST3Parameter::stepSize() const
            (maxValue() - minValue()) / static_cast<double>(parameterInfo_.stepCount);
 }
 
+std::uint32_t VST3Parameter::stepCount() const
+{
+    return parameterInfo_.stepCount;
+}
+
 QString VST3Parameter::valueToString(double value) const
 {
-    auto normalizedValue = editController_->plainParamToNormalized(parameterInfo_.id, value);
     String128 string;
-    if(editController_->getParamStringByValue(parameterInfo_.id, normalizedValue, string) == Steinberg::kResultOk
+    if(editController_->getParamStringByValue(parameterInfo_.id, value, string) == Steinberg::kResultOk
        && string[0] != 0)
     {
         return QString::fromUtf16(string);
@@ -92,7 +85,15 @@ QString VST3Parameter::valueToString(double value) const
 double VST3Parameter::stringToValue(const QString& string) const
 {
     ParamValue ret = 0;
-    auto getValueResult = editController_->getParamValueByString(parameterInfo_.id, const_cast<Steinberg::Vst::TChar*>(reinterpret_cast<const Steinberg::Vst::TChar*>(string.data())), ret);
+    auto getValueResult = editController_->getParamValueByString(
+        parameterInfo_.id,
+        const_cast<Steinberg::Vst::TChar*>(
+            reinterpret_cast<const Steinberg::Vst::TChar*>(
+                string.data()
+            )
+        ),
+        ret
+    );
     return getValueResult == Steinberg::kResultOk? ret: -1;
 }
 
@@ -124,7 +125,11 @@ void VST3Parameter::refreshParameterInfo()
     {
         IParameter::flags_ |= ParameterFlags::Automatable;
     }
-    if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsList)
+    if(parameterInfo_.stepCount == 1)
+    {
+        IParameter::flags_ |= ParameterFlags::ShowAsSwitch;
+    }
+    else if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsList)
     {
         IParameter::flags_ |= ParameterFlags::ShowAsList;
     }

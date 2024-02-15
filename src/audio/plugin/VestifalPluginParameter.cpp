@@ -98,6 +98,19 @@ double VestifalParameter::stepSize() const
     return 0.0;
 }
 
+std::uint32_t VestifalParameter::stepCount() const
+{
+    if(properties_.flags & VestifalParameterFlag::ParameterUsesFloatStepSize)
+    {
+        return (properties_.maxValue - properties_.minValue) / properties_.stepFloat;
+    }
+    if(properties_.flags & VestifalParameterFlag::ParameterUsesIntegerStepSize)
+    {
+        return (properties_.maxValue - properties_.minValue) / properties_.step;
+    }
+    return 0.0;
+}
+
 QString VestifalParameter::valueToString(double value) const
 {
     return QString::number(value);
