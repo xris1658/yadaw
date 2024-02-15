@@ -79,7 +79,7 @@ QVariant PluginParameterListModel::data(const QModelIndex& index, int role) cons
             case Role::IsPeriodic:
                 return parameter->flags() & ParameterFlags::Periodic;
             case Role::IsVisible:
-                return (parameter->flags() & ParameterFlags::Hidden) != 0;
+                return (parameter->flags() & ParameterFlags::Hidden) == 0;
             case Role::IsReadonly:
                 return parameter->flags() & ParameterFlags::Readonly;
             case Role::IsAutomatable:
