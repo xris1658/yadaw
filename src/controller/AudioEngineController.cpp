@@ -65,6 +65,13 @@ void AudioEngine::uninitialize()
     mixer_.clearChannels();
     mixer_.clearAudioInputChannels();
     mixer_.clearAudioOutputChannels();
+    processSequence_.update(
+        std::make_unique<YADAW::Audio::Engine::ProcessSequence>()
+    );
+    processSequence_.swapIfNeeded();
+    processSequence_.disposeOld();
+    mixer_.graph().clearMultiInputNodes();
+    mixer_.graph().graph().clear();
 }
 
 void AudioEngine::process()

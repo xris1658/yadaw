@@ -359,7 +359,6 @@ void EventHandler::onMainWindowClosing()
     YADAW::Controller::appAudioInputMixerChannels().clear();
     YADAW::Controller::appMixerChannels().clear();
     YADAW::Controller::appAudioOutputMixerChannels().clear();
-    YADAW::Controller::AudioEngine::appAudioEngine().uninitialize();
 #if _WIN32
     YADAW::Controller::appAudioGraphBackend().uninitialize();
 #elif __linux__
@@ -368,8 +367,7 @@ void EventHandler::onMainWindowClosing()
     auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
     auto& graphWithPDC = audioEngine.mixer().graph();
     auto& graph = graphWithPDC.graph();
-    graphWithPDC.clearMultiInputNodes();
-    graph.clear();
+    audioEngine.uninitialize();
     mainWindowCloseAccepted();
 }
 
