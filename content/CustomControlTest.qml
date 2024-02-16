@@ -4,7 +4,7 @@ import QtQuick.Shapes
 ApplicationWindow {
     id: root
     width: 840
-    height: 720
+    height: 840
     visible: true
 
     menuBar: MenuBar {
@@ -137,6 +137,21 @@ ApplicationWindow {
                 text: "Disabled"
             }
         }
+        Row {
+            spacing: 5
+            ComboBoxButton {
+                text: "Combo box button"
+            }
+            ComboBoxButton {
+                width: 60
+                text: "Combo box button"
+            }
+            ComboBoxButton {
+                width: 300
+                text: "Combo box button"
+            }
+        }
+
         Column {
             spacing: 5
             CheckBox {
