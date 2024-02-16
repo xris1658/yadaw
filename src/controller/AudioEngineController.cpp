@@ -1,11 +1,13 @@
 #include "AudioEngineController.hpp"
+#include "util/Util.hpp"
 
 #include <execution>
 
 namespace YADAW::Controller
 {
 AudioEngine::AudioEngine():
-    processSequence_(std::make_unique<YADAW::Audio::Engine::ProcessSequence>())
+    processSequence_(std::make_unique<YADAW::Audio::Engine::ProcessSequence>()),
+    vst3PluginPool_(std::make_unique<YADAW::Controller::VST3PluginPoolVector>())
 {
     mixer_.bufferExtension().setBufferSize(bufferSize_);
 }
@@ -77,6 +79,11 @@ void AudioEngine::uninitialize()
 void AudioEngine::process()
 {
     processSequence_.swapIfNeeded();
+    vst3PluginPool_.swapIfNeeded();
+    YADAW::Controller::fillVST3InputParameterChanges(
+        *(vst3PluginPool_.get()),
+        YADAW::Util::currentTimeValueInNanosecond()
+    );
     auto& processSequence = *(processSequence_.get());
     std::for_each(processSequence.begin(), processSequence.end(),
         [](Vector2D<YADAW::Audio::Engine::ProcessPair>& row)
@@ -95,5 +102,17 @@ void AudioEngine::process()
             );
         }
     );
+}
+
+const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>&
+    AudioEngine::vst3PluginPool() const
+{
+    return vst3PluginPool_;
+}
+
+YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>&
+    AudioEngine::vst3PluginPool()
+{
+    return vst3PluginPool_;
 }
 }

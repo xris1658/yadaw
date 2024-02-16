@@ -6,8 +6,8 @@
 #include "audio/engine/AudioDeviceGraphProcess.hpp"
 #include "audio/engine/AudioDeviceGraphWithPDC.hpp"
 #include "audio/mixer/Mixer.hpp"
-
 #include "concurrent/PassDataToRealtimeThread.hpp"
+#include "controller/VST3PluginPool.hpp"
 
 namespace YADAW::Controller
 {
@@ -38,6 +38,8 @@ public:
     YADAW::Audio::Mixer::Mixer& mixer();
     const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>& processSequence() const;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>& processSequence();
+    const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>& vst3PluginPool() const;
+    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>& vst3PluginPool();
 public:
     void uninitialize();
     void process();
@@ -46,6 +48,7 @@ private:
     std::uint32_t bufferSize_ = 0U;
     YADAW::Audio::Mixer::Mixer mixer_;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence> processSequence_;
+    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector> vst3PluginPool_;
 };
 }
 

@@ -236,6 +236,7 @@ void EventHandler::onOpenMainWindow()
     // already does that. But it's not a bad idea to do this in order to lessen
     // the work of the first callback.
     processSequence.swapIfNeeded();
+    auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
     // Start the audio backend
 #if _WIN32
     backend.start(&YADAW::Controller::audioGraphCallback);
