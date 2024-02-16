@@ -4,8 +4,8 @@
 #include "audio/device/IAudioChannelGroup.hpp"
 
 #include <clap/ext/audio-ports.h>
-#include <clap/ext/draft/ambisonic.h>
-#include <clap/ext/draft/surround.h>
+#include <clap/ext/ambisonic.h>
+#include <clap/ext/surround.h>
 
 #include <vector>
 
