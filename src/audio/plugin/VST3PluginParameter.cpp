@@ -18,10 +18,7 @@ VST3Parameter::VST3Parameter(
     editController_(editController),
     index_(index)
 {
-    editController_->addRef();
     refreshParameterInfo();
-    IParameter::flags_ |= ParameterFlags::SupportMinMaxValue;
-    IParameter::flags_ |= ParameterFlags::SupportDefaultValue;
 }
 
 std::uint32_t VST3Parameter::id() const
@@ -104,6 +101,8 @@ const Steinberg::Vst::ParameterInfo& VST3Parameter::getParameterInfo() const
 
 void VST3Parameter::refreshParameterInfo()
 {
+    IParameter::flags_ = ParameterFlags::SupportMinMaxValue
+        | ParameterFlags::SupportDefaultValue;
     editController_->getParameterInfo(index_, parameterInfo_);
     if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsHidden)
     {
@@ -112,6 +111,14 @@ void VST3Parameter::refreshParameterInfo()
     if(parameterInfo_.stepCount != 0)
     {
         IParameter::flags_ |= ParameterFlags::Discrete;
+        if(parameterInfo_.stepCount == 1)
+        {
+            IParameter::flags_ |= ParameterFlags::ShowAsSwitch;
+        }
+        else if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsList)
+        {
+            IParameter::flags_ |= ParameterFlags::ShowAsList;
+        }
     }
     if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsWrapAround)
     {
@@ -128,14 +135,6 @@ void VST3Parameter::refreshParameterInfo()
     if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kCanAutomate)
     {
         IParameter::flags_ |= ParameterFlags::Automatable;
-    }
-    if(parameterInfo_.stepCount == 1)
-    {
-        IParameter::flags_ |= ParameterFlags::ShowAsSwitch;
-    }
-    else if(parameterInfo_.flags & Steinberg::Vst::ParameterInfo::ParameterFlags::kIsList)
-    {
-        IParameter::flags_ |= ParameterFlags::ShowAsList;
     }
 }
 
