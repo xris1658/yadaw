@@ -30,7 +30,7 @@ ProcessSequence getProcessSequence(YADAW::Audio::Engine::AudioDeviceGraphBase& g
                 rij.emplace_back(
                     std::make_pair(
                         std::move(graph.getNodeData(tijk).process),
-                        bufferExt.getData(tijk).container.audioProcessData()
+                        bufferExt.getData(tijk).container
                     )
                 );
             }

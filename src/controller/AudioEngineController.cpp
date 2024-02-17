@@ -95,7 +95,7 @@ void AudioEngine::process()
                     std::for_each(cell.begin(), cell.end(),
                         [](YADAW::Audio::Engine::ProcessPair& pair)
                         {
-                            pair.first.process(pair.second);
+                            pair.first.process(pair.second.audioProcessData());
                         }
                     );
                 }

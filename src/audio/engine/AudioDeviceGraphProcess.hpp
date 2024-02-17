@@ -2,6 +2,7 @@
 #define YADAW_SRC_AUDIO_ENGINE_AUDIODEVICEGRAPHPROCESS
 
 #include "audio/engine/extension/Buffer.hpp"
+#include "audio/engine/AudioProcessDataBufferContainer.hpp"
 #include "util/IntegerRange.hpp"
 #include "util/MDVector.hpp"
 
@@ -11,7 +12,7 @@ namespace YADAW::Audio::Engine
 {
 using ProcessPair = std::pair<
     YADAW::Audio::Engine::AudioDeviceProcess,
-    YADAW::Audio::Device::AudioProcessData<float>
+    YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>
 >;
 using ProcessSequence = Vector3D<
     ProcessPair
