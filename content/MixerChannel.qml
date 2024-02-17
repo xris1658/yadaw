@@ -162,6 +162,9 @@ Rectangle {
                     width: insertList.width
                     text: mcilm_name
                     bypassed: mcilm_bypassed
+                    onBypassedChanged: {
+                        mcilm_bypassed = bypassed;
+                    }
                     property bool windowVisible: mcilm_window_visible
                     property bool genericEditorVisible: mcilm_generic_editor_visible
                     checked: windowVisible | genericEditorVisible
