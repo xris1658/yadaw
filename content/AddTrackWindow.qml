@@ -15,12 +15,12 @@ Window {
 
     property alias trackType: trackTypeTabBar.currentIndex
 
-    property var audioInputList: null
-    property var audioOutputList: null
-    property var midiInputList: null
-    property var midiOutputList: null
-    property var instrumentList: null
-    property var audioEffectList: null
+    property alias audioInputList: audioInputComboBox.model
+    property alias audioOutputList: audioOutputComboBox.model
+    property alias midiInputList: midiInputComboBox.model
+    property alias midiOutputList: midiOutputComboBox.model
+    property alias instrumentList: instrumentComboBox.model
+    property alias audioEffectList: audioEffectComboBox.model
 
     signal accepted()
 
@@ -129,93 +129,111 @@ Window {
                             valueRole: "type"
                             visible: channelConfigLabel.visible
                         }
-                        Label {
-                            id: instrumentLabel
+                        CheckBox {
+                            id: instrumentCheckBox
                             width: gridContainer.firstColumnWidth
                             text: qsTr("Instrument") + ":"
-                            horizontalAlignment: Label.AlignRight
+                            checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.Instrument
+                            Component.onCompleted: {
+                                leftPadding = width - implicitWidth;
+                            }
                         }
                         ComboBox {
                             id: instrumentComboBox
                             width: gridContainer.secondColumnWidth
-                            visible: instrumentLabel.visible
-                            model: root.instrumentList
+                            visible: instrumentCheckBox.visible
+                            enabled: instrumentCheckBox.checked
                             textRole: "plm_name"
                             valueRole: "plm_id"
                             // TODO: update display text
                         }
-                        Label {
-                            id: audioEffectLabel
+                        CheckBox {
+                            id: audioEffectCheckBox
                             width: gridContainer.firstColumnWidth
                             text: qsTr("Audio Effect") + ":"
-                            horizontalAlignment: Label.AlignRight
+                            checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.AudioEffect
+                            Component.onCompleted: {
+                                leftPadding = width - implicitWidth;
+                            }
                         }
                         ComboBox {
                             id: audioEffectComboBox
                             width: gridContainer.secondColumnWidth
-                            visible: audioEffectLabel.visible
-                            model: root.audioEffectList
+                            visible: audioEffectCheckBox.visible
+                            enabled: audioEffectCheckBox.checked
                             textRole: "plm_name"
                             valueRole: "plm_id"
                             // TODO: update display text
                         }
-                        Label {
-                            id: midiInputLabel
+                        CheckBox {
+                            id: midiInputCheckBox
                             width: gridContainer.firstColumnWidth
                             text: qsTr("MIDI Input") + ":"
-                            horizontalAlignment: Label.AlignRight
+                            checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.Instrument
                                 || root.trackType === AddTrackWindow.TrackType.MIDI
+                            Component.onCompleted: {
+                                leftPadding = width - implicitWidth;
+                            }
                         }
                         ComboBox {
                             id: midiInputComboBox
                             width: gridContainer.secondColumnWidth
-                            visible: midiInputLabel.visible
-                            model: root.midiInputList
+                            visible: midiInputCheckBox.visible
+                            enabled: midiInputCheckBox.checked
                         }
-                        Label {
-                            id: audioInputLabel
+                        CheckBox {
+                            id: audioInputCheckBox
                             width: gridContainer.firstColumnWidth
                             text: qsTr("Audio Input") + ":"
-                            horizontalAlignment: Label.AlignRight
+                            checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.Audio
+                            Component.onCompleted: {
+                                leftPadding = width - implicitWidth;
+                            }
                         }
                         ComboBox {
                             id: audioInputComboBox
                             width: gridContainer.secondColumnWidth
-                            visible: audioInputLabel.visible
-                            model: root.audioInputList
+                            visible: audioInputCheckBox.visible
+                            enabled: audioInputCheckBox.checked
                             textRole: "abcm_name"
                         }
-                        Label {
-                            id: midiOutputLabel
+                        CheckBox {
+                            id: midiOutputCheckBox
                             width: gridContainer.firstColumnWidth
                             text: qsTr("MIDI Output") + ":"
-                            horizontalAlignment: Label.AlignRight
+                            checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.MIDI
+                            Component.onCompleted: {
+                                leftPadding = width - implicitWidth;
+                            }
                         }
                         ComboBox {
                             id: midiOutputComboBox
                             width: gridContainer.secondColumnWidth
-                            visible: midiOutputLabel.visible
-                            model: root.midiOutputList
+                            visible: midiOutputCheckBox.visible
+                            enabled: midiOutputCheckBox.checked
                         }
-                        Label {
-                            id: audioOutputLabel
+                        CheckBox {
+                            id: audioOutputCheckBox
                             width: gridContainer.firstColumnWidth
                             text: qsTr("Audio Output") + ":"
-                            horizontalAlignment: Label.AlignRight
+                            checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.Audio
                                 || root.trackType === AddTrackWindow.TrackType.Instrument
                                 || root.trackType === AddTrackWindow.TrackType.AudioEffect
+                            Component.onCompleted: {
+                                leftPadding = width - implicitWidth;
+                            }
                         }
                         ComboBox {
                             id: audioOutputComboBox
                             width: gridContainer.secondColumnWidth
-                            visible: audioOutputLabel.visible
-                            model: root.audioOutputList
+                            visible: audioOutputCheckBox.visible
+                            enabled: audioOutputCheckBox.checked
                             textRole: "abcm_name"
                         }
                         Label {
@@ -239,21 +257,15 @@ Window {
                 }
             }
         }
-        Rectangle {
-            width: tabContainer.width
-            height: 1
-            color: Colors.secondaryBorder
-        }
 
-        Rectangle {
+        Item {
             width: tabContainer.width
-            height: buttons.height + impl.spacing * 2
-            color: Colors.secondaryBackground
+            height: buttons.height + impl.spacing
             Row {
                 id: buttons
                 anchors.right: parent.right
                 anchors.rightMargin: impl.spacing
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.top: parent.top
                 spacing: tabContent.padding
                 Button {
                     id: okButton
