@@ -9,21 +9,25 @@ namespace YADAW::Audio::Plugin
 VestifalParameter::VestifalParameter(AEffect* effect, std::uint32_t index):
     effect_(effect), index_(index)
 {
-    runDispatcher(effect, EffectOpcode::effectGetParameterProperties,
-        index_, 0, &properties_);
-    if(
-        properties_.flags & (
-            VestifalParameterFlag::ParameterIsSwitch
-            | VestifalParameterFlag::ParameterUsesFloatStepSize
-            | VestifalParameterFlag::ParameterUsesIntegerStepSize
+    std::memset(&properties_, 0, sizeof(properties_));
+    if(runDispatcher(effect, EffectOpcode::effectGetParameterProperties,
+        index_, 0, &properties_) == 1)
+    {
+        IParameter::flags_ |= ParameterFlags::SupportMinMaxValue;
+        if(
+            properties_.flags & (
+                VestifalParameterFlag::ParameterIsSwitch
+                | VestifalParameterFlag::ParameterUsesFloatStepSize
+                | VestifalParameterFlag::ParameterUsesIntegerStepSize
+            )
         )
-    )
-    {
-        IParameter::flags_ |= ParameterFlags::Discrete;
-    }
-    if(properties_.flags & VestifalParameterFlag::ParameterIsSwitch)
-    {
-        IParameter::flags_ |= ParameterFlags::ShowAsSwitch;
+        {
+            IParameter::flags_ |= ParameterFlags::Discrete;
+        }
+        if(properties_.flags & VestifalParameterFlag::ParameterIsSwitch)
+        {
+            IParameter::flags_ |= ParameterFlags::ShowAsSwitch;
+        }
     }
 }
 
@@ -109,6 +113,11 @@ std::uint32_t VestifalParameter::stepCount() const
         return (properties_.maxValue - properties_.minValue) / properties_.step;
     }
     return 0.0;
+}
+
+QString VestifalParameter::unit() const
+{
+    return QString();
 }
 
 QString VestifalParameter::valueToString(double value) const

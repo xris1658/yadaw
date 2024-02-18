@@ -658,6 +658,8 @@ add_executable(VestifalPluginTest
                src/audio/plugin/VestifalPlugin.hpp
                src/audio/plugin/VestifalPluginGUI.cpp
                src/audio/plugin/VestifalPluginGUI.hpp
+               src/audio/plugin/VestifalPluginParameter.cpp
+               src/audio/plugin/VestifalPluginParameter.hpp
                src/audio/util/VestifalHelper.cpp
                src/audio/util/VestifalHelper.hpp
                src/dao/DAOBase.cpp

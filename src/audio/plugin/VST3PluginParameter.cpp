@@ -68,6 +68,11 @@ std::uint32_t VST3Parameter::stepCount() const
     return parameterInfo_.stepCount;
 }
 
+QString VST3Parameter::unit() const
+{
+    return QString::fromUtf16(parameterInfo_.units);
+}
+
 QString VST3Parameter::valueToString(double value) const
 {
     String128 string;
