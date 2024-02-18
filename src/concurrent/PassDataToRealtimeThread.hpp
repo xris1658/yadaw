@@ -24,8 +24,12 @@ public:
     {
         return data_[0].get();
     }
-    void update(std::unique_ptr<T>&& data)
+    void update(std::unique_ptr<T>&& data, bool realtimeThreadRunning = true)
     {
+        if(realtimeThreadRunning)
+        {
+            while(updated_.load(std::memory_order::memory_order_acquire)) {}
+        }
         while(updated_.load(std::memory_order::memory_order_acquire)) {}
         data_[1] = std::move(data);
         updated_.store(true, std::memory_order::memory_order_release);
@@ -38,9 +42,12 @@ public:
             updated_.store(false, std::memory_order::memory_order_release);
         }
     }
-    void disposeOld()
+    void disposeOld(bool realtimeThreadRunning = true)
     {
-        while(updated_.load(std::memory_order::memory_order_acquire)) {}
+        if(realtimeThreadRunning)
+        {
+            while(updated_.load(std::memory_order::memory_order_acquire)) {}
+        }
         data_[1].reset();
     }
 private:
@@ -50,10 +57,10 @@ private:
 
 template<typename T>
 void updateAndDispose(PassDataToRealtimeThread<T>& passDataToRealtimeThread,
-    std::unique_ptr<T>&& data)
+    std::unique_ptr<T>&& data, bool realtimeThreadRunning = true)
 {
-    passDataToRealtimeThread.update(std::move(data));
-    passDataToRealtimeThread.disposeOld();
+    passDataToRealtimeThread.update(std::move(data), realtimeThreadRunning);
+    passDataToRealtimeThread.disposeOld(realtimeThreadRunning);
 }
 }
 
