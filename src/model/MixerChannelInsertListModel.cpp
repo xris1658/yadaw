@@ -465,7 +465,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
     return ret;
 }
 
-bool MixerChannelInsertListModel::replace(int pluginId)
+bool MixerChannelInsertListModel::replace(int position, int pluginId)
 {
     return false;
 }

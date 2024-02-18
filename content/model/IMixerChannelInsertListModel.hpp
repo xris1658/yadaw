@@ -35,7 +35,7 @@ public:
 public:
     Q_INVOKABLE virtual bool insert(int position, int pluginId) = 0;
     Q_INVOKABLE virtual bool append(int pluginId) = 0;
-    Q_INVOKABLE virtual bool replace(int pluginId) = 0;
+    Q_INVOKABLE virtual bool replace(int position, int pluginId) = 0;
     Q_INVOKABLE virtual bool remove(int position, int removeCount) = 0;
     Q_INVOKABLE virtual void clear() = 0;
 protected:

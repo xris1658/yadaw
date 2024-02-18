@@ -24,7 +24,7 @@ public:
 public:
     bool insert(int position, int pluginId) override;
     bool append(int pluginId) override;
-    bool replace(int pluginId) override;
+    bool replace(int position, int pluginId) override;
     bool remove(int position, int removeCount) override;
     void clear() override;
 private:
