@@ -1,9 +1,17 @@
 #include "MixerChannelListModel.hpp"
 
+#include "entity/ChannelConfigHelper.hpp"
 #include "util/Base.hpp"
 
 namespace YADAW::Model
 {
+YADAW::Audio::Mixer::Mixer::ChannelType channelTypeFromModelTypes(
+    IMixerChannelListModel::ChannelTypes type
+)
+{
+    return static_cast<YADAW::Audio::Mixer::Mixer::ChannelType>(type);
+}
+
 using GetCount = decltype(&YADAW::Audio::Mixer::Mixer::channelCount);
 
 GetCount getCount[3] = {
@@ -191,29 +199,54 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
     return false;
 }
 
-bool MixerChannelListModel::insert(int position, IMixerChannelListModel::ChannelTypes type)
+bool MixerChannelListModel::insert(int position, IMixerChannelListModel::ChannelTypes type,
+    YADAW::Entity::ChannelConfig::Config channelConfig,
+    int channelCount)
 {
+    if(listType_ == ListType::Regular)
+    {
+        auto ret = mixer_.insertChannel(position, channelTypeFromModelTypes(type),
+            YADAW::Entity::groupTypeFromConfig(channelConfig),
+            channelCount
+        );
+        if(ret)
+        {
+            beginInsertRows(QModelIndex(), position, position);
+            insertModels_.emplace_back(
+                std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
+                    mixer_.channelPreFaderInsertsAt(position)->get()
+                )
+            );
+            endInsertRows();
+        }
+        return ret;
+    }
     return false;
 }
 
-bool MixerChannelListModel::append(IMixerChannelListModel::ChannelTypes type)
+bool MixerChannelListModel::append(IMixerChannelListModel::ChannelTypes type,
+    YADAW::Entity::ChannelConfig::Config channelConfig,
+    int channelCount)
 {
-    return false;
+    return insert(itemCount(), type, channelConfig, channelCount);
 }
 
 bool MixerChannelListModel::remove(int position, int removeCount)
 {
-    auto ret = (mixer_.*removeChannels[YADAW::Util::underlyingValue(listType_)])(
-        position, removeCount
-    );
-    if(ret)
+    if(position < itemCount() && position + removeCount <= itemCount())
     {
+        beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
+        (mixer_.*removeChannels[YADAW::Util::underlyingValue(listType_)])(
+            position, removeCount
+        );
         insertModels_.erase(
             insertModels_.begin() + position,
             insertModels_.begin() + position + removeCount
         );
+        endRemoveRows();
+        return true;
     }
-    return ret;
+    return false;
 }
 
 bool MixerChannelListModel::move(int position, int moveCount, int newPosition)
@@ -228,9 +261,6 @@ bool MixerChannelListModel::copy(int position, int copyCount, int newPosition)
 
 void MixerChannelListModel::clear()
 {
-    for(auto& insertModel: insertModels_)
-    {
-        insertModel->clear();
-    }
+    remove(0, itemCount());
 }
 }

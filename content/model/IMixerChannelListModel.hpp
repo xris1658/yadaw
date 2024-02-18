@@ -3,6 +3,8 @@
 
 #include "ModelBase.hpp"
 
+#include "entity/ChannelConfig.hpp"
+
 #include <QAbstractListModel>
 
 namespace YADAW::Model
@@ -64,8 +66,12 @@ public:
     static constexpr int columnCount() { return 1; }
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:
-    Q_INVOKABLE virtual bool insert(int position, ChannelTypes type) = 0;
-    Q_INVOKABLE virtual bool append(ChannelTypes type) = 0;
+    Q_INVOKABLE virtual bool insert(int position, ChannelTypes type,
+        YADAW::Entity::ChannelConfig::Config channelConfig,
+        int channelCount = 0) = 0;
+    Q_INVOKABLE virtual bool append(ChannelTypes type,
+        YADAW::Entity::ChannelConfig::Config channelConfig,
+        int channelCount = 0) = 0;
     Q_INVOKABLE virtual bool remove(int position, int removeCount) = 0;
     Q_INVOKABLE virtual bool move(int position, int moveCount, int newPosition) = 0;
     Q_INVOKABLE virtual bool copy(int position, int copyCount, int newPosition) = 0;
