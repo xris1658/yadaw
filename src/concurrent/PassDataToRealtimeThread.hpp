@@ -26,6 +26,7 @@ public:
     }
     void update(std::unique_ptr<T>&& data)
     {
+        while(updated_.load(std::memory_order::memory_order_acquire)) {}
         data_[1] = std::move(data);
         updated_.store(true, std::memory_order::memory_order_release);
     }
