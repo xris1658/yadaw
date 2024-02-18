@@ -125,14 +125,22 @@ const IPluginGUI* VestifalPlugin::gui() const
     return pluginGUI();
 }
 
-IPluginParameter* VestifalPlugin::parameter()
-{
-    return nullptr;
-}
-
 const IPluginParameter* VestifalPlugin::parameter() const
 {
-    return nullptr;
+    if(!parameter_)
+    {
+        parameter_ = std::make_unique<YADAW::Audio::Plugin::VestifalPluginParameter>(
+            effect_
+        );
+    }
+    return parameter_.get();
+}
+
+IPluginParameter* VestifalPlugin::parameter()
+{
+    return const_cast<IPluginParameter*>(
+        static_cast<const VestifalPlugin*>(this)->parameter()
+    );
 }
 
 const VestifalPluginGUI* VestifalPlugin::pluginGUI() const
