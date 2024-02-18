@@ -286,7 +286,7 @@ ApplicationWindow {
                 width: 200
                 placeholderText: "abcd"
             }
-            SliderWithValue {
+            ProgressBarLikeSlider {
                 from: 0
                 to: 10
                 stepSize: 1

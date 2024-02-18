@@ -38,12 +38,6 @@ T.Slider {
             anchors.topMargin: parent.border.width
             color: Colors.sliderWithValueFilledBackground
         }
-        Label {
-            text: root.value
-            anchors.left: parent.left
-            anchors.leftMargin: (parent.height - contentHeight) / 2
-            anchors.verticalCenter: parent.verticalCenter
-        }
     }
     handle: Item {
         id: handle

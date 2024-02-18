@@ -112,13 +112,13 @@ set(CONTENT_QML_FILES
     PluginWindow.qml
     PreferencesWindow.qml
     ProgressBar.qml
+    ProgressBarLikeSlider.qml
     RemoveIcon.qml
     RenameIcon.qml
     ScrollBar.qml
     SendIcon.qml
     ShowLeftPaneIcon.qml
     Slider.qml
-    SliderWithValue.qml
     SortIcon.qml
     SpinBox.qml
     SplashScreen.qml
