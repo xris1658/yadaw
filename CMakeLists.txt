@@ -612,6 +612,8 @@ add_executable(PluginScanTest
                src/audio/plugin/VestifalPlugin.hpp
                src/audio/plugin/VestifalPluginGUI.cpp
                src/audio/plugin/VestifalPluginGUI.hpp
+               src/audio/plugin/VestifalPluginParameter.cpp
+               src/audio/plugin/VestifalPluginParameter.hpp
                src/audio/util/CLAPHelper.cpp
                src/audio/util/CLAPHelper.hpp
                src/audio/util/VST3Helper.cpp
