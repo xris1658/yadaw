@@ -50,18 +50,22 @@ public:
         }
         data_[1].reset();
     }
+    void updateAndDispose(std::unique_ptr<T>&& data, bool realtimeThreadRunning = true)
+    {
+        if(realtimeThreadRunning)
+        {
+            update(std::move(data), realtimeThreadRunning);
+            disposeOld(realtimeThreadRunning);
+        }
+        else
+        {
+            data_[0] = std::move(data); // ABA happens here, but maybe it's okay?
+        }
+    }
 private:
     std::array<std::unique_ptr<T>, 2> data_;
     std::atomic<bool> updated_;
 };
-
-template<typename T>
-void updateAndDispose(PassDataToRealtimeThread<T>& passDataToRealtimeThread,
-    std::unique_ptr<T>&& data, bool realtimeThreadRunning = true)
-{
-    passDataToRealtimeThread.update(std::move(data), realtimeThreadRunning);
-    passDataToRealtimeThread.disposeOld(realtimeThreadRunning);
-}
 }
 
 #endif // YADAW_SRC_CONCURRENT_PASSDATATOREALTIMETHREAD

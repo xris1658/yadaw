@@ -40,12 +40,15 @@ public:
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>& processSequence();
     const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>& vst3PluginPool() const;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>& vst3PluginPool();
+    bool running() const;
+    void setRunning(bool running);
 public:
     void uninitialize();
     void process();
 private:
     double sampleRate_ = 0.0;
     std::uint32_t bufferSize_ = 0U;
+    bool running_ = false;
     YADAW::Audio::Mixer::Mixer mixer_;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence> processSequence_;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector> vst3PluginPool_;

@@ -238,6 +238,7 @@ void EventHandler::onOpenMainWindow()
     processSequence.swapIfNeeded();
     auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
     // Start the audio backend
+    engine.setRunning(true);
 #if _WIN32
     backend.start(&YADAW::Controller::audioGraphCallback);
 #elif __linux__
@@ -357,15 +358,16 @@ void EventHandler::onOpenMainWindow()
 
 void EventHandler::onMainWindowClosing()
 {
-    YADAW::Controller::appAudioInputMixerChannels().clear();
-    YADAW::Controller::appMixerChannels().clear();
-    YADAW::Controller::appAudioOutputMixerChannels().clear();
 #if _WIN32
     YADAW::Controller::appAudioGraphBackend().uninitialize();
 #elif __linux__
     YADAW::Controller::appALSABackend().uninitialize();
 #endif
     auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
+    audioEngine.setRunning(false);
+    YADAW::Controller::appAudioInputMixerChannels().clear();
+    YADAW::Controller::appMixerChannels().clear();
+    YADAW::Controller::appAudioOutputMixerChannels().clear();
     auto& graphWithPDC = audioEngine.mixer().graph();
     auto& graph = graphWithPDC.graph();
     audioEngine.uninitialize();

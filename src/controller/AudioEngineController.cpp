@@ -115,4 +115,14 @@ YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVec
 {
     return vst3PluginPool_;
 }
+
+bool AudioEngine::running() const
+{
+    return running_;
+}
+
+void AudioEngine::setRunning(bool running)
+{
+    running_ = running;
+}
 }

@@ -219,11 +219,11 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                         YADAW::Controller::VST3PluginContext{vst3ComponentHandler}
                     );
                     auto nodeHandle = graphWithPDC.addNode(AudioDeviceProcess(*pluginPtr));
-                    updateAndDispose(
-                        engine.vst3PluginPool(),
+                    engine.vst3PluginPool().updateAndDispose(
                         std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
                             createPoolVector(vst3PluginPool)
-                        )
+                        ),
+                        engine.running()
                     );
                     inserts_->insert(nodeHandle, position, pluginInfo.name);
                     plugin = std::unique_ptr<IAudioPlugin>(std::move(pluginPtr));
@@ -304,11 +304,11 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             auto& graph = audioEngine.mixer().graph().graph();
             auto& bufferExt = audioEngine.mixer().bufferExtension();
             auto& processSequence = audioEngine.processSequence();
-            YADAW::Concurrent::updateAndDispose(
-                processSequence,
+            processSequence.updateAndDispose(
                 std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
                     YADAW::Audio::Engine::getProcessSequence(graph, bufferExt)
-                )
+                ),
+                audioEngine.running()
             );
 
         }
@@ -403,11 +403,11 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             graphWithPDC.removeNode(removingNodes[i]);
         }
         auto& processSequence = audioEngine.processSequence();
-        YADAW::Concurrent::updateAndDispose(
-            processSequence,
+        processSequence.updateAndDispose(
             std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
                 YADAW::Audio::Engine::getProcessSequence(graph, bufferExt)
-            )
+            ),
+            audioEngine.running()
         );
         for(auto& pluginToRemove: pluginsToRemove)
         {
@@ -420,11 +420,11 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 vst3PluginPool.erase(
                     vst3PluginPool.find(vst3Plugin)
                 );
-                YADAW::Concurrent::updateAndDispose(
-                    YADAW::Controller::AudioEngine::appAudioEngine().vst3PluginPool(),
+                YADAW::Controller::AudioEngine::appAudioEngine().vst3PluginPool().updateAndDispose(
                     std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
                         createPoolVector(vst3PluginPool)
-                    )
+                    ),
+                    audioEngine.running()
                 );
                 vst3Plugin->stopProcessing();
                 vst3Plugin->deactivate();
