@@ -1,8 +1,10 @@
 #include "audio/plugin/VestifalPlugin.hpp"
+#include "audio/plugin/VestifalPluginParameter.hpp"
 #include "audio/util/VestifalHelper.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/Library.hpp"
 #include "native/VestifalNative.hpp"
+#include "util/IntegerRange.hpp"
 #include "util/Util.hpp"
 #include "test/common/DisableStreamBuffer.hpp"
 #include "test/common/PluginWindowThread.hpp"
@@ -54,6 +56,13 @@ int main(int argc, char** argv)
                     if(activatePlugin && plugin.activate())
                     {
                         std::printf("[INFO] Plugin activated\n");
+                        auto parameter = static_cast<YADAW::Audio::Plugin::VestifalPluginParameter*>(plugin.parameter());
+                        FOR_RANGE0(i, parameter->parameterCount())
+                        {
+                            auto param = static_cast<YADAW::Audio::Plugin::VestifalParameter*>(parameter->parameter(i));
+                            std::printf("[INFO] Parameter %u:\n", i + 1);
+                            std::printf("[INFO]         Name: %s\n", param->name().toLocal8Bit().data());
+                        }
                         if(processPlugin && plugin.startProcessing())
                         {
                             std::printf("[INFO] Plugin started processing\n");
