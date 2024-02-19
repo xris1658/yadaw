@@ -3,6 +3,8 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Shapes
 
+import YADAW.Models
+
 ApplicationWindow {
     id: root
     width: 1280
@@ -820,6 +822,17 @@ ApplicationWindow {
         }
         onAccepted: {
             mixerChannelModel.insert(position, trackType, channelConfig);
+            let index = mixerChannelModel.index(position, 0);
+            mixerChannelModel.setData(
+                index,
+                addTrackWindow.name,
+                IMixerChannelListModel.Name
+            );
+            mixerChannelModel.setData(
+                index,
+                Qt.rgba(Math.random(), Math.random(), Math.random(), 1),
+                IMixerChannelListModel.Color
+            );
         }
     }
 }

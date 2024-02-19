@@ -58,6 +58,7 @@ public:
         DBMeter,
         RoleCount
     };
+    Q_ENUM(Role)
 public:
     IMixerChannelListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
     virtual ~IMixerChannelListModel() {}
