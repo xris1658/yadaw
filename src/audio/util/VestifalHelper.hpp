@@ -18,6 +18,8 @@ VestifalEntry vestifalEntryFromLibrary(const YADAW::Native::Library& library);
 
 YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(
     const YADAW::Native::Library& library, std::int32_t uid = 0);
+
+QString getVersionString(std::uint32_t version);
 }
 
 

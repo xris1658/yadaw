@@ -449,8 +449,18 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             }
             else
             {
-                std::memcpy(uidAsVector.data(), &effect->uniqueId, sizeof(std::int32_t));
-                auto version = QString::number(effect->version, 16);
+                std::uint32_t versionFromDispatcher =
+                    runDispatcher(effect, EffectOpcode::effectGetVendorVersion);
+                std::uint32_t versionFromEffect;
+                std::memcpy(&versionFromEffect, &effect->version,
+                    sizeof(versionFromEffect));
+                QString version =
+                    (versionFromDispatcher == versionFromEffect || versionFromDispatcher == 0)?
+                        YADAW::Audio::Util::getVersionString(versionFromEffect):
+                        QString("%1 (%2)").arg(
+                            YADAW::Audio::Util::getVersionString(versionFromEffect),
+                            YADAW::Audio::Util::getVersionString(versionFromDispatcher)
+                        );
                 runDispatcher(effect, EffectOpcode::effectGetEffectName, 0, 0,
                     name, std::size(name));
                 runDispatcher(effect, EffectOpcode::effectGetVendorName, 0, 0,
