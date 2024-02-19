@@ -54,7 +54,10 @@ void AudioDeviceGraphWithPDC::removeNode(const ade::NodeHandle& nodeHandle)
         auto it = multiInputNodes_.find(nodeHandle);
         if(it != multiInputNodes_.end())
         {
+            auto node = nodeHandle;
             multiInputNodes_.erase(it);
+            graph_.removeNode(node);
+            return;
         }
     }
     graph_.removeNode(nodeHandle);
