@@ -59,11 +59,6 @@ SplitView {
             anchors.bottom: bottomLeft.top
             anchors.left: parent.left
             anchors.right: parent.right
-
-            footer: Item {
-                width: arrangementHeader.width
-                height: 60
-            }
             ScrollBar.vertical: ScrollBar {
                 id: vbar
                 parent: vbarPlaceholder
@@ -87,10 +82,20 @@ SplitView {
                     color: Colors.border
                 }
             }
+            readonly property int footerHeight: 60
+            footer: Item {
+                width: arrangementHeader.width
+                height: 60
+            }
             MouseArea {
                 id: trackHeaderListBlankArea
-                anchors.fill: parent
-                z: 0
+                anchors.top: trackHeaderListView.contentItem.bottom
+                anchors.topMargin: -1 * trackHeaderListView.footerHeight
+                height: Math.max(trackHeaderListView.footerHeight,
+                    trackHeaderListView.height - (trackHeaderListView.contentHeight - trackHeaderListView.contentY) + trackHeaderListView.footerHeight
+                )
+                anchors.left: parent.left
+                anchors.right: parent.right
                 acceptedButtons: Qt.RightButton
                 Menu {
                     id: trackHeaderBlankOptions

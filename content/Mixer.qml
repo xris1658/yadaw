@@ -219,10 +219,20 @@ Rectangle {
                 color: Colors.secondaryBorder
             }
         }
+        readonly property int footerWidth: 60
+        footer: Item {
+            width: channels.footerWidth
+            height: parent.height
+        }
         MouseArea {
             id: mixerChannelBlankArea
-            anchors.fill: parent
-            z: 0
+            anchors.left: channels.contentItem.right
+            anchors.leftMargin: -1 * channels.footerWidth
+            width: Math.max(channels.footerWidth,
+                channels.width - (channels.contentWidth - channels.contentX) + channels.footerWidth
+            )
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
             acceptedButtons: Qt.RightButton
             Menu {
                 id: mixerChannelBlankAreaOptions
