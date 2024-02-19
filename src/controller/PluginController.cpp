@@ -149,22 +149,21 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                             vendor = factoryInfo.vendor;
                         }
                         auto version = QString::fromUtf16(classInfoW.version);
+                        YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
+                            YADAW::DAO::PluginFormatVST3, -1);
                         if(isInstrument)
                         {
-                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeInstrument);
+                            pluginInfo.type = YADAW::DAO::PluginTypeInstrument;
                             ret.push_back({pluginInfo, subCategories});
                         }
                         if(isAudioEffect)
                         {
-                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeAudioEffect);
+                            pluginInfo.type = YADAW::DAO::PluginTypeAudioEffect;
                             ret.push_back({pluginInfo, subCategories});
                         }
                         else if(!isInstrument)
                         {
-                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeUnknown);
+                            pluginInfo.type = YADAW::DAO::PluginTypeUnknown;
                             ret.push_back({pluginInfo, subCategories});
                         }
                     }
@@ -217,22 +216,21 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                             vendor = classInfo2.vendor;
                         }
                         QString version(classInfo2.version);
+                        YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
+                            YADAW::DAO::PluginFormatVST3, -1);
                         if(isInstrument)
                         {
-                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeInstrument);
+                            pluginInfo.type = YADAW::DAO::PluginTypeInstrument;
                             ret.push_back({pluginInfo, subCategories});
                         }
                         if(isAudioEffect)
                         {
-                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeAudioEffect);
+                            pluginInfo.type = YADAW::DAO::PluginTypeAudioEffect;
                             ret.push_back({pluginInfo, subCategories});
                         }
                         else if(!isInstrument)
                         {
-                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
-                                YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeUnknown);
+                            pluginInfo.type = YADAW::DAO::PluginTypeUnknown;
                             ret.push_back({pluginInfo, subCategories});
                         }
                     }
@@ -265,6 +263,8 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                                 MediaTypes::kEvent, BusDirections::kInput);
                             eo = component->getBusCount(
                                 MediaTypes::kEvent, BusDirections::kOutput);
+                            YADAW::DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
+                                YADAW::DAO::PluginFormatVST3, -1);
                             if(ei && ao)
                             {
                                 if(ai)
@@ -286,34 +286,29 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                                     }
                                     if(hasMainAudioInput)
                                     {
-                                        YADAW::DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
-                                            YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeAudioEffect);
+                                        pluginInfo.type = YADAW::DAO::PluginTypeAudioEffect;
                                         ret.push_back({pluginInfo, {}});
                                     }
                                     if(hasMainEventInput)
                                     {
-                                        YADAW::DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
-                                            YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeInstrument);
+                                        pluginInfo.type = YADAW::DAO::PluginTypeInstrument;
                                         ret.push_back({pluginInfo, {}});
                                     }
                                     else if(!hasMainAudioInput)
                                     {
-                                        YADAW::DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
-                                            YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeUnknown);
+                                        pluginInfo.type = YADAW::DAO::PluginTypeUnknown;
                                         ret.push_back({pluginInfo, {}});
                                     }
                                 }
                             }
                             if(ai && ao)
                             {
-                                YADAW::DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
-                                    YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeAudioEffect);
+                                pluginInfo.type = YADAW::DAO::PluginTypeAudioEffect;
                                 ret.push_back({pluginInfo, {}});
                             }
                             if(ei && eo)
                             {
-                                YADAW::DAO::PluginInfo pluginInfo(path, uid, name, {}, {},
-                                    YADAW::DAO::PluginFormatVST3, YADAW::DAO::PluginTypeMIDIEffect);
+                                pluginInfo.type = YADAW::DAO::PluginTypeMIDIEffect;
                                 ret.push_back({pluginInfo, {}});
                             }
                         }
@@ -379,31 +374,23 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                     auto name = QString::fromUtf8(descriptor->name);
                     auto vendor = QString::fromUtf8(descriptor->vendor);
                     auto version = QString::fromUtf8(descriptor->version);
+                    YADAW::DAO::PluginInfo pluginInfo(
+                        path, uid, name, vendor, version,
+                        YADAW::DAO::PluginFormatCLAP, -1
+                    );
                     if(isInstrument)
                     {
-                        YADAW::DAO::PluginInfo pluginInfo(
-                            path, uid, name, vendor, version,
-                            YADAW::DAO::PluginFormatCLAP,
-                            YADAW::DAO::PluginTypeInstrument
-                        );
+                        pluginInfo.type = YADAW::DAO::PluginTypeInstrument;
                         ret.push_back({pluginInfo, featureCollection});
                     }
                     if(isAudioEffect)
                     {
-                        YADAW::DAO::PluginInfo pluginInfo(
-                            path, uid, name, vendor, version,
-                            YADAW::DAO::PluginFormatCLAP,
-                            YADAW::DAO::PluginTypeAudioEffect
-                        );
+                        pluginInfo.type = YADAW::DAO::PluginTypeAudioEffect;
                         ret.push_back({pluginInfo, featureCollection});
                     }
                     if(isMIDIEffect)
                     {
-                        YADAW::DAO::PluginInfo pluginInfo(
-                            path, uid, name, vendor, version,
-                            YADAW::DAO::PluginFormatCLAP,
-                            YADAW::DAO::PluginTypeMIDIEffect
-                        );
+                        pluginInfo.type = YADAW::DAO::PluginTypeMIDIEffect;
                         ret.push_back({pluginInfo, featureCollection});
                     }
                 }
