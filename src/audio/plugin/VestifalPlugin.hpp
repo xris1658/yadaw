@@ -4,6 +4,7 @@
 #include "audio/device/IAudioChannelGroup.hpp"
 #include "audio/plugin/IAudioPlugin.hpp"
 #include "audio/plugin/VestifalPluginGUI.hpp"
+#include "audio/plugin/VestifalPluginParameter.hpp"
 #include "audio/plugin/vestifal/Vestifal.h"
 
 #include <memory>
@@ -12,7 +13,6 @@ namespace YADAW::Audio::Plugin
 {
 class VestifalPlugin: public YADAW::Audio::Plugin::IAudioPlugin
 {
-public:
 public:
     VestifalPlugin();
     VestifalPlugin(VestifalEntry entry, std::int32_t uniqueId = 0);
@@ -57,6 +57,7 @@ private:
     std::int32_t uniqueId = 0;
     Status status_ = Status::Empty;
     mutable std::unique_ptr<VestifalPluginGUI> gui_;
+    mutable std::unique_ptr<VestifalPluginParameter> parameter_;
     std::vector<float*> inputs_;
     std::vector<float*> outputs_;
     TimeInfo* timeInfo_ = nullptr;
