@@ -307,6 +307,8 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioInputMixerChannels()));
     YADAW::UI::mainWindow->setProperty("mixerAudioOutputChannelModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioOutputMixerChannels()));
+    YADAW::UI::mainWindow->setProperty("mixerChannelModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannels()));
 
     YADAW::UI::mainWindow->setProperty("audioInputBusConfigurationModel",
         QVariant::fromValue<QObject*>(&appAudioBusInputConfigurationModel));

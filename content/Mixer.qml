@@ -179,10 +179,10 @@ Rectangle {
     }
     ListView {
         id: channels
-        anchors.left: inputChannels.right
-        anchors.leftMargin: 5
-        anchors.right: outputChannels.left
-        anchors.rightMargin: 5
+        anchors.left: root.showInputBus? inputChannels.right: leftBar.right
+        anchors.leftMargin: root.showInputBus? 5: -1
+        anchors.right: root.showOutputBus? outputChannels.left: parent.right
+        anchors.rightMargin: root.showOutputBus? 5: -1
         height: root.height
         orientation: Qt.Horizontal
         boundsBehavior: ListView.StopAtBounds

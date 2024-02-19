@@ -10,7 +10,7 @@ SplitView {
 
     signal insertTrack(position: int, type: int) // AddTrackWindow.TrackType
     function appendTrack(type: int) { // AddTrackWindow.TrackType
-        insertTrack(trackHeaderListView.count - 1, type);
+        insertTrack(trackHeaderListView.count, type);
     }
 
     enum TimelineUnit {
@@ -75,7 +75,7 @@ SplitView {
             delegate: Column {
                 TrackHeader {
                     width: trackHeaderListView.width
-                    height: mclm_height
+                    height: 60
                     clip: true
                     name: mclm_name
                     trackColor: mclm_color

@@ -22,6 +22,22 @@ Window {
     property alias instrumentList: instrumentComboBox.model
     property alias audioEffectList: audioEffectComboBox.model
 
+    property alias name: nameField.text
+    property alias channelConfig: channelConfigComboBox.currentValue
+    property alias instrumentEnabled: instrumentCheckBox.checked
+    property alias instrument: instrumentComboBox.currentValue
+    property alias audioEffectEnabled: audioEffectCheckBox.checked
+    property alias audioEffect: audioEffectComboBox.currentValue
+    property alias midiInputEnabled: midiInputCheckBox.checked
+    property alias midiInput: midiInputComboBox.currentValue
+    property alias midiOutputEnabled: midiOutputCheckBox.checked
+    property alias midiOutput: midiOutputComboBox.currentValue
+    property alias audioInputEnabled: audioInputCheckBox.checked
+    property alias audioInput: audioInputComboBox.currentValue
+    property alias audioOutputEnabled: audioOutputCheckBox.checked
+    property alias audioOutput: audioOutputComboBox.currentValue
+    property alias count: countField.value
+
     signal accepted()
 
     property int position: 0
@@ -271,7 +287,7 @@ Window {
                     id: okButton
                     text: qsTr("&Add")
                     onClicked: {
-                        // TODO
+                        root.accepted();
                         root.close();
                     }
                 }

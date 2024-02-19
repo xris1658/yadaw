@@ -819,7 +819,7 @@ ApplicationWindow {
             addTrackWindow.showNormal();
         }
         onAccepted: {
-            //
+            mixerChannelModel.insert(position, trackType, channelConfig);
         }
     }
 }
