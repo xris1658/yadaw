@@ -10,6 +10,9 @@ AudioEngine::AudioEngine():
     vst3PluginPool_(std::make_unique<YADAW::Controller::VST3PluginPoolVector>())
 {
     mixer_.bufferExtension().setBufferSize(bufferSize_);
+    mixer_.setNodeAddedCallback(&AudioEngine::mixerNodeAddedCallback);
+    mixer_.setNodeRemovedCallback(&AudioEngine::mixerNodeRemovedCallback);
+    mixer_.setConnectionUpdatedCallback(&AudioEngine::mixerConnectionUpdatedCallback);
 }
 
 AudioEngine& AudioEngine::appAudioEngine()
@@ -102,6 +105,61 @@ void AudioEngine::process()
             );
         }
     );
+}
+
+void AudioEngine::updateProcessSequence()
+{
+    auto& instance = *this;
+    processSequence_.updateAndDispose(
+        std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
+            YADAW::Audio::Engine::getProcessSequence(
+                mixer_.graph().graph(),
+                mixer_.bufferExtension()
+            )
+        ),
+        running()
+    );
+}
+
+void AudioEngine::mixerNodeAddedCallback(const Audio::Mixer::Mixer& mixer)
+{
+    auto& instance = AudioEngine::appAudioEngine();
+    instance.updateProcessSequence();
+}
+
+void AudioEngine::mixerNodeRemovedCallback(const Audio::Mixer::Mixer& mixer)
+{
+
+    auto& instance = AudioEngine::appAudioEngine();
+    instance.updateProcessSequence();
+}
+
+void AudioEngine::mixerConnectionUpdatedCallback(const Audio::Mixer::Mixer& mixer)
+{
+
+    auto& instance = AudioEngine::appAudioEngine();
+    instance.updateProcessSequence();
+}
+
+void AudioEngine::insertsNodeAddedCallback(const Audio::Mixer::Inserts& inserts)
+{
+
+    auto& instance = AudioEngine::appAudioEngine();
+    instance.updateProcessSequence();
+}
+
+void AudioEngine::insertsNodeRemovedCallback(const Audio::Mixer::Inserts& inserts)
+{
+
+    auto& instance = AudioEngine::appAudioEngine();
+    instance.updateProcessSequence();
+}
+
+void AudioEngine::insertsConnectionUpdatedCallback(const Audio::Mixer::Inserts& inserts)
+{
+
+    auto& instance = AudioEngine::appAudioEngine();
+    instance.updateProcessSequence();
 }
 
 const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>&

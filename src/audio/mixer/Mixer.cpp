@@ -3,11 +3,23 @@
 #include "audio/mixer/BlankGenerator.hpp"
 #include "audio/mixer/BlankReceiver.hpp"
 
+// Structure of a channel:
+// ,------------,    ,-------------------,    ,-------,    ,--------------------,    ,-------,
+// | input node | -> | pre-fader inserts | -> | fader | -> | post-fader inserts | -> | meter |
+// '------------'    '-------------------'    '-------'    '--------------------'    '-------'
+
 namespace YADAW::Audio::Mixer
 {
+void blankNodeAddedCallback(const Mixer& mixer) {}
+void blankNodeRemovedCallback(const Mixer& mixer) {}
+void blankConnectionUpdatedCallback(const Mixer& mixer) {}
+
 Mixer::Mixer():
     graph_(),
-    graphWithPDC_(graph_)
+    graphWithPDC_(graph_),
+    nodeAddedCallback_(&blankNodeAddedCallback),
+    nodeRemovedCallback_(&blankNodeRemovedCallback),
+    connectionUpdatedCallback_(&blankConnectionUpdatedCallback)
 {}
 
 const YADAW::Audio::Engine::AudioDeviceGraphWithPDC& Mixer::graph() const
@@ -250,6 +262,7 @@ bool Mixer::appendAudioInputChannel(
         );
         audioInputFaders_.emplace_back(std::move(fader), faderNode);
         audioInputMeters_.emplace_back(std::move(meter), meterNode);
+        nodeAddedCallback_(*this);
         auto& info = audioInputChannelInfo_.emplace_back();
         info.channelType = ChannelType::AudioBus;
         return true;
@@ -265,6 +278,14 @@ bool Mixer::removeAudioInputChannel(
             && last <= audioInputChannelCount()
     )
     {
+        std::vector<ade::NodeHandle> nodesToRemove;
+        nodesToRemove.reserve(removeCount * 3);
+        FOR_RANGE(i, first, last)
+        {
+            nodesToRemove.emplace_back(audioInputPreFaderInserts_[i]->inNode());
+            nodesToRemove.emplace_back(audioInputFaders_[i].second);
+            nodesToRemove.emplace_back(audioInputMeters_[i].second);
+        }
         audioInputPreFaderInserts_.erase(
             audioInputPreFaderInserts_.begin() + first,
             audioInputPreFaderInserts_.begin() + last
@@ -273,6 +294,11 @@ bool Mixer::removeAudioInputChannel(
             audioInputPostFaderInserts_.begin() + first,
             audioInputPostFaderInserts_.begin() + last
         );
+        FOR_RANGE0(i, nodesToRemove.size())
+        {
+            graphWithPDC_.removeNode(nodesToRemove[i]);
+        }
+        nodeRemovedCallback_(*this);
         audioInputFaders_.erase(
             audioInputFaders_.begin() + first,
             audioInputFaders_.begin() + last
@@ -298,6 +324,7 @@ void Mixer::clearAudioInputChannels()
 bool Mixer::appendAudioOutputChannel(
     const ade::NodeHandle& outNode, std::uint32_t channel)
 {
+    // input device of an audio output channel is a summing.
     auto device = graph_.getNodeData(outNode).process.device();
     if(channel < device->audioInputGroupCount())
     {
@@ -334,6 +361,7 @@ bool Mixer::appendAudioOutputChannel(
         audioOutputSummings_.emplace_back(std::move(summing), summingNode);
         audioOutputFaders_.emplace_back(std::move(fader), faderNode);
         audioOutputMeters_.emplace_back(std::move(meter), meterNode);
+        nodeAddedCallback_(*this);
         auto& info = audioOutputChannelInfo_.emplace_back();
         info.channelType = ChannelType::AudioBus;
         return true;
@@ -341,13 +369,22 @@ bool Mixer::appendAudioOutputChannel(
     return false;
 }
 
-bool Mixer::removeAudioOutputChannel(std::uint32_t first, std::uint32_t removeCount)
+bool Mixer::removeAudioOutputChannel(
+    std::uint32_t first, std::uint32_t removeCount)
 {
     if(auto last = first + removeCount;
         first < audioOutputChannelCount()
             && last <= audioOutputChannelCount()
     )
     {
+        std::vector<ade::NodeHandle> nodesToRemove;
+        nodesToRemove.reserve(removeCount * 3);
+        FOR_RANGE(i, first, last)
+        {
+            nodesToRemove.emplace_back(audioOutputSummings_[i].second);
+            nodesToRemove.emplace_back(audioOutputFaders_[i].second);
+            nodesToRemove.emplace_back(audioOutputMeters_[i].second);
+        }
         audioOutputPreFaderInserts_.erase(
             audioOutputPreFaderInserts_.begin() + first,
             audioOutputPreFaderInserts_.begin() + last
@@ -356,17 +393,22 @@ bool Mixer::removeAudioOutputChannel(std::uint32_t first, std::uint32_t removeCo
             audioOutputPostFaderInserts_.begin() + first,
             audioOutputPostFaderInserts_.begin() + last
         );
+        FOR_RANGE0(i, nodesToRemove.size())
+        {
+            graphWithPDC_.removeNode(nodesToRemove[i]);
+        }
+        nodeRemovedCallback_(*this);
         audioOutputSummings_.erase(
             audioOutputSummings_.begin() + first,
             audioOutputSummings_.begin() + last
         );
-        audioOutputMeters_.erase(
-            audioOutputMeters_.begin() + first,
-            audioOutputMeters_.begin() + last
-        );
         audioOutputFaders_.erase(
             audioOutputFaders_.begin() + first,
             audioOutputFaders_.begin() + last
+        );
+        audioOutputMeters_.erase(
+            audioOutputMeters_.begin() + first,
+            audioOutputMeters_.begin() + last
         );
         audioOutputChannelInfo_.erase(
             audioOutputChannelInfo_.begin() + first,
@@ -444,6 +486,7 @@ bool Mixer::insertChannel(
             outputDevices_.emplace(outputDevices_.begin() + position,
                 std::move(outputDevice), outputDeviceNode
             );
+            nodeAddedCallback_(*this);
             auto it = channelInfo_.emplace(channelInfo_.begin() + position);
             it->channelType = channelType;
             return true;
@@ -501,6 +544,7 @@ bool Mixer::insertChannel(
             outputDevices_.emplace(outputDevices_.begin() + position,
                 std::move(outputDevice), outputDeviceNode
             );
+            nodeAddedCallback_(*this);
             auto it = channelInfo_.emplace(channelInfo_.begin() + position);
             it->channelType = channelType;
             return true;
@@ -532,34 +576,20 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             postFaderInserts_.begin() + first,
             postFaderInserts_.begin() + last
         );
-        std::for_each_n(inputDevices_.begin() + first, removeCount,
-            [this](auto& deviceAndNode)
-            {
-                auto& [device, nodeHandle] = deviceAndNode;
-                graph_.removeNode(nodeHandle);
-            }
-        );
-        std::for_each_n(faders_.begin() + first, removeCount,
-            [this](auto& deviceAndNode)
-            {
-                auto& [device, nodeHandle] = deviceAndNode;
-                graph_.removeNode(nodeHandle);
-            }
-        );
-        std::for_each_n(meters_.begin() + first, removeCount,
-            [this](auto& deviceAndNode)
-            {
-                auto& [device, nodeHandle] = deviceAndNode;
-                graph_.removeNode(nodeHandle);
-            }
-        );
-        std::for_each_n(outputDevices_.begin() + first, removeCount,
-            [this](auto& deviceAndNode)
-            {
-                auto& [device, nodeHandle] = deviceAndNode;
-                graph_.removeNode(nodeHandle);
-            }
-        );
+        std::vector<ade::NodeHandle> nodesToRemove;
+        nodesToRemove.reserve(removeCount * 4);
+        FOR_RANGE(i, first,last)
+        {
+            nodesToRemove.emplace_back(inputDevices_[i].second);
+            nodesToRemove.emplace_back(faders_[i].second);
+            nodesToRemove.emplace_back(meters_[i].second);
+            nodesToRemove.emplace_back(outputDevices_[i].second);
+        }
+        FOR_RANGE0(i, nodesToRemove.size())
+        {
+            graphWithPDC_.removeNode(nodesToRemove[i]);
+        }
+        nodeRemovedCallback_(*this);
         inputDevices_.erase(
             inputDevices_.begin() + first,
             inputDevices_.begin() + last
@@ -588,5 +618,38 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
 void Mixer::clearChannels()
 {
     removeChannel(0, channelCount());
+}
+
+void Mixer::setNodeAddedCallback(
+    std::function<NodeAddedCallback>&& callback)
+{
+    nodeAddedCallback_ = std::move(callback);
+}
+
+void Mixer::setNodeRemovedCallback(
+    std::function<NodeRemovedCallback>&& callback)
+{
+    nodeRemovedCallback_ = std::move(callback);
+}
+
+void Mixer::setConnectionUpdatedCallback(
+    std::function<ConnectionUpdatedCallback>&& callback)
+{
+    connectionUpdatedCallback_ = std::move(callback);
+}
+
+void Mixer::resetNodeAddedCallback()
+{
+    nodeAddedCallback_ = {&blankNodeAddedCallback};
+}
+
+void Mixer::resetNodeRemovedCallback()
+{
+    nodeRemovedCallback_ = {&blankNodeRemovedCallback};
+}
+
+void Mixer::resetConnectionUpdatedCallback()
+{
+    connectionUpdatedCallback_ = {&blankConnectionUpdatedCallback};
 }
 }

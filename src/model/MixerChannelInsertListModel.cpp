@@ -149,9 +149,11 @@ bool MixerChannelInsertListModel::setData(const QModelIndex& index, const QVaria
                     {
                         window->setVisible(visible);
                         dataChanged(index, index, {Role::WindowVisible});
+                        return true;
                     }
                 }
             }
+            return false;
         }
         case Role::GenericEditorVisible:
         {
@@ -173,7 +175,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         auto& graphWithPDC = engine.mixer().graph();
         auto& pool = YADAW::Controller::appPluginPool();
-        const auto& pluginListModel = YADAW::Controller::appPluginListModel();
         auto pluginInfo = YADAW::DAO::selectPluginById(pluginId);
         auto it = pool.find<QString>(pluginInfo.path);
         if(it == pool.end())
@@ -259,7 +260,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         poolIterators_.emplace(poolIterators_.begin() + position, it);
         if(ret)
         {
-            auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
             YADAW::Controller::pluginNeedsWindow = plugin.get();
             if(plugin->gui())
             {
@@ -301,16 +301,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             it->second.emplace(std::move(plugin));
             beginInsertRows(QModelIndex(), position, position);
             endInsertRows();
-            auto& graph = audioEngine.mixer().graph().graph();
-            auto& bufferExt = audioEngine.mixer().bufferExtension();
-            auto& processSequence = audioEngine.processSequence();
-            processSequence.updateAndDispose(
-                std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
-                    YADAW::Audio::Engine::getProcessSequence(graph, bufferExt)
-                ),
-                audioEngine.running()
-            );
-
         }
     }
     return ret;
@@ -402,13 +392,6 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             }
             graphWithPDC.removeNode(removingNodes[i]);
         }
-        auto& processSequence = audioEngine.processSequence();
-        processSequence.updateAndDispose(
-            std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
-                YADAW::Audio::Engine::getProcessSequence(graph, bufferExt)
-            ),
-            audioEngine.running()
-        );
         for(auto& pluginToRemove: pluginsToRemove)
         {
             switch(pluginToRemove->format())
@@ -417,9 +400,9 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             {
                 auto vst3Plugin = static_cast<YADAW::Audio::Plugin::VST3Plugin*>(pluginToRemove.get());
                 auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
-                vst3PluginPool.erase(
-                    vst3PluginPool.find(vst3Plugin)
-                );
+                auto it = vst3PluginPool.find(vst3Plugin);
+                auto componentHandler = it->second.componentHandler;
+                vst3PluginPool.erase(it);
                 YADAW::Controller::AudioEngine::appAudioEngine().vst3PluginPool().updateAndDispose(
                     std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
                         createPoolVector(vst3PluginPool)
@@ -429,7 +412,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 vst3Plugin->stopProcessing();
                 vst3Plugin->deactivate();
                 vst3Plugin->uninitialize();
-                delete vst3Plugin->componentHandler();
+                delete componentHandler;
                 break;
             }
             case IAudioPlugin::Format::CLAP:

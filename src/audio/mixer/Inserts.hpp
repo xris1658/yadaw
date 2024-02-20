@@ -8,6 +8,10 @@ namespace YADAW::Audio::Mixer
 class Inserts
 {
 public:
+    using NodeAddedCallback = void(const Inserts&);
+    using NodeRemovedCallback = void(const Inserts&);
+    using ConnectionUpdatedCallback = void(const Inserts&);
+public:
     Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
         ade::NodeHandle inNode, ade::NodeHandle outNode,
         std::uint32_t inChannel, std::uint32_t outChannel);
@@ -34,6 +38,10 @@ public:
     void setName(std::uint32_t position, const QString& name);
     void setBypassed(std::uint32_t position, bool bypassed);
     bool move(std::uint32_t position, std::uint32_t count, Inserts& rhs, std::uint32_t destPosition);
+public:
+    void setNodeAddedCallback(std::function<NodeAddedCallback>&& callback);
+    void setNodeRemovedCallback(std::function<NodeRemovedCallback>&& callback);
+    void setConnectionUpdatedCallback(std::function<ConnectionUpdatedCallback>&& callback);
 private:
     YADAW::Audio::Engine::AudioDeviceGraphBase& graph_;
     ade::NodeHandle inNode_;
@@ -45,6 +53,9 @@ private:
     std::vector<QString> names_;
     std::vector<bool> bypassed_;
     std::vector<std::pair<std::uint32_t, std::uint32_t>> channel_;
+    std::function<NodeAddedCallback> nodeAddedCallback_;
+    std::function<NodeRemovedCallback> nodeRemovedCallback_;
+    std::function<ConnectionUpdatedCallback> connectionUpdatedCallback_;
 };
 }
 

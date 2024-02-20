@@ -32,6 +32,9 @@ public:
         QColor color;
         ChannelType channelType;
     };
+    using NodeAddedCallback = void(const Mixer&);
+    using NodeRemovedCallback = void(const Mixer&);
+    using ConnectionUpdatedCallback = void(const Mixer&);
 public:
     Mixer();
 public:
@@ -86,6 +89,13 @@ public:
         std::uint32_t removeCount = 1
     );
     void clearChannels();
+public:
+    void setNodeAddedCallback(std::function<NodeAddedCallback>&& callback);
+    void setNodeRemovedCallback(std::function<NodeRemovedCallback>&& callback);
+    void setConnectionUpdatedCallback(std::function<ConnectionUpdatedCallback>&& callback);
+    void resetNodeAddedCallback();
+    void resetNodeRemovedCallback();
+    void resetConnectionUpdatedCallback();
 private:
     using MeterAndNode = std::pair<
         std::unique_ptr<YADAW::Audio::Mixer::Meter>,
@@ -129,6 +139,10 @@ private:
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPostFaderInserts_;
     std::vector<MeterAndNode> audioOutputMeters_;
     std::vector<ChannelInfo> audioOutputChannelInfo_;
+
+    std::function<NodeAddedCallback> nodeAddedCallback_;
+    std::function<NodeRemovedCallback> nodeRemovedCallback_;
+    std::function<ConnectionUpdatedCallback> connectionUpdatedCallback_;
 };
 }
 

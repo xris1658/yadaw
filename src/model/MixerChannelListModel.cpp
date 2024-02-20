@@ -1,5 +1,6 @@
 #include "MixerChannelListModel.hpp"
 
+#include "controller/AudioEngineController.hpp"
 #include "entity/ChannelConfigHelper.hpp"
 #include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
@@ -212,6 +213,14 @@ bool MixerChannelListModel::insert(int position, IMixerChannelListModel::Channel
         );
         if(ret)
         {
+            auto& preFaderInserts = mixer_.channelPreFaderInsertsAt(position)->get();
+            auto& postFaderInserts = mixer_.channelPostFaderInsertsAt(position)->get();
+            preFaderInserts.setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
+            preFaderInserts.setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
+            preFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
+            postFaderInserts.setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
+            postFaderInserts.setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
+            postFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
             beginInsertRows(QModelIndex(), position, position);
             insertModels_.emplace_back(
                 std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
@@ -234,6 +243,7 @@ bool MixerChannelListModel::append(IMixerChannelListModel::ChannelTypes type,
 
 bool MixerChannelListModel::remove(int position, int removeCount)
 {
+    auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
     if(position < itemCount() && position + removeCount <= itemCount())
     {
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
@@ -241,6 +251,9 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         {
             insertModels_[i]->clear();
         }
+        (mixer_.*removeChannels[YADAW::Util::underlyingValue(listType_)])(
+            position, removeCount
+        );
         insertModels_.erase(
             insertModels_.begin() + position,
             insertModels_.begin() + position + removeCount

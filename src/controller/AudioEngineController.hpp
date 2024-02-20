@@ -46,6 +46,15 @@ public:
     void uninitialize();
     void process();
 private:
+    void updateProcessSequence();
+public:
+    static void mixerNodeAddedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
+    static void mixerNodeRemovedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
+    static void mixerConnectionUpdatedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
+    static void insertsNodeAddedCallback(const YADAW::Audio::Mixer::Inserts& inserts);
+    static void insertsNodeRemovedCallback(const YADAW::Audio::Mixer::Inserts& inserts);
+    static void insertsConnectionUpdatedCallback(const YADAW::Audio::Mixer::Inserts& inserts);
+private:
     double sampleRate_ = 0.0;
     std::uint32_t bufferSize_ = 0U;
     bool running_ = false;
