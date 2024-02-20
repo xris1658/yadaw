@@ -113,6 +113,7 @@ VST3Plugin::VST3Plugin(VST3Plugin&& rhs):
     eventProcessor_(std::move(rhs.eventProcessor_))
 {
     rhs.status_ = YADAW::Audio::Plugin::IAudioPlugin::Status::Empty;
+    rhs.exitEntry_ = nullptr;
 }
 
 bool VST3Plugin::createPlugin(const Steinberg::TUID& uid)
