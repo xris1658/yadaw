@@ -96,6 +96,14 @@ public:
     void resetNodeAddedCallback();
     void resetNodeRemovedCallback();
     void resetConnectionUpdatedCallback();
+public:
+    std::optional<ade::EdgeHandle> addConnection(
+        const ade::NodeHandle& from, const ade::NodeHandle& to,
+        std::uint32_t fromChannel, std::uint32_t toChannel);
+    void removeConnection(
+        const ade::EdgeHandle& edgeHandle
+    );
+    void clearConnections();
 private:
     using MeterAndNode = std::pair<
         std::unique_ptr<YADAW::Audio::Mixer::Meter>,
@@ -139,6 +147,8 @@ private:
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPostFaderInserts_;
     std::vector<MeterAndNode> audioOutputMeters_;
     std::vector<ChannelInfo> audioOutputChannelInfo_;
+
+    std::unordered_set<ade::EdgeHandle, ade::HandleHasher<ade::Edge>> connections_;
 
     std::function<NodeAddedCallback> nodeAddedCallback_;
     std::function<NodeRemovedCallback> nodeRemovedCallback_;
