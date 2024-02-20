@@ -237,6 +237,7 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
             std::make_pair(inChannel, outChannel)
         );
         setBypassed(position, false);
+        nodeAddedCallback_(*this);
         return true;
     }
     return false;

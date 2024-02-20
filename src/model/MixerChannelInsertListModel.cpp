@@ -392,6 +392,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             }
             graphWithPDC.removeNode(removingNodes[i]);
         }
+        audioEngine.insertsNodeRemovedCallback(*inserts_);
         for(auto& pluginToRemove: pluginsToRemove)
         {
             switch(pluginToRemove->format())
