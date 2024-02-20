@@ -207,6 +207,14 @@ void EventHandler::onOpenMainWindow()
         auto& bus = audioBusConfiguration.getInputBusAt(i)->get();
         auto node = appGraphWithPDC.addNode(YADAW::Audio::Engine::AudioDeviceProcess(bus));
         mixer.appendAudioInputChannel(node, 0);
+        auto& preFaderInserts = mixer.audioInputChannelPreFaderInsertsAt(i)->get();
+        preFaderInserts.setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
+        preFaderInserts.setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
+        preFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
+        auto& postFaderInserts = mixer.audioInputChannelPostFaderInsertsAt(i)->get();
+        postFaderInserts.setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
+        postFaderInserts.setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
+        postFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
         auto& channelInfo = mixer.audioInputChannelInfoAt(i)->get();
         channelInfo.name = appAudioBusInputConfigurationModel.data(
             appAudioBusInputConfigurationModel.index(i),
@@ -219,6 +227,14 @@ void EventHandler::onOpenMainWindow()
         auto& bus = audioBusConfiguration.getOutputBusAt(i)->get();
         auto node = appGraphWithPDC.addNode(YADAW::Audio::Engine::AudioDeviceProcess(bus));
         mixer.appendAudioOutputChannel(node, 0);
+        auto& preFaderInserts = mixer.audioOutputChannelPreFaderInsertsAt(i)->get();
+        preFaderInserts.setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
+        preFaderInserts.setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
+        preFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
+        auto& postFaderInserts = mixer.audioOutputChannelPostFaderInsertsAt(i)->get();
+        postFaderInserts.setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
+        postFaderInserts.setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
+        postFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
         auto& channelInfo = mixer.audioOutputChannelInfoAt(i)->get();
         channelInfo.name = appAudioBusOutputConfigurationModel.data(
             appAudioBusOutputConfigurationModel.index(i),
