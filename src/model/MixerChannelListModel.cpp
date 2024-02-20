@@ -2,6 +2,7 @@
 
 #include "entity/ChannelConfigHelper.hpp"
 #include "util/Base.hpp"
+#include "util/IntegerRange.hpp"
 
 namespace YADAW::Model
 {
@@ -236,9 +237,10 @@ bool MixerChannelListModel::remove(int position, int removeCount)
     if(position < itemCount() && position + removeCount <= itemCount())
     {
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
-        (mixer_.*removeChannels[YADAW::Util::underlyingValue(listType_)])(
-            position, removeCount
-        );
+        FOR_RANGE(i, position, position + removeCount)
+        {
+            insertModels_[i]->clear();
+        }
         insertModels_.erase(
             insertModels_.begin() + position,
             insertModels_.begin() + position + removeCount
