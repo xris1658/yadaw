@@ -18,7 +18,6 @@ Window {
     property alias audioInputList: audioInputComboBox.model
     property alias audioOutputList: audioOutputComboBox.model
     property alias midiInputList: midiInputComboBox.model
-    property alias midiOutputList: midiOutputComboBox.model
     property alias instrumentList: instrumentComboBox.model
     property alias audioEffectList: audioEffectComboBox.model
 
@@ -30,8 +29,6 @@ Window {
     property alias audioEffect: audioEffectComboBox.currentValue
     property alias midiInputEnabled: midiInputCheckBox.checked
     property alias midiInput: midiInputComboBox.currentValue
-    property alias midiOutputEnabled: midiOutputCheckBox.checked
-    property alias midiOutput: midiOutputComboBox.currentValue
     property alias audioInputEnabled: audioInputCheckBox.checked
     property alias audioInput: audioInputComboBox.currentValue
     property alias audioOutputEnabled: audioOutputCheckBox.checked
@@ -45,8 +42,8 @@ Window {
     enum TrackType {
         Audio,
         Instrument,
-        MIDI,
-        AudioEffect
+        AudioEffect,
+        AudioBus
     }
 
     QtObject {
@@ -83,17 +80,17 @@ Window {
                         }
                     }
                     TabButton {
-                        id: midiButton
+                        id: audioEffectButton
                         width: implicitWidth
-                        text: "MIDI"
+                        text: qsTr("Audio Effect")
                         onClicked: {
                             root.trackType = TabBar.index;
                         }
                     }
                     TabButton {
-                        id: audioEffectButton
+                        id: audioBusButton
                         width: implicitWidth
-                        text: qsTr("Audio Effect")
+                        text: qsTr("Audio Bus")
                         onClicked: {
                             root.trackType = TabBar.index;
                         }
@@ -136,6 +133,7 @@ Window {
                             horizontalAlignment: Label.AlignRight
                             visible: root.trackType === AddTrackWindow.TrackType.Audio
                                 || root.trackType === AddTrackWindow.TrackType.AudioEffect
+                                || root.trackType === AddTrackWindow.TrackType.AudioBus
                         }
                         ComboBox {
                             id: channelConfigComboBox
@@ -189,7 +187,6 @@ Window {
                             text: qsTr("MIDI Input") + ":"
                             checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.Instrument
-                                || root.trackType === AddTrackWindow.TrackType.MIDI
                             Component.onCompleted: {
                                 leftPadding = width - implicitWidth;
                             }
@@ -218,22 +215,6 @@ Window {
                             textRole: "abcm_name"
                         }
                         CheckBox {
-                            id: midiOutputCheckBox
-                            width: gridContainer.firstColumnWidth
-                            text: qsTr("MIDI Output") + ":"
-                            checked: true
-                            visible: root.trackType === AddTrackWindow.TrackType.MIDI
-                            Component.onCompleted: {
-                                leftPadding = width - implicitWidth;
-                            }
-                        }
-                        ComboBox {
-                            id: midiOutputComboBox
-                            width: gridContainer.secondColumnWidth
-                            visible: midiOutputCheckBox.visible
-                            enabled: midiOutputCheckBox.checked
-                        }
-                        CheckBox {
                             id: audioOutputCheckBox
                             width: gridContainer.firstColumnWidth
                             text: qsTr("Audio Output") + ":"
@@ -241,6 +222,7 @@ Window {
                             visible: root.trackType === AddTrackWindow.TrackType.Audio
                                 || root.trackType === AddTrackWindow.TrackType.Instrument
                                 || root.trackType === AddTrackWindow.TrackType.AudioEffect
+                                || root.trackType === AddTrackWindow.TrackType.AudioBus
                             Component.onCompleted: {
                                 leftPadding = width - implicitWidth;
                             }

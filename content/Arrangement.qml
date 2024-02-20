@@ -177,15 +177,15 @@ SplitView {
                             }
                         }
                         MenuItem {
-                            text: qsTr("&MIDI") + "..."
-                            onTriggered: {
-                                root.appendTrack(AddTrackWindow.TrackType.MIDI);
-                            }
-                        }
-                        MenuItem {
                             text: qsTr("Audio &Effect") + "..."
                             onTriggered: {
                                 root.appendTrack(AddTrackWindow.TrackType.AudioEffect);
+                            }
+                        }
+                        MenuItem {
+                            text: qsTr("Audio &Bus") + "..."
+                            onTriggered: {
+                                root.appendTrack(AddTrackWindow.TrackType.AudioBus);
                             }
                         }
                     }

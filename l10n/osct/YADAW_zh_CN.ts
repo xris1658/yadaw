@@ -84,59 +84,63 @@
         <translation>添加轨道</translation>
     </message>
     <message>
-        <location filename="../../content/AddTrackWindow.qml" line="72"/>
+        <location filename="../../content/AddTrackWindow.qml" line="69"/>
         <source>Audio</source>
         <translation>音频</translation>
     </message>
     <message>
-        <location filename="../../content/AddTrackWindow.qml" line="80"/>
-        <location filename="../../content/AddTrackWindow.qml" line="151"/>
+        <location filename="../../content/AddTrackWindow.qml" line="77"/>
+        <location filename="../../content/AddTrackWindow.qml" line="149"/>
         <source>Instrument</source>
         <translation>乐器</translation>
     </message>
     <message>
-        <location filename="../../content/AddTrackWindow.qml" line="96"/>
-        <location filename="../../content/AddTrackWindow.qml" line="170"/>
+        <location filename="../../content/AddTrackWindow.qml" line="85"/>
+        <location filename="../../content/AddTrackWindow.qml" line="168"/>
         <source>Audio Effect</source>
         <translation>音频效果</translation>
     </message>
     <message>
-        <location filename="../../content/AddTrackWindow.qml" line="125"/>
+        <location filename="../../content/AddTrackWindow.qml" line="93"/>
+        <source>Audio Bus</source>
+        <translation>音频总线</translation>
+    </message>
+    <message>
+        <location filename="../../content/AddTrackWindow.qml" line="122"/>
         <source>Name</source>
         <translation>名称</translation>
     </message>
     <message>
-        <location filename="../../content/AddTrackWindow.qml" line="135"/>
+        <location filename="../../content/AddTrackWindow.qml" line="132"/>
         <source>Channel Config</source>
         <translation>声道</translation>
     </message>
     <message>
-        <location filename="../../content/AddTrackWindow.qml" line="189"/>
+        <location filename="../../content/AddTrackWindow.qml" line="187"/>
         <source>MIDI Input</source>
         <translation>MIDI 输入</translation>
     </message>
     <message>
-        <location filename="../../content/AddTrackWindow.qml" line="206"/>
+        <location filename="../../content/AddTrackWindow.qml" line="203"/>
         <source>Audio Input</source>
         <translation>音频输入</translation>
     </message>
     <message>
-        <location filename="../../content/AddTrackWindow.qml" line="223"/>
         <source>MIDI Output</source>
-        <translation>MIDI 输出</translation>
+        <translation type="vanished">MIDI 输出</translation>
     </message>
     <message>
-        <location filename="../../content/AddTrackWindow.qml" line="239"/>
+        <location filename="../../content/AddTrackWindow.qml" line="220"/>
         <source>Audio Output</source>
         <translation>音频输出</translation>
     </message>
     <message>
-        <location filename="../../content/AddTrackWindow.qml" line="257"/>
+        <location filename="../../content/AddTrackWindow.qml" line="239"/>
         <source>Count</source>
         <translation>数量</translation>
     </message>
     <message>
-        <location filename="../../content/AddTrackWindow.qml" line="288"/>
+        <location filename="../../content/AddTrackWindow.qml" line="270"/>
         <source>&amp;Add</source>
         <translation>添加(&amp;A)</translation>
     </message>
@@ -189,14 +193,18 @@
         <translation>乐器(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="180"/>
         <source>&amp;MIDI</source>
-        <translation>MIDI(&amp;M)</translation>
+        <translation type="vanished">MIDI(&amp;M)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Arrangement.qml" line="180"/>
+        <source>Audio &amp;Effect</source>
+        <translation>音频效果(&amp;E)</translation>
     </message>
     <message>
         <location filename="../../content/Arrangement.qml" line="186"/>
-        <source>Audio &amp;Effect</source>
-        <translation>音频效果(&amp;E)</translation>
+        <source>Audio &amp;Bus</source>
+        <translation>音频总线(&amp;B)</translation>
     </message>
     <message>
         <location filename="../../content/Arrangement.qml" line="194"/>
@@ -1092,32 +1100,36 @@ Proceed?</source>
 <context>
     <name>Mixer</name>
     <message>
-        <location filename="../../content/Mixer.qml" line="239"/>
+        <location filename="../../content/Mixer.qml" line="243"/>
         <source>Mixer Channel Blank Area Options</source>
         <translation>混音器空白处选项</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="242"/>
+        <location filename="../../content/Mixer.qml" line="246"/>
         <source>&amp;Append Track</source>
         <translation>在末尾添加轨道(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="244"/>
+        <location filename="../../content/Mixer.qml" line="248"/>
         <source>&amp;Audio</source>
         <translation>音频(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="250"/>
+        <location filename="../../content/Mixer.qml" line="254"/>
         <source>&amp;Instrument</source>
         <translation>乐器(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="256"/>
-        <source>&amp;MIDI</source>
-        <translation>MIDI(&amp;M)</translation>
+        <location filename="../../content/Mixer.qml" line="266"/>
+        <source>Audio &amp;Bus</source>
+        <translation>音频总线(&amp;B)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="262"/>
+        <source>&amp;MIDI</source>
+        <translation type="vanished">MIDI(&amp;M)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Mixer.qml" line="260"/>
         <source>Audio &amp;Effect</source>
         <translation>音频效果(&amp;E)</translation>
     </message>

@@ -2,6 +2,8 @@ import QtQml
 import QtQuick
 import QtQuick.Controls as QC
 
+import YADAW.Models
+
 Rectangle {
     id: root
     color: Colors.background
@@ -201,12 +203,14 @@ Rectangle {
                 inputModel: 0
                 outputModel: 0
                 insertModel: mclm_inserts
-                inputAvailable: false
-                outputAvailable: false
+                inputAvailable:
+                    mclm_channel_type == IMixerChannelListModel.ChannelTypeAudio
+                    || mclm_channel_type == IMixerChannelListModel.ChannelTypeInstrument
+                outputAvailable: true
                 channelColor: mclm_color
                 name: mclm_name
                 showIO: root.showIO
-                hasInstrument: false
+                hasInstrument: mclm_channel_type == IMixerChannelListModel.ChannelTypeInstrument
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
@@ -253,15 +257,15 @@ Rectangle {
                         }
                     }
                     MenuItem {
-                        text: qsTr("&MIDI") + "..."
-                        onTriggered: {
-                            root.appendTrack(AddTrackWindow.TrackType.MIDI);
-                        }
-                    }
-                    MenuItem {
                         text: qsTr("Audio &Effect") + "..."
                         onTriggered: {
                             root.appendTrack(AddTrackWindow.TrackType.AudioEffect);
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("Audio &Bus") + "..."
+                        onTriggered: {
+                            root.appendTrack(AddTrackWindow.TrackType.AudioBus);
                         }
                     }
                 }
