@@ -8,6 +8,7 @@ Rectangle {
     color: Colors.background
     readonly property Item header: header
 
+    signal setName(name: string)
     signal startRename()
 
     Rectangle {
@@ -52,7 +53,7 @@ Rectangle {
                             visible = false;
                         }
                         onAccepted: {
-                            root.name = nameTextField.text;
+                            root.setName(nameTextField.text);
                             visible = false;
                         }
                     }

@@ -94,6 +94,9 @@ SplitView {
                             trackOptions.open();
                         }
                     }
+                    onSetName: (name) => {
+                        mclm_name = name;
+                    }
                 }
                 Rectangle {
                     width: trackHeaderListView.width
