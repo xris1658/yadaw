@@ -9,6 +9,8 @@ Item {
     property color color: "#000000"
     property alias spacing: column.spacing
 
+    signal setColorOutside(colorOutside: color)
+
     width: radius * 2
     height: column.height
 
@@ -191,7 +193,7 @@ Item {
             }
         }
     }
-    Component.onCompleted: {
-        impl.fromColor(root.color);
+    onSetColorOutside: (colorOutside) => {
+        impl.fromColor(colorOutside)
     }
 }

@@ -2,10 +2,14 @@ import QtQuick
 
 Rectangle {
     id: root
-    property int index
+    property int trackHeaderIndex
     property alias name: nameText.text
     property alias trackColor: header.color
     color: Colors.background
+    readonly property Item header: header
+
+    signal startRename()
+
     Rectangle {
         id: header
         width: indexText.width
@@ -19,7 +23,7 @@ Rectangle {
             horizontalAlignment: Label.AlignHCenter
             topPadding: 3
             bottomPadding: 3
-            text: index + 1
+            text: root.trackHeaderIndex + 1
         }
     }
     Item {
@@ -53,13 +57,12 @@ Rectangle {
                         }
                     }
                     MouseArea {
+                        id: nameMouseArea
                         anchors.fill: parent
                         z: 1
                         acceptedButtons: Qt.LeftButton
                         onDoubleClicked: {
-                            nameTextField.selectAll();
-                            nameTextField.forceActiveFocus();
-                            nameTextField.visible = true;
+                            root.startRename();
                         }
                     }
                 }
@@ -92,5 +95,10 @@ Rectangle {
                 }
             }
         }
+    }
+    onStartRename: {
+        nameTextField.selectAll();
+        nameTextField.forceActiveFocus();
+        nameTextField.visible = true;
     }
 }

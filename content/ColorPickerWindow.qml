@@ -14,6 +14,10 @@ Window {
     property alias currentColor: colorPicker.color
 
     signal accepted()
+    signal setColorOutside(colorOutside: color)
+    onSetColorOutside: (colorOutside) => {
+        colorPicker.setColorOutside(colorOutside);
+    }
 
     Column {
         id: column
@@ -38,14 +42,21 @@ Window {
                 }
                 Rectangle {
                     id: originalColorRectangle
-                    width: okButton.width
-                    height: width
+                    width: height
+                    height: okButton.height
                     color: root.originalColor
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.LeftButton
+                        onClicked: {
+                            root.setColorOutside(originalColor);
+                        }
+                    }
                 }
                 Rectangle {
                     id: currentColorRectangle
-                    width: okButton.width
-                    height: width
+                    width: height
+                    height: okButton.height
                     color: root.currentColor
                 }
                 Label {
@@ -74,6 +85,20 @@ Window {
                     }
                 }
             }
+        }
+    }
+    Shortcut {
+        context: Qt.WindowShortcut
+        sequence: "Enter"
+        onActivated: {
+            okButton.clicked();
+        }
+    }
+    Shortcut {
+        context: Qt.WindowShortcut
+        sequence: "Esc"
+        onActivated: {
+            cancelButton.clicked();
         }
     }
 }

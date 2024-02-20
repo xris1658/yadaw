@@ -1,5 +1,7 @@
 import QtQuick
 
+import YADAW.Models
+
 SplitView {
     id: root
 
@@ -68,13 +70,30 @@ SplitView {
                 visible: size !== 1.0
             }
             delegate: Column {
+                property alias trackName: trackHeader.name
+                function startRename() {
+                    trackHeader.startRename();
+                }
                 TrackHeader {
+                    id: trackHeader
+                    trackHeaderIndex: index
                     width: trackHeaderListView.width
                     height: 60
                     clip: true
                     name: mclm_name
                     trackColor: mclm_color
                     color: Colors.controlBackground
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.RightButton
+                        onClicked: {
+                            trackOptions.parent = trackHeader;
+                            trackOptions.currentSelection = trackHeader.trackHeaderIndex;
+                            trackOptions.x = mouseX;
+                            trackOptions.y = mouseY;
+                            trackOptions.open();
+                        }
+                    }
                 }
                 Rectangle {
                     width: trackHeaderListView.width
@@ -86,6 +105,42 @@ SplitView {
             footer: Item {
                 width: arrangementHeader.width
                 height: 60
+            }
+            ColorPickerWindow {
+                id: colorPickerWindow
+                onAccepted: {
+                    trackList.setData(
+                        trackList.index(trackOptions.currentSelection, 0),
+                        colorPickerWindow.currentColor,
+                        IMixerChannelListModel.Color
+                    );
+                }
+            }
+            Menu {
+                id: trackOptions
+                property int currentSelection: -1
+                title: qsTr("Track Options")
+                MenuItem {
+                    text: qsTr("&Rename")
+                    onTriggered: {
+                        trackOptions.parent.startRename();
+                    }
+                }
+                MenuItem {
+                    text: qsTr("&Set Color")
+                    onTriggered: {
+                        colorPickerWindow.setTitle(
+                            qsTr("Set Color")
+                        );
+                        colorPickerWindow.originalColor = trackOptions.parent.trackColor;
+                        colorPickerWindow.currentColor = trackOptions.parent.trackColor;
+                        colorPickerWindow.setColorOutside(trackOptions.parent.trackColor);
+                        colorPickerWindow.show();
+                    }
+                }
+                MenuItem {
+                    text: qsTr("&Delete")
+                }
             }
             MouseArea {
                 id: trackHeaderListBlankArea
