@@ -143,6 +143,9 @@ SplitView {
                 }
                 MenuItem {
                     text: qsTr("&Delete")
+                    onTriggered: {
+                        trackList.remove(trackOptions.currentSelection, 1);
+                    }
                 }
             }
             MouseArea {
