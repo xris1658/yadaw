@@ -281,17 +281,6 @@ void CLAPPlugin::process(const Device::AudioProcessData<float>& audioProcessData
     processStatus_ = plugin_->process(plugin_, &processData_);
 }
 
-std::uint32_t CLAPPlugin::audioChannelMapCount() const
-{
-    return 0;
-}
-
-YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
-    CLAPPlugin::audioChannelMapAt(std::uint32_t index) const
-{
-    return std::nullopt;
-}
-
 void CLAPPlugin::prepareAudioRelatedInfo()
 {
     auto audioInputGroupCount = this->audioInputGroupCount();

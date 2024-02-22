@@ -89,13 +89,3 @@ void SineWaveGenerator::process(const YADAW::Audio::Device::AudioProcessData<flo
     }
 }
 
-std::uint32_t SineWaveGenerator::audioChannelMapCount() const
-{
-    return 0;
-}
-
-YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
-    SineWaveGenerator::audioChannelMapAt(std::uint32_t index) const
-{
-    return std::nullopt;
-}

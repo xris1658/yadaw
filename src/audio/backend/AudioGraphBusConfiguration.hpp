@@ -37,8 +37,7 @@ public:
         OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
         std::uint32_t latencyInSamples() const override;
         void process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData) override;
-        std::uint32_t audioChannelMapCount() const override;
-        OptionalChannelMap audioChannelMapAt(std::uint32_t index) const override;
+
     public:
         void setName(const QString& name);
         void setName(QString&& name);

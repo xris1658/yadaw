@@ -28,8 +28,7 @@ public:
     // latency compensation is certainly a terrible idea.
     std::uint32_t latencyInSamples() const override;
     void process(const AudioProcessData<float> &audioProcessData) override;
-    std::uint32_t audioChannelMapCount() const override;
-    OptionalChannelMap audioChannelMapAt(std::uint32_t index) const override;
+
 public:
     const YADAW::Audio::Engine::AudioDeviceProcess process() const;
     YADAW::Audio::Engine::AudioDeviceProcess process();

@@ -13,14 +13,7 @@ SampleDelay::SampleDelay(std::uint32_t delay,
     offset_(0),
     buffers_(channelGroup.channelCount(), std::vector<float>(delay, 0.0f)),
     channelGroup_(AudioChannelGroup::from(channelGroup))
-{
-    const std::uint32_t channelCount = channelGroup_.channelCount();
-    channelMaps_.reserve(channelCount);
-    FOR_RANGE0(i, channelCount)
-    {
-        channelMaps_.emplace_back(0U, i, 0U, i);
-    }
-}
+{}
 
 SampleDelay::SampleDelay(SampleDelay&& rhs) noexcept:
     delay_(rhs.delay_),
@@ -206,16 +199,4 @@ void SampleDelay::doProcessIfDelayIsNotZero(const Device::AudioProcessData<float
     }
 }
 
-std::uint32_t SampleDelay::audioChannelMapCount() const
-{
-    return 0;
-}
-
-YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
-    SampleDelay::audioChannelMapAt(std::uint32_t index) const
-{
-    return index < channelMaps_.size()?
-        OptionalChannelMap(std::ref(channelMaps_[index])):
-        std::nullopt;
-}
 }

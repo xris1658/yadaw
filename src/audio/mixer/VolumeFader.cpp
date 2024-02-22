@@ -60,19 +60,6 @@ void VolumeFader::process(
     (this->*processFuncs[automation_ != nullptr])(audioProcessData);
 }
 
-std::uint32_t VolumeFader::audioChannelMapCount() const
-{
-    return channelMaps_.size();
-}
-
-YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
-    VolumeFader::audioChannelMapAt(std::uint32_t index) const
-{
-    return index < channelMaps_.size()?
-        OptionalChannelMap(std::ref(channelMaps_[index])):
-        std::nullopt;
-}
-
 void VolumeFader::processWithoutAutomation(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {

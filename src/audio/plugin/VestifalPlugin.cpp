@@ -192,16 +192,6 @@ void VestifalPlugin::process(const Device::AudioProcessData<float>& audioProcess
     effect_->processReplacing(effect_, inputs_.data(), outputs_.data(), audioProcessData.singleBufferSize);
 }
 
-std::uint32_t VestifalPlugin::audioChannelMapCount() const
-{
-    return 0;
-}
-
-YADAW::Audio::Device::IAudioDevice::OptionalChannelMap VestifalPlugin::audioChannelMapAt(std::uint32_t index) const
-{
-    return std::nullopt;
-}
-
 TimeInfo* VestifalPlugin::timeInfo() const
 {
     return timeInfo_;

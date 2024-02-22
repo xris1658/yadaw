@@ -67,14 +67,4 @@ void Summing::process(const AudioProcessData<float>& audioProcessData)
     }
 }
 
-std::uint32_t Summing::audioChannelMapCount() const
-{
-    return 0;
-}
-
-YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
-    Summing::audioChannelMapAt(std::uint32_t index) const
-{
-    return std::nullopt;
-}
 }

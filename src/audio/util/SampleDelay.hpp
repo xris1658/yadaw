@@ -32,8 +32,7 @@ public:
     OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
     std::uint32_t latencyInSamples() const override;
     void process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData) override;
-    std::uint32_t audioChannelMapCount() const override;
-    OptionalChannelMap audioChannelMapAt(std::uint32_t index) const override;
+
 private:
     void doProcessIfDelayIsZero(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData);
     void doProcessIfDelayIsNotZero(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData);
@@ -44,7 +43,6 @@ private:
     std::uint64_t offset_;
     std::vector<std::vector<float>> buffers_;
     AudioChannelGroup channelGroup_;
-    std::vector<IAudioDevice::ChannelMap> channelMaps_;
 };
 }
 

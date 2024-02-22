@@ -45,14 +45,4 @@ void BlankReceiver::process(
     const Device::AudioProcessData<float>& audioProcessData)
 {}
 
-uint32_t BlankReceiver::audioChannelMapCount() const
-{
-    return 0;
-}
-
-YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
-BlankReceiver::audioChannelMapAt(std::uint32_t index) const
-{
-    return std::nullopt;
-}
 }

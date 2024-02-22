@@ -51,14 +51,4 @@ void BlankGenerator::process(
     }
 }
 
-uint32_t BlankGenerator::audioChannelMapCount() const
-{
-    return 0;
-}
-
-YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
-    BlankGenerator::audioChannelMapAt(std::uint32_t index) const
-{
-    return std::nullopt;
-}
 }

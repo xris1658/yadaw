@@ -21,26 +21,7 @@ struct AudioProcessData
 class IAudioDevice
 {
 public:
-    struct ChannelMap
-    {
-        ChannelMap(
-            std::uint32_t inChannelGroup,
-            std::uint32_t inChannel,
-            std::uint32_t outChannelGroup,
-            std::uint32_t outChannel):
-            inChannelGroup(inChannelGroup),
-            inChannel(inChannel),
-            outChannelGroup(outChannelGroup),
-            outChannel(outChannel)
-        {}
-        std::uint32_t inChannelGroup;
-        std::uint32_t inChannel;
-        std::uint32_t outChannelGroup;
-        std::uint32_t outChannel;
-    };
-public:
     using OptionalAudioChannelGroup = OptionalRef<const IAudioChannelGroup>;
-    using OptionalChannelMap = OptionalRef<const ChannelMap>;
 public:
     virtual ~IAudioDevice() = default;
 public:
@@ -49,8 +30,6 @@ public:
     virtual OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const = 0;
     virtual OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const = 0;
     virtual std::uint32_t latencyInSamples() const = 0;
-    virtual std::uint32_t audioChannelMapCount() const = 0;
-    virtual OptionalChannelMap audioChannelMapAt(std::uint32_t index) const = 0;
 public:
     virtual void process(const AudioProcessData<float>& audioProcessData) = 0;
 };
