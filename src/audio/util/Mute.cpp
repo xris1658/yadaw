@@ -1,0 +1,70 @@
+#include "Mute.hpp"
+
+#include "util/IntegerRange.hpp"
+
+namespace YADAW::Audio::Util
+{
+Mute::Mute(
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    std::uint32_t channelCountInGroup)
+{
+    input_.setChannelGroupType(channelGroupType, channelCountInGroup);
+    output_.setChannelGroupType(channelGroupType, channelCountInGroup);
+}
+
+std::uint32_t Mute::audioInputGroupCount() const
+{
+    return 1;
+}
+
+std::uint32_t Mute::audioOutputGroupCount() const
+{
+    return 1;
+}
+
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
+    Mute::audioInputGroupAt(std::uint32_t index) const
+{
+    return index == 0?
+        OptionalAudioChannelGroup(input_):
+        std::nullopt;
+}
+
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
+    Mute::audioOutputGroupAt(std::uint32_t index) const
+{
+    return index == 0?
+        OptionalAudioChannelGroup(output_):
+        std::nullopt;
+}
+
+std::uint32_t Mute::latencyInSamples() const
+{
+    return 0;
+}
+
+constexpr float factor[2] = {1.0f, 0.0f};
+
+void Mute::process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
+{
+    bool mute = false;
+    if(usingMute_.try_lock())
+    {
+        mute = mute_;
+        usingMute_.unlock();
+    }
+    FOR_RANGE0(i, audioProcessData.inputCounts[0])
+    {
+        FOR_RANGE0(j, audioProcessData.singleBufferSize)
+        {
+            audioProcessData.outputs[0][i][j] = audioProcessData.inputs[0][i][j] * factor[mute];
+        }
+    }
+}
+
+void Mute::setMute(bool mute)
+{
+    std::lock_guard<YADAW::Util::AtomicMutex> lg(usingMute_);
+    mute_ = mute;
+}
+}

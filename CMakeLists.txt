@@ -246,6 +246,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/util/CLAPHelper.hpp
     src/audio/util/ChannelGroupRemixer.cpp
     src/audio/util/ChannelGroupRemixer.hpp
+    src/audio/util/Mute.cpp
+    src/audio/util/Mute.hpp
     src/audio/util/SampleDelay.cpp
     src/audio/util/SampleDelay.hpp
     src/audio/util/Splitter.cpp
