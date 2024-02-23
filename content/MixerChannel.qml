@@ -22,6 +22,8 @@ Rectangle {
 
     property Window pluginSelectorWindow: null
 
+    property bool mute: muteButton.checked
+    signal setMute(newMute: bool)
 
     width: 120
     height: 400
@@ -341,6 +343,10 @@ Rectangle {
                         width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
                         topPadding: 1
                         bottomPadding: 1
+                        checkable: true
+                        onClicked: {
+                            root.setMute(muteButton.checked);
+                        }
                     }
                     Button {
                         id: soloButton
@@ -348,6 +354,7 @@ Rectangle {
                         width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
                         topPadding: 1
                         bottomPadding: 1
+                        checkable: true
                     }
                     Button {
                         id: invertPolarityButton
@@ -355,6 +362,7 @@ Rectangle {
                         width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
                         topPadding: 1
                         bottomPadding: 1
+                        checkable: true
                     }
                     Button {
                         id: armRecordingButton
@@ -362,6 +370,7 @@ Rectangle {
                         width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
                         topPadding: 1
                         bottomPadding: 1
+                        checkable: true
                     }
                 }
                 Item {

@@ -164,6 +164,10 @@ Rectangle {
                 showSendSlot: root.showSend
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
+                mute: mclm_mute
+                onSetMute: (newMute) => {
+                    mclm_mute = newMute;
+                }
             }
             Rectangle {
                 id: inputMixerChannelBorder
@@ -215,6 +219,10 @@ Rectangle {
                 showSendSlot: root.showSend
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
+                mute: mclm_mute
+                onSetMute: (newMute) => {
+                    mclm_mute = newMute;
+                }
             }
             Rectangle {
                 id: channelRightBorder
@@ -310,6 +318,10 @@ Rectangle {
                 showSendSlot: root.showSend
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
+                mute: mclm_mute
+                onSetMute: (newMute) => {
+                    mclm_mute = newMute;
+                }
             }
         }
         Rectangle {
