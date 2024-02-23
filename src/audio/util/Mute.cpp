@@ -47,24 +47,29 @@ constexpr float factor[2] = {1.0f, 0.0f};
 
 void Mute::process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    bool mute = false;
-    if(usingMute_.try_lock())
+    if(muteUpdated_)
     {
-        mute = mute_;
-        usingMute_.unlock();
+        muteInCallback_ = mute_;
     }
     FOR_RANGE0(i, audioProcessData.inputCounts[0])
     {
         FOR_RANGE0(j, audioProcessData.singleBufferSize)
         {
-            audioProcessData.outputs[0][i][j] = audioProcessData.inputs[0][i][j] * factor[mute];
+            audioProcessData.outputs[0][i][j] = audioProcessData.inputs[0][i][j] * factor[muteInCallback_];
         }
     }
 }
 
+bool Mute::mute() const
+{
+    while(muteUpdated_.load(std::memory_order::memory_order_acquire)) {}
+    return mute_;
+}
+
 void Mute::setMute(bool mute)
 {
-    std::lock_guard<YADAW::Util::AtomicMutex> lg(usingMute_);
+    while(muteUpdated_.load(std::memory_order::memory_order_acquire)) {}
     mute_ = mute;
+    muteUpdated_.store(true, std::memory_order::memory_order_release);
 }
 }

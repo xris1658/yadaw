@@ -3,11 +3,6 @@
 #include "audio/mixer/BlankGenerator.hpp"
 #include "audio/mixer/BlankReceiver.hpp"
 
-// Structure of a channel:
-// ,------------,    ,-------------------,    ,-------,    ,--------------------,    ,-------,
-// | input node | -> | pre-fader inserts | -> | fader | -> | post-fader inserts | -> | meter |
-// '------------'    '-------------------'    '-------'    '--------------------'    '-------'
-
 namespace YADAW::Audio::Mixer
 {
 void blankNodeAddedCallback(const Mixer& mixer) {}
@@ -231,6 +226,60 @@ OptionalRef<Mixer::ChannelInfo> Mixer::channelInfoAt(std::uint32_t index)
     return std::nullopt;
 }
 
+std::optional<bool> Mixer::audioInputMuted(std::uint32_t index) const
+{
+    if(index < audioInputChannelCount())
+    {
+        return {audioInputMuted_[index]};
+    }
+    return std::nullopt;
+}
+
+std::optional<bool> Mixer::audioOutputMuted(std::uint32_t index) const
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {audioOutputMuted_[index]};
+    }
+    return std::nullopt;
+}
+
+std::optional<bool> Mixer::muted(std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        return {muted_[index]};
+    }
+    return std::nullopt;
+}
+
+void Mixer::setAudioInputMuted(std::uint32_t index, bool muted)
+{
+    if(index < audioInputChannelCount())
+    {
+        audioInputMutes_[index].first->setMute(muted);
+        audioInputMuted_[index] = muted;
+    }
+}
+
+void Mixer::setAudioOutputMuted(std::uint32_t index, bool muted)
+{
+    if(index < audioOutputChannelCount())
+    {
+        audioOutputMutes_[index].first->setMute(muted);
+        audioOutputMuted_[index] = muted;
+    }
+}
+
+void Mixer::setMuted(std::uint32_t index, bool muted)
+{
+    if(index < channelCount())
+    {
+        mutes_[index].first->setMute(muted);
+        muted_[index] = muted;
+    }
+}
+
 bool Mixer::appendAudioInputChannel(
     const ade::NodeHandle& inNode, std::uint32_t channel)
 {
@@ -250,6 +299,12 @@ bool Mixer::appendAudioInputChannel(
         auto faderNode = graph_.addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(*fader)
         );
+        auto mute = std::make_unique<YADAW::Audio::Util::Mute>(
+            channelGroup.type(), channelGroup.channelCount()
+        );
+        auto muteNode = graph_.addNode(
+            YADAW::Audio::Engine::AudioDeviceProcess(*mute)
+        );
         audioInputPreFaderInserts_.emplace_back(
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, inNode, faderNode, channel, 0
@@ -260,8 +315,11 @@ bool Mixer::appendAudioInputChannel(
                 graph_, faderNode, meterNode, 0, 0
             )
         );
+        graph_.connect(meterNode, muteNode, 0, 0);
         audioInputFaders_.emplace_back(std::move(fader), faderNode);
         audioInputMeters_.emplace_back(std::move(meter), meterNode);
+        audioInputMutes_.emplace_back(std::move(mute), muteNode);
+        audioInputMuted_.emplace_back(false);
         nodeAddedCallback_(*this);
         auto& info = audioInputChannelInfo_.emplace_back();
         info.channelType = ChannelType::AudioBus;
@@ -279,12 +337,13 @@ bool Mixer::removeAudioInputChannel(
     )
     {
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 3);
+        nodesToRemove.reserve(removeCount * 4);
         FOR_RANGE(i, first, last)
         {
             nodesToRemove.emplace_back(audioInputPreFaderInserts_[i]->inNode());
             nodesToRemove.emplace_back(audioInputFaders_[i].second);
             nodesToRemove.emplace_back(audioInputMeters_[i].second);
+            nodesToRemove.emplace_back(audioInputMutes_[i].second);
         }
         audioInputPreFaderInserts_.erase(
             audioInputPreFaderInserts_.begin() + first,
@@ -306,6 +365,14 @@ bool Mixer::removeAudioInputChannel(
         audioInputMeters_.erase(
             audioInputMeters_.begin() + first,
             audioInputMeters_.begin() + last
+        );
+        audioInputMutes_.erase(
+            audioInputMutes_.begin() + first,
+            audioInputMutes_.begin() + last
+        );
+        audioInputMuted_.erase(
+            audioInputMuted_.begin() + first,
+            audioInputMuted_.begin() + last
         );
         audioInputChannelInfo_.erase(
             audioInputChannelInfo_.begin() + first,
@@ -347,6 +414,12 @@ bool Mixer::appendAudioOutputChannel(
         auto faderNode = graph_.addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(*fader)
         );
+        auto mute = std::make_unique<YADAW::Audio::Util::Mute>(
+            channelGroup.type(), channelGroup.channelCount()
+        );
+        auto muteNode = graph_.addNode(
+            YADAW::Audio::Engine::AudioDeviceProcess(*mute)
+        );
         audioOutputPreFaderInserts_.emplace_back(
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, summingNode, faderNode, 0, 0
@@ -357,10 +430,13 @@ bool Mixer::appendAudioOutputChannel(
                 graph_, faderNode, meterNode, 0, 0
             )
         );
-        graph_.connect(meterNode, outNode, 0, channel);
+        graph_.connect(meterNode, muteNode, 0, 0);
+        graph_.connect(muteNode, outNode, 0, channel);
         audioOutputSummings_.emplace_back(std::move(summing), summingNode);
         audioOutputFaders_.emplace_back(std::move(fader), faderNode);
         audioOutputMeters_.emplace_back(std::move(meter), meterNode);
+        audioOutputMutes_.emplace_back(std::move(mute), muteNode);
+        audioOutputMuted_.emplace_back(false);
         nodeAddedCallback_(*this);
         auto& info = audioOutputChannelInfo_.emplace_back();
         info.channelType = ChannelType::AudioBus;
@@ -378,12 +454,13 @@ bool Mixer::removeAudioOutputChannel(
     )
     {
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 3);
+        nodesToRemove.reserve(removeCount * 4);
         FOR_RANGE(i, first, last)
         {
             nodesToRemove.emplace_back(audioOutputSummings_[i].second);
             nodesToRemove.emplace_back(audioOutputFaders_[i].second);
             nodesToRemove.emplace_back(audioOutputMeters_[i].second);
+            nodesToRemove.emplace_back(audioOutputMutes_[i].second);
         }
         audioOutputPreFaderInserts_.erase(
             audioOutputPreFaderInserts_.begin() + first,
@@ -409,6 +486,14 @@ bool Mixer::removeAudioOutputChannel(
         audioOutputMeters_.erase(
             audioOutputMeters_.begin() + first,
             audioOutputMeters_.begin() + last
+        );
+        audioOutputMutes_.erase(
+            audioOutputMutes_.begin() + first,
+            audioOutputMutes_.begin() + last
+        );
+        audioOutputMuted_.erase(
+            audioOutputMuted_.begin() + first,
+            audioOutputMuted_.begin() + last
         );
         audioOutputChannelInfo_.erase(
             audioOutputChannelInfo_.begin() + first,
@@ -462,6 +547,10 @@ bool Mixer::insertChannel(
                 8192, channelGroupType, channelCountInGroup
             );
             auto meterNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*meter));
+            auto mute = std::make_unique<YADAW::Audio::Util::Mute>(
+                channelGroupType, channelCountInGroup
+            );
+            auto muteNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*mute));
             auto preFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, inputDeviceNode, faderNode, 0, 0
             );
@@ -483,6 +572,11 @@ bool Mixer::insertChannel(
             meters_.emplace(meters_.begin() + position,
                 std::move(meter), meterNode
             );
+            mutes_.emplace(mutes_.begin() + position,
+                std::move(mute), muteNode
+            );
+            muted_.emplace(muted_.begin() + position, false);
+            graph_.connect(meterNode, muteNode, 0, 0);
             outputDevices_.emplace(outputDevices_.begin() + position,
                 std::move(outputDevice), outputDeviceNode
             );
@@ -520,6 +614,10 @@ bool Mixer::insertChannel(
                 8192, channelGroupType, channelCountInGroup
             );
             auto meterNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*meter));
+            auto mute = std::make_unique<YADAW::Audio::Util::Mute>(
+                channelGroupType, channelCountInGroup
+            );
+            auto muteNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*mute));
             auto preFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, inputDeviceNode, faderNode, 0, 0
             );
@@ -541,6 +639,11 @@ bool Mixer::insertChannel(
             meters_.emplace(meters_.begin() + position,
                 std::move(meter), meterNode
             );
+            mutes_.emplace(mutes_.begin() + position,
+                std::move(mute), muteNode
+            );
+            muted_.emplace(muted_.begin() + position, false);
+            graph_.connect(meterNode, muteNode, 0, 0);
             outputDevices_.emplace(outputDevices_.begin() + position,
                 std::move(outputDevice), outputDeviceNode
             );
@@ -577,13 +680,14 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             postFaderInserts_.begin() + last
         );
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 4);
+        nodesToRemove.reserve(removeCount * 5);
         FOR_RANGE(i, first,last)
         {
             nodesToRemove.emplace_back(inputDevices_[i].second);
             nodesToRemove.emplace_back(faders_[i].second);
             nodesToRemove.emplace_back(meters_[i].second);
             nodesToRemove.emplace_back(outputDevices_[i].second);
+            nodesToRemove.emplace_back(mutes_[i].second);
         }
         FOR_RANGE0(i, nodesToRemove.size())
         {
@@ -601,6 +705,14 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         faders_.erase(
             faders_.begin() + first,
             faders_.begin() + last
+        );
+        mutes_.erase(
+            mutes_.begin() + first,
+            mutes_.begin() + last
+        );
+        muted_.erase(
+            muted_.begin() + first,
+            muted_.begin() + last
         );
         outputDevices_.erase(
             outputDevices_.begin() + first,

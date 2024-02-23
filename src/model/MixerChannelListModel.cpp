@@ -70,6 +70,24 @@ GetConstChannelInfo getConstChannelInfo[3] = {
     static_cast<GetConstChannelInfo>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelInfoAt)
 };
 
+using GetMute =
+    std::optional<bool>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t) const;
+
+GetMute getMute[3] = {
+    &YADAW::Audio::Mixer::Mixer::audioInputMuted,
+    &YADAW::Audio::Mixer::Mixer::muted,
+    &YADAW::Audio::Mixer::Mixer::audioOutputMuted
+};
+
+using SetMute =
+    void(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t, bool);
+
+SetMute setMute[3] = {
+    &YADAW::Audio::Mixer::Mixer::setAudioInputMuted,
+    &YADAW::Audio::Mixer::Mixer::setMuted,
+    &YADAW::Audio::Mixer::Mixer::setAudioOutputMuted
+};
+
 using RemoveChannels =
     decltype(&YADAW::Audio::Mixer::Mixer::removeChannel);
 
@@ -162,6 +180,12 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
     {
         return QVariant::fromValue<QObject*>(insertModels_[row].get());
     }
+    case Role::Mute:
+    {
+        return QVariant::fromValue<bool>(
+            *(mixer_.*getMute[YADAW::Util::underlyingValue(listType_)])(row)
+        );
+    }
     }
     }
     return QVariant();
@@ -195,6 +219,12 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                 return true;
             }
             return false;
+        }
+        case Role::Mute:
+        {
+            (mixer_.*setMute[YADAW::Util::underlyingValue(listType_)])(row, value.value<bool>());
+            dataChanged(index, index, {Role::Mute});
+            return true;
         }
         }
     }

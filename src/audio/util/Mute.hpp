@@ -20,12 +20,14 @@ public:
     std::uint32_t latencyInSamples() const override;
     void process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData) override;
 public:
+    bool mute() const;
     void setMute(bool mute);
 private:
     YADAW::Audio::Util::AudioChannelGroup input_;
     YADAW::Audio::Util::AudioChannelGroup output_;
     bool mute_ = false;
-    YADAW::Util::AtomicMutex usingMute_;
+    bool muteInCallback_ = false;
+    std::atomic_bool muteUpdated_ = false;
 };
 }
 
