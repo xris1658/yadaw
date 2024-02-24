@@ -42,6 +42,10 @@ struct ReduceSumSquareHelper
 };
 }
 
+// Calculates square sum of a sequence of data.
+// Given 16384 float samples between [-1.0, 1.0] (~300ms at 44100 Hz), the error
+// of RMS calculated by coarse and precise versions is about -150 dB, which is
+// precise enough in this scenario.
 template<
     typename It,
     bool Precise = false,
