@@ -271,22 +271,53 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appAssetDirectoryListModel()));
     YADAW::UI::mainWindow->setProperty("pluginDirectoryListModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appPluginDirectoryListModel()));
-    static YADAW::Model::SortFilterProxyListModel pluginListModel(YADAW::Controller::appPluginListModel(), nullptr);
+    auto& appPluginListModel = YADAW::Controller::appPluginListModel();
+    static YADAW::Model::SortFilterProxyListModel pluginListModel(appPluginListModel, nullptr);
+    static YADAW::Model::SortFilterProxyListModel vst3PluginListModel(appPluginListModel, nullptr);
+    vst3PluginListModel.setValueOfFilter(
+        YADAW::Model::IPluginListModel::Role::Format,
+        QVariant(YADAW::Model::IPluginListModel::PluginFormat::VST3)
+    );
+    static YADAW::Model::SortFilterProxyListModel clapPluginListModel(YADAW::Controller::appPluginListModel(), nullptr);
+    clapPluginListModel.setValueOfFilter(
+        YADAW::Model::IPluginListModel::Role::Format,
+        QVariant(YADAW::Model::IPluginListModel::PluginFormat::CLAP)
+    );
+    static YADAW::Model::SortFilterProxyListModel vestifalPluginListModel(YADAW::Controller::appPluginListModel(), nullptr);
+    vestifalPluginListModel.setValueOfFilter(
+        YADAW::Model::IPluginListModel::Role::Format,
+        QVariant(YADAW::Model::IPluginListModel::PluginFormat::Vestifal)
+    );
+    static YADAW::Model::SortFilterProxyListModel instrumentListModel(appPluginListModel, nullptr);
+    instrumentListModel.setValueOfFilter(
+        YADAW::Model::IPluginListModel::Role::Type,
+        QVariant(YADAW::Model::IPluginListModel::PluginType::Instrument)
+    );
+    static YADAW::Model::SortFilterProxyListModel audioEffectListModel(appPluginListModel, nullptr);
+    audioEffectListModel.setValueOfFilter(
+        YADAW::Model::IPluginListModel::Role::Type,
+        QVariant(YADAW::Model::IPluginListModel::PluginType::AudioEffect)
+    );
+    static YADAW::Model::SortFilterProxyListModel midiEffectListModel(appPluginListModel, nullptr);
+    midiEffectListModel.setValueOfFilter(
+        YADAW::Model::IPluginListModel::Role::Type,
+        QVariant(YADAW::Model::IPluginListModel::PluginType::MIDIEffect)
+    );
     auto* filterRoleModel = pluginListModel.getFilterRoleModel();
     YADAW::UI::mainWindow->setProperty("pluginListModel",
         QVariant::fromValue<QObject*>(&pluginListModel));
     YADAW::UI::mainWindow->setProperty("midiEffectListModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appMIDIEffectListModel()));
+        QVariant::fromValue<QObject*>(&midiEffectListModel));
     YADAW::UI::mainWindow->setProperty("instrumentListModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appInstrumentListModel()));
+        QVariant::fromValue<QObject*>(&instrumentListModel));
     YADAW::UI::mainWindow->setProperty("audioEffectListModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioEffectListModel()));
+        QVariant::fromValue<QObject*>(&audioEffectListModel));
     YADAW::UI::mainWindow->setProperty("vestifalPluginListModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appVestifalPluginListModel()));
+        QVariant::fromValue<QObject*>(&vestifalPluginListModel));
     YADAW::UI::mainWindow->setProperty("vst3PluginListModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appVST3PluginListModel()));
+        QVariant::fromValue<QObject*>(&vst3PluginListModel));
     YADAW::UI::mainWindow->setProperty("clapPluginListModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appCLAPPluginListModel()));
+        QVariant::fromValue<QObject*>(&clapPluginListModel));
     YADAW::UI::mainWindow->setProperty("systemFontRendering",
         QVariant::fromValue<bool>(YADAW::Controller::GeneralSettingsController::systemFontRendering()));
     YADAW::UI::mainWindow->setProperty("systemFontRenderingWhileDebugging",
@@ -404,9 +435,6 @@ void EventHandler::onStartPluginScan()
         YADAW::DAO::removeAllPluginCategories();
         YADAW::DAO::removeAllPlugins();
         YADAW::Controller::appPluginListModel().clear();
-        YADAW::Controller::appMIDIEffectListModel().clear();
-        YADAW::Controller::appInstrumentListModel().clear();
-        YADAW::Controller::appAudioEffectListModel().clear();
         const auto& model = YADAW::Controller::appPluginDirectoryListModel();
         auto itemCount = model.itemCount();
         std::vector<std::vector<QString>> libLists;
@@ -445,12 +473,6 @@ void EventHandler::onStartPluginScan()
         storeToDatabase.clear();
         pluginScanComplete();
         YADAW::Controller::appPluginListModel().update();
-        YADAW::Controller::appMIDIEffectListModel().update();
-        YADAW::Controller::appInstrumentListModel().update();
-        YADAW::Controller::appAudioEffectListModel().update();
-        YADAW::Controller::appVestifalPluginListModel().update();
-        YADAW::Controller::appVST3PluginListModel().update();
-        YADAW::Controller::appCLAPPluginListModel().update();
     }).detach();
 }
 
