@@ -212,6 +212,56 @@ bool PluginListModel::isPassed(int role, const QModelIndex& modelIndex,
     return false;
 }
 
+bool PluginListModel::isPassed(const QModelIndex& modelIndex, int role,
+    const QVariant& variant) const
+{
+    auto row = modelIndex.row();
+    if(modelIndex.model() == this && row >= 0 && row < itemCount())
+    {
+        const auto& data = data_[row];
+        switch(role)
+        {
+        case Role::Id:
+        {
+            return data.id == variant.value<int>();
+        }
+        case Role::Path:
+        {
+            return data.path.contains(
+                variant.value<QString>(), Qt::CaseInsensitive
+            );
+        }
+        case Role::Name:
+        {
+            return data.name.contains(
+                variant.value<QString>(), Qt::CaseInsensitive
+            );
+        }
+        case Role::Vendor:
+        {
+            return data.vendor.contains(
+                variant.value<QString>(), Qt::CaseInsensitive
+            );
+        }
+        case Role::Version:
+        {
+            return data.version.contains(
+                variant.value<QString>(), Qt::CaseInsensitive
+            );
+        }
+        case Role::Format:
+        {
+            return Impl::getPluginFormat(data.format) == variant.value<int>();
+        }
+        case Role::Type:
+        {
+            return Impl::getPluginType(data.type) == variant.value<int>();
+        }
+        }
+    }
+    return false;
+}
+
 void PluginListModel::clear()
 {
     if(!data_.empty())
