@@ -121,6 +121,7 @@ QC.Popup {
                                 }
                                 onClicked: {
                                     leftLists.currentIndex = 0;
+                                    pluginListModel.clearValueOfFilter(IPluginListModel.Format);
                                 }
                             }
                         }
@@ -143,22 +144,26 @@ QC.Popup {
                                     name: "Vestifal"
                                     iconSource: "VestifalIcon.qml"
                                     format: PluginFormatSupport.Vestifal
+                                    filterableFormat: IPluginListModel.Vestifal
                                 }
                                 ListElement {
                                     name: "VST3"
                                     iconSource: "VST3Icon.qml"
                                     format: PluginFormatSupport.VST3
+                                    filterableFormat: IPluginListModel.VST3
                                 }
                                 ListElement {
                                     name: "CLAP"
                                     iconSource: "CLAPIcon.qml"
                                     format: PluginFormatSupport.CLAP
+                                    filterableFormat: IPluginListModel.CLAP
                                 }
                             }
                             width: parent.width
                             height: contentHeight
                             delegate: ItemDelegate {
                                 id: pluginItemDelegate
+                                property int format: filterableFormat
                                 width: parent.width - 3 * 2
                                 height: implicitHeight
                                 text: name
@@ -204,6 +209,7 @@ QC.Popup {
                                 onClicked: {
                                     leftLists.currentIndex = 1;
                                     formatList.currentIndex = index;
+                                    pluginListModel.setValueOfFilter(IPluginListModel.Format, filterableFormat);
                                     // pluginListModel.setfilterRole(IPluginListModel)
                                 }
                             }
