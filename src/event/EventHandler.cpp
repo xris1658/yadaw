@@ -273,6 +273,7 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appPluginDirectoryListModel()));
     auto& appPluginListModel = YADAW::Controller::appPluginListModel();
     static YADAW::Model::SortFilterProxyListModel pluginListModel(appPluginListModel, nullptr);
+    static YADAW::Model::SortFilterProxyListModel pluginSelectorListModel(appPluginListModel, nullptr);
     static YADAW::Model::SortFilterProxyListModel vst3PluginListModel(appPluginListModel, nullptr);
     vst3PluginListModel.setValueOfFilter(
         YADAW::Model::IPluginListModel::Role::Format,
@@ -306,6 +307,8 @@ void EventHandler::onOpenMainWindow()
     auto* filterRoleModel = pluginListModel.getFilterRoleModel();
     YADAW::UI::mainWindow->setProperty("pluginListModel",
         QVariant::fromValue<QObject*>(&pluginListModel));
+    YADAW::UI::mainWindow->setProperty("pluginSelectorListModel",
+        QVariant::fromValue<QObject*>(&pluginSelectorListModel));
     YADAW::UI::mainWindow->setProperty("midiEffectListModel",
         QVariant::fromValue<QObject*>(&midiEffectListModel));
     YADAW::UI::mainWindow->setProperty("instrumentListModel",
