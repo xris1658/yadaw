@@ -11,7 +11,7 @@ namespace YADAW::Model
 {
 class ISortFilterProxyListModel: public QAbstractListModel
 {
-    Q_OBJECT
+Q_OBJECT
     Q_PROPERTY(QString filterString READ getFilterString WRITE setFilterString NOTIFY filterStringChanged)
     Q_PROPERTY(ISortOrderModel sortOrderModel READ getSortOrderModel)
     Q_PROPERTY(IFilterRoleModel filterRoleModel READ getFilterRoleModel)
@@ -35,7 +35,10 @@ public:
     Q_INVOKABLE virtual bool setFilter(int role, bool filterEnabled,
         Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive) = 0;
     Q_INVOKABLE virtual void clearFilter() = 0;
-    signals:
+    Q_INVOKABLE virtual QVariant valueOfFilter(int role) const = 0;
+    Q_INVOKABLE virtual bool setValueOfFilter(int role, const QVariant& value) = 0;
+    Q_INVOKABLE virtual void clearValueOfFilter(int role) = 0;
+signals:
     void filterStringChanged();
 };
 }

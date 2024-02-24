@@ -34,6 +34,9 @@ public:
     bool setFilter(int role, bool filterEnabled,
         Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive) override;
     void clearFilter() override;
+    QVariant valueOfFilter(int role) const override;
+    bool setValueOfFilter(int role, const QVariant& value) override;
+    void clearValueOfFilter(int role) override;
 public:
     int itemCount() const;
     int rowCount(const QModelIndex&) const override;
@@ -70,6 +73,7 @@ private:
     std::vector<int> dstToSrc_;
     std::vector<int>::iterator filteredOutFirst_;
     QString filterString_;
+    std::map<int, QVariant> valuesOfFilter_;
 };
 }
 

@@ -150,6 +150,25 @@ void SortFilterProxyListModel::clearFilter()
     return filterRoleModel_.clear();
 }
 
+QVariant SortFilterProxyListModel::valueOfFilter(int role) const
+{
+    auto it = valuesOfFilter_.find(role);
+    return it != valuesOfFilter_.end()? it->second: QVariant();
+}
+
+bool SortFilterProxyListModel::setValueOfFilter(int role, const QVariant& value)
+{
+    valuesOfFilter_[role] = value;
+    doFilter();
+    return true;
+}
+
+void SortFilterProxyListModel::clearValueOfFilter(int role)
+{
+    valuesOfFilter_.erase(role);
+    doFilter();
+}
+
 int SortFilterProxyListModel::itemCount() const
 {
     return filteredOutFirst_ - dstToSrc_.begin();
@@ -360,7 +379,17 @@ bool SortFilterProxyListModel::isLess(int lhsRow, int rhsRow) const
 
 bool SortFilterProxyListModel::isAccepted(int row, const QString& string) const
 {
-    return isAccepted(row, string, 0, filterRoleModel_.itemCount());
+    return isAccepted(row, string, 0, filterRoleModel_.itemCount())
+        && std::all_of(valuesOfFilter_.begin(), valuesOfFilter_.end(),
+        [this, row](decltype(valuesOfFilter_)::const_reference pair)
+        {
+            const auto& [role, value] = pair;
+            return sourceModel_->data(
+                sourceModel_->index(row),
+                role
+            ) == value;
+        }
+    );
 }
 
 bool SortFilterProxyListModel::isAccepted(int row, const QString& string,
