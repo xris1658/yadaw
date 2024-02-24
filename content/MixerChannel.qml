@@ -3,6 +3,8 @@ import QtQuick
 import QtQuick.Dialogs
 import QtQuick.Layouts
 
+import YADAW.Models
+
 Rectangle {
     id: root
     color: Colors.background
@@ -253,6 +255,10 @@ Rectangle {
                         let windowCoordinate = mapToGlobal(0, height + impl.padding);
                         pluginSelectorWindow.x = windowCoordinate.x;
                         pluginSelectorWindow.y = windowCoordinate.y;
+                        pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
+                            IPluginListModel.Type,
+                            IPluginListModel.AudioEffect
+                        );
                         pluginSelectorWindow.showNormal();
                     }
                 }
