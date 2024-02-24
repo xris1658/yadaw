@@ -344,6 +344,19 @@ Rectangle {
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
+                        backgroundColor: (!enabled)?
+                            Colors.background:
+                            checked?
+                                down?
+                                    Qt.darker(Colors.mutedButtonBackground, 1.25):
+                                    hovered?
+                                        Qt.lighter(Colors.mutedButtonBackground, 1.25):
+                                        Colors.mutedButtonBackground:
+                                down?
+                                    Colors.pressedControlBackground:
+                                    hovered?
+                                        Colors.mouseOverControlBackground:
+                                        Colors.controlBackground
                         onClicked: {
                             root.setMute(muteButton.checked);
                         }
@@ -355,6 +368,19 @@ Rectangle {
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
+                        backgroundColor: (!enabled)?
+                            Colors.background:
+                            checked?
+                                down?
+                                    Qt.darker(Colors.soloedButtonBackground, 1.25):
+                                    hovered?
+                                        Qt.lighter(Colors.soloedButtonBackground, 1.25):
+                                        Colors.soloedButtonBackground:
+                                down?
+                                    Colors.pressedControlBackground:
+                                    hovered?
+                                        Colors.mouseOverControlBackground:
+                                        Colors.controlBackground
                     }
                     Button {
                         id: invertPolarityButton
@@ -363,6 +389,19 @@ Rectangle {
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
+                        backgroundColor: (!enabled)?
+                            Colors.background:
+                            checked?
+                                down?
+                                    Qt.darker(Colors.invertedButtonBackground, 1.25):
+                                    hovered?
+                                        Qt.lighter(Colors.invertedButtonBackground, 1.25):
+                                        Colors.invertedButtonBackground:
+                                down?
+                                    Colors.pressedControlBackground:
+                                    hovered?
+                                        Colors.mouseOverControlBackground:
+                                        Colors.controlBackground
                     }
                     Button {
                         id: armRecordingButton
@@ -371,6 +410,19 @@ Rectangle {
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
+                        backgroundColor: (!enabled)?
+                            Colors.background:
+                            checked?
+                                down?
+                                    Qt.darker(Colors.armRecordingButtonBackground, 1.25):
+                                    hovered?
+                                        Qt.lighter(Colors.armRecordingButtonBackground, 1.25):
+                                        Colors.armRecordingButtonBackground:
+                                down?
+                                    Colors.pressedControlBackground:
+                                    hovered?
+                                        Colors.mouseOverControlBackground:
+                                        Colors.controlBackground
                     }
                 }
                 Item {

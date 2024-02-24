@@ -9,6 +9,8 @@ T.Button {
     property int mnemonicTextLook: Mnemonic.MnemonicEnabled
     property alias radius: background.radius
     property alias border: background.border
+    property alias backgroundColor: background.color
+    property alias contentColor: label.color
 
     topPadding: 3
     bottomPadding: 3

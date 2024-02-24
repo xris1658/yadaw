@@ -36,6 +36,11 @@ QtObject {
     readonly property color highlightListViewItemBackground: "#3050FF"
     readonly property color sliderWithValueFilledBackground: "#3050FF"
 
+    readonly property color mutedButtonBackground: "#FFC000"
+    readonly property color soloedButtonBackground: "#00A0FF"
+    readonly property color invertedButtonBackground: "#40C000"
+    readonly property color armRecordingButtonBackground: "#F02000"
+
     readonly property color bigClockBackground: background
     readonly property color bigClockText: content
     readonly property color topBarBackground: "#606060"
