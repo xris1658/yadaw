@@ -33,6 +33,7 @@ Rectangle {
     QtObject {
         id: impl
         property int insertPosition: -1
+        property bool replacing: false
         readonly property int padding: 3
         readonly property int borderWidth: 1
         property bool usingPluginSelector: false
@@ -41,9 +42,11 @@ Rectangle {
         id: connectToPluginSelector
         target: impl.usingPluginSelector? pluginSelectorWindow.pluginSelector: null
         function onAccepted() {
-            impl.usingPluginSelector = false;
-            let pluginId = pluginSelectorWindow.pluginSelector.currentPluginId();
-            insertModel.insert(impl.insertPosition, pluginId);
+            if(!pluginSelectorWindow.pluginSelector.replacing) {
+                impl.usingPluginSelector = false;
+                let pluginId = pluginSelectorWindow.pluginSelector.currentPluginId();
+                insertModel.insert(impl.insertPosition, pluginId);
+            }
         }
         function onCancelled() {
             impl.usingPluginSelector = false;
@@ -190,6 +193,25 @@ Rectangle {
                     function removeThis() {
                         insertModel.remove(itemIndex, 1);
                     }
+                    function showPluginSelector(replacing: bool) {
+                        impl.usingPluginSelector = true;
+                        impl.insertPosition = index;
+                        let windowCoordinate = mixerInsertSlot.mapToGlobal(0, mixerInsertSlot.height + impl.padding);
+                        if(windowCoordinate.y + pluginSelectorWindow.height >= pluginSelectorWindow.screen.desktopAvailableHeight) {
+                            windowCoordinate = mixerInsertSlot.mapToGlobal(0, 0 - pluginSelectorWindow.height - impl.padding);
+                        }
+                        if(windowCoordinate.x + pluginSelectorWindow.width >= pluginSelectorWindow.screen.desktopAvailableWidth) {
+                            windowCoordinate.x = pluginSelectorWindow.screen.desktopAvailableWidth - pluginSelectorWindow.width;
+                        }
+                        pluginSelectorWindow.x = windowCoordinate.x;
+                        pluginSelectorWindow.y = windowCoordinate.y;
+                        pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
+                            IPluginListModel.Type,
+                            IPluginListModel.AudioEffect
+                        );
+                        pluginSelectorWindow.pluginSelector.replacing = replacing;
+                        pluginSelectorWindow.showNormal();
+                    }
                     MouseArea {
                         anchors.fill: parent
                         anchors.leftMargin: root.leftInset
@@ -235,7 +257,16 @@ Rectangle {
                                 text: qsTr("&Edit Route...")
                             }
                             MenuItem {
-                                text: qsTr("&Replace...")
+                                text: qsTr("&Insert") + "..."
+                                onClicked: {
+                                    mixerInsertSlot.showPluginSelector(false);
+                                }
+                            }
+                            MenuItem {
+                                text: qsTr("&Replace") + "..."
+                                onClicked: {
+                                    mixerInsertSlot.showPluginSelector(true);
+                                }
                             }
                             MenuItem {
                                 text: qsTr("&Delete")
@@ -265,6 +296,7 @@ Rectangle {
                             IPluginListModel.Type,
                             IPluginListModel.AudioEffect
                         );
+                        pluginSelectorWindow.pluginSelector.replacing = false;
                         pluginSelectorWindow.showNormal();
                     }
                 }
@@ -554,6 +586,7 @@ Rectangle {
                 width: parent.width - impl.padding * 2
                 horizontalAlignment: Label.AlignHCenter
                 text: "Channel"
+                color: Colors.isBright(infoPlaceholder.color)? "#000000": "#FFFFFF"
             }
         }
     }

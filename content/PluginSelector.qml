@@ -10,6 +10,7 @@ QC.Popup {
 
     property alias pluginListModel: pluginList.model
     property alias categoryListModel: categoryList.model
+    property bool replacing: false
 
     signal accepted()
     signal cancelled()
@@ -502,14 +503,24 @@ QC.Popup {
         }
         Item {
             width: impl.contentWidth
-            height: okButton.height
+            height: cancelButton.height
             Row {
                 anchors.right: parent.right
                 spacing: 5
                 Button {
-                    id: okButton
-                    enabled: pluginList.currentIndex !== -1
-                    text: Constants.okTextWithMnemonic
+                    id: replaceButton
+                    enabled: pluginList.currentIndex !== -1 && visible
+                    visible: root.replacing
+                    text: qsTr("&Replace")
+                    onClicked: {
+                        root.accepted();
+                    }
+                }
+                Button {
+                    id: insertButton
+                    enabled: pluginList.currentIndex !== -1 && visible
+                    visible: !root.replacing
+                    text: qsTr("&Insert")
                     onClicked: {
                         root.accepted();
                     }
