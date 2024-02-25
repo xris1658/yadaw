@@ -647,17 +647,6 @@ void ALSABusConfiguration::Bus::setAudioBuffers(const YADAW::Audio::Backend::ALS
     buffers_ = buffers;
 }
 
-uint32_t ALSABusConfiguration::Bus::audioChannelMapCount() const
-{
-    return 0;
-}
-
-YADAW::Audio::Device::IAudioDevice::OptionalChannelMap
-    ALSABusConfiguration::Bus::audioChannelMapAt(std::uint32_t index) const
-{
-    return std::nullopt;
-}
-
 ALSABusConfiguration::ALSABusConfiguration(const ALSABackend& backend):
     backend_(&backend),
     inputBusses_(),
