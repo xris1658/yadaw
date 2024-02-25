@@ -253,6 +253,12 @@ Rectangle {
                         impl.usingPluginSelector = true;
                         impl.insertPosition = insertList.count;
                         let windowCoordinate = mapToGlobal(0, height + impl.padding);
+                        if(windowCoordinate.y + pluginSelectorWindow.height >= pluginSelectorWindow.screen.desktopAvailableHeight) {
+                            windowCoordinate = mapToGlobal(0, 0 - pluginSelectorWindow.height - impl.padding);
+                        }
+                        if(windowCoordinate.x + pluginSelectorWindow.width >= pluginSelectorWindow.screen.desktopAvailableWidth) {
+                            windowCoordinate.x = pluginSelectorWindow.screen.desktopAvailableWidth - pluginSelectorWindow.width;
+                        }
                         pluginSelectorWindow.x = windowCoordinate.x;
                         pluginSelectorWindow.y = windowCoordinate.y;
                         pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
