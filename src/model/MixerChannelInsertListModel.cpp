@@ -328,6 +328,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         auto& pluginWindowPool = YADAW::Controller::appPluginWindowPool();
         std::vector<ade::NodeHandle> removingNodes;
         std::vector<YADAW::Controller::PluginPool::iterator> removingIterators;
+        std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> removingMultiInputs_;
         removingNodes.reserve(removeCount);
         removingIterators.reserve(removeCount);
         FOR_RANGE(i, position, position + removeCount)
@@ -390,9 +391,14 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             {
                 removingIterators.emplace_back(libraryIt);
             }
-            graphWithPDC.removeNode(removingNodes[i]);
+            auto removingMultiInput = graphWithPDC.removeNode(removingNodes[i]);
+            if(removingMultiInput)
+            {
+                removingMultiInputs_.emplace_back(std::move(removingMultiInput));
+            }
         }
         audioEngine.insertsNodeRemovedCallback(*inserts_);
+        removingMultiInputs_.clear();
         for(auto& pluginToRemove: pluginsToRemove)
         {
             switch(pluginToRemove->format())

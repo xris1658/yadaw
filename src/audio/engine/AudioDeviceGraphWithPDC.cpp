@@ -46,7 +46,7 @@ ade::NodeHandle AudioDeviceGraphWithPDC::addNode(AudioDeviceProcess&& process)
     return graph_.addNode(std::move(process));
 }
 
-void AudioDeviceGraphWithPDC::removeNode(const ade::NodeHandle& nodeHandle)
+std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> AudioDeviceGraphWithPDC::removeNode(const ade::NodeHandle& nodeHandle)
 {
     if(auto device = graph_.getNodeData(nodeHandle).process.device();
         device->audioInputGroupCount() > 1)
@@ -54,13 +54,15 @@ void AudioDeviceGraphWithPDC::removeNode(const ade::NodeHandle& nodeHandle)
         auto it = multiInputNodes_.find(nodeHandle);
         if(it != multiInputNodes_.end())
         {
+            auto ret = std::move(it->second);
             auto node = nodeHandle;
             multiInputNodes_.erase(it);
             graph_.removeNode(node);
-            return;
+            return ret;
         }
     }
     graph_.removeNode(nodeHandle);
+    return nullptr;
 }
 
 void AudioDeviceGraphWithPDC::clearMultiInputNodes()
