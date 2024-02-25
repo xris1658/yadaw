@@ -49,4 +49,8 @@ QtObject {
     readonly property color recordingIcon: "#FF3333"
 
     readonly property color automationColor: "#D06040"
+
+    function isBright(color) {
+        return color.r * 0.299 + color.g * 0.587 + color.b * 0.514 > 0.6;
+    }
 }
