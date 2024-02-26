@@ -47,7 +47,7 @@ void BlankGenerator::process(
     FOR_RANGE0(i, output_.channelCount())
     {
         std::memset(audioProcessData.outputs[0][i], 0,
-            sizeof(float) / sizeof(int) * audioProcessData.singleBufferSize);
+            sizeof(float) * audioProcessData.singleBufferSize);
     }
 }
 
