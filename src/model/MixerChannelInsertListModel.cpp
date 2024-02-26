@@ -338,7 +338,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         inserts_->remove(position, removeCount);
         for(const auto& removingNode: removingNodes)
         {
-            processDataToRemove.emplace_back(std::move(bufferExt.getData(removingNode).container));
+            processDataToRemove.emplace_back(bufferExt.getData(removingNode).container);
         }
         endRemoveRows();
         FOR_RANGE0(i, removingNodes.size())
