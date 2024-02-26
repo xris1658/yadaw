@@ -50,7 +50,7 @@ void Mute::process(const YADAW::Audio::Device::AudioProcessData<float>& audioPro
     if(muteUpdated_)
     {
         muteInCallback_ = mute_;
-        muteUpdated_ = false;
+        muteUpdated_.store(false, std::memory_order::memory_order_release);
     }
     FOR_RANGE0(i, audioProcessData.inputCounts[0])
     {
