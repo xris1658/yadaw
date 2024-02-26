@@ -5,7 +5,7 @@ namespace YADAW::Audio::Engine
 using ProcessSequence = Vector3D<
     ProcessPair
 >;
-ProcessSequence getProcessSequence(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
+ProcessSequence getProcessSequence(const YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     YADAW::Audio::Engine::Extension::Buffer& bufferExt)
 {
     auto topoSequence = graph.topologicalSort();
@@ -28,10 +28,8 @@ ProcessSequence getProcessSequence(YADAW::Audio::Engine::AudioDeviceGraphBase& g
             {
                 auto& tijk = tij[k];
                 rij.emplace_back(
-                    std::make_pair(
-                        std::move(graph.getNodeData(tijk).process),
-                        bufferExt.getData(tijk).container
-                    )
+                    graph.getNodeData(tijk).process,
+                    bufferExt.getData(tijk).container
                 );
             }
         }

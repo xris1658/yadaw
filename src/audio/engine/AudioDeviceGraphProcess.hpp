@@ -19,14 +19,14 @@ using ProcessSequence = Vector3D<
 >;
 
 template<typename... Extensions>
-ProcessSequence getProcessSequence(YADAW::Audio::Engine::AudioDeviceGraph<Extensions...>& graph)
+ProcessSequence getProcessSequence(const YADAW::Audio::Engine::AudioDeviceGraph<Extensions...>& graph)
 {
     return getProcessSequence(graph,
         graph.template getExtension<YADAW::Audio::Engine::Extension::Buffer>()
     );
 }
 
-ProcessSequence getProcessSequence(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
+ProcessSequence getProcessSequence(const YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     YADAW::Audio::Engine::Extension::Buffer& bufferExt);
 }
 

@@ -2,6 +2,7 @@
 #define YADAW_SRC_AUDIO_UTIL_AUDIOPROCESSDATAPOINTERCONTAINER
 
 #include "audio/device/IAudioDevice.hpp"
+#include "util/IntegerRange.hpp"
 
 #include <vector>
 
@@ -10,6 +11,46 @@ namespace YADAW::Audio::Util
 template<typename SampleType>
 class AudioProcessDataPointerContainer
 {
+    using Self = AudioProcessDataPointerContainer<SampleType>;
+public:
+    AudioProcessDataPointerContainer() = default;
+    AudioProcessDataPointerContainer(const Self& rhs)
+    {
+        setSingleBufferSize(rhs.audioProcessData_.singleBufferSize);
+        const auto inputGroupCount = rhs.audioProcessData_.inputGroupCount;
+        setInputGroupCount(inputGroupCount);
+        FOR_RANGE0(i, inputGroupCount)
+        {
+            const auto inputCount = rhs.audioProcessData_.inputCounts[i];
+            setInputCount(i, inputCount);
+            FOR_RANGE0(j, inputCount)
+            {
+                setInput(i, j, rhs.audioProcessData_.inputs[i][j]);
+            }
+        }
+        const auto outputGroupCount = rhs.audioProcessData_.outputGroupCount;
+        setOutputGroupCount(outputGroupCount);
+        FOR_RANGE0(i, outputGroupCount)
+        {
+            const auto outputCount = rhs.audioProcessData_.outputCounts[i];
+            setOutputCount(i, outputCount);
+            FOR_RANGE0(j, outputCount)
+            {
+                setOutput(i, j, rhs.audioProcessData_.outputs[i][j]);
+            }
+        }
+    }
+    AudioProcessDataPointerContainer(Self&& rhs):
+        audioProcessData_(rhs.audioProcessData_),
+        inputCounts_(std::move(rhs.inputCounts_)),
+        outputCounts_(std::move(rhs.outputCounts_)),
+        inputs_(std::move(rhs.inputs_)),
+        inputs2_(std::move(rhs.inputs2_)),
+        outputs_(std::move(rhs.outputs_)),
+        outputs2_(std::move(rhs.outputs2_))
+    {
+        audioProcessData_ = YADAW::Audio::Device::AudioProcessData<SampleType>{};
+    }
 public:
     void setSingleBufferSize(std::uint32_t singleBufferSize)
     {

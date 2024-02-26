@@ -4,6 +4,7 @@
 #include "audio/device/IAudioDevice.hpp"
 #include "audio/util/AudioBufferPool.hpp"
 #include "audio/util/AudioProcessDataPointerContainer.hpp"
+#include "util/IntegerRange.hpp"
 
 #include <memory>
 #include <vector>
@@ -16,7 +17,26 @@ class AudioProcessDataBufferContainer
     using Self = AudioProcessDataBufferContainer;
 public:
     AudioProcessDataBufferContainer() = default;
-    AudioProcessDataBufferContainer(const Self& rhs) = default;
+    AudioProcessDataBufferContainer(const Self& rhs):
+        container_(rhs.container_),
+        inputBuffers_(rhs.inputBuffers_),
+        outputBuffers_(rhs.outputBuffers_)
+    {
+        FOR_RANGE0(i, audioProcessData().inputGroupCount)
+        {
+            FOR_RANGE0(j, audioProcessData().inputCounts[i])
+            {
+                setInputBuffer(i, j, rhs.inputBuffers_[i][j]);
+            }
+        }
+        FOR_RANGE0(i, audioProcessData().outputGroupCount)
+        {
+            FOR_RANGE0(j, audioProcessData().outputCounts[i])
+            {
+                setOutputBuffer(i, j, rhs.outputBuffers_[i][j]);
+            }
+        }
+    }
     AudioProcessDataBufferContainer(Self&& rhs) noexcept = default;
     ~AudioProcessDataBufferContainer() = default;
 public:

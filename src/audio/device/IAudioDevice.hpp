@@ -9,6 +9,9 @@ namespace YADAW::Audio::Device
 template<typename SampleType>
 struct AudioProcessData
 {
+private:
+    using Self = AudioProcessData<SampleType>;
+public:
     std::uint32_t inputGroupCount = 0;
     std::uint32_t outputGroupCount = 0;
     std::uint32_t singleBufferSize = 0;
@@ -16,6 +19,49 @@ struct AudioProcessData
     std::uint32_t* outputCounts = nullptr;
     SampleType*** inputs = nullptr;
     SampleType*** outputs = nullptr;
+    AudioProcessData() = default;
+    AudioProcessData(const Self& rhs) = default;
+    AudioProcessData(Self&& rhs) noexcept:
+        inputGroupCount(rhs.inputGroupCount),
+        outputGroupCount(rhs.outputGroupCount),
+        singleBufferSize(rhs.singleBufferSize),
+        inputCounts(rhs.inputCounts),
+        outputCounts(rhs.outputCounts),
+        inputs(rhs.inputs),
+        outputs(rhs.outputs)
+    {
+        std::memset(&rhs, 0, sizeof(Self));
+    }
+    Self& operator=(const Self& rhs)
+    {
+        if(this != &rhs)
+        {
+            inputGroupCount = rhs.inputGroupCount;
+            outputGroupCount = rhs.outputGroupCount;
+            singleBufferSize = rhs.singleBufferSize;
+            inputCounts = rhs.inputCounts;
+            outputCounts = rhs.outputCounts;
+            inputs = rhs.inputs;
+            outputs = rhs.outputs;
+        }
+        return *this;
+    }
+    Self& operator=(Self&& rhs)
+    {
+        if(this != &rhs)
+        {
+            inputGroupCount = rhs.inputGroupCount;
+            outputGroupCount = rhs.outputGroupCount;
+            singleBufferSize = rhs.singleBufferSize;
+            inputCounts = rhs.inputCounts;
+            outputCounts = rhs.outputCounts;
+            inputs = rhs.inputs;
+            outputs = rhs.outputs;
+            std::memset(&rhs, 0, sizeof(Self));
+        }
+        return *this;
+    }
+    ~AudioProcessData() noexcept = default;
 };
 
 class IAudioDevice
