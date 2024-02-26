@@ -26,6 +26,8 @@ void blankBeforeDisconnectCallback(
 AudioDeviceGraphBase::AudioDeviceGraphBase():
     graph_(),
     typedGraph_(graph_),
+    afterAddNodeCallback_(blankAfterAddNodeCallback),
+    beforeRemoveNodeCallback_(blankBeforeRemoveNodeCallback),
     afterConnectCallback_(blankAfterConnectCallback),
     beforeDisconnectCallback_(blankBeforeDisconnectCallback)
 {}
@@ -135,44 +137,44 @@ void AudioDeviceGraphBase::clear()
     }
 }
 
-void AudioDeviceGraphBase::setAfterAddNodeCallback(std::function<AfterAddNodeCallback>&& func)
+void AudioDeviceGraphBase::setAfterAddNodeCallback(AfterAddNodeCallback* func)
 {
-    afterAddNodeCallback_ = std::move(func);
+    afterAddNodeCallback_ = func;
 }
 
-void AudioDeviceGraphBase::setBeforeRemoveNodeCallback(std::function<BeforeRemoveNodeCallback>&& func)
+void AudioDeviceGraphBase::setBeforeRemoveNodeCallback(BeforeRemoveNodeCallback* func)
 {
-    beforeRemoveNodeCallback_ = std::move(func);
+    beforeRemoveNodeCallback_ = func;
 }
 
-void AudioDeviceGraphBase::setAfterConnectCallback(std::function<AfterConnectCallback>&& func)
+void AudioDeviceGraphBase::setAfterConnectCallback(AfterConnectCallback* func)
 {
-    afterConnectCallback_ = std::move(func);
+    afterConnectCallback_ = func;
 }
 
-void AudioDeviceGraphBase::setBeforeDisconnectCallback(std::function<BeforeDisconnectCallback>&& func)
+void AudioDeviceGraphBase::setBeforeDisconnectCallback(BeforeDisconnectCallback* func)
 {
-    beforeDisconnectCallback_ = std::move(func);
+    beforeDisconnectCallback_ = func;
 }
 
 void AudioDeviceGraphBase::resetAfterAddNodeCallback()
 {
-    setAfterAddNodeCallback({blankAfterAddNodeCallback});
+    setAfterAddNodeCallback(&blankAfterAddNodeCallback);
 }
 
 void AudioDeviceGraphBase::resetBeforeRemoveNodeCallback()
 {
-    setBeforeRemoveNodeCallback({blankBeforeRemoveNodeCallback});
+    setBeforeRemoveNodeCallback(&blankBeforeRemoveNodeCallback);
 }
 
 void AudioDeviceGraphBase::resetAfterConnectCallback()
 {
-    setAfterConnectCallback({blankAfterConnectCallback});
+    setAfterConnectCallback(&blankAfterConnectCallback);
 }
 
 void AudioDeviceGraphBase::resetBeforeDisconnectCallback()
 {
-    setBeforeDisconnectCallback({blankBeforeDisconnectCallback});
+    setBeforeDisconnectCallback(&blankBeforeDisconnectCallback);
 }
 
 std::vector<std::vector<std::vector<ade::NodeHandle>>> AudioDeviceGraphBase::topologicalSort() const

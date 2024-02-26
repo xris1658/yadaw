@@ -61,16 +61,16 @@ protected:
     using BeforeRemoveNodeCallback = void(AudioDeviceGraphBase& graph, const ade::NodeHandle& nodeHandle);
     using AfterConnectCallback = void(AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
     using BeforeDisconnectCallback = void(AudioDeviceGraphBase& graph, const ade::EdgeHandle& edgeHandle);
-    void setAfterAddNodeCallback(std::function<AfterAddNodeCallback>&& func);
+    void setAfterAddNodeCallback(AfterAddNodeCallback* func);
     // This callback WILL be invoked on destructing the graph object.
     // Since those `IAudioDevice` objects associated with nodes are accessible
     // in the callback, the graph MUST NOT survive `IAudioDevice`s in the graph.
-    void setBeforeRemoveNodeCallback(std::function<BeforeRemoveNodeCallback>&& func);
-    void setAfterConnectCallback(std::function<AfterConnectCallback>&& func);
+    void setBeforeRemoveNodeCallback(BeforeRemoveNodeCallback* func);
+    void setAfterConnectCallback(AfterConnectCallback* func);
     // This callback WILL be invoked on destructing the graph object.
     // Since those `IAudioDevice` objects associated with nodes are accessible
     // in the callback, the graph MUST NOT survive `IAudioDevice`s in the graph.
-    void setBeforeDisconnectCallback(std::function<BeforeDisconnectCallback>&& func);
+    void setBeforeDisconnectCallback(BeforeDisconnectCallback* func);
     void resetAfterAddNodeCallback();
     void resetBeforeRemoveNodeCallback();
     void resetAfterConnectCallback();
@@ -80,10 +80,10 @@ public:
 private:
     ade::Graph graph_;
     ade::TypedGraph<NodeData, EdgeData> typedGraph_;
-    std::function<AfterAddNodeCallback> afterAddNodeCallback_;
-    std::function<BeforeRemoveNodeCallback> beforeRemoveNodeCallback_;
-    std::function<AfterConnectCallback> afterConnectCallback_;
-    std::function<BeforeDisconnectCallback> beforeDisconnectCallback_;
+    AfterAddNodeCallback* afterAddNodeCallback_;
+    BeforeRemoveNodeCallback* beforeRemoveNodeCallback_;
+    AfterConnectCallback* afterConnectCallback_;
+    BeforeDisconnectCallback* beforeDisconnectCallback_;
 };
 }
 
