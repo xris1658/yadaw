@@ -744,7 +744,7 @@ OptionalRef<const ALSABusConfiguration::Bus> ALSABusConfiguration::getInputBusAt
 
 OptionalRef<const ALSABusConfiguration::Bus> ALSABusConfiguration::getOutputBusAt(std::uint32_t index) const
 {
-    return index < inputBusCount()? OptionalRef<const Bus>(*outputBusses_[index]): std::nullopt;
+    return index < outputBusCount()? OptionalRef<const Bus>(*outputBusses_[index]): std::nullopt;
 }
 
 OptionalRef<ALSABusConfiguration::Bus> ALSABusConfiguration::getInputBusAt(std::uint32_t index)
@@ -754,7 +754,7 @@ OptionalRef<ALSABusConfiguration::Bus> ALSABusConfiguration::getInputBusAt(std::
 
 OptionalRef<ALSABusConfiguration::Bus> ALSABusConfiguration::getOutputBusAt(std::uint32_t index)
 {
-    return index < inputBusCount()? OptionalRef<Bus>(*outputBusses_[index]): std::nullopt;
+    return index < outputBusCount()? OptionalRef<Bus>(*outputBusses_[index]): std::nullopt;
 }
 
 void ALSABusConfiguration::setBuffers(const ALSABackend::AudioBuffer* inputs, const ALSABackend::AudioBuffer* outputs)
