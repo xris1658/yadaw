@@ -49,7 +49,6 @@ private:
     std::uint32_t inChannel_;
     std::uint32_t outChannel_;
     std::vector<ade::NodeHandle> nodes_;
-    std::vector<ade::EdgeHandle> edges_;
     std::vector<QString> names_;
     std::vector<bool> bypassed_;
     std::vector<std::pair<std::uint32_t, std::uint32_t>> channel_;
