@@ -60,6 +60,14 @@ std::uint32_t Meter::latencyInSamples() const
 void Meter::process(const Device::AudioProcessData<float>& audioProcessData)
 {
     const auto bufferSize = audioProcessData.singleBufferSize;
+    FOR_RANGE0(i, input_.channelCount())
+    {
+        std::memmove(
+            audioProcessData.outputs[0][i],
+            audioProcessData.inputs[0][i],
+            sizeof(float) * bufferSize
+        );
+    }
     if(accessingPeak_.try_lock())
     {
         FOR_RANGE0(i, input_.channelCount())
