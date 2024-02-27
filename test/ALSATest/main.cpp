@@ -25,7 +25,7 @@ std::vector<
         std::vector<
             std::pair<
                 YADAW::Audio::Engine::AudioDeviceProcess,
-                YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>
+                YADAW::Audio::Device::AudioProcessData<float>
             >
         >
     >
@@ -109,8 +109,16 @@ int main(int argc, char** argv)
     }
     YADAW::Audio::Backend::ALSABusConfiguration busConfiguration(backend);
     alsaBusConfiguration = &busConfiguration;
-    auto& inputBus = busConfiguration.getInputBusAt(busConfiguration.appendBus(true, inputChannelCount))->get();
-    auto& outputBus = busConfiguration.getOutputBusAt(busConfiguration.appendBus(false, outputChannelCount))->get();
+    auto& inputBus = busConfiguration.getInputBusAt(
+        busConfiguration.appendBus(
+            true, YADAW::Audio::Base::ChannelGroupType::eCustomGroup, inputChannelCount
+        )
+    )->get();
+    auto& outputBus = busConfiguration.getOutputBusAt(
+        busConfiguration.appendBus(
+            false, YADAW::Audio::Base::ChannelGroupType::eCustomGroup, outputChannelCount
+        )
+    )->get();
     auto sineWaveGenerator = SineWaveGenerator(YADAW::Audio::Base::ChannelGroupType::eCustomGroup, 2);
     sineWaveGenerator.setFrequency(440);
     sineWaveGenerator.setSampleRate(backend.sampleRate());
@@ -153,7 +161,7 @@ int main(int argc, char** argv)
                 entityCell.emplace_back(
                     std::make_pair(
                         static_cast<const YADAW::Audio::Engine::AudioDeviceProcess&>(graph.getNodeData(unit).process),
-                        graph.getExtensionData<YADAW::Audio::Engine::Extension::Buffer>(unit).container
+                        graph.getExtensionData<YADAW::Audio::Engine::Extension::Buffer>(unit).container.audioProcessData()
                     )
                 );
             }
@@ -176,13 +184,13 @@ void callback(const ALSABackend* backend,
             [](std::vector<
                 std::pair<
                     YADAW::Audio::Engine::AudioDeviceProcess,
-                    YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>
+                    YADAW::Audio::Device::AudioProcessData<float>
                 >
             >& cell)
             {
-                for(auto& [process, container]: cell)
+                for(auto& [process, processData]: cell)
                 {
-                    process.process(container.audioProcessData());
+                    process.process(processData);
                 }
             }
         );
