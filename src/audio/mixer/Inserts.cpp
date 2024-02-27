@@ -298,6 +298,7 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
             {
                 prevNode = nodes_[i];
                 prevChannel = channel_[i].second;
+                break;
             }
         }
         for(auto i = position + 1; i < insertCount; ++i)
@@ -306,6 +307,7 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
             {
                 nextNode = nodes_[i];
                 nextChannel = channel_[i].first;
+                break;
             }
         }
         if(bypassed)
@@ -344,13 +346,13 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
                     && edgeData.toChannel == nextChannel)
                 {
                     graph_.disconnect(edgeHandle);
-                    graph_.connect(prevNode, nodes_[position],
-                        prevChannel, channel_[position].first);
-                    graph_.connect(nodes_[position], nextNode,
-                        channel_[position].second, nextChannel);
                     break;
                 }
             }
+            graph_.connect(prevNode, nodes_[position],
+                prevChannel, channel_[position].first);
+            graph_.connect(nodes_[position], nextNode,
+                channel_[position].second, nextChannel);
         }
         bypassed_[position] = bypassed;
     }
