@@ -88,17 +88,25 @@ void VST3PluginGUI::connect()
     connections_[0] = QObject::connect(window_, &QWindow::widthChanged,
         [this](int)
         {
-            disconnect();
-            onWindowSizeChanged();
-            connect();
-        });
+            if(!inCallback_)
+            {
+                inCallback_ = true;
+                onWindowSizeChanged();
+                inCallback_ = false;
+            }
+        }
+    );
     connections_[1] = QObject::connect(window_, &QWindow::heightChanged,
         [this](int)
         {
-            disconnect();
-            onWindowSizeChanged();
-            connect();
-        });
+            if(!inCallback_)
+            {
+                inCallback_ = true;
+                onWindowSizeChanged();
+                inCallback_ = false;
+            }
+        }
+    );
 }
 
 void VST3PluginGUI::disconnect()
@@ -119,13 +127,10 @@ void VST3PluginGUI::onWindowSizeChanged()
     windowRect.bottom = window_->height();
     if(plugView_->checkSizeConstraint(&windowRect) == Steinberg::kResultOk)
     {
-        window_->setWidth(windowRect.getWidth());
-        window_->setHeight(windowRect.getHeight());
-        if(plugView_->onSize(&windowRect) != Steinberg::kResultOk)
-        {
-            window_->setWidth(oldRect.getWidth());
-            window_->setHeight(oldRect.getHeight());
-        }
+        Steinberg::ViewRect* rects[2] = {&oldRect, &windowRect};
+        auto* rect = rects[plugView_->onSize(&windowRect) == Steinberg::kResultOk];
+        window_->setWidth(rect->getWidth());
+        window_->setHeight(rect->getHeight());
     }
 }
 }

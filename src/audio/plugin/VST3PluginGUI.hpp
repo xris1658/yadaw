@@ -36,6 +36,7 @@ private:
     QWindow* window_ = nullptr;
     YADAW::Audio::Plugin::VST3PlugFrame frame_;
     QMetaObject::Connection connections_[2];
+    bool inCallback_ = false;
 };
 }
 
