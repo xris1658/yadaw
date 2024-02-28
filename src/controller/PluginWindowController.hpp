@@ -15,14 +15,9 @@ struct PluginWindows
     QWindow* genericEditorWindow = nullptr;
 };
 
-using PluginWindowPool = std::map<
-    YADAW::Audio::Plugin::IAudioPlugin*,
-    PluginWindows
->;
-
-PluginWindowPool& appPluginWindowPool();
-
 extern YADAW::Audio::Plugin::IAudioPlugin* pluginNeedsWindow;
-}
+
+extern PluginWindows pluginWindows;
+};
 
 #endif // YADAW_SRC_CONTROLLER_PLUGINWINDOWCONTROLLER

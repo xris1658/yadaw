@@ -124,7 +124,7 @@ private:
 };
 }
 
-#define FOR_RANGE(var_name, first, last) for(auto var_name: YADAW::Util::IntegerRange(first, last))
+#define FOR_RANGE(var_name, first, last) for(auto var_name: YADAW::Util::IntegerRange<std::common_type_t<decltype(first), decltype(last)>>(first, last))
 #define FOR_RANGE0(var_name, last) for(auto var_name: YADAW::Util::IntegerRange(last))
 
 #endif // YADAW_SRC_UTIL_INTEGERRANGE

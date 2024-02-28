@@ -523,15 +523,16 @@ void EventHandler::onAudioGraphOutputDeviceIndexChanged(int index)
 void EventHandler::onPluginWindowReady()
 {
     auto pluginWindow = YADAW::UI::mainWindow->property("pluginWindow").value<QWindow*>();
-    if(YADAW::Controller::pluginNeedsWindow->gui()->attachToWindow(pluginWindow))
+    auto pluginFrame = pluginWindow->property("pluginFrame").value<QWindow*>();
+    if(YADAW::Controller::pluginNeedsWindow->gui()->attachToWindow(pluginFrame))
     {
-        YADAW::Controller::appPluginWindowPool()[YADAW::Controller::pluginNeedsWindow].pluginWindow = pluginWindow;
+        YADAW::Controller::pluginWindows.pluginWindow = pluginWindow;
     }
 }
 
 void EventHandler::onGenericPluginEditorReady()
 {
     auto genericPluginEditor = YADAW::UI::mainWindow->property("genericPluginEditor").value<QWindow*>();
-    YADAW::Controller::appPluginWindowPool()[YADAW::Controller::pluginNeedsWindow].genericEditorWindow = genericPluginEditor;
+    YADAW::Controller::pluginWindows.genericEditorWindow = genericPluginEditor;
 }
 }

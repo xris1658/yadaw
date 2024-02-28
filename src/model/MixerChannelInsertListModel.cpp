@@ -81,25 +81,13 @@ QVariant MixerChannelInsertListModel::data(const QModelIndex& index, int role) c
         }
         case Role::WindowVisible:
         {
-            auto ret = false;
-            auto plugin = dynamic_cast<const IAudioPlugin*>(device);
-            if(plugin)
-            {
-                auto gui = plugin->gui();
-                if(gui)
-                {
-                    auto window = gui->window();
-                    if(window)
-                    {
-                        ret = window->isVisible();
-                    }
-                }
-            }
-            return QVariant::fromValue<bool>(ret);
+            const auto& pluginEditor = pluginEditors_[row];
+            return QVariant::fromValue<bool>(pluginEditor.window && pluginEditor.window->isVisible());
         }
         case Role::GenericEditorVisible:
         {
-            return QVariant::fromValue<bool>(genericEditors_[row]->isVisible());
+            const auto& genericEditor = genericEditors_[row];
+            return QVariant::fromValue<bool>(genericEditor.window && genericEditor.window->isVisible());
         }
         case Role::Latency:
         {
@@ -138,27 +126,16 @@ bool MixerChannelInsertListModel::setData(const QModelIndex& index, const QVaria
         }
         case Role::WindowVisible:
         {
-            auto gui = plugin->gui();
-            if(gui)
+            if(auto window = pluginEditors_[row].window)
             {
-                auto window = gui->window();
-                if(window)
-                {
-                    auto visible = value.value<bool>();
-                    if(window->isVisible() != visible)
-                    {
-                        window->setVisible(visible);
-                        dataChanged(index, index, {Role::WindowVisible});
-                        return true;
-                    }
-                }
+                window->setVisible(value.value<bool>());
+                return true;
             }
             return false;
         }
         case Role::GenericEditorVisible:
         {
-            genericEditors_[row]->setVisible(value.value<bool>());
-            dataChanged(index, index, {Role::GenericEditorVisible});
+            genericEditors_[row].window->setVisible(value.value<bool>());
             return true;
         }
         }
@@ -266,39 +243,63 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 YADAW::Event::eventHandler->createPluginWindow();
             }
             YADAW::Event::eventHandler->createGenericPluginEditor();
-            auto& appPluginWindowPool = YADAW::Controller::appPluginWindowPool();
-            if(auto it = appPluginWindowPool.find(plugin.get());
-                it != appPluginWindowPool.end())
+            const auto& [pluginWindow, genericEditor] = YADAW::Controller::pluginWindows;
+            if(pluginWindow)
             {
-                auto [pluginWindow, genericEditor] = it->second;
-                if(pluginWindow)
-                {
-                    pluginWindow->setTitle(pluginInfo.name);
-                    pluginWindow->show();
-                }
-                else
-                {
-                    genericEditor->show();
-                }
-                paramListModel_.emplace(paramListModel_.begin() + position,
-                    std::make_unique<YADAW::Model::PluginParameterListModel>(
-                        *plugin->parameter()
-                    )
-                );
-                genericEditor->setProperty(
-                    "pluginName",
-                    QVariant::fromValue(pluginInfo.name)
-                );
-                genericEditor->setProperty(
-                    "parameterListModel",
-                    QVariant::fromValue<QObject*>(paramListModel_[position].get())
-                );
-                genericEditor->setTitle(pluginInfo.name);
-                genericEditors_.emplace(genericEditors_.begin() + position,
-                    genericEditor
+                pluginWindow->setTitle(pluginInfo.name);
+                auto& [window, connection] = *pluginEditors_.emplace(pluginEditors_.begin() + position, pluginWindow);
+                pluginWindow->show();
+                connection = QObject::connect(
+                    window, &QWindow::visibleChanged,
+                    [this, position](bool visible)
+                    {
+                        dataChanged(this->index(position), this->index(position), {Role::WindowVisible});
+                    }
                 );
             }
+            else
+            {
+                pluginEditors_.emplace(pluginEditors_.begin() + position, nullptr);
+                genericEditor->show();
+            }
+            {
+                auto& [window, connection] = *genericEditors_.emplace(genericEditors_.begin() + position, genericEditor);
+                connection = QObject::connect(
+                    window, &QWindow::visibleChanged,
+                    [this, position](bool visible)
+                    {
+                        dataChanged(this->index(position), this->index(position), {Role::GenericEditorVisible});
+                    }
+                );
+            }
+            paramListModel_.emplace(paramListModel_.begin() + position,
+                std::make_unique<YADAW::Model::PluginParameterListModel>(
+                    *plugin->parameter()
+                )
+            );
+            genericEditor->setProperty(
+                "pluginName",
+                QVariant::fromValue(pluginInfo.name)
+            );
+            genericEditor->setProperty(
+                "parameterListModel",
+                QVariant::fromValue<QObject*>(paramListModel_[position].get())
+            );
             it->second.emplace(std::move(plugin));
+            FOR_RANGE(i, position + 1, pluginEditors_.size())
+            {
+                auto& [window, connection] = pluginEditors_[i];
+                if(window)
+                {
+                    QObject::disconnect(connection);
+                    connection = QObject::connect(window, &QWindow::visibleChanged,
+                        [this, i](bool visible)
+                        {
+                            dataChanged(this->index(i), this->index(i), {Role::WindowVisible});
+                        }
+                    );
+                }
+            }
             beginInsertRows(QModelIndex(), position, position);
             endInsertRows();
         }
@@ -325,7 +326,6 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         std::set<std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>> pluginsToRemove;
         std::vector<YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>> processDataToRemove;
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
-        auto& pluginWindowPool = YADAW::Controller::appPluginWindowPool();
         std::vector<ade::NodeHandle> removingNodes;
         std::vector<YADAW::Controller::PluginPool::iterator> removingIterators;
         std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> removingMultiInputs;
@@ -334,6 +334,14 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         FOR_RANGE(i, position, position + removeCount)
         {
             removingNodes.emplace_back(*(inserts_->insertAt(i)));
+            if(auto window = pluginEditors_[i].window)
+            {
+                window->setProperty("destroyingPlugin", QVariant::fromValue(true));
+                delete window;
+            }
+            auto genericEditor = genericEditors_[i].window;
+            genericEditor->setProperty("destroyingPlugin", QVariant::fromValue(true));
+            delete genericEditor;
         }
         inserts_->remove(position, removeCount);
         for(const auto& removingNode: removingNodes)
@@ -365,23 +373,6 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             }
             auto libraryIt = poolIterators_[i + position];
             auto& [library, plugins] = *libraryIt;
-            if(auto pluginWindowIt = pluginWindowPool.find(pluginToRemove);
-                pluginWindowIt != pluginWindowPool.end())
-            {
-                auto& [pluginWindow, genericEditor] = pluginWindowIt->second;
-                if(pluginWindow)
-                {
-                    pluginWindow->setProperty("destroyingPlugin", QVariant::fromValue(true));
-                    pluginToRemove->gui()->detachWithWindow();
-                    delete pluginWindow;
-                }
-                if(genericEditor)
-                {
-                    genericEditor->setProperty("destroyingPlugin", QVariant::fromValue(true));
-                    delete genericEditor;
-                }
-                pluginWindowPool.erase(pluginWindowIt);
-            }
             auto it = plugins.find(pluginToRemove);
             if(it != plugins.end())
             {
@@ -443,10 +434,39 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             paramListModel_.begin() + position,
             paramListModel_.begin() + position + removeCount
         );
+        pluginEditors_.erase(
+            pluginEditors_.begin() + position,
+            pluginEditors_.begin() + position + removeCount
+        );
         genericEditors_.erase(
             genericEditors_.begin() + position,
             genericEditors_.begin() + position + removeCount
         );
+        FOR_RANGE(i, position, pluginEditors_.size())
+        {
+            auto& [window, windowConnection] = pluginEditors_[i];
+            if(window)
+            {
+                QObject::disconnect(windowConnection);
+                windowConnection = QObject::connect(window, &QWindow::visibleChanged,
+                    [this, i](bool visible)
+                    {
+                        dataChanged(this->index(i), this->index(i), {Role::WindowVisible});
+                    }
+                );
+            }
+        }
+        FOR_RANGE(i, position, genericEditors_.size())
+        {
+            auto& [genericEditor, genericEditorConnection] = genericEditors_[i];
+            QObject::disconnect(genericEditorConnection);
+            genericEditorConnection = QObject::connect(genericEditor, &QWindow::visibleChanged,
+                [this, i](bool visible)
+                {
+                    dataChanged(this->index(i), this->index(i), {Role::GenericEditorVisible});
+                }
+            );
+        }
         poolIterators_.erase(
             poolIterators_.begin() + position,
             poolIterators_.begin() + position + removeCount
