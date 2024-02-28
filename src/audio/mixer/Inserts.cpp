@@ -355,6 +355,7 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
                 channel_[position].second, nextChannel);
         }
         bypassed_[position] = bypassed;
+        connectionUpdatedCallback_(*this);
     }
 }
 
