@@ -24,7 +24,7 @@ Rectangle {
     signal insertTrack(position: int, type: int) // AddTrackWindow.TrackType
 
     function appendTrack(type: int) { // AddTrackWindow.TrackType
-        insertTrack(channels.count - 1, type);
+        insertTrack(channels.count, type);
     }
 
     Item {
