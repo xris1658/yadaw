@@ -88,23 +88,13 @@ void VST3PluginGUI::connect()
     connections_[0] = QObject::connect(window_, &QWindow::widthChanged,
         [this](int)
         {
-            if(!inCallback_)
-            {
-                inCallback_ = true;
-                onWindowSizeChanged();
-                inCallback_ = false;
-            }
+            onWindowSizeChanged();
         }
     );
     connections_[1] = QObject::connect(window_, &QWindow::heightChanged,
         [this](int)
         {
-            if(!inCallback_)
-            {
-                inCallback_ = true;
-                onWindowSizeChanged();
-                inCallback_ = false;
-            }
+            onWindowSizeChanged();
         }
     );
 }
@@ -117,20 +107,25 @@ void VST3PluginGUI::disconnect()
 
 void VST3PluginGUI::onWindowSizeChanged()
 {
-    // https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical+Documentation/Workflow+Diagrams/Resize+View+Call+Sequence.html#initiated-from-host
-    Steinberg::ViewRect oldRect;
-    plugView_->getSize(&oldRect);
-    Steinberg::ViewRect windowRect;
-    windowRect.left = 0;
-    windowRect.top = 0;
-    windowRect.right = window_->width();
-    windowRect.bottom = window_->height();
-    if(plugView_->checkSizeConstraint(&windowRect) == Steinberg::kResultOk)
+    if(!inCallback_)
     {
-        Steinberg::ViewRect* rects[2] = {&oldRect, &windowRect};
-        auto* rect = rects[plugView_->onSize(&windowRect) == Steinberg::kResultOk];
-        window_->setWidth(rect->getWidth());
-        window_->setHeight(rect->getHeight());
+        inCallback_ = true;
+        // https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical+Documentation/Workflow+Diagrams/Resize+View+Call+Sequence.html#initiated-from-host
+        Steinberg::ViewRect oldRect;
+        plugView_->getSize(&oldRect);
+        Steinberg::ViewRect windowRect;
+        windowRect.left = 0;
+        windowRect.top = 0;
+        windowRect.right = window_->width();
+        windowRect.bottom = window_->height();
+        if(plugView_->checkSizeConstraint(&windowRect) == Steinberg::kResultOk)
+        {
+            Steinberg::ViewRect* rects[2] = {&oldRect, &windowRect};
+            auto* rect = rects[plugView_->onSize(&windowRect) == Steinberg::kResultOk];
+            window_->setWidth(rect->getWidth());
+            window_->setHeight(rect->getHeight());
+        }
+        inCallback_ = false;
     }
 }
 }
