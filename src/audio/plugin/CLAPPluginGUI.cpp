@@ -28,8 +28,7 @@ bool CLAPPluginGUI::attachToWindow(QWindow* window)
         auto resizeResult = gui_->get_size(plugin_, &width, &height);
         if(resizeResult)
         {
-            window->setWidth(width);
-            window->setHeight(height);
+            window->resize(width, height);
         }
         clapWindow_.api = YADAW::Native::windowAPI;
         YADAW::Native::setWindow(clapWindow_, window);
@@ -106,14 +105,12 @@ void CLAPPluginGUI::onWindowSizeChanged()
         if(!gui_->set_size(plugin_, width, height))
         {
             gui_->get_size(plugin_, &width, &height);
-            window_->setWidth(width);
-            window_->setHeight(height);
+            window_->resize(width, height);
         }
         connect();
         return;
     }
-    window_->setWidth(oldWidth);
-    window_->setHeight(oldHeight);
+    window_->resize(oldWidth, oldHeight);
     return;
 }
 }

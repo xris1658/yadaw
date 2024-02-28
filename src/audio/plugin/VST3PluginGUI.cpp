@@ -43,14 +43,12 @@ bool VST3PluginGUI::attachToWindow(QWindow* window)
             // we give it another try
             if(rect.getWidth() <= 0 || rect.getHeight() <= 0)
             {
-                window_->setWidth(200);
-                window_->setHeight(200);
+                window_->resize(200, 200);
                 onWindowSizeChanged();
             }
             else
             {
-                window_->setWidth(rect.getWidth());
-                window_->setHeight(rect.getHeight());
+                window_->resize(rect.getWidth(), rect.getHeight());
             }
             connect();
         }
@@ -122,8 +120,7 @@ void VST3PluginGUI::onWindowSizeChanged()
         {
             Steinberg::ViewRect* rects[2] = {&oldRect, &windowRect};
             auto* rect = rects[plugView_->onSize(&windowRect) == Steinberg::kResultOk];
-            window_->setWidth(rect->getWidth());
-            window_->setHeight(rect->getHeight());
+            window_->resize(rect->getWidth(), rect->getHeight());
         }
         inCallback_ = false;
     }

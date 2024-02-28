@@ -28,8 +28,7 @@ bool VestifalPluginGUI::attachToWindow(QWindow* window)
             window_ = window;
             VestifalRectangle* rectangle = nullptr;
             runDispatcher(effect_, EffectOpcode::effectGetRect, 0, 0, &rectangle);
-            window_->setWidth(rectangle->right - rectangle->left);
-            window_->setHeight(rectangle->bottom - rectangle->top);
+            window_->resize(rectangle->right - rectangle->left, rectangle->bottom - rectangle->top);
         }
         return attachResult;
     }

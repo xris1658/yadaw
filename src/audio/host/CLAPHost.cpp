@@ -204,8 +204,7 @@ void CLAPHost::doResizeHintsChanged()
 bool CLAPHost::doRequestResize(std::uint32_t width, std::uint32_t height)
 {
     auto window = plugin_->pluginGUI()->window();
-    window->setWidth(width);
-    window->setHeight(height);
+    window->resize(width, height);
     return true;
 }
 

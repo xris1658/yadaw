@@ -51,8 +51,7 @@ Steinberg::tresult VST3PlugFrame::resizeView(Steinberg::IPlugView* view, Steinbe
             return result;
         }
         gui_->disconnect();
-        window->setWidth(tweakedNewSize.getWidth());
-        window->setHeight(tweakedNewSize.getHeight());
+        window->resize(tweakedNewSize.getWidth(), tweakedNewSize.getHeight());
         gui_->connect();
         return Steinberg::kResultOk;
     }
