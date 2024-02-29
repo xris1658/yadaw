@@ -271,6 +271,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/AudioBusConfigurationController.hpp
     src/controller/AudioEngineController.cpp
     src/controller/AudioEngineController.hpp
+    src/controller/CLAPPluginPool.cpp
+    src/controller/CLAPPluginPool.hpp
     src/controller/ConfigController.cpp
     src/controller/ConfigController.hpp
     src/controller/DatabaseController.cpp

@@ -7,6 +7,7 @@
 #include "audio/engine/AudioDeviceGraphWithPDC.hpp"
 #include "audio/mixer/Mixer.hpp"
 #include "concurrent/PassDataToRealtimeThread.hpp"
+#include "controller/CLAPPluginPool.hpp"
 #include "controller/VST3PluginPool.hpp"
 
 namespace YADAW::Controller
@@ -40,6 +41,8 @@ public:
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>& processSequence();
     const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>& vst3PluginPool() const;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>& vst3PluginPool();
+    const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector>& clapPluginPool() const;
+    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector>& clapPluginPool();
     bool running() const;
     void setRunning(bool running);
 public:
@@ -61,6 +64,7 @@ private:
     YADAW::Audio::Mixer::Mixer mixer_;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence> processSequence_;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector> vst3PluginPool_;
+    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector> clapPluginPool_;
 };
 }
 
