@@ -6,16 +6,25 @@
 
 #include <mutex>
 
+void blankLatencyChangedCallback(YADAW::Audio::Plugin::VST3Plugin&) {}
+
+void blankIOChangedCallback(YADAW::Audio::Plugin::VST3Plugin&) {}
+
+void blankParameterValueChangedCallback(YADAW::Audio::Plugin::VST3Plugin&) {}
+
+void blankParameterInfoChangedCallback(YADAW::Audio::Plugin::VST3Plugin&) {}
+
+
 namespace YADAW::Audio::Host
 {
 constexpr auto nanosecondCount = 1000000000;
 
 VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin& plugin):
     plugin_(&plugin),
-    latencyChanged_([]() {}),
-    ioChanged_([]() {}),
-    parameterValueChanged_([]() {}),
-    parameterInfoChanged_([]() {}),
+    latencyChangedCallback_(&blankLatencyChangedCallback),
+    ioChangedCallback_(&blankIOChangedCallback),
+    parameterValueChangedCallback_(&blankParameterValueChangedCallback),
+    parameterInfoChangedCallback_(&blankParameterInfoChangedCallback),
     hostBufferIndex_{0},
     timestamp_(0),
     inputParameterChanges_{},
@@ -156,7 +165,7 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
         auto status = plugin_->status();
         plugin_->stopProcessing();
         plugin_->deactivate();
-        ioChanged_();
+        ioChangedCallback_(*plugin_);
         plugin_->activate();
         if(status >= IAudioPlugin::Status::Processing)
         {
@@ -170,7 +179,7 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
         plugin_->stopProcessing();
         plugin_->deactivate();
         plugin_->activate();
-        latencyChanged_();
+        latencyChangedCallback_(*plugin_);
         if(status >= IAudioPlugin::Status::Processing)
         {
             plugin_->startProcessing();
@@ -180,12 +189,12 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
     if(flags & RestartFlags::kParamTitlesChanged)
     {
         plugin_->refreshParameterInfo();
-        parameterInfoChanged_();
+        parameterInfoChangedCallback_(*plugin_);
         return kResultOk;
     }
     if(flags & RestartFlags::kParamValuesChanged)
     {
-        parameterValueChanged_();
+        parameterValueChangedCallback_(*plugin_);
         return kResultOk;
     }
     return kNotImplemented;
@@ -261,23 +270,47 @@ void VST3ComponentHandler::reserve()
     }
 }
 
-void VST3ComponentHandler::latencyChanged(std::function<void()>&& callback)
+void VST3ComponentHandler::setLatencyChangedCallback(
+    VST3ComponentHandler::LatencyChangedCallback* callback)
 {
-    latencyChanged_ = std::move(callback);
+    latencyChangedCallback_ = callback;
 }
 
-void VST3ComponentHandler::ioChanged(std::function<void()>&& callback)
+void VST3ComponentHandler::setIOChangedCallback(
+    VST3ComponentHandler::IOChangedCallback* callback)
 {
-    ioChanged_ = std::move(callback);
+    ioChangedCallback_ = callback;
 }
 
-void VST3ComponentHandler::parameterValueChanged(std::function<void()>&& callback)
+void VST3ComponentHandler::setParameterValueChangedCallback(
+    VST3ComponentHandler::ParameterValueChangedCallback* callback)
 {
-    parameterValueChanged_ = std::move(callback);
+    parameterValueChangedCallback_ = callback;
 }
 
-void VST3ComponentHandler::parameterInfoChanged(std::function<void()>&& callback)
+void VST3ComponentHandler::setParameterInfoChangedCallback(
+    VST3ComponentHandler::ParameterInfoChangedCallback* callback)
 {
-    parameterInfoChanged_ = std::move(callback);
+    parameterInfoChangedCallback_ = callback;
+}
+
+void VST3ComponentHandler::resetLatencyChangedCallback()
+{
+    latencyChangedCallback_ = &blankLatencyChangedCallback;
+}
+
+void VST3ComponentHandler::resetIOChangedCallback()
+{
+    ioChangedCallback_ = &blankIOChangedCallback;
+}
+
+void VST3ComponentHandler::resetParameterValueChangedCallback()
+{
+    parameterValueChangedCallback_ = &blankParameterValueChangedCallback;
+}
+
+void VST3ComponentHandler::resetParameterInfoChangedCallback()
+{
+    parameterInfoChangedCallback_ = &blankParameterInfoChangedCallback;
 }
 }

@@ -34,6 +34,11 @@ class VST3ComponentHandler final:
 {
     using Self = VST3ComponentHandler;
 public:
+    using LatencyChangedCallback = void(YADAW::Audio::Plugin::VST3Plugin&);
+    using IOChangedCallback = void(YADAW::Audio::Plugin::VST3Plugin&);
+    using ParameterValueChangedCallback = void(YADAW::Audio::Plugin::VST3Plugin&);
+    using ParameterInfoChangedCallback = void(YADAW::Audio::Plugin::VST3Plugin&);
+public:
     VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin& plugin);
     VST3ComponentHandler(const Self&) = delete;
     VST3ComponentHandler(Self&& rhs) = delete;
@@ -62,16 +67,21 @@ public:
 public:
     void reserve();
 public:
-    void latencyChanged(std::function<void()>&& callback);
-    void ioChanged(std::function<void()>&& callback);
-    void parameterValueChanged(std::function<void()>&& callback);
-    void parameterInfoChanged(std::function<void()>&& callback);
+    void setLatencyChangedCallback(LatencyChangedCallback* callback);
+    void setIOChangedCallback(IOChangedCallback* callback);
+    void setParameterValueChangedCallback(ParameterValueChangedCallback* callback);
+    void setParameterInfoChangedCallback(ParameterInfoChangedCallback* callback);
+    void resetLatencyChangedCallback();
+    void resetIOChangedCallback();
+    void resetParameterValueChangedCallback();
+    void resetParameterInfoChangedCallback();
 private:
     YADAW::Audio::Plugin::VST3Plugin* plugin_;
-    std::function<void()> latencyChanged_;
-    std::function<void()> ioChanged_;
-    std::function<void()> parameterValueChanged_;
-    std::function<void()> parameterInfoChanged_;
+    LatencyChangedCallback* latencyChangedCallback_;
+    IOChangedCallback* ioChangedCallback_;
+    ParameterValueChangedCallback* parameterValueChangedCallback_;
+    ParameterInfoChangedCallback* parameterInfoChangedCallback_;
+
     // Used by host
     std::atomic<int> hostBufferIndex_;
     // Set on switchBuffer

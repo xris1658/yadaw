@@ -21,6 +21,11 @@ class CLAPHost
 {
     friend class YADAW::Audio::Plugin::CLAPPlugin;
 public:
+    using LatencyChangedCallback = void(YADAW::Audio::Plugin::CLAPPlugin&);
+    using ParameterValueChangedCallback = void(YADAW::Audio::Plugin::CLAPPlugin&);
+    using ParameterTextChangedCallback = void(YADAW::Audio::Plugin::CLAPPlugin&);
+    using ParameterInfoChangedCallback = void(YADAW::Audio::Plugin::CLAPPlugin&);
+public:
     CLAPHost(YADAW::Audio::Plugin::CLAPPlugin& plugin);
 public:
     const clap_host* host();
@@ -55,26 +60,30 @@ private: // clap_host implementations
     bool doRequestShow();
     bool doRequestHide();
     void doClosed(bool wasDestroyed);
-    void doChanged();
-    void doRescan(clap_param_rescan_flags flags);
-    void doClear(clap_id paramId, clap_param_clear_flags flags);
-    void doRequestFlush();
+    void doLatencyChanged();
+    void doParameterRescan(clap_param_rescan_flags flags);
+    void doParameterClear(clap_id paramId, clap_param_clear_flags flags);
+    void doParameterRequestFlush();
 public:
     YADAW::Audio::Plugin::CLAPPlugin* plugin();
     static void setMainThreadId(std::thread::id mainThreadId);
     static void setAudioThreadId(std::thread::id audioThreadId);
-    void latencyChanged(std::function<void()>&& callback);
-    void parameterValueChanged(std::function<void()>&& callback);
-    void parameterTextChanged(std::function<void()>&& callback);
-    void parameterInfoChanged(std::function<void()>&& callback);
+    void setLatencyChangedCallback(LatencyChangedCallback* callback);
+    void setParameterValueChangedCallback(ParameterValueChangedCallback* callback);
+    void setParameterTextChangedCallback(ParameterTextChangedCallback* callback);
+    void setParameterInfoChangedCallback(ParameterInfoChangedCallback* callback);
+    void resetLatencyChangedCallback();
+    void resetParameterValueChangedCallback();
+    void resetParameterTextChangedCallback();
+    void resetParameterInfoChangedCallback();
 private:
     static std::thread::id mainThreadId_;
     static std::thread::id audioThreadId_;
     YADAW::Audio::Plugin::CLAPPlugin* plugin_;
-    std::function<void()> latencyChanged_;
-    std::function<void()> parameterValueChanged_;
-    std::function<void()> parameterTextChanged_;
-    std::function<void()> parameterInfoChanged_;
+    LatencyChangedCallback* latencyChangedCallback_;
+    ParameterValueChangedCallback* parameterValueChangedCallback_;
+    ParameterTextChangedCallback* parameterTextChangedCallback_;
+    ParameterInfoChangedCallback* parameterInfoChangedCallback_;
     clap_host host_;
     clap_host_gui gui_;
     clap_host_latency latency_;

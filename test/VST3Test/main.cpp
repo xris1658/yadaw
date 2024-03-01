@@ -1,7 +1,5 @@
 #include "test/common/PluginWindowThread.hpp"
 #include "test/common/DisableStreamBuffer.hpp"
-#include "VST3DoubleBuffer.hpp"
-#include "VST3PluginLatencyChangedCallback.hpp"
 
 #include "audio/host/VST3ComponentHandler.hpp"
 #include "audio/host/VST3EventDoubleBuffer.hpp"
@@ -76,6 +74,11 @@ std::int32_t maxUnderflow = 0;
 YADAW::Util::AtomicMutex mutex;
 
 std::int64_t translateEventDuration = 0;
+
+void latencyUpdatedCallback(YADAW::Audio::Plugin::VST3Plugin& plugin)
+{
+    std::printf("New latency: %u\n", plugin.latencyInSamples());
+}
 
 void translateEvent(const YADAW::MIDI::MIDIInputDevice& device, const YADAW::MIDI::Message& message)
 {
@@ -241,8 +244,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
             {
                 throw std::runtime_error("Activation failed!");
             }
-            VST3PluginLatencyChangedCallback callback(plugin);
-            componentHandler.latencyChanged([&callback]() { callback.latencyChanged(); });
+            componentHandler.setLatencyChangedCallback(&latencyUpdatedCallback);
             if(processPlugin)
             {
                 if(!plugin.startProcessing())

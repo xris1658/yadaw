@@ -1,7 +1,5 @@
 #include "test/common/PluginWindowThread.hpp"
 
-#include "CLAPPluginLatencyChangedCallback.hpp"
-
 #include "audio/host/CLAPEventList.hpp"
 #include "audio/host/CLAPHost.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
@@ -39,6 +37,11 @@ bool initializePlugin = true;
 bool activatePlugin = true;
 bool processPlugin = true;
 
+void latencyUpdated(YADAW::Audio::Plugin::CLAPPlugin& plugin)
+{
+    std::printf("New latency: %u\n", plugin.latencyInSamples());
+}
+
 void testPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, bool initializePlugin, bool activatePlugin, bool processPlugin)
 {
     YADAW::Audio::Host::CLAPEventList inputEventList;
@@ -46,7 +49,7 @@ void testPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, bool initializePlugin,
     if(initializePlugin)
     {
         auto bufferSize = 512;
-        assert(plugin.initialize(44100, bufferSize));
+        plugin.initialize(44100, bufferSize);
         auto audioInputGroupCount = plugin.audioInputGroupCount();
         std::printf("%d audio input(s)", audioInputGroupCount);
         if(audioInputGroupCount != 0)
@@ -137,12 +140,8 @@ void testPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, bool initializePlugin,
         }
         if(activatePlugin)
         {
-            assert(plugin.activate());
-            CLAPPluginLatencyChangedCallback callback(plugin);
-            plugin.host().latencyChanged(
-                [&callback]()
-                { callback.latencyChanged(); }
-            );
+            plugin.host().setLatencyChangedCallback(&latencyUpdated);
+            plugin.activate();
             if(processPlugin)
             {
                 PluginWindowThread pluginWindowThread(nullptr);
@@ -212,7 +211,7 @@ void testPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, bool initializePlugin,
                     [bufferSize, &stop, &plugin]()
                     {
                         plugin.host().setAudioThreadId(std::this_thread::get_id());
-                        assert(plugin.startProcessing());
+                        plugin.startProcessing();
                         // Audio callback goes here...
                         while(!stop.load(std::memory_order::memory_order_acquire))
                         {
@@ -272,7 +271,7 @@ int main(int argc, char* argv[])
             library = YADAW::Native::Library(argv[argIndex]);
             ++argIndex;
             auto plugin = YADAW::Audio::Util::createCLAPFromLibrary(library);
-            assert(plugin.createPlugin(argv[argIndex]));
+            plugin.createPlugin(argv[argIndex]);
             testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);
             ++argIndex;
         }
@@ -283,7 +282,7 @@ int main(int argc, char* argv[])
             std::printf("\nTesting plugin: %s...\n", record.path.toLocal8Bit().data());
             library = YADAW::Native::Library(record.path);
             auto plugin = YADAW::Audio::Util::createCLAPFromLibrary(library);
-            assert(plugin.createPlugin(record.uid.data()));
+            plugin.createPlugin(record.uid.data());
             testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);
             ++argIndex;
         }

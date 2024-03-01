@@ -2,6 +2,15 @@
 
 #include "audio/plugin/CLAPPlugin.hpp"
 
+void blankLatencyChangedCallback(YADAW::Audio::Plugin::CLAPPlugin&) {}
+
+void blankParameterValueChangedCallback(YADAW::Audio::Plugin::CLAPPlugin&) {}
+
+void blankParameterTextChangedCallback(YADAW::Audio::Plugin::CLAPPlugin&) {}
+
+void blankParameterInfoChangedCallback(YADAW::Audio::Plugin::CLAPPlugin&) {}
+
+
 namespace YADAW::Audio::Host
 {
 CLAPHost* getHost(const clap_host* host)
@@ -14,7 +23,10 @@ std::thread::id CLAPHost::audioThreadId_ = {};
 
 CLAPHost::CLAPHost(YADAW::Audio::Plugin::CLAPPlugin& plugin):
     plugin_(&plugin),
-    latencyChanged_([]() {}),
+    latencyChangedCallback_(&blankLatencyChangedCallback),
+    parameterValueChangedCallback_(&blankParameterValueChangedCallback),
+    parameterTextChangedCallback_(&blankParameterTextChangedCallback),
+    parameterInfoChangedCallback_(&blankParameterInfoChangedCallback),
     host_
     {
         {
@@ -110,22 +122,22 @@ void CLAPHost::closed(const clap_host* host, bool wasDestroyed)
 
 void CLAPHost::changed(const clap_host* host)
 {
-    return getHost(host)->doChanged();
+    return getHost(host)->doLatencyChanged();
 }
 
 void CLAPHost::rescan(const clap_host* host, clap_param_rescan_flags flags)
 {
-    return getHost(host)->doRescan(flags);
+    return getHost(host)->doParameterRescan(flags);
 }
 
 void CLAPHost::clear(const clap_host* host, clap_id paramId, clap_param_clear_flags flags)
 {
-    return getHost(host)->doClear(paramId, flags);
+    return getHost(host)->doParameterClear(paramId, flags);
 }
 
 void CLAPHost::requestFlush(const clap_host* host)
 {
-    return getHost(host)->doRequestFlush();
+    return getHost(host)->doParameterRequestFlush();
 }
 
 bool CLAPHost::isMainThread(const clap_host* host)
@@ -228,12 +240,12 @@ void CLAPHost::doClosed(bool wasDestroyed)
     }
 }
 
-void CLAPHost::doChanged()
+void CLAPHost::doLatencyChanged()
 {
-    latencyChanged_();
+    latencyChangedCallback_(*plugin_);
 }
 
-void CLAPHost::doRescan(clap_param_rescan_flags flags)
+void CLAPHost::doParameterRescan(clap_param_rescan_flags flags)
 {
     if(flags & CLAP_PARAM_RESCAN_ALL)
     {
@@ -243,26 +255,26 @@ void CLAPHost::doRescan(clap_param_rescan_flags flags)
     {
         if(flags & CLAP_PARAM_RESCAN_VALUES)
         {
-            parameterValueChanged_();
+            parameterValueChangedCallback_(*plugin_);
         }
         if(flags & CLAP_PARAM_RESCAN_TEXT)
         {
-            parameterTextChanged_();
+            parameterTextChangedCallback_(*plugin_);
         }
         if(flags & CLAP_PARAM_RESCAN_INFO)
         {
             plugin_->pluginParameter()->refreshParameterInfo();
-            parameterInfoChanged_();
+            parameterInfoChangedCallback_(*plugin_);
         }
     }
 }
 
-void CLAPHost::doClear(clap_id paramId, clap_param_clear_flags flags)
+void CLAPHost::doParameterClear(clap_id paramId, clap_param_clear_flags flags)
 {
     // TODO
 }
 
-void CLAPHost::doRequestFlush()
+void CLAPHost::doParameterRequestFlush()
 {
     // TODO
 }
@@ -282,23 +294,47 @@ void CLAPHost::setAudioThreadId(std::thread::id audioThreadId)
     audioThreadId_ = audioThreadId;
 }
 
-void CLAPHost::latencyChanged(std::function<void()>&& callback)
+void CLAPHost::setLatencyChangedCallback(
+    CLAPHost::LatencyChangedCallback* callback)
 {
-    latencyChanged_ = std::move(callback);
+    latencyChangedCallback_ = callback;
 }
 
-void CLAPHost::parameterValueChanged(std::function<void()>&& callback)
+void CLAPHost::setParameterValueChangedCallback(
+    CLAPHost::ParameterValueChangedCallback* callback)
 {
-    parameterValueChanged_ = std::move(callback);
+    parameterValueChangedCallback_ = callback;
 }
 
-void CLAPHost::parameterTextChanged(std::function<void()>&& callback)
+void CLAPHost::setParameterTextChangedCallback(
+    CLAPHost::ParameterTextChangedCallback* callback)
 {
-    parameterTextChanged_ = std::move(callback);
+    parameterTextChangedCallback_ = callback;
 }
 
-void CLAPHost::parameterInfoChanged(std::function<void()>&& callback)
+void CLAPHost::setParameterInfoChangedCallback(
+    CLAPHost::ParameterInfoChangedCallback* callback)
 {
-    parameterInfoChanged_ = std::move(callback);
+    parameterInfoChangedCallback_ = callback;
+}
+
+void CLAPHost::resetLatencyChangedCallback()
+{
+    latencyChangedCallback_ = &blankLatencyChangedCallback;
+}
+
+void CLAPHost::resetParameterValueChangedCallback()
+{
+    parameterValueChangedCallback_ = &blankParameterValueChangedCallback;
+}
+
+void CLAPHost::resetParameterTextChangedCallback()
+{
+    parameterTextChangedCallback_ = &blankParameterTextChangedCallback;
+}
+
+void CLAPHost::resetParameterInfoChangedCallback()
+{
+    parameterInfoChangedCallback_ = &blankParameterInfoChangedCallback;
 }
 }

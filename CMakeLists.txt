@@ -478,8 +478,7 @@ add_executable(CLAPTest
                test/common/PluginWindowThread.hpp
                test/common/PluginWindowThread.cpp
                test/CLAPTest/main.cpp
-               test/CLAPTest/CLAPPluginLatencyChangedCallback.cpp
-               test/CLAPTest/CLAPPluginLatencyChangedCallback.hpp)
+)
 
 add_executable(PluginDirectoryScanTest
                src/audio/host/CLAPHost.cpp
@@ -770,8 +769,7 @@ add_executable(VST3Test
                test/common/PluginWindowThread.hpp
                test/common/PluginWindowThread.cpp
                test/VST3Test/main.cpp
-               test/VST3Test/VST3PluginLatencyChangedCallback.cpp
-               test/VST3Test/VST3PluginLatencyChangedCallback.hpp)
+)
 
 if(WIN32)
 add_executable(WindowsMIDIInputDeviceTest
