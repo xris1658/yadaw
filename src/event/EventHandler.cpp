@@ -1,5 +1,6 @@
 #include "EventHandler.hpp"
 
+#include "audio/host/CLAPHost.hpp"
 #include "base/Constants.hpp"
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
@@ -253,6 +254,7 @@ void EventHandler::onOpenMainWindow()
     // the work of the first callback.
     processSequence.swapIfNeeded();
     auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
+    YADAW::Audio::Host::CLAPHost::setMainThreadId(std::this_thread::get_id());
     // Start the audio backend
     engine.setRunning(true);
 #if _WIN32

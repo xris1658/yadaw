@@ -27,7 +27,6 @@ void fillCLAPInputParameterChanged(CLAPPluginPoolVector& pool,
     for(auto* ptr: pool)
     {
         auto& [plugin, context] = *ptr;
-        plugin->host().setAudioThreadId(std::this_thread::get_id());
         auto eventList = context.eventList;
         eventList->flip();
         eventList->attachToProcessData(plugin->processData());

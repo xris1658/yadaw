@@ -1,4 +1,7 @@
 #include "AudioEngineController.hpp"
+
+#include "audio/host/CLAPHost.hpp"
+#include "audio/plugin/CLAPPlugin.hpp"
 #include "util/Util.hpp"
 
 #include <execution>
@@ -8,7 +11,8 @@ namespace YADAW::Controller
 AudioEngine::AudioEngine():
     processSequence_(std::make_unique<YADAW::Audio::Engine::ProcessSequence>()),
     vst3PluginPool_(std::make_unique<YADAW::Controller::VST3PluginPoolVector>()),
-    clapPluginPool_(std::make_unique<YADAW::Controller::CLAPPluginPoolVector>())
+    clapPluginPool_(std::make_unique<YADAW::Controller::CLAPPluginPoolVector>()),
+    clapPluginToSetProcess_(std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>())
 {
     mixer_.bufferExtension().setBufferSize(bufferSize_);
     mixer_.setNodeAddedCallback(&AudioEngine::mixerNodeAddedCallback);
@@ -80,10 +84,19 @@ void AudioEngine::uninitialize()
     mixer_.graph().graph().clear();
 }
 
+using SetCLAPPluginProcessing = decltype(&YADAW::Audio::Plugin::CLAPPlugin::startProcessing);
+
+SetCLAPPluginProcessing setProcessing[2] = {
+    &YADAW::Audio::Plugin::CLAPPlugin::stopProcessing,
+    &YADAW::Audio::Plugin::CLAPPlugin::startProcessing
+};
+
 void AudioEngine::process()
 {
+    YADAW::Audio::Host::CLAPHost::setAudioThreadId(std::this_thread::get_id());
     processSequence_.swapIfNeeded();
     vst3PluginPool_.swapIfNeeded();
+    clapPluginToSetProcess_.swapIfNeeded();
     clapPluginPool_.swapIfNeeded();
     YADAW::Controller::fillVST3InputParameterChanges(
         *(vst3PluginPool_.get()),
@@ -93,6 +106,18 @@ void AudioEngine::process()
         *(clapPluginPool_.get()),
         YADAW::Util::currentTimeValueInNanosecond()
     );
+    auto& clapPluginToSetProcess = *clapPluginToSetProcess_.get();
+    for(const auto& [plugin, process]: clapPluginToSetProcess)
+    {
+        (plugin->*setProcessing[process])();
+    }
+    static_assert(std::is_trivially_destructible_v<YADAW::Controller::CLAPPluginToSetProcess>);
+    // The assertion above passed.
+    // Sadly, we do NOT know if `std::vector<T>::clear()` is O(1) if `T` is
+    // trivially destructible on unknown STL implementations.
+    // On MSVC STL, it is O(1). On libstdc++ and libcxx, it seems not.
+    auto size = clapPluginToSetProcess.size();
+    clapPluginToSetProcess.clear();
     auto& processSequence = *(processSequence_.get());
     std::for_each(processSequence.begin(), processSequence.end(),
         [](Vector2D<YADAW::Audio::Engine::ProcessPair>& row)
@@ -189,6 +214,18 @@ AudioEngine::clapPluginPool() const
 YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector>& AudioEngine::clapPluginPool()
 {
     return clapPluginPool_;
+}
+
+const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginToSetProcessVector>&
+AudioEngine::clapPluginToSetProcess() const
+{
+    return clapPluginToSetProcess_;
+}
+
+YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginToSetProcessVector>&
+AudioEngine::clapPluginToSetProcess()
+{
+    return clapPluginToSetProcess_;
 }
 
 bool AudioEngine::running() const

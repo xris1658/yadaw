@@ -43,6 +43,8 @@ public:
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>& vst3PluginPool();
     const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector>& clapPluginPool() const;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector>& clapPluginPool();
+    const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginToSetProcessVector>& clapPluginToSetProcess() const;
+    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginToSetProcessVector>& clapPluginToSetProcess();
     bool running() const;
     void setRunning(bool running);
 public:
@@ -65,6 +67,7 @@ private:
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence> processSequence_;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector> vst3PluginPool_;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector> clapPluginPool_;
+    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginToSetProcessVector> clapPluginToSetProcess_;
 };
 }
 

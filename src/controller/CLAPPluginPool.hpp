@@ -24,8 +24,17 @@ using CLAPPluginPool = std::map<
     CLAPPluginContext
 >;
 
+using CLAPPluginToSetProcess = std::pair<
+    YADAW::Audio::Plugin::CLAPPlugin*,
+    bool
+>;
+
 using CLAPPluginPoolVector = std::vector<
     CLAPPluginPool::value_type*
+>;
+
+using CLAPPluginToSetProcessVector = std::vector<
+    CLAPPluginToSetProcess
 >;
 
 CLAPPluginPool& appCLAPPluginPool();

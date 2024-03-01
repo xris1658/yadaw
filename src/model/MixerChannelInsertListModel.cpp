@@ -221,10 +221,9 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             if(pluginPtr && pluginPtr->status() != IAudioPlugin::Status::Empty)
             {
                 pluginPtr->createPlugin(pluginInfo.uid.data());
-                pluginPtr->host().setMainThreadId(std::this_thread::get_id());
+                YADAW::Audio::Host::CLAPHost::setMainThreadId(std::this_thread::get_id());
                 pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
                 pluginPtr->activate();
-                pluginPtr->startProcessing();
                 auto clapEventList = new(std::nothrow) YADAW::Audio::Host::CLAPEventList();
                 if(clapEventList)
                 {
@@ -236,12 +235,20 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                     YADAW::Controller::CLAPPluginContext{clapEventList}
                 );
                 auto nodeHandle = graphWithPDC.addNode(AudioDeviceProcess(*pluginPtr));
-                engine.clapPluginPool().updateAndDispose(
+                engine.clapPluginToSetProcess().update(
+                    std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
+                        1, std::make_pair(pluginPtr, true)
+                    ),
+                    engine.running()
+                );
+                engine.clapPluginPool().update(
                     std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
                         createPoolVector(clapPluginPool)
                     ),
                     engine.running()
                 );
+                engine.clapPluginPool().disposeOld(engine.running());
+                engine.clapPluginToSetProcess().disposeOld(engine.running());
                 inserts_->insert(nodeHandle, position, pluginInfo.name);
                 plugin = std::unique_ptr<IAudioPlugin>(pluginPtr);
                 ret = true;
@@ -443,7 +450,20 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                     ),
                     audioEngine.running()
                 );
-                clapPlugin->stopProcessing();
+                audioEngine.clapPluginToSetProcess().update(
+                    std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
+                        1, std::make_pair(clapPlugin, false)
+                    ),
+                    audioEngine.running()
+                );
+                // Completion of the `update` above does NOT mean that the
+                // plugin has stopped processing. It is indicated by completion
+                // of the following `updateAndDispose` because the last audio
+                // callback is finished by then.
+                audioEngine.clapPluginToSetProcess().updateAndDispose(
+                    std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(),
+                    audioEngine.running()
+                );
                 clapPlugin->deactivate();
                 clapPlugin->uninitialize();
                 delete eventList;

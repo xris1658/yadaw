@@ -61,8 +61,8 @@ private: // clap_host implementations
     void doRequestFlush();
 public:
     YADAW::Audio::Plugin::CLAPPlugin* plugin();
-    void setMainThreadId(std::thread::id mainThreadId);
-    void setAudioThreadId(std::thread::id audioThreadId);
+    static void setMainThreadId(std::thread::id mainThreadId);
+    static void setAudioThreadId(std::thread::id audioThreadId);
     void latencyChanged(std::function<void()>&& callback);
     void parameterValueChanged(std::function<void()>&& callback);
     void parameterTextChanged(std::function<void()>&& callback);
