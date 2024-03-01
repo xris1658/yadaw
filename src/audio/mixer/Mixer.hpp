@@ -114,9 +114,9 @@ public:
     );
     void clearChannels();
 public:
-    void setNodeAddedCallback(std::function<NodeAddedCallback>&& callback);
-    void setNodeRemovedCallback(std::function<NodeRemovedCallback>&& callback);
-    void setConnectionUpdatedCallback(std::function<ConnectionUpdatedCallback>&& callback);
+    void setNodeAddedCallback(NodeAddedCallback* callback);
+    void setNodeRemovedCallback(NodeRemovedCallback* callback);
+    void setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback);
     void resetNodeAddedCallback();
     void resetNodeRemovedCallback();
     void resetConnectionUpdatedCallback();
@@ -184,9 +184,9 @@ private:
 
     std::unordered_set<ade::EdgeHandle, ade::HandleHasher<ade::Edge>> connections_;
 
-    std::function<NodeAddedCallback> nodeAddedCallback_;
-    std::function<NodeRemovedCallback> nodeRemovedCallback_;
-    std::function<ConnectionUpdatedCallback> connectionUpdatedCallback_;
+    NodeAddedCallback* nodeAddedCallback_;
+    NodeRemovedCallback* nodeRemovedCallback_;
+    ConnectionUpdatedCallback* connectionUpdatedCallback_;
 };
 }
 

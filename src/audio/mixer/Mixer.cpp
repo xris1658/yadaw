@@ -733,36 +733,36 @@ void Mixer::clearChannels()
 }
 
 void Mixer::setNodeAddedCallback(
-    std::function<NodeAddedCallback>&& callback)
+    NodeAddedCallback* callback)
 {
-    nodeAddedCallback_ = std::move(callback);
+    nodeAddedCallback_ = callback;
 }
 
 void Mixer::setNodeRemovedCallback(
-    std::function<NodeRemovedCallback>&& callback)
+    NodeRemovedCallback* callback)
 {
-    nodeRemovedCallback_ = std::move(callback);
+    nodeRemovedCallback_ = callback;
 }
 
 void Mixer::setConnectionUpdatedCallback(
-    std::function<ConnectionUpdatedCallback>&& callback)
+    ConnectionUpdatedCallback* callback)
 {
-    connectionUpdatedCallback_ = std::move(callback);
+    connectionUpdatedCallback_ = callback;
 }
 
 void Mixer::resetNodeAddedCallback()
 {
-    nodeAddedCallback_ = {&blankNodeAddedCallback};
+    nodeAddedCallback_ = &blankNodeAddedCallback;
 }
 
 void Mixer::resetNodeRemovedCallback()
 {
-    nodeRemovedCallback_ = {&blankNodeRemovedCallback};
+    nodeRemovedCallback_ = &blankNodeRemovedCallback;
 }
 
 void Mixer::resetConnectionUpdatedCallback()
 {
-    connectionUpdatedCallback_ = {&blankConnectionUpdatedCallback};
+    connectionUpdatedCallback_ = &blankConnectionUpdatedCallback;
 }
 
 std::optional<ade::EdgeHandle> Mixer::addConnection(

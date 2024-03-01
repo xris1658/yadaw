@@ -39,9 +39,9 @@ public:
     void setBypassed(std::uint32_t position, bool bypassed);
     bool move(std::uint32_t position, std::uint32_t count, Inserts& rhs, std::uint32_t destPosition);
 public:
-    void setNodeAddedCallback(std::function<NodeAddedCallback>&& callback);
-    void setNodeRemovedCallback(std::function<NodeRemovedCallback>&& callback);
-    void setConnectionUpdatedCallback(std::function<ConnectionUpdatedCallback>&& callback);
+    void setNodeAddedCallback(NodeAddedCallback* callback);
+    void setNodeRemovedCallback(NodeRemovedCallback* callback);
+    void setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback);
 private:
     YADAW::Audio::Engine::AudioDeviceGraphBase& graph_;
     ade::NodeHandle inNode_;
@@ -52,9 +52,9 @@ private:
     std::vector<QString> names_;
     std::vector<bool> bypassed_;
     std::vector<std::pair<std::uint32_t, std::uint32_t>> channel_;
-    std::function<NodeAddedCallback> nodeAddedCallback_;
-    std::function<NodeRemovedCallback> nodeRemovedCallback_;
-    std::function<ConnectionUpdatedCallback> connectionUpdatedCallback_;
+    NodeAddedCallback* nodeAddedCallback_;
+    NodeRemovedCallback* nodeRemovedCallback_;
+    ConnectionUpdatedCallback* connectionUpdatedCallback_;
 };
 }
 
