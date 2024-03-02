@@ -5,12 +5,18 @@
 int main()
 {
     using YADAW::MIDI::MIDIInputDevice;
-    std::setvbuf(stdout, nullptr, _IONBF, 0);
     auto inputCount = MIDIInputDevice::inputDeviceCount();
     std::printf("%lld input devices\n", inputCount);
     for(decltype(inputCount) i = 0; i < inputCount; ++i)
     {
         const auto& device = MIDIInputDevice::inputDeviceAt(i);
+#if _WIN32
+        std::printf("  %lld: %ls (%ls)\n",
+            i + 1,
+            reinterpret_cast<const wchar_t*>(device->name.data()),
+            reinterpret_cast<const wchar_t*>(device->id.data())
+        );
+#elif __linux__
         auto name = device->name.toLocal8Bit();
         auto id = device->id;
         std::printf("  %lu: %s (ID: %u, %u)\n",
@@ -19,6 +25,7 @@ int main()
             id.clientId,
             id.portId
         );
+#endif
     }
     if(inputCount == 0)
     {

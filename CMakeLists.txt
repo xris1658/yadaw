@@ -480,6 +480,28 @@ add_executable(CLAPTest
                test/CLAPTest/main.cpp
 )
 
+add_executable(MIDIInputDeviceTest
+               src/midi/MIDIInputDevice.cpp
+               src/midi/MIDIInputDevice.hpp
+               src/midi/Message.hpp
+               src/native/linux/ALSADeviceEnumerator.cpp
+               src/native/linux/ALSADeviceEnumerator.hpp
+               src/native/linux/MIDIInputDeviceImpl.cpp
+               src/native/linux/MIDIInputDeviceImpl.hpp
+               src/native/linux/Sequencer.cpp
+               src/native/linux/Sequencer.hpp
+               src/native/MIDIInputDeviceImpl.hpp
+               src/native/win/MIDIInputDeviceImpl.cpp
+               src/native/win/MIDIInputDeviceImpl.hpp
+               src/native/win/winrt/QStringFromHString.cpp
+               src/native/win/winrt/QStringFromHString.hpp
+               src/util/Literal.hpp
+               src/util/Util.cpp
+               src/util/Util.hpp
+               test/common/MIDICallback.cpp
+               test/common/MIDICallback.hpp
+               test/MIDIInputDeviceTest/main.cpp)
+
 add_executable(PluginDirectoryScanTest
                src/audio/host/CLAPHost.cpp
                src/audio/host/CLAPHost.hpp
@@ -771,41 +793,6 @@ add_executable(VST3Test
                test/VST3Test/main.cpp
 )
 
-if(WIN32)
-add_executable(WindowsMIDIInputDeviceTest
-               src/midi/MIDIInputDevice.cpp
-               src/midi/MIDIInputDevice.hpp
-               src/midi/Message.hpp
-               src/native/MIDIInputDeviceImpl.hpp
-               src/native/win/MIDIInputDeviceImpl.cpp
-               src/native/win/MIDIInputDeviceImpl.hpp
-               src/native/win/winrt/QStringFromHString.cpp
-               src/native/win/winrt/QStringFromHString.hpp
-               src/util/Literal.hpp
-               src/util/Util.cpp
-               src/util/Util.hpp
-               test/common/MIDICallback.cpp
-               test/common/MIDICallback.hpp
-               test/WindowsMIDIInputDeviceTest/main.cpp)
-elseif(LINUX)
-add_executable(LinuxMIDIInputDeviceTest
-               src/midi/MIDIInputDevice.cpp
-               src/midi/MIDIInputDevice.hpp
-               src/midi/Message.hpp
-               src/native/MIDIInputDeviceImpl.hpp
-               src/native/linux/ALSADeviceEnumerator.cpp
-               src/native/linux/ALSADeviceEnumerator.hpp
-               src/native/linux/MIDIInputDeviceImpl.cpp
-               src/native/linux/MIDIInputDeviceImpl.hpp
-               src/native/linux/Sequencer.cpp
-               src/native/linux/Sequencer.hpp
-               src/util/Util.cpp
-               src/util/Util.hpp
-               test/common/MIDICallback.cpp
-               test/common/MIDICallback.hpp
-               test/LinuxMIDIInputDeviceTest/main.cpp)
-endif()
-
 target_precompile_headers(YADAW PRIVATE src/pch.hpp)
 
 qt_add_qml_module(YADAW
@@ -874,11 +861,11 @@ if(MSVC)
 endif()
 
 if(WIN32)
-target_link_libraries(WindowsMIDIInputDeviceTest PRIVATE
+target_link_libraries(MIDIInputDeviceTest PRIVATE
                       Qt6::Core
                       windowsapp)
 elseif(LINUX)
-target_link_libraries(LinuxMIDIInputDeviceTest PRIVATE
+target_link_libraries(MIDIInputDeviceTest PRIVATE
                       Qt6::Core
                       asound)
 endif()
