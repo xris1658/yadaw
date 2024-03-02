@@ -118,7 +118,8 @@ CLAPAudioChannelGroup::CLAPAudioChannelGroup() {}
 CLAPAudioChannelGroup::CLAPAudioChannelGroup(const clap_plugin* plugin,
     const clap_plugin_audio_ports* audioPorts, bool isInput, std::uint32_t index)
 {
-    assert(audioPorts->get(plugin, index, isInput, &audioPortInfo_));
+    auto getResult = audioPorts->get(plugin, index, isInput, &audioPortInfo_);
+    assert(getResult);
     if(auto portType = audioPortInfo_.port_type; portType)
     {
         if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_STEREO) == 0)
