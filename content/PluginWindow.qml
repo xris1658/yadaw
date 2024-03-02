@@ -24,7 +24,7 @@ Window {
     }
     Window {
         id: pluginFrame
-        flags: Qt.SubWindow | Qt.FramelessWindowHint
+        flags: Qt.Dialog | Qt.FramelessWindowHint
         visibility: root.visibility
         x: root.x
         y: root.y + 20
