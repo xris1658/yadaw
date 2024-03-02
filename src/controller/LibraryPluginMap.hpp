@@ -1,5 +1,5 @@
-#ifndef YADAW_SRC_CONTROLLER_PLUGINPOOLCONTROLLER
-#define YADAW_SRC_CONTROLLER_PLUGINPOOLCONTROLLER
+#ifndef YADAW_SRC_CONTROLLER_LIBRARYPLUGINMAP
+#define YADAW_SRC_CONTROLLER_LIBRARYPLUGINMAP
 
 #include "audio/plugin/IAudioPlugin.hpp"
 #include "native/Library.hpp"
@@ -53,7 +53,7 @@ struct ComparePlugin
 };
 }
 
-using PluginPool = std::map<
+using LibraryPluginMap = std::map<
     YADAW::Native::Library,
     std::set<
         std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>,
@@ -62,7 +62,7 @@ using PluginPool = std::map<
     Impl::CompareLibrary
 >;
 
-PluginPool& appPluginPool();
+LibraryPluginMap& appLibraryPluginMap();
 }
 
-#endif // YADAW_SRC_CONTROLLER_PLUGINPOOLCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_LIBRARYPLUGINMAP

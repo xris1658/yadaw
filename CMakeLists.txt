@@ -279,18 +279,22 @@ set(YADAW_COMMON_SOURCES
     src/controller/DatabaseController.hpp
     src/controller/GeneralSettingsController.cpp
     src/controller/GeneralSettingsController.hpp
+    src/controller/LibraryPluginMap.cpp
+    src/controller/LibraryPluginMap.hpp
     src/controller/LocalizationController.cpp
     src/controller/LocalizationController.hpp
     src/controller/MixerChannelListModelController.cpp
     src/controller/MixerChannelListModelController.hpp
+    src/controller/PluginContextMap.cpp
+    src/controller/PluginContextMap.hpp
     src/controller/PluginController.cpp
     src/controller/PluginController.hpp
     src/controller/PluginDirectoryController.cpp
     src/controller/PluginDirectoryController.hpp
+    src/controller/PluginLatencyUpdatedCallback.cpp
+    src/controller/PluginLatencyUpdatedCallback.hpp
     src/controller/PluginListController.cpp
     src/controller/PluginListController.hpp
-    src/controller/PluginPoolController.cpp
-    src/controller/PluginPoolController.hpp
     src/controller/PluginWindowController.cpp
     src/controller/PluginWindowController.hpp
     src/controller/VST3PluginPool.cpp

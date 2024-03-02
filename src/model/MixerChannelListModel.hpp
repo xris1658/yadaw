@@ -4,13 +4,14 @@
 #include "model/IMixerChannelListModel.hpp"
 
 #include "audio/mixer/Mixer.hpp"
-#include "model/MixerChannelInsertListModel.hpp"
 
 #include <memory>
 #include <vector>
 
 namespace YADAW::Model
 {
+class MixerChannelInsertListModel;
+
 class MixerChannelListModel: public IMixerChannelListModel
 {
     Q_OBJECT

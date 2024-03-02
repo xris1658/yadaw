@@ -7,8 +7,10 @@
 #include "audio/util/VestifalHelper.hpp"
 #include "audio/util/VST3Helper.hpp"
 #include "controller/AudioEngineController.hpp"
+#include "controller/LibraryPluginMap.hpp"
+#include "controller/PluginContextMap.hpp"
+#include "controller/PluginLatencyUpdatedCallback.hpp"
 #include "controller/PluginListController.hpp"
-#include "controller/PluginPoolController.hpp"
 #include "controller/PluginWindowController.hpp"
 #include "controller/VST3PluginPool.hpp"
 #include "event/EventBase.hpp"
@@ -23,9 +25,18 @@ using YADAW::Audio::Engine::MultiInputDeviceWithPDC;
 using YADAW::Audio::Plugin::IAudioPlugin;
 
 MixerChannelInsertListModel::MixerChannelInsertListModel(
-    YADAW::Audio::Mixer::Inserts& inserts, QObject* parent):
+    YADAW::Audio::Mixer::Inserts& inserts,
+    YADAW::Model::MixerChannelListModel::ListType type,
+    std::uint32_t channelIndex,
+    bool isPreFaderInsert,
+    std::uint32_t insertsIndex,
+    QObject* parent):
     IMixerChannelInsertListModel(parent),
-    inserts_(&inserts)
+    inserts_(&inserts),
+    type_(type),
+    channelIndex_(channelIndex),
+    isPreFaderInsert_(isPreFaderInsert),
+    insertsIndex_(insertsIndex)
 {}
 
 MixerChannelInsertListModel::~MixerChannelInsertListModel()
@@ -151,14 +162,14 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         using PluginFormat = YADAW::DAO::PluginFormat;
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         auto& graphWithPDC = engine.mixer().graph();
-        auto& pool = YADAW::Controller::appPluginPool();
+        auto& pool = YADAW::Controller::appLibraryPluginMap();
         auto pluginInfo = YADAW::DAO::selectPluginById(pluginId);
-        auto it = pool.find<QString>(pluginInfo.path);
-        if(it == pool.end())
+        auto libraryPluginIterator = pool.find<QString>(pluginInfo.path);
+        if(libraryPluginIterator == pool.end())
         {
             auto library = YADAW::Native::Library(pluginInfo.path);
-            it = pool.emplace_hint(it, std::move(library),
-                YADAW::Controller::PluginPool::value_type::second_type()
+            libraryPluginIterator = pool.emplace_hint(libraryPluginIterator, std::move(library),
+                YADAW::Controller::LibraryPluginMap::value_type::second_type()
             );
         }
         std::unique_ptr<IAudioPlugin> plugin(nullptr);
@@ -167,7 +178,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         case PluginFormat::PluginFormatVST3:
         {
             auto pluginPtr = std::make_unique<YADAW::Audio::Plugin::VST3Plugin>(
-                YADAW::Audio::Util::createVST3FromLibrary(it->first)
+                YADAW::Audio::Util::createVST3FromLibrary(libraryPluginIterator->first)
             );
             if(pluginPtr && pluginPtr->status() != IAudioPlugin::Status::Empty)
             {
@@ -177,6 +188,9 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 auto vst3ComponentHandler = new(std::nothrow) YADAW::Audio::Host::VST3ComponentHandler(*pluginPtr);
                 if(vst3ComponentHandler)
                 {
+                    vst3ComponentHandler->setLatencyChangedCallback(
+                        &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::VST3Plugin>
+                    );
                     pluginPtr->setComponentHandler(*vst3ComponentHandler);
                     pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
                     auto inputCount = pluginPtr->audioInputGroupCount();
@@ -215,12 +229,15 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             auto pluginPtr = new(std::nothrow)
             YADAW::Audio::Plugin::CLAPPlugin(
                 YADAW::Audio::Util::createCLAPFromLibrary(
-                    it->first
+                    libraryPluginIterator->first
                 )
             );
             if(pluginPtr && pluginPtr->status() != IAudioPlugin::Status::Empty)
             {
                 pluginPtr->createPlugin(pluginInfo.uid.data());
+                pluginPtr->host().setLatencyChangedCallback(
+                    &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::CLAPPlugin>
+                );
                 YADAW::Audio::Host::CLAPHost::setMainThreadId(std::this_thread::get_id());
                 pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
                 pluginPtr->activate();
@@ -258,9 +275,25 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         // VST plugins are not loaded since the implementation of
         // `VestifalPlugin` is problematic.
         }
-        poolIterators_.emplace(poolIterators_.begin() + position, it);
+        libraryPluginIterators_.emplace(
+            libraryPluginIterators_.begin() + position,
+            libraryPluginIterator
+        );
         if(ret)
         {
+            auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
+            const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
+                plugin.get(),
+                YADAW::Controller::PluginContext()
+            );
+            assert(inserted);
+            auto& context = pluginContextIterator->second;
+            context.insertListModel = this;
+            context.insertIndex = position;
+            pluginContextIterators_.emplace(
+                pluginContextIterators_.begin() + position,
+                pluginContextIterator
+            );
             YADAW::Controller::pluginNeedsWindow = plugin.get();
             if(plugin->gui())
             {
@@ -311,7 +344,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             );
             pluginWindow = nullptr;
             genericEditor = nullptr;
-            it->second.emplace(std::move(plugin));
+            libraryPluginIterator->second.emplace(std::move(plugin));
             FOR_RANGE(i, position + 1, pluginEditors_.size())
             {
                 auto& [window, connection] = pluginEditors_[i];
@@ -325,6 +358,10 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                         }
                     );
                 }
+            }
+            FOR_RANGE(i, position + 1, pluginContextIterators_.size())
+            {
+                pluginContextIterators_[i]->second.insertIndex = i;
             }
             beginInsertRows(QModelIndex(), position, position);
             endInsertRows();
@@ -349,11 +386,12 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         auto& graphWithPDC = audioEngine.mixer().graph();
         auto& graph = audioEngine.mixer().graph().graph();
         auto& bufferExt = audioEngine.mixer().bufferExtension();
+        auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
         std::set<std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>> pluginsToRemove;
         std::vector<YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>> processDataToRemove;
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
         std::vector<ade::NodeHandle> removingNodes;
-        std::vector<YADAW::Controller::PluginPool::iterator> removingIterators;
+        std::vector<YADAW::Controller::LibraryPluginMap::iterator> removingIterators;
         std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> removingMultiInputs;
         removingNodes.reserve(removeCount);
         removingIterators.reserve(removeCount);
@@ -397,7 +435,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 // `IAudioPlugin`s into the inserts.
                 pluginToRemove = static_cast<IAudioPlugin*>(device);
             }
-            auto libraryIt = poolIterators_[i + position];
+            auto libraryIt = libraryPluginIterators_[i + position];
             auto& [library, plugins] = *libraryIt;
             auto it = plugins.find(pluginToRemove);
             if(it != plugins.end())
@@ -479,7 +517,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         }
         pluginsToRemove.clear();
         processDataToRemove.clear();
-        auto& pluginPool = YADAW::Controller::appPluginPool();
+        auto& pluginPool = YADAW::Controller::appLibraryPluginMap();
         for(auto it: removingIterators)
         {
             pluginPool.erase(it);
@@ -521,10 +559,22 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 }
             );
         }
-        poolIterators_.erase(
-            poolIterators_.begin() + position,
-            poolIterators_.begin() + position + removeCount
+        libraryPluginIterators_.erase(
+            libraryPluginIterators_.begin() + position,
+            libraryPluginIterators_.begin() + position + removeCount
         );
+        FOR_RANGE(i, position, position + removeCount)
+        {
+            pluginContextMap.erase(pluginContextIterators_[i]);
+        }
+        pluginContextIterators_.erase(
+            pluginContextIterators_.begin() + position,
+            pluginContextIterators_.begin() + position + removeCount
+        );
+        FOR_RANGE(i, position, pluginContextIterators_.size())
+        {
+            pluginContextIterators_[i]->second.insertIndex = i;
+        }
     }
     return ret;
 }
@@ -537,5 +587,42 @@ bool MixerChannelInsertListModel::replace(int position, int pluginId)
 void MixerChannelInsertListModel::clear()
 {
     remove(0, inserts_->insertCount());
+}
+
+void MixerChannelInsertListModel::setChannelIndex(std::uint32_t channelIndex)
+{
+    channelIndex_ = channelIndex;
+}
+
+void MixerChannelInsertListModel::setPreFaderInsert(bool isPreFaderInsert)
+{
+    isPreFaderInsert_ = isPreFaderInsert;
+}
+
+void MixerChannelInsertListModel::setInsertsIndex(std::uint32_t insertsIndex)
+{
+    insertsIndex_ = insertsIndex;
+}
+
+void MixerChannelInsertListModel::latencyUpdated(std::uint32_t index) const
+{
+    if(index < itemCount())
+    {
+        const_cast<MixerChannelInsertListModel*>(this)->dataChanged(
+            this->index(index),
+            this->index(index),
+            {Role::Latency}
+        );
+    }
+}
+
+const YADAW::Audio::Mixer::Inserts& MixerChannelInsertListModel::inserts() const
+{
+    return *inserts_;
+}
+
+YADAW::Audio::Mixer::Inserts& MixerChannelInsertListModel::inserts()
+{
+    return *inserts_;
 }
 }

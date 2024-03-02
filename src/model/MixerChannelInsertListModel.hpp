@@ -4,7 +4,9 @@
 #include "model/IMixerChannelInsertListModel.hpp"
 
 #include "audio/mixer/Inserts.hpp"
-#include "controller/PluginPoolController.hpp"
+#include "controller/LibraryPluginMap.hpp"
+#include "controller/PluginContextMap.hpp"
+#include "model/MixerChannelListModel.hpp"
 #include "model/PluginParameterListModel.hpp"
 
 namespace YADAW::Model
@@ -25,6 +27,10 @@ private:
     };
 public:
     MixerChannelInsertListModel(YADAW::Audio::Mixer::Inserts& inserts,
+        YADAW::Model::MixerChannelListModel::ListType type,
+        std::uint32_t channelIndex,
+        bool isPreFaderInsert,
+        std::uint32_t insertsIndex,
         QObject* parent = nullptr);
     ~MixerChannelInsertListModel() override;
 public:
@@ -39,12 +45,24 @@ public:
     bool replace(int position, int pluginId) override;
     bool remove(int position, int removeCount) override;
     void clear() override;
+public:
+    void setChannelIndex(std::uint32_t channelIndex);
+    void setPreFaderInsert(bool isPreFaderInsert);
+    void setInsertsIndex(std::uint32_t insertsIndex);
+    void latencyUpdated(std::uint32_t index) const;
+    const YADAW::Audio::Mixer::Inserts& inserts() const;
+    YADAW::Audio::Mixer::Inserts& inserts();
 private:
     YADAW::Audio::Mixer::Inserts* inserts_;
+    YADAW::Model::MixerChannelListModel::ListType type_;
+    std::uint32_t channelIndex_;
+    bool isPreFaderInsert_;
+    std::uint32_t insertsIndex_;
     std::vector<WindowAndConnection> pluginEditors_;
     std::vector<WindowAndConnection> genericEditors_;
     std::vector<std::unique_ptr<YADAW::Model::PluginParameterListModel>> paramListModel_;
-    std::vector<YADAW::Controller::PluginPool::iterator> poolIterators_;
+    std::vector<YADAW::Controller::LibraryPluginMap::iterator> libraryPluginIterators_;
+    std::vector<YADAW::Controller::PluginContextMap::iterator> pluginContextIterators_;
 };
 }
 

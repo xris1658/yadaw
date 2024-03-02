@@ -2,6 +2,7 @@
 
 #include "controller/AudioEngineController.hpp"
 #include "entity/ChannelConfigHelper.hpp"
+#include "model/MixerChannelInsertListModel.hpp"
 #include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
 
@@ -123,7 +124,11 @@ MixerChannelListModel::MixerChannelListModel(
     {
         insertModels_.emplace_back(
             std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
-                (mixer_.*getPreFaderInserts[YADAW::Util::underlyingValue(listType_)])(i)->get()
+                (mixer_.*getPreFaderInserts[YADAW::Util::underlyingValue(listType_)])(i)->get(),
+                listType_,
+                i,
+                true,
+                0
             )
         );
     }
@@ -252,11 +257,20 @@ bool MixerChannelListModel::insert(int position, IMixerChannelListModel::Channel
             postFaderInserts.setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
             postFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
             beginInsertRows(QModelIndex(), position, position);
-            insertModels_.emplace_back(
+            insertModels_.emplace(
+                insertModels_.begin() + position,
                 std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
-                    mixer_.channelPreFaderInsertsAt(position)->get()
+                    mixer_.channelPreFaderInsertsAt(position)->get(),
+                    listType_,
+                    position,
+                    true,
+                    0
                 )
             );
+            FOR_RANGE(i, position + 1, insertModels_.size())
+            {
+                insertModels_[i]->setChannelIndex(i);
+            }
             endInsertRows();
         }
         return ret;
@@ -288,6 +302,10 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             insertModels_.begin() + position,
             insertModels_.begin() + position + removeCount
         );
+        FOR_RANGE(i, position, insertModels_.size())
+        {
+            insertModels_[i]->setChannelIndex(i);
+        }
         endRemoveRows();
         return true;
     }
