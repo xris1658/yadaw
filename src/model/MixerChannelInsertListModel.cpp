@@ -267,7 +267,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 YADAW::Event::eventHandler->createPluginWindow();
             }
             YADAW::Event::eventHandler->createGenericPluginEditor();
-            const auto& [pluginWindow, genericEditor] = YADAW::Controller::pluginWindows;
+            auto& [pluginWindow, genericEditor] = YADAW::Controller::pluginWindows;
             if(pluginWindow)
             {
                 pluginWindow->setTitle(pluginInfo.name);
@@ -309,6 +309,8 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 "parameterListModel",
                 QVariant::fromValue<QObject*>(paramListModel_[position].get())
             );
+            pluginWindow = nullptr;
+            genericEditor = nullptr;
             it->second.emplace(std::move(plugin));
             FOR_RANGE(i, position + 1, pluginEditors_.size())
             {
