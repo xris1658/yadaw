@@ -21,6 +21,7 @@ bool CLAPPluginGUI::attachToWindow(QWindow* window)
 {
     if((!window_) && gui_->create(plugin_, YADAW::Native::windowAPI, false))
     {
+        window_ = window;
         fetchResizeHints();
         gui_->set_scale(plugin_, 1.0);
         std::uint32_t width;
@@ -35,11 +36,11 @@ bool CLAPPluginGUI::attachToWindow(QWindow* window)
         if(gui_->set_parent(plugin_, &clapWindow_))
         {
             gui_->show(plugin_);
-            window_ = window;
             connect();
             return true;
         }
     }
+    window_ = nullptr;
     return false;
 }
 
