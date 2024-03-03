@@ -153,7 +153,7 @@ SplitView {
                 }
                 MenuSeparator {}
                 MenuItem {
-                    text: qsTr("&Rename")
+                    text: qsTr("Rena&me")
                     onTriggered: {
                         trackOptions.parent.startRename();
                     }
