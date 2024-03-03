@@ -821,18 +821,20 @@ ApplicationWindow {
             addTrackWindow.showNormal();
         }
         onAccepted: {
-            mixerChannelModel.insert(position, trackType, channelConfig);
-            let index = mixerChannelModel.index(position, 0);
-            mixerChannelModel.setData(
-                index,
-                addTrackWindow.name,
-                IMixerChannelListModel.Name
-            );
-            mixerChannelModel.setData(
-                index,
-                Qt.rgba(Math.random(), Math.random(), Math.random(), 1),
-                IMixerChannelListModel.Color
-            );
+            for(let i = 0; i < addTrackWindow.count; ++i) {
+                mixerChannelModel.insert(position + i, trackType, channelConfig);
+                let index = mixerChannelModel.index(position + i, 0);
+                mixerChannelModel.setData(
+                    index,
+                    addTrackWindow.name.toString() + " " + (i + 1).toString(),
+                    IMixerChannelListModel.Name
+                );
+                mixerChannelModel.setData(
+                    index,
+                    Qt.rgba(Math.random(), Math.random(), Math.random(), 1),
+                    IMixerChannelListModel.Color
+                );
+            }
         }
     }
 }
