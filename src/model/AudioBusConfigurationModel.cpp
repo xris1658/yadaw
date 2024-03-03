@@ -1,6 +1,7 @@
 #include "AudioBusConfigurationModel.hpp"
 
 #include "entity/ChannelConfigHelper.hpp"
+#include "util/IntegerRange.hpp"
 
 namespace YADAW::Model
 {
@@ -12,10 +13,24 @@ AudioBusConfigurationModel::AudioBusConfigurationModel(
     name_(),
     isInput_(isInput)
 {
-    name_.resize(itemCount());
-    for(std::uint32_t i = 0; i < itemCount(); ++i)
+    auto itemCount = this->itemCount();
+    name_.resize(itemCount);
+    channelListConnections_.reserve(itemCount);
+    FOR_RANGE0(i, itemCount)
     {
         channelList_.emplace_back(configuration, *this, isInput_, i);
+        channelListConnections_.emplace_back(
+            QObject::connect(
+                &channelList_[i],
+                &YADAW::Model::AudioBusChannelListModel::dataChanged,
+                [this, i](const QModelIndex&, const QModelIndex&, const QList<int>&)
+                {
+                    dataChanged(this->index(i), this->index(i),
+                        {Role::ChannelList}
+                    );
+                }
+            )
+        );
     }
 }
 
@@ -81,24 +96,68 @@ bool AudioBusConfigurationModel::setData(const QModelIndex& index, const QVarian
 
 bool AudioBusConfigurationModel::append(int channelConfig)
 {
-    try
+    return insert(itemCount(), channelConfig);
+}
+
+bool AudioBusConfigurationModel::insert(int position, int channelConfig)
+{
+    if(position >= 0 && position <= itemCount())
     {
-        auto oldItemCount = itemCount();
-        auto newIndex = configuration_->appendBus(
-            isInput_,
+        auto ret = configuration_->insertBus(
+            position, isInput_,
             YADAW::Entity::groupTypeFromConfig(
                 static_cast<YADAW::Entity::ChannelConfig::Config>(channelConfig)
             )
         );
-        beginInsertRows(QModelIndex(), oldItemCount, oldItemCount);
-        channelList_.emplace_back(*configuration_, *this, isInput_, newIndex);
-        name_.emplace_back();
-        endInsertRows();
-        return true;
-    }
-    catch(...)
-    {
-        return false;
+        if(ret)
+        {
+            beginInsertRows(QModelIndex(), position, position);
+            auto channelList = &*channelList_.emplace(
+                channelList_.begin() + position,
+                *configuration_, *this, isInput_, position
+            );
+            auto connection = QObject::connect(
+                channelList,
+                &YADAW::Model::AudioBusChannelListModel::dataChanged,
+                [this, position](
+                    const QModelIndex&,
+                    const QModelIndex&,
+                    const QList<int>&)
+                {
+                    dataChanged(
+                        this->index(position),
+                        this->index(position),
+                        {IAudioBusConfigurationModel::Role::ChannelList}
+                    );
+                }
+            );
+            channelListConnections_.emplace(
+                channelListConnections_.begin() + position,
+                connection
+            );
+            FOR_RANGE(i, position + 1, channelListConnections_.size())
+            {
+                QObject::disconnect(channelListConnections_[i]);
+                channelListConnections_[i] = QObject::connect(
+                    &channelList_[i],
+                    &YADAW::Model::AudioBusChannelListModel::dataChanged,
+                    [this, i](
+                        const QModelIndex&,
+                        const QModelIndex&,
+                        const QList<int>&)
+                    {
+                        dataChanged(
+                            this->index(i),
+                            this->index(i),
+                            {IAudioBusConfigurationModel::Role::ChannelList}
+                        );
+                    }
+                );
+            }
+            name_.emplace(name_.begin() + position);
+            endInsertRows();
+        }
+        return ret;
     }
 }
 
@@ -113,6 +172,26 @@ bool AudioBusConfigurationModel::remove(int index)
         for(std::uint32_t i = 0; i < itemCount(); ++i)
         {
             channelList_.emplace_back(*configuration_, *this, isInput_, i);
+        }
+        channelListConnections_.erase(channelListConnections_.begin() + index);
+        FOR_RANGE(i, index, channelListConnections_.size())
+        {
+            QObject::disconnect(channelListConnections_[i]);
+            channelListConnections_[i] = QObject::connect(
+                &channelList_[i],
+                &YADAW::Model::AudioBusChannelListModel::dataChanged,
+                [this, i](
+                    const QModelIndex&,
+                    const QModelIndex&,
+                    const QList<int>&)
+                {
+                    dataChanged(
+                        this->index(i),
+                        this->index(i),
+                        {IAudioBusConfigurationModel::Role::ChannelList}
+                    );
+                }
+            );
         }
         endRemoveRows();
         return true;

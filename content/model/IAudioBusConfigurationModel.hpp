@@ -27,6 +27,7 @@ public:
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:
     Q_INVOKABLE virtual bool append(int channelConfig) = 0;
+    Q_INVOKABLE virtual bool insert(int position, int channelConfig) = 0;
     Q_INVOKABLE virtual bool remove(int index) = 0;
     Q_INVOKABLE virtual void clear() = 0;
 protected:

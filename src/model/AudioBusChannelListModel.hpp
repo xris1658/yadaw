@@ -18,6 +18,7 @@ public:
         AudioBusConfigurationModel& configurationModel,
         bool isInput, std::uint32_t index, QObject* parent = nullptr);
     AudioBusChannelListModel(const AudioBusChannelListModel& rhs);
+    AudioBusChannelListModel& operator=(const AudioBusChannelListModel& rhs);
     ~AudioBusChannelListModel() override;
 public:
     std::uint32_t itemCount() const;
@@ -30,8 +31,7 @@ public:
 private:
     IAudioBusConfiguration* configuration_;
     AudioBusConfigurationModel* configurationModel_;
-    bool isInput_;
-    std::uint32_t index_;
+    YADAW::Audio::Device::IBus* bus_;
 };
 }
 

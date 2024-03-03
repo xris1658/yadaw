@@ -239,6 +239,24 @@ std::uint32_t AudioGraphBusConfiguration::appendBus(bool isInput,
     return bus.size() - 1;
 }
 
+bool AudioGraphBusConfiguration::insertBus(
+    std::uint32_t position,
+    bool isInput,
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    std::uint32_t channelCount)
+{
+    auto& bus = isInput? inputBusses_: outputBusses_;
+    if(position <= bus.size())
+    {
+        bus.emplace(
+            bus.begin() + position,
+            std::make_unique<Bus>(isInput, channelGroupType, channelCount)
+        );
+        return true;
+    }
+    return false;
+}
+
 bool AudioGraphBusConfiguration::removeBus(bool isInput, std::uint32_t index)
 {
     auto& busses = isInput? inputBusses_: outputBusses_;

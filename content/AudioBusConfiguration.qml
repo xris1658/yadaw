@@ -30,6 +30,7 @@ Rectangle {
                 anchors.topMargin: topPadding
                 text: qsTr("&Add Bus...")
                 QC.Popup {
+                    property int position: 0
                     id: popup
                     x: (parent.width - width) / 2
                     y: parent.height + parent.bottomPadding
@@ -46,6 +47,8 @@ Rectangle {
                         spacing: 3
                         Label {
                             text: qsTr("Channel Config") + ":"
+                            height: channelConfigComboBox.height
+                            verticalAlignment: Label.AlignVCenter
                         }
                         ComboBox {
                             id: channelConfigComboBox
@@ -58,7 +61,7 @@ Rectangle {
                             text: Constants.okTextWithMnemonic
                             onClicked: {
                                 popup.close();
-                                root.model.append(channelConfigComboBox.currentValue);
+                                root.model.insert(popup.position, channelConfigComboBox.currentValue);
                             }
                         }
                     }
@@ -67,6 +70,7 @@ Rectangle {
                     }
                 }
                 onClicked: {
+                    popup.position = busList.count;
                     popup.open();
                 }
             }
@@ -81,72 +85,75 @@ Rectangle {
                 id: busListScrollBar
                 visible: busList.height < busList.contentHeight
             }
-            delegate: Row {
-                id: audioBusRow
+            delegate: ItemDelegate {
+                id: audioBusButton
                 property int busIndex: index
+                width: busList.width - (busListScrollBar.visible? busListScrollBar.width: 0)
+                text: abcm_name == ""? qsTr("Bus") + " " + (index + 1): abcm_name
+                z: 2
+                highlighted: stackLayout.currentIndex === audioBusButton.busIndex
+                TextField {
+                    id: audioBusNameTextField
+                    visible: false
+                    width: audioBusButton.width
+                    height: parent.height
+                    onAccepted: {
+                        visible = false;
+                        abcm_name = text;
+                    }
+                    Keys.onEscapePressed:  {
+                        audioBusNameTextField.visible = false;
+                    }
+                }
+                Menu {
+                    id: audioBusOptions
+                    title: qsTr("Audio Bus Options")
+                    MenuItem {
+                        text: qsTr("&Insert Audio Bus Above")
+                        onTriggered: {
+                            popup.position = audioBusButton.busIndex;
+                            popup.open();
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("Rena&me")
+                        onTriggered: {
+                            audioBusButton.renameAudioBus();
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("&Delete")
+                        onTriggered: {
+                            root.model.remove(audioBusButton.busIndex);
+                            if(stackLayout.currentIndex == audioBusButton.busIndex) {
+                                stackLayout.currentIndex = -1;
+                            }
+                        }
+                    }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.RightButton
+                    onClicked: (mouse) => {
+                        audioBusOptions.parent = audioBusButton;
+                        audioBusOptions.x = mouse.x;
+                        audioBusOptions.y = mouse.y;
+                        audioBusOptions.open();
+                    }
+                }
                 function renameAudioBus() {
                     audioBusNameTextField.visible = true;
                     audioBusNameTextField.text = audioBusButton.text;
                     audioBusNameTextField.forceActiveFocus();
                     audioBusNameTextField.selectAll();
                 }
-                ItemDelegate {
-                    id: audioBusButton
-                    width: busList.width - (busListScrollBar.visible? busListScrollBar.width: 0) - audioBusRenameButton.width - audioBusRemoveButton.width
-                    text: abcm_name == ""? qsTr("Bus") + " " + (index + 1): abcm_name
-                    z: 2
-                    highlighted: stackLayout.currentIndex === audioBusRow.busIndex
-                    TextField {
-                        id: audioBusNameTextField
-                        visible: false
-                        width: audioBusRow.width
-                        height: parent.height
-                        onAccepted: {
-                            visible = false;
-                            abcm_name = text;
-                        }
-                        Keys.onEscapePressed:  {
-                            audioBusNameTextField.visible = false;
-                        }
-                    }
-                    onClicked: {
-                        stackLayout.currentIndex = audioBusRow.busIndex
-                    }
+                onClicked: {
+                    stackLayout.currentIndex = audioBusButton.busIndex;
                 }
-                ItemDelegate {
-                    id: audioBusRenameButton
-                    width: height
-                    z: 1
-                    RenameIcon {
-                        anchors.centerIn: parent
-                        path.fillColor: Colors.secondaryContent
-                        path.strokeColor: "transparent"
-                    }
-                    onClicked: {
-                        audioBusRow.renameAudioBus();
-                    }
-                }
-                ItemDelegate {
-                    id: audioBusRemoveButton
-                    width: height
-                    z: 1
-                    RemoveIcon {
-                        anchors.centerIn: parent
-                        scale: parent.height / originalHeight
-                        path.fillColor: Colors.secondaryContent
-                        path.strokeColor: "transparent"
-                    }
-                    onClicked: {
-                        root.model.remove(index);
-                        if(stackLayout.currentIndex == index) {
-                            stackLayout.currentIndex = -1;
-                        }
-                    }
-                }
-                ListView.onAdd: {
-                    stackLayout.currentIndex = index;
-                    audioBusRow.renameAudioBus();
-                }
+            }
+            ListView.onAdd: {
+                stackLayout.currentIndex = index;
+                audioBusButton.renameAudioBus();
             }
         }
     }

@@ -24,6 +24,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 public:
     Q_INVOKABLE bool append(int channelConfig) override;
+    Q_INVOKABLE bool insert(int position, int channelConfig) override;
     Q_INVOKABLE bool remove(int index) override;
     Q_INVOKABLE void clear() override;
 public:
@@ -34,6 +35,7 @@ public:
 private:
     IAudioBusConfiguration* configuration_;
     std::vector<YADAW::Model::AudioBusChannelListModel> channelList_;
+    std::vector<QMetaObject::Connection> channelListConnections_;
     std::vector<QString> name_;
     bool isInput_;
 };

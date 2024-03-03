@@ -82,6 +82,11 @@ public:
     virtual std::uint32_t appendBus(bool isInput,
         YADAW::Audio::Base::ChannelGroupType channelGroupType,
         std::uint32_t channelCount = 0) = 0;
+    virtual bool insertBus(
+        std::uint32_t position,
+        bool isInput,
+        YADAW::Audio::Base::ChannelGroupType channelGroupType,
+        std::uint32_t channelCount = 0) = 0;
     virtual bool removeBus(bool isInput, std::uint32_t index) = 0;
     virtual void clearBus(bool isInput) = 0;
 };

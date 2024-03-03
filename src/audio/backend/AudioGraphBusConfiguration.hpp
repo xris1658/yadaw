@@ -62,6 +62,11 @@ public:
     std::uint32_t appendBus(bool isInput,
         YADAW::Audio::Base::ChannelGroupType channelGroupType,
         std::uint32_t channelCount = 0) override;
+    bool insertBus(
+        std::uint32_t position,
+        bool isInput,
+        YADAW::Audio::Base::ChannelGroupType channelGroupType,
+        std::uint32_t channelCount) override;
     bool removeBus(bool isInput, std::uint32_t index) override;
     void clearBus(bool isInput) override;
 public:
