@@ -123,6 +123,34 @@ SplitView {
                 id: trackOptions
                 property int currentSelection: -1
                 title: qsTr("Track Options")
+                Menu {
+                    title: qsTr("&Insert Track Above")
+                    MenuItem {
+                        text: qsTr("&Audio") + "..."
+                        onTriggered: {
+                            root.insertTrack(trackOptions.currentSelection, AddTrackWindow.TrackType.Audio);
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("&Instrument") + "..."
+                        onTriggered: {
+                            root.insertTrack(trackOptions.currentSelection, AddTrackWindow.TrackType.Instrument);
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("Audio &Effect") + "..."
+                        onTriggered: {
+                            root.insertTrack(trackOptions.currentSelection, AddTrackWindow.TrackType.AudioEffect);
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("Audio &Bus") + "..."
+                        onTriggered: {
+                            root.insertTrack(trackOptions.currentSelection, AddTrackWindow.TrackType.AudioBus);
+                        }
+                    }
+                }
+                MenuSeparator {}
                 MenuItem {
                     text: qsTr("&Rename")
                     onTriggered: {
