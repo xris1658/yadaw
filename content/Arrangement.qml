@@ -61,6 +61,7 @@ SplitView {
             anchors.bottom: bottomLeft.top
             anchors.left: parent.left
             anchors.right: parent.right
+            clip: true
             ScrollBar.vertical: ScrollBar {
                 id: vbar
                 parent: vbarPlaceholder

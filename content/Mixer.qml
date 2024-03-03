@@ -189,6 +189,7 @@ Rectangle {
         anchors.leftMargin: root.showInputBus? 5: -1
         anchors.right: root.showOutputBus? outputChannels.left: parent.right
         anchors.rightMargin: root.showOutputBus? 5: -1
+        clip: true
         height: root.height
         orientation: Qt.Horizontal
         boundsBehavior: ListView.StopAtBounds
