@@ -91,10 +91,14 @@ public:
 public:
     bool appendAudioInputChannel(
         const ade::NodeHandle& inNode, std::uint32_t channel);
+    bool insertAudioInputChannel(
+        std::uint32_t position, const ade::NodeHandle& inNode, std::uint32_t channel);
     bool removeAudioInputChannel(std::uint32_t position, std::uint32_t removeCount = 1);
     void clearAudioInputChannels();
     bool appendAudioOutputChannel(
         const ade::NodeHandle& outNode, std::uint32_t channel);
+    bool insertAudioOutputChannel(
+        std::uint32_t position, const ade::NodeHandle& outNode, std::uint32_t channel);
     bool removeAudioOutputChannel(std::uint32_t position, std::uint32_t removeCount = 1);
     void clearAudioOutputChannels();
     bool insertChannel(
