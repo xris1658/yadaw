@@ -36,10 +36,10 @@ public:
 public:
     bool insert(int position, ChannelTypes type,
         YADAW::Entity::ChannelConfig::Config channelConfig,
-        int channelCount = 0) override;
+        int channelCountInGroup = 0) override;
     bool append(ChannelTypes type,
         YADAW::Entity::ChannelConfig::Config channelConfig,
-        int channelCount = 0) override;
+        int channelCountInGroup = 0) override;
     bool remove(int position, int removeCount) override;
     bool move(int position, int moveCount, int newPosition) override;
     bool copy(int position, int copyCount, int newPosition) override;

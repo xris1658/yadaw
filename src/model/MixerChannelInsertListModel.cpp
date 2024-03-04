@@ -196,7 +196,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                     auto inputCount = pluginPtr->audioInputGroupCount();
                     auto outputCount = pluginPtr->audioOutputGroupCount();
                     auto device = graphWithPDC.graph().getNodeData(inserts_->inNode()).process.device();
-                    auto channelGroupType = device->audioOutputGroupAt(inserts_->inChannel())->get().type();
+                    auto channelGroupType = device->audioOutputGroupAt(inserts_->inChannelGroupIndex())->get().type();
                     std::vector<YADAW::Audio::Base::ChannelGroupType> inputChannels(inputCount,
                         channelGroupType);
                     std::vector<YADAW::Audio::Base::ChannelGroupType> outputChannels(outputCount,

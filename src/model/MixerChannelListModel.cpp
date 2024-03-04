@@ -1,6 +1,8 @@
 #include "MixerChannelListModel.hpp"
 
 #include "controller/AudioEngineController.hpp"
+#include "controller/AudioGraphBackendController.hpp"
+#include "controller/ALSABackendController.hpp"
 #include "entity/ChannelConfigHelper.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
 #include "util/Base.hpp"
@@ -236,15 +238,20 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
     return false;
 }
 
+decltype(&YADAW::Audio::Mixer::Mixer::insertAudioInputChannel) insertChannelsFunc[2] = {
+    &YADAW::Audio::Mixer::Mixer::insertAudioOutputChannel,
+    &YADAW::Audio::Mixer::Mixer::insertAudioInputChannel,
+};
+
 bool MixerChannelListModel::insert(int position, IMixerChannelListModel::ChannelTypes type,
     YADAW::Entity::ChannelConfig::Config channelConfig,
-    int channelCount)
+    int channelCountInGroup)
 {
     if(listType_ == ListType::Regular)
     {
         auto ret = mixer_.insertChannel(position, channelTypeFromModelTypes(type),
             YADAW::Entity::groupTypeFromConfig(channelConfig),
-            channelCount
+            channelCountInGroup
         );
         if(ret)
         {
@@ -275,14 +282,64 @@ bool MixerChannelListModel::insert(int position, IMixerChannelListModel::Channel
         }
         return ret;
     }
+    else if(listType_ == ListType::AudioHardwareInput || listType_ == ListType::AudioHardwareOutput)
+    {
+        auto& audioBusConfiguration = YADAW::Controller::appAudioBusConfiguration();
+        beginInsertRows(QModelIndex(), position, position);
+        auto inNode = mixer_.graph().addNode(
+            YADAW::Audio::Engine::AudioDeviceProcess(
+                (listType_ == ListType::AudioHardwareInput?
+                    audioBusConfiguration.getInputBusAt(position):
+                    audioBusConfiguration.getOutputBusAt(position)
+                )->get()
+            )
+        );
+        (mixer_.*insertChannelsFunc[listType_ == ListType::AudioHardwareInput])(position, inNode, 0);
+        auto& preFaderInserts = (
+            listType_ == ListType::AudioHardwareInput?
+                mixer_.audioInputChannelPreFaderInsertsAt(position):
+                mixer_.audioOutputChannelPreFaderInsertsAt(position)
+        )->get();
+        auto& postFaderInserts = (
+            listType_ == ListType::AudioHardwareInput?
+                mixer_.audioInputChannelPostFaderInsertsAt(position):
+                mixer_.audioOutputChannelPostFaderInsertsAt(position)
+        )->get();
+        preFaderInserts.setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
+        preFaderInserts.setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
+        preFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
+        postFaderInserts.setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
+        postFaderInserts.setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
+        postFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
+        insertModels_.emplace(
+            insertModels_.begin() + position,
+            std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
+                (
+                    listType_ == ListType::AudioHardwareInput?
+                    mixer_.audioInputChannelPreFaderInsertsAt(position):
+                    mixer_.audioOutputChannelPreFaderInsertsAt(position)
+                )->get(),
+                listType_,
+                position,
+                true,
+                0
+            )
+        );
+        FOR_RANGE(i, position + 1, insertModels_.size())
+        {
+            insertModels_[i]->setChannelIndex(i);
+        }
+        endInsertRows();
+        return true;
+    }
     return false;
 }
 
 bool MixerChannelListModel::append(IMixerChannelListModel::ChannelTypes type,
     YADAW::Entity::ChannelConfig::Config channelConfig,
-    int channelCount)
+    int channelCountInGroup)
 {
-    return insert(itemCount(), type, channelConfig, channelCount);
+    return insert(itemCount(), type, channelConfig, channelCountInGroup);
 }
 
 bool MixerChannelListModel::remove(int position, int removeCount)

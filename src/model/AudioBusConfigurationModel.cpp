@@ -206,7 +206,8 @@ void AudioBusConfigurationModel::clear()
 
 OptionalRef<const QString> AudioBusConfigurationModel::nameAt(std::uint32_t index) const
 {
-    return index < itemCount()? OptionalRef<const QString>(name_[index]): std::nullopt;
+    auto count = itemCount();
+    return index < count? OptionalRef<const QString>(name_[index]): std::nullopt;
 }
 
 bool AudioBusConfigurationModel::setName(std::uint32_t index, const QString& name)

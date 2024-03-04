@@ -14,7 +14,7 @@ public:
 public:
     Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
         ade::NodeHandle inNode, ade::NodeHandle outNode,
-        std::uint32_t inChannel, std::uint32_t outChannel);
+        std::uint32_t inChannelGroupIndex, std::uint32_t outChannelGroupIndex);
     ~Inserts();
 public:
     YADAW::Audio::Engine::AudioDeviceGraphBase& graph() const;
@@ -26,10 +26,10 @@ public:
     std::optional<bool> insertBypassed(std::uint32_t index) const;
     const ade::NodeHandle& inNode() const;
     const ade::NodeHandle& outNode() const;
-    std::uint32_t inChannel() const;
-    std::uint32_t outChannel() const;
-    bool setInNode(const ade::NodeHandle& inNode, std::uint32_t inChannel);
-    bool setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChannel);
+    std::uint32_t inChannelGroupIndex() const;
+    std::uint32_t outChannelGroupIndex() const;
+    bool setInNode(const ade::NodeHandle& inNode, std::uint32_t inChannelGroupIndex);
+    bool setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChannelGroupIndex);
 public:
     bool insert(const ade::NodeHandle& nodeHandle, std::uint32_t position, const QString& name);
     bool append(const ade::NodeHandle& nodeHandle, const QString& name);
@@ -46,12 +46,12 @@ private:
     YADAW::Audio::Engine::AudioDeviceGraphBase& graph_;
     ade::NodeHandle inNode_;
     ade::NodeHandle outNode_;
-    std::uint32_t inChannel_;
-    std::uint32_t outChannel_;
+    std::uint32_t inChannelGroupIndex_;
+    std::uint32_t outChannelGroupIndex_;
     std::vector<ade::NodeHandle> nodes_;
     std::vector<QString> names_;
     std::vector<bool> bypassed_;
-    std::vector<std::pair<std::uint32_t, std::uint32_t>> channel_;
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> channelGroupIndices_;
     NodeAddedCallback* nodeAddedCallback_;
     NodeRemovedCallback* nodeRemovedCallback_;
     ConnectionUpdatedCallback* connectionUpdatedCallback_;

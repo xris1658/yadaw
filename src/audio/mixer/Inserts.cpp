@@ -11,22 +11,22 @@ void blankConnectionUpdatedCallback(const Inserts& inserts) {}
 
 Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     ade::NodeHandle inNode, ade::NodeHandle outNode,
-    std::uint32_t inChannel, std::uint32_t outChannel):
+    std::uint32_t inChannelGroupIndex, std::uint32_t outChannelGroupIndex):
     graph_(graph),
     inNode_(std::move(inNode)), outNode_(std::move(outNode)),
-    inChannel_(inChannel), outChannel_(outChannel),
+    inChannelGroupIndex_(inChannelGroupIndex), outChannelGroupIndex_(outChannelGroupIndex),
     nodeAddedCallback_(blankNodeAddedCallback),
     nodeRemovedCallback_(blankNodeRemovedCallback),
     connectionUpdatedCallback_(blankConnectionUpdatedCallback)
 {
     auto inDevice = graph_.getNodeData(inNode_).process.device();
     auto outDevice = graph_.getNodeData(outNode_).process.device();
-    if(inChannel < inDevice->audioOutputGroupCount()
-        && outChannel < outDevice->audioInputGroupCount()
-        && inDevice->audioOutputGroupAt(inChannel)->get().channelCount()
-            == outDevice->audioInputGroupAt(outChannel)->get().channelCount())
+    if(inChannelGroupIndex < inDevice->audioOutputGroupCount()
+       && outChannelGroupIndex < outDevice->audioInputGroupCount()
+       && inDevice->audioOutputGroupAt(inChannelGroupIndex)->get().channelCount()
+            == outDevice->audioInputGroupAt(outChannelGroupIndex)->get().channelCount())
     {
-        graph_.connect(inNode_, outNode_, inChannel_, outChannel_);
+        graph_.connect(inNode_, outNode_, inChannelGroupIndex_, outChannelGroupIndex_);
     }
     else
     {
@@ -40,9 +40,9 @@ Inserts::~Inserts()
     for(const auto& edgeHandle: inNode_->outEdges())
     {
         if(auto& edgeData = graph_.getEdgeData(edgeHandle);
-            edgeData.fromChannel == inChannel_
+            edgeData.fromChannel == inChannelGroupIndex_
             && edgeHandle->dstNode() == outNode_
-            && edgeData.toChannel == outChannel_
+            && edgeData.toChannel == outChannelGroupIndex_
         )
         {
             graph_.disconnect(edgeHandle);
@@ -113,34 +113,34 @@ const ade::NodeHandle& Inserts::outNode() const
     return outNode_;
 }
 
-std::uint32_t Inserts::inChannel() const
+std::uint32_t Inserts::inChannelGroupIndex() const
 {
-    return inChannel_;
+    return inChannelGroupIndex_;
 }
 
-std::uint32_t Inserts::outChannel() const
+std::uint32_t Inserts::outChannelGroupIndex() const
 {
-    return outChannel_;
+    return outChannelGroupIndex_;
 }
 
-bool Inserts::setInNode(const ade::NodeHandle& inNode, std::uint32_t inChannel)
+bool Inserts::setInNode(const ade::NodeHandle& inNode, std::uint32_t inChannelGroupIndex)
 {
     auto inDevice = graph_.getNodeData(inNode).process.device();
-    if(inChannel < inDevice->audioOutputGroupCount())
+    if(inChannelGroupIndex < inDevice->audioOutputGroupCount())
     {
         auto toNode = outNode_;
-        auto toChannel = outChannel_;
+        auto toChannel = outChannelGroupIndex_;
         FOR_RANGE0(i, insertCount())
         {
             if(!bypassed_[i])
             {
                 toNode = nodes_[i];
-                toChannel = channel_[i].first;
+                toChannel = channelGroupIndices_[i].first;
                 break;
             }
         }
         auto outDevice = graph_.getNodeData(toNode).process.device();
-        if(inDevice->audioOutputGroupAt(inChannel)->get().channelCount()
+        if(inDevice->audioOutputGroupAt(inChannelGroupIndex)->get().channelCount()
             == outDevice->audioInputGroupAt(toChannel)->get().channelCount())
         {
             auto outEdges = inNode_->outEdges();
@@ -148,7 +148,7 @@ bool Inserts::setInNode(const ade::NodeHandle& inNode, std::uint32_t inChannel)
                 [this, &toNode, toChannel](const ade::EdgeHandle& edgeHandle)
                 {
                     return edgeHandle->dstNode() == toNode
-                        && graph_.getEdgeData(edgeHandle).fromChannel == inChannel_
+                        && graph_.getEdgeData(edgeHandle).fromChannel == inChannelGroupIndex_
                         && graph_.getEdgeData(edgeHandle).toChannel == toChannel;
                 }
             );
@@ -156,33 +156,33 @@ bool Inserts::setInNode(const ade::NodeHandle& inNode, std::uint32_t inChannel)
             {
                 graph_.disconnect(*it);
             }
-            graph_.connect(inNode, toNode, inChannel, toChannel);
+            graph_.connect(inNode, toNode, inChannelGroupIndex, toChannel);
             inNode_ = inNode;
-            inChannel_ = inChannel;
+            inChannelGroupIndex_ = inChannelGroupIndex;
             return true;
         }
     }
     return false;
 }
 
-bool Inserts::setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChannel)
+bool Inserts::setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChannelGroupIndex)
 {
     auto outDevice = graph_.getNodeData(outNode).process.device();
-    if(outChannel < outDevice->audioInputGroupCount())
+    if(outChannelGroupIndex < outDevice->audioInputGroupCount())
     {
         auto fromNode = inNode_;
-        auto fromChannel = inChannel_;
+        auto fromChannel = inChannelGroupIndex_;
         for(auto i = insertCount(); i-- > 0;)
         {
             if(!bypassed_[i])
             {
                 fromNode = nodes_[i];
-                fromChannel = channel_[i].second;
+                fromChannel = channelGroupIndices_[i].second;
                 break;
             }
         }
         auto inDevice = graph_.getNodeData(fromNode).process.device();
-        if(outDevice->audioInputGroupAt(outChannel)->get().channelCount()
+        if(outDevice->audioInputGroupAt(outChannelGroupIndex)->get().channelCount()
             && inDevice->audioOutputGroupAt(fromChannel)->get().channelCount())
         {
             auto inEdges = outNode_->inEdges();
@@ -191,16 +191,16 @@ bool Inserts::setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChanne
                 {
                     return edgeHandle->srcNode() == fromNode
                         && graph_.getEdgeData(edgeHandle).fromChannel == fromChannel
-                        && graph_.getEdgeData(edgeHandle).toChannel == outChannel_;
+                        && graph_.getEdgeData(edgeHandle).toChannel == outChannelGroupIndex_;
                 }
             );
             if(it != inEdges.end())
             {
                 graph_.disconnect(*it);
             }
-            graph_.connect(fromNode, outNode, fromChannel, outChannel);
+            graph_.connect(fromNode, outNode, fromChannel, outChannelGroupIndex);
             outNode_ = outNode;
-            outChannel_ = outChannel;
+            outChannelGroupIndex_ = outChannelGroupIndex;
             return true;
         }
     }
@@ -234,7 +234,7 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
                 break;
             }
         }
-        channel_.insert(channel_.begin() + position,
+        channelGroupIndices_.insert(channelGroupIndices_.begin() + position,
             std::make_pair(inChannel, outChannel)
         );
         setBypassed(position, false);
@@ -264,8 +264,8 @@ bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
             names_.begin() + position + removeCount);
         bypassed_.erase(bypassed_.begin() + position,
             bypassed_.begin() + position + removeCount);
-        channel_.erase(channel_.begin() + position,
-            channel_.begin() + position + removeCount);
+        channelGroupIndices_.erase(channelGroupIndices_.begin() + position,
+            channelGroupIndices_.begin() + position + removeCount);
         return true;
     }
     return false;
@@ -291,14 +291,14 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
     {
         ade::NodeHandle prevNode = inNode_;
         ade::NodeHandle nextNode = outNode_;
-        std::uint32_t prevChannel = inChannel_;
-        std::uint32_t nextChannel = outChannel_;
+        std::uint32_t prevChannel = inChannelGroupIndex_;
+        std::uint32_t nextChannel = outChannelGroupIndex_;
         for(auto i = position; i-- > 0;)
         {
             if(!bypassed_[i])
             {
                 prevNode = nodes_[i];
-                prevChannel = channel_[i].second;
+                prevChannel = channelGroupIndices_[i].second;
                 break;
             }
         }
@@ -307,7 +307,7 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
             if(!bypassed_[i])
             {
                 nextNode = nodes_[i];
-                nextChannel = channel_[i].first;
+                nextChannel = channelGroupIndices_[i].first;
                 break;
             }
         }
@@ -318,7 +318,7 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
                 const auto& edgeData = graph_.getEdgeData(edgeHandle);
                 if(edgeHandle->dstNode() == nodes_[position]
                    && edgeData.fromChannel == prevChannel
-                   && edgeData.toChannel == channel_[position].first)
+                   && edgeData.toChannel == channelGroupIndices_[position].first)
                 {
                     graph_.disconnect(edgeHandle);
                     break;
@@ -328,7 +328,7 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
             {
                 const auto& edgeData = graph_.getEdgeData(edgeHandle);
                 if(edgeHandle->srcNode() == nodes_[position]
-                    && edgeData.fromChannel == channel_[position].second
+                    && edgeData.fromChannel == channelGroupIndices_[position].second
                     && edgeData.toChannel == nextChannel)
                 {
                     graph_.disconnect(edgeHandle);
@@ -351,9 +351,9 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
                 }
             }
             graph_.connect(prevNode, nodes_[position],
-                prevChannel, channel_[position].first);
+                prevChannel, channelGroupIndices_[position].first);
             graph_.connect(nodes_[position], nextNode,
-                channel_[position].second, nextChannel);
+                channelGroupIndices_[position].second, nextChannel);
         }
         bypassed_[position] = bypassed;
         connectionUpdatedCallback_(*this);
@@ -393,9 +393,9 @@ bool Inserts::move(std::uint32_t position, std::uint32_t count,
                     bypassed_.begin() + middle,
                     bypassed_.begin() + last);
                 std::rotate(
-                    channel_.begin() + first,
-                    channel_.begin() + middle,
-                    channel_.begin() + last);
+                    channelGroupIndices_.begin() + first,
+                    channelGroupIndices_.begin() + middle,
+                    channelGroupIndices_.begin() + last);
                 FOR_RANGE0(i, count)
                 {
                     setBypassed(destPosition + i, oldBypassed[i]);

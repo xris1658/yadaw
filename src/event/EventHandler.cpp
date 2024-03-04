@@ -15,6 +15,7 @@
 #include "controller/PluginDirectoryController.hpp"
 #include "controller/PluginListController.hpp"
 #include "controller/PluginWindowController.hpp"
+#include "entity/ChannelConfigHelper.hpp"
 #include "model/MixerChannelListModel.hpp"
 #include "util/IntegerRange.hpp"
 #if _WIN32
@@ -355,10 +356,124 @@ void EventHandler::onOpenMainWindow()
     YADAW::UI::mainWindow->setProperty("audioOutputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAOutputDeviceListModel()));
 #endif
+    auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
+    auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
     YADAW::UI::mainWindow->setProperty("mixerAudioInputChannelModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioInputMixerChannels()));
+        QVariant::fromValue<QObject*>(&audioInputMixerChannels));
     YADAW::UI::mainWindow->setProperty("mixerAudioOutputChannelModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appAudioOutputMixerChannels()));
+        QVariant::fromValue<QObject*>(&audioOutputMixerChannels));
+    QObject::connect(
+        &appAudioBusInputConfigurationModel,
+        &YADAW::Model::AudioBusConfigurationModel::dataChanged,
+        [](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles)
+        {
+            if(roles.contains(YADAW::Model::AudioBusConfigurationModel::Role::Name))
+            {
+                auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
+                FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
+                {
+                    audioInputMixerChannels.setData(
+                        audioInputMixerChannels.index(i),
+                        appAudioBusInputConfigurationModel.data(
+                            appAudioBusInputConfigurationModel.index(topLeft.row()),
+                            YADAW::Model::IAudioBusConfigurationModel::Role::Name
+                        ),
+                        YADAW::Model::MixerChannelListModel::Role::Name
+                    );
+                }
+            }
+        }
+    );
+    QObject::connect(
+        &appAudioBusOutputConfigurationModel,
+        &YADAW::Model::AudioBusConfigurationModel::dataChanged,
+        [](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles)
+        {
+            if(roles.contains(YADAW::Model::AudioBusConfigurationModel::Role::Name))
+            {
+                auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
+                FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
+                {
+                    audioOutputMixerChannels.setData(
+                        audioOutputMixerChannels.index(i),
+                        appAudioBusOutputConfigurationModel.data(
+                            appAudioBusOutputConfigurationModel.index(topLeft.row()),
+                            YADAW::Model::IAudioBusConfigurationModel::Role::Name
+                        ),
+                        YADAW::Model::MixerChannelListModel::Role::Name
+                    );
+                }
+            }
+        }
+    );
+    QObject::connect(
+        &appAudioBusInputConfigurationModel,
+        &YADAW::Model::AudioBusConfigurationModel::rowsInserted,
+        [](const QModelIndex& parent, int first, int last)
+        {
+            auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
+            audioInputMixerChannels.insert(
+                first,
+                YADAW::Model::IMixerChannelListModel::ChannelTypes::ChannelTypeAudioHardwareInput,
+                static_cast<YADAW::Entity::ChannelConfig::Config>(
+                    appAudioBusInputConfigurationModel.data(
+                        appAudioBusInputConfigurationModel.index(first),
+                        YADAW::Model::IAudioBusConfigurationModel::Role::ChannelConfig
+                    ).value<int>()
+                )
+            );
+            audioInputMixerChannels.setData(
+                audioInputMixerChannels.index(first),
+                appAudioBusInputConfigurationModel.data(
+                    appAudioBusInputConfigurationModel.index(first),
+                    YADAW::Model::IAudioBusConfigurationModel::Role::Name
+                ),
+                YADAW::Model::MixerChannelListModel::Role::Name
+            );
+        }
+    );
+    QObject::connect(
+        &appAudioBusOutputConfigurationModel,
+        &YADAW::Model::AudioBusConfigurationModel::rowsInserted,
+        [](const QModelIndex& parent, int first, int last)
+        {
+            auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
+            audioOutputMixerChannels.insert(
+                first,
+                YADAW::Model::IMixerChannelListModel::ChannelTypes::ChannelTypeAudioHardwareOutput,
+                appAudioBusOutputConfigurationModel.data(
+                    appAudioBusOutputConfigurationModel.index(first),
+                    YADAW::Model::IAudioBusConfigurationModel::Role::ChannelConfig
+                ).value<YADAW::Entity::ChannelConfig::Config>()
+            );
+            audioOutputMixerChannels.setData(
+                audioOutputMixerChannels.index(first),
+                appAudioBusOutputConfigurationModel.data(
+                    appAudioBusOutputConfigurationModel.index(first),
+                    YADAW::Model::IAudioBusConfigurationModel::Role::Name
+                ),
+                YADAW::Model::MixerChannelListModel::Role::Name
+            );
+        }
+    );
+    QObject::connect(
+        &appAudioBusInputConfigurationModel,
+        &YADAW::Model::AudioBusConfigurationModel::rowsAboutToBeRemoved,
+        [](const QModelIndex& parent, int first, int last)
+        {
+            auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
+            audioInputMixerChannels.remove(first, last - first + 1);
+        }
+    );
+    QObject::connect(
+        &appAudioBusOutputConfigurationModel,
+        &YADAW::Model::AudioBusConfigurationModel::rowsAboutToBeRemoved,
+        [](const QModelIndex& parent, int first, int last)
+        {
+            auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
+            audioOutputMixerChannels.remove(first, last - first + 1);
+        }
+    );
     YADAW::UI::mainWindow->setProperty("mixerChannelModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannels()));
 

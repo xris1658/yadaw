@@ -90,9 +90,9 @@ public:
     void clearMute();
 public:
     bool appendAudioInputChannel(
-        const ade::NodeHandle& inNode, std::uint32_t channel);
+        const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
     bool insertAudioInputChannel(
-        std::uint32_t position, const ade::NodeHandle& inNode, std::uint32_t channel);
+        std::uint32_t position, const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
     bool removeAudioInputChannel(std::uint32_t position, std::uint32_t removeCount = 1);
     void clearAudioInputChannels();
     bool appendAudioOutputChannel(
