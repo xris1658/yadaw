@@ -150,10 +150,10 @@ Rectangle {
                 onClicked: {
                     stackLayout.currentIndex = audioBusButton.busIndex;
                 }
-            }
-            ListView.onAdd: {
-                stackLayout.currentIndex = index;
-                audioBusButton.renameAudioBus();
+                ListView.onAdd: {
+                    stackLayout.currentIndex = audioBusButton.busIndex;
+                    audioBusButton.renameAudioBus();
+                }
             }
         }
     }
@@ -197,8 +197,8 @@ Rectangle {
                     ComboBox {
                         id: deviceSelector
                         width: channelList.width - (channelListScrollBar.visible? channelListScrollBar.width: 0) - channelSelector.width - indexIndicator.width
-                        property int channelCount: model.data(model.index(currentIndex, 0), IAudioDeviceListModel.ChannelCount)
                         model: deviceListModel
+                        property int channelCount: model.data(model.index(currentIndex, 0), IAudioDeviceListModel.ChannelCount)
                         textRole: "adlm_name"
                         valueRole: "adlm_id"
                         enabledRole: "adlm_enabled"
