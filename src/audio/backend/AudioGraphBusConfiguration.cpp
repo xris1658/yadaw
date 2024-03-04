@@ -114,16 +114,28 @@ void processInputs(
 {
     FOR_RANGE0(i, audioProcessData.outputCounts[0])
     {
-        if(auto& buffer = buffers[channels[i].deviceIndex]; buffer.data)
+        auto [deviceIndex, channelIndex] = channels[i];
+        if(deviceIndex != YADAW::Audio::Device::InvalidIndex
+            && channelIndex != YADAW::Audio::Device::InvalidIndex)
         {
-            FOR_RANGE0(j, audioProcessData.singleBufferSize)
+            if(auto& buffer = buffers[deviceIndex]; buffer.data)
             {
-                std::memcpy(
-                    audioProcessData.outputs[0][i] + j,
-                    buffer.at(j, channels[i].channelIndex),
-                    sizeof(float)
-                );
+                FOR_RANGE0(j, audioProcessData.singleBufferSize)
+                {
+                    std::memcpy(
+                        audioProcessData.outputs[0][i] + j,
+                        buffer.at(j, channels[i].channelIndex),
+                        sizeof(float)
+                    );
+                }
             }
+        }
+        else
+        {
+            std::memset(
+                audioProcessData.outputs[0][i], 0,
+                sizeof(float) * audioProcessData.singleBufferSize
+            );
         }
     }
 }
