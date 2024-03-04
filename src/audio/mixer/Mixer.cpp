@@ -346,6 +346,7 @@ bool Mixer::insertAudioInputChannel(
         info.channelType = ChannelType::AudioBus;
         return true;
     }
+    return false;
 }
 
 bool Mixer::removeAudioInputChannel(

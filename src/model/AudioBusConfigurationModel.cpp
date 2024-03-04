@@ -159,6 +159,7 @@ bool AudioBusConfigurationModel::insert(int position, int channelConfig)
         }
         return ret;
     }
+    return false;
 }
 
 bool AudioBusConfigurationModel::remove(int index)
