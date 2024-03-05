@@ -308,6 +308,7 @@ Window {
                             height: implicitHeight
                             editable: true
                             from: 1
+                            to: 100
                         }
                         StackLayout.onIsCurrentItemChanged: {
                             if(StackLayout.isCurrentItem) {
