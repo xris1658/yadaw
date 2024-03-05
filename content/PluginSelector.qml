@@ -11,12 +11,18 @@ QC.Popup {
     property alias pluginListModel: pluginList.model
     property alias categoryListModel: categoryList.model
     property bool replacing: false
+    property bool enableReset: false
 
     signal accepted()
     signal cancelled()
+    signal resetted()
 
     function currentPluginId() {
         return pluginList.currentItem.pluginId;
+    }
+
+    function currentPluginName() {
+        return pluginList.currentItem.pluginName;
     }
 
     topInset: 0
@@ -427,6 +433,7 @@ QC.Popup {
                         delegate: ItemDelegate {
                             id: itemDelegate
                             property int pluginId: plm_id
+                            property string pluginName: plm_name
                             width: Math.max(pluginList.contentWidth, pluginList.width)
                             property var itemData: Array.isArray(pluginList.model)? modelData: model
                             Row {
@@ -504,6 +511,14 @@ QC.Popup {
         Item {
             width: impl.contentWidth
             height: cancelButton.height
+            Button {
+                id: resetButton
+                visible: root.enableReset
+                text: qsTr("R&eset")
+                onClicked: {
+                    root.resetted();
+                }
+            }
             Row {
                 anchors.right: parent.right
                 spacing: 5

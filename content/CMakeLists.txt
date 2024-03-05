@@ -68,6 +68,7 @@ set(CONTENT_QML_FILES
     ColorPickerWindow.qml
     Colors.qml
     ComboBox.qml
+    ComboBoxButton.qml
     Constants.qml
     Detail.qml
     Dial.qml

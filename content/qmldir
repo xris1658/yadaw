@@ -30,6 +30,7 @@ CLAPIcon 1.0 CLAPIcon.qml
 ColorPicker 1.0 ColorPicker.qml
 ColorPickerWindow 1.0 ColorPickerWindow.qml
 ComboBox 1.0 ComboBox.qml
+ComboBoxButton 1.0 ComboBoxButton.qml
 Detail 1.0 Detail.qml
 Dial 1.0 Dial.qml
 DialogButtons 1.0 DialogButtons.qml

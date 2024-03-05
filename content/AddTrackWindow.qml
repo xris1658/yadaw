@@ -3,6 +3,8 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Window
 
+import YADAW.Models
+
 Window {
     id: root
     flags: Qt.Dialog
@@ -18,15 +20,13 @@ Window {
     property alias audioInputList: audioInputComboBox.model
     property alias audioOutputList: audioOutputComboBox.model
     property alias midiInputList: midiInputComboBox.model
-    property alias instrumentList: instrumentComboBox.model
-    property alias audioEffectList: audioEffectComboBox.model
 
     property alias name: nameField.text
     property alias channelConfig: channelConfigComboBox.currentValue
-    property alias instrumentEnabled: instrumentCheckBox.checked
-    property alias instrument: instrumentComboBox.currentValue
-    property alias audioEffectEnabled: audioEffectCheckBox.checked
-    property alias audioEffect: audioEffectComboBox.currentValue
+    property bool instrumentEnabled: false
+    property int instrument
+    property bool audioEffectEnabled: false
+    property int audioEffect
     property alias midiInputEnabled: midiInputCheckBox.checked
     property alias midiInput: midiInputComboBox.currentValue
     property alias audioInputEnabled: audioInputCheckBox.checked
@@ -34,6 +34,8 @@ Window {
     property alias audioOutputEnabled: audioOutputCheckBox.checked
     property alias audioOutput: audioOutputComboBox.currentValue
     property alias count: countField.value
+
+    property Window pluginSelectorWindow: null
 
     signal accepted()
 
@@ -49,6 +51,36 @@ Window {
     QtObject {
         id: impl
         property int spacing: 5
+    }
+    Connections {
+        id: connectToPluginSelector
+        target: pluginSelectorWindow.pluginSelector
+        function onCancelled() {
+            instrumentComboBox.checked = false;
+            audioEffectComboBox.checked = false;
+        }
+        function onAccepted() {
+            if(instrumentComboBox.checked) {
+                root.instrumentEnabled = true;
+                instrumentComboBox.text = pluginSelectorWindow.pluginSelector.currentPluginName();
+                root.instrument = pluginSelectorWindow.pluginSelector.currentPluginId();
+            }
+            if(audioEffectComboBox.checked) {
+                root.audioEffectEnabled = true;
+                audioEffectComboBox.text = pluginSelectorWindow.pluginSelector.currentPluginName();
+                root.audioEffect = pluginSelectorWindow.pluginSelector.currentPluginId();
+            }
+        }
+        function onResetted() {
+            if(instrumentComboBox.checked) {
+                root.instrumentEnabled = false;
+                instrumentComboBox.text = instrumentComboBox.defaultText;
+            }
+            if(audioEffectComboBox.checked) {
+                root.audioEffectEnabled = false;
+                audioEffectComboBox.text = audioEffectComboBox.defaultText;
+            }
+        }
     }
     Column {
         id: contents
@@ -143,43 +175,74 @@ Window {
                             valueRole: "type"
                             visible: channelConfigLabel.visible
                         }
-                        CheckBox {
-                            id: instrumentCheckBox
+                        Label {
+                            id: instrumentText
                             width: gridContainer.firstColumnWidth
                             text: qsTr("Instrument") + ":"
-                            checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.Instrument
-                            Component.onCompleted: {
-                                leftPadding = width - implicitWidth;
-                            }
+                            horizontalAlignment: Text.AlignRight
                         }
-                        ComboBox {
+                        ComboBoxButton {
                             id: instrumentComboBox
                             width: gridContainer.secondColumnWidth
-                            visible: instrumentCheckBox.visible
-                            enabled: instrumentCheckBox.checked
-                            textRole: "plm_name"
-                            valueRole: "plm_id"
-                            // TODO: update display text
+                            visible: instrumentText.visible
+                            readonly property string defaultText: "<i>" + qsTr("No Instrument") + "</i>"
+                            text: defaultText
+                            onClicked: {
+                                let windowCoordinate = mapToGlobal(0, height);
+                                if(windowCoordinate.y + pluginSelectorWindow.height >= pluginSelectorWindow.screen.desktopAvailableHeight) {
+                                    windowCoordinate = mapToGlobal(0, 0 - pluginSelectorWindow.height);
+                                }
+                                if(windowCoordinate.x + pluginSelectorWindow.width >= pluginSelectorWindow.screen.desktopAvailableWidth) {
+                                    windowCoordinate.x = pluginSelectorWindow.screen.desktopAvailableWidth - pluginSelectorWindow.width;
+                                }
+                                pluginSelectorWindow.x = windowCoordinate.x;
+                                pluginSelectorWindow.y = windowCoordinate.y;
+                                pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
+                                    IPluginListModel.Type,
+                                    IPluginListModel.Instrument
+                                );
+                                pluginSelectorWindow.transientParent = root;
+                                pluginSelectorWindow.pluginSelector.enableReset = true;
+                                pluginSelectorWindow.pluginSelector.replacing = true;
+                                pluginSelectorWindow.showNormal();
+                            }
                         }
-                        CheckBox {
-                            id: audioEffectCheckBox
+                        Label {
+                            id: audioEffectText
                             width: gridContainer.firstColumnWidth
                             text: qsTr("Audio Effect") + ":"
-                            checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.AudioEffect
                             Component.onCompleted: {
                                 leftPadding = width - implicitWidth;
                             }
+                            horizontalAlignment: Text.AlignRight
                         }
-                        ComboBox {
+                        ComboBoxButton {
                             id: audioEffectComboBox
+                            readonly property string defaultText: "<i>" + qsTr("No Audio Effect") + "</i>"
+                            text: defaultText
                             width: gridContainer.secondColumnWidth
-                            visible: audioEffectCheckBox.visible
-                            enabled: audioEffectCheckBox.checked
-                            textRole: "plm_name"
-                            valueRole: "plm_id"
-                            // TODO: update display text
+                            visible: audioEffectText.visible
+                            onClicked: {
+                                let windowCoordinate = mapToGlobal(0, height);
+                                if(windowCoordinate.y + pluginSelectorWindow.height >= pluginSelectorWindow.screen.desktopAvailableHeight) {
+                                    windowCoordinate = mapToGlobal(0, 0 - pluginSelectorWindow.height);
+                                }
+                                if(windowCoordinate.x + pluginSelectorWindow.width >= pluginSelectorWindow.screen.desktopAvailableWidth) {
+                                    windowCoordinate.x = pluginSelectorWindow.screen.desktopAvailableWidth - pluginSelectorWindow.width;
+                                }
+                                pluginSelectorWindow.x = windowCoordinate.x;
+                                pluginSelectorWindow.y = windowCoordinate.y;
+                                pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
+                                    IPluginListModel.Type,
+                                    IPluginListModel.AudioEffect
+                                );
+                                pluginSelectorWindow.transientParent = root;
+                                pluginSelectorWindow.pluginSelector.enableReset = true;
+                                pluginSelectorWindow.pluginSelector.replacing = true;
+                                pluginSelectorWindow.showNormal();
+                            }
                         }
                         CheckBox {
                             id: midiInputCheckBox

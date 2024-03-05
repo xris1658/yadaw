@@ -209,7 +209,9 @@ Rectangle {
                             IPluginListModel.Type,
                             IPluginListModel.AudioEffect
                         );
+                        pluginSelectorWindow.pluginSelector.enableReset = false;
                         pluginSelectorWindow.pluginSelector.replacing = replacing;
+                        pluginSelectorWindow.transientParent = EventReceiver.mainWindow;
                         pluginSelectorWindow.showNormal();
                     }
                     MouseArea {
@@ -296,7 +298,9 @@ Rectangle {
                             IPluginListModel.Type,
                             IPluginListModel.AudioEffect
                         );
+                        pluginSelectorWindow.pluginSelector.enableReset = false;
                         pluginSelectorWindow.pluginSelector.replacing = false;
+                        pluginSelectorWindow.transientParent = EventReceiver.mainWindow;
                         pluginSelectorWindow.showNormal();
                     }
                 }

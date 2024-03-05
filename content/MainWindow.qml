@@ -787,10 +787,12 @@ ApplicationWindow {
         PluginSelector {
             id: pluginSelector
             onAccepted: {
-                // TODO
                 pluginSelectorWindow.hide();
             }
             onCancelled: {
+                pluginSelectorWindow.hide();
+            }
+            onResetted: {
                 pluginSelectorWindow.hide();
             }
             onActiveFocusChanged: {
@@ -802,6 +804,7 @@ ApplicationWindow {
         onVisibleChanged: {
             if(visible) {
                 pluginSelector.open();
+                pluginSelector.forceActiveFocus();
                 requestActivate();
             }
             else {
@@ -813,8 +816,7 @@ ApplicationWindow {
         id: addTrackWindow
         audioInputList: root.audioInputBusConfigurationModel
         audioOutputList: root.audioOutputBusConfigurationModel
-        instrumentList: root.instrumentListModel
-        audioEffectList: root.audioEffectListModel
+        pluginSelectorWindow: pluginSelectorWindow
         function openWindow(position: int, type: int) {
             addTrackWindow.trackType = type;
             addTrackWindow.position = position;
