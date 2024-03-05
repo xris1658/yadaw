@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls as QC
+import QtQuick.Layouts
 import QtQuick.Shapes
 
 import YADAW.Entities
@@ -440,13 +441,71 @@ QC.Popup {
                                 Repeater {
                                     model: pluginList.headerListModel
                                     Label {
+                                        property int itemIndex: index
                                         width: columnWidth
-                                        leftPadding: 2
+                                        leftPadding: 2 + (formatIcons.visible? height: 0)
                                         topPadding: 2
                                         bottomPadding: 2
                                         text: itemData[field]
                                         clip: true
                                         elide: Label.ElideRight
+                                        StackLayout {
+                                            id: formatIcons
+                                            currentIndex: plm_format
+                                            visible: parent.itemIndex == 0
+                                            Item {
+                                                layer.enabled: true
+                                                layer.smooth: true
+                                                layer.samples: 4
+                                                width: height
+                                                height: itemDelegate.height
+                                                PluginIcon {
+                                                    anchors.centerIn: parent
+                                                    scale: 16 / originalHeight
+                                                    path.fillColor: Colors.secondaryContent
+                                                    path.strokeColor: "transparent"
+                                                }
+                                            }
+                                            Item {
+                                                layer.enabled: true
+                                                layer.smooth: true
+                                                layer.samples: 4
+                                                width: height
+                                                height: itemDelegate.height
+                                                VST3Icon {
+                                                    anchors.centerIn: parent
+                                                    scale: 16 / originalHeight
+                                                    path.fillColor: Colors.secondaryContent
+                                                    path.strokeColor: "transparent"
+                                                }
+                                            }
+                                            Item {
+                                                layer.enabled: true
+                                                layer.smooth: true
+                                                layer.samples: 4
+                                                width: height
+                                                height: itemDelegate.height
+                                                CLAPIcon {
+                                                    anchors.centerIn: parent
+                                                    scale: 16 / originalHeight
+                                                    path.fillColor: Colors.secondaryContent
+                                                    path.strokeColor: "transparent"
+                                                }
+                                            }
+                                            Item {
+                                                layer.enabled: true
+                                                layer.smooth: true
+                                                layer.samples: 4
+                                                width: height
+                                                height: itemDelegate.height
+                                                VestifalIcon {
+                                                    anchors.centerIn: parent
+                                                    scale: 16 / originalHeight
+                                                    path.fillColor: Colors.secondaryContent
+                                                    path.strokeColor: "transparent"
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
