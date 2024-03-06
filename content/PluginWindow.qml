@@ -28,5 +28,10 @@ Window {
         visibility: root.visibility
         x: root.x
         y: root.y + 20
+        onClosing: (close) => {
+            if (!root.destroyingPlugin) {
+                close.accepted = false;
+            }
+        }
     }
 }
