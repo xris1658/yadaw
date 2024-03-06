@@ -524,6 +524,11 @@ std::uint32_t VST3Plugin::latencyInSamples() const
 
 void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData)
 {
+    (this->*processFunc_[status_ == IAudioPlugin::Status::Processing])(audioProcessData);
+}
+
+void VST3Plugin::doProcess(const AudioProcessData<float>& audioProcessData)
+{
     processData_.numSamples = audioProcessData.singleBufferSize;
     for(int i = 0; i < processData_.numInputs; ++i)
     {
@@ -535,6 +540,9 @@ void VST3Plugin::process(const Device::AudioProcessData<float>& audioProcessData
     }
     audioProcessor_->process(processData_);
 }
+
+void VST3Plugin::blankProcess(const AudioProcessData<float>& audioProcessData)
+{}
 
 Steinberg::Vst::IComponentHandler* VST3Plugin::componentHandler()
 {

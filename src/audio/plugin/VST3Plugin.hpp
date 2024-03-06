@@ -69,7 +69,9 @@ public:
     bool activateAudioOutputGroup(std::uint32_t index, bool state);
     std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
-
+private:
+    void doProcess(const Device::AudioProcessData<float>& audioProcessData);
+    void blankProcess(const Device::AudioProcessData<float>& audioProcessData);
 public:
     Steinberg::Vst::IComponentHandler* componentHandler();
     YADAW::Audio::Plugin::VST3EventProcessor* eventProcessor();
@@ -110,6 +112,10 @@ private:
     mutable std::unique_ptr<VST3PluginParameter> parameter_;
     Steinberg::Vst::IComponentHandler* componentHandler_ = nullptr;
     std::unique_ptr<YADAW::Audio::Plugin::VST3EventProcessor> eventProcessor_;
+    static constexpr decltype(&VST3Plugin::doProcess) processFunc_[2] = {
+        &VST3Plugin::blankProcess,
+        &VST3Plugin::doProcess
+    };
 };
 }
 

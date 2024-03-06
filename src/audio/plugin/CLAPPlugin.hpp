@@ -63,8 +63,9 @@ public:
     IAudioDevice::OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
     std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
-
 private:
+    void doProcess(const Device::AudioProcessData<float>& audioProcessData);
+    void blankProcess(const Device::AudioProcessData<float>& audioProcessData);
     void prepareAudioRelatedInfo();
     void clearAudioRelatedInfo();
     void prepareProcessData();
@@ -109,6 +110,10 @@ private:
     std::unique_ptr<CLAPEventProcessor> eventProcessor_;
     mutable std::unique_ptr<CLAPPluginGUI> gui_;
     mutable std::unique_ptr<CLAPPluginParameter> parameter_;
+    static constexpr decltype(&CLAPPlugin::doProcess) processFunc_[2] = {
+        &CLAPPlugin::blankProcess,
+        &CLAPPlugin::doProcess
+    };
 };
 }
 
