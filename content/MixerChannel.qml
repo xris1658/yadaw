@@ -221,13 +221,6 @@ Rectangle {
                         anchors.topMargin: root.topInset
                         anchors.bottomMargin: root.bottomInset
                         acceptedButtons: Qt.RightButton
-                        onClicked: (mouse) => {
-                            if(mouse.button === Qt.RightButton) {
-                                insertSlotOptions.x = 0;
-                                insertSlotOptions.y = height;
-                                insertSlotOptions.open();
-                            }
-                        }
                         Menu {
                             id: insertSlotOptions
                             title: qsTr("Insert Slot Options")
@@ -274,6 +267,22 @@ Rectangle {
                                 text: qsTr("&Delete")
                                 onClicked: {
                                     mixerInsertSlot.removeThis();
+                                }
+                            }
+                        }
+                        onClicked: (mouse) => {
+                            if(mouse.button === Qt.RightButton) {
+                                insertSlotOptions.open();
+                                insertSlotOptions.x = 0;
+                                insertSlotOptions.y = height;
+                                let mainWindowItem = EventReceiver.mainWindow.background;
+                                let popupCoordinate = mixerInsertSlot.mapToItem(mainWindowItem, insertSlotOptions.x, insertSlotOptions.y);
+                                if(popupCoordinate.y + insertSlotOptions.height >= mainWindowItem.height) {
+                                    console.log(insertSlotOptions.implicitHeight, insertSlotOptions.height);
+                                    insertSlotOptions.y = 0 - insertSlotOptions.height;
+                                }
+                                if(popupCoordinate.x + insertSlotOptions.width >= mainWindowItem.width) {
+                                    insertSlotOptions.x = mixerInsertSlot.mapFromItem(mainWindowItem, mainWindowItem.width - insertSlotOptions.width, popupCoordinate.y).x;
                                 }
                             }
                         }

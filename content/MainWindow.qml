@@ -96,6 +96,10 @@ ApplicationWindow {
         canClose = true;
     }
 
+    background: Rectangle {
+        color: root.color
+    }
+
     menuBar: MenuBar {
         Menu {
             title: "&YADAW"
@@ -823,12 +827,12 @@ ApplicationWindow {
             addTrackWindow.showNormal();
         }
         onAccepted: {
-            for(let i = 0; i < addTrackWindow.count; ++i) {
+            if(addTrackWindow.count === 1) {
                 mixerChannelModel.insert(position + i, trackType, channelConfig);
                 let index = mixerChannelModel.index(position + i, 0);
                 mixerChannelModel.setData(
                     index,
-                    addTrackWindow.name.toString() + " " + (i + 1).toString(),
+                    addTrackWindow.name,
                     IMixerChannelListModel.Name
                 );
                 mixerChannelModel.setData(
@@ -836,6 +840,22 @@ ApplicationWindow {
                     Qt.rgba(Math.random(), Math.random(), Math.random(), 1),
                     IMixerChannelListModel.Color
                 );
+            }
+            else {
+                for(let i = 0; i < addTrackWindow.count; ++i) {
+                    mixerChannelModel.insert(position + i, trackType, channelConfig);
+                    let index = mixerChannelModel.index(position + i, 0);
+                    mixerChannelModel.setData(
+                        index,
+                        addTrackWindow.name.toString() + " " + (i + 1).toString(),
+                        IMixerChannelListModel.Name
+                    );
+                    mixerChannelModel.setData(
+                        index,
+                        Qt.rgba(Math.random(), Math.random(), Math.random(), 1),
+                        IMixerChannelListModel.Color
+                    );
+                }
             }
         }
     }
