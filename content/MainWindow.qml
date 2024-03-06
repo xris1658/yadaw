@@ -828,8 +828,8 @@ ApplicationWindow {
         }
         onAccepted: {
             if(addTrackWindow.count === 1) {
-                mixerChannelModel.insert(position + i, trackType, channelConfig);
-                let index = mixerChannelModel.index(position + i, 0);
+                mixerChannelModel.insert(position, trackType, channelConfig);
+                let index = mixerChannelModel.index(position, 0);
                 mixerChannelModel.setData(
                     index,
                     addTrackWindow.name,
