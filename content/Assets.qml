@@ -316,7 +316,7 @@ Rectangle {
                             height: parent.height
                             layer.enabled: true
                             layer.smooth: true
-                            layer.samples: 4
+                            layer.textureSize: Qt.size(width * 2, height * 2)
                             Loader {
                                 id: loader
                                 onLoaded: {

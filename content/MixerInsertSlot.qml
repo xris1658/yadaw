@@ -4,7 +4,6 @@ Button {
     id: root
     property bool bypassed: false
     leftPadding: bypassedButton.width
-    rightPadding: replaceButton.width
 
     implicitWidth: label.contentWidth + leftPadding + rightPadding
     implicitHeight: label.contentHeight + topPadding + bottomPadding
@@ -45,29 +44,6 @@ Button {
         }
         onClicked: {
             root.bypassed = !root.bypassed;
-        }
-    }
-    Button {
-        id: replaceButton
-        anchors.right: parent.right
-        width: height * 0.75
-        height: parent.height
-        z: 2
-        leftInset: (parent.width - contentItem.contentWidth) / 2
-        rightInset: leftInset
-        topInset: (parent.height - contentItem.contentHeight) / 2
-        bottomInset: topInset
-        background: Item {}
-        contentItem: Label {
-            text: "\u25bc"
-            color: root.checked?
-                Colors.checkedButtonContent:
-                Colors.content
-            anchors.centerIn: parent
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            anchors.leftMargin: (parent.width - contentWidth) / 2
-            anchors.topMargin: (parent.height - contentHeight) / 2
         }
     }
 }

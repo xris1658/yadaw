@@ -118,7 +118,7 @@ QC.Popup {
                                     height: parent.height
                                     layer.enabled: true
                                     layer.smooth: true
-                                    layer.samples: 4
+                                    layer.textureSize: Qt.size(width * 2, height * 2)
                                     PluginIcon {
                                         scale: 16 / originalHeight
                                         anchors.centerIn: parent
@@ -199,7 +199,7 @@ QC.Popup {
                                     height: parent.height
                                     layer.enabled: true
                                     layer.smooth: true
-                                    layer.samples: 4
+                                    layer.textureSize: Qt.size(width * 2, height * 2)
                                     Loader {
                                         id: loader
                                         onLoaded: {
@@ -266,7 +266,7 @@ QC.Popup {
                                     height: parent.height
                                     layer.enabled: true
                                     layer.smooth: true
-                                    layer.samples: 4
+                                    layer.textureSize: Qt.size(width * 2, height * 2)
                                     TagIcon {
                                         scale: 16 / originalHeight
                                         anchors.centerIn: parent
@@ -446,7 +446,7 @@ QC.Popup {
                                     currentIndex: plm_format
                                     layer.enabled: true
                                     layer.smooth: true
-                                    layer.samples: 4
+                                    layer.textureSize: Qt.size(width * 2, height * 2)
                                     PluginIcon {
                                         scale: 16 / originalHeight
                                         path.fillColor: Colors.secondaryContent

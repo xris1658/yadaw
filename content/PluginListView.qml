@@ -33,7 +33,7 @@ ListView {
                     Item {
                         layer.enabled: true
                         layer.smooth: true
-                        layer.samples: 4
+                        layer.textureSize: Qt.size(width * 2, height * 2)
                         width: height
                         height: itemDelegate.height
                         PluginIcon {
@@ -46,7 +46,7 @@ ListView {
                     Item {
                         layer.enabled: true
                         layer.smooth: true
-                        layer.samples: 4
+                        layer.textureSize: Qt.size(width * 2, height * 2)
                         width: height
                         height: itemDelegate.height
                         VST3Icon {
