@@ -437,75 +437,49 @@ QC.Popup {
                             property string pluginName: plm_name
                             width: Math.max(pluginList.contentWidth, pluginList.width)
                             property var itemData: Array.isArray(pluginList.model)? modelData: model
+                            Item {
+                                width: height
+                                height: itemDelegate.height
+                                StackLayout {
+                                    id: formatIcons
+                                    anchors.centerIn: parent
+                                    currentIndex: plm_format
+                                    layer.enabled: true
+                                    layer.smooth: true
+                                    layer.samples: 4
+                                    PluginIcon {
+                                        scale: 16 / originalHeight
+                                        path.fillColor: Colors.secondaryContent
+                                        path.strokeColor: "transparent"
+                                    }
+                                    VST3Icon {
+                                        scale: 16 / originalHeight
+                                        path.fillColor: Colors.secondaryContent
+                                        path.strokeColor: "transparent"
+                                    }
+                                    CLAPIcon {
+                                        scale: 16 / originalHeight
+                                        path.fillColor: Colors.secondaryContent
+                                        path.strokeColor: "transparent"
+                                    }
+                                    VestifalIcon {
+                                        scale: 16 / originalHeight
+                                        path.fillColor: Colors.secondaryContent
+                                        path.strokeColor: "transparent"
+                                    }
+                                }
+                            }
                             Row {
                                 Repeater {
                                     model: pluginList.headerListModel
                                     Label {
-                                        property int itemIndex: index
                                         width: columnWidth
-                                        leftPadding: 2 + (formatIcons.visible? height: 0)
+                                        leftPadding: (index == 0? itemDelegate.height: 2)
                                         topPadding: 2
                                         bottomPadding: 2
                                         text: itemData[field]
                                         clip: true
                                         elide: Label.ElideRight
-                                        StackLayout {
-                                            id: formatIcons
-                                            currentIndex: plm_format
-                                            visible: parent.itemIndex == 0
-                                            Item {
-                                                layer.enabled: true
-                                                layer.smooth: true
-                                                layer.samples: 4
-                                                width: height
-                                                height: itemDelegate.height
-                                                PluginIcon {
-                                                    anchors.centerIn: parent
-                                                    scale: 16 / originalHeight
-                                                    path.fillColor: Colors.secondaryContent
-                                                    path.strokeColor: "transparent"
-                                                }
-                                            }
-                                            Item {
-                                                layer.enabled: true
-                                                layer.smooth: true
-                                                layer.samples: 4
-                                                width: height
-                                                height: itemDelegate.height
-                                                VST3Icon {
-                                                    anchors.centerIn: parent
-                                                    scale: 16 / originalHeight
-                                                    path.fillColor: Colors.secondaryContent
-                                                    path.strokeColor: "transparent"
-                                                }
-                                            }
-                                            Item {
-                                                layer.enabled: true
-                                                layer.smooth: true
-                                                layer.samples: 4
-                                                width: height
-                                                height: itemDelegate.height
-                                                CLAPIcon {
-                                                    anchors.centerIn: parent
-                                                    scale: 16 / originalHeight
-                                                    path.fillColor: Colors.secondaryContent
-                                                    path.strokeColor: "transparent"
-                                                }
-                                            }
-                                            Item {
-                                                layer.enabled: true
-                                                layer.smooth: true
-                                                layer.samples: 4
-                                                width: height
-                                                height: itemDelegate.height
-                                                VestifalIcon {
-                                                    anchors.centerIn: parent
-                                                    scale: 16 / originalHeight
-                                                    path.fillColor: Colors.secondaryContent
-                                                    path.strokeColor: "transparent"
-                                                }
-                                            }
-                                        }
                                     }
                                 }
                             }
