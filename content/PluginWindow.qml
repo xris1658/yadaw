@@ -44,7 +44,7 @@ Window {
         onClosing: (close) => {
             if (!root.destroyingPlugin) {
                 close.accepted = false;
-                // Add `requestActivate()` so that the main window will gain
+                // A temporary fix for Windows so that the main window will gain
                 // focus while some other windows are shown.
                 // Otherwise, one of the other windows will gain focus, which
                 // might lay above the main window. This is definitely not the
