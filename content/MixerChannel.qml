@@ -32,6 +32,7 @@ Rectangle {
 
     QtObject {
         id: impl
+        property bool replaceInstrument: false
         property int insertPosition: -1
         property bool replacing: false
         readonly property int padding: 3
@@ -42,10 +43,22 @@ Rectangle {
         id: connectToPluginSelector
         target: impl.usingPluginSelector? pluginSelectorWindow.pluginSelector: null
         function onAccepted() {
-            if(!pluginSelectorWindow.pluginSelector.replacing) {
+            if(impl.replaceInstrument) {
                 impl.usingPluginSelector = false;
                 let pluginId = pluginSelectorWindow.pluginSelector.currentPluginId();
-                insertModel.insert(impl.insertPosition, pluginId);
+                insertModel.setInstrument(pluginId);
+            }
+            else {
+                if(!pluginSelectorWindow.pluginSelector.replacing) {
+                    impl.usingPluginSelector = false;
+                    let pluginId = pluginSelectorWindow.pluginSelector.currentPluginId();
+                    insertModel.insert(impl.insertPosition, pluginId);
+                }
+                else {
+                    impl.usingPluginSelector = false;
+                    let pluginId = pluginSelectorWindow.pluginSelector.currentPluginId();
+                    insertModel.replace(impl.insertPosition, pluginId);
+                }
             }
         }
         function onCancelled() {
@@ -106,6 +119,36 @@ Rectangle {
                 visible: root.hasInstrument
                 anchors.centerIn: parent
                 width: parent.width - impl.padding * 2
+                onClicked: {
+                    impl.replaceInstrument = true;
+                    impl.usingPluginSelector = true;
+                    impl.insertPosition = -1;
+                    let windowCoordinate = mapToGlobal(0, height + impl.padding);
+                    if(windowCoordinate.y + pluginSelectorWindow.height >= pluginSelectorWindow.screen.desktopAvailableHeight) {
+                        windowCoordinate = instrumentButton.mapToGlobal(0, 0 - pluginSelectorWindow.height - impl.padding);
+                    }
+                    if(windowCoordinate.x + pluginSelectorWindow.width >= pluginSelectorWindow.screen.desktopAvailableWidth) {
+                        windowCoordinate.x = pluginSelectorWindow.screen.desktopAvailableWidth - pluginSelectorWindow.width;
+                    }
+                    pluginSelectorWindow.x = windowCoordinate.x;
+                    pluginSelectorWindow.y = windowCoordinate.y;
+                    pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
+                        IPluginListModel.Type,
+                        IPluginListModel.Instrument
+                    );
+                    pluginSelectorWindow.pluginSelector.enableReset = false;
+                    pluginSelectorWindow.pluginSelector.replacing = true;
+                    pluginSelectorWindow.transientParent = EventReceiver.mainWindow;
+                    pluginSelectorWindow.showNormal();
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    anchors.leftMargin: parent.leftInset
+                    anchors.rightMargin: parent.rightInset
+                    anchors.topMargin: parent.topInset
+                    anchors.bottomMargin: parent.bottomInset
+                    acceptedButtons: Qt.RightButton
+                }
             }
         }
         Rectangle {
@@ -194,6 +237,7 @@ Rectangle {
                         insertModel.remove(itemIndex, 1);
                     }
                     function showPluginSelector(replacing: bool) {
+                        impl.replaceInstrument = false;
                         impl.usingPluginSelector = true;
                         impl.insertPosition = index;
                         let windowCoordinate = mixerInsertSlot.mapToGlobal(0, mixerInsertSlot.height + impl.padding);
@@ -292,6 +336,7 @@ Rectangle {
                     topInset: insertList.count !== 0? impl.padding: 0
                     width: insertList.width
                     onClicked: {
+                        impl.replaceInstrument = false;
                         impl.usingPluginSelector = true;
                         impl.insertPosition = insertList.count;
                         let windowCoordinate = mapToGlobal(0, height + impl.padding);
