@@ -523,6 +523,11 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             paramListModel_.begin() + position,
             paramListModel_.begin() + position + removeCount
         );
+        FOR_RANGE(i, position, position + removeCount)
+        {
+            QObject::disconnect(pluginEditors_[i].connection);
+            QObject::disconnect(genericEditors_[i].connection);
+        }
         pluginEditors_.erase(
             pluginEditors_.begin() + position,
             pluginEditors_.begin() + position + removeCount
