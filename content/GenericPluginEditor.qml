@@ -48,9 +48,11 @@ Window {
             flickableDirection: Flickable.AutoFlickDirection
             boundsBehavior: Flickable.StopAtBounds
             delegate: Item {
+                id: paramItem
                 width: parent.width
-                 height: label.height + 5 * 2
+                height: label.height + 5 * 2
                 visible: pplm_is_visible
+                readonly property int paramIndex: index
                 Label {
                     id: label
                     text: pplm_name
@@ -58,8 +60,10 @@ Window {
                     anchors.left: parent.left
                     anchors.leftMargin: 3
                 }
-                Slider {
+                ProgressBarLikeSlider {
+                    id: slider
                     anchors.right: parent.right
+                    anchors.rightMargin: 5
                     visible: !(pplm_show_as_list || pplm_show_as_switch)
                     anchors.verticalCenter: parent.verticalCenter
                     from: pplm_min_value
@@ -67,6 +71,14 @@ Window {
                     value: pplm_value
                     stepSize: pplm_step_size
                     snapMode: Slider.SnapAlways
+                    Label {
+                        id: valueText
+                        anchors.fill: parent
+                        leftPadding: font.pixelSize * 0.25
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignLeft
+                        text: root.parameterListModel.stringFromValue(paramItem.paramIndex, slider.value)
+                    }
                 }
                 ComboBox {
                     id: comboBox
