@@ -76,12 +76,12 @@ QString VST3Parameter::unit() const
 QString VST3Parameter::valueToString(double value) const
 {
     String128 string;
-    if(editController_->getParamStringByValue(parameterInfo_.id, value, string) == Steinberg::kResultOk
-       && string[0] != 0)
+    string[0] = 0;
+    if(editController_->getParamStringByValue(parameterInfo_.id, value, string) == Steinberg::kResultOk)
     {
         return QString::fromUtf16(string);
     }
-    return QString::number(value);
+    return QString::number(editController_->normalizedParamToPlain(parameterInfo_.id, value));
 }
 
 double VST3Parameter::stringToValue(const QString& string) const
