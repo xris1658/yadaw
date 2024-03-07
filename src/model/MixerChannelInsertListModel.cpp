@@ -9,6 +9,7 @@
 #include "controller/AudioEngineController.hpp"
 #include "controller/LibraryPluginMap.hpp"
 #include "controller/PluginContextMap.hpp"
+#include "controller/PluginController.hpp"
 #include "controller/PluginLatencyUpdatedCallback.hpp"
 #include "controller/PluginListController.hpp"
 #include "controller/PluginWindowController.hpp"
@@ -164,126 +165,113 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         auto& graphWithPDC = engine.mixer().graph();
         auto& pool = YADAW::Controller::appLibraryPluginMap();
         auto pluginInfo = YADAW::DAO::selectPluginById(pluginId);
-        auto libraryPluginIterator = pool.find<QString>(pluginInfo.path);
-        if(libraryPluginIterator == pool.end())
+        auto optionalCreatePluginResult = YADAW::Controller::createPlugin(
+            pluginInfo.path, static_cast<YADAW::DAO::PluginFormat>(pluginInfo.format),
+            pluginInfo.uid
+        );
+        if(!optionalCreatePluginResult.has_value())
         {
-            auto library = YADAW::Native::Library(pluginInfo.path);
-            libraryPluginIterator = pool.emplace_hint(libraryPluginIterator, std::move(library),
-                YADAW::Controller::LibraryPluginMap::value_type::second_type()
-            );
+            return false;
         }
-        std::unique_ptr<IAudioPlugin> plugin(nullptr);
+        auto& [it, pluginAndProcess] = *optionalCreatePluginResult;
+        auto& [plugin, process] = pluginAndProcess;
         switch(pluginInfo.format)
         {
         case PluginFormat::PluginFormatVST3:
         {
-            auto pluginPtr = std::make_unique<YADAW::Audio::Plugin::VST3Plugin>(
-                YADAW::Audio::Util::createVST3FromLibrary(libraryPluginIterator->first)
-            );
-            if(pluginPtr && pluginPtr->status() != IAudioPlugin::Status::Empty)
+            auto pluginPtr = static_cast<YADAW::Audio::Plugin::VST3Plugin*>(plugin);
+            auto vst3ComponentHandler = new(std::nothrow) YADAW::Audio::Host::VST3ComponentHandler(*pluginPtr);
+            if(vst3ComponentHandler)
             {
-                Steinberg::TUID tuid;
-                std::memcpy(tuid, pluginInfo.uid.data(), std::size(tuid));
-                pluginPtr->createPlugin(tuid);
-                auto vst3ComponentHandler = new(std::nothrow) YADAW::Audio::Host::VST3ComponentHandler(*pluginPtr);
-                if(vst3ComponentHandler)
-                {
-                    vst3ComponentHandler->setLatencyChangedCallback(
-                        &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::VST3Plugin>
-                    );
-                    pluginPtr->setComponentHandler(*vst3ComponentHandler);
-                    pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
-                    auto inputCount = pluginPtr->audioInputGroupCount();
-                    auto outputCount = pluginPtr->audioOutputGroupCount();
-                    auto device = graphWithPDC.graph().getNodeData(inserts_->inNode()).process.device();
-                    auto channelGroupType = device->audioOutputGroupAt(inserts_->inChannelGroupIndex())->get().type();
-                    std::vector<YADAW::Audio::Base::ChannelGroupType> inputChannels(inputCount,
-                        channelGroupType);
-                    std::vector<YADAW::Audio::Base::ChannelGroupType> outputChannels(outputCount,
-                        channelGroupType);
-                    pluginPtr->setChannelGroups(inputChannels.data(), inputChannels.size(), outputChannels.data(),
-                        outputChannels.size());
-                    pluginPtr->activate();
-                    pluginPtr->startProcessing();
-                    auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
-                    vst3PluginPool.emplace(
-                        pluginPtr.get(),
-                        YADAW::Controller::VST3PluginContext{vst3ComponentHandler}
-                    );
-                    auto nodeHandle = graphWithPDC.addNode(AudioDeviceProcess(*pluginPtr));
-                    engine.vst3PluginPool().updateAndDispose(
-                        std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
-                            createPoolVector(vst3PluginPool)
-                        ),
-                        engine.running()
-                    );
-                    inserts_->insert(nodeHandle, position, pluginInfo.name);
-                    plugin = std::unique_ptr<IAudioPlugin>(std::move(pluginPtr));
-                    ret = true;
-                }
+                vst3ComponentHandler->setLatencyChangedCallback(
+                    &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::VST3Plugin>
+                );
+                pluginPtr->setComponentHandler(*vst3ComponentHandler);
+                pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
+                auto inputCount = pluginPtr->audioInputGroupCount();
+                auto outputCount = pluginPtr->audioOutputGroupCount();
+                auto device = graphWithPDC.graph().getNodeData(inserts_->inNode()).process.device();
+                auto channelGroupType = device->audioOutputGroupAt(inserts_->inChannelGroupIndex())->get().type();
+                std::vector<YADAW::Audio::Base::ChannelGroupType> inputChannels(inputCount,
+                    channelGroupType);
+                std::vector<YADAW::Audio::Base::ChannelGroupType> outputChannels(outputCount,
+                    channelGroupType);
+                pluginPtr->setChannelGroups(inputChannels.data(), inputChannels.size(), outputChannels.data(),
+                    outputChannels.size());
+                pluginPtr->activate();
+                pluginPtr->startProcessing();
+                auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
+                vst3PluginPool.emplace(
+                    pluginPtr,
+                    YADAW::Controller::VST3PluginContext{vst3ComponentHandler}
+                );
+                auto nodeHandle = graphWithPDC.addNode(std::move(process));
+                engine.vst3PluginPool().updateAndDispose(
+                    std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
+                        createPoolVector(vst3PluginPool)
+                    ),
+                    engine.running()
+                );
+                inserts_->insert(nodeHandle, position, pluginInfo.name);
+                ret = true;
             }
             break;
         }
         case PluginFormat::PluginFormatCLAP:
         {
-            auto pluginPtr = new(std::nothrow)
-            YADAW::Audio::Plugin::CLAPPlugin(
-                YADAW::Audio::Util::createCLAPFromLibrary(
-                    libraryPluginIterator->first
-                )
+            auto pluginPtr = static_cast<YADAW::Audio::Plugin::CLAPPlugin*>(plugin);
+            pluginPtr->host().setLatencyChangedCallback(
+                &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::CLAPPlugin>
             );
-            if(pluginPtr && pluginPtr->status() != IAudioPlugin::Status::Empty)
+            YADAW::Audio::Host::CLAPHost::setMainThreadId(std::this_thread::get_id());
+            pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
+            pluginPtr->activate();
+            auto clapEventList = new(std::nothrow) YADAW::Audio::Host::CLAPEventList();
+            if(clapEventList)
             {
-                pluginPtr->createPlugin(pluginInfo.uid.data());
-                pluginPtr->host().setLatencyChangedCallback(
-                    &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::CLAPPlugin>
-                );
-                YADAW::Audio::Host::CLAPHost::setMainThreadId(std::this_thread::get_id());
-                pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
-                pluginPtr->activate();
-                auto clapEventList = new(std::nothrow) YADAW::Audio::Host::CLAPEventList();
-                if(clapEventList)
-                {
-                    clapEventList->attachToProcessData(pluginPtr->processData());
-                }
-                auto& clapPluginPool = YADAW::Controller::appCLAPPluginPool();
-                clapPluginPool.emplace(
-                    pluginPtr,
-                    YADAW::Controller::CLAPPluginContext{clapEventList}
-                );
-                auto nodeHandle = graphWithPDC.addNode(AudioDeviceProcess(*pluginPtr));
-                engine.clapPluginToSetProcess().update(
-                    std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
-                        1, std::make_pair(pluginPtr, true)
-                    ),
-                    engine.running()
-                );
-                engine.clapPluginPool().update(
-                    std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
-                        createPoolVector(clapPluginPool)
-                    ),
-                    engine.running()
-                );
-                engine.clapPluginPool().disposeOld(engine.running());
-                engine.clapPluginToSetProcess().disposeOld(engine.running());
-                inserts_->insert(nodeHandle, position, pluginInfo.name);
-                plugin = std::unique_ptr<IAudioPlugin>(pluginPtr);
-                ret = true;
+                clapEventList->attachToProcessData(pluginPtr->processData());
             }
+            auto& clapPluginPool = YADAW::Controller::appCLAPPluginPool();
+            clapPluginPool.emplace(
+                pluginPtr,
+                YADAW::Controller::CLAPPluginContext{clapEventList}
+            );
+            auto nodeHandle = graphWithPDC.addNode(std::move(process));
+            engine.clapPluginToSetProcess().update(
+                std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
+                    1, std::make_pair(pluginPtr, true)
+                ),
+                engine.running()
+            );
+            engine.clapPluginPool().update(
+                std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
+                    createPoolVector(clapPluginPool)
+                ),
+                engine.running()
+            );
+            engine.clapPluginPool().disposeOld(engine.running());
+            engine.clapPluginToSetProcess().disposeOld(engine.running());
+            inserts_->insert(nodeHandle, position, pluginInfo.name);
+            ret = true;
             break;
         }
         // VST plugins are not loaded since the implementation of
         // `VestifalPlugin` is problematic.
+        case PluginFormat::PluginFormatVestifal:
+        {
+            ret = false;
+            break;
         }
-        libraryPluginIterators_.emplace(
-            libraryPluginIterators_.begin() + position,
-            libraryPluginIterator
-        );
+        }
         if(ret)
         {
+            libraryPluginIterators_.emplace(
+                libraryPluginIterators_.begin() + position,
+                it
+            );
             auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
             const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
-                plugin.get(),
+                plugin,
                 YADAW::Controller::PluginContext()
             );
             assert(inserted);
@@ -294,7 +282,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 pluginContextIterators_.begin() + position,
                 pluginContextIterator
             );
-            YADAW::Controller::pluginNeedsWindow = plugin.get();
+            YADAW::Controller::pluginNeedsWindow = plugin;
             if(plugin->gui())
             {
                 YADAW::Event::eventHandler->createPluginWindow();
@@ -341,7 +329,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             );
             pluginWindow = nullptr;
             genericEditor = nullptr;
-            libraryPluginIterator->second.emplace(std::move(plugin));
             FOR_RANGE(i, position + 1, pluginEditors_.size())
             {
                 auto& [window, connection] = pluginEditors_[i];
@@ -362,6 +349,19 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             }
             beginInsertRows(QModelIndex(), position, position);
             endInsertRows();
+        }
+        else
+        {
+            auto& pluginPool = it->second;
+            auto pluginIt = pluginPool.find(plugin);
+            if(pluginIt != pluginPool.end())
+            {
+                pluginPool.erase(pluginIt);
+                if(pluginPool.empty())
+                {
+                    pool.erase(it);
+                }
+            }
         }
     }
     return ret;

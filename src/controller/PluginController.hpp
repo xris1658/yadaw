@@ -3,6 +3,7 @@
 
 #include "audio/plugin/IAudioPlugin.hpp"
 #include "audio/engine/AudioDeviceProcess.hpp"
+#include "controller/LibraryPluginMap.hpp"
 #include "dao/PluginTable.hpp"
 #include "dao/PluginCategoryTable.hpp"
 #include "native/Library.hpp"
@@ -18,12 +19,12 @@ using namespace YADAW::Audio::Plugin;
 
 struct PluginAndProcess
 {
-    PluginAndProcess(std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>&& plugin,
+    PluginAndProcess(YADAW::Audio::Plugin::IAudioPlugin* plugin,
         YADAW::Audio::Engine::AudioDeviceProcess&& process):
-        plugin(std::move(plugin)), process(std::move(process))
+        plugin(plugin), process(std::move(process))
     {}
     PluginAndProcess(PluginAndProcess&&) noexcept = default;
-    std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin> plugin;
+    YADAW::Audio::Plugin::IAudioPlugin* plugin;
     YADAW::Audio::Engine::AudioDeviceProcess process;
 };
 
@@ -39,7 +40,12 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path);
 
 void savePluginScanResult(const PluginScanResult& result);
 
-std::optional<std::pair<YADAW::Native::Library, PluginAndProcess>> createPlugin(
+std::optional<
+    std::pair<
+        YADAW::Controller::LibraryPluginMap::iterator,
+        PluginAndProcess
+    >
+> createPlugin(
     const QString& path, YADAW::DAO::PluginFormat format,
     const std::vector<char>& uid);
 }

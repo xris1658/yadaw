@@ -514,88 +514,127 @@ void savePluginScanResult(const PluginScanResult& result)
     YADAW::DAO::insertPluginCategory(id, categories);
 }
 
-std::optional<std::pair<YADAW::Native::Library, PluginAndProcess>> createPlugin(
+std::optional<
+    std::pair<
+        YADAW::Controller::LibraryPluginMap::iterator,
+        PluginAndProcess
+    >
+> createPlugin(
     const QString& path, YADAW::DAO::PluginFormat format,
     const std::vector<char>& uid)
 {
-    YADAW::Native::Library library(path);
-    if(library.loaded())
+    using namespace YADAW::Audio::Plugin;
+    auto& libraryPluginMap = YADAW::Controller::appLibraryPluginMap();
+    auto it = libraryPluginMap.find<QString>(path);
+    if(it == libraryPluginMap.end())
     {
-        switch(format)
+        YADAW::Native::Library library(path);
+        if(library.loaded())
         {
-        case YADAW::DAO::PluginFormat::PluginFormatVST3:
-        {
-            if(uid.size() != sizeof(Steinberg::TUID) / sizeof(char))
-            {
-                break;
-            }
-            auto factoryEntry = library.getExport<YADAW::Audio::Plugin::VST3Plugin::FactoryEntry>("GetPluginFactory");
-            if(!factoryEntry)
-            {
-                break;
-            }
-            auto init = library.getExport<YADAW::Native::VST3InitEntry>(YADAW::Native::initEntryName);
-            auto exit = library.getExport<YADAW::Audio::Plugin::VST3Plugin::ExitEntry>(YADAW::Native::exitEntryName);
-            auto vst3Plugin = std::make_unique<YADAW::Audio::Plugin::VST3Plugin>(
-                init, factoryEntry, exit, library.handle()
-            );
-            Steinberg::TUID tuid;
-            std::memcpy(tuid, uid.data(), std::size(tuid));
-            vst3Plugin->createPlugin(tuid);
-            YADAW::Audio::Engine::AudioDeviceProcess process(*vst3Plugin);
-            return {
-                std::pair(
-                    std::move(library),
-                    PluginAndProcess(
-                        std::move(vst3Plugin), std::move(process)
-                    )
-                )
-            };
+            it = libraryPluginMap.emplace(std::move(library),
+                YADAW::Controller::LibraryPluginMap::value_type::second_type()
+            ).first;
         }
-        case YADAW::DAO::PluginFormat::PluginFormatCLAP:
+        else
         {
-            auto factoryEntry = library.getExport<const clap_plugin_entry*>("clap_entry");
-            if(!factoryEntry)
-            {
-                break;
-            }
-            auto clapPlugin = std::make_unique<YADAW::Audio::Plugin::CLAPPlugin>(
-                factoryEntry, path
-            );
-            clapPlugin->createPlugin(uid.data());
-            YADAW::Audio::Engine::AudioDeviceProcess process(*clapPlugin);
-            return {
-                std::pair(
-                    std::move(library),
-                    PluginAndProcess(
-                        std::move(clapPlugin), std::move(process)
-                    )
-                )
-            };
+            return std::nullopt;
         }
-        case YADAW::DAO::PluginFormat::PluginFormatVestifal:
+    }
+    auto& library = it->first;
+    switch(format)
+    {
+    case YADAW::DAO::PluginFormat::PluginFormatVST3:
+    {
+        if(uid.size() != sizeof(Steinberg::TUID) / sizeof(char))
         {
-            auto entry = YADAW::Audio::Util::vestifalEntryFromLibrary(library);
-            if(!entry)
-            {
-                break;
-            }
-            std::int32_t id;
-            std::memcpy(&id, uid.data(), sizeof(id));
-            auto vestifalPlguin = std::make_unique<YADAW::Audio::Plugin::VestifalPlugin>(entry, id);
-            YADAW::Audio::Engine::AudioDeviceProcess process(*vestifalPlguin);
-            return {
-                std::pair(
-                    std::move(library),
-                    PluginAndProcess(
-                        std::move(vestifalPlguin), std::move(process)
-                    )
-                )
-            };
-        }
-        case DAO::PluginFormatUnknown:
             break;
         }
+        auto factoryEntry = library.getExport<VST3Plugin::FactoryEntry>("GetPluginFactory");
+        if(!factoryEntry)
+        {
+            break;
+        }
+        auto init = library.getExport<YADAW::Native::VST3InitEntry>(YADAW::Native::initEntryName);
+        auto exit = library.getExport<VST3Plugin::ExitEntry>(YADAW::Native::exitEntryName);
+        auto vst3Plugin = std::make_unique<VST3Plugin>(
+            init, factoryEntry, exit, library.handle()
+        );
+        if(vst3Plugin->status() == IAudioPlugin::Status::Loaded)
+        {
+            Steinberg::TUID tuid;
+            std::memcpy(tuid, uid.data(), std::size(tuid));
+            if(vst3Plugin->createPlugin(tuid))
+            {
+                auto& pluginToProcess = *vst3Plugin;
+                it->second.emplace(std::move(vst3Plugin));
+                return {
+                    std::pair(
+                        it,
+                        PluginAndProcess(
+                            &pluginToProcess,
+                            YADAW::Audio::Engine::AudioDeviceProcess(pluginToProcess)
+                        )
+                    )
+                };
+            }
+        }
+        break;
+    }
+    case YADAW::DAO::PluginFormat::PluginFormatCLAP:
+    {
+        auto factoryEntry = library.getExport<const clap_plugin_entry*>("clap_entry");
+        if(!factoryEntry)
+        {
+            break;
+        }
+        auto clapPlugin = std::make_unique<CLAPPlugin>(
+            factoryEntry, path
+        );
+        if(clapPlugin->status() == IAudioPlugin::Status::Loaded
+            && clapPlugin->createPlugin(uid.data()))
+        {
+            auto& pluginToProcess = *clapPlugin;
+            it->second.emplace(std::move(clapPlugin));
+            return {
+                std::pair(
+                    it,
+                    PluginAndProcess(
+                        &pluginToProcess,
+                        YADAW::Audio::Engine::AudioDeviceProcess(pluginToProcess)
+                    )
+                )
+            };
+        }
+        break;
+    }
+    case YADAW::DAO::PluginFormat::PluginFormatVestifal:
+    {
+        auto entry = YADAW::Audio::Util::vestifalEntryFromLibrary(library);
+        if(!entry)
+        {
+            break;
+        }
+        std::int32_t id;
+        std::memcpy(&id, uid.data(), sizeof(id));
+        auto vestifalPlugin = std::make_unique<VestifalPlugin>(entry, id);
+        if(vestifalPlugin->status() == IAudioPlugin::Status::Created)
+        {
+            auto& pluginToProcess = *vestifalPlugin;
+            it->second.emplace(std::move(vestifalPlugin));
+            return {
+                std::pair(
+                    it,
+                    PluginAndProcess(
+                        &pluginToProcess,
+                        YADAW::Audio::Engine::AudioDeviceProcess(pluginToProcess)
+                    )
+                )
+            };
+        }
+        break;
+    }
+    default:
+        break;
     }
     return std::nullopt;
 }
