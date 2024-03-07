@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Press <ENTER> to exit...");
                 getchar();
 #endif
-                QCoreApplication::exit(-1);
+                std::exit(-1);
             }
             if(objUrl == frontendEventsURL)
             {
