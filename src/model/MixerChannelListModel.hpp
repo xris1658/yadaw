@@ -12,6 +12,8 @@ namespace YADAW::Model
 {
 class MixerChannelInsertListModel;
 
+struct InstrumentInstance;
+
 class MixerChannelListModel: public IMixerChannelListModel
 {
     Q_OBJECT
@@ -44,9 +46,11 @@ public:
     bool move(int position, int moveCount, int newPosition) override;
     bool copy(int position, int copyCount, int newPosition) override;
     void clear() override;
+    bool setInstrument(int position, int pluginId) override;
 private:
     YADAW::Audio::Mixer::Mixer& mixer_;
     std::vector<std::unique_ptr<YADAW::Model::MixerChannelInsertListModel>> insertModels_;
+    std::vector<std::unique_ptr<InstrumentInstance>> instruments_;
     ListType listType_;
 };
 }

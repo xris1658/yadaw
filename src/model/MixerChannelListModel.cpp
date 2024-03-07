@@ -3,6 +3,7 @@
 #include "controller/AudioEngineController.hpp"
 #include "controller/AudioGraphBackendController.hpp"
 #include "controller/ALSABackendController.hpp"
+#include "dao/PluginTable.hpp"
 #include "entity/ChannelConfigHelper.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
 #include "util/Base.hpp"
@@ -10,6 +11,30 @@
 
 namespace YADAW::Model
 {
+struct InstrumentInstance
+{
+    std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin> plugin;
+    ade::NodeHandle nodeHandle = {};
+    QWindow* pluginWindow = {};
+    QWindow* genericEditorWindow = {};
+    YADAW::Model::PluginParameterListModel paramListModel;
+    YADAW::Controller::LibraryPluginMap::iterator libraryPluginIterator = {};
+    YADAW::Controller::PluginContextMap::iterator pluginContextIterator = {};
+    template<typename T>
+    InstrumentInstance(
+        YADAW::Audio::Mixer::Mixer& mixer,
+        YADAW::Native::Library& library,
+        std::unique_ptr<T>&& plugin):
+        plugin(std::move(plugin)),
+        nodeHandle(
+            mixer.graph().addNode(
+                YADAW::Audio::Engine::AudioDeviceProcess(*static_cast<T*>(this->plugin))
+            )
+        ),
+        paramListModel(*(this->plugin->parameter()))
+    {}
+};
+
 YADAW::Audio::Mixer::Mixer::ChannelType channelTypeFromModelTypes(
     IMixerChannelListModel::ChannelTypes type
 )
@@ -274,6 +299,10 @@ bool MixerChannelListModel::insert(int position, IMixerChannelListModel::Channel
                     0
                 )
             );
+            instruments_.emplace(
+                instruments_.begin() + position,
+                std::unique_ptr<InstrumentInstance>(nullptr)
+            );
             FOR_RANGE(i, position + 1, insertModels_.size())
             {
                 insertModels_[i]->setChannelIndex(i);
@@ -382,5 +411,24 @@ bool MixerChannelListModel::copy(int position, int copyCount, int newPosition)
 void MixerChannelListModel::clear()
 {
     remove(0, itemCount());
+}
+
+bool MixerChannelListModel::setInstrument(int position, int pluginId)
+{
+    using YADAW::Audio::Mixer::Mixer;
+    if(listType_ == ListType::Regular
+        && position >= 0
+        && position < mixer_.channelCount()
+        && mixer_.channelInfoAt(position)->get().channelType == Mixer::ChannelType::Instrument
+    )
+    {
+        const auto& pluginInfo = YADAW::DAO::selectPluginById(pluginId);
+        YADAW::Native::Library library(pluginInfo.path);
+        if(!library.loaded())
+        {
+            return false;
+        }
+    }
+    return false;
 }
 }
