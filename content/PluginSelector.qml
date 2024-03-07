@@ -57,6 +57,14 @@ QC.Popup {
             onTextChanged: {
                 pluginListModel.filterString = text;
             }
+            Keys.onDownPressed: (event) => {
+                if(pluginList.count !== 0) {
+                    pluginList.forceActiveFocus();
+                    if(pluginList.currentIndex == -1) {
+                        pluginList.currentIndex = 0;
+                    }
+                }
+            }
         }
         Rectangle {
             width: impl.contentWidth
@@ -91,6 +99,7 @@ QC.Popup {
                             model: [qsTr("All")]
                             width: parent.width
                             height: contentHeight
+                            activeFocusOnTab: leftLists.currentIndex === 0
                             delegate: ItemDelegate {
                                 id: allItemDelegate
                                 width: parent.width - 3 * 2
@@ -131,6 +140,11 @@ QC.Popup {
                                     leftLists.currentIndex = 0;
                                     pluginListModel.clearValueOfFilter(IPluginListModel.Format);
                                 }
+                                Keys.onDownPressed: {
+                                    leftLists.currentIndex = 1;
+                                    formatList.currentIndex = 0;
+                                    formatList.forceActiveFocus();
+                                }
                             }
                         }
                         Label {
@@ -147,6 +161,8 @@ QC.Popup {
                         }
                         ListView {
                             id: formatList
+                            currentIndex: -1
+                            activeFocusOnTab: leftLists.currentIndex === 1
                             model: ListModel {
                                 ListElement {
                                     name: "Vestifal"
@@ -217,8 +233,28 @@ QC.Popup {
                                 onClicked: {
                                     leftLists.currentIndex = 1;
                                     formatList.currentIndex = index;
-                                    pluginListModel.setValueOfFilter(IPluginListModel.Format, filterableFormat);
+                                    // pluginListModel.setValueOfFilter(IPluginListModel.Format, filterableFormat);
                                     // pluginListModel.setfilterRole(IPluginListModel)
+                                }
+                            }
+                            onCurrentIndexChanged: {
+                                if(currentIndex !== -1) {
+                                    pluginListModel.setValueOfFilter(
+                                        IPluginListModel.Format,
+                                        itemAtIndex(currentIndex).format
+                                    );
+                                }
+                            }
+                            Keys.onUpPressed: (event) => {
+                                if(formatList.currentIndex == 0) {
+                                    formatList.currentIndex = -1;
+                                    allList.currentIndex = 0;
+                                    leftLists.currentIndex = 0;
+                                    pluginListModel.clearValueOfFilter(IPluginListModel.Format);
+                                    allList.forceActiveFocus();
+                                }
+                                else {
+                                    event.accepted = false;
                                 }
                             }
                         }
@@ -289,6 +325,7 @@ QC.Popup {
                         anchors.fill: parent
                         anchors.rightMargin: vbar.visible? vbar.width: 0
                         anchors.bottomMargin: hbar.visible? hbar.height: 0
+                        activeFocusOnTab: true
                         ScrollBar.vertical: vbar
                         ScrollBar.horizontal: hbar
                         clip: true
@@ -520,6 +557,31 @@ QC.Popup {
                         onModelChanged: {
                             currentIndex = -1;
                         }
+                        Keys.onUpPressed: (event) => {
+                            if(pluginList.currentIndex == 0) {
+                                searchTextField.forceActiveFocus();
+                                pluginList.currentIndex = -1;
+                            }
+                            else {
+                                event.accepted = false;
+                            }
+                        }
+                        onCurrentIndexChanged: {
+                            if(currentIndex !== -1) {
+                                // Make sure the item at current index is not
+                                // covered by header.
+                                // (Seriously, why doesn't `ListView` do this by
+                                // default when `headerPositioning` is
+                                // `ListView.OverlayHeader`?)
+                                let currentY = highlightItem.mapToItem(pluginList, 0, 0).y;
+                                // We cannot get `header.height` directly,
+                                // so we use properties of `vbar`
+                                let headerHeight = vbar.anchors.topMargin;
+                                if(currentY < headerHeight) {
+                                    pluginList.contentY -= (headerHeight - currentY);
+                                }
+                            }
+                        }
                     }
                     ScrollBar {
                         id: vbar
@@ -590,5 +652,11 @@ QC.Popup {
             pluginListModel.setFilter(pluginList.headerListModel.get(i).roleId, true);
         }
         pluginListModel.appendSortOrder(IPluginListModel.Name, Qt.AscendingOrder);
+    }
+    Shortcut {
+        sequence: "Ctrl+F"
+        onActivated: {
+            searchTextField.forceActiveFocus();
+        }
     }
 }
