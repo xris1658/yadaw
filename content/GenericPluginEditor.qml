@@ -6,7 +6,6 @@ Window {
     id: root
 
     property bool destroyingPlugin: false
-    property alias pluginName: titleLabel.text
     property alias parameterListModel: parameterList.model
 
     flags: Qt.Dialog
@@ -17,14 +16,7 @@ Window {
     Item {
         id: header
         width: root.width
-        height: titleLabel.contentHeight + 6
-        Label {
-            id: titleLabel
-            font.pointSize: Qt.application.font.pointSize * 1.5
-            anchors.fill: parent
-            anchors.margins: 3
-            text: "Plugin Name Here"
-        }
+        height: 21
         Rectangle {
             width: parent.width
             height: 1

@@ -334,10 +334,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                     *plugin->parameter()
                 )
             );
-            genericEditor->setProperty(
-                "pluginName",
-                QVariant::fromValue(pluginInfo.name)
-            );
+            genericEditor->setTitle(pluginInfo.name);
             genericEditor->setProperty(
                 "parameterListModel",
                 QVariant::fromValue<QObject*>(paramListModel_[position].get())
