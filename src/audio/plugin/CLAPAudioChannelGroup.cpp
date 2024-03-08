@@ -182,13 +182,27 @@ std::uint32_t CLAPAudioChannelGroup::channelCount() const
 
 YADAW::Audio::Base::ChannelGroupType CLAPAudioChannelGroup::type() const
 {
-    if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_STEREO) == 0)
+    if(audioPortInfo_.port_type)
     {
-        return YADAW::Audio::Base::ChannelGroupType::eStereo;
+        if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_STEREO) == 0)
+        {
+            return YADAW::Audio::Base::ChannelGroupType::eStereo;
+        }
+        if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_MONO) == 0)
+        {
+            return YADAW::Audio::Base::ChannelGroupType::eMono;
+        }
     }
-    if(std::strcmp(audioPortInfo_.port_type, CLAP_PORT_MONO) == 0)
+    else
     {
-        return YADAW::Audio::Base::ChannelGroupType::eMono;
+        if(audioPortInfo_.channel_count == 2)
+        {
+            return YADAW::Audio::Base::ChannelGroupType::eStereo;
+        }
+        if(audioPortInfo_.channel_count == 1)
+        {
+            return YADAW::Audio::Base::ChannelGroupType::eMono;
+        }
     }
     if(isSurround_)
     {
