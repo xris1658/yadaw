@@ -86,6 +86,7 @@ public:
     Q_INVOKABLE virtual bool copy(int position, int copyCount, int newPosition) = 0;
     Q_INVOKABLE virtual void clear() = 0;
     Q_INVOKABLE virtual bool setInstrument(int position, int pluginId) = 0;
+    Q_INVOKABLE virtual bool removeInstrument(int position) = 0;
 protected:
     RoleNames roleNames() const override
     {
@@ -109,7 +110,7 @@ protected:
             std::make_pair(InstrumentEventOutputs,         "mclm_instrument_event_outputs"),
             std::make_pair(InstrumentHasUI,                "mclm_instrument_has_ui"),
             std::make_pair(InstrumentWindowVisible,        "mclm_instrument_window_visible"),
-            std::make_pair(InstrumentGenericEditorVisible, "mclm_instrument_generic_Editor_visible"),
+            std::make_pair(InstrumentGenericEditorVisible, "mclm_instrument_generic_editor_visible"),
             std::make_pair(InstrumentLatency,              "mclm_instrument_latency"),
             std::make_pair(Inserts,                        "mclm_inserts"),
             std::make_pair(SendExist,                      "mclm_send_exist"),

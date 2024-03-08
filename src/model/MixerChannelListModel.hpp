@@ -47,10 +47,12 @@ public:
     bool copy(int position, int copyCount, int newPosition) override;
     void clear() override;
     bool setInstrument(int position, int pluginId) override;
+    bool removeInstrument(int position) override;
 private:
     YADAW::Audio::Mixer::Mixer& mixer_;
     std::vector<std::unique_ptr<YADAW::Model::MixerChannelInsertListModel>> insertModels_;
     std::vector<std::unique_ptr<InstrumentInstance>> instruments_;
+    std::vector<bool> instrumentBypassed_;
     ListType listType_;
 };
 }

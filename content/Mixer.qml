@@ -159,7 +159,7 @@ Rectangle {
                 channelColor: mclm_color
                 name: mclm_name
                 showIO: root.showIO
-                hasInstrument: false
+                hasInstrumentSlot: false
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
@@ -196,6 +196,7 @@ Rectangle {
         property int borderWidth: 1
         spacing: -1 * borderWidth
         delegate: Row {
+            id: channelRow
             Rectangle {
                 id: channelLeftBorder
                 width: channels.borderWidth
@@ -215,7 +216,14 @@ Rectangle {
                 channelColor: mclm_color
                 name: mclm_name
                 showIO: root.showIO
-                hasInstrument: mclm_channel_type == IMixerChannelListModel.ChannelTypeInstrument
+                hasInstrumentSlot: mclm_channel_type == IMixerChannelListModel.ChannelTypeInstrument
+                hasInstrument: mclm_instrument_exist
+                instrumentBypassed: mclm_instrument_exist? mclm_instrument_bypassed: false
+                instrumentName: mclm_instrument_exist? mclm_instrument_name: ""
+                instrumentHasUI: mclm_instrument_exist? mclm_instrument_has_ui: false
+                instrumentWindowVisible: mclm_instrument_exist? mclm_instrument_window_visible: false
+                instrumentGenericEditorVisible: mclm_instrument_exist? mclm_instrument_generic_editor_visible: false
+                instrumentLatency: mclm_instrument_exist? mclm_instrument_latency: 0
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
@@ -223,6 +231,28 @@ Rectangle {
                 mute: mclm_mute
                 onSetMute: (newMute) => {
                     mclm_mute = newMute;
+                }
+                onHasInstrumentChanged: {
+                    if(hasInstrument) {
+                        if(instrumentHasUI) {
+                            instrumentWindowVisible = true;
+                        }
+                        else {
+                            instrumentGenericEditorVisible = true;
+                        }
+                    }
+                }
+                onSetInstrument: (instrumentId) => {
+                    channelsModel.setInstrument(index, instrumentId);
+                    console.log(mclm_instrument_exist);
+                }
+                onInstrumentWindowVisibleChanged: {
+                    console.log("onInstrumentWindowVisibleChanged", instrumentWindowVisible);
+                    mclm_instrument_window_visible = instrumentWindowVisible;
+                }
+                onInstrumentGenericEditorVisibleChanged: {
+                    console.log("onInstrumentGenericEditorVisibleChanged", instrumentGenericEditorVisible);
+                    mclm_instrument_generic_editor_visible = instrumentGenericEditorVisible;
                 }
             }
             Rectangle {
@@ -314,7 +344,7 @@ Rectangle {
                 channelColor: mclm_color
                 name: mclm_name
                 showIO: root.showIO
-                hasInstrument: false
+                hasInstrumentSlot: false
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader

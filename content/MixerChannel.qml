@@ -11,7 +11,14 @@ Rectangle {
     property alias channelColor: infoPlaceholder.color
     property bool inputAvailable: true
     property bool outputAvailable: true
-    property bool hasInstrument: true
+    property bool hasInstrumentSlot: true
+    property bool hasInstrument
+    property string instrumentName
+    property bool instrumentBypassed
+    property bool instrumentHasUI
+    property bool instrumentWindowVisible
+    property bool instrumentGenericEditorVisible
+    property int instrumentLatency
     property alias inputModel: inputButton.model
     property alias outputModel: outputButton.model
     property alias insertModel: insertList.model
@@ -26,6 +33,8 @@ Rectangle {
 
     property bool mute: muteButton.checked
     signal setMute(newMute: bool)
+
+    signal setInstrument(pluginId: int)
 
     width: 120
     height: 400
@@ -46,7 +55,7 @@ Rectangle {
             if(impl.replaceInstrument) {
                 impl.usingPluginSelector = false;
                 let pluginId = pluginSelectorWindow.pluginSelector.currentPluginId();
-                insertModel.setInstrument(pluginId);
+                root.setInstrument(pluginId);
             }
             else {
                 if(!pluginSelectorWindow.pluginSelector.replacing) {
@@ -113,10 +122,34 @@ Rectangle {
             width: root.width
             Layout.preferredHeight: instrumentButton.height + impl.padding * 2
             visible: root.showInstrumentSlot
-            opacity: root.hasInstrument? 1: 0
+            MixerInsertSlot {
+                id: instrumentSlot
+                visible: root.hasInstrumentSlot && root.hasInstrument
+                anchors.centerIn: parent
+                width: parent.width - impl.padding * 2
+                bypassed: root.instrumentBypassed
+                text: root.instrumentName
+                // checked: root.instrumentWindowVisible || root.instrumentGenericEditorVisible
+                onCheckedChanged: {
+                    if(checked) {
+                        if(root.instrumentHasUI) {
+                            root.instrumentWindowVisible = true;
+                        }
+                        else {
+                            root.instrumentGenericEditorVisible = true;
+                        }
+                    }
+                    else {
+                        if(root.instrumentHasUI) {
+                            root.instrumentWindowVisible = false;
+                        }
+                        root.instrumentGenericEditorVisible = false;
+                    }
+                }
+            }
             Button {
                 id: instrumentButton
-                visible: root.hasInstrument
+                visible: root.hasInstrumentSlot && (!root.hasInstrument)
                 anchors.centerIn: parent
                 width: parent.width - impl.padding * 2
                 onClicked: {
@@ -217,7 +250,7 @@ Rectangle {
                     }
                     property bool windowVisible: mcilm_window_visible
                     property bool genericEditorVisible: mcilm_generic_editor_visible
-                    checked: windowVisible | genericEditorVisible
+                    checked: windowVisible || genericEditorVisible
                     onClicked: {
                         if(!checked) {
                             mcilm_window_visible = false;
