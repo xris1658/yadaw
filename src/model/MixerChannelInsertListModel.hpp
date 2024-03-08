@@ -8,23 +8,12 @@
 #include "controller/PluginContextMap.hpp"
 #include "model/MixerChannelListModel.hpp"
 #include "model/PluginParameterListModel.hpp"
+#include "ui/WindowAndConnection.hpp"
 
 namespace YADAW::Model
 {
 class MixerChannelInsertListModel: public IMixerChannelInsertListModel
 {
-private:
-    struct WindowAndConnection
-    {
-        QWindow* window;
-        QMetaObject::Connection connection;
-        WindowAndConnection(QWindow* window): window(window), connection() {}
-        WindowAndConnection(const WindowAndConnection&) = default;
-        WindowAndConnection(WindowAndConnection&&) noexcept = default;
-        WindowAndConnection& operator=(const WindowAndConnection&) = default;
-        WindowAndConnection& operator=(WindowAndConnection&&) = default;
-        ~WindowAndConnection() noexcept = default;
-    };
 public:
     MixerChannelInsertListModel(YADAW::Audio::Mixer::Inserts& inserts,
         YADAW::Model::MixerChannelListModel::ListType type,
@@ -58,8 +47,8 @@ private:
     std::uint32_t channelIndex_;
     bool isPreFaderInsert_;
     std::uint32_t insertsIndex_;
-    std::vector<WindowAndConnection> pluginEditors_;
-    std::vector<WindowAndConnection> genericEditors_;
+    std::vector<YADAW::UI::WindowAndConnection> pluginEditors_;
+    std::vector<YADAW::UI::WindowAndConnection> genericEditors_;
     std::vector<std::unique_ptr<YADAW::Model::PluginParameterListModel>> paramListModel_;
     std::vector<YADAW::Controller::LibraryPluginMap::iterator> libraryPluginIterators_;
     std::vector<YADAW::Controller::PluginContextMap::iterator> pluginContextIterators_;

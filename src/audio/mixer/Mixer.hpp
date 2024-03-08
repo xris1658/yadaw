@@ -79,6 +79,9 @@ public:
     OptionalRef<ChannelInfo> audioInputChannelInfoAt(std::uint32_t index);
     OptionalRef<ChannelInfo> audioOutputChannelInfoAt(std::uint32_t index);
     OptionalRef<ChannelInfo> channelInfoAt(std::uint32_t index);
+    std::optional<YADAW::Audio::Base::ChannelGroupType> audioInputChannelGroupType(std::uint32_t index) const;
+    std::optional<YADAW::Audio::Base::ChannelGroupType> audioOutputChannelGroupType(std::uint32_t index) const;
+    std::optional<YADAW::Audio::Base::ChannelGroupType> channelGroupType(std::uint32_t index) const;
 public:
     std::optional<bool> audioInputMuted(std::uint32_t index) const;
     std::optional<bool> audioOutputMuted(std::uint32_t index) const;

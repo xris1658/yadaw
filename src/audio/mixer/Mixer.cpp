@@ -226,6 +226,31 @@ OptionalRef<Mixer::ChannelInfo> Mixer::channelInfoAt(std::uint32_t index)
     return std::nullopt;
 }
 
+std::optional<YADAW::Audio::Base::ChannelGroupType>
+Mixer::audioInputChannelGroupType(std::uint32_t index) const
+{
+    if(index < audioInputChannelCount())
+    {
+        return {audioInputMutes_[index].first->audioInputGroupAt(0)->get().type()};
+    }
+}
+
+std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::audioOutputChannelGroupType(std::uint32_t index) const
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {audioOutputMutes_[index].first->audioInputGroupAt(0)->get().type()};
+    }
+}
+
+std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::channelGroupType(std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        return {mutes_[index].first->audioInputGroupAt(0)->get().type()};
+    }
+}
+
 std::optional<bool> Mixer::audioInputMuted(std::uint32_t index) const
 {
     if(index < audioInputChannelCount())

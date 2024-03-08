@@ -163,7 +163,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         using PluginFormat = YADAW::DAO::PluginFormat;
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         auto& graphWithPDC = engine.mixer().graph();
-        auto& pool = YADAW::Controller::appLibraryPluginMap();
+        auto& libraryPluginMap = YADAW::Controller::appLibraryPluginMap();
         auto pluginInfo = YADAW::DAO::selectPluginById(pluginId);
         auto optionalCreatePluginResult = YADAW::Controller::createPlugin(
             pluginInfo.path, static_cast<YADAW::DAO::PluginFormat>(pluginInfo.format),
@@ -186,7 +186,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 vst3ComponentHandler->setLatencyChangedCallback(
                     &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::VST3Plugin>
                 );
-                pluginPtr->setComponentHandler(*vst3ComponentHandler);
                 pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
                 auto inputCount = pluginPtr->audioInputGroupCount();
                 auto outputCount = pluginPtr->audioOutputGroupCount();
@@ -196,8 +195,10 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                     channelGroupType);
                 std::vector<YADAW::Audio::Base::ChannelGroupType> outputChannels(outputCount,
                     channelGroupType);
-                pluginPtr->setChannelGroups(inputChannels.data(), inputChannels.size(), outputChannels.data(),
-                    outputChannels.size());
+                pluginPtr->setChannelGroups(
+                    inputChannels.data(), inputChannels.size(),
+                    outputChannels.data(), outputChannels.size()
+                );
                 pluginPtr->activate();
                 pluginPtr->startProcessing();
                 auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
@@ -307,16 +308,16 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 pluginEditors_.emplace(pluginEditors_.begin() + position, nullptr);
                 genericEditor->show();
             }
-            {
-                auto& [window, connection] = *genericEditors_.emplace(genericEditors_.begin() + position, genericEditor);
-                connection = QObject::connect(
-                    window, &QWindow::visibleChanged,
-                    [this, position](bool visible)
-                    {
-                        dataChanged(this->index(position), this->index(position), {Role::GenericEditorVisible});
-                    }
-                );
-            }
+            auto& genericEditorConnection = genericEditors_.emplace(
+                genericEditors_.begin() + position, genericEditor
+            )->connection;
+            genericEditorConnection = QObject::connect(
+                genericEditor, &QWindow::visibleChanged,
+                [this, position](bool visible)
+                {
+                    dataChanged(this->index(position), this->index(position), {Role::GenericEditorVisible});
+                }
+            );
             paramListModel_.emplace(paramListModel_.begin() + position,
                 std::make_unique<YADAW::Model::PluginParameterListModel>(
                     *plugin->parameter()
@@ -335,13 +336,26 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 if(window)
                 {
                     QObject::disconnect(connection);
-                    connection = QObject::connect(window, &QWindow::visibleChanged,
+                    connection = QObject::connect(
+                        window, &QWindow::visibleChanged,
                         [this, i](bool visible)
                         {
-                            dataChanged(this->index(i), this->index(i), {Role::WindowVisible});
+                            dataChanged(this->index(i), this->index(i),
+                                {Role::WindowVisible}
+                            );
                         }
                     );
                 }
+                QObject::disconnect(genericEditors_[i].connection);
+                genericEditors_[i].connection = QObject::connect(
+                    genericEditors_[i].window, &QWindow::visibleChanged,
+                    [this, i](bool visible)
+                    {
+                        dataChanged(this->index(i), this->index(i),
+                            {Role::GenericEditorVisible}
+                        );
+                    }
+                );
             }
             FOR_RANGE(i, position + 1, pluginContextIterators_.size())
             {
@@ -359,7 +373,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 pluginPool.erase(pluginIt);
                 if(pluginPool.empty())
                 {
-                    pool.erase(it);
+                    libraryPluginMap.erase(it);
                 }
             }
         }
