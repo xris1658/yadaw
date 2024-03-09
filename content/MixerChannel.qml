@@ -32,9 +32,11 @@ Rectangle {
     property Window pluginSelectorWindow: null
 
     property bool mute: muteButton.checked
+    property alias instrumentSlotChecked: instrumentSlot.checked
     signal setMute(newMute: bool)
 
     signal setInstrument(pluginId: int)
+    signal toggleInstrumentWindow()
 
     width: 120
     height: 400
@@ -129,23 +131,6 @@ Rectangle {
                 width: parent.width - impl.padding * 2
                 bypassed: root.instrumentBypassed
                 text: root.instrumentName
-                // checked: root.instrumentWindowVisible || root.instrumentGenericEditorVisible
-                onCheckedChanged: {
-                    if(checked) {
-                        if(root.instrumentHasUI) {
-                            root.instrumentWindowVisible = true;
-                        }
-                        else {
-                            root.instrumentGenericEditorVisible = true;
-                        }
-                    }
-                    else {
-                        if(root.instrumentHasUI) {
-                            root.instrumentWindowVisible = false;
-                        }
-                        root.instrumentGenericEditorVisible = false;
-                    }
-                }
             }
             Button {
                 id: instrumentButton
