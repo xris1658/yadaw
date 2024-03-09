@@ -465,7 +465,6 @@ bool MixerChannelListModel::append(IMixerChannelListModel::ChannelTypes type,
 
 bool MixerChannelListModel::remove(int position, int removeCount)
 {
-    auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
     if(position < itemCount() && position + removeCount <= itemCount())
     {
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
@@ -520,7 +519,6 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
     {
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         auto& graphWithPDC = mixer_.graph();
-        auto& libraryPluginMap = YADAW::Controller::appLibraryPluginMap();
         const auto& pluginInfo = YADAW::DAO::selectPluginById(pluginId);
         auto optionalCreatePluginResult = YADAW::Controller::createPlugin(
             pluginInfo.path,
@@ -748,7 +746,8 @@ bool MixerChannelListModel::removeInstrument(int position)
         engine.processSequence().updateAndDispose(
             std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
                 YADAW::Audio::Engine::getProcessSequence(graph.graph(), mixer_.bufferExtension())
-            )
+            ),
+            engine.running()
         );
         if(auto window = instrumentInstance->pluginWindowConnection.window; window)
         {
