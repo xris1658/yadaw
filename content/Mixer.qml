@@ -220,9 +220,9 @@ Rectangle {
                 hasInstrument: mclm_instrument_exist
                 instrumentBypassed: mclm_instrument_exist? mclm_instrument_bypassed: false
                 instrumentName: mclm_instrument_exist? mclm_instrument_name: ""
-                property bool instrumentHasUI: mclm_instrument_has_ui
-                property bool instrumentWindowVisible: mclm_instrument_window_visible
-                property bool instrumentGenericEditorVisible: mclm_instrument_generic_editor_visible
+                property bool instrumentHasUI: mclm_instrument_exist? mclm_instrument_has_ui: false
+                property bool instrumentWindowVisible: mclm_instrument_exist? mclm_instrument_window_visible: false
+                property bool instrumentGenericEditorVisible: mclm_instrument_exist? mclm_instrument_generic_editor_visible: false
                 instrumentLatency: mclm_instrument_exist? mclm_instrument_latency: 0
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend

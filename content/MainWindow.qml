@@ -827,12 +827,13 @@ ApplicationWindow {
             addTrackWindow.showNormal();
         }
         onAccepted: {
+            let trackName = name? name: placeholderName;
             if(count === 1) {
                 mixerChannelModel.insert(position, trackType, channelConfig);
                 let index = mixerChannelModel.index(position, 0);
                 mixerChannelModel.setData(
                     index,
-                    addTrackWindow.name,
+                    trackName,
                     IMixerChannelListModel.Name
                 );
                 mixerChannelModel.setData(
@@ -847,7 +848,7 @@ ApplicationWindow {
                     let index = mixerChannelModel.index(position + i, 0);
                     mixerChannelModel.setData(
                         index,
-                        addTrackWindow.name.toString() + " " + (i + 1).toString(),
+                        trackName + " " + (i + 1).toString(),
                         IMixerChannelListModel.Name
                     );
                     mixerChannelModel.setData(

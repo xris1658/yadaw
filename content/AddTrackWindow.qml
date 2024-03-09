@@ -22,6 +22,7 @@ Window {
     property alias midiInputList: midiInputComboBox.model
 
     property alias name: nameField.text
+    property alias placeholderName: nameField.placeholderText
     property alias channelConfig: channelConfigComboBox.currentValue
     property bool instrumentEnabled: false
     property int instrument
@@ -46,6 +47,10 @@ Window {
         Instrument,
         AudioEffect,
         AudioBus
+    }
+
+    onTrackTypeChanged: {
+        nameField.placeholderText = trackTypeTabBar.itemAt(trackType).text;
     }
 
     QtObject {
