@@ -220,36 +220,46 @@ Rectangle {
                 hasInstrument: mclm_instrument_exist
                 instrumentBypassed: mclm_instrument_exist? mclm_instrument_bypassed: false
                 instrumentName: mclm_instrument_exist? mclm_instrument_name: ""
-                instrumentHasUI: mclm_instrument_exist? mclm_instrument_has_ui: false
-                instrumentWindowVisible: mclm_instrument_exist? mclm_instrument_window_visible: false
-                instrumentGenericEditorVisible: mclm_instrument_exist? mclm_instrument_generic_editor_visible: false
+                property bool instrumentHasUI: mclm_instrument_has_ui
+                property bool instrumentWindowVisible: mclm_instrument_window_visible
+                property bool instrumentGenericEditorVisible: mclm_instrument_generic_editor_visible
                 instrumentLatency: mclm_instrument_exist? mclm_instrument_latency: 0
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
-                instrumentSlotChecked: mclm_instrument_exist? mclm_instrument_window_visible || mclm_instrument_generic_editor_visible: false
                 mute: mclm_mute
                 onSetMute: (newMute) => {
                     mclm_mute = newMute;
                 }
                 onSetInstrument: (instrumentId) => {
                     channelsModel.setInstrument(index, instrumentId);
-                    instrumentSlotChecked = true;
+                    if(mclm_instrument_has_ui) {
+                        mclm_instrument_window_visible = true;
+                    }
+                    else {
+                        mclm_instrument_generic_editor_visible = true;
+                    }
                 }
-                onInstrumentSlotCheckedChanged: {
+                onInstrumentWindowVisibleChanged: {
+                    instrumentSlotChecked = mclm_instrument_window_visible || mclm_instrument_generic_editor_visible;
+                }
+                onInstrumentGenericEditorVisibleChanged: {
+                    instrumentSlotChecked = mclm_instrument_window_visible || mclm_instrument_generic_editor_visible;
+                }
+                onToggleInstrumentWindow: {
                     if(mclm_instrument_exist) {
-                        if(mclm_instrument_window_visible || mclm_instrument_generic_editor_visible) {
-                            mclm_instrument_window_visible = false;
-                            mclm_instrument_generic_editor_visible = false;
-                        }
-                        else {
+                        if(instrumentSlotChecked) {
                             if(mclm_instrument_has_ui) {
                                 mclm_instrument_window_visible = true;
                             }
                             else {
                                 mclm_instrument_generic_editor_visible = true;
                             }
+                        }
+                        else {
+                            mclm_instrument_window_visible = false;
+                            mclm_instrument_generic_editor_visible = false;
                         }
                     }
                 }

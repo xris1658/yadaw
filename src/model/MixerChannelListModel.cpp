@@ -26,7 +26,6 @@ struct InstrumentInstance
     YADAW::UI::WindowAndConnection genericEditorWindowConnection;
     YADAW::Model::PluginParameterListModel paramListModel;
     YADAW::Controller::LibraryPluginMap::iterator libraryPluginIterator = {};
-    YADAW::Controller::PluginContextMap::iterator pluginContextIterator = {};
     QString name;
     template<typename T>
     InstrumentInstance(YADAW::Audio::Mixer::Mixer& mixer, T* plugin):
@@ -483,6 +482,47 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         FOR_RANGE(i, position, insertModels_.size())
         {
             insertModels_[i]->setChannelIndex(i);
+        }
+        if(listType_ == ListType::Regular)
+        {
+            instruments_.erase(
+                instruments_.begin() + position,
+                instruments_.begin() + position + removeCount
+            );
+            instrumentBypassed_.erase(
+                instrumentBypassed_.begin() + position,
+                instrumentBypassed_.begin() + position + removeCount
+            );
+            FOR_RANGE(i, position, instruments_.size())
+            {
+                if(auto instrument = instruments_[i].get(); instrument)
+                {
+                    if(auto pluginWindow = instrument->pluginWindowConnection.window; pluginWindow)
+                    {
+                        QObject::disconnect(instrument->pluginWindowConnection.connection);
+                        instrument->pluginWindowConnection.connection = QObject::connect(
+                            pluginWindow, &QWindow::visibleChanged,
+                            [this, i](bool visible)
+                            {
+                                dataChanged(this->index(i), this->index(i),
+                                    {Role::InstrumentWindowVisible}
+                                );
+                            }
+                        );
+                    }
+                    QObject::disconnect(instrument->genericEditorWindowConnection.connection);
+                    instrument->genericEditorWindowConnection.connection = QObject::connect(
+                        instrument->genericEditorWindowConnection.window,
+                        &QWindow::visibleChanged,
+                        [this, i](bool visible)
+                        {
+                            dataChanged(this->index(i), this->index(i),
+                                {Role::InstrumentGenericEditorVisible}
+                            );
+                        }
+                    );
+                }
+            }
         }
         endRemoveRows();
         return true;

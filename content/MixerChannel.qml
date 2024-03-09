@@ -15,9 +15,6 @@ Rectangle {
     property bool hasInstrument
     property string instrumentName
     property bool instrumentBypassed
-    property bool instrumentHasUI
-    property bool instrumentWindowVisible
-    property bool instrumentGenericEditorVisible
     property int instrumentLatency
     property alias inputModel: inputButton.model
     property alias outputModel: outputButton.model
@@ -131,6 +128,9 @@ Rectangle {
                 width: parent.width - impl.padding * 2
                 bypassed: root.instrumentBypassed
                 text: root.instrumentName
+                onClicked: {
+                    toggleInstrumentWindow();
+                }
             }
             Button {
                 id: instrumentButton

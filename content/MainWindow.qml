@@ -827,7 +827,7 @@ ApplicationWindow {
             addTrackWindow.showNormal();
         }
         onAccepted: {
-            if(addTrackWindow.count === 1) {
+            if(count === 1) {
                 mixerChannelModel.insert(position, trackType, channelConfig);
                 let index = mixerChannelModel.index(position, 0);
                 mixerChannelModel.setData(
@@ -842,7 +842,7 @@ ApplicationWindow {
                 );
             }
             else {
-                for(let i = 0; i < addTrackWindow.count; ++i) {
+                for(let i = 0; i < count; ++i) {
                     mixerChannelModel.insert(position + i, trackType, channelConfig);
                     let index = mixerChannelModel.index(position + i, 0);
                     mixerChannelModel.setData(
@@ -855,6 +855,11 @@ ApplicationWindow {
                         Qt.rgba(Math.random(), Math.random(), Math.random(), 1),
                         IMixerChannelListModel.Color
                     );
+                }
+            }
+            if(trackType === AddTrackWindow.Instrument && instrument !== -1) {
+                for(let i = 0; i < count; ++i) {
+                    mixerChannelModel.setInstrument(position + i, instrument);
                 }
             }
         }
