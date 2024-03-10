@@ -412,7 +412,6 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             if(auto window = pluginEditors_[i].window)
             {
                 window->setProperty("destroyingPlugin", QVariant::fromValue(true));
-                delete window;
             }
             auto genericEditor = genericEditors_[i].window;
             genericEditor->setProperty("destroyingPlugin", QVariant::fromValue(true));
@@ -467,6 +466,12 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         removingMultiInputs.clear();
         for(auto& pluginToRemove: pluginsToRemove)
         {
+            auto pluginPtr = pluginToRemove.get();
+            auto pluginGUI = pluginPtr->gui();
+            if(pluginGUI)
+            {
+                pluginGUI->detachWithWindow();
+            }
             switch(pluginToRemove->format())
             {
             case IAudioPlugin::Format::VST3:
@@ -541,6 +546,15 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         {
             QObject::disconnect(pluginEditors_[i].connection);
             QObject::disconnect(genericEditors_[i].connection);
+        }
+        FOR_RANGE(i, position, position + removeCount)
+        {
+            auto window = pluginEditors_[i].window;
+            if(window)
+            {
+                window->close();
+                delete window;
+            }
         }
         pluginEditors_.erase(
             pluginEditors_.begin() + position,

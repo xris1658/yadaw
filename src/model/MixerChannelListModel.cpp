@@ -788,6 +788,8 @@ bool MixerChannelListModel::removeInstrument(int position)
         );
         if(auto window = instrumentInstance->pluginWindowConnection.window; window)
         {
+            instrumentInstance->plugin->gui()->detachWithWindow();
+            window->close();
             delete window;
         }
         delete instrumentInstance->genericEditorWindowConnection.window;
