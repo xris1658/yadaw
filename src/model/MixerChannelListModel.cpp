@@ -659,6 +659,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
         }
         if(ret)
         {
+            engine.mixerNodeAddedCallback(mixer_);
             auto& instrument = instruments_[position];
             instrument = std::make_unique<InstrumentInstance>(
                 mixer_, plugin
@@ -742,13 +743,6 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
             }
             dataChanged(this->index(position), this->index(position),
                 {
-                    Role::InstrumentWindowVisible,
-                    Role::InstrumentGenericEditorVisible,
-                    Role::InstrumentHasUI
-                }
-            );
-            dataChanged(this->index(position), this->index(position),
-                {
                     Role::InstrumentExist,
                     Role::InstrumentBypassed,
                     Role::InstrumentName,
@@ -756,6 +750,9 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                     Role::InstrumentAudioOutputs,
                     Role::InstrumentEventInputs,
                     Role::InstrumentEventOutputs,
+                    Role::InstrumentHasUI,
+                    Role::InstrumentWindowVisible,
+                    Role::InstrumentGenericEditorVisible,
                     Role::InstrumentLatency
                 }
             );
