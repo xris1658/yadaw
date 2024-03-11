@@ -168,9 +168,7 @@ Window {
                             width: gridContainer.firstColumnWidth
                             text: qsTr("Channel Config") + ":"
                             horizontalAlignment: Label.AlignRight
-                            visible: root.trackType === AddTrackWindow.TrackType.Audio
-                                || root.trackType === AddTrackWindow.TrackType.AudioEffect
-                                || root.trackType === AddTrackWindow.TrackType.AudioBus
+                            visible: true
                         }
                         ComboBox {
                             id: channelConfigComboBox
