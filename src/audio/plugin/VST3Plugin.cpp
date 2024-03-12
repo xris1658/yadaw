@@ -303,6 +303,7 @@ bool VST3Plugin::uninitialize()
     eventProcessor_.reset();
     resetProcessData();
     clearAudioRelatedInfo();
+    releasePointer(audioProcessor_);
     uninitializeEditController();
     if(component_->terminate() == Steinberg::kResultOk)
     {
