@@ -230,6 +230,9 @@ Rectangle {
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
                 mute: mclm_mute
+                onInstrumentBypassedChanged: {
+                    mclm_instrument_bypassed = instrumentBypassed;
+                }
                 onSetMute: (newMute) => {
                     mclm_mute = newMute;
                 }

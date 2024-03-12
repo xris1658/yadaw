@@ -316,6 +316,34 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
             }
             return false;
         }
+        case Role::InstrumentBypassed:
+        {
+            if(auto& instrument = instruments_[row])
+            {
+                auto bypassed = value.value<bool>();
+                if(bypassed)
+                {
+                    mixer_.channelPreFaderInsertsAt(row)->get().setInNode(blankInputNodes_[row], 0);
+                }
+                else
+                {
+                    std::uint32_t firstOutput = 0;
+                    FOR_RANGE0(i, instrument->plugin->audioOutputGroupCount())
+                    {
+                        auto& group = instrument->plugin->audioOutputGroupAt(i)->get();
+                        if(group.isMain() && group.type() == mixer_.channelGroupType(row))
+                        {
+                            firstOutput = i;
+                            break;
+                        }
+                    }
+                    mixer_.channelPreFaderInsertsAt(row)->get().setInNode(instrument->instrumentNode, firstOutput);
+                }
+                dataChanged(index, index, {Role::InstrumentBypassed});
+                return true;
+            }
+            return false;
+        }
         case Role::InstrumentWindowVisible:
         {
             if(instruments_[row])
@@ -390,6 +418,10 @@ bool MixerChannelListModel::insert(int position, IMixerChannelListModel::Channel
             instruments_.emplace(
                 instruments_.begin() + position,
                 std::unique_ptr<InstrumentInstance>(nullptr)
+            );
+            blankInputNodes_.emplace(
+                blankInputNodes_.begin() + position,
+                mixer_.channelPreFaderInsertsAt(position)->get().inNode()
             );
             instrumentBypassed_.emplace(
                 instrumentBypassed_.begin() + position, false
@@ -485,6 +517,10 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         }
         if(listType_ == ListType::Regular)
         {
+            blankInputNodes_.erase(
+                blankInputNodes_.begin() + position,
+                blankInputNodes_.begin() + position + removeCount
+            );
             instruments_.erase(
                 instruments_.begin() + position,
                 instruments_.begin() + position + removeCount
@@ -704,6 +740,17 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 "parameterListModel",
                 QVariant::fromValue<QObject*>(&instrument->paramListModel)
             );
+            std::uint32_t firstOutput = 0;
+            FOR_RANGE0(i, plugin->audioOutputGroupCount())
+            {
+                auto& group = plugin->audioOutputGroupAt(i)->get();
+                if(group.isMain() && group.type() == mixer_.channelGroupType(position))
+                {
+                    firstOutput = i;
+                    break;
+                }
+            }
+            mixer_.channelPreFaderInsertsAt(position)->get().setInNode(nodeHandle, firstOutput);
             FOR_RANGE(i, position + 1, instruments_.size())
             {
                 if(auto instrument = instruments_[i].get(); instrument)
@@ -774,6 +821,7 @@ bool MixerChannelListModel::removeInstrument(int position)
        && mixer_.channelInfoAt(position)->get().channelType == Mixer::ChannelType::Instrument
     )
     {
+        mixer_.channelPreFaderInsertsAt(position)->get().setInNode(blankInputNodes_[position], 0);
         auto& graph = mixer_.graph();
         auto& instrumentInstance = instruments_[position];
         if(!instrumentInstance)

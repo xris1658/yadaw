@@ -14,7 +14,7 @@ Rectangle {
     property bool hasInstrumentSlot: true
     property bool hasInstrument
     property string instrumentName
-    property bool instrumentBypassed
+    property alias instrumentBypassed: instrumentSlot.bypassed
     property int instrumentLatency
     property bool instrumentHasUI
     property bool instrumentWindowVisible
@@ -193,13 +193,13 @@ Rectangle {
                             instrumentOptions.x = 0;
                             instrumentOptions.y = height;
                             let mainWindowItem = EventReceiver.mainWindow.background;
-                            let popupCoordinate = mixerInsertSlot.mapToItem(mainWindowItem, instrumentOptions.x, instrumentOptions.y);
+                            let popupCoordinate = instrumentSlot.mapToItem(mainWindowItem, instrumentOptions.x, instrumentOptions.y);
                             if(popupCoordinate.y + instrumentOptions.height >= mainWindowItem.height) {
                                 console.log(instrumentOptions.implicitHeight, instrumentOptions.height);
                                 instrumentOptions.y = 0 - instrumentOptions.height;
                             }
                             if(popupCoordinate.x + instrumentOptions.width >= mainWindowItem.width) {
-                                instrumentOptions.x = mixerInsertSlot.mapFromItem(mainWindowItem, mainWindowItem.width - instrumentOptions.width, popupCoordinate.y).x;
+                                instrumentOptions.x = instrumentSlot.mapFromItem(mainWindowItem, mainWindowItem.width - instrumentOptions.width, popupCoordinate.y).x;
                             }
                         }
                     }

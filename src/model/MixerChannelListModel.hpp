@@ -52,6 +52,7 @@ private:
     YADAW::Audio::Mixer::Mixer& mixer_;
     std::vector<std::unique_ptr<YADAW::Model::MixerChannelInsertListModel>> insertModels_;
     std::vector<std::unique_ptr<InstrumentInstance>> instruments_;
+    std::vector<ade::NodeHandle> blankInputNodes_;
     std::vector<bool> instrumentBypassed_;
     ListType listType_;
 };
