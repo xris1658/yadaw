@@ -569,6 +569,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
         {
             return false;
         }
+        removeInstrument(position);
         auto& [it, pluginAndProcess] = *optionalCreatePluginResult;
         auto& [plugin, process] = pluginAndProcess;
         switch(pluginInfo.format)
@@ -765,6 +766,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
 
 bool MixerChannelListModel::removeInstrument(int position)
 {
+    using YADAW::Audio::Plugin::IAudioPlugin;
     using YADAW::Audio::Mixer::Mixer;
     if(listType_ == ListType::Regular
        && position >= 0
@@ -789,10 +791,69 @@ bool MixerChannelListModel::removeInstrument(int position)
         if(auto window = instrumentInstance->pluginWindowConnection.window; window)
         {
             instrumentInstance->plugin->gui()->detachWithWindow();
-            window->close();
+            window->setProperty("destroyingPlugin", QVariant::fromValue(true));
             delete window;
         }
-        delete instrumentInstance->genericEditorWindowConnection.window;
+        auto genericEditor = instrumentInstance->genericEditorWindowConnection.window;
+        genericEditor->setProperty("destroyingPlugin", QVariant::fromValue(true));
+        delete genericEditor;
+        auto plugin = instrumentInstance->plugin;
+        // Copied from `MixerChannelInsertListModel::remove`
+        // TODO: Move those codes to dedicated functions
+        switch(plugin->format())
+        {
+        case IAudioPlugin::Format::VST3:
+        {
+            auto vst3Plugin = static_cast<YADAW::Audio::Plugin::VST3Plugin*>(plugin);
+            auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
+            auto it = vst3PluginPool.find(vst3Plugin);
+            auto componentHandler = it->second.componentHandler;
+            vst3PluginPool.erase(it);
+            engine.vst3PluginPool().updateAndDispose(
+                std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
+                    createPoolVector(vst3PluginPool)
+                ),
+                engine.running()
+            );
+            vst3Plugin->stopProcessing();
+            vst3Plugin->deactivate();
+            vst3Plugin->uninitialize();
+            delete componentHandler;
+            break;
+        }
+        case IAudioPlugin::Format::CLAP:
+        {
+            auto clapPlugin = static_cast<YADAW::Audio::Plugin::CLAPPlugin*>(plugin);
+            auto& clapPluginPool = YADAW::Controller::appCLAPPluginPool();
+            auto it = clapPluginPool.find(clapPlugin);
+            auto eventList = it->second.eventList;
+            clapPluginPool.erase(it);
+            engine.clapPluginPool().updateAndDispose(
+                std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
+                    createPoolVector(clapPluginPool)
+                ),
+                engine.running()
+            );
+            engine.clapPluginToSetProcess().update(
+                std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
+                    1, std::make_pair(clapPlugin, false)
+                ),
+                engine.running()
+            );
+            // Completion of the `update` above does NOT mean that the
+            // plugin has stopped processing. It is indicated by completion
+            // of the following `updateAndDispose` because the last audio
+            // callback is finished by then.
+            engine.clapPluginToSetProcess().updateAndDispose(
+                std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(),
+                engine.running()
+            );
+            clapPlugin->deactivate();
+            clapPlugin->uninitialize();
+            delete eventList;
+            break;
+        }
+        }
         auto& pluginPool = instrumentInstance->libraryPluginIterator->second;
         auto it = pluginPool.find(
             instrumentInstance->plugin
@@ -805,6 +866,22 @@ bool MixerChannelListModel::removeInstrument(int position)
                 YADAW::Controller::appLibraryPluginMap().erase(instrumentInstance->libraryPluginIterator);
             }
         }
+        instrumentInstance.reset();
+        dataChanged(this->index(position), this->index(position),
+            {
+                Role::InstrumentExist,
+                Role::InstrumentBypassed,
+                Role::InstrumentName,
+                Role::InstrumentAudioInputs,
+                Role::InstrumentAudioOutputs,
+                Role::InstrumentEventInputs,
+                Role::InstrumentEventOutputs,
+                Role::InstrumentHasUI,
+                Role::InstrumentWindowVisible,
+                Role::InstrumentGenericEditorVisible,
+                Role::InstrumentLatency
+            }
+        );
         return true;
     }
     return false;
