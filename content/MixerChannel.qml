@@ -16,6 +16,9 @@ Rectangle {
     property string instrumentName
     property bool instrumentBypassed
     property int instrumentLatency
+    property bool instrumentHasUI
+    property bool instrumentWindowVisible
+    property bool instrumentGenericEditorVisible
     property alias inputModel: inputButton.model
     property alias outputModel: outputButton.model
     property alias insertModel: insertList.model
@@ -33,7 +36,9 @@ Rectangle {
     signal setMute(newMute: bool)
 
     signal setInstrument(pluginId: int)
-    signal toggleInstrumentWindow()
+    signal removeInstrument()
+    signal setInstrumentWindowVisible(visible: bool)
+    signal setInstrumentGenericEditorVisible(visible: bool)
 
     width: 120
     height: 400
@@ -129,7 +134,75 @@ Rectangle {
                 bypassed: root.instrumentBypassed
                 text: root.instrumentName
                 onClicked: {
-                    toggleInstrumentWindow();
+                    if(root.instrumentHasUI) {
+                        root.setInstrumentWindowVisible(!root.instrumentWindowVisible);
+                    }
+                    else {
+                        root.setInstrumentGenericEditorVisible(!root.instrumentGenericEditorVisible);
+                    }
+                }
+                MouseArea {
+                    id: instrumentMouseArea
+                    anchors.fill: parent
+                    anchors.leftMargin: root.leftInset
+                    anchors.rightMargin: root.rightInset
+                    anchors.topMargin: root.topInset
+                    anchors.bottomMargin: root.bottomInset
+                    acceptedButtons: Qt.RightButton
+                    Menu {
+                        id: instrumentOptions
+                        title: qsTr("Instrument Options")
+                        MenuItem {
+                            id: instrumentLatencyMenuItem
+                            text: qsTr("Latency: ") + root.instrumentLatency + " " + qsTr("samples")
+                        }
+                        MenuSeparator {}
+                        MenuItem {
+                            text: root.instrumentVisible?
+                                qsTr("Hide &Plugin Editor"):
+                                qsTr("Show &Plugin Editor")
+                            enabled: root.instrumentHasUI
+                            onClicked: {
+                                root.setInstrumentWindowVisible(!root.instrumentWindowVisible);
+                            }
+                        }
+                        MenuItem {
+                            text: root.instrumentGenericEditorVisible?
+                                qsTr("Hide &Generic Editor"):
+                                qsTr("Show &Generic Editor")
+                            onClicked: {
+                                root.setInstrumentGenericEditorVisible(!root.instrumentGenericEditorVisible);
+                            }
+                        }
+                        MenuItem {
+                            text: qsTr("&Edit Route...")
+                        }
+                        MenuItem {
+                            text: qsTr("&Replace...")
+                        }
+                        MenuItem {
+                            text: qsTr("&Delete")
+                            onClicked: {
+                                root.removeInstrument();
+                            }
+                        }
+                    }
+                    onClicked: (mouse) => {
+                        if(mouse.button === Qt.RightButton) {
+                            instrumentOptions.open();
+                            instrumentOptions.x = 0;
+                            instrumentOptions.y = height;
+                            let mainWindowItem = EventReceiver.mainWindow.background;
+                            let popupCoordinate = mixerInsertSlot.mapToItem(mainWindowItem, instrumentOptions.x, instrumentOptions.y);
+                            if(popupCoordinate.y + instrumentOptions.height >= mainWindowItem.height) {
+                                console.log(instrumentOptions.implicitHeight, instrumentOptions.height);
+                                instrumentOptions.y = 0 - instrumentOptions.height;
+                            }
+                            if(popupCoordinate.x + instrumentOptions.width >= mainWindowItem.width) {
+                                instrumentOptions.x = mixerInsertSlot.mapFromItem(mainWindowItem, mainWindowItem.width - instrumentOptions.width, popupCoordinate.y).x;
+                            }
+                        }
+                    }
                 }
             }
             Button {
@@ -290,9 +363,7 @@ Rectangle {
                                 id: latencyMenuItem
                                 text: qsTr("Latency: ") + mcilm_latency + " " + qsTr("samples")
                             }
-                            MenuSeparator {
-                                height: visible? implicitHeight: 0
-                            }
+                            MenuSeparator {}
                             MenuItem {
                                 text: mixerInsertSlot.windowVisible?
                                     qsTr("Hide &Plugin Editor"):

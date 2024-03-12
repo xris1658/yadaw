@@ -220,10 +220,11 @@ Rectangle {
                 hasInstrument: mclm_instrument_exist
                 instrumentBypassed: mclm_instrument_exist? mclm_instrument_bypassed: false
                 instrumentName: mclm_instrument_exist? mclm_instrument_name: ""
-                property bool instrumentHasUI: mclm_instrument_exist? mclm_instrument_has_ui: false
-                property bool instrumentWindowVisible: mclm_instrument_exist? mclm_instrument_window_visible: false
-                property bool instrumentGenericEditorVisible: mclm_instrument_exist? mclm_instrument_generic_editor_visible: false
+                instrumentHasUI: mclm_instrument_exist? mclm_instrument_has_ui: false
+                instrumentWindowVisible: mclm_instrument_exist? mclm_instrument_window_visible: false
+                instrumentGenericEditorVisible: mclm_instrument_exist? mclm_instrument_generic_editor_visible: false
                 instrumentLatency: mclm_instrument_exist? mclm_instrument_latency: 0
+                instrumentSlotChecked: mclm_instrument_exist? mclm_instrument_window_visible || mclm_instrument_generic_editor_visible: false
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
@@ -235,33 +236,22 @@ Rectangle {
                 onSetInstrument: (instrumentId) => {
                     channelsModel.setInstrument(index, instrumentId);
                     if(mclm_instrument_has_ui) {
-                        mclm_instrument_window_visible = true;
+                        setInstrumentWindowVisible(true);
                     }
                     else {
-                        mclm_instrument_generic_editor_visible = true;
+                        setInstrumentGenericEditorVisible(true);
                     }
                 }
-                onInstrumentWindowVisibleChanged: {
-                    instrumentSlotChecked = mclm_instrument_window_visible || mclm_instrument_generic_editor_visible;
+                onRemoveInstrument: {
+                    channelsModel.removeInstrument(index);
                 }
-                onInstrumentGenericEditorVisibleChanged: {
-                    instrumentSlotChecked = mclm_instrument_window_visible || mclm_instrument_generic_editor_visible;
+                onSetInstrumentWindowVisible: (visible) => {
+                    mclm_instrument_window_visible = visible;
+                    instrumentWindowVisible = mclm_instrument_window_visible;
                 }
-                onToggleInstrumentWindow: {
-                    if(mclm_instrument_exist) {
-                        if(instrumentSlotChecked) {
-                            if(mclm_instrument_has_ui) {
-                                mclm_instrument_window_visible = true;
-                            }
-                            else {
-                                mclm_instrument_generic_editor_visible = true;
-                            }
-                        }
-                        else {
-                            mclm_instrument_window_visible = false;
-                            mclm_instrument_generic_editor_visible = false;
-                        }
-                    }
+                onSetInstrumentGenericEditorVisible: (visible) => {
+                    mclm_instrument_generic_editor_visible = visible;
+                    instrumentGenericEditorVisible = mclm_instrument_generic_editor_visible;
                 }
             }
             Rectangle {
