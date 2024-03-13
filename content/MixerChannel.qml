@@ -178,7 +178,7 @@ Rectangle {
                             text: qsTr("&Edit Route...")
                         }
                         MenuItem {
-                            text: qsTr("&Replace...")
+                            text: qsTr("&Replace") + "..."
                         }
                         MenuItem {
                             text: qsTr("&Delete")
