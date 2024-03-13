@@ -159,6 +159,7 @@ bool Inserts::setInNode(const ade::NodeHandle& inNode, std::uint32_t inChannelGr
             graph_.connect(inNode, toNode, inChannelGroupIndex, toChannel);
             inNode_ = inNode;
             inChannelGroupIndex_ = inChannelGroupIndex;
+            connectionUpdatedCallback_(*this);
             return true;
         }
     }
@@ -201,6 +202,7 @@ bool Inserts::setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChanne
             graph_.connect(fromNode, outNode, fromChannel, outChannelGroupIndex);
             outNode_ = outNode;
             outChannelGroupIndex_ = outChannelGroupIndex;
+            connectionUpdatedCallback_(*this);
             return true;
         }
     }
