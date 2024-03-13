@@ -567,7 +567,7 @@ QC.Popup {
                             }
                         }
                         onCurrentIndexChanged: {
-                            if(currentIndex !== -1) {
+                            if(highlightItem !== null) {
                                 // Make sure the item at current index is not
                                 // covered by header.
                                 // (Seriously, why doesn't `ListView` do this by
