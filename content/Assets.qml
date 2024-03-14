@@ -271,16 +271,16 @@ Rectangle {
                             iconSource: "AudioIcon.qml"
                         }
                         ListElement {
-                            name: "Vestifal"
-                            iconSource: "VestifalIcon.qml"
-                        }
-                        ListElement {
                             name: "VST3"
                             iconSource: "VST3Icon.qml"
                         }
                         ListElement {
                             name: "CLAP"
                             iconSource: "CLAPIcon.qml"
+                        }
+                        ListElement {
+                            name: "Vestifal"
+                            iconSource: "VestifalIcon.qml"
                         }
                     }
 
@@ -369,13 +369,13 @@ Rectangle {
                         id: audioEffectListView
                     }
                     PluginListView {
-                        id: vestifalPluginListView
-                    }
-                    PluginListView {
                         id: vst3PluginListView
                     }
                     PluginListView {
                         id: clapPluginListView
+                    }
+                    PluginListView {
+                        id: vestifalPluginListView
                     }
                 }
             }

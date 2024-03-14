@@ -165,12 +165,6 @@ QC.Popup {
                             activeFocusOnTab: leftLists.currentIndex === 1
                             model: ListModel {
                                 ListElement {
-                                    name: "Vestifal"
-                                    iconSource: "VestifalIcon.qml"
-                                    format: PluginFormatSupport.Vestifal
-                                    filterableFormat: IPluginListModel.Vestifal
-                                }
-                                ListElement {
                                     name: "VST3"
                                     iconSource: "VST3Icon.qml"
                                     format: PluginFormatSupport.VST3
@@ -181,6 +175,12 @@ QC.Popup {
                                     iconSource: "CLAPIcon.qml"
                                     format: PluginFormatSupport.CLAP
                                     filterableFormat: IPluginListModel.CLAP
+                                }
+                                ListElement {
+                                    name: "Vestifal"
+                                    iconSource: "VestifalIcon.qml"
+                                    format: PluginFormatSupport.Vestifal
+                                    filterableFormat: IPluginListModel.Vestifal
                                 }
                             }
                             width: parent.width
@@ -652,6 +652,8 @@ QC.Popup {
         for(let i = 0; i < pluginList.headerListModel.count; ++i) {
             pluginListModel.setFilter(pluginList.headerListModel.get(i).roleId, true);
         }
+        // VST3 > CLAP > Vestifal
+        pluginListModel.appendSortOrder(IPluginListModel.Format, Qt.AscendingOrder);
         pluginListModel.appendSortOrder(IPluginListModel.Name, Qt.AscendingOrder);
     }
     Shortcut {
