@@ -1,7 +1,6 @@
 pragma Singleton
 
 import QtQuick
-import QtQuick.Controls as QC
 
 QtObject {
     property string qtVersion: "Unknown"

@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls as QC
 import QtQuick.Window
 
 Window {

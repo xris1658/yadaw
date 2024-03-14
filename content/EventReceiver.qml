@@ -1,6 +1,5 @@
 pragma Singleton
 import QtQuick
-import QtQuick.Controls as QC
 
 QtObject {
     id: root

@@ -1,6 +1,5 @@
 import QtQml
 import QtQuick
-import QtQuick.Controls as QC
 
 import YADAW.Models
 
