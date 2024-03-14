@@ -54,6 +54,14 @@ Item {
             hoverEnabled: true
             clip: true
             Rectangle {
+                z: 4
+                anchors.fill: parent
+                radius: root.radius
+                color: "transparent"
+                border.color: "#FFFFFF"
+                border.width: 1
+            }
+            Rectangle {
                 property int centerX: root.radius + Math.cos(root.color.hsvHue * 2 * Math.PI) * root.radius * root.color.hsvSaturation
                 property int centerY: -1 * Math.sin(root.color.hsvHue * 2 * Math.PI) * root.radius * root.color.hsvSaturation + root.radius
                 z: 3
@@ -73,6 +81,7 @@ Item {
                 ShapePath {
                     startX: radius
                     startY: 0
+                    strokeColor: "transparent"
                     fillGradient: ConicalGradient {
                         angle: 360
                         centerX: radius
@@ -126,6 +135,7 @@ Item {
                 ShapePath {
                     startX: radius
                     startY: 0
+                    strokeColor: "transparent"
                     fillGradient: RadialGradient {
                         centerX: radius
                         centerY: radius
