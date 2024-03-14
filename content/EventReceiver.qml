@@ -33,38 +33,4 @@ QtObject {
     onMessageDialog: (message, title, icon, modal) => {
         Global.messageDialog(message, title, icon, modal);
     }
-    signal createPluginWindow()
-    onCreatePluginWindow: {
-        let component = Qt.createComponent(
-            "qrc:content/PluginWindow.qml",
-            mainWindow
-        );
-        if(component.status == Component.Ready) {
-            var window = component.createObject(mainWindow);
-            mainWindow.pluginWindow = window;
-            EventSender.pluginWindowReady();
-        }
-        else {
-            console.log("onCreatePluginWindow() failed with error:",
-                component.errorString()
-            );
-        }
-    }
-    signal createGenericPluginEditor()
-    onCreateGenericPluginEditor: {
-        let component = Qt.createComponent(
-            "qrc:content/GenericPluginEditor.qml",
-            mainWindow
-        );
-        if(component.status == Component.Ready) {
-            var window = component.createObject(mainWindow);
-            mainWindow.genericPluginEditor = window;
-            EventSender.genericPluginEditorReady();
-        }
-        else {
-            console.log("onCreateGenericPluginEditor() failed with error:",
-                component.errorString()
-            );
-        }
-    }
 }

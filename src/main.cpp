@@ -1,5 +1,6 @@
 #include "controller/ConfigController.hpp"
 #include "controller/LocalizationController.hpp"
+#include "controller/PluginWindowController.hpp"
 #include "event/EventBase.hpp"
 #include "event/EventHandler.hpp"
 #include "event/SplashScreenWorkerThread.hpp"
@@ -26,6 +27,8 @@ int main(int argc, char *argv[])
     const QUrl splashScreenURL(u"qrc:content/SplashScreen.qml"_qs);
     QObject* splashScreen = nullptr;
     const QUrl url(u"qrc:Main/YADAW.qml"_qs);
+    const QUrl pluginWindowURL(u"qrc:/content/PluginWindow.qml"_qs);
+    const QUrl genericPluginEditorURL(u"qrc:/content/GenericPluginEditor.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
         &app, [&](QObject *obj, const QUrl &objUrl)
         {
@@ -50,6 +53,14 @@ int main(int argc, char *argv[])
             else if(objUrl == url)
             {
                 YADAW::UI::mainWindow = qobject_cast<QQuickWindow*>(obj);
+            }
+            else if(objUrl == pluginWindowURL)
+            {
+                YADAW::Controller::pluginWindows.pluginWindow = qobject_cast<QWindow*>(obj);
+            }
+            else if(objUrl == genericPluginEditorURL)
+            {
+                YADAW::Controller::pluginWindows.genericEditorWindow = qobject_cast<QWindow*>(obj);
             }
         }, Qt::DirectConnection);
     YADAW::Controller::initializeApplicationConfig();

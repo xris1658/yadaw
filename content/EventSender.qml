@@ -12,6 +12,4 @@ QtObject {
     signal setSystemFontRendering(enabled: bool)
     signal setSystemFontRenderingWhileDebugging(enabled: bool)
     signal setTranslationIndex(index: int)
-    signal pluginWindowReady()
-    signal genericPluginEditorReady()
 }

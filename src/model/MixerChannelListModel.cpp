@@ -707,9 +707,9 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
             YADAW::Controller::pluginNeedsWindow = plugin;
             if(plugin->gui())
             {
-                YADAW::Event::eventHandler->createPluginWindow();
+                YADAW::Controller::createPluginWindow();
             }
-            YADAW::Event::eventHandler->createGenericPluginEditor();
+            YADAW::Controller::createGenericPluginEditor();
             auto& [pluginWindow, genericEditor] = YADAW::Controller::pluginWindows;
             if(pluginWindow)
             {

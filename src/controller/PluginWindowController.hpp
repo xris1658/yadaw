@@ -18,6 +18,10 @@ struct PluginWindows
 extern YADAW::Audio::Plugin::IAudioPlugin* pluginNeedsWindow;
 
 extern PluginWindows pluginWindows;
+
+void createPluginWindow();
+
+void createGenericPluginEditor();
 };
 
 #endif // YADAW_SRC_CONTROLLER_PLUGINWINDOWCONTROLLER
