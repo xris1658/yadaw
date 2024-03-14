@@ -331,6 +331,7 @@ QC.Popup {
                         clip: true
                         flickableDirection: Flickable.AutoFlickDirection
                         boundsBehavior: Flickable.StopAtBounds
+                        reuseItems: true
                         property ListModel headerListModel: ListModel {
                             dynamicRoles: true
                             Component.onCompleted: {
