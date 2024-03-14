@@ -27,10 +27,12 @@ Window {
     // Currently this solution has some drawbacks:
     // - Plugin frame and plugin window will not gain focus at the same time,
     //   which is different from behavior of most DAWs.
-    // - Resize operation of the plugin frame and the plugin window will not
+    // - Resizing process of the plugin frame and the plugin window will not
     //   be performed at the same time, resulting in visible lags.
     // - On X11, the lag is more obvious. Even worse, resizing too fast might
     //   fail, making sizes of plugin frame and plugin window out of sync.
+    // - On X11, no part of the frame could be moved outside the screen, but the
+    //   window itself could.
     // There are native solutions available.
     // (At least we can make it on Windows, since every native control is a
     // window and has an HWND to be passed to the plugin GUI instance. See
@@ -39,6 +41,7 @@ Window {
         id: pluginFrame
         flags: Qt.Dialog | Qt.FramelessWindowHint
         visibility: root.visibility
+        transientParent: root
         x: root.x
         y: root.y + 20
         onClosing: (close) => {
