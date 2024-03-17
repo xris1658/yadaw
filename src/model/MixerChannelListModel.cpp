@@ -419,6 +419,12 @@ bool MixerChannelListModel::insert(int position, IMixerChannelListModel::Channel
                 instruments_.begin() + position,
                 std::unique_ptr<InstrumentInstance>(nullptr)
             );
+            instrumentAudioInputs_.emplace(
+                instrumentAudioInputs_.begin() + position
+            );
+            instrumentAudioOutputs_.emplace(
+                instrumentAudioOutputs_.begin() + position
+            );
             blankInputNodes_.emplace(
                 blankInputNodes_.begin() + position,
                 mixer_.channelPreFaderInsertsAt(position)->get().inNode()
@@ -520,6 +526,14 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             blankInputNodes_.erase(
                 blankInputNodes_.begin() + position,
                 blankInputNodes_.begin() + position + removeCount
+            );
+            instrumentAudioInputs_.erase(
+                instrumentAudioInputs_.begin() + position,
+                instrumentAudioInputs_.begin() + position + removeCount
+            );
+            instrumentAudioOutputs_.erase(
+                instrumentAudioOutputs_.begin() + position,
+                instrumentAudioOutputs_.begin() + position + removeCount
             );
             instruments_.erase(
                 instruments_.begin() + position,
@@ -696,6 +710,12 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
         }
         if(ret)
         {
+            instrumentAudioInputs_[position] = YADAW::Model::AudioDeviceIOGroupListModel(
+                *plugin, true
+            );
+            instrumentAudioOutputs_[position] = YADAW::Model::AudioDeviceIOGroupListModel(
+                *plugin, false
+            );
             engine.mixerNodeAddedCallback(mixer_);
             auto& instrument = instruments_[position];
             instrument = std::make_unique<InstrumentInstance>(
@@ -828,6 +848,8 @@ bool MixerChannelListModel::removeInstrument(int position)
         {
             return false;
         }
+        instrumentAudioInputs_[position] = YADAW::Model::AudioDeviceIOGroupListModel();
+        instrumentAudioOutputs_[position] = YADAW::Model::AudioDeviceIOGroupListModel();
         graph.removeNode(instrumentInstance->instrumentNode);
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         engine.processSequence().updateAndDispose(

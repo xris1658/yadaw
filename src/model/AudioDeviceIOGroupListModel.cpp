@@ -4,6 +4,10 @@
 
 namespace YADAW::Model
 {
+AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(QObject* parent):
+    IAudioDeviceIOGroupListModel(parent)
+{}
+
 AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(
     const YADAW::Audio::Device::IAudioDevice& audioDevice, bool isInput,
     QObject* parent):
@@ -22,7 +26,7 @@ AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(
                 device_->audioOutputGroupAt(i)
             )->get();
         auto& speakerListModel = speakerListModel_.emplace_back(channelGroup);
-        speakerListModel.setParent(this);
+        // speakerListModel.setParent(this);
     }
 }
 
@@ -34,12 +38,41 @@ AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(
     isInput_(rhs.isInput_)
 {}
 
+AudioDeviceIOGroupListModel& AudioDeviceIOGroupListModel::operator=(
+    const AudioDeviceIOGroupListModel& rhs)
+{
+    if(this != &rhs)
+    {
+        if(auto oldCount = itemCount(); oldCount != 0)
+        {
+            beginRemoveRows(QModelIndex(), 0, oldCount - 1);
+            device_ = nullptr;
+            endRemoveRows();
+        }
+        device_ = rhs.device_;
+        speakerListModel_.clear();
+        std::copy(rhs.speakerListModel_.begin(), rhs.speakerListModel_.end(),
+            std::back_inserter(speakerListModel_));
+        isInput_ = rhs.isInput_;
+        if(auto newCount = itemCount(); newCount != 0)
+        {
+            beginInsertRows(QModelIndex(), 0, newCount - 1);
+            endInsertRows();
+        }
+    }
+    return *this;
+}
+
 AudioDeviceIOGroupListModel::~AudioDeviceIOGroupListModel()
 {}
 
 int AudioDeviceIOGroupListModel::itemCount() const
 {
-    return isInput_? device_->audioInputGroupCount(): device_->audioOutputGroupCount();
+    return device_?
+        isInput_?
+            device_->audioInputGroupCount():
+            device_->audioOutputGroupCount():
+        0;
 }
 
 int AudioDeviceIOGroupListModel::rowCount(const QModelIndex&) const

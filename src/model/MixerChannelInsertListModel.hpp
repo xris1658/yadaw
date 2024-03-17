@@ -6,6 +6,7 @@
 #include "audio/mixer/Inserts.hpp"
 #include "controller/LibraryPluginMap.hpp"
 #include "controller/PluginContextMap.hpp"
+#include "model/AudioDeviceIOGroupListModel.hpp"
 #include "model/MixerChannelListModel.hpp"
 #include "model/PluginParameterListModel.hpp"
 #include "ui/WindowAndConnection.hpp"
@@ -52,6 +53,8 @@ private:
     std::vector<std::unique_ptr<YADAW::Model::PluginParameterListModel>> paramListModel_;
     std::vector<YADAW::Controller::LibraryPluginMap::iterator> libraryPluginIterators_;
     std::vector<YADAW::Controller::PluginContextMap::iterator> pluginContextIterators_;
+    mutable std::vector<YADAW::Model::AudioDeviceIOGroupListModel> inputAudioChannelGroupLists_;
+    mutable std::vector<YADAW::Model::AudioDeviceIOGroupListModel> outputAudioChannelGroupLists_;
 };
 }
 

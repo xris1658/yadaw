@@ -2,6 +2,9 @@
 
 namespace YADAW::Model
 {
+SpeakerListModel::SpeakerListModel()
+{}
+
 SpeakerListModel::SpeakerListModel(const Audio::Device::IAudioChannelGroup& group):
     ISpeakerListModel(),
     group_(&group)
@@ -12,16 +15,32 @@ SpeakerListModel::SpeakerListModel(const SpeakerListModel& rhs):
     group_(rhs.group_)
 {}
 
-SpeakerListModel::SpeakerListModel(SpeakerListModel&& rhs):
-    group_(rhs.group_)
-{}
+SpeakerListModel& SpeakerListModel::operator=(const SpeakerListModel& rhs)
+{
+    if(this != &rhs)
+    {
+        if(auto oldCount = itemCount(); oldCount != 0)
+        {
+            beginRemoveRows(QModelIndex(), 0, oldCount - 1);
+            group_ = nullptr;
+            endRemoveRows();
+        }
+    }
+    group_ = rhs.group_;
+    if(auto newCount = itemCount(); newCount != 0)
+    {
+        beginInsertRows(QModelIndex(), 0, newCount - 1);
+        endInsertRows();
+    }
+    return *this;
+}
 
 SpeakerListModel::~SpeakerListModel()
 {}
 
 int SpeakerListModel::itemCount() const
 {
-    return group_->channelCount();
+    return group_? group_->channelCount(): 0;
 }
 
 int SpeakerListModel::rowCount(const QModelIndex&) const

@@ -80,6 +80,14 @@ QVariant MixerChannelInsertListModel::data(const QModelIndex& index, int role) c
         {
             return QVariant::fromValue<bool>(*inserts_->insertBypassed(row));
         }
+        case Role::AudioInputs:
+        {
+            return QVariant::fromValue<QObject*>(&inputAudioChannelGroupLists_[row]);
+        }
+        case Role::AudioOutputs:
+        {
+            return QVariant::fromValue<QObject*>(&outputAudioChannelGroupLists_[row]);
+        }
         case Role::HasUI:
         {
             auto ret = false;
@@ -266,6 +274,14 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         }
         if(ret)
         {
+            inputAudioChannelGroupLists_.emplace(
+                inputAudioChannelGroupLists_.begin() + position,
+                *plugin, true
+            );
+            outputAudioChannelGroupLists_.emplace(
+                outputAudioChannelGroupLists_.begin() + position,
+                *plugin, false
+            );
             libraryPluginIterators_.emplace(
                 libraryPluginIterators_.begin() + position,
                 it
@@ -541,6 +557,14 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         paramListModel_.erase(
             paramListModel_.begin() + position,
             paramListModel_.begin() + position + removeCount
+        );
+        inputAudioChannelGroupLists_.erase(
+            inputAudioChannelGroupLists_.begin() + position,
+            inputAudioChannelGroupLists_.begin() + position + removeCount
+        );
+        outputAudioChannelGroupLists_.erase(
+            outputAudioChannelGroupLists_.begin() + position,
+            outputAudioChannelGroupLists_.begin() + position + removeCount
         );
         FOR_RANGE(i, position, position + removeCount)
         {

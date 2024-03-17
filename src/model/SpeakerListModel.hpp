@@ -10,16 +10,17 @@ class SpeakerListModel: public ISpeakerListModel
 {
     Q_OBJECT
 public:
+    SpeakerListModel();
     SpeakerListModel(const YADAW::Audio::Device::IAudioChannelGroup& group);
     SpeakerListModel(const SpeakerListModel& rhs);
-    SpeakerListModel(SpeakerListModel&& rhs);
+    SpeakerListModel& operator=(const SpeakerListModel& rhs);
     ~SpeakerListModel();
 public:
     int itemCount() const;
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
 private:
-    const YADAW::Audio::Device::IAudioChannelGroup* group_;
+    const YADAW::Audio::Device::IAudioChannelGroup* group_ = nullptr;
 };
 }
 

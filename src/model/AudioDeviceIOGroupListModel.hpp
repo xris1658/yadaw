@@ -12,18 +12,20 @@ class AudioDeviceIOGroupListModel: public IAudioDeviceIOGroupListModel
 {
     Q_OBJECT
 public:
+    AudioDeviceIOGroupListModel(QObject* parent = nullptr);
     AudioDeviceIOGroupListModel(
         const YADAW::Audio::Device::IAudioDevice& audioDevice,
         bool isInput,
         QObject* parent = nullptr);
     AudioDeviceIOGroupListModel(const AudioDeviceIOGroupListModel& rhs);
+    AudioDeviceIOGroupListModel& operator=(const AudioDeviceIOGroupListModel& rhs);
     ~AudioDeviceIOGroupListModel();
 public:
     int itemCount() const;
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
 private:
-    const YADAW::Audio::Device::IAudioDevice* device_;
+    const YADAW::Audio::Device::IAudioDevice* device_ = nullptr;
     mutable std::vector<YADAW::Model::SpeakerListModel> speakerListModel_;
     bool isInput_;
 };
