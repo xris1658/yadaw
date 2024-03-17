@@ -4,10 +4,8 @@
 #include "model/IAssetDirectoryListModel.hpp"
 #include "model/IAudioBusChannelListModel.hpp"
 #include "model/IAudioBusConfigurationModel.hpp"
-#include "model/IAudioChannelGroupModel.hpp"
 #include "model/IAudioDeviceIOGroupListModel.hpp"
 #include "model/IAudioDeviceListModel.hpp"
-#include "model/IAudioInsertListModel.hpp"
 #include "model/IAutomationModel.hpp"
 #include "model/IFilterRoleModel.hpp"
 #include "model/ILocalizationListModel.hpp"
@@ -31,10 +29,8 @@ void initializeModel()
     QML_REGISTER_TYPE(IAssetDirectoryListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IAudioBusChannelListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IAudioBusConfigurationModel, YADAW.Models, 1, 0);
-    QML_REGISTER_TYPE(IAudioChannelGroupModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IAudioDeviceIOGroupListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IAudioDeviceListModel, YADAW.Models, 1, 0);
-    QML_REGISTER_TYPE(IAudioInsertListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IAutomationModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IFilterRoleModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(ILocalizationListModel, YADAW.Models, 1, 0);

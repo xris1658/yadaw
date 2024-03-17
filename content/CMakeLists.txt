@@ -22,10 +22,8 @@ set(CONTENT_CPP_FILES
     model/IAssetDirectoryListModel.hpp
     model/IAudioBusChannelListModel.hpp
     model/IAudioBusConfigurationModel.hpp
-    model/IAudioChannelGroupModel.hpp
     model/IAudioDeviceIOGroupListModel.hpp
     model/IAudioDeviceListModel.hpp
-    model/IAudioInsertListModel.hpp
     model/IAutomationModel.hpp
     model/IFilterRoleModel.hpp
     model/ILocalizationListModel.hpp
