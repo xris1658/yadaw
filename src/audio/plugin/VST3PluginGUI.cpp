@@ -20,6 +20,7 @@ VST3PluginGUI::~VST3PluginGUI()
     }
     if(plugView_)
     {
+        plugView_->setFrame(nullptr);
         plugView_->release();
         plugView_ = nullptr;
     }
