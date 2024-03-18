@@ -27,112 +27,64 @@ ListView {
         Row {
             spacing: 2
             Row {
-                StackLayout {
-                    id: formatIcons
-                    currentIndex: plm_format
-                    Item {
+                Item {
+                    width: height
+                    height: itemDelegate.height
+                    StackLayout {
+                        id: formatIcons
+                        anchors.centerIn: parent
+                        currentIndex: plm_format
                         layer.enabled: true
                         layer.smooth: true
                         layer.textureSize: Qt.size(width * 2, height * 2)
-                        width: height
-                        height: itemDelegate.height
                         PluginIcon {
-                            anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
                             path.strokeColor: "transparent"
                         }
-                    }
-                    Item {
-                        layer.enabled: true
-                        layer.smooth: true
-                        layer.textureSize: Qt.size(width * 2, height * 2)
-                        width: height
-                        height: itemDelegate.height
                         VST3Icon {
-                            anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
                             path.strokeColor: "transparent"
                         }
-                    }
-                    Item {
-                        layer.enabled: true
-                        layer.smooth: true
-                        layer.samples: 4
-                        width: height
-                        height: itemDelegate.height
                         CLAPIcon {
-                            anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
                             path.strokeColor: "transparent"
                         }
-                    }
-                    Item {
-                        layer.enabled: true
-                        layer.smooth: true
-                        layer.samples: 4
-                        width: height
-                        height: itemDelegate.height
                         VestifalIcon {
-                            anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
                             path.strokeColor: "transparent"
                         }
                     }
                 }
-                StackLayout {
-                    id: typeIcons
-                    currentIndex: plm_type
-                    Item {
+                Item {
+                    width: height
+                    height: itemDelegate.height
+                    StackLayout {
+                        id: typeIcons
+                        anchors.centerIn: parent
+                        currentIndex: plm_type
                         layer.enabled: true
                         layer.smooth: true
-                        layer.samples: 4
-                        width: height
-                        height: itemDelegate.height
+                        layer.textureSize: Qt.size(width * 2, height * 2)
                         PluginIcon {
-                            anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
                             path.strokeColor: "transparent"
                         }
-                    }
-                    Item {
-                        layer.enabled: true
-                        layer.smooth: true
-                        layer.samples: 4
-                        width: height
-                        height: itemDelegate.height
                         MIDIEffectIcon {
-                            anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
                             path.strokeColor: "transparent"
                         }
-                    }
-                    Item {
-                        layer.enabled: true
-                        layer.smooth: true
-                        layer.samples: 4
-                        width: height
-                        height: itemDelegate.height
                         PianoKeysIcon {
-                            anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
                             path.strokeColor: "transparent"
                         }
-                    }
-                    Item {
-                        layer.enabled: true
-                        layer.smooth: true
-                        layer.samples: 4
-                        width: height
-                        height: itemDelegate.height
                         AudioIcon {
-                            anchors.centerIn: parent
                             scale: 16 / originalHeight
                             path.fillColor: Colors.secondaryContent
                             path.strokeColor: "transparent"
