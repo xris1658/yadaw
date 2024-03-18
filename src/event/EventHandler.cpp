@@ -258,8 +258,7 @@ void EventHandler::onOpenMainWindow()
     // -------------------------------------------------------------------------
     // Open main window---------------------------------------------------------
     // -------------------------------------------------------------------------
-    const QUrl mainWindowUrl(u"qrc:Main/YADAW.qml"_qs);
-    YADAW::UI::qmlApplicationEngine->load(mainWindowUrl);
+    YADAW::UI::qmlApplicationEngine->loadFromModule("Main", "YADAW");
     YADAW::UI::mainWindow->setProperty("currentAudioBackend",
         QVariant::fromValue<int>(currentBackend));
     YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",

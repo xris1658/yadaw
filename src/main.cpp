@@ -23,16 +23,17 @@ int main(int argc, char *argv[])
     YADAW::UI::qmlApplicationEngine = &engine;
     YADAW::Entity::initializeEntity();
     YADAW::Model::initializeModel();
-    const QUrl frontendEventsURL(u"qrc:Main/Events.qml"_qs);
-    const QUrl splashScreenURL(u"qrc:content/SplashScreen.qml"_qs);
+    const QString eventsName("Events.qml");
+    const QString splashScreenName("SplashScreen.qml");
     QObject* splashScreen = nullptr;
-    const QUrl url(u"qrc:Main/YADAW.qml"_qs);
-    const QUrl pluginWindowURL(u"qrc:/content/PluginWindow.qml"_qs);
-    const QUrl genericPluginEditorURL(u"qrc:/content/GenericPluginEditor.qml"_qs);
+    const QString mainWindowName("YADAW.qml");
+    const QString pluginWindowName("PluginWindow.qml");
+    const QString genericPluginEditorName("GenericPluginEditor.qml");
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-        &app, [&](QObject *obj, const QUrl &objUrl)
+        &app,
+        [&](QObject *obj, const QUrl &objUrl)
         {
-            if (!obj)
+            if(!obj)
             {
 #if NDEBUG
 #else
@@ -41,28 +42,31 @@ int main(int argc, char *argv[])
 #endif
                 std::exit(-1);
             }
-            if(objUrl == frontendEventsURL)
+            const auto& fileName = objUrl.fileName();
+            if(fileName == eventsName)
             {
                 YADAW::Event::eventSender = obj->property("eventSender").value<QObject*>();
                 YADAW::Event::eventReceiver = obj->property("eventReceiver").value<QObject*>();
             }
-            else if(objUrl == splashScreenURL)
+            else if(fileName == splashScreenName)
             {
                 splashScreen = obj;
             }
-            else if(objUrl == url)
+            else if(fileName == mainWindowName)
             {
                 YADAW::UI::mainWindow = qobject_cast<QQuickWindow*>(obj);
             }
-            else if(objUrl == pluginWindowURL)
+            else if(fileName == pluginWindowName)
             {
                 YADAW::Controller::pluginWindows.pluginWindow = qobject_cast<QWindow*>(obj);
             }
-            else if(objUrl == genericPluginEditorURL)
+            else if(fileName == genericPluginEditorName)
             {
                 YADAW::Controller::pluginWindows.genericEditorWindow = qobject_cast<QWindow*>(obj);
             }
-        }, Qt::DirectConnection);
+        },
+        Qt::DirectConnection
+    );
     YADAW::Controller::initializeApplicationConfig();
     auto config = YADAW::Controller::loadConfig();
     QDir dir(YADAW::UI::defaultFontDir());
@@ -115,10 +119,10 @@ int main(int argc, char *argv[])
             QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
         }
     }
-    engine.load(frontendEventsURL);
+    engine.loadFromModule("Main", "Events");
     YADAW::Event::EventHandler eh(YADAW::Event::eventSender, YADAW::Event::eventReceiver);
     YADAW::Event::eventHandler = &eh;
-    engine.load(splashScreenURL);
+    engine.loadFromModule("content", "SplashScreen");
     YADAW::Event::SplashScreenWorkerThread sswt(splashScreen);
     YADAW::Event::splashScreenWorkerThread = &sswt;
     QObject::connect(&sswt, &YADAW::Event::SplashScreenWorkerThread::openMainWindow,
