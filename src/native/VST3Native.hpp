@@ -13,7 +13,7 @@ using InitEntry = bool(*)();
 constexpr char vst3FilePattern[] = "*.vst3";
 constexpr char initEntryName[] = "InitDll";
 constexpr char exitEntryName[] = "ExitDll";
-bool initVST3Entry(InitEntry initEntry);
+bool initVST3Entry(InitEntry initEntry, void* libraryHandle = nullptr);
 #elif(TARGET_OS_MAC)
 using InitEntry = bool(*)(void*);
 constexpr char vst3FilePattern[] = "*.so"; // *.dylib?

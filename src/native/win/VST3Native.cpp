@@ -2,11 +2,13 @@
 
 #include "native/VST3Native.hpp"
 
+#include <pluginterfaces/gui/iplugview.h>
+
 namespace YADAW::Native
 {
-const Steinberg::FIDString ViewType = Steinberg::kPlatformHWND;
+const Steinberg::FIDString ViewType = Steinberg::kPlatformTypeHWND;
 
-bool initVST3Entry(InitEntry initEntry)
+bool initVST3Entry(InitEntry initEntry, void*)
 {
     if(initEntry)
     {
