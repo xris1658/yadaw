@@ -9,7 +9,7 @@ ApplicationWindow {
     id: root
     width: 1280
     height: 720
-    visible: true
+    visible: false
     title: "YADAW"
     flags: Qt.Window
 
@@ -75,6 +75,7 @@ ApplicationWindow {
     signal mainWindowReady()
     onMainWindowReady: {
         opened = true;
+        visible = true;
     }
 
     Component.onCompleted: {
