@@ -53,8 +53,8 @@ private:
     std::vector<std::unique_ptr<YADAW::Model::PluginParameterListModel>> paramListModel_;
     std::vector<YADAW::Controller::LibraryPluginMap::iterator> libraryPluginIterators_;
     std::vector<YADAW::Controller::PluginContextMap::iterator> pluginContextIterators_;
-    mutable std::vector<YADAW::Model::AudioDeviceIOGroupListModel> inputAudioChannelGroupLists_;
-    mutable std::vector<YADAW::Model::AudioDeviceIOGroupListModel> outputAudioChannelGroupLists_;
+    mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> inputAudioChannelGroupLists_;
+    mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> outputAudioChannelGroupLists_;
 };
 }
 

@@ -19,6 +19,8 @@ Rectangle {
     property bool instrumentHasUI
     property bool instrumentWindowVisible
     property bool instrumentGenericEditorVisible
+    property var instrumentAudioInputs: null
+    property var instrumentAudioOutputs: null
     property alias inputModel: inputButton.model
     property alias outputModel: outputButton.model
     property alias insertModel: insertList.model
@@ -30,6 +32,7 @@ Rectangle {
     property bool showFader: true
 
     property Window pluginSelectorWindow: null
+    property PluginRouteEditorWindow pluginRouteEditorWindow: null
 
     property bool mute: muteButton.checked
     property alias instrumentSlotChecked: instrumentSlot.checked
@@ -176,6 +179,13 @@ Rectangle {
                         }
                         MenuItem {
                             text: qsTr("&Edit Route...")
+                            onClicked: {
+                                if(root.pluginRouteEditorWindow) {
+                                    root.pluginRouteEditorWindow.showNormal();
+                                    root.pluginRouteEditorWindow.inputRouteList = root.instrumentAudioInputs;
+                                    root.pluginRouteEditorWindow.outputRouteList = root.instrumentAudioOutputs;
+                                }
+                            }
                         }
                         MenuItem {
                             text: qsTr("&Replace") + "..."
@@ -383,6 +393,13 @@ Rectangle {
                             }
                             MenuItem {
                                 text: qsTr("&Edit Route...")
+                                onClicked: {
+                                    if(root.pluginRouteEditorWindow) {
+                                        root.pluginRouteEditorWindow.show();
+                                        root.pluginRouteEditorWindow.inputRouteList = mcilm_audio_inputs;
+                                        root.pluginRouteEditorWindow.outputRouteList = mcilm_audio_outputs;
+                                    }
+                                }
                             }
                             MenuItem {
                                 text: qsTr("&Insert") + "..."

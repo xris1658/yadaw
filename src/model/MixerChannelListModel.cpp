@@ -232,6 +232,14 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
             }
             return {};
         }
+        case Role::InstrumentAudioInputs:
+        {
+            return QVariant::fromValue<QObject*>(instrumentAudioInputs_[row].get());
+        }
+        case Role::InstrumentAudioOutputs:
+        {
+            return QVariant::fromValue<QObject*>(instrumentAudioOutputs_[row].get());
+        }
         case Role::InstrumentHasUI:
         {
             if(instruments_[row])
@@ -710,10 +718,10 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
         }
         if(ret)
         {
-            instrumentAudioInputs_[position] = YADAW::Model::AudioDeviceIOGroupListModel(
+            instrumentAudioInputs_[position] = std::make_unique<YADAW::Model::AudioDeviceIOGroupListModel>(
                 *plugin, true
             );
-            instrumentAudioOutputs_[position] = YADAW::Model::AudioDeviceIOGroupListModel(
+            instrumentAudioOutputs_[position] = std::make_unique<YADAW::Model::AudioDeviceIOGroupListModel>(
                 *plugin, false
             );
             engine.mixerNodeAddedCallback(mixer_);
@@ -848,8 +856,8 @@ bool MixerChannelListModel::removeInstrument(int position)
         {
             return false;
         }
-        instrumentAudioInputs_[position] = YADAW::Model::AudioDeviceIOGroupListModel();
-        instrumentAudioOutputs_[position] = YADAW::Model::AudioDeviceIOGroupListModel();
+        instrumentAudioInputs_[position].reset();
+        instrumentAudioOutputs_[position].reset();
         graph.removeNode(instrumentInstance->instrumentNode);
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         engine.processSequence().updateAndDispose(

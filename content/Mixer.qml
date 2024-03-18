@@ -20,6 +20,8 @@ Rectangle {
 
     property Window pluginSelectorWindow: null
 
+    property PluginRouteEditorWindow pluginRouteEditorWindow: null
+
     signal insertTrack(position: int, type: int) // AddTrackWindow.TrackType
 
     function appendTrack(type: int) { // AddTrackWindow.TrackType
@@ -163,6 +165,7 @@ Rectangle {
                 showSendSlot: root.showSend
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
+                pluginRouteEditorWindow: root.pluginRouteEditorWindow
                 mute: mclm_mute
                 onSetMute: (newMute) => {
                     mclm_mute = newMute;
@@ -224,10 +227,13 @@ Rectangle {
                 instrumentGenericEditorVisible: mclm_instrument_exist? mclm_instrument_generic_editor_visible: false
                 instrumentLatency: mclm_instrument_exist? mclm_instrument_latency: 0
                 instrumentSlotChecked: mclm_instrument_exist? mclm_instrument_window_visible || mclm_instrument_generic_editor_visible: false
+                instrumentAudioInputs: mclm_instrument_audio_inputs
+                instrumentAudioOutputs: mclm_instrument_audio_outputs
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
+                pluginRouteEditorWindow: root.pluginRouteEditorWindow
                 mute: mclm_mute
                 onInstrumentBypassedChanged: {
                     mclm_instrument_bypassed = instrumentBypassed;
@@ -350,6 +356,7 @@ Rectangle {
                 showSendSlot: root.showSend
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
+                pluginRouteEditorWindow: root.pluginRouteEditorWindow
                 mute: mclm_mute
                 onSetMute: (newMute) => {
                     mclm_mute = newMute;

@@ -733,6 +733,7 @@ ApplicationWindow {
                         Mixer {
                             id: mixer
                             pluginSelectorWindow: pluginSelectorWindow
+                            pluginRouteEditorWindow: pluginRouteEditorWindow
                             onInsertTrack: (position, type) => {
                                 addTrackWindow.openWindow(position, type);
                             }
@@ -864,5 +865,9 @@ ApplicationWindow {
                 }
             }
         }
+    }
+    PluginRouteEditorWindow {
+        id: pluginRouteEditorWindow
+        visible: false
     }
 }

@@ -82,11 +82,11 @@ QVariant MixerChannelInsertListModel::data(const QModelIndex& index, int role) c
         }
         case Role::AudioInputs:
         {
-            return QVariant::fromValue<QObject*>(&inputAudioChannelGroupLists_[row]);
+            return QVariant::fromValue<QObject*>(inputAudioChannelGroupLists_[row].get());
         }
         case Role::AudioOutputs:
         {
-            return QVariant::fromValue<QObject*>(&outputAudioChannelGroupLists_[row]);
+            return QVariant::fromValue<QObject*>(outputAudioChannelGroupLists_[row].get());
         }
         case Role::HasUI:
         {
@@ -276,11 +276,15 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         {
             inputAudioChannelGroupLists_.emplace(
                 inputAudioChannelGroupLists_.begin() + position,
-                *plugin, true
+                std::make_unique<YADAW::Model::AudioDeviceIOGroupListModel>(
+                    *plugin, true
+                )
             );
             outputAudioChannelGroupLists_.emplace(
                 outputAudioChannelGroupLists_.begin() + position,
-                *plugin, false
+                std::make_unique<YADAW::Model::AudioDeviceIOGroupListModel>(
+                    *plugin, false
+                )
             );
             libraryPluginIterators_.emplace(
                 libraryPluginIterators_.begin() + position,

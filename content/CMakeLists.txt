@@ -106,6 +106,8 @@ set(CONTENT_QML_FILES
     PlayIcon.qml
     PluginIcon.qml
     PluginListView.qml
+    PluginRouteEditor.qml
+    PluginRouteEditorWindow.qml
     PluginSelector.qml
     PluginSettings.qml
     PluginWindow.qml
@@ -114,6 +116,7 @@ set(CONTENT_QML_FILES
     ProgressBarLikeSlider.qml
     RemoveIcon.qml
     RenameIcon.qml
+    RouteList.qml
     ScrollBar.qml
     SendIcon.qml
     ShowLeftPaneIcon.qml
