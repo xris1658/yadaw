@@ -660,6 +660,7 @@ bool VST3Plugin::uninitializeEditController()
     {
         parameter_.reset();
         gui_.reset();
+        editController_->setComponentHandler(nullptr);
         if(!unified_)
         {
             auto terminateEditControllerResult = editController_->terminate();
