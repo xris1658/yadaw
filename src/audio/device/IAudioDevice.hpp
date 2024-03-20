@@ -46,7 +46,7 @@ public:
         }
         return *this;
     }
-    Self& operator=(Self&& rhs)
+    Self& operator=(Self&& rhs) noexcept
     {
         if(this != &rhs)
         {

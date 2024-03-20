@@ -40,17 +40,7 @@ public:
             }
         }
     }
-    AudioProcessDataPointerContainer(Self&& rhs):
-        audioProcessData_(rhs.audioProcessData_),
-        inputCounts_(std::move(rhs.inputCounts_)),
-        outputCounts_(std::move(rhs.outputCounts_)),
-        inputs_(std::move(rhs.inputs_)),
-        inputs2_(std::move(rhs.inputs2_)),
-        outputs_(std::move(rhs.outputs_)),
-        outputs2_(std::move(rhs.outputs2_))
-    {
-        audioProcessData_ = YADAW::Audio::Device::AudioProcessData<SampleType>{};
-    }
+    AudioProcessDataPointerContainer(Self&& rhs) noexcept = default;
 public:
     void setSingleBufferSize(std::uint32_t singleBufferSize)
     {
