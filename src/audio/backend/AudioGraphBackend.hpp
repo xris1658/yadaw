@@ -3,6 +3,8 @@
 
 #if _WIN32
 
+#include "native/Native.hpp"
+
 #include <QString>
 
 #include <memory>
@@ -19,12 +21,6 @@ public:
         Initialized,
         Created,
         Processing
-    };
-    enum DeviceInputResult
-    {
-        Failed,
-        Success,
-        AlreadyDone
     };
     struct DeviceInfo
     {
@@ -64,10 +60,10 @@ public:
     QString defaultAudioOutputDeviceId() const;
     DeviceInfo audioInputDeviceAt(std::uint32_t index) const;
     DeviceInfo audioOutputDeviceAt(std::uint32_t index) const;
-    bool createAudioGraph(std::uint32_t sampleRate = 0);
-    bool createAudioGraph(const QString& id, std::uint32_t sampleRate = 0);
+    YADAW::Native::ErrorCodeType createAudioGraph(std::uint32_t sampleRate = 0);
+    YADAW::Native::ErrorCodeType createAudioGraph(const QString& id, std::uint32_t sampleRate = 0);
     bool isDeviceInputActivated(std::uint32_t deviceInputIndex) const;
-    DeviceInputResult activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
+    YADAW::Native::ErrorCodeType activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
     DeviceInfo currentOutputDevice() const;
     void destroyAudioGraph();
     void start(AudioCallbackType* callback);

@@ -66,7 +66,6 @@ void callback(int inputCount, const YADAW::Audio::Backend::AudioGraphBackend::In
 
 int main()
 {
-    std::system("chcp 65001");
     disableStdOutBuffer();
     YADAW::Audio::Backend::AudioGraphBackend backend;
     if(backend.initialize())
@@ -77,8 +76,8 @@ int main()
         {
             const auto& device = backend.audioOutputDeviceAt(i);
             std::printf("\t%u: %s (%s)\n", i + 1,
-                device.name.toUtf8().data(),
-                device.id.toUtf8().data()
+                device.name.toLocal8Bit().data(),
+                device.id.toLocal8Bit().data()
             );
         }
         std::uint32_t outputDeviceIndex;
@@ -92,7 +91,8 @@ int main()
                 break;
             }
         } while(true);
-        if(backend.createAudioGraph(backend.audioOutputDeviceAt(outputDeviceIndex).id))
+        if(auto code = backend.createAudioGraph(backend.audioOutputDeviceAt(outputDeviceIndex).id);
+            code == ERROR_SUCCESS)
         {
             auto activatedInputDeviceCount = 0;
             auto inputDeviceCount = backend.audioInputDeviceCount();
@@ -105,8 +105,8 @@ int main()
                     std::printf("\t[%c] %u: %s (%s)\n",
                         backend.isDeviceInputActivated(i)? 'X': ' ',
                         i + 1,
-                        device.name.toUtf8().data(),
-                        device.id.toUtf8().data()
+                        device.name.toLocal8Bit().data(),
+                        device.id.toLocal8Bit().data()
                     );
                 }
                 std::printf("Input device index to toggle device activation (input 0 to finish): ");
@@ -201,6 +201,10 @@ int main()
                 backend.stop();
             }
             backend.destroyAudioGraph();
+        }
+        else
+        {
+
         }
     }
 }

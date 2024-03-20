@@ -44,7 +44,7 @@ AudioGraphSettings createAudioGraphSettings()
 void setChannelCount(AudioEncodingProperties& properties, std::uint32_t channelCount)
 {
     properties.ChannelCount(channelCount);
-    properties.Bitrate(properties.SampleRate() * channelCount * 32);
+    properties.Bitrate(properties.SampleRate() * channelCount * 32/*bit depth*/);
 }
 
 namespace YADAW::Audio::Backend
@@ -117,7 +117,7 @@ winrt::hstring AudioGraphBackend::Impl::defaultAudioOutputDeviceId() const
     return MediaDevice::GetDefaultAudioRenderId(AudioDeviceRole::Default);
 }
 
-bool AudioGraphBackend::Impl::createAudioGraph(std::uint32_t sampleRate)
+YADAW::Native::ErrorCodeType AudioGraphBackend::Impl::createAudioGraph(std::uint32_t sampleRate)
 {
     auto settings = createAudioGraphSettings();
     if(sampleRate != 0)
@@ -127,21 +127,21 @@ bool AudioGraphBackend::Impl::createAudioGraph(std::uint32_t sampleRate)
     auto createGraphResult = asyncResult(AudioGraph::CreateAsync(settings));
     if(createGraphResult.Status() != decltype(createGraphResult.Status())::Success)
     {
-        return false;
+        return createGraphResult.ExtendedError().value;
     }
     audioGraph_ = createGraphResult.Graph();
     auto createOutputResult = asyncResult(audioGraph_.CreateDeviceOutputNodeAsync());
     if(createOutputResult.Status() != decltype(createOutputResult.Status())::Success)
     {
-        return false;
+        return createOutputResult.ExtendedError().value;
     }
     audioDeviceOutputNode_ = createOutputResult.DeviceOutputNode();
     audioFrameInputNode_ = audioGraph_.CreateFrameInputNode();
     audioFrameInputNode_.AddOutgoingConnection(audioDeviceOutputNode_);
-    return true;
+    return ERROR_SUCCESS;
 }
 
-bool AudioGraphBackend::Impl::createAudioGraph(
+YADAW::Native::ErrorCodeType AudioGraphBackend::Impl::createAudioGraph(
     const DeviceInformation& audioOutputDevice,
     std::uint32_t sampleRate)
 {
@@ -154,18 +154,18 @@ bool AudioGraphBackend::Impl::createAudioGraph(
     auto createGraphResult = asyncResult(AudioGraph::CreateAsync(settings));
     if(createGraphResult.Status() != decltype(createGraphResult.Status())::Success)
     {
-        return false;
+        return createGraphResult.ExtendedError().value;
     }
     audioGraph_ = createGraphResult.Graph();
     auto createOutputResult = asyncResult(audioGraph_.CreateDeviceOutputNodeAsync());
     if(createOutputResult.Status() != decltype(createOutputResult.Status())::Success)
     {
-        return false;
+        return createOutputResult.ExtendedError().value;
     }
     audioDeviceOutputNode_ = createOutputResult.DeviceOutputNode();
     audioFrameInputNode_ = audioGraph_.CreateFrameInputNode();
     audioFrameInputNode_.AddOutgoingConnection(audioDeviceOutputNode_);
-    return true;
+    return ERROR_SUCCESS;
 }
 
 bool AudioGraphBackend::Impl::isDeviceInputActivated(std::uint32_t deviceInputIndex) const
@@ -177,8 +177,8 @@ bool AudioGraphBackend::Impl::isDeviceInputActivated(std::uint32_t deviceInputIn
     return false;
 }
 
-AudioGraphBackend::DeviceInputResult
-AudioGraphBackend::Impl::activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled)
+YADAW::Native::ErrorCodeType AudioGraphBackend::Impl::activateDeviceInput(
+    std::uint32_t deviceInputIndex, bool enabled)
 {
     if(deviceInputIndex < audioInputDeviceCount())
     {
@@ -186,7 +186,7 @@ AudioGraphBackend::Impl::activateDeviceInput(std::uint32_t deviceInputIndex, boo
         {
             if(deviceInputNodes_[deviceInputIndex].audioBuffer_)
             {
-                return DeviceInputResult::AlreadyDone;
+                return ERROR_SUCCESS;
             }
             auto encodingProperties = audioGraph_.EncodingProperties();
             for(std::uint32_t i = 8; i > 0; --i)
@@ -202,7 +202,7 @@ AudioGraphBackend::Impl::activateDeviceInput(std::uint32_t deviceInputIndex, boo
                 if(auto status = result.Status(); status == decltype(status)::Success)
                 {
                     deviceInputNodes_[deviceInputIndex] = {result.DeviceInputNode(), audioGraph_.CreateFrameOutputNode()};
-                    return DeviceInputResult::Success;
+                    return result.ExtendedError().value;
                 }
             }
         }
@@ -211,12 +211,11 @@ AudioGraphBackend::Impl::activateDeviceInput(std::uint32_t deviceInputIndex, boo
             if(deviceInputNodes_[deviceInputIndex].deviceInputNode_)
             {
                 deviceInputNodes_[deviceInputIndex] = {};
-                return DeviceInputResult::Success;
             }
-            return DeviceInputResult::AlreadyDone;
+            return ERROR_SUCCESS;
         }
     }
-    return DeviceInputResult::Failed;
+    return E_INVALIDARG;
 }
 
 DeviceInformation AudioGraphBackend::Impl::currentOutputDevice() const

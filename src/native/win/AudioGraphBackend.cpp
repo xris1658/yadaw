@@ -117,27 +117,27 @@ AudioGraphBackend::DeviceInfo AudioGraphBackend::audioOutputDeviceAt(std::uint32
     return {qStringFromHString(info.Name()), qStringFromHString(info.Id()), info.IsEnabled()};
 }
 
-bool AudioGraphBackend::createAudioGraph(std::uint32_t sampleRate)
+YADAW::Native::ErrorCodeType AudioGraphBackend::createAudioGraph(std::uint32_t sampleRate)
 {
-    if(pImpl_->createAudioGraph(sampleRate))
+    YADAW::Native::ErrorCodeType ret = pImpl_->createAudioGraph(sampleRate);
+    if(ret == 0)
     {
         status_ = Status::Created;
-        return true;
     }
-    return false;
+    return ret;
 }
 
-bool AudioGraphBackend::createAudioGraph(const QString& id, std::uint32_t sampleRate)
+YADAW::Native::ErrorCodeType AudioGraphBackend::createAudioGraph(const QString& id, std::uint32_t sampleRate)
 {
     winrt::hstring idAsHString(reinterpret_cast<const wchar_t*>(id.data()));
     auto async = DeviceInformation::CreateFromIdAsync(idAsHString);
     auto deviceInformation = asyncResult(async);
-    if(deviceInformation && pImpl_->createAudioGraph(deviceInformation, sampleRate))
+    auto ret = pImpl_->createAudioGraph(deviceInformation, sampleRate);
+    if(ret == 0)
     {
         status_ = Status::Created;
-        return true;
     }
-    return false;
+    return ret;
 }
 
 bool AudioGraphBackend::isDeviceInputActivated(std::uint32_t deviceInputIndex) const
@@ -145,8 +145,8 @@ bool AudioGraphBackend::isDeviceInputActivated(std::uint32_t deviceInputIndex) c
     return pImpl_->isDeviceInputActivated(deviceInputIndex);
 }
 
-AudioGraphBackend::DeviceInputResult
-AudioGraphBackend::activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled)
+YADAW::Native::ErrorCodeType AudioGraphBackend::activateDeviceInput(
+    std::uint32_t deviceInputIndex, bool enabled)
 {
     return pImpl_->activateDeviceInput(deviceInputIndex, enabled);
 }

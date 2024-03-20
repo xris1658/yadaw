@@ -52,23 +52,27 @@ bool createAudioGraphFromConfig(const YAML::Node& node)
         if(const auto index = backend.defaultAudioOutputDeviceIndex();
             index == -1)
         {
-            if(!backend.createAudioGraph())
+            if(auto code = backend.createAudioGraph(); code != ERROR_SUCCESS)
             {
+                YADAW::Native::errorMessageFromErrorCode(code);
                 return false;
             }
         }
         else
         {
-            if(!backend.createAudioGraph(backend.audioOutputDeviceAt(index).id))
+            if(auto code = backend.createAudioGraph(backend.audioOutputDeviceAt(index).id);
+                code != ERROR_SUCCESS)
             {
+                YADAW::Native::errorMessageFromErrorCode(code);
                 return false;
             }
         }
     }
     else
     {
-        if(!backend.createAudioGraph(
-            QString::fromStdString(defaultOutputIdNode.as<std::string>(std::string{}))))
+        if(auto code = backend.createAudioGraph(
+            QString::fromStdString(defaultOutputIdNode.as<std::string>(std::string{})));
+            code != ERROR_SUCCESS)
         {
             return false;
         }
