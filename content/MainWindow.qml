@@ -860,7 +860,7 @@ ApplicationWindow {
                     );
                 }
             }
-            if(trackType === AddTrackWindow.Instrument && instrument !== -1) {
+            if(trackType === AddTrackWindow.Instrument && instrumentEnabled) {
                 for(let i = 0; i < count; ++i) {
                     mixerChannelModel.setInstrument(position + i, instrument);
                 }
