@@ -138,10 +138,10 @@ Rectangle {
                 text: root.instrumentName
                 onClicked: {
                     if(root.instrumentHasUI) {
-                        root.setInstrumentWindowVisible(!root.instrumentWindowVisible);
+                        root.setInstrumentWindowVisible(checked);
                     }
                     else {
-                        root.setInstrumentGenericEditorVisible(!root.instrumentGenericEditorVisible);
+                        root.setInstrumentGenericEditorVisible(checked);
                     }
                 }
                 MouseArea {
