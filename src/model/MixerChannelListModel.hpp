@@ -49,6 +49,10 @@ public:
     void clear() override;
     bool setInstrument(int position, int pluginId) override;
     bool removeInstrument(int position) override;
+public:
+    void instrumentLatencyUpdated(std::uint32_t index) const;
+private:
+    void updateInstrumentConnections(std::uint32_t from);
 private:
     YADAW::Audio::Mixer::Mixer& mixer_;
     std::vector<std::unique_ptr<YADAW::Model::MixerChannelInsertListModel>> insertModels_;

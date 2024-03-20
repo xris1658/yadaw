@@ -43,6 +43,8 @@ public:
     const YADAW::Audio::Mixer::Inserts& inserts() const;
     YADAW::Audio::Mixer::Inserts& inserts();
 private:
+    void updateInsertConnections(std::uint32_t from);
+private:
     YADAW::Audio::Mixer::Inserts* inserts_;
     YADAW::Model::MixerChannelListModel::ListType type_;
     std::uint32_t channelIndex_;

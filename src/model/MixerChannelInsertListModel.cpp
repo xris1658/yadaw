@@ -297,8 +297,9 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             );
             assert(inserted);
             auto& context = pluginContextIterator->second;
-            context.insertListModel = this;
-            context.insertIndex = position;
+            context.position = YADAW::Controller::PluginContext::Position::Insert;
+            context.model = this;
+            context.index = position;
             pluginContextIterators_.emplace(
                 pluginContextIterators_.begin() + position,
                 pluginContextIterator
@@ -350,37 +351,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             );
             pluginWindow = nullptr;
             genericEditor = nullptr;
-            FOR_RANGE(i, position + 1, pluginEditors_.size())
-            {
-                auto& [window, connection] = pluginEditors_[i];
-                if(window)
-                {
-                    QObject::disconnect(connection);
-                    connection = QObject::connect(
-                        window, &QWindow::visibleChanged,
-                        [this, i](bool visible)
-                        {
-                            dataChanged(this->index(i), this->index(i),
-                                {Role::WindowVisible}
-                            );
-                        }
-                    );
-                }
-                QObject::disconnect(genericEditors_[i].connection);
-                genericEditors_[i].connection = QObject::connect(
-                    genericEditors_[i].window, &QWindow::visibleChanged,
-                    [this, i](bool visible)
-                    {
-                        dataChanged(this->index(i), this->index(i),
-                            {Role::GenericEditorVisible}
-                        );
-                    }
-                );
-            }
-            FOR_RANGE(i, position + 1, pluginContextIterators_.size())
-            {
-                pluginContextIterators_[i]->second.insertIndex = i;
-            }
+            updateInsertConnections(position + 1);
             beginInsertRows(QModelIndex(), position, position);
             endInsertRows();
         }
@@ -592,31 +563,6 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             genericEditors_.begin() + position,
             genericEditors_.begin() + position + removeCount
         );
-        FOR_RANGE(i, position, pluginEditors_.size())
-        {
-            auto& [window, windowConnection] = pluginEditors_[i];
-            if(window)
-            {
-                QObject::disconnect(windowConnection);
-                windowConnection = QObject::connect(window, &QWindow::visibleChanged,
-                    [this, i](bool visible)
-                    {
-                        dataChanged(this->index(i), this->index(i), {Role::WindowVisible});
-                    }
-                );
-            }
-        }
-        FOR_RANGE(i, position, genericEditors_.size())
-        {
-            auto& [genericEditor, genericEditorConnection] = genericEditors_[i];
-            QObject::disconnect(genericEditorConnection);
-            genericEditorConnection = QObject::connect(genericEditor, &QWindow::visibleChanged,
-                [this, i](bool visible)
-                {
-                    dataChanged(this->index(i), this->index(i), {Role::GenericEditorVisible});
-                }
-            );
-        }
         libraryPluginIterators_.erase(
             libraryPluginIterators_.begin() + position,
             libraryPluginIterators_.begin() + position + removeCount
@@ -629,10 +575,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             pluginContextIterators_.begin() + position,
             pluginContextIterators_.begin() + position + removeCount
         );
-        FOR_RANGE(i, position, pluginContextIterators_.size())
-        {
-            pluginContextIterators_[i]->second.insertIndex = i;
-        }
+        updateInsertConnections(position);
     }
     return ret;
 }
@@ -682,5 +625,40 @@ const YADAW::Audio::Mixer::Inserts& MixerChannelInsertListModel::inserts() const
 YADAW::Audio::Mixer::Inserts& MixerChannelInsertListModel::inserts()
 {
     return *inserts_;
+}
+
+void MixerChannelInsertListModel::updateInsertConnections(std::uint32_t from)
+{
+    FOR_RANGE(i, from, pluginEditors_.size())
+    {
+        auto& [window, connection] = pluginEditors_[i];
+        if(window)
+        {
+            QObject::disconnect(connection);
+            connection = QObject::connect(
+                window, &QWindow::visibleChanged,
+                [this, i](bool visible)
+                {
+                    dataChanged(this->index(i), this->index(i),
+                        {Role::WindowVisible}
+                    );
+                }
+            );
+        }
+        QObject::disconnect(genericEditors_[i].connection);
+        genericEditors_[i].connection = QObject::connect(
+            genericEditors_[i].window, &QWindow::visibleChanged,
+            [this, i](bool visible)
+            {
+                dataChanged(this->index(i), this->index(i),
+                    {Role::GenericEditorVisible}
+                );
+            }
+        );
+    }
+    FOR_RANGE(i, from, pluginContextIterators_.size())
+    {
+        pluginContextIterators_[i]->second.index = i;
+    }
 }
 }

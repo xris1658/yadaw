@@ -26,6 +26,7 @@ struct InstrumentInstance
     YADAW::UI::WindowAndConnection genericEditorWindowConnection;
     YADAW::Model::PluginParameterListModel paramListModel;
     YADAW::Controller::LibraryPluginMap::iterator libraryPluginIterator = {};
+    YADAW::Controller::PluginContextMap::iterator pluginContextIterator = {};
     QString name;
     template<typename T>
     InstrumentInstance(YADAW::Audio::Mixer::Mixer& mixer, T* plugin):
@@ -444,6 +445,7 @@ bool MixerChannelListModel::insert(int position, IMixerChannelListModel::Channel
             {
                 insertModels_[i]->setChannelIndex(i);
             }
+            updateInstrumentConnections(position + 1);
             endInsertRows();
         }
         return ret;
@@ -551,36 +553,8 @@ bool MixerChannelListModel::remove(int position, int removeCount)
                 instrumentBypassed_.begin() + position,
                 instrumentBypassed_.begin() + position + removeCount
             );
-            FOR_RANGE(i, position, instruments_.size())
-            {
-                if(auto instrument = instruments_[i].get(); instrument)
-                {
-                    if(auto pluginWindow = instrument->pluginWindowConnection.window; pluginWindow)
-                    {
-                        QObject::disconnect(instrument->pluginWindowConnection.connection);
-                        instrument->pluginWindowConnection.connection = QObject::connect(
-                            pluginWindow, &QWindow::visibleChanged,
-                            [this, i](bool visible)
-                            {
-                                dataChanged(this->index(i), this->index(i),
-                                    {Role::InstrumentWindowVisible}
-                                );
-                            }
-                        );
-                    }
-                    QObject::disconnect(instrument->genericEditorWindowConnection.connection);
-                    instrument->genericEditorWindowConnection.connection = QObject::connect(
-                        instrument->genericEditorWindowConnection.window,
-                        &QWindow::visibleChanged,
-                        [this, i](bool visible)
-                        {
-                            dataChanged(this->index(i), this->index(i),
-                                {Role::InstrumentGenericEditorVisible}
-                            );
-                        }
-                    );
-                }
-            }
+            auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
+            updateInstrumentConnections(position);
         }
         endRemoveRows();
         return true;
@@ -779,44 +753,17 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 }
             }
             mixer_.channelPreFaderInsertsAt(position)->get().setInNode(nodeHandle, firstOutput);
-            FOR_RANGE(i, position + 1, instruments_.size())
-            {
-                if(auto instrument = instruments_[i].get(); instrument)
-                {
-                    if(auto& pluginWindowConnection = instrument->pluginWindowConnection;
-                        pluginWindowConnection.window)
-                    {
-                        QObject::disconnect(
-                            pluginWindowConnection.connection
-                        );
-                        pluginWindowConnection.connection = QObject::connect(
-                            pluginWindowConnection.window,
-                            &QWindow::visibleChanged,
-                            [this, i](bool visible)
-                            {
-                                dataChanged(this->index(i), this->index(i),
-                                    {Role::InstrumentWindowVisible}
-                                );
-                            }
-                        );
-                    }
-                    auto& genericEditorWindowConnection =
-                        instrument->genericEditorWindowConnection;
-                    QObject::disconnect(
-                        genericEditorWindowConnection.connection
-                    );
-                    genericEditorWindowConnection.connection = QObject::connect(
-                        genericEditorWindowConnection.window,
-                        &QWindow::visibleChanged,
-                        [this, i](bool visible)
-                        {
-                            dataChanged(this->index(i), this->index(i),
-                                {Role::InstrumentGenericEditorVisible}
-                            );
-                        }
-                    );
-                }
-            }
+            auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
+            const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
+                plugin,
+                YADAW::Controller::PluginContext()
+            );
+            assert(inserted);
+            auto& context = pluginContextIterator->second;
+            context.position = YADAW::Controller::PluginContext::Position::Instrument;
+            context.model = this;
+            context.index = position;
+            instrument->pluginContextIterator = pluginContextIterator;
             dataChanged(this->index(position), this->index(position),
                 {
                     Role::InstrumentExist,
@@ -944,6 +891,8 @@ bool MixerChannelListModel::removeInstrument(int position)
                 YADAW::Controller::appLibraryPluginMap().erase(instrumentInstance->libraryPluginIterator);
             }
         }
+        auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
+        pluginContextMap.erase(instrumentInstance->pluginContextIterator);
         instrumentInstance.reset();
         dataChanged(this->index(position), this->index(position),
             {
@@ -963,5 +912,63 @@ bool MixerChannelListModel::removeInstrument(int position)
         return true;
     }
     return false;
+}
+
+void MixerChannelListModel::instrumentLatencyUpdated(std::uint32_t index) const
+{
+    if(listType_ == ListType::Regular
+        && index < itemCount()
+        && mixer_.channelInfoAt(index)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
+        && instruments_[index])
+    {
+        const_cast<MixerChannelListModel*>(this)->dataChanged(
+            this->index(index),
+            this->index(index),
+            {Role::InstrumentLatency}
+        );
+    }
+}
+
+void MixerChannelListModel::updateInstrumentConnections(std::uint32_t from)
+{
+    FOR_RANGE(i, from, instruments_.size())
+    {
+        if(auto instrument = instruments_[i].get(); instrument)
+        {
+            if(auto& pluginWindowConnection = instrument->pluginWindowConnection;
+                pluginWindowConnection.window)
+            {
+                QObject::disconnect(
+                    pluginWindowConnection.connection
+                );
+                pluginWindowConnection.connection = QObject::connect(
+                    pluginWindowConnection.window,
+                    &QWindow::visibleChanged,
+                    [this, i](bool visible)
+                    {
+                        dataChanged(this->index(i), this->index(i),
+                            {Role::InstrumentWindowVisible}
+                        );
+                    }
+                );
+            }
+            auto& genericEditorWindowConnection =
+                instrument->genericEditorWindowConnection;
+            QObject::disconnect(
+                genericEditorWindowConnection.connection
+            );
+            genericEditorWindowConnection.connection = QObject::connect(
+                genericEditorWindowConnection.window,
+                &QWindow::visibleChanged,
+                [this, i](bool visible)
+                {
+                    dataChanged(this->index(i), this->index(i),
+                        {Role::InstrumentGenericEditorVisible}
+                    );
+                }
+            );
+            instrument->pluginContextIterator->second.index = i;
+        }
+    }
 }
 }
