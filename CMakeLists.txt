@@ -871,6 +871,15 @@ target_link_libraries(MIDIInputDeviceTest PRIVATE
                       asound)
 endif()
 
+set_source_files_properties(l10n/osct/YADAW_zh_CN.ts
+                            PROPERTIES
+                            OUTPUT_LOCATION
+                            ${CMAKE_CURRENT_BINARY_DIR}/l10n/osct)
+
+qt_add_translations(YADAW TS_FILES l10n/osct/YADAW_zh_CN.ts
+                    INCLUDE_DIRECTORIES ./src
+                    SOURCE ${YADAW_COMMON_SOURCES})
+
 file(COPY
      ./l10n/osct/YADAW_zh_CN.yml
      ./l10n/osct/wqy-microhei.ttc

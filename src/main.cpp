@@ -84,9 +84,17 @@ int main(int argc, char *argv[])
     for(int i = 0; i < localizationList.itemCount(); ++i)
     {
         const auto& localization = localizationList.at(i);
-        if(localization.name == language && localization.translationFileName != "")
+        if(localization.name == language && (!localization.translationFileList.empty()))
         {
-            if(translator.load(localization.translationFileName))
+            auto fileCountLoaded = 0;
+            for(const auto& translationFileName: localization.translationFileList)
+            {
+                if(translator.load(translationFileName))
+                {
+                    ++fileCountLoaded;
+                }
+            }
+            if(fileCountLoaded == localization.translationFileList.size())
             {
                 QCoreApplication::installTranslator(&translator);
                 for(const auto& font: localization.fontList)

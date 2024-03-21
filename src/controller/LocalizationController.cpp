@@ -34,11 +34,20 @@ void initializeLocalizationListModel(YADAW::Model::LocalizationListModel& model)
                     auto name = QString::fromStdString(node["name"].as<std::string, std::string>({}));
                     auto author = QString::fromStdString(node["author"].as<std::string, std::string>({}));
                     auto languageCode = QString::fromStdString(node["language-code"].as<std::string, std::string>({}));
-                    auto translationFileName = QString::fromStdString(
-                        node["translation-file-name"].as<std::string, std::string>({}));
-                    if(subdir.exists(translationFileName))
+                    auto translationFileListNode = node["translation-file-list"];
+                    if(!translationFileListNode.IsSequence())
                     {
-                        translationFileName = subdir.absoluteFilePath(translationFileName);
+                        return;
+                    }
+                    std::vector<QString> translationFileList;
+                    translationFileList.reserve(translationFileListNode.size());
+                    for(const auto& i: translationFileListNode)
+                    {
+                        auto translationFileName = QString::fromStdString(i.as<std::string, std::string>({}));
+                        if(subdir.exists(translationFileName))
+                        {
+                            translationFileList.emplace_back(subdir.absoluteFilePath(translationFileName));
+                        }
                     }
                     std::vector<QString> fontFamilyList;
                     const auto& fontFamilyListNode = node["font-family"];
@@ -60,7 +69,7 @@ void initializeLocalizationListModel(YADAW::Model::LocalizationListModel& model)
                     }
                     model.append(
                         YADAW::Model::LocalizationListModel::Item {
-                            name, author, languageCode, translationFileName, fontFamilyList, fontList
+                            name, author, languageCode, translationFileList, fontFamilyList, fontList
                         }
                     );
                 }

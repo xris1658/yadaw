@@ -45,8 +45,8 @@ QVariant LocalizationListModel::data(const QModelIndex& index, int role) const
             return QVariant::fromValue(data_[row].author);
         case Role::LanguageCode:
             return QVariant::fromValue(data_[row].languageCode);
-        case Role::TranslationFileName:
-            return QVariant::fromValue(data_[row].translationFileName);
+        case Role::TranslationFileList:
+            return QVariant::fromValue(data_[row].translationFileList);
         case Role::FontFamilyList:
             return QVariant::fromValue(data_[row].fontFamilyList);
         case Role::FontList:

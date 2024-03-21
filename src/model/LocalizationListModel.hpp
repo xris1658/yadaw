@@ -16,7 +16,7 @@ public:
         QString name;
         QString author;
         QString languageCode;
-        QString translationFileName;
+        std::vector<QString> translationFileList;
         std::vector<QString> fontFamilyList;
         std::vector<QString> fontList;
     };
