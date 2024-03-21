@@ -7,6 +7,7 @@
 #include "entity/EntityInitializer.hpp"
 #include "model/ModelInitializer.hpp"
 #include "native/Native.hpp"
+#include "ui/MessageDialog.hpp"
 #include "ui/UI.hpp"
 
 #include <QFont>
@@ -29,6 +30,7 @@ int main(int argc, char *argv[])
     const QString mainWindowName("YADAW.qml");
     const QString pluginWindowName("PluginWindow.qml");
     const QString genericPluginEditorName("GenericPluginEditor.qml");
+    const QString messageDialogName("MessageDialog.qml");
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
         &app,
         [&](QObject *obj, const QUrl &objUrl)
@@ -63,6 +65,10 @@ int main(int argc, char *argv[])
             else if(fileName == genericPluginEditorName)
             {
                 YADAW::Controller::pluginWindows.genericEditorWindow = qobject_cast<QWindow*>(obj);
+            }
+            else if(fileName == messageDialogName)
+            {
+                YADAW::UI::messageDialog = qobject_cast<QQuickWindow*>(obj);
             }
         },
         Qt::DirectConnection

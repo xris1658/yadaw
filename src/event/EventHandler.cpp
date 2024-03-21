@@ -14,21 +14,19 @@
 #include "controller/PluginController.hpp"
 #include "controller/PluginDirectoryController.hpp"
 #include "controller/PluginListController.hpp"
-#include "controller/PluginWindowController.hpp"
 #include "entity/ChannelConfigHelper.hpp"
+#include "event/EventBase.hpp"
 #include "model/MixerChannelListModel.hpp"
+#include "model/SortFilterProxyListModel.hpp"
+#include "native/Native.hpp"
+#include "ui/MessageDialog.hpp"
+#include "ui/UI.hpp"
 #include "util/IntegerRange.hpp"
 #if _WIN32
 #include "controller/AudioGraphBackendController.hpp"
 #elif __linux__
 #include "controller/ALSABackendController.hpp"
 #endif
-#include "event/EventBase.hpp"
-#include "model/SortFilterProxyListModel.hpp"
-#include "native/Native.hpp"
-#include "ui/MessageDialog.hpp"
-#include "ui/UI.hpp"
-#include "util/IntegerRange.hpp"
 
 #include <QDir>
 #include <QtCore/private/qconfig_p.h>
@@ -107,8 +105,6 @@ void EventHandler::connectToEventReceiver(QObject* receiver)
         receiver, SIGNAL(setSplashScreenText(QString)));
     QObject::connect(this, SIGNAL(pluginScanComplete()),
         receiver, SIGNAL(pluginScanComplete()));
-    QObject::connect(this, SIGNAL(messageDialog(QString, QString, int, bool)),
-        receiver, SIGNAL(messageDialog(QString, QString, int, bool)));
 }
 
 void EventHandler::onStartInitializingApplication()

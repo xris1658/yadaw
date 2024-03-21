@@ -1,11 +1,14 @@
 #include "MessageDialog.hpp"
 
 #include "event/EventBase.hpp"
+#include "ui/UI.hpp"
 
 namespace YADAW::UI
 {
-void messageDialog(const QString& message, const QString& title, IconType icon, bool modal)
+QQuickWindow* messageDialog = nullptr;
+
+void createMessageDialog()
 {
-    YADAW::Event::eventHandler->messageDialog(message, title, icon, modal);
+    qmlApplicationEngine->loadFromModule("content", "MessageDialog");
 }
 }
