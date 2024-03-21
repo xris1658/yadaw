@@ -2,7 +2,7 @@
 
 #include "controller/AudioEngineController.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
-#include "Model/MixerChannelListModel.hpp"
+#include "model/MixerChannelListModel.hpp"
 
 namespace YADAW::Controller
 {
