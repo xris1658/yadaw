@@ -21,9 +21,9 @@ YADAW::Model::AudioGraphInputDeviceListModel& appAudioGraphInputDeviceListModel(
 
 YADAW::Model::AudioGraphOutputDeviceListModel& appAudioGraphOutputDeviceListModel();
 
-void activateDefaultDevice(YADAW::Audio::Backend::AudioGraphBackend& backend);
+YADAW::Native::ErrorCodeType activateDefaultDevice(YADAW::Audio::Backend::AudioGraphBackend& backend);
 
-bool createAudioGraphFromConfig(const YAML::Node& node);
+YADAW::Native::ErrorCodeType createAudioGraphFromConfig(const YAML::Node& node);
 
 YAML::Node deviceConfigFromCurrentAudioGraph();
 

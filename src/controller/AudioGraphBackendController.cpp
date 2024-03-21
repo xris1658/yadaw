@@ -28,22 +28,31 @@ YADAW::Model::AudioGraphOutputDeviceListModel& appAudioGraphOutputDeviceListMode
     return ret;
 }
 
-void activateDefaultDevice(YADAW::Audio::Backend::AudioGraphBackend& backend)
+YADAW::Native::ErrorCodeType activateDefaultDevice(
+    YADAW::Audio::Backend::AudioGraphBackend& backend)
 {
+    YADAW::Native::ErrorCodeType ret = ERROR_SUCCESS;
     auto outputIndex = backend.defaultAudioOutputDeviceIndex();
     if(outputIndex != -1)
     {
-        backend.createAudioGraph(backend.audioOutputDeviceAt(outputIndex).id);
+        ret = backend.createAudioGraph(
+            backend.audioOutputDeviceAt(outputIndex).id
+        );
+        if(ret == ERROR_SUCCESS)
+        {
+            auto inputIndex = backend.defaultAudioInputDeviceIndex();
+            if(inputIndex != -1)
+            {
+                ret = backend.activateDeviceInput(inputIndex, true);
+            }
+        }
     }
-    auto inputIndex = backend.defaultAudioInputDeviceIndex();
-    if(inputIndex != -1)
-    {
-        backend.activateDeviceInput(inputIndex, true);
-    }
+    return ERROR_SUCCESS;
 }
 
-bool createAudioGraphFromConfig(const YAML::Node& node)
+YADAW::Native::ErrorCodeType createAudioGraphFromConfig(const YAML::Node& node)
 {
+    YADAW::Native::ErrorCodeType ret = ERROR_SUCCESS;
     auto& backend = appAudioGraphBackend();
     backend.initialize();
     if(const auto& defaultOutputIdNode = node["default-output-id"];
@@ -52,30 +61,24 @@ bool createAudioGraphFromConfig(const YAML::Node& node)
         if(const auto index = backend.defaultAudioOutputDeviceIndex();
             index == -1)
         {
-            if(auto code = backend.createAudioGraph(); code != ERROR_SUCCESS)
-            {
-                YADAW::Native::errorMessageFromErrorCode(code);
-                return false;
-            }
+            ret = backend.createAudioGraph();
         }
         else
         {
-            if(auto code = backend.createAudioGraph(backend.audioOutputDeviceAt(index).id);
-                code != ERROR_SUCCESS)
-            {
-                YADAW::Native::errorMessageFromErrorCode(code);
-                return false;
-            }
+            ret = backend.createAudioGraph(backend.audioOutputDeviceAt(index).id);
         }
     }
     else
     {
-        if(auto code = backend.createAudioGraph(
-            QString::fromStdString(defaultOutputIdNode.as<std::string>(std::string{})));
-            code != ERROR_SUCCESS)
-        {
-            return false;
-        }
+        ret = backend.createAudioGraph(
+            QString::fromStdString(
+                defaultOutputIdNode.as<std::string>(std::string{})
+            )
+        );
+    }
+    if(ret != ERROR_SUCCESS)
+    {
+        return ret;
     }
     const auto& inputsNode = node["inputs"];
     if(inputsNode.IsDefined() && inputsNode.IsSequence())
@@ -92,14 +95,17 @@ bool createAudioGraphFromConfig(const YAML::Node& node)
                     if(const auto& device = backend.audioInputDeviceAt(j);
                         device.id == id.c_str())
                     {
-                        backend.activateDeviceInput(j, true);
+                        auto code = backend.activateDeviceInput(j, true);
+                        if(code != ERROR_SUCCESS)
+                        {
+                            ret = code;
+                        }
                     }
                 }
             }
         }
-        return true;
     }
-    return false;
+    return ret;
 }
 
 YAML::Node deviceConfigFromCurrentAudioGraph()

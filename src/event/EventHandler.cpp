@@ -125,16 +125,37 @@ void EventHandler::onOpenMainWindow()
 #if _WIN32
     auto& backend = YADAW::Controller::appAudioGraphBackend();
     auto audioGraphNode = appConfig["audio-hardware"]["audiograph"];
+    YADAW::Native::ErrorCodeType errorCode = ERROR_SUCCESS;
     if(audioGraphNode.IsNull())
     {
         YADAW::Controller::saveConfig(appConfig);
         backend.initialize();
-        YADAW::Controller::activateDefaultDevice(backend);
+        errorCode = YADAW::Controller::activateDefaultDevice(backend);
         appConfig["audio-hardware"]["audiograph"] = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
     }
     else
     {
-        YADAW::Controller::createAudioGraphFromConfig(audioGraphNode);
+        errorCode = YADAW::Controller::createAudioGraphFromConfig(audioGraphNode);
+    }
+    if(errorCode != ERROR_SUCCESS)
+    {
+        auto errorString = YADAW::Audio::Backend::getAudioGraphErrorStringFromErrorCode(errorCode);
+        YADAW::UI::createMessageDialog();
+        auto messageDialog = YADAW::UI::messageDialog;
+        if(messageDialog)
+        {
+            messageDialog->setProperty(
+                "icon",
+                QVariant::fromValue<int>(YADAW::UI::IconType::Warning)
+            );
+            messageDialog->setProperty(
+                "message",
+                QVariant::fromValue<QString>(errorString)
+            );
+            messageDialog->setTitle(YADAW::Base::ProductName);
+            messageDialog->setModality(Qt::WindowModality::ApplicationModal);
+            messageDialog->setVisible(true);
+        }
     }
     const auto& currentOutputDeviceId = backend.currentOutputDevice().id;
     int currentOutputDeviceIndex = -1;

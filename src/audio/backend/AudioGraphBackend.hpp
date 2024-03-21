@@ -72,6 +72,7 @@ public:
     int latencyInSamples() const;
     std::uint32_t sampleRate() const;
     std::uint32_t channelCount(bool isInput, std::uint32_t deviceIndex) const;
+    Status status() const;
 public:
     bool setOutputDeviceIndex(std::uint32_t index);
 public:
@@ -80,6 +81,8 @@ private:
     std::unique_ptr<Impl> pImpl_;
     Status status_;
 };
+
+QString getAudioGraphErrorStringFromErrorCode(YADAW::Native::ErrorCodeType errorCode);
 }
 
 #endif

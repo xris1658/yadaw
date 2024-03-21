@@ -149,10 +149,26 @@ QString errorMessageFromErrorCode(ErrorCodeType errorCode)
     TCHAR* rawErrorString = nullptr;
     auto messageLength = FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, errorCode, 0, rawErrorString, 0, nullptr);
-    QString ret;
-    if(messageLength)
+        NULL, errorCode, 0, (LPTSTR)&rawErrorString, 0, nullptr);
+    if(messageLength == 0)
     {
+        auto handle = LoadLibrary(TEXT("avrt.dll"));
+        if(handle)
+        {
+            messageLength = FormatMessage(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                handle, errorCode, 0, (LPTSTR)&rawErrorString, 0, nullptr
+            );
+            FreeLibrary(handle);
+        }
+    }
+    if(messageLength == 0)
+    {
+        errorCode = GetLastError();
+    }
+    else
+    {
+        QString ret;
         if constexpr(std::is_same_v<TCHAR, char>)
         {
             // supress the false warning that mistakenly treats `TCHAR` and `char`
@@ -168,7 +184,7 @@ QString errorMessageFromErrorCode(ErrorCodeType errorCode)
         }
     }
     LocalFree(rawErrorString);
-    return ret;
+    return {};
 }
 
 QString getProductVersion(const QString& path)

@@ -6,6 +6,8 @@
 #include "native/win/winrt/QStringFromHString.hpp"
 #include "util/IntegerRange.hpp"
 
+#include <audioclient.h>
+
 namespace YADAW::Audio::Backend
 {
 AudioGraphBackend::AudioGraphBackend(): pImpl_()
@@ -203,6 +205,11 @@ std::uint32_t AudioGraphBackend::channelCount(bool isInput, std::uint32_t device
     return pImpl_->channelCount(isInput, deviceIndex);
 }
 
+AudioGraphBackend::Status AudioGraphBackend::status() const
+{
+    return status_;
+}
+
 bool AudioGraphBackend::setOutputDeviceIndex(std::uint32_t index)
 {
     if(index < audioOutputDeviceCount())
@@ -228,6 +235,19 @@ void YADAW::Audio::Backend::AudioGraphBackend::swap(YADAW::Audio::Backend::Audio
 {
     std::swap(pImpl_, rhs.pImpl_);
     std::swap(status_, rhs.status_);
+}
+
+QString getAudioGraphErrorStringFromErrorCode(YADAW::Native::ErrorCodeType errorCode)
+{
+    switch(errorCode)
+    {
+    case AUDCLNT_E_DEVICE_IN_USE:
+        return QCoreApplication::translate("AudioGraphBackend",
+            "The current audio device is already in use.");
+    default:
+        break;
+    }
+    return YADAW::Native::errorMessageFromErrorCode(errorCode);
 }
 }
 
