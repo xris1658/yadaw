@@ -92,7 +92,6 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
     }
     if(path.endsWith(vst3Ext, Qt::CaseSensitivity::CaseInsensitive))
     {
-        std::printf("%s\n", path.toLocal8Bit().data());
         auto plugin = YADAW::Audio::Util::createVST3FromLibrary(library);
         if(auto factory = plugin.factory())
         {
@@ -398,7 +397,12 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
             return ret;
         }
     }
-    else if(path.endsWith(vestifalExt, Qt::CaseSensitivity::CaseInsensitive))
+    // Since Vestifal and VST3 plugin binaries share *.so extension on Linux and
+    // macOS, we have to scan *.so files again if that is not a VST3 plugin.
+#if _WIN32
+    else
+#endif
+    if(path.endsWith(vestifalExt, Qt::CaseSensitivity::CaseInsensitive))
     {
         YADAW::Audio::Host::setUniquePluginShouldBeZeroOnCurrentThread(false);
         auto plugin = YADAW::Audio::Util::createVestifalFromLibrary(library);
