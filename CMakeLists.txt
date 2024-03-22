@@ -646,6 +646,8 @@ add_executable(PluginScanTest
                src/audio/util/VST3Helper.hpp
                src/audio/util/VestifalHelper.cpp
                src/audio/util/VestifalHelper.hpp
+               src/controller/LibraryPluginMap.cpp
+               src/controller/LibraryPluginMap.hpp
                src/controller/PluginController.cpp
                src/controller/PluginController.hpp
                src/dao/DAOBase.cpp
