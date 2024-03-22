@@ -11,16 +11,33 @@
 
 namespace YADAW::Audio::Backend
 {
+using ALSAErrorCode = int;
+
 class ALSABackend
 {
     class Impl;
 public:
-    enum ActivateDeviceResult
+    enum class ActivateDeviceProcess
     {
-        Failed,
-        Success,
-        AlreadyDone
+        LookingForDevice,
+        OpenPCM, // snd_pcm_open
+        FillHardwareConfigSpace, // snd_pcm_hw_params_any
+        SetSampleFormat, // snd_pcm_hw_params_set_format
+        SetSampleRate, // snd_pcm_hw_params_set_rate
+        SetBufferSize, // snd_pcm_hw_params_set_buffer_size
+        SetPeriodSize, // snd_pcm_hw_params_set_period_size
+        GetChannelCount, // snd_pcm_hw_params_get_channels_max
+        SetChannelCount, // snd_pcm_hw_params_set_channels
+        SetSampleAccess, // snd_pcm_hw_params_set_access
+        DetermineHardwareConfig, // snd_pcm_hw_params
+        GetSotfwareConfig, // snd_pcm_sw_params_current
+        SetAvailMin, // snd_pcm_sw_params_set_avail_min
+        SetStartThreshold, // snd_pcm_sw_params_set_start_threshold
+        DetermineSoftwareConfig, // snd_pcm_sw_params
+        AllocateBuffer,
+        Finish
     };
+    using ActivateDeviceResult = std::pair<ActivateDeviceProcess, ALSAErrorCode>;
     enum SampleFormat: std::uint8_t
     {
         Unknown,
@@ -81,8 +98,12 @@ private:
 };
 
 std::optional<std::uint32_t> findDeviceBySelector(
-    const ALSABackend& backend, bool isInput, ALSADeviceSelector selector);
+    bool isInput, ALSADeviceSelector selector);
+
+QString getALSAErrorString(bool isInput, ALSADeviceSelector selector,
+    ALSABackend::ActivateDeviceResult activateDeviceResult);
 }
+
 
 #endif
 

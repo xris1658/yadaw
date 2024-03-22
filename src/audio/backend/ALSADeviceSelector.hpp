@@ -16,6 +16,10 @@ struct ALSADeviceSelector
     {
         return (static_cast<std::uint64_t>(cIndex) << 32) + dIndex;
     }
+    static ALSADeviceSelector defaultDeviceSelector()
+    {
+        return {0U, 0U};
+    }
     bool operator==(const ALSADeviceSelector& rhs) const
     {
         return key() == rhs.key();

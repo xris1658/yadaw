@@ -40,7 +40,25 @@ private:
             return lhs.get() < rhs.get();
         }
     };
-    using DataType = std::tuple<ALSADeviceSelector, snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, void**, snd_pcm_uframes_t, snd_pcm_uframes_t>;
+    using DataType = std::tuple<
+        ALSADeviceSelector,
+        snd_pcm_t*,
+        std::uint32_t,
+        snd_pcm_format_t,
+        snd_pcm_access_t,
+        std::byte*,
+        void**,
+        snd_pcm_uframes_t,
+        snd_pcm_uframes_t
+    >;
+    using ActivateSuccessResult = std::tuple<
+        snd_pcm_t*,
+        std::uint32_t,
+        snd_pcm_format_t,
+        snd_pcm_access_t,
+        std::byte*,
+        void**
+    >;
     using RWFunc = snd_pcm_sframes_t(std::uint32_t, DataType&);
     static snd_pcm_sframes_t readMMapInterleavedBegin(std::uint32_t frameSize, DataType& data);
     static snd_pcm_sframes_t readMMapNonInterleavedBegin(std::uint32_t frameSize, DataType& data);
@@ -91,7 +109,7 @@ public:
     bool start(const ALSABackend::Callback* callback);
     bool stop();
 private:
-    std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, void**> activateDevice(bool isInput, ALSADeviceSelector selector);
+    std::variant<ActivateDeviceResult, ActivateSuccessResult> activateDevice(bool isInput, ALSADeviceSelector selector);
     static std::shared_ptr<std::byte[]> allocateBuffer(std::uint32_t frameSize, std::uint32_t channelCount, snd_pcm_format_t format);
 private:
     ALSABackend* backend_ = nullptr;

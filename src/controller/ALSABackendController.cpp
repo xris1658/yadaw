@@ -26,72 +26,144 @@ YADAW::Model::ALSAOutputDeviceListModel& appALSAOutputDeviceListModel()
     return ret;
 }
 
-void activateDefaultDevice(Audio::Backend::ALSABackend& backend)
+std::vector<QString> activateDefaultDevice(YADAW::Audio::Backend::ALSABackend& backend)
 {
-    auto inputIndex = YADAW::Audio::Backend::findDeviceBySelector(backend, true, {0U, 0U});
+    std::vector<QString> ret;
+    auto defaultDeviceSelector = YADAW::Audio::Backend::ALSADeviceSelector::defaultDeviceSelector();
+    auto inputIndex = YADAW::Audio::Backend::findDeviceBySelector(true, defaultDeviceSelector);
     if(inputIndex.has_value())
     {
-        backend.setAudioDeviceActivated(true, *inputIndex, true);
+        auto result = backend.setAudioDeviceActivated(true, *inputIndex, true);
+        if(result.second != 0)
+        {
+            ret.emplace_back(
+                YADAW::Audio::Backend::getALSAErrorString(
+                    true, defaultDeviceSelector, result
+                )
+            );
+        }
     }
-    auto outputIndex = YADAW::Audio::Backend::findDeviceBySelector(backend, false, {0U, 0U});
+    else
+    {
+        ret.emplace_back(
+            YADAW::Audio::Backend::getALSAErrorString(
+                true, defaultDeviceSelector, {}
+            )
+        );
+    }
+    auto outputIndex = YADAW::Audio::Backend::findDeviceBySelector(false, defaultDeviceSelector);
     if(outputIndex.has_value())
     {
-        backend.setAudioDeviceActivated(false, *outputIndex, true);
+        auto result = backend.setAudioDeviceActivated(false, *outputIndex, true);
+        if(result.second != 0)
+        {
+            ret.emplace_back(
+                YADAW::Audio::Backend::getALSAErrorString(
+                    false, defaultDeviceSelector, result
+                )
+            );
+        }
     }
+    else
+    {
+        ret.emplace_back(
+            YADAW::Audio::Backend::getALSAErrorString(
+                false, defaultDeviceSelector, {}
+            )
+        );
+    }
+    return ret;
 }
 
-bool initializeALSAFromConfig(const YAML::Node& node)
+std::vector<QString> initializeALSAFromConfig(const YAML::Node& node)
 {
+    std::vector<QString> ret;
     auto& backend = appALSABackend();
     const auto& sampleRateNode = node["sample-rate"];
     auto sampleRate = sampleRateNode.as<std::uint32_t>(DefaultSampleRate);
     const auto& frameSizeNode = node["buffer-size"];
     auto frameSize = frameSizeNode.as<std::uint32_t>(DefaultFrameSize);
-    if(!backend.initialize(sampleRate, frameSize))
+    backend.initialize(sampleRate, frameSize);
+    const auto& inputDevicesNode = node["inputs"];
+    const auto& outputDevicesNode = node["outputs"];
+    if(inputDevicesNode.IsDefined() || outputDevicesNode.IsDefined())
     {
-        return false;
-    }
-    if(const auto& inputDevicesNode = node["inputs"];
-        inputDevicesNode.IsDefined() && inputDevicesNode.IsSequence())
-    {
-        for(const auto& input: inputDevicesNode)
+        if(inputDevicesNode.IsSequence())
         {
-            auto index = YADAW::Audio::Backend::findDeviceBySelector(
-                backend, true,
-                YADAW::Audio::Backend::ALSADeviceSelector(
+            for(const auto& input: inputDevicesNode)
+            {
+                auto selector = YADAW::Audio::Backend::ALSADeviceSelector(
                     input["card-index"].as<std::uint32_t>(YADAW::Audio::Backend::InvalidIndex),
                     input["device-index"].as<std::uint32_t>(YADAW::Audio::Backend::InvalidIndex)
-                )
-            );
-            if(index.has_value())
-            {
-                backend.setAudioDeviceActivated(
-                    true, *index, input["activated"].as<bool>(false)
                 );
+                auto index = YADAW::Audio::Backend::findDeviceBySelector(
+                    true, selector
+                );
+                if(index.has_value())
+                {
+                    auto result = backend.setAudioDeviceActivated(
+                        true, *index, input["activated"].as<bool>(false)
+                    );
+                    if(result.second != 0)
+                    {
+                        ret.emplace_back(
+                            YADAW::Audio::Backend::getALSAErrorString(
+                                true, selector, result
+                            )
+                        );
+                    }
+                }
+                else
+                {
+                    ret.emplace_back(
+                        YADAW::Audio::Backend::getALSAErrorString(
+                            true, selector, {}
+                        )
+                    );
+                }
             }
         }
-    }
-    if(const auto& outputDevicesNode = node["outputs"];
-        outputDevicesNode.IsDefined() && outputDevicesNode.IsSequence())
-    {
-        for(const auto& output: outputDevicesNode)
+        if(outputDevicesNode.IsSequence())
         {
-            auto index = YADAW::Audio::Backend::findDeviceBySelector(
-                backend, false,
-                YADAW::Audio::Backend::ALSADeviceSelector(
+            for(const auto& output: outputDevicesNode)
+            {
+                auto selector = YADAW::Audio::Backend::ALSADeviceSelector(
                     output["card-index"].as<std::uint32_t>(YADAW::Audio::Backend::InvalidIndex),
                     output["device-index"].as<std::uint32_t>(YADAW::Audio::Backend::InvalidIndex)
-                )
-            );
-            if(index.has_value())
-            {
-                backend.setAudioDeviceActivated(
-                    false, *index, output["activated"].as<bool>(false)
                 );
+                auto index = YADAW::Audio::Backend::findDeviceBySelector(
+                    false, selector
+                );
+                if(index.has_value())
+                {
+                    auto result = backend.setAudioDeviceActivated(
+                        false, *index, output["activated"].as<bool>(false)
+                    );
+                    if(result.second != 0)
+                    {
+                        ret.emplace_back(
+                            YADAW::Audio::Backend::getALSAErrorString(
+                                false, selector, result
+                            )
+                        );
+                    }
+                }
+                else
+                {
+                    ret.emplace_back(
+                        YADAW::Audio::Backend::getALSAErrorString(
+                            false, selector, {}
+                        )
+                    );
+                }
             }
         }
     }
-    return true;
+    else
+    {
+        ret = activateDefaultDevice(backend);
+    }
+    return ret;
 }
 
 YADAW::Audio::Backend::ALSABusConfiguration& appAudioBusConfiguration()

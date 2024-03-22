@@ -62,12 +62,10 @@ void saveAudioBackendState()
 #if _WIN32
     const auto& audioGraphConfig = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
     appConfig["audio-hardware"]["audiograph"] = audioGraphConfig;
-    auto dump = YAML::Dump(audioGraphConfig);
     YADAW::Controller::saveConfig(appConfig);
 #elif __linux__
     const auto& alsaConfig = YADAW::Controller::deviceConfigFromALSA();
     appConfig["audio-hardware"]["alsa"] = alsaConfig;
-    auto dump = YAML::Dump(alsaConfig);
     YADAW::Controller::saveConfig(appConfig);
 #endif
 }
@@ -181,7 +179,7 @@ void EventHandler::onOpenMainWindow()
         &QAbstractItemModel::dataChanged, &saveAudioBackendState);
     QObject::connect(&YADAW::Controller::appALSAOutputDeviceListModel(),
         &QAbstractItemModel::dataChanged, &saveAudioBackendState);
-    YADAW::Controller::initializeALSAFromConfig(appConfig["audio-hardware"]["alsa"]);
+    auto errors = YADAW::Controller::initializeALSAFromConfig(appConfig["audio-hardware"]["alsa"]);
 #endif
     // -------------------------------------------------------------------------
     // initialize audio bus configuration --------------------------------------

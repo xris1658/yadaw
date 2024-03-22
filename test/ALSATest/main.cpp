@@ -79,9 +79,9 @@ int main(int argc, char** argv)
     auto frameCount = 512U;
     backend.initialize(44100, frameCount);
     YADAW::Audio::Backend::ALSADeviceSelector selector(0, 0);
-    auto inputIndex = YADAW::Audio::Backend::findDeviceBySelector(backend, true, selector);
+    auto inputIndex = YADAW::Audio::Backend::findDeviceBySelector(true, selector);
     auto inputChannelCount = 0U;
-    auto outputIndex = findDeviceBySelector(backend, false, selector);
+    auto outputIndex = findDeviceBySelector(false, selector);
     auto outputChannelCount = 0U;
     if(inputIndex.has_value())
     {

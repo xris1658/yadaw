@@ -287,21 +287,29 @@ ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
         auto it = container.begin() + index;
         if(activated == (std::get<TupleElementType::PCMHandle>(*it) != nullptr))
         {
-            return ActivateDeviceResult::AlreadyDone;
+            return {
+                ALSABackend::ActivateDeviceProcess::Finish, 0
+            };
         }
         if(activated)
         {
             auto selector = std::get<TupleElementType::DeviceSelector>(*it);
             auto result = activateDevice(isInput, selector);
-            const auto& [pcm, r1, r2, r3, buffer, nonInterleaveArray] = result;
-            if(pcm)
+            assert(result.index() != std::variant_npos);
+            if(result.index() == 0)
+            {
+                return std::get<0>(result);
+            }
+            else if(result.index() == 1)
             {
                 *it = std::tuple_cat(
                     std::make_tuple(selector),
-                    result,
+                    std::get<1>(result),
                     std::make_tuple(0_UF, 0_UF)
                 );
-                return ActivateDeviceResult::Success;
+                return {
+                    ALSABackend::ActivateDeviceProcess::Finish, 0
+                };
             }
         }
         else
@@ -317,10 +325,14 @@ ALSABackend::ActivateDeviceResult ALSABackend::Impl::setAudioDeviceActivated(
             }
             snd_pcm_close(pcm);
             pcm = nullptr;
-            return ActivateDeviceResult::Success;
+            return {
+                ALSABackend::ActivateDeviceProcess::Finish, 0
+            };
         }
     }
-    return ActivateDeviceResult::Failed;
+    return {
+        ALSABackend::ActivateDeviceProcess::LookingForDevice, EINVAL
+    };
 }
 
 void ALSABackend::Impl::initialize(std::uint32_t sampleRate, std::uint32_t frameCount)
@@ -610,9 +622,10 @@ bool ALSABackend::Impl::stop()
     return false;
 }
 
-std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::byte*, void**>
-    ALSABackend::Impl::activateDevice(bool isInput, ALSADeviceSelector selector)
+std::variant<ALSABackend::ActivateDeviceResult, ALSABackend::Impl::ActivateSuccessResult>
+ALSABackend::Impl::activateDevice(bool isInput, ALSADeviceSelector selector)
 {
+    std::variant<ALSABackend::ActivateDeviceResult, ALSABackend::Impl::ActivateSuccessResult> ret;
     auto bufferSize = frameCount_ * 2;
     auto periodSize = frameCount_;
     char name[26]; // hw:[0-9]+,[0-9]+
@@ -624,21 +637,21 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::b
         SND_PCM_NONBLOCK);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_open` failed with error code %d: %s\n",
-            errorCode, errorMessage);
-        return {};
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::OpenPCM, errorCode
+        );
+        return ret;
     }
     snd_pcm_hw_params_t* hwParams = nullptr;
     snd_pcm_hw_params_alloca(&hwParams);
     errorCode = snd_pcm_hw_params_any(pcm, hwParams);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_hw_params_any` failed with error code %d: %s\n",
-            errorCode, errorMessage);
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::FillHardwareConfigSpace, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
     FOR_RANGE0(i, std::size(formats))
@@ -651,55 +664,57 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::b
     }
     if(format == SND_PCM_FORMAT_UNKNOWN)
     {
-        std::fprintf(stderr, "`snd_pcm_hw_params_set_format` failed: unsupported sample format\n");
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::SetSampleFormat, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     errorCode = snd_pcm_hw_params_set_rate(pcm, hwParams, sampleRate_, 0);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_hw_params_set_rate` failed with error code %d: %s\n",
-            errorCode, errorMessage);
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::SetSampleRate, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     errorCode = snd_pcm_hw_params_set_buffer_size(pcm, hwParams, bufferSize);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_hw_params_set_buffer_size` failed with error code %d: %s\n",
-            errorCode, errorMessage);
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::SetBufferSize, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     errorCode = snd_pcm_hw_params_set_period_size(pcm, hwParams, periodSize, 0);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_hw_params_set_period_size` failed with error code %d: %s\n",
-            errorCode, errorMessage);
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::SetPeriodSize, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     unsigned int channelCount = 0;
     errorCode = snd_pcm_hw_params_get_channels_max(hwParams, &channelCount);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_hw_params_get_channels_max` failed with error code %d: %s\n",
-            errorCode, errorMessage);
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::GetChannelCount, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     errorCode = snd_pcm_hw_params_set_channels(pcm, hwParams, channelCount);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_hw_params_set_channels` failed with error code %d: %s\n",
-            errorCode, errorMessage);
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::SetChannelCount, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     int access = SND_PCM_ACCESS_LAST + 1;
     FOR_RANGE0(i, std::size(accesses))
@@ -712,69 +727,76 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::b
     }
     if(access > SND_PCM_ACCESS_LAST)
     {
-        std::fprintf(stderr, "`snd_pcm_hw_params_set_access` failed: unsupported access\n");
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::SetSampleAccess, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     errorCode = snd_pcm_hw_params(pcm, hwParams);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_hw_params` failed with error code %d: %s\n",
-            errorCode, errorMessage);
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::DetermineHardwareConfig, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     snd_pcm_sw_params_t* swParams;
     snd_pcm_sw_params_alloca(&swParams);
     errorCode = snd_pcm_sw_params_current(pcm, swParams);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_sw_params_current` failed with error code %d: %s\n",
-            errorCode, errorMessage);
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::GetSotfwareConfig, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     errorCode = snd_pcm_sw_params_set_avail_min(pcm, swParams, periodSize);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_sw_params_set_avail_min` failed with error code %d: %s\n",
-            errorCode, errorMessage);
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::SetAvailMin, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     errorCode = snd_pcm_sw_params_set_start_threshold(pcm, swParams, bufferSize);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_sw_params_set_start_threshold` failed with error code %d: %s\n",
-            errorCode, errorMessage);
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::SetStartThreshold, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     errorCode = snd_pcm_sw_params(pcm, swParams);
     if(errorCode < 0)
     {
-        auto errorMessage = snd_strerror(errorCode);
-        std::fprintf(stderr, "`snd_pcm_sw_params` failed with error code %d: %s\n",
-            errorCode, errorMessage);
+        ret.emplace<ALSABackend::ActivateDeviceResult>(
+            ActivateDeviceProcess::DetermineSoftwareConfig, errorCode
+        );
         snd_pcm_close(pcm);
-        return {};
+        return ret;
     }
     std::byte* ptr = nullptr;
     if(access > SND_PCM_ACCESS_MMAP_COMPLEX)
     {
         auto buffer = allocateBuffer(frameCount_, channelCount, format);
-        if(!buffer)
+        if(buffer)
         {
-            std::fprintf(stderr, "Allocate buffer failed\n");
-            snd_pcm_close(pcm);
-            return {};
+            ptr = buffer.get();
+            buffers_.emplace(std::move(buffer));
         }
-        ptr = buffer.get();
-        buffers_.emplace(std::move(buffer));
+        else
+        {
+            ret.emplace<ALSABackend::ActivateDeviceResult>(
+                ActivateDeviceProcess::AllocateBuffer, errno
+            );
+            snd_pcm_close(pcm);
+            return ret;
+        }
     }
     void** nonInterleaveArray = nullptr;
     if(access == SND_PCM_ACCESS_MMAP_NONINTERLEAVED
@@ -809,12 +831,17 @@ std::tuple<snd_pcm_t*, std::uint32_t, snd_pcm_format_t, snd_pcm_access_t, std::b
         }
         else
         {
-            std::fprintf(stderr, "Allocate non-interleave array failed\n");
+            ret.emplace<ALSABackend::ActivateDeviceResult>(
+                ActivateDeviceProcess::AllocateBuffer, errno
+            );
             snd_pcm_close(pcm);
-            return {};
+            return ret;
         }
     }
-    return {pcm, channelCount, format, static_cast<snd_pcm_access_t>(access), ptr, nonInterleaveArray};
+    ret.emplace<ActivateSuccessResult>(
+        pcm, channelCount, format, static_cast<snd_pcm_access_t>(access), ptr, nonInterleaveArray
+    );
+    return ret;
 }
 
 std::shared_ptr<std::byte[]>

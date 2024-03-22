@@ -59,7 +59,7 @@ bool ALSAOutputDeviceListModel::setData(const QModelIndex& index, const QVariant
         case Role::Enabled:
         {
             if(auto result = backend_->setAudioDeviceActivated(false, row, value.value<bool>());
-                result != Audio::Backend::ALSABackend::Failed)
+                result.second == 0)
             {
                 dataChanged(index, index, {Role::Enabled});
                 return true;

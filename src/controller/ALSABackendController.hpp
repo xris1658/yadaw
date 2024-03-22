@@ -22,9 +22,10 @@ YADAW::Model::ALSAInputDeviceListModel& appALSAInputDeviceListModel();
 
 YADAW::Model::ALSAOutputDeviceListModel& appALSAOutputDeviceListModel();
 
-void activateDefaultDevice(YADAW::Audio::Backend::ALSABackend& backend);
+std::vector<QString> activateDefaultDevice(
+    YADAW::Audio::Backend::ALSABackend& backend);
 
-bool initializeALSAFromConfig(const YAML::Node& node);
+std::vector<QString> initializeALSAFromConfig(const YAML::Node& node);
 
 YAML::Node deviceConfigFromALSA();
 
