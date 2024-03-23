@@ -87,6 +87,8 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onLocateFileInExplorer(QString)));
     QObject::connect(sender, SIGNAL(startPluginScan()),
         this, SLOT(onStartPluginScan()));
+    QObject::connect(sender, SIGNAL(setMainWindowFullScreen(bool, bool)),
+        this, SLOT(onSetMainWindowFullScreen(bool, bool)));
 }
 
 void EventHandler::connectToEventReceiver(QObject* receiver)
@@ -641,5 +643,10 @@ void EventHandler::onAudioGraphOutputDeviceIndexChanged(int index)
 #if _WIN32
     YADAW::Controller::appAudioGraphOutputDeviceListModel().setOutputDeviceIndex(index);
 #endif
+}
+
+void EventHandler::onSetMainWindowFullScreen(bool fullscreen, bool maximized)
+{
+    YADAW::UI::setWindowFullScreen(*YADAW::UI::mainWindow, fullscreen, maximized);
 }
 }

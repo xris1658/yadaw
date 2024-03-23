@@ -813,7 +813,7 @@ endif()
 if(WIN32)
     set(NATIVE_LIBRARY version ole32 user32 windowsapp)
 elseif(LINUX)
-    set(NATIVE_LIBRARY asound dl)
+    set(NATIVE_LIBRARY asound dl xcb)
 endif()
 
 if(WIN32)

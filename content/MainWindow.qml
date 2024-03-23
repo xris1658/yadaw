@@ -304,16 +304,11 @@ ApplicationWindow {
                 checkable: true
                 onTriggered: {
                     if(!checked) {
-                        if(previouslyMaximized) {
-                            root.showMaximized();
-                        }
-                        else {
-                            root.show();
-                        }
+                        EventSender.setMainWindowFullScreen(false, previouslyMaximized);
                     }
                     else {
                         previouslyMaximized = (root.visibility === 4);
-                        root.showFullScreen();
+                        EventSender.setMainWindowFullScreen(true, previouslyMaximized);
                     }
                 }
             }
