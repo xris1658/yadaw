@@ -92,15 +92,15 @@ int main(int argc, char *argv[])
         const auto& localization = localizationList.at(i);
         if(localization.name == language && (!localization.translationFileList.empty()))
         {
-            auto fileCountLoaded = 0;
-            for(const auto& translationFileName: localization.translationFileList)
-            {
-                if(translator.load(translationFileName))
+            const auto& translationFileList = localization.translationFileList;
+            decltype(translationFileList.size()) fileCountLoaded = std::count_if(
+                translationFileList.begin(), translationFileList.end(),
+                [&localization, &translator](const QString& translationFile)
                 {
-                    ++fileCountLoaded;
+                    return translator.load(QLocale(localization.languageCode), translationFile);
                 }
-            }
-            if(fileCountLoaded == localization.translationFileList.size())
+            );
+            if(fileCountLoaded == translationFileList.size())
             {
                 QCoreApplication::installTranslator(&translator);
                 for(const auto& font: localization.fontList)
