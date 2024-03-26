@@ -77,7 +77,6 @@ private:
     void doSort();
     void doFilter();
     void mergeNewAcceptedItems(std::vector<int>::iterator filteredOutFirst);
-    void filterOutItems();
 private:
     ISortFilterListModel* sourceModel_ = nullptr;
     FilterRoleModel filterRoleModel_;
