@@ -138,6 +138,7 @@ bool FilterRoleModel::setFilterRole(int role, bool filter, Qt::CaseSensitivity c
             endRemoveRows();
             return true;
         }
+        return false;
     }
 }
 
