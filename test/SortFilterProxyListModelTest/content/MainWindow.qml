@@ -12,7 +12,6 @@ Window {
     color: "#202020"
 
     property IntegerModel sourceModel
-    property ISortFilterProxyListModel proxyModel
     Row {
         ListView {
             id: listView
@@ -26,12 +25,17 @@ Window {
         }
         ListView {
             id: proxyView
-            model: root.proxyModel
+            model: SortFilterProxyListModel {
+                sourceModel: listView.model
+            }
             width: 250
             height: 500
             delegate: ItemDelegate {
                 width: proxyView.width
                 text: im_value
+            }
+            Component.onCompleted: {
+                model.appendSortOrder(IntegerModel.Value, Qt.AscendingOrder);
             }
         }
     }

@@ -62,6 +62,11 @@ bool IntegerModel::isPassed(int roleIndex, const QModelIndex& modelIndex, const 
     return true;
 }
 
+bool IntegerModel::isPassed(const QModelIndex& modelIndex, int role, const QVariant& variant) const
+{
+    return true;
+}
+
 bool IntegerModel::insert(int position, const QList<int>& data)
 {
     if(position >= 0 && position <= itemCount())

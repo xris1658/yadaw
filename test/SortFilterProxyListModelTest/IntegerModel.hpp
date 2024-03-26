@@ -26,6 +26,7 @@ public:
     bool isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const override;
     bool isPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string,
         Qt::CaseSensitivity caseSensitivity) const override;
+    bool isPassed(const QModelIndex &modelIndex, int role, const QVariant &variant) const override;
 public:
     bool insert(int position, const QList<int>& data);
     bool append(const QList<int>& data);
