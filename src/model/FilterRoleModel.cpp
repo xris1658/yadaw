@@ -1,9 +1,9 @@
-#include "FilterRoleModel.hpp"
+#include "model/FilterRoleModel.hpp"
 
 namespace YADAW::Model
 {
 FilterRoleModel::FilterRoleModel(ISortFilterListModel* model, QObject* parent):
-    IFilterRoleModel(parent),
+    QAbstractListModel(parent),
     model_(model)
 {}
 
@@ -78,6 +78,11 @@ int FilterRoleModel::rowCount(const QModelIndex&) const
     return itemCount();
 }
 
+int FilterRoleModel::columnCount(const QModelIndex&) const
+{
+    return columnCount();
+}
+
 QVariant FilterRoleModel::data(const QModelIndex& index, int role) const
 {
     auto row = index.row();
@@ -149,5 +154,15 @@ void FilterRoleModel::clear()
         filterRoles_.clear();
         endRemoveRows();
     }
+}
+
+RoleNames FilterRoleModel::roleNames() const
+{
+    static RoleNames ret
+    {
+        std::make_pair(Role::FilterRole, "frm_filter_role"),
+        std::make_pair(Role::CaseSensitivity, "frm_case_sensitivity")
+    };
+    return ret;
 }
 }

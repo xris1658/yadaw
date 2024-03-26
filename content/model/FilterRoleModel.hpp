@@ -1,14 +1,22 @@
 #ifndef YADAW_SRC_MODEL_FILTERROLEMODEL
 #define YADAW_SRC_MODEL_FILTERROLEMODEL
 
-#include "model/IFilterRoleModel.hpp"
+#include "ModelBase.hpp"
 #include "model/ISortFilterListModel.hpp"
 #include "util/OptionalUtil.hpp"
 
 namespace YADAW::Model
 {
-class FilterRoleModel: public IFilterRoleModel
+class FilterRoleModel: public QAbstractListModel
 {
+    Q_OBJECT
+public:
+    enum Role
+    {
+        FilterRole = Qt::UserRole,
+        CaseSensitivity,
+        RoleCount
+    };
 private:
     using DataType = std::vector<std::pair<int, Qt::CaseSensitivity>>;
 public:
@@ -28,12 +36,18 @@ public:
     const std::pair<int, Qt::CaseSensitivity> operator[](std::size_t index) const;
     std::pair<int, Qt::CaseSensitivity> operator[](std::size_t index);
 public:
+    static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
+    static constexpr int columnCount() { return 1; }
+public:
     int rowCount(const QModelIndex&) const override;
+    int columnCount(const QModelIndex&) const override final;
     QVariant data(const QModelIndex& index, int role) const override;
 public:
     bool setFilterRole(int role, bool filter,
-        Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive) override;
-    void clear() override;
+        Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive);
+    void clear();
+protected:
+    RoleNames roleNames() const override;
 private:
     ISortFilterListModel* model_;
     std::vector<std::pair<int, Qt::CaseSensitivity>> filterRoles_;

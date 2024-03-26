@@ -1,9 +1,9 @@
 #ifndef YADAW_CONTENT_MODEL_ISORTFILTERPROXYMODEL
 #define YADAW_CONTENT_MODEL_ISORTFILTERPROXYMODEL
 
-#include "IFilterRoleModel.hpp"
+#include "FilterRoleModel.hpp"
 #include "ISortFilterListModel.hpp"
-#include "ISortOrderModel.hpp"
+#include "SortOrderModel.hpp"
 
 #include <QAbstractListModel>
 
@@ -12,18 +12,15 @@ namespace YADAW::Model
 class ISortFilterProxyListModel: public QAbstractListModel
 {
 Q_OBJECT
-    Q_PROPERTY(QString filterString READ getFilterString WRITE setFilterString NOTIFY filterStringChanged)
-    Q_PROPERTY(ISortOrderModel sortOrderModel READ getSortOrderModel)
-    Q_PROPERTY(IFilterRoleModel filterRoleModel READ getFilterRoleModel)
 public:
     ISortFilterProxyListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
 public:
     Q_INVOKABLE virtual ISortFilterListModel* sourceModel() = 0;
     virtual const ISortFilterListModel* sourceModel() const = 0;
-    Q_INVOKABLE virtual ISortOrderModel* getSortOrderModel() = 0;
-    virtual const ISortOrderModel* getSortOrderModel() const = 0;
-    Q_INVOKABLE virtual IFilterRoleModel* getFilterRoleModel() = 0;
-    virtual const IFilterRoleModel* getFilterRoleModel() const = 0;
+    Q_INVOKABLE virtual SortOrderModel* getSortOrderModel() = 0;
+    virtual const SortOrderModel* getSortOrderModel() const = 0;
+    Q_INVOKABLE virtual FilterRoleModel* getFilterRoleModel() = 0;
+    virtual const FilterRoleModel* getFilterRoleModel() const = 0;
     Q_INVOKABLE virtual QString& getFilterString() = 0;
     virtual const QString& getFilterString() const = 0;
     Q_INVOKABLE virtual void setFilterString(const QString& filterString) = 0;

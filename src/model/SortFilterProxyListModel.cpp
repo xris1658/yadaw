@@ -1,4 +1,4 @@
-#include "SortFilterProxyListModel.hpp"
+#include "model/SortFilterProxyListModel.hpp"
 
 #include "util/IntegerRange.hpp"
 
@@ -30,7 +30,7 @@ bool validateMapping(const std::vector<int>& srcToDst, const std::vector<int>& d
 }
 
 SortFilterProxyListModel::SortFilterProxyListModel(ISortFilterListModel& sourceModel, QObject* parent):
-    ISortFilterProxyListModel(parent),
+    QAbstractListModel(parent),
     sourceModel_(&sourceModel),
     filterRoleModel_(&sourceModel, this),
     sortOrderModel_(&sourceModel, this),
@@ -78,22 +78,22 @@ const ISortFilterListModel* SortFilterProxyListModel::sourceModel() const
     return sourceModel_;
 }
 
-ISortOrderModel* SortFilterProxyListModel::getSortOrderModel()
+SortOrderModel* SortFilterProxyListModel::getSortOrderModel()
 {
     return &sortOrderModel_;
 }
 
-const ISortOrderModel* SortFilterProxyListModel::getSortOrderModel() const
+const SortOrderModel* SortFilterProxyListModel::getSortOrderModel() const
 {
     return &sortOrderModel_;
 }
 
-IFilterRoleModel* SortFilterProxyListModel::getFilterRoleModel()
+FilterRoleModel* SortFilterProxyListModel::getFilterRoleModel()
 {
     return &filterRoleModel_;
 }
 
-const IFilterRoleModel* SortFilterProxyListModel::getFilterRoleModel() const
+const FilterRoleModel* SortFilterProxyListModel::getFilterRoleModel() const
 {
     return &filterRoleModel_;
 }

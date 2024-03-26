@@ -1,16 +1,13 @@
 add_subdirectory(content)
 
 add_executable(SortFilterProxyListModelTest
-               ../../content/model/IFilterRoleModel.hpp
-               ../../content/model/ISortOrderModel.hpp
+               ../../content/model/FilterRoleModel.hpp
                ../../content/model/ISortFilterListModel.hpp
-               ../../content/model/ISortFilterProxyListModel.hpp
+               ../../content/model/SortFilterProxyListModel.hpp
+               ../../content/model/SortOrderModel.hpp
                ../../src/model/FilterRoleModel.cpp
-               ../../src/model/FilterRoleModel.hpp
                ../../src/model/SortFilterProxyListModel.cpp
-               ../../src/model/SortFilterProxyListModel.hpp
                ../../src/model/SortOrderModel.cpp
-               ../../src/model/SortOrderModel.hpp
                main.cpp
                IntegerModel.cpp
                IntegerModel.hpp)

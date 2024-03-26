@@ -1,9 +1,9 @@
-#include "SortOrderModel.hpp"
+#include "model/SortOrderModel.hpp"
 
 namespace YADAW::Model
 {
 SortOrderModel::SortOrderModel(ISortFilterListModel* model, QObject* parent):
-    ISortOrderModel(parent),
+    QAbstractListModel(parent),
     model_(model)
 {}
 
@@ -46,6 +46,11 @@ std::pair<int, Qt::SortOrder>& SortOrderModel::operator[](std::size_t index)
 int SortOrderModel::rowCount(const QModelIndex&) const
 {
     return itemCount();
+}
+
+int SortOrderModel::columnCount(const QModelIndex&) const
+{
+    return columnCount();
 }
 
 QVariant SortOrderModel::data(const QModelIndex& index, int role) const
@@ -122,5 +127,15 @@ void SortOrderModel::clear()
         sortOrder_.clear();
         endRemoveRows();
     }
+}
+
+RoleNames SortOrderModel::roleNames() const
+{
+    static RoleNames ret
+    {
+        std::make_pair(Role::SortRole, "som_sort_role"),
+        std::make_pair(Role::SortOrder, "som_sort_order")
+    };
+    return ret;
 }
 }

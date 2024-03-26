@@ -351,7 +351,6 @@ set(YADAW_COMMON_SOURCES
     src/model/AutomationModel.cpp
     src/model/AutomationModel.hpp
     src/model/FilterRoleModel.cpp
-    src/model/FilterRoleModel.hpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
     src/model/MixerChannelInsertListModel.cpp
@@ -371,9 +370,7 @@ set(YADAW_COMMON_SOURCES
     src/model/PluginParameterListModel.cpp
     src/model/PluginParameterListModel.hpp
     src/model/SortOrderModel.cpp
-    src/model/SortOrderModel.hpp
     src/model/SortFilterProxyListModel.cpp
-    src/model/SortFilterProxyListModel.hpp
     src/model/SpeakerListModel.cpp
     src/model/SpeakerListModel.hpp
     src/native/AudioBackendSupport.hpp

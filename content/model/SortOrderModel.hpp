@@ -1,16 +1,27 @@
 #ifndef YADAW_SRC_MODEL_SORTORDERMODEL
 #define YADAW_SRC_MODEL_SORTORDERMODEL
 
-#include "model/ISortOrderModel.hpp"
+#include "ModelBase.hpp"
+
 #include "model/ISortFilterListModel.hpp"
 #include "util/OptionalUtil.hpp"
+
+#include <QAbstractListModel>
 
 #include <vector>
 
 namespace YADAW::Model
 {
-class SortOrderModel: public ISortOrderModel
+class SortOrderModel: public QAbstractListModel
 {
+    Q_OBJECT
+public:
+    enum Role
+    {
+        SortRole = Qt::UserRole,
+        SortOrder,
+        RoleCount
+    };
 public:
     SortOrderModel(ISortFilterListModel* model, QObject* parent = nullptr);
     ~SortOrderModel();
@@ -21,14 +32,19 @@ public:
     const std::pair<int, Qt::SortOrder>& operator[](std::size_t index) const;
     std::pair<int, Qt::SortOrder>& operator[](std::size_t index);
 public:
+    static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
+    static constexpr int columnCount() { return 1; }
     int rowCount(const QModelIndex&) const override;
+    int columnCount(const QModelIndex&) const override final;
     QVariant data(const QModelIndex& index, int role) const override;
 public:
-    Q_INVOKABLE bool insert(int role, Qt::SortOrder sortOrder, int position) override;
-    Q_INVOKABLE bool append(int role, Qt::SortOrder sortOrder) override;
-    Q_INVOKABLE int getIndexOfRole(int role) const override;
-    Q_INVOKABLE bool remove(int index) override;
-    Q_INVOKABLE void clear() override;
+    Q_INVOKABLE bool insert(int role, Qt::SortOrder sortOrder, int position);
+    Q_INVOKABLE bool append(int role, Qt::SortOrder sortOrder);
+    Q_INVOKABLE int getIndexOfRole(int role) const;
+    Q_INVOKABLE bool remove(int index);
+    Q_INVOKABLE void clear();
+protected:
+    RoleNames roleNames() const override;
 private:
     ISortFilterListModel* model_;
     std::vector<std::pair<int, Qt::SortOrder>> sortOrder_;

@@ -19,13 +19,13 @@ set(CONTENT_CPP_FILES
     entity/AudioBackendSupport.hpp
     entity/ChannelConfig.hpp
     entity/PluginFormatSupport.hpp
+    model/FilterRoleModel.hpp
     model/IAssetDirectoryListModel.hpp
     model/IAudioBusChannelListModel.hpp
     model/IAudioBusConfigurationModel.hpp
     model/IAudioDeviceIOGroupListModel.hpp
     model/IAudioDeviceListModel.hpp
     model/IAutomationModel.hpp
-    model/IFilterRoleModel.hpp
     model/ILocalizationListModel.hpp
     model/IMixerChannelInsertListModel.hpp
     model/IMixerChannelListModel.hpp
@@ -36,10 +36,10 @@ set(CONTENT_CPP_FILES
     model/IPluginListModel.hpp
     model/IPluginParameterListModel.hpp
     model/ISortFilterListModel.hpp
-    model/ISortFilterProxyListModel.hpp
-    model/ISortOrderModel.hpp
     model/ISpeakerListModel.hpp
     model/ITrackListModel.hpp
+    model/SortFilterProxyListModel.hpp
+    model/SortOrderModel.hpp
     )
 
 set(CONTENT_QML_FILES

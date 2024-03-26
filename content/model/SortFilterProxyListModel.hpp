@@ -1,42 +1,48 @@
 #ifndef YADAW_SRC_MODEL_SORTFILTERPROXYLISTMODEL
 #define YADAW_SRC_MODEL_SORTFILTERPROXYLISTMODEL
 
-#include "model/ISortFilterProxyListModel.hpp"
-
+#include "ModelBase.hpp"
 #include "model/FilterRoleModel.hpp"
 #include "model/SortOrderModel.hpp"
 
+#include <QAbstractListModel>
 #include <QList>
 
 namespace YADAW::Model
 {
-class SortFilterProxyListModel: public ISortFilterProxyListModel
+class SortFilterProxyListModel: public QAbstractListModel
 {
     Q_OBJECT
+    QML_NAMED_ELEMENT(SortFilterProxyListModel)
+    Q_PROPERTY(QString filterString READ getFilterString WRITE setFilterString NOTIFY filterStringChanged)
+    Q_PROPERTY(SortOrderModel sortOrderModel READ getSortOrderModel)
+    Q_PROPERTY(FilterRoleModel filterRoleModel READ getFilterRoleModel)
 public:
+    SortFilterProxyListModel();
+    SortFilterProxyListModel(const SortFilterProxyListModel& rhs);
     SortFilterProxyListModel(ISortFilterListModel& sourceModel, QObject* parent = nullptr);
     ~SortFilterProxyListModel() override;
 public:
-    ISortFilterListModel* sourceModel();
+    Q_INVOKABLE ISortFilterListModel* sourceModel();
     const ISortFilterListModel* sourceModel() const;
-    ISortOrderModel* getSortOrderModel();
-    const ISortOrderModel* getSortOrderModel() const;
-    IFilterRoleModel* getFilterRoleModel();
-    const IFilterRoleModel* getFilterRoleModel() const;
-    const QString& getFilterString() const override;
-    QString& getFilterString() override;
-    void setFilterString(const QString& filterString) override;
-    bool insertSortOrder(int role, Qt::SortOrder sortOrder, int position) override;
-    bool appendSortOrder(int role, Qt::SortOrder sortOrder) override;
-    int getSortIndexOfRole(int role) const override;
-    bool removeSortOrder(int index) override;
-    void clearSortOrder() override;
-    bool setFilter(int role, bool filterEnabled,
-        Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive) override;
-    void clearFilter() override;
-    QVariant valueOfFilter(int role) const override;
-    bool setValueOfFilter(int role, const QVariant& value) override;
-    void clearValueOfFilter(int role) override;
+    Q_INVOKABLE SortOrderModel* getSortOrderModel();
+    const SortOrderModel* getSortOrderModel() const;
+    Q_INVOKABLE FilterRoleModel* getFilterRoleModel();
+    const FilterRoleModel* getFilterRoleModel() const;
+    Q_INVOKABLE const QString& getFilterString() const;
+    QString& getFilterString();
+    Q_INVOKABLE void setFilterString(const QString& filterString);
+    Q_INVOKABLE bool insertSortOrder(int role, Qt::SortOrder sortOrder, int position);
+    Q_INVOKABLE bool appendSortOrder(int role, Qt::SortOrder sortOrder);
+    Q_INVOKABLE int getSortIndexOfRole(int role) const;
+    Q_INVOKABLE bool removeSortOrder(int index);
+    Q_INVOKABLE void clearSortOrder();
+    Q_INVOKABLE bool setFilter(int role, bool filterEnabled,
+        Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive);
+    Q_INVOKABLE void clearFilter();
+    Q_INVOKABLE QVariant valueOfFilter(int role) const;
+    Q_INVOKABLE bool setValueOfFilter(int role, const QVariant& value);
+    Q_INVOKABLE void clearValueOfFilter(int role);
 public:
     int itemCount() const;
     int rowCount(const QModelIndex&) const override;
@@ -45,6 +51,8 @@ public:
     bool setData(const QModelIndex&index, const QVariant& value, int role) override;
 protected:
     RoleNames roleNames() const override;
+signals:
+    void filterStringChanged();
 private slots:
     void sourceModelRowsInserted(const QModelIndex& parent, int first, int last);
     void sourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last);
