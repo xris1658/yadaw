@@ -4,8 +4,10 @@
 
 #include <QCoreApplication>
 
+#if __linux__
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
+#endif
 
 namespace YADAW::UI
 {
