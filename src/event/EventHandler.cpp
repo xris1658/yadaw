@@ -17,7 +17,6 @@
 #include "entity/ChannelConfigHelper.hpp"
 #include "event/EventBase.hpp"
 #include "model/MixerChannelListModel.hpp"
-#include "model/SortFilterProxyListModel.hpp"
 #include "native/Native.hpp"
 #include "ui/MessageDialog.hpp"
 #include "ui/UI.hpp"
