@@ -283,55 +283,8 @@ void EventHandler::onOpenMainWindow()
     YADAW::UI::mainWindow->setProperty("pluginDirectoryListModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appPluginDirectoryListModel()));
     auto& appPluginListModel = YADAW::Controller::appPluginListModel();
-    static YADAW::Model::SortFilterProxyListModel pluginListModel(appPluginListModel, nullptr);
-    static YADAW::Model::SortFilterProxyListModel pluginSelectorListModel(appPluginListModel, nullptr);
-    static YADAW::Model::SortFilterProxyListModel vst3PluginListModel(appPluginListModel, nullptr);
-    vst3PluginListModel.setValueOfFilter(
-        YADAW::Model::IPluginListModel::Role::Format,
-        QVariant(YADAW::Model::IPluginListModel::PluginFormat::VST3)
-    );
-    static YADAW::Model::SortFilterProxyListModel clapPluginListModel(YADAW::Controller::appPluginListModel(), nullptr);
-    clapPluginListModel.setValueOfFilter(
-        YADAW::Model::IPluginListModel::Role::Format,
-        QVariant(YADAW::Model::IPluginListModel::PluginFormat::CLAP)
-    );
-    static YADAW::Model::SortFilterProxyListModel vestifalPluginListModel(YADAW::Controller::appPluginListModel(), nullptr);
-    vestifalPluginListModel.setValueOfFilter(
-        YADAW::Model::IPluginListModel::Role::Format,
-        QVariant(YADAW::Model::IPluginListModel::PluginFormat::Vestifal)
-    );
-    static YADAW::Model::SortFilterProxyListModel instrumentListModel(appPluginListModel, nullptr);
-    instrumentListModel.setValueOfFilter(
-        YADAW::Model::IPluginListModel::Role::Type,
-        QVariant(YADAW::Model::IPluginListModel::PluginType::Instrument)
-    );
-    static YADAW::Model::SortFilterProxyListModel audioEffectListModel(appPluginListModel, nullptr);
-    audioEffectListModel.setValueOfFilter(
-        YADAW::Model::IPluginListModel::Role::Type,
-        QVariant(YADAW::Model::IPluginListModel::PluginType::AudioEffect)
-    );
-    static YADAW::Model::SortFilterProxyListModel midiEffectListModel(appPluginListModel, nullptr);
-    midiEffectListModel.setValueOfFilter(
-        YADAW::Model::IPluginListModel::Role::Type,
-        QVariant(YADAW::Model::IPluginListModel::PluginType::MIDIEffect)
-    );
-    auto* filterRoleModel = pluginListModel.getFilterRoleModel();
     YADAW::UI::mainWindow->setProperty("pluginListModel",
-        QVariant::fromValue<QObject*>(&pluginListModel));
-    YADAW::UI::mainWindow->setProperty("pluginSelectorListModel",
-        QVariant::fromValue<QObject*>(&pluginSelectorListModel));
-    YADAW::UI::mainWindow->setProperty("midiEffectListModel",
-        QVariant::fromValue<QObject*>(&midiEffectListModel));
-    YADAW::UI::mainWindow->setProperty("instrumentListModel",
-        QVariant::fromValue<QObject*>(&instrumentListModel));
-    YADAW::UI::mainWindow->setProperty("audioEffectListModel",
-        QVariant::fromValue<QObject*>(&audioEffectListModel));
-    YADAW::UI::mainWindow->setProperty("vestifalPluginListModel",
-        QVariant::fromValue<QObject*>(&vestifalPluginListModel));
-    YADAW::UI::mainWindow->setProperty("vst3PluginListModel",
-        QVariant::fromValue<QObject*>(&vst3PluginListModel));
-    YADAW::UI::mainWindow->setProperty("clapPluginListModel",
-        QVariant::fromValue<QObject*>(&clapPluginListModel));
+        QVariant::fromValue<QObject*>(&appPluginListModel));
     YADAW::UI::mainWindow->setProperty("systemFontRendering",
         QVariant::fromValue<bool>(YADAW::Controller::GeneralSettingsController::systemFontRendering()));
     YADAW::UI::mainWindow->setProperty("systemFontRenderingWhileDebugging",

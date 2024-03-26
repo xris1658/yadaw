@@ -2,9 +2,8 @@
 
 namespace YADAW::Model
 {
-SortOrderModel::SortOrderModel(ISortFilterListModel* model, QObject* parent):
-    QAbstractListModel(parent),
-    model_(model)
+SortOrderModel::SortOrderModel(QObject* parent):
+    QAbstractListModel(parent)
 {}
 
 SortOrderModel::~SortOrderModel()
@@ -79,8 +78,7 @@ bool SortOrderModel::insert(int role, Qt::SortOrder sortOrder, int position)
             return sortRole == role;
         }
     );
-    if(it == sortOrder_.end() && model_->isComparable(role)
-        && position >= 0 && position <= itemCount())
+    if(it == sortOrder_.end() && position >= 0 && position <= itemCount())
     {
         beginInsertRows(QModelIndex(), position, position);
         sortOrder_.emplace(sortOrder_.begin() + position, role, sortOrder);

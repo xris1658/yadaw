@@ -2,9 +2,8 @@
 
 namespace YADAW::Model
 {
-FilterRoleModel::FilterRoleModel(ISortFilterListModel* model, QObject* parent):
-    QAbstractListModel(parent),
-    model_(model)
+FilterRoleModel::FilterRoleModel(QObject* parent):
+    QAbstractListModel(parent)
 {}
 
 FilterRoleModel::~FilterRoleModel()
@@ -102,48 +101,44 @@ QVariant FilterRoleModel::data(const QModelIndex& index, int role) const
 
 bool FilterRoleModel::setFilterRole(int role, bool filter, Qt::CaseSensitivity caseSensitivity)
 {
-    if(model_->isFilterable(role))
-    {
-        auto it = std::find_if(filterRoles_.begin(), filterRoles_.end(),
-            [role](const std::pair<int, Qt::CaseSensitivity>& pair)
-            {
-                const auto& [filterRole, _] = pair;
-                return filterRole == role;
-            }
-        );
-        if(filter)
+    auto it = std::find_if(filterRoles_.begin(), filterRoles_.end(),
+        [role](const std::pair<int, Qt::CaseSensitivity>& pair)
         {
-            auto row = it - filterRoles_.begin();
-            if(it != filterRoles_.end())
+            const auto& [filterRole, _] = pair;
+            return filterRole == role;
+        }
+    );
+    if(filter)
+    {
+        auto row = it - filterRoles_.begin();
+        if(it != filterRoles_.end())
+        {
+            auto& [filterRole, oldCaseSensitivity] = *it;
+            if(oldCaseSensitivity != caseSensitivity)
             {
-                auto& [filterRole, oldCaseSensitivity] = *it;
-                if(oldCaseSensitivity != caseSensitivity)
-                {
-                    oldCaseSensitivity = caseSensitivity;
-                    dataChanged(index(row), index(row), {Role::CaseSensitivity});
-                }
+                oldCaseSensitivity = caseSensitivity;
+                dataChanged(index(row), index(row), {Role::CaseSensitivity});
             }
-            else
-            {
-                beginInsertRows(QModelIndex(), row, row);
-                filterRoles_.emplace_back(role, caseSensitivity);
-                endInsertRows();
-            }
-            return true;
         }
         else
         {
-            if(it != filterRoles_.end())
-            {
-                auto row = it - filterRoles_.begin();
-                beginRemoveRows(QModelIndex(), row, row);
-                filterRoles_.erase(it);
-                endRemoveRows();
-                return true;
-            }
+            beginInsertRows(QModelIndex(), row, row);
+            filterRoles_.emplace_back(role, caseSensitivity);
+            endInsertRows();
+        }
+        return true;
+    }
+    else
+    {
+        if(it != filterRoles_.end())
+        {
+            auto row = it - filterRoles_.begin();
+            beginRemoveRows(QModelIndex(), row, row);
+            filterRoles_.erase(it);
+            endRemoveRows();
+            return true;
         }
     }
-    return false;
 }
 
 void FilterRoleModel::clear()

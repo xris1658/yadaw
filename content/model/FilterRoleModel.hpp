@@ -20,7 +20,7 @@ public:
 private:
     using DataType = std::vector<std::pair<int, Qt::CaseSensitivity>>;
 public:
-    FilterRoleModel(ISortFilterListModel* model, QObject* parent = nullptr);
+    FilterRoleModel(QObject* parent = nullptr);
     ~FilterRoleModel();
 public:
     DataType::iterator begin() noexcept;
@@ -49,7 +49,6 @@ public:
 protected:
     RoleNames roleNames() const override;
 private:
-    ISortFilterListModel* model_;
     std::vector<std::pair<int, Qt::CaseSensitivity>> filterRoles_;
 };
 }

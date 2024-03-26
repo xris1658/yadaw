@@ -34,7 +34,6 @@ ApplicationWindow {
     property alias alsaOutputDeviceList: preferencesWindow.alsaOutputDeviceList
 
     property alias pluginListModel: assets.pluginListModel
-    property alias pluginSelectorListModel: pluginSelector.pluginListModel
     property alias midiEffectListModel: assets.midiEffectListModel
     property alias instrumentListModel: assets.instrumentListModel
     property alias audioEffectListModel: assets.audioEffectListModel
@@ -787,6 +786,9 @@ ApplicationWindow {
         readonly property PluginSelector pluginSelector: pluginSelector
         PluginSelector {
             id: pluginSelector
+            pluginListModel: SortFilterProxyListModel {
+                sourceModel: root.pluginListModel
+            }
             onAccepted: {
                 pluginSelectorWindow.hide();
             }

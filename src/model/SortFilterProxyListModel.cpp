@@ -29,28 +29,10 @@ bool validateMapping(const std::vector<int>& srcToDst, const std::vector<int>& d
     return false;
 }
 
-SortFilterProxyListModel::SortFilterProxyListModel(ISortFilterListModel& sourceModel, QObject* parent):
-    QAbstractListModel(parent),
-    sourceModel_(&sourceModel),
-    filterRoleModel_(&sourceModel, this),
-    sortOrderModel_(&sourceModel, this),
-    srcToDst_(sourceModel.rowCount()),
-    dstToSrc_(sourceModel.rowCount()),
-    filteredOutFirst_(dstToSrc_.end()),
-    filterString_()
+SortFilterProxyListModel::SortFilterProxyListModel(QObject* parent):
+    QAbstractListModel(parent)
 {
-    std::iota(srcToDst_.begin(), srcToDst_.end(), 0);
-    std::iota(dstToSrc_.begin(), dstToSrc_.end(), 0);
-    QObject::connect(sourceModel_, &ISortFilterListModel::rowsInserted,
-        this, &SortFilterProxyListModel::sourceModelRowsInserted);
-    QObject::connect(sourceModel_, &ISortFilterListModel::rowsAboutToBeRemoved,
-        this, &SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved);
-    QObject::connect(sourceModel_, &ISortFilterListModel::dataChanged,
-        this, &SortFilterProxyListModel::sourceModelDataChanged);
-    QObject::connect(sourceModel_, &ISortFilterListModel::modelAboutToBeReset,
-        this, &SortFilterProxyListModel::sourceModelAboutToBeReset);
-    QObject::connect(sourceModel_, &ISortFilterListModel::modelReset,
-        this, &SortFilterProxyListModel::sourceModelReset);
+    filteredOutFirst_ = dstToSrc_.begin();
     QObject::connect(&sortOrderModel_, &SortOrderModel::rowsInserted,
         this, &SortFilterProxyListModel::sortOrderModelRowsInserted);
     QObject::connect(&sortOrderModel_, &SortOrderModel::rowsRemoved,
@@ -65,17 +47,95 @@ SortFilterProxyListModel::SortFilterProxyListModel(ISortFilterListModel& sourceM
         this, &SortFilterProxyListModel::filterRoleModelDataChanged);
 }
 
+SortFilterProxyListModel::SortFilterProxyListModel(
+    ISortFilterListModel& sourceModel, QObject* parent):
+    SortFilterProxyListModel(parent)
+{
+    setSourceModel(&sourceModel);
+}
+
+SortFilterProxyListModel::SortFilterProxyListModel(
+    const SortFilterProxyListModel& rhs):
+    SortFilterProxyListModel(rhs.parent())
+{
+    setSourceModel(rhs.sourceModel_);
+}
+
 SortFilterProxyListModel::~SortFilterProxyListModel()
 {}
 
-ISortFilterListModel* SortFilterProxyListModel::sourceModel()
+ISortFilterListModel* SortFilterProxyListModel::getSourceModel()
 {
     return sourceModel_;
 }
 
-const ISortFilterListModel* SortFilterProxyListModel::sourceModel() const
+const ISortFilterListModel* SortFilterProxyListModel::getSourceModel() const
 {
     return sourceModel_;
+}
+
+void SortFilterProxyListModel::setSourceModel(ISortFilterListModel* model)
+{
+    if(model != sourceModel_)
+    {
+        auto oldItemCount = itemCount();
+        if(oldItemCount != 0)
+        {
+            beginRemoveRows(QModelIndex(), 0, oldItemCount - 1);
+        }
+        if(sourceModel_)
+        {
+            for(const auto& connection: connections_)
+            {
+                QObject::disconnect(connection);
+            }
+            srcToDst_.clear();
+            srcToDst_.shrink_to_fit();
+            dstToSrc_.clear();
+            dstToSrc_.shrink_to_fit();
+            filteredOutFirst_ = dstToSrc_.begin();
+        }
+        sourceModel_ = model;
+        if(oldItemCount != 0)
+        {
+            endRemoveRows();
+        }
+        if(model)
+        {
+            srcToDst_.resize(sourceModel_->rowCount());
+            std::iota(srcToDst_.begin(), srcToDst_.end(), 0);
+            dstToSrc_.resize(sourceModel_->rowCount());
+            std::iota(dstToSrc_.begin(), dstToSrc_.end(), 0);
+            filteredOutFirst_ = dstToSrc_.end();
+            auto newItemCount = itemCount();
+            if(newItemCount != 0)
+            {
+                beginInsertRows(QModelIndex(), 0, itemCount() - 1);
+            }
+            connections_[0] = QObject::connect(
+                sourceModel_, &ISortFilterListModel::rowsInserted,
+                this, &SortFilterProxyListModel::sourceModelRowsInserted);
+            connections_[1] = QObject::connect(
+                sourceModel_, &ISortFilterListModel::rowsAboutToBeRemoved,
+                this, &SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved);
+            connections_[2] = QObject::connect(
+                sourceModel_, &ISortFilterListModel::dataChanged,
+                this, &SortFilterProxyListModel::sourceModelDataChanged);
+            connections_[3] = QObject::connect(
+                sourceModel_, &ISortFilterListModel::modelAboutToBeReset,
+                this, &SortFilterProxyListModel::sourceModelAboutToBeReset);
+            connections_[4] = QObject::connect(
+                sourceModel_, &ISortFilterListModel::modelReset,
+                this, &SortFilterProxyListModel::sourceModelReset);
+            if(newItemCount != 0)
+            {
+                endInsertRows();
+            }
+            doFilter();
+            doSort();
+        }
+        sourceModelChanged();
+    }
 }
 
 SortOrderModel* SortFilterProxyListModel::getSortOrderModel()
@@ -98,12 +158,7 @@ const FilterRoleModel* SortFilterProxyListModel::getFilterRoleModel() const
     return &filterRoleModel_;
 }
 
-const QString& SortFilterProxyListModel::getFilterString() const
-{
-    return filterString_;
-}
-
-QString& SortFilterProxyListModel::getFilterString()
+QString SortFilterProxyListModel::getFilterString() const
 {
     return filterString_;
 }
@@ -434,13 +489,38 @@ void SortFilterProxyListModel::doSort()
 void SortFilterProxyListModel::doFilter()
 {
     auto oldFilteredOutFirst = filteredOutFirst_;
-    filterOutItems();
-    auto newFilteredOutFirst = std::partition(filteredOutFirst_, dstToSrc_.end(),
+    auto oldItemCount = itemCount();
+    auto unchangedEnd = filteredOutFirst_;
+    for(auto i = oldItemCount; i-- > 0;)
+    {
+        if(auto it = dstToSrc_.begin() + i; !isAccepted(*it, filterString_))
+        {
+            unchangedEnd = it;
+            beginRemoveRows(QModelIndex(), i, i);
+            std::rotate(it, it + 1, filteredOutFirst_);
+            --filteredOutFirst_;
+            endRemoveRows();
+        }
+    }
+    auto newItemCount = itemCount();
+    auto unchangedCount = unchangedEnd - dstToSrc_.begin();
+    FOR_RANGE(i, unchangedCount, newItemCount)
+    {
+        srcToDst_[dstToSrc_[i]] = i;
+    }
+    FOR_RANGE(i, newItemCount, oldItemCount)
+    {
+        srcToDst_[dstToSrc_[i]] = -1;
+    }
+    auto newFilteredOutFirst = std::partition(
+        oldFilteredOutFirst, dstToSrc_.end(),
         [this](int row)
         {
             return isAccepted(row, filterString_);
         }
     );
+    newFilteredOutFirst = std::rotate(
+        filteredOutFirst_, oldFilteredOutFirst, newFilteredOutFirst);
     mergeNewAcceptedItems(newFilteredOutFirst);
     assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
 }
@@ -467,7 +547,8 @@ void SortFilterProxyListModel::mergeNewAcceptedItems(
         auto beforeLast = firstNewItem + newAcceptedItemCount - 1;
         FOR_RANGE0(i, newAcceptedItemCount)
         {
-            auto newFirstNewIterator = std::upper_bound(dstToSrc_.begin(), firstNewItem, *beforeLast,
+            auto newFirstNewIterator = std::upper_bound(
+                dstToSrc_.begin(), firstNewItem, *beforeLast,
                 [this](int lhs, int rhs)
                 {
                     return isLess(lhs, rhs);
@@ -485,31 +566,6 @@ void SortFilterProxyListModel::mergeNewAcceptedItems(
         {
             srcToDst_[dstToSrc_[i]] = i;
         }
-    }
-    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
-}
-
-void SortFilterProxyListModel::filterOutItems()
-{
-    auto oldItemCount = itemCount();
-    for(auto i = oldItemCount; i-- > 0;)
-    {
-        if(auto it = dstToSrc_.begin() + i; !isAccepted(*it, filterString_))
-        {
-            beginRemoveRows(QModelIndex(), i, i);
-            std::rotate(it, it + 1, filteredOutFirst_);
-            --filteredOutFirst_;
-            endRemoveRows();
-        }
-    }
-    auto newItemCount = itemCount();
-    FOR_RANGE0(i, newItemCount)
-    {
-        srcToDst_[dstToSrc_[i]] = i;
-    }
-    FOR_RANGE(i, newItemCount, oldItemCount)
-    {
-        srcToDst_[dstToSrc_[i]] = -1;
     }
     assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
 }

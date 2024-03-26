@@ -23,7 +23,7 @@ public:
         RoleCount
     };
 public:
-    SortOrderModel(ISortFilterListModel* model, QObject* parent = nullptr);
+    SortOrderModel(QObject* parent = nullptr);
     ~SortOrderModel();
 public:
     int itemCount() const;
@@ -46,7 +46,6 @@ public:
 protected:
     RoleNames roleNames() const override;
 private:
-    ISortFilterListModel* model_;
     std::vector<std::pair<int, Qt::SortOrder>> sortOrder_;
 };
 }

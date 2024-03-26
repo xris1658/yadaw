@@ -3,6 +3,8 @@ import QtQuick
 import QtQuick.Dialogs
 import QtQuick.Layouts
 
+import YADAW.Models
+
 Rectangle {
     id: root
     color: Colors.background
@@ -361,21 +363,75 @@ Rectangle {
                     }
                     PluginListView {
                         id: midiEffectListView
+                        model: SortFilterProxyListModel {
+                            sourceModel: root.pluginListModel
+                        }
+                        Component.onCompleted: {
+                            model.setValueOfFilter(
+                                IPluginListModel.Type,
+                                IPluginListModel.MIDIEffect
+                            );
+                        }
                     }
                     PluginListView {
                         id: instrumentListView
+                        model: SortFilterProxyListModel {
+                            sourceModel: root.pluginListModel
+                        }
+                        Component.onCompleted: {
+                            model.setValueOfFilter(
+                                IPluginListModel.Type,
+                                IPluginListModel.Instrument
+                            );
+                        }
                     }
                     PluginListView {
                         id: audioEffectListView
+                        model: SortFilterProxyListModel {
+                            sourceModel: root.pluginListModel
+                        }
+                        Component.onCompleted: {
+                            model.setValueOfFilter(
+                                IPluginListModel.Type,
+                                IPluginListModel.AudioEffect
+                            );
+                        }
                     }
                     PluginListView {
                         id: vst3PluginListView
+                        model: SortFilterProxyListModel {
+                            sourceModel: root.pluginListModel
+                        }
+                        Component.onCompleted: {
+                            model.setValueOfFilter(
+                                IPluginListModel.Format,
+                                IPluginListModel.VST3
+                            );
+                        }
                     }
                     PluginListView {
                         id: clapPluginListView
+                        model: SortFilterProxyListModel {
+                            sourceModel: root.pluginListModel
+                        }
+                        Component.onCompleted: {
+                            model.setValueOfFilter(
+                                IPluginListModel.Format,
+                                IPluginListModel.CLAP
+                            );
+                        }
                     }
                     PluginListView {
                         id: vestifalPluginListView
+                        model: SortFilterProxyListModel {
+                            sourceModel: root.pluginListModel
+                        }
+                        Component.onCompleted: {
+                            model.setValueOfFilter(
+                                IPluginListModel.Format,
+                                IPluginListModel.Vestifal
+                            );
+                        }
                     }
                 }
             }

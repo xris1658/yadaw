@@ -6,31 +6,35 @@
 #include "model/SortOrderModel.hpp"
 
 #include <QAbstractListModel>
+#include <QMetaObject>
 #include <QList>
+#include <QQmlEngine>
+
+#include <array>
 
 namespace YADAW::Model
 {
 class SortFilterProxyListModel: public QAbstractListModel
 {
     Q_OBJECT
-    QML_NAMED_ELEMENT(SortFilterProxyListModel)
     Q_PROPERTY(QString filterString READ getFilterString WRITE setFilterString NOTIFY filterStringChanged)
+    Q_PROPERTY(ISortFilterListModel* sourceModel READ getSourceModel WRITE setSourceModel NOTIFY sourceModelChanged)
     Q_PROPERTY(SortOrderModel sortOrderModel READ getSortOrderModel)
     Q_PROPERTY(FilterRoleModel filterRoleModel READ getFilterRoleModel)
 public:
-    SortFilterProxyListModel();
+    SortFilterProxyListModel(QObject* parent = nullptr);
     SortFilterProxyListModel(const SortFilterProxyListModel& rhs);
     SortFilterProxyListModel(ISortFilterListModel& sourceModel, QObject* parent = nullptr);
     ~SortFilterProxyListModel() override;
 public:
-    Q_INVOKABLE ISortFilterListModel* sourceModel();
-    const ISortFilterListModel* sourceModel() const;
+    Q_INVOKABLE ISortFilterListModel* getSourceModel();
+    const ISortFilterListModel* getSourceModel() const;
+    void setSourceModel(ISortFilterListModel* model);
     Q_INVOKABLE SortOrderModel* getSortOrderModel();
     const SortOrderModel* getSortOrderModel() const;
     Q_INVOKABLE FilterRoleModel* getFilterRoleModel();
     const FilterRoleModel* getFilterRoleModel() const;
-    Q_INVOKABLE const QString& getFilterString() const;
-    QString& getFilterString();
+    Q_INVOKABLE QString getFilterString() const;
     Q_INVOKABLE void setFilterString(const QString& filterString);
     Q_INVOKABLE bool insertSortOrder(int role, Qt::SortOrder sortOrder, int position);
     Q_INVOKABLE bool appendSortOrder(int role, Qt::SortOrder sortOrder);
@@ -52,6 +56,7 @@ public:
 protected:
     RoleNames roleNames() const override;
 signals:
+    void sourceModelChanged();
     void filterStringChanged();
 private slots:
     void sourceModelRowsInserted(const QModelIndex& parent, int first, int last);
@@ -74,7 +79,7 @@ private:
     void mergeNewAcceptedItems(std::vector<int>::iterator filteredOutFirst);
     void filterOutItems();
 private:
-    ISortFilterListModel* sourceModel_;
+    ISortFilterListModel* sourceModel_ = nullptr;
     FilterRoleModel filterRoleModel_;
     SortOrderModel sortOrderModel_;
     std::vector<int> srcToDst_;
@@ -82,7 +87,10 @@ private:
     std::vector<int>::iterator filteredOutFirst_;
     QString filterString_;
     std::map<int, QVariant> valuesOfFilter_;
+    std::array<QMetaObject::Connection, 5> connections_;
 };
 }
+
+Q_DECLARE_METATYPE(YADAW::Model::SortFilterProxyListModel)
 
 #endif //YADAW_SRC_MODEL_SORTFILTERPROXYLISTMODEL
