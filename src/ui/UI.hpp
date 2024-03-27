@@ -11,13 +11,13 @@ extern QQuickWindow* mainWindow;
 
 const QString& defaultFontDir();
 
-// Try setting window state from maximized to fullscreen showing the
+// Try setting window state from maximized to fullscreen without showing the
 // intermediate normal visibility.
 // Since it relies on private `QPlatformWindow` implementations, this function
 // might not work correctly on several Qt versions.
 void setMaximizedWindowToFullScreen(QWindow& window);
 
-// Try setting window state from fullscreen to maximized showing the
+// Try setting window state from fullscreen to maximized without showing the
 // intermediate normal visibility.
 // Since it relies on private `QPlatformWindow` implementations, this function
 // might not work correctly on several Qt versions.
