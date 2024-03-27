@@ -302,12 +302,22 @@ ApplicationWindow {
                 shortcut: "F11"
                 checkable: true
                 onTriggered: {
-                    if(!checked) {
-                        EventSender.setMainWindowFullScreen(false, previouslyMaximized);
+                    if(checked) {
+                        previouslyMaximized = (root.visibility === 4);
+                        if(previouslyMaximized) {
+                            EventSender.setMainWindowFromMaximizedToFullScreen();
+                        }
+                        else {
+                            showFullScreen();
+                        }
                     }
                     else {
-                        previouslyMaximized = (root.visibility === 4);
-                        EventSender.setMainWindowFullScreen(true, previouslyMaximized);
+                        if(previouslyMaximized) {
+                            EventSender.setMainWindowFromFullScreenToMaximized();
+                        }
+                        else {
+                            showNormal();
+                        }
                     }
                 }
             }

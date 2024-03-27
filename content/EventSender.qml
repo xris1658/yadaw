@@ -12,5 +12,6 @@ QtObject {
     signal setSystemFontRendering(enabled: bool)
     signal setSystemFontRenderingWhileDebugging(enabled: bool)
     signal setTranslationIndex(index: int)
-    signal setMainWindowFullScreen(fullscreen: bool, maximized: bool)
+    signal setMainWindowFromMaximizedToFullScreen()
+    signal setMainWindowFromFullScreenToMaximized()
 }

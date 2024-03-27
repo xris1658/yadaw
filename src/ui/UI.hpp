@@ -11,9 +11,17 @@ extern QQuickWindow* mainWindow;
 
 const QString& defaultFontDir();
 
-// Set window state to full screen.
-// If fullscreen is set to false, then the window state is set by maximized.
-void setWindowFullScreen(QWindow& window, bool fullscreen, bool maximized);
+// Try setting window state from maximized to fullscreen showing the
+// intermediate normal visibility.
+// Since it relies on private `QPlatformWindow` implementations, this function
+// might not work correctly on several Qt versions.
+void setMaximizedWindowToFullScreen(QWindow& window);
+
+// Try setting window state from fullscreen to maximized showing the
+// intermediate normal visibility.
+// Since it relies on private `QPlatformWindow` implementations, this function
+// might not work correctly on several Qt versions.
+void setFullScreenWindowToMaximized(QWindow& window);
 }
 
 #endif // YADAW_SRC_UI_UI

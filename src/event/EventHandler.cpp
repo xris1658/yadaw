@@ -86,8 +86,10 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onLocateFileInExplorer(QString)));
     QObject::connect(sender, SIGNAL(startPluginScan()),
         this, SLOT(onStartPluginScan()));
-    QObject::connect(sender, SIGNAL(setMainWindowFullScreen(bool, bool)),
-        this, SLOT(onSetMainWindowFullScreen(bool, bool)));
+    QObject::connect(sender, SIGNAL(setMainWindowFromMaximizedToFullScreen()),
+        this, SLOT(onSetMainWindowFromMaximizedToFullScreen()));
+    QObject::connect(sender, SIGNAL(setMainWindowFromFullScreenToMaximized()),
+        this, SLOT(onSetMainWindowFromFullScreenToMaximized()));
 }
 
 void EventHandler::connectToEventReceiver(QObject* receiver)
@@ -597,8 +599,13 @@ void EventHandler::onAudioGraphOutputDeviceIndexChanged(int index)
 #endif
 }
 
-void EventHandler::onSetMainWindowFullScreen(bool fullscreen, bool maximized)
+void EventHandler::onSetMainWindowFromMaximizedToFullScreen()
 {
-    YADAW::UI::setWindowFullScreen(*YADAW::UI::mainWindow, fullscreen, maximized);
+    YADAW::UI::setMaximizedWindowToFullScreen(*YADAW::UI::mainWindow);
+}
+
+void EventHandler::onSetMainWindowFromFullScreenToMaximized()
+{
+    YADAW::UI::setFullScreenWindowToMaximized(*YADAW::UI::mainWindow);
 }
 }
