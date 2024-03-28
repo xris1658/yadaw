@@ -36,7 +36,10 @@ bool CLAPPluginGUI::attachToWindow(QWindow* window)
         if(gui_->set_parent(plugin_, &clapWindow_))
         {
             gui_->show(plugin_);
-            connect();
+            if(gui_->can_resize(plugin_))
+            {
+                connect();
+            }
             return true;
         }
     }
@@ -58,7 +61,10 @@ bool CLAPPluginGUI::detachWithWindow()
 {
     if(gui_ && window_)
     {
-        disconnect();
+        if(gui_->can_resize(plugin_))
+        {
+            disconnect();
+        }
         gui_->destroy(plugin_);
         window_ = nullptr;
     }
