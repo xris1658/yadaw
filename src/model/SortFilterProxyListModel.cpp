@@ -170,6 +170,24 @@ void SortFilterProxyListModel::setFilterString(const QString& filterString)
     filterStringChanged();
 }
 
+int SortFilterProxyListModel::mapToSource(int destIndex)
+{
+    if(destIndex >= 0 && destIndex < itemCount())
+    {
+        return dstToSrc_[destIndex];
+    }
+    return -1;
+}
+
+int SortFilterProxyListModel::mapFromSource(int sourceIndex)
+{
+    if(sourceModel_ && sourceIndex >= 0 && sourceIndex < sourceModel_->rowCount())
+    {
+        return srcToDst_[sourceIndex];
+    }
+    return -1;
+}
+
 bool SortFilterProxyListModel::insertSortOrder(int role, Qt::SortOrder sortOrder, int position)
 {
     return sortOrderModel_.insert(role, sortOrder, position);
