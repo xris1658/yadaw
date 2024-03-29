@@ -17,8 +17,9 @@ public:
         CaseSensitivity,
         RoleCount
     };
+    using FilterRoleItem = std::pair<int, Qt::CaseSensitivity>;
 private:
-    using DataType = std::vector<std::pair<int, Qt::CaseSensitivity>>;
+    using DataType = std::vector<FilterRoleItem>;
 public:
     FilterRoleModel(QObject* parent = nullptr);
     ~FilterRoleModel();

@@ -178,12 +178,16 @@ bool PluginListModel::isComparable(int role) const
 
 bool PluginListModel::isFilterable(int roleIndex) const
 {
+    return roleIndex == Role::Format
+        || roleIndex == Role::Type;
+}
+
+bool PluginListModel::isSearchable(int roleIndex) const
+{
     return roleIndex == Role::Path
         || roleIndex == Role::Name
         || roleIndex == Role::Vendor
-        || roleIndex == Role::Version
-        || roleIndex == Role::Format
-        || roleIndex == Role::Type;
+        || roleIndex == Role::Version;
 }
 
 bool PluginListModel::isLess(int role, const QModelIndex& lhs, const QModelIndex& rhs) const
@@ -198,7 +202,7 @@ bool PluginListModel::isLess(int role, const QModelIndex& lhs, const QModelIndex
     return false;
 }
 
-bool PluginListModel::isPassed(int role, const QModelIndex& modelIndex,
+bool PluginListModel::isSearchPassed(int role, const QModelIndex& modelIndex,
     const QString& string, Qt::CaseSensitivity caseSensitivity) const
 {
     if(role >= Qt::UserRole && role < RoleCount)
@@ -221,34 +225,6 @@ bool PluginListModel::isPassed(const QModelIndex& modelIndex, int role,
         const auto& data = data_[row];
         switch(role)
         {
-        case Role::Id:
-        {
-            return data.id == variant.value<int>();
-        }
-        case Role::Path:
-        {
-            return data.path.contains(
-                variant.value<QString>(), Qt::CaseInsensitive
-            );
-        }
-        case Role::Name:
-        {
-            return data.name.contains(
-                variant.value<QString>(), Qt::CaseInsensitive
-            );
-        }
-        case Role::Vendor:
-        {
-            return data.vendor.contains(
-                variant.value<QString>(), Qt::CaseInsensitive
-            );
-        }
-        case Role::Version:
-        {
-            return data.version.contains(
-                variant.value<QString>(), Qt::CaseInsensitive
-            );
-        }
         case Role::Format:
         {
             return Impl::getPluginFormat(data.format) == variant.value<int>();

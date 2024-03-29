@@ -56,7 +56,7 @@ bool IntegerModel::isLess(int roleIndex, const QModelIndex& lhs, const QModelInd
     return data_[lhs.row()] < data_[rhs.row()];
 }
 
-bool IntegerModel::isPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string,
+bool IntegerModel::isSearchPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string,
     Qt::CaseSensitivity caseSensitivity) const
 {
     return true;

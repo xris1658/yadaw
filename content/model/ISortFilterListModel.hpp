@@ -13,10 +13,10 @@ public:
 public:
     Q_INVOKABLE virtual bool isComparable(int roleIndex) const = 0;
     Q_INVOKABLE virtual bool isFilterable(int roleIndex) const = 0;
+    Q_INVOKABLE virtual bool isSearchable(int roleIndex) const = 0;
     virtual bool isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const = 0;
-    virtual bool isPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string,
+    virtual bool isSearchPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string,
         Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive) const = 0;
-    // TODO: Replace previous function with this one
     virtual bool isPassed(const QModelIndex& modelIndex, int role, const QVariant& variant) const = 0;
 signals:
     void filterCaseSensitivityChanged();

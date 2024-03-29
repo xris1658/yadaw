@@ -275,7 +275,7 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
     auto filteredOutFirst = std::stable_partition(filteredOutFirst_, filteredOutFirst_ + newItemCount,
         [this](int row)
         {
-            return isAccepted(row, filterString_);
+            return isAccepted(row);
         }
     );
     mergeNewAcceptedItems(filteredOutFirst);
@@ -432,33 +432,41 @@ bool SortFilterProxyListModel::isLess(int lhsRow, int rhsRow) const
     return lhs < rhs;
 }
 
-bool SortFilterProxyListModel::isAccepted(int row, const QString& string) const
+bool SortFilterProxyListModel::isAccepted(int row) const
 {
-    return isAccepted(row, string, 0, filterRoleModel_.itemCount())
-        && std::all_of(valuesOfFilter_.begin(), valuesOfFilter_.end(),
-        [this, row](decltype(valuesOfFilter_)::const_reference pair)
-        {
-            const auto& [role, value] = pair;
-            return sourceModel_->data(
-                sourceModel_->index(row),
-                role
-            ) == value;
-        }
-    );
-}
-
-bool SortFilterProxyListModel::isAccepted(int row, const QString& string,
-    int filterRoleBegin, int filterRoleEnd) const
-{
-    return filterRoleModel_.itemCount() == 0 || std::any_of(
-        filterRoleModel_.cbegin() + filterRoleBegin, filterRoleModel_.cbegin() + filterRoleEnd,
-        [sourceModel = this->sourceModel_, &string, index = sourceModel_->index(row)]
-        (const std::pair<int, Qt::CaseSensitivity>& pair)
-        {
-            const auto& [role, caseSensitivity] = pair;
-            return sourceModel->isPassed(role, index, string, caseSensitivity);
-        }
-    );
+    if(sourceModel_)
+    {
+        auto index = sourceModel_->index(row);
+        return (
+            std::all_of(
+                valuesOfFilter_.begin(), valuesOfFilter_.end(),
+                [this, &index]
+                    (decltype(valuesOfFilter_)::const_reference pair)
+                {
+                    const auto& [role, variant] = pair;
+                    return sourceModel_->isPassed(
+                        index, role, variant
+                    );
+                }
+            )
+        )
+        &&
+        (
+            filterRoleModel_.itemCount() == 0
+            ||
+            std::any_of(filterRoleModel_.begin(), filterRoleModel_.end(),
+                [this, &index]
+                (const decltype(filterRoleModel_)::FilterRoleItem& pair)
+                {
+                    const auto& [role, caseSensitivity] = pair;
+                    return sourceModel_->isSearchPassed(
+                        role, index, filterString_, caseSensitivity
+                    );
+                }
+            )
+        );
+    }
+    return false;
 }
 
 void SortFilterProxyListModel::doSort()
@@ -493,7 +501,7 @@ void SortFilterProxyListModel::doFilter()
     auto unchangedEnd = filteredOutFirst_;
     for(auto i = oldItemCount; i-- > 0;)
     {
-        if(auto it = dstToSrc_.begin() + i; !isAccepted(*it, filterString_))
+        if(auto it = dstToSrc_.begin() + i; !isAccepted(*it))
         {
             unchangedEnd = it;
             beginRemoveRows(QModelIndex(), i, i);
@@ -516,7 +524,7 @@ void SortFilterProxyListModel::doFilter()
         oldFilteredOutFirst, dstToSrc_.end(),
         [this](int row)
         {
-            return isAccepted(row, filterString_);
+            return isAccepted(row);
         }
     );
     newFilteredOutFirst = std::rotate(

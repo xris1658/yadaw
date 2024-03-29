@@ -72,8 +72,7 @@ private slots:
     void filterRoleModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles);
 private:
     bool isLess(int lhs, int rhs) const;
-    bool isAccepted(int row, const QString& string) const;
-    bool isAccepted(int row, const QString& string, int filterRoleBegin, int filterRoleEnd) const;
+    bool isAccepted(int row) const;
     void doSort();
     void doFilter();
     void mergeNewAcceptedItems(std::vector<int>::iterator filteredOutFirst);

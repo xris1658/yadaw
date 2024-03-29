@@ -25,8 +25,9 @@ public:
 public:
     Q_INVOKABLE bool isComparable(int roleIndex) const override;
     Q_INVOKABLE bool isFilterable(int roleIndex) const override;
+    Q_INVOKABLE bool isSearchable(int roleIndex) const override;
     bool isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const override;
-    bool isPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string, Qt::CaseSensitivity) const override;
+    bool isSearchPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string, Qt::CaseSensitivity) const override;
     bool isPassed(const QModelIndex& modelIndex, int role, const QVariant& variant) const override;
 public:
     void clear();
