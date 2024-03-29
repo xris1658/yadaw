@@ -12,7 +12,7 @@ QtObject {
     readonly property color unacceptableBorder: "#FF6666"
     readonly property color controlBorder: border
     readonly property color disabledControlBorder: secondaryBorder
-    readonly property color mouseOverControlBackground: "#505050"
+    readonly property color mouseOverControlBackground: "#424242"
     readonly property color pressedControlBackground: "#1A1A1A"
     readonly property color highlightControlBackground: "#606060"
     readonly property color content: "#FFFFFF"
@@ -24,7 +24,7 @@ QtObject {
     readonly property color highlightMenuBarBackground: "#333333"
     readonly property color scrollBarBackground: controlBackground
     readonly property color scrollBarHandle: "#505050"
-    readonly property color scrollBarHandleHighlight: "#606060"
+    readonly property color scrollBarHandleHighlight: Colors.highlightControlBackground
     readonly property color scrollBarHandlePressed: "#202020"
     readonly property color progressBarRunningColor: "#00C030"
     readonly property color progressBarPausedColor: "#F0A000"
