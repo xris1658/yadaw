@@ -17,8 +17,8 @@ Window {
 
     property alias trackType: trackTypeTabBar.currentIndex
 
-    property alias audioInputList: audioInputComboBox.model
-    property alias audioOutputList: audioOutputComboBox.model
+    property alias audioInputList: audioInputModel.sourceModel
+    property alias audioOutputList: audioOutputModel.sourceModel
     property alias midiInputList: midiInputComboBox.model
 
     property alias name: nameField.text
@@ -51,6 +51,13 @@ Window {
 
     onTrackTypeChanged: {
         nameField.placeholderText = trackTypeTabBar.itemAt(trackType).text;
+    }
+
+    SortFilterProxyListModel {
+        id: audioInputModel
+    }
+    SortFilterProxyListModel {
+        id: audioOutputModel
     }
 
     QtObject {
@@ -177,6 +184,16 @@ Window {
                             textRole: "name"
                             valueRole: "type"
                             visible: channelConfigLabel.visible
+                            onCurrentValueChanged: {
+                                audioInputModel.setValueOfFilter(
+                                    IAudioBusConfigurationModel.ChannelConfig,
+                                    currentValue
+                                );
+                                audioOutputModel.setValueOfFilter(
+                                    IAudioBusConfigurationModel.ChannelConfig,
+                                    currentValue
+                                );
+                            }
                         }
                         Label {
                             id: instrumentText
@@ -279,6 +296,7 @@ Window {
                             visible: audioInputCheckBox.visible
                             enabled: audioInputCheckBox.checked
                             textRole: "abcm_name"
+                            model: audioInputModel
                         }
                         CheckBox {
                             id: audioOutputCheckBox
@@ -299,6 +317,7 @@ Window {
                             visible: audioOutputCheckBox.visible
                             enabled: audioOutputCheckBox.checked
                             textRole: "abcm_name"
+                            model: audioOutputModel
                         }
                         Label {
                             width: gridContainer.firstColumnWidth

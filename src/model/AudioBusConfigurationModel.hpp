@@ -23,6 +23,13 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 public:
+    Q_INVOKABLE bool isComparable(int roleIndex) const override;
+    Q_INVOKABLE bool isFilterable(int roleIndex) const override;
+    Q_INVOKABLE bool isSearchable(int roleIndex) const override;
+    bool isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const override;
+    bool isSearchPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string, Qt::CaseSensitivity) const override;
+    bool isPassed(const QModelIndex& modelIndex, int role, const QVariant& variant) const override;
+public:
     Q_INVOKABLE bool append(int channelConfig) override;
     Q_INVOKABLE bool insert(int position, int channelConfig) override;
     Q_INVOKABLE bool remove(int index) override;

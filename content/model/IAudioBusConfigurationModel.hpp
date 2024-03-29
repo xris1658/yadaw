@@ -2,12 +2,11 @@
 #define YADAW_CONTENT_MODEL_IAUDIOBUSCONFIGURATIONMODEL
 
 #include "model/ModelBase.hpp"
-
-#include <QAbstractListModel>
+#include "model/ISortFilterListModel.hpp"
 
 namespace YADAW::Model
 {
-class IAudioBusConfigurationModel: public QAbstractListModel
+class IAudioBusConfigurationModel: public ISortFilterListModel
 {
     Q_OBJECT
 public:
@@ -18,8 +17,9 @@ public:
         ChannelList,
         RoleCount
     };
+    Q_ENUM(Role)
 public:
-    IAudioBusConfigurationModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
+    IAudioBusConfigurationModel(QObject* parent = nullptr): ISortFilterListModel(parent) {}
     virtual ~IAudioBusConfigurationModel() {}
 public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }

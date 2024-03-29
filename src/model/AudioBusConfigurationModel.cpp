@@ -94,6 +94,69 @@ bool AudioBusConfigurationModel::setData(const QModelIndex& index, const QVarian
     return false;
 }
 
+bool AudioBusConfigurationModel::isComparable(int roleIndex) const
+{
+    return roleIndex == Role::Name || roleIndex == Role::ChannelConfig;
+}
+
+bool AudioBusConfigurationModel::isFilterable(int roleIndex) const
+{
+    return roleIndex == Role::ChannelConfig;
+}
+
+bool AudioBusConfigurationModel::isSearchable(int roleIndex) const
+{
+    return roleIndex == Role::Name;
+}
+
+bool AudioBusConfigurationModel::isLess(int roleIndex,
+    const QModelIndex& lhs, const QModelIndex& rhs) const
+{
+    switch(roleIndex)
+    {
+    case Role::Name:
+    {
+        if(lhs.model() == this && rhs.model() == this)
+        {
+            return data(lhs, roleIndex).value<QString>() < data(rhs, roleIndex).value<QString>();
+        }
+        break;
+    }
+    case Role::ChannelConfig:
+    {
+        if(lhs.model() == this && rhs.model() == this)
+        {
+            return data(lhs, roleIndex).value<int>() < data(rhs, roleIndex).value<int>();
+        }
+        break;
+    }
+    }
+    return false;
+}
+
+bool AudioBusConfigurationModel::isSearchPassed(
+    int roleIndex, const QModelIndex& modelIndex,
+    const QString& string, Qt::CaseSensitivity caseSensitivity) const
+{
+    if(roleIndex == Role::Name && modelIndex.model() == this)
+    {
+        return data(modelIndex, roleIndex).value<QString>().contains(
+            string, caseSensitivity
+        );
+    }
+    return false;
+}
+
+bool AudioBusConfigurationModel::isPassed(
+    const QModelIndex& modelIndex, int role, const QVariant& variant) const
+{
+    if(role == Role::ChannelConfig && modelIndex.model() == this)
+    {
+        return data(modelIndex, role).value<int>() == variant.value<int>();
+    }
+    return false;
+}
+
 bool AudioBusConfigurationModel::append(int channelConfig)
 {
     return insert(itemCount(), channelConfig);
