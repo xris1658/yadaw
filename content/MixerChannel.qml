@@ -199,17 +199,23 @@ Rectangle {
                     }
                     onClicked: (mouse) => {
                         if(mouse.button === Qt.RightButton) {
-                            instrumentOptions.open();
-                            instrumentOptions.x = 0;
-                            instrumentOptions.y = height;
                             let mainWindowItem = EventReceiver.mainWindow.background;
-                            let popupCoordinate = instrumentSlot.mapToItem(mainWindowItem, instrumentOptions.x, instrumentOptions.y);
-                            if(popupCoordinate.y + instrumentOptions.height >= mainWindowItem.height) {
-                                console.log(instrumentOptions.implicitHeight, instrumentOptions.height);
+                            let initialCoordinate = instrumentSlot.mapFromItem(mainWindowItem, 0, 0);
+                            instrumentOptions.x = initialCoordinate.x;
+                            instrumentOptions.y = initialCoordinate.y;
+                            instrumentOptions.open();
+                            let coor = instrumentSlot.mapToItem(mainWindowItem, 0, instrumentSlot.height + instrumentOptions.height);
+                            if(coor.y >= mainWindowItem.height) {
                                 instrumentOptions.y = 0 - instrumentOptions.height;
                             }
-                            if(popupCoordinate.x + instrumentOptions.width >= mainWindowItem.width) {
-                                instrumentOptions.x = instrumentSlot.mapFromItem(mainWindowItem, mainWindowItem.width - instrumentOptions.width, popupCoordinate.y).x;
+                            else {
+                                instrumentOptions.y = instrumentSlot.height;
+                            }
+                            if(coor.x + instrumentOptions.width >= mainWindowItem.width) {
+                                instrumentOptions.x = instrumentSlot.width - instrumentOptions.width;
+                            }
+                            else {
+                                instrumentOptions.x = 0;
                             }
                         }
                     }
@@ -422,17 +428,21 @@ Rectangle {
                         }
                         onClicked: (mouse) => {
                             if(mouse.button === Qt.RightButton) {
-                                insertSlotOptions.open();
-                                insertSlotOptions.x = 0;
-                                insertSlotOptions.y = height;
                                 let mainWindowItem = EventReceiver.mainWindow.background;
-                                let popupCoordinate = mixerInsertSlot.mapToItem(mainWindowItem, insertSlotOptions.x, insertSlotOptions.y);
-                                if(popupCoordinate.y + insertSlotOptions.height >= mainWindowItem.height) {
-                                    console.log(insertSlotOptions.implicitHeight, insertSlotOptions.height);
+                                let initialCoordinate = mixerInsertSlot.mapFromItem(mainWindowItem, 0, 0);
+                                insertSlotOptions.x = initialCoordinate.x;
+                                insertSlotOptions.y = initialCoordinate.y;
+                                insertSlotOptions.open();
+                                let coor = mixerInsertSlot.mapToItem(mainWindowItem, 0, mixerInsertSlot.height + insertSlotOptions.height);
+                                if (coor.y >= mainWindowItem.height) {
                                     insertSlotOptions.y = 0 - insertSlotOptions.height;
+                                } else {
+                                    insertSlotOptions.y = mixerInsertSlot.height;
                                 }
-                                if(popupCoordinate.x + insertSlotOptions.width >= mainWindowItem.width) {
-                                    insertSlotOptions.x = mixerInsertSlot.mapFromItem(mainWindowItem, mainWindowItem.width - insertSlotOptions.width, popupCoordinate.y).x;
+                                if (coor.x + insertSlotOptions.width >= mainWindowItem.width) {
+                                    insertSlotOptions.x = mixerInsertSlot.width - insertSlotOptions.width;
+                                } else {
+                                    insertSlotOptions.x = 0;
                                 }
                             }
                         }
