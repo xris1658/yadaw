@@ -526,13 +526,16 @@ bool Mixer::removeAudioOutputChannel(
     )
     {
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 4);
+        nodesToRemove.reserve(removeCount * 5);
         FOR_RANGE(i, first, last)
         {
             nodesToRemove.emplace_back(audioOutputSummings_[i].second);
             nodesToRemove.emplace_back(audioOutputFaders_[i].second);
             nodesToRemove.emplace_back(audioOutputMeters_[i].second);
             nodesToRemove.emplace_back(audioOutputMutes_[i].second);
+            nodesToRemove.emplace_back(
+                *(audioOutputMutes_[i].second->outNodes().begin())
+            );
         }
         audioOutputPreFaderInserts_.erase(
             audioOutputPreFaderInserts_.begin() + first,
