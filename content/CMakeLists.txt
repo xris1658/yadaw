@@ -153,9 +153,13 @@ qt_add_qml_module(content
                   RESOURCES
                     qmldir
                     fonts/FiraSans-Bold.otf
-                    fonts/FiraSans-Regular.otf
+                    fonts/FiraSans-BoldItalic.otf
                     fonts/FiraSansCondensed-Bold.otf
+                    fonts/FiraSansCondensed-BoldItalic.otf
+                    fonts/FiraSansCondensed-Italic.otf
                     fonts/FiraSansCondensed-Regular.otf
+                    fonts/FiraSans-Italic.otf
+                    fonts/FiraSans-Regular.otf
                     images/check.png
                     images/error.png
                     images/info.png
