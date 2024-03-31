@@ -4,6 +4,12 @@
 
 #include <QCoreApplication>
 
+#if _WIN32
+#include "native/Library.hpp"
+
+#include <stdexcept>
+#endif
+
 #if __linux__
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
@@ -143,10 +149,56 @@ void setMaximizedWindowToFullScreen(QWindow& window)
     }
 }
 
+#if _WIN32
+bool isWindows11 = false;
+
+std::once_flag getWindowsVersionFlag;
+
+typedef void(__stdcall*NTPROC)(DWORD*, DWORD*, DWORD*);
+
+// Undocumented `RtlGetNtVersionNumbers` API, documented by Wine:
+// https://source.winehq.org/WineAPI/RtlGetNtVersionNumbers.html
+// Why NOT the documented `GetVersionExW` API:
+// https://learn.microsoft.com/en-us/windows/win32/sysinfo/targeting-your-application-at-windows-8-1
+void getWindowsVersion()
+{
+    YADAW::Native::Library ntdll("ntdll.dll");
+    if(!ntdll.loaded())
+    {
+        throw std::runtime_error("Cannot load ntdll.dll");
+    }
+    auto getVersionFunc = ntdll.getExport<NTPROC>("RtlGetNtVersionNumbers");
+    if(!getVersionFunc)
+    {
+        throw std::runtime_error(
+            "Cannot find `RtlGetNtVersionNumbers`, it might have been removed "
+            "in the current version of Windows."
+        );
+    }
+    DWORD major;
+    DWORD minor;
+    DWORD build;
+    getVersionFunc(&major, &minor, &build);
+    build -= 0xF0000000;
+    if(build >= 21996) // The first leaked Windows 11 build
+    {
+        isWindows11 = true;
+    }
+}
+#endif
+
 void setFullScreenWindowToMaximized(QWindow& window)
 {
     auto fallback = true;
 #if _WIN32
+    try
+    {
+        std::call_once(getWindowsVersionFlag, &getWindowsVersion);
+    }
+    catch(std::runtime_error& runtimeError)
+    {
+        qDebug(runtimeError.what());
+    }
     auto hwnd = reinterpret_cast<HWND>(window.winId());
     UINT swpf = SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOACTIVATE;
     ShowWindow(hwnd, SW_SHOWNOACTIVATE);
@@ -157,6 +209,10 @@ void setFullScreenWindowToMaximized(QWindow& window)
         oldGeometry.width(), oldGeometry.height(),
         swpf
     );
+    if(isWindows11)
+    {
+        window.showMinimized();
+    }
     window.showMaximized();
     fallback = false;
 #elif __linux__
