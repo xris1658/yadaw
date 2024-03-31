@@ -200,15 +200,9 @@ void setFullScreenWindowToMaximized(QWindow& window)
         qDebug(runtimeError.what());
     }
     auto hwnd = reinterpret_cast<HWND>(window.winId());
-    UINT swpf = SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOACTIVATE;
     ShowWindow(hwnd, SW_SHOWNOACTIVATE);
-    auto oldGeometry = window.geometry();
     // We only pass the new sizing and positioning flags to the window, without
     // actually setting the window geometry.
-    SetWindowPos(hwnd, nullptr, oldGeometry.left(), oldGeometry.top(),
-        oldGeometry.width(), oldGeometry.height(),
-        swpf
-    );
     if(isWindows11)
     {
         window.showMinimized();
