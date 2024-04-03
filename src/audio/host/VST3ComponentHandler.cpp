@@ -14,6 +14,23 @@ void blankParameterValueChangedCallback(YADAW::Audio::Plugin::VST3Plugin&) {}
 
 void blankParameterInfoChangedCallback(YADAW::Audio::Plugin::VST3Plugin&) {}
 
+void blankParameterBeginEditCallback(
+    YADAW::Audio::Plugin::VST3Plugin&,
+    Steinberg::Vst::ParamID,
+    std::int64_t)
+{}
+
+void blankParameterPerformEditCallback(
+    YADAW::Audio::Plugin::VST3Plugin&,
+    Steinberg::Vst::ParamID, Steinberg::Vst::ParamValue,
+    std::int64_t)
+{}
+
+void blankParameterEndEditCallback(
+    YADAW::Audio::Plugin::VST3Plugin&,
+    Steinberg::Vst::ParamID,
+    std::int64_t)
+{}
 
 namespace YADAW::Audio::Host
 {
@@ -25,6 +42,9 @@ VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin& plu
     ioChangedCallback_(&blankIOChangedCallback),
     parameterValueChangedCallback_(&blankParameterValueChangedCallback),
     parameterInfoChangedCallback_(&blankParameterInfoChangedCallback),
+    parameterBeginEditCallback_(&blankParameterBeginEditCallback),
+    parameterPerformEditCallback_(&blankParameterPerformEditCallback),
+    parameterEndEditCallback_(&blankParameterEndEditCallback),
     hostBufferIndex_{0},
     timestamp_(0),
     inputParameterChanges_{},
@@ -56,11 +76,15 @@ tresult VST3ComponentHandler::queryInterface(const char* _iid, void** obj)
     return Steinberg::kNoInterface;
 }
 
-int32 VST3ComponentHandler::doBeginEdit(int hostBufferIndex, ParamID id)
+int32 VST3ComponentHandler::doBeginEdit(int hostBufferIndex, ParamID id, std::int64_t timestampInNanosecond)
 {
     // std::printf("|---doBeginEdit(%u) ", id);
     int index = -1;
     inputParameterChanges_[hostBufferIndex].addParameterData(id, index);
+    if(index != -1)
+    {
+        parameterBeginEditCallback_(*plugin_, id, timestampInNanosecond);
+    }
     // std::printf("return %d\n", index);
     return index;
 }
@@ -76,21 +100,24 @@ tresult VST3ComponentHandler::doPerformEdit(int hostBufferIndex, int32 index,
     return ret;
 }
 
-tresult VST3ComponentHandler::doEndEdit(ParamID id)
+tresult VST3ComponentHandler::doEndEdit(ParamID id, std::int64_t timestampInNanosecond)
 {
     // std::printf("|---doEndEdit(%u) return 0x0\n", id);
+    editingParameters_.erase(id);
+    parameterEndEditCallback_(*plugin_, id, timestampInNanosecond);
     return kResultOk;
 }
 
 tresult VST3ComponentHandler::beginEdit(ParamID id)
 {
-    // TODO: Add mechanism recording automations here
     // std::printf("beginEdit(%u)\n", id);
     auto hostBufferIndex = hostBufferIndex_.load(
         std::memory_order::memory_order_acquire);
-    if(auto index = doBeginEdit(hostBufferIndex, id); index != -1)
+    auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
+    if(auto index = doBeginEdit(hostBufferIndex, id, timestamp); index != -1)
     {
         mappings_[hostBufferIndex].emplace_back(id, index);
+        editingParameters_.emplace(id, nullptr);
         return kResultOk;
     }
     return kOutOfMemory;
@@ -98,34 +125,64 @@ tresult VST3ComponentHandler::beginEdit(ParamID id)
 
 tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue)
 {
-    // TODO: Add mechanism recording automations here
-    // std::printf("performEdit(%u, %lf)\n", id, normalizedValue);
     auto hostBufferIndex = hostBufferIndex_.load(
-        std::memory_order::memory_order_acquire);
-    auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
-    // Is the following operation needed? Seems not.
-    // plugin_->editController()->setParamNormalized(id, normalizedValue);
-    auto iterator = std::find_if(mappings_[hostBufferIndex].begin(), mappings_[hostBufferIndex].end(),
-        [id](const auto& mapping)
-        {
-            const auto& [mappingId, index] = mapping;
-            return mappingId == id;
-        }
+        std::memory_order::memory_order_acquire
     );
-    if(iterator == mappings_[hostBufferIndex].end())
+    auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
+    auto editingIt = editingParameters_.find(id);
+    int32 mappingIndex = -1;
+    if(editingIt == editingParameters_.end())
     {
-        if(auto index = doBeginEdit(hostBufferIndex, id); index != -1)
+        // Wheel event without `beginEdit` and `endEdit`
+        std::unique_ptr<QTimer> timer;
+        if(availableTimers_.empty())
         {
-            if(auto performEditResult = doPerformEdit(hostBufferIndex, index, normalizedValue, timestamp);
-                performEditResult == kResultOk)
-            {
-                return doEndEdit(id);
-            }
+            timer = std::make_unique<QTimer>();
+            timer->setSingleShot(true);
         }
-        return kResultFalse;
+        else
+        {
+            timer = std::move(*availableTimers_.begin());
+            availableTimers_.erase_after(availableTimers_.before_begin());
+        }
+        editingIt = editingParameters_.emplace(id, std::move(timer)).first;
+        QObject::connect(editingIt->second.get(), &QTimer::timeout,
+            [this, id, editingIt]()
+            {
+                auto& timer = editingIt->second;
+                QObject::disconnect(timer.get(), &QTimer::timeout, nullptr, nullptr);
+                availableTimers_.emplace_front(std::move(timer));
+                doEndEdit(id, YADAW::Util::currentTimeValueInNanosecond());
+            }
+        );
+        mappingIndex = doBeginEdit(hostBufferIndex, id, timestamp);
     }
-    const auto& [mappingId, mappingIndex] = *iterator;
-    return doPerformEdit(hostBufferIndex, mappingIndex, normalizedValue, timestamp);
+    else
+    {
+        auto timer = editingIt->second.get();
+        if(timer)
+        {
+            timer->start(std::chrono::milliseconds(500));
+        }
+        auto& mapping = mappings_[hostBufferIndex];
+        auto mappingIt = std::find_if(mapping.begin(), mapping.end(),
+            [id](const auto& mapping)
+            {
+                const auto& [mappingId, index] = mapping;
+                return mappingId == id;
+            }
+        );
+        if(mappingIt == mapping.end())
+        {
+            inputParameterChanges_[hostBufferIndex].addParameterData(id, mappingIndex);
+            mapping.emplace_back(id, mappingIndex);
+        }
+        else
+        {
+            mappingIndex = mappingIt->second;
+        }
+    }
+    return doPerformEdit(hostBufferIndex, mappingIndex, normalizedValue, timestamp);    
 }
 
 tresult VST3ComponentHandler::endEdit(ParamID id)
@@ -133,8 +190,8 @@ tresult VST3ComponentHandler::endEdit(ParamID id)
     auto hostBufferIndex = hostBufferIndex_.load(
         std::memory_order::memory_order_acquire);
     // std::printf("endEdit(%u)\n", id);
-    // TODO: Add mechanism recording automations here
-    return doEndEdit(id);
+    auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
+    return doEndEdit(id, timestamp);
 }
 
 tresult VST3ComponentHandler::restartComponent(int32 flags)
@@ -294,6 +351,22 @@ void VST3ComponentHandler::setParameterInfoChangedCallback(
     parameterInfoChangedCallback_ = callback;
 }
 
+void VST3ComponentHandler::setParameterBeginEditCallback(
+    VST3ComponentHandler::ParameterBeginEditCallback* callback)
+{
+    parameterBeginEditCallback_ = callback;
+}
+void VST3ComponentHandler::setParameterPerformEditCallback(
+    VST3ComponentHandler::ParameterPerformEditCallback* callback)
+{
+    parameterPerformEditCallback_ = callback;
+}
+void VST3ComponentHandler::setParameterEndEditCallback(
+    VST3ComponentHandler::ParameterEndEditCallback* callback)
+{
+    parameterEndEditCallback_ = callback;
+}
+
 void VST3ComponentHandler::resetLatencyChangedCallback()
 {
     latencyChangedCallback_ = &blankLatencyChangedCallback;
@@ -312,5 +385,20 @@ void VST3ComponentHandler::resetParameterValueChangedCallback()
 void VST3ComponentHandler::resetParameterInfoChangedCallback()
 {
     parameterInfoChangedCallback_ = &blankParameterInfoChangedCallback;
+}
+
+void VST3ComponentHandler::resetParameterBeginEditCallback()
+{
+    parameterBeginEditCallback_ = &blankParameterBeginEditCallback;
+}
+
+void VST3ComponentHandler::resetParameterPerformEditCallback()
+{
+    parameterPerformEditCallback_ = &blankParameterPerformEditCallback;
+}
+
+void VST3ComponentHandler::resetParameterEndEditCallback()
+{
+    parameterEndEditCallback_ = &blankParameterEndEditCallback;
 }
 }
