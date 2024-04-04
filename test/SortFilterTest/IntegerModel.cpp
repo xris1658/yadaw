@@ -51,6 +51,11 @@ bool IntegerModel::isFilterable(int roleIndex) const
     return false;
 }
 
+bool IntegerModel::isSearchable(int roleIndex) const
+{
+    return false;
+}
+
 bool IntegerModel::isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const
 {
     return data_[lhs.row()] < data_[rhs.row()];

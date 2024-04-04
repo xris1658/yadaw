@@ -23,6 +23,7 @@ public:
 public:
     bool isComparable(int roleIndex) const override;
     bool isFilterable(int roleIndex) const override;
+    bool isSearchable(int roleIndex) const override;
     bool isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const override;
     bool isSearchPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string,
         Qt::CaseSensitivity caseSensitivity) const override;

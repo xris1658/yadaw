@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
             }
         }
     );
-    engine.load(u"qrc:SortFilterProxyListModelTestContent/MainWindow.qml"_qs);
+    engine.loadFromModule("SortFilterTestContent", "MainWindow");
     IntegerModel model;
     object->setProperty("sourceModel", QVariant::fromValue<QObject*>(&model));
     QList<int> list;

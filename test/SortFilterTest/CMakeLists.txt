@@ -1,6 +1,6 @@
-add_subdirectory(content)
+add_subdirectory(SortFilterTestContent)
 
-add_executable(SortFilterProxyListModelTest
+add_executable(SortFilterTest
                ../../content/model/FilterRoleModel.hpp
                ../../content/model/ISortFilterListModel.hpp
                ../../content/model/SortFilterProxyListModel.hpp
@@ -12,6 +12,6 @@ add_executable(SortFilterProxyListModelTest
                IntegerModel.cpp
                IntegerModel.hpp)
 
-target_link_libraries(SortFilterProxyListModelTest PRIVATE
+target_link_libraries(SortFilterTest PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick
-                      SortFilterProxyListModelTestContentplugin)
+                      SortFilterTestContentplugin)

@@ -89,11 +89,11 @@ if(LINUX)
 endif()
 
 add_executable(ADEUtilsTest
-    ../src/util/Util.cpp
-    ../src/util/Util.hpp
-    ../src/util/ADEUtil.cpp
-    ../src/util/ADEUtil.hpp
-    ADEUtilsTest/main.cpp)
+               ../src/util/Util.cpp
+               ../src/util/Util.hpp
+               ../src/util/ADEUtil.cpp
+               ../src/util/ADEUtil.hpp
+               ADEUtilsTest/main.cpp)
 
 add_executable(AudioBufferPoolTest
                ../src/audio/util/AudioBufferPool.cpp
@@ -198,3 +198,4 @@ target_link_libraries(QStringConversionTest PRIVATE Qt6::Core)
 target_link_libraries(SampleDelayTest PRIVATE Qt6::Core)
 
 add_subdirectory(SortFilterProxyListModelTest)
+add_subdirectory(SortFilterTest)
