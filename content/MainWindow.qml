@@ -697,9 +697,16 @@ ApplicationWindow {
         }
         SplitView {
             orientation: Qt.Vertical
+            onResizingChanged: {
+                if(!resizing) {
+                    arrangementColumn.ratio = arrangementColumn.height / height;
+                }
+            }
             Column {
+                id: arrangementColumn
+                property double ratio: 0.6
                 SplitView.minimumHeight: arrangementTabButton.height
-                SplitView.preferredHeight: contents.height * 0.6
+                SplitView.preferredHeight: contents.height * ratio
                 TabButton {
                     id: arrangementTabButton
                     text: qsTr("Arrangement")
@@ -723,7 +730,7 @@ ApplicationWindow {
             }
             Column {
                 SplitView.minimumHeight: editorAndMixerTabButtonRow.height
-                SplitView.preferredHeight: root.height * 0.4
+                SplitView.preferredHeight: root.height * (1 - arrangementColumn.ratio)
                 Rectangle {
                     width: parent.width
                     height: parent.height - editorAndMixerTabButtonRow.height
