@@ -351,6 +351,8 @@ set(YADAW_COMMON_SOURCES
     src/model/AudioDeviceIOGroupListModel.hpp
     src/model/AutomationModel.cpp
     src/model/AutomationModel.hpp
+    src/model/FileTreeModel.cpp
+    src/model/FileTreeModel.hpp
     src/model/FilterRoleModel.cpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
@@ -374,6 +376,7 @@ set(YADAW_COMMON_SOURCES
     src/model/SortFilterProxyListModel.cpp
     src/model/SpeakerListModel.cpp
     src/model/SpeakerListModel.hpp
+    src/model/impl/TreeNode.hpp
     src/native/AudioBackendSupport.hpp
     src/native/CLAPNative.hpp
     src/native/Library.hpp
