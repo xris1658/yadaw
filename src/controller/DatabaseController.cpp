@@ -6,6 +6,7 @@
 #include "dao/Database.hpp"
 #include "dao/PluginCategoryTable.hpp"
 #include "dao/PluginDirectoryTable.hpp"
+#include "dao/PluginLibraryTable.hpp"
 #include "dao/PluginTable.hpp"
 
 #include <QFileInfo>
@@ -23,6 +24,7 @@ void initializeApplicationDatabase()
         createPluginCategoryTable(database);
         createPluginDirectoryTable(database);
         createPluginTable(database);
+        createPluginLibraryTable(database);
         YADAW::Controller::initializePluginDirectory();
     }
 }

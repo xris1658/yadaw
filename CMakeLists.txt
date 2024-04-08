@@ -314,6 +314,8 @@ set(YADAW_COMMON_SOURCES
     src/dao/PluginCategoryTable.hpp
     src/dao/PluginDirectoryTable.cpp
     src/dao/PluginDirectoryTable.hpp
+    src/dao/PluginLibraryTable.cpp
+    src/dao/PluginLibraryTable.hpp
     src/dao/PluginTable.cpp
     src/dao/PluginTable.hpp
     src/entity/AudioBackendSupport.cpp
