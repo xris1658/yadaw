@@ -2,12 +2,7 @@
 
 #include "controller/ConfigController.hpp"
 #include "controller/DatabaseController.hpp"
-#include "dao/Config.hpp"
 #include "dao/Database.hpp"
-
-#include <QFileInfo>
-
-#include <cassert>
 
 namespace YADAW::Controller
 {

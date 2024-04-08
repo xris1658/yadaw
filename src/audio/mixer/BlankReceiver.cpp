@@ -1,7 +1,5 @@
 #include "BlankReceiver.hpp"
 
-#include "util/IntegerRange.hpp"
-
 namespace YADAW::Audio::Mixer
 {
 BlankReceiver::BlankReceiver(

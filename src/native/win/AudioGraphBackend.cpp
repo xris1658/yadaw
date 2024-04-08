@@ -241,7 +241,7 @@ QString getAudioGraphErrorStringFromErrorCode(YADAW::Native::ErrorCodeType error
 {
     switch(errorCode)
     {
-    case AUDCLNT_E_DEVICE_IN_USE:
+    case AUDCLNT_E_DEVICE_IN_USE: // FIXME
         return QCoreApplication::translate("AudioGraphBackend",
             "The current audio device is already in use.");
     default:

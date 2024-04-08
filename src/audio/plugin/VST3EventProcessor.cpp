@@ -13,8 +13,8 @@ VST3EventProcessor::VST3EventProcessor(Steinberg::Vst::IComponent& component) :
 	component_(&component)
 {
     component_->addRef();
-	auto inputCount = eventInputBusCount();
-	auto outputCount = eventOutputBusCount();
+	auto inputCount = VST3EventProcessor::eventInputBusCount();
+	auto outputCount = VST3EventProcessor::eventOutputBusCount();
 	eventInputBusInfoGroup_.resize(inputCount);
 	eventOutputBusInfoGroup_.resize(outputCount);
 	for (decltype(inputCount) i = 0; i < inputCount; ++i)

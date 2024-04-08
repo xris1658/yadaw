@@ -79,7 +79,7 @@ public:
     void swap(AudioGraphBackend& rhs);
 private:
     std::unique_ptr<Impl> pImpl_;
-    Status status_;
+    Status status_ = Status::Empty;
 };
 
 QString getAudioGraphErrorStringFromErrorCode(YADAW::Native::ErrorCodeType errorCode);

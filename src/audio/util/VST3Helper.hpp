@@ -19,7 +19,7 @@ inline Steinberg::tresult queryInterface(Steinberg::FUnknown* from, To** to)
 }
 
 template<typename T>
-inline void releasePointer(T* pointer)
+inline void releasePointer(T*& pointer)
 {
     static_assert(std::is_base_of_v<Steinberg::FUnknown, T>);
     if(pointer)
@@ -44,6 +44,5 @@ bool fillAutomationInParamValueQueue(
     YADAW::Audio::Base::Automation::Time length,
     YADAW::Audio::Base::Automation::Time precision = 8);
 }
-
 
 #endif // YADAW_SRC_AUDIO_UTIL_VST3HELPER

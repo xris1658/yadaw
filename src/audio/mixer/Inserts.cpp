@@ -5,9 +5,9 @@
 
 namespace YADAW::Audio::Mixer
 {
-void blankNodeAddedCallback(const Inserts& inserts) {}
-void blankNodeRemovedCallback(const Inserts& inserts) {}
-void blankConnectionUpdatedCallback(const Inserts& inserts) {}
+void blankNodeAddedCallback(const Inserts&) {}
+void blankNodeRemovedCallback(const Inserts&) {}
+void blankConnectionUpdatedCallback(const Inserts&) {}
 
 Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     ade::NodeHandle inNode, ade::NodeHandle outNode,

@@ -68,7 +68,7 @@ YADAW::Util::IntrusivePointer<AudioBufferPool> AudioBufferPool::intrusiveFromThi
 Buffer::Buffer(
     std::uint32_t row, std::uint32_t column,
     YADAW::Util::IntrusivePointer<AudioBufferPool> pool):
-    pool_(pool),
+    pool_(std::move(pool)),
     pointer_(pool_->pool_[row]->data() + pool_->singleBufferByteSize_ * column),
     row_(row),
     column_(column)

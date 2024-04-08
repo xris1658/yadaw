@@ -239,7 +239,7 @@ const std::vector<QString>& defaultPluginDirectoryList()
     std::call_once(defaultPluginListFlag, [&list = ret]() mutable
     {
         list.reserve(6);
-        auto programFilesPath = YADAW::Native::programFilesFolder();
+        const auto& programFilesPath = YADAW::Native::programFilesFolder();
         if(!programFilesPath.isEmpty())
         {
             // Vestifal
@@ -250,7 +250,7 @@ const std::vector<QString>& defaultPluginDirectoryList()
             // CLAP
             list.emplace_back(QString(programFilesPath).append("\\Common Files\\CLAP"));
         }
-        auto localAppDataPath = YADAW::Native::localAppDataFolder();
+        const auto& localAppDataPath = YADAW::Native::localAppDataFolder();
         if(!localAppDataPath.isEmpty())
         {
             list.emplace_back(QString(localAppDataPath).append("\\Programs\\Common\\VST3"));

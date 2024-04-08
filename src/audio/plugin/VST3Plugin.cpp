@@ -541,8 +541,7 @@ void VST3Plugin::doProcess(const AudioProcessData<float>& audioProcessData)
     audioProcessor_->process(processData_);
 }
 
-void VST3Plugin::blankProcess(const AudioProcessData<float>& audioProcessData)
-{}
+void VST3Plugin::blankProcess(const AudioProcessData<float>&) {}
 
 Steinberg::Vst::IComponentHandler* VST3Plugin::componentHandler()
 {

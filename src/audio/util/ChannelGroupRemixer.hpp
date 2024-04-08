@@ -250,7 +250,6 @@ const float stereoFrom71[2][8] = {
 
 const float stereoFrom71Normalization = 2.0f / (2.0f + YADAW::Util::sqrt2<float>() + YADAW::Util::sqrt3<float>());
 
-
 const float stereoFrom71Normalized[2][8] = {
     {
         stereoFrom71[0][0] * stereoFrom71Normalization,

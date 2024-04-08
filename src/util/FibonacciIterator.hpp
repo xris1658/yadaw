@@ -91,7 +91,7 @@ private:
 namespace std
 {
 template<typename IntegerType>
-struct iterator_traits<YADAW::Util::FibonacciIterator < IntegerType>>
+struct iterator_traits<YADAW::Util::FibonacciIterator<IntegerType>>
 {
     using difference_type = std::int64_t;
     using value_type = std::pair<IntegerType, IntegerType>;

@@ -47,7 +47,7 @@ YADAW::Native::ErrorCodeType activateDefaultDevice(
             }
         }
     }
-    return ERROR_SUCCESS;
+    return ret;
 }
 
 YADAW::Native::ErrorCodeType createAudioGraphFromConfig(const YAML::Node& node)

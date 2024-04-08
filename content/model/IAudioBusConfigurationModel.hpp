@@ -35,9 +35,9 @@ protected:
     {
         static RoleNames ret
         {
-            std::make_pair(Role::Name, "abcm_name"),
+            std::make_pair(Role::Name,          "abcm_name"),
             std::make_pair(Role::ChannelConfig, "abcm_channel_config"),
-            std::make_pair(Role::ChannelList, "abcm_channel_list")
+            std::make_pair(Role::ChannelList,   "abcm_channel_list")
         };
         return ret;
     }

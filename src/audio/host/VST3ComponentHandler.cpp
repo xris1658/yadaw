@@ -187,8 +187,6 @@ tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue
 
 tresult VST3ComponentHandler::endEdit(ParamID id)
 {
-    auto hostBufferIndex = hostBufferIndex_.load(
-        std::memory_order::memory_order_acquire);
     // std::printf("endEdit(%u)\n", id);
     auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
     return doEndEdit(id, timestamp);

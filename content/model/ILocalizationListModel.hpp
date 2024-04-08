@@ -33,12 +33,12 @@ protected:
     {
         static RoleNames ret
         {
-            std::make_pair(Role::Name, "lm_name"),
-            std::make_pair(Role::Author, "lm_author"),
-            std::make_pair(Role::LanguageCode, "lm_language_code"),
+            std::make_pair(Role::Name,                "lm_name"),
+            std::make_pair(Role::Author,              "lm_author"),
+            std::make_pair(Role::LanguageCode,        "lm_language_code"),
             std::make_pair(Role::TranslationFileList, "lm_translation_file_list"),
-            std::make_pair(Role::FontFamilyList, "lm_font_family_list"),
-            std::make_pair(Role::FontList, "lm_font_list")
+            std::make_pair(Role::FontFamilyList,      "lm_font_family_list"),
+            std::make_pair(Role::FontList,            "lm_font_list")
         };
         return ret;
     }

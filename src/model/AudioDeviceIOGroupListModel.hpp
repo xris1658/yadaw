@@ -12,7 +12,6 @@ class AudioDeviceIOGroupListModel: public IAudioDeviceIOGroupListModel
 {
     Q_OBJECT
 public:
-    AudioDeviceIOGroupListModel(QObject* parent = nullptr);
     AudioDeviceIOGroupListModel(
         const YADAW::Audio::Device::IAudioDevice& audioDevice,
         bool isInput,

@@ -45,7 +45,7 @@ public:
             const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* buffers);
     private:
         std::vector<Channel> channels_;
-        const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* buffers_;
+        const YADAW::Audio::Backend::AudioGraphBackend::InterleaveAudioBuffer* buffers_ = nullptr;
         bool isInput_;
         YADAW::Audio::Util::AudioChannelGroup audioChannelGroup_;
     };

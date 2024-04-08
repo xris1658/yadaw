@@ -5,9 +5,9 @@
 
 namespace YADAW::Audio::Mixer
 {
-void blankNodeAddedCallback(const Mixer& mixer) {}
-void blankNodeRemovedCallback(const Mixer& mixer) {}
-void blankConnectionUpdatedCallback(const Mixer& mixer) {}
+void blankNodeAddedCallback(const Mixer&) {}
+void blankNodeRemovedCallback(const Mixer&) {}
+void blankConnectionUpdatedCallback(const Mixer&) {}
 
 Mixer::Mixer():
     graph_(),

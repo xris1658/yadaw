@@ -4,8 +4,6 @@
 
 #include <QFile>
 
-#include <fstream>
-
 namespace YADAW::DAO
 {
 void saveConfig(const YAML::Node& node, const QString& path)

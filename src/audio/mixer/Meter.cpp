@@ -90,7 +90,7 @@ void Meter::process(const Device::AudioProcessData<float>& audioProcessData)
             {
                 std::memcpy(samples_[i].data(),
                     audioProcessData.inputs[0][i] + (bufferSize - rmsWindowSize_),
-                    sizeof(bufferSize) * sizeof(float)
+                    bufferSize * sizeof(float)
                 );
             }
             index_ = 0;

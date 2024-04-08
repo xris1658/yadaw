@@ -279,7 +279,11 @@ bool SortFilterProxyListModel::setData(const QModelIndex& index, const QVariant&
 
 YADAW::Model::RoleNames SortFilterProxyListModel::roleNames() const
 {
-    return sourceModel_->roleNames();
+    if(sourceModel_)
+    {
+        return sourceModel_->roleNames();
+    }
+    return YADAW::Model::RoleNames();
 }
 
 void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent, int first, int last)
@@ -322,14 +326,13 @@ void SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved(const QModelIndex
             return value.second != -1;
         }
     );
-    auto filteredInItemCountToRemove = middle - rowsToRemove.begin();
     std::rotate(
         rowsToRemove.begin(),
         middle,
         rowsToRemove.end()
     );
-    // `for(auto it = removeLast; it-- > removeFirst;)` might cause an assertion
-    // failure when `removeFirst == srcToDst_.begin()`.
+    // `for(auto it = removeLast; it-- > removeFirst; )` might cause an
+    // assertion failure when `removeFirst == srcToDst_.begin()`.
     // See comment of `mergeNewAcceptedItems`.
     for(auto i = rowsToRemove.size(); i-- > 0;)
     {

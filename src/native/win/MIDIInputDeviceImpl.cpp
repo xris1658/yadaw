@@ -69,7 +69,7 @@ void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
         [this, func](const winrt::Windows::Devices::Midi::MidiInPort& midiInPort,
             const winrt::Windows::Devices::Midi::MidiMessageReceivedEventArgs& args)
         {
-            auto preceivedValue = YADAW::Util::currentTimeValueInNanosecond();
+            auto perceivedValue = YADAW::Util::currentTimeValueInNanosecond();
             const auto& from = args.Message();
             YADAW::MIDI::Message to {};
             to.timestampInNanoseconds = createTime_ + static_cast<std::chrono::nanoseconds>(from.Timestamp()).count(); //

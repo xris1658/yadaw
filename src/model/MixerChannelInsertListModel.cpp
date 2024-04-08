@@ -4,7 +4,6 @@
 #include "audio/engine/AudioDeviceGraphProcess.hpp"
 #include "audio/engine/MultiInputDeviceWithPDC.hpp"
 #include "audio/util/CLAPHelper.hpp"
-#include "audio/util/VestifalHelper.hpp"
 #include "audio/util/VST3Helper.hpp"
 #include "controller/AudioEngineController.hpp"
 #include "controller/LibraryPluginMap.hpp"
@@ -135,7 +134,6 @@ bool MixerChannelInsertListModel::setData(const QModelIndex& index, const QVaria
                 device = multiInput->process().device();
             }
         }
-        auto plugin = static_cast<YADAW::Audio::Plugin::IAudioPlugin*>(device);
         switch(role)
         {
         case Role::Bypassed:

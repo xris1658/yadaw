@@ -250,7 +250,7 @@ void PluginListModel::clear()
 
 void PluginListModel::update()
 {
-    const auto& list = updateListFunc_();
+    auto list = updateListFunc_();
     clear();
     if(!list.empty())
     {

@@ -23,7 +23,6 @@ T.MenuBar {
         }
     }
 
-
     background: Rectangle {
         color: Colors.menuBarBackground
     }

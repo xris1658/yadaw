@@ -35,7 +35,7 @@ private:
 public:
     void setAutomation(const YADAW::Audio::Base::Automation& automation,
         YADAW::Audio::Base::Automation::Time time);
-    void unsetAutomation(const YADAW::Audio::Base::Automation& automation);
+    void unsetAutomation();
 private:
     static constexpr ProcessFunc processFuncs[2] = {
         &VolumeFader::processWithoutAutomation,

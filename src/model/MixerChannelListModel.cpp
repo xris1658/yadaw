@@ -2,7 +2,6 @@
 
 #include "audio/plugin/CLAPPlugin.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
-#include "audio/plugin/VestifalPlugin.hpp"
 #include "controller/AudioEngineController.hpp"
 #include "controller/AudioGraphBackendController.hpp"
 #include "controller/ALSABackendController.hpp"
@@ -181,9 +180,6 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
     auto row = index.row();
     if(row >= 0 && row < itemCount())
     {
-        auto isInstrument =
-            listType_ == ListType::Regular
-            && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument;
         switch(role)
         {
         case Role::Name:
@@ -553,7 +549,6 @@ bool MixerChannelListModel::remove(int position, int removeCount)
                 instrumentBypassed_.begin() + position,
                 instrumentBypassed_.begin() + position + removeCount
             );
-            auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
             updateInstrumentConnections(position);
         }
         endRemoveRows();

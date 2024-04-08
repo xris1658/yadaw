@@ -54,7 +54,7 @@ QVariant PluginCategoryListModel::data(const QModelIndex& index, int role) const
 
 void PluginCategoryListModel::update()
 {
-    const auto& list = updateListFunc_();
+    auto list = updateListFunc_();
     if(!data_.empty())
     {
         beginRemoveRows(QModelIndex(), 0, data_.size() - 1);

@@ -24,7 +24,6 @@ void initializeLocalizationListModel(YADAW::Model::LocalizationListModel& model)
         for(const auto& entryInfo: entryInfoList)
         {
             QDir subdir(entryInfo.absoluteFilePath());
-            const auto& path = subdir.absolutePath();
             const auto& fileEntryInfoList = subdir.entryInfoList({"*.yml"}, QDir::Filter::Files | QDir::Filter::Hidden);
             for(const auto& yamlFileInfo: fileEntryInfoList)
             {

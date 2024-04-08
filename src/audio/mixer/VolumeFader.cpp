@@ -96,7 +96,7 @@ void VolumeFader::setAutomation(
     time_ = time;
 }
 
-void VolumeFader::unsetAutomation(const Base::Automation& automation)
+void VolumeFader::unsetAutomation()
 {
     automation_ = nullptr;
 }

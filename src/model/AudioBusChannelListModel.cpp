@@ -19,9 +19,7 @@ AudioBusChannelListModel::AudioBusChannelListModel(
         (&configuration.inputBusAt(index)->get()):
         (&configuration.outputBusAt(index)->get())
     )
-{
-    auto bus = bus_;
-}
+{}
 
 AudioBusChannelListModel::AudioBusChannelListModel(const AudioBusChannelListModel& rhs):
     IAudioBusChannelListModel(rhs.parent()),
@@ -90,8 +88,7 @@ bool AudioBusChannelListModel::setData(const QModelIndex& index, const QVariant&
     auto row = index.row();
     if(row >= 0 && row < itemCount())
     {
-        const auto& channel =
-            bus_->channelAt(row).value();
+        const auto& channel = bus_->channelAt(row).value();
         switch(role)
         {
         case Role::ChannelIndex:

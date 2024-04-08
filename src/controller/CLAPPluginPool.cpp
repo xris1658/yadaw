@@ -21,7 +21,7 @@ CLAPPluginPoolVector createPoolVector(CLAPPluginPool& pool)
     return ret;
 }
 
-void fillCLAPInputParameterChanged(CLAPPluginPoolVector& pool,
+void fillCLAPInputParameterChanges(CLAPPluginPoolVector& pool,
     std::int64_t callbackTimestampInNanosecond)
 {
     for(auto* ptr: pool)

@@ -29,7 +29,7 @@ protected:
     {
         static RoleNames ret
         {
-            std::make_pair(Role::DeviceIndex, "abclm_device_index"),
+            std::make_pair(Role::DeviceIndex,  "abclm_device_index"),
             std::make_pair(Role::ChannelIndex, "abclm_channel_index")
         };
         return ret;

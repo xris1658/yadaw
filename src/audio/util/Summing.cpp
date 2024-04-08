@@ -51,20 +51,19 @@ std::uint32_t Summing::latencyInSamples() const
 
 void Summing::process(const AudioProcessData<float>& audioProcessData)
 {
-    for(std::uint32_t i = 0; i < output_.channelCount(); ++i)
+    FOR_RANGE0(i, output_.channelCount())
     {
         std::memset(audioProcessData.outputs[0][i], 0, sizeof(float) * audioProcessData.singleBufferSize);
     }
-    for(std::uint32_t i = 0; i < inputCount_; ++i)
+    FOR_RANGE0(i, inputCount_)
     {
-        for(std::uint32_t j = 0; j < output_.channelCount(); ++j)
+        FOR_RANGE0(j, output_.channelCount())
         {
-            for(std::uint32_t k = 0; k < audioProcessData.singleBufferSize; ++k)
+            FOR_RANGE0(k, audioProcessData.singleBufferSize)
             {
                 audioProcessData.outputs[0][j][k] += audioProcessData.inputs[i][j][k];
             }
         }
     }
 }
-
 }

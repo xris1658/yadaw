@@ -22,6 +22,6 @@ extern PluginWindows pluginWindows;
 void createPluginWindow();
 
 void createGenericPluginEditor();
-};
+}
 
 #endif // YADAW_SRC_CONTROLLER_PLUGINWINDOWCONTROLLER

@@ -104,7 +104,6 @@ QString getALSAErrorString(bool isInput, ALSADeviceSelector selector,
     ALSABackend::ActivateDeviceResult activateDeviceResult);
 }
 
-
 #endif
 
 #endif // YADAW_SRC_AUDIO_BACKEND_ALSAAUDIOBACKEND

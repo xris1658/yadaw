@@ -102,10 +102,8 @@ void AudioEngine::process()
         *(vst3PluginPool_.get()),
         YADAW::Util::currentTimeValueInNanosecond()
     );
-    YADAW::Controller::fillCLAPInputParameterChanged(
-        *(clapPluginPool_.get()),
-        YADAW::Util::currentTimeValueInNanosecond()
-    );
+    YADAW::Controller::fillCLAPInputParameterChanges(*(clapPluginPool_.get()),
+        YADAW::Util::currentTimeValueInNanosecond());
     auto& clapPluginToSetProcess = *clapPluginToSetProcess_.get();
     for(const auto& [plugin, process]: clapPluginToSetProcess)
     {
@@ -116,7 +114,6 @@ void AudioEngine::process()
     // Sadly, we do NOT know if `std::vector<T>::clear()` is O(1) if `T` is
     // trivially destructible on unknown STL implementations.
     // On MSVC STL, it is O(1). On libstdc++ and libcxx, it seems not.
-    auto size = clapPluginToSetProcess.size();
     clapPluginToSetProcess.clear();
     auto& processSequence = *(processSequence_.get());
     std::for_each(processSequence.begin(), processSequence.end(),
@@ -140,7 +137,6 @@ void AudioEngine::process()
 
 void AudioEngine::updateProcessSequence()
 {
-    auto& instance = *this;
     processSequence_.updateAndDispose(
         std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
             YADAW::Audio::Engine::getProcessSequence(

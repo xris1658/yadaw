@@ -35,7 +35,7 @@ protected:
     {
         static RoleNames ret
         {
-            std::make_pair(Role::Time, "am_time"),
+            std::make_pair(Role::Time,  "am_time"),
             std::make_pair(Role::Value, "am_value"),
             std::make_pair(Role::Curve, "am_curve")
         };

@@ -64,5 +64,4 @@ T sqrt3()
 #endif
 }
 
-
 #endif // YADAW_SRC_UTIL_CONSTANTS

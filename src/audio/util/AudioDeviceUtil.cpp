@@ -4,12 +4,12 @@
 
 namespace YADAW::Audio::Util
 {
-std::uint32_t firstMainAudioInput(const YADAW::Audio::Device::IAudioDevice* device)
+std::uint32_t firstMainAudioInput(const YADAW::Audio::Device::IAudioDevice& device)
 {
-    auto count = device->audioInputGroupCount();
+    auto count = device.audioInputGroupCount();
     FOR_RANGE0(i, count)
     {
-        if(device->audioInputGroupAt(i)->get().isMain())
+        if(device.audioInputGroupAt(i)->get().isMain())
         {
             return i;
         }
@@ -17,12 +17,12 @@ std::uint32_t firstMainAudioInput(const YADAW::Audio::Device::IAudioDevice* devi
     return count;
 }
 
-std::uint32_t firstMainAudioOutput(const YADAW::Audio::Device::IAudioDevice* device)
+std::uint32_t firstMainAudioOutput(const YADAW::Audio::Device::IAudioDevice& device)
 {
-    auto count = device->audioOutputGroupCount();
+    auto count = device.audioOutputGroupCount();
     FOR_RANGE0(i, count)
     {
-        if(device->audioOutputGroupAt(i)->get().isMain())
+        if(device.audioOutputGroupAt(i)->get().isMain())
         {
             return i;
         }

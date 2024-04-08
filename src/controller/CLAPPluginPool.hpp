@@ -41,7 +41,7 @@ CLAPPluginPool& appCLAPPluginPool();
 
 CLAPPluginPoolVector createPoolVector(CLAPPluginPool& pool);
 
-void fillCLAPInputParameterChanged(CLAPPluginPoolVector& pool,
+void fillCLAPInputParameterChanges(CLAPPluginPoolVector& pool,
     std::int64_t callbackTimestampInNanosecond);
 
 }

@@ -121,7 +121,7 @@ CLAPPluginParameter::CLAPPluginParameter(const clap_plugin* plugin, const clap_p
     plugin_(plugin),
     params_(params)
 {
-    auto count = parameterCount();
+    auto count = CLAPPluginParameter::parameterCount();
     parameters_.reserve(count);
     FOR_RANGE0(i, count)
     {

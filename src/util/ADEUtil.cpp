@@ -32,7 +32,7 @@ bool pathExists(const ade::NodeHandle& from, const ade::NodeHandle& to, VisitedN
     );
 }
 
-bool pathExists(ade::NodeHandle from, ade::NodeHandle to)
+bool pathExists(const ade::NodeHandle& from, const ade::NodeHandle& to)
 {
     VisitedNodes visitedNodes;
     return pathExists(from, to, visitedNodes);

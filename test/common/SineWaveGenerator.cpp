@@ -1,6 +1,5 @@
 #include "SineWaveGenerator.hpp"
 
-
 SineWaveGenerator::SineWaveGenerator(
     YADAW::Audio::Base::ChannelGroupType channelGroupType,
     std::uint32_t channelCountInGroup):

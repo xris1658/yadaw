@@ -10,7 +10,6 @@ void blankParameterTextChangedCallback(YADAW::Audio::Plugin::CLAPPlugin&) {}
 
 void blankParameterInfoChangedCallback(YADAW::Audio::Plugin::CLAPPlugin&) {}
 
-
 namespace YADAW::Audio::Host
 {
 CLAPHost* getHost(const clap_host* host)
@@ -223,7 +222,7 @@ bool CLAPHost::doRequestResize(std::uint32_t width, std::uint32_t height)
 bool CLAPHost::doRequestShow()
 {
     plugin_->pluginGUI()->window()->show();
-    return false;
+    return true;
 }
 
 bool CLAPHost::doRequestHide()

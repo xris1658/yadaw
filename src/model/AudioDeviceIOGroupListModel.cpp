@@ -4,10 +4,6 @@
 
 namespace YADAW::Model
 {
-AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(QObject* parent):
-    IAudioDeviceIOGroupListModel(parent)
-{}
-
 AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(
     const YADAW::Audio::Device::IAudioDevice& audioDevice, bool isInput,
     QObject* parent):
@@ -25,8 +21,7 @@ AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(
                 device_->audioInputGroupAt(i):
                 device_->audioOutputGroupAt(i)
             )->get();
-        auto& speakerListModel = speakerListModel_.emplace_back(channelGroup);
-        // speakerListModel.setParent(this);
+        speakerListModel_.emplace_back(channelGroup);
     }
 }
 

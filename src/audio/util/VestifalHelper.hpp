@@ -22,5 +22,4 @@ YADAW::Audio::Plugin::VestifalPlugin createVestifalFromLibrary(
 QString getVersionString(std::uint32_t version);
 }
 
-
 #endif // YADAW_SRC_AUDIO_UTIL_VESTIFALHELPER

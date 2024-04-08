@@ -1,3 +1,5 @@
+#if __linux__
+
 #include "ALSABackendController.hpp"
 
 #include "controller/AudioEngineController.hpp"
@@ -217,3 +219,5 @@ void alsaCallback(const YADAW::Audio::Backend::ALSABackend* backend,
     YADAW::Controller::AudioEngine::appAudioEngine().process();
 }
 }
+
+#endif
