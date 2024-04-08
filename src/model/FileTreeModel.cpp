@@ -4,7 +4,8 @@
 
 namespace YADAW::Model
 {
-FileTreeModel::FileTreeModel(const QString& path):
+FileTreeModel::FileTreeModel(const QString& path, QObject* parent):
+    IFileTreeModel(parent),
     rootNode_(std::make_unique<Impl::TreeNode<List>>(QDir(path)))
 {
     rootNode_->data().fillDirEnd();
@@ -93,11 +94,6 @@ QModelIndex FileTreeModel::index(int row, int column, const QModelIndex& parent)
     return createIndex(row, column, node);
 }
 
-int FileTreeModel::columnCount(const QModelIndex& parent) const
-{
-    return 1;
-}
-
 QVariant FileTreeModel::data(const QModelIndex& index, int role) const
 {
     auto data = reinterpret_cast<Impl::TreeNode<List>*>(index.internalPointer());
@@ -111,7 +107,6 @@ QVariant FileTreeModel::data(const QModelIndex& index, int role) const
     {
         switch(role)
         {
-        // case Qt::DisplayRole:
         case Role::Name:
         {
             return QVariant::fromValue<QString>(list[row].fileName());
@@ -146,15 +141,5 @@ QModelIndex FileTreeModel::parent(const QModelIndex& child) const
         }
     }
     return QModelIndex();
-}
-
-QHash<int, QByteArray> FileTreeModel::roleNames() const
-{
-    QHash<int, QByteArray> ret;
-    // ret.insert(Qt::DisplayRole, "display");
-    ret.insert(Role::Name, "ftm_name");
-    ret.insert(Role::Path, "ftm_path");
-    ret.insert(Role::IsDirectory, "ftm_is_directory");
-    return ret;
 }
 }

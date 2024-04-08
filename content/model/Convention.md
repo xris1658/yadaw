@@ -2,18 +2,21 @@
 
 ## Defining Models
 - Define your Model in `YADAW::Model` and register it to `YADAW.Models`.
-- Derive your Model from `QAbstractListModel`, or `ISortFilterListModel` if the 
-  Model is used with `ISortFilterProxyListModel`.
+- Derive your Model from
+  - `QAbstractListModel`, or
+  - `QAbstractItemModel` if the Model is a tree or table, or
+  - `ISortFilterListModel` if the 
+  Model is used with `SortFilterProxyListModel`.
 - Provide a constructor, virtual destructor and a public `static constexpr int
   columnCount()`.
 
 ## Naming convention
-- Class names: `***ListModel` or `***Model` in PascalCase
+- Class names: `***ListModel`, `***TreeModel` or `***TableModel` in PascalCase
 - Roles: PascalCase
 - Role names: `***_xxx` in snake_case, in which
   - `***` is the upper case letters (without the first letter I) of the class
     name, in lower case.
-  - `xxx` is the role in lower case.
+  - `xxx` is the role in snake case.
 
 For example, class `IAssetDirectoryListModel` has its roles and role names as:
 - `Id` named `adlm_id`
@@ -32,7 +35,8 @@ For example, class `IAssetDirectoryListModel` has its roles and role names as:
     ```
 
 ## Some member functions
-Define `columnCount()` and `columnCount(const QModelIndex&)` as follows:
+For list Models, define `columnCount()` and `columnCount(const QModelIndex&)`
+as follows:
 ```cpp
 public:
     static constexpr int columnCount() { return 1; }
@@ -41,3 +45,4 @@ public:
         return columnCount();
     }
 ```
+

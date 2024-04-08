@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_MODEL_FILETREEMODEL
 #define YADAW_SRC_MODEL_FILETREEMODEL
 
+#include "model/IFileTreeModel.hpp"
+
 #include "model/impl/TreeNode.hpp"
 
 #include <QAbstractItemModel>
@@ -11,7 +13,7 @@
 
 namespace YADAW::Model
 {
-class FileTreeModel: public QAbstractItemModel
+class FileTreeModel: public IFileTreeModel
 {
     Q_OBJECT
 public:
@@ -52,19 +54,16 @@ private:
         std::size_t dirCount = 0;
     };
 public:
-    FileTreeModel(const QString& path);
+    FileTreeModel(const QString& path, QObject* parent = nullptr);
     ~FileTreeModel() override;
 public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
     QVariant data(const QModelIndex& index,
         int role = Qt::DisplayRole) const override;
     QModelIndex index(int row, int column,
         const QModelIndex& parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex& child) const override;
     bool hasChildren(const QModelIndex& parent = QModelIndex()) const override;
-protected:
-    QHash<int, QByteArray> roleNames() const override;
 private:
     mutable std::unique_ptr<Impl::TreeNode<List>> rootNode_;
 };
