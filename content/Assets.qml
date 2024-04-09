@@ -208,13 +208,17 @@ Rectangle {
                         }
                         signal remove()
                         onRemove: {
-                            directoryListModel.remove(pathId);
                             assetListView.model = null;
+                            directoryListModel.remove(pathId);
                         }
                         onClicked: {
                             rightLayout.currentIndex = 0;
                             directoryList.currentIndex = index;
-                            assetListView.model = adlm_file_tree;
+                        }
+                        onHighlightedChanged: {
+                            if(highlighted) {
+                                assetListView.model = adlm_file_tree;
+                            }
                         }
                     }
                     footer: ItemDelegate {
