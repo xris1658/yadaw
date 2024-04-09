@@ -5,19 +5,23 @@ import QtQuick.Layouts
 
 T.Menu {
     id: root
+    padding: 1
 
-    implicitWidth: 0
-    implicitHeight: contentItem.contentHeight
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+        contentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+        contentHeight + topPadding + bottomPadding)
 
     background: Rectangle {
-        z: 2
+        id: bg
+        implicitWidth: 100
+        implicitHeight: 10
         color: "transparent"
         border.color: Colors.controlBorder
     }
     contentItem: ListView {
         id: listView
-        width: background.width
-        height: background.height
+        implicitHeight: contentHeight
         clip: true
         model: root.contentModel
         currentIndex: root.currentIndex
@@ -35,10 +39,10 @@ T.Menu {
     Component.onCompleted: {
         for(let i = 0; i < root.count; ++i) {
             let item = root.itemAt(i);
-            root.implicitWidth = Math.max(root.implicitWidth, item.implicitWidth);
+            bg.implicitWidth = Math.max(bg.implicitWidth, item.implicitWidth);
         }
         if(scrollBar.visible) {
-            root.implicitWidth += scrollBar.width;
+            bg.implicitWidth += scrollBar.width;
         }
     }
 }
