@@ -2,6 +2,7 @@
 #define YADAW_SRC_MODEL_ASSETDIRECTORYLISTMODEL
 
 #include "model/IAssetDirectoryListModel.hpp"
+#include "model/FileTreeModel.hpp"
 
 #include <QString>
 #include <QUrl>
@@ -13,6 +14,18 @@ namespace YADAW::Model
 class AssetDirectoryListModel: public IAssetDirectoryListModel
 {
     Q_OBJECT
+private:
+    struct Data
+    {
+        Data(const QString& path, const QString& name,
+            std::unique_ptr<YADAW::Model::FileTreeModel>&& fileTreeModel, int id):
+            path(path), name(name), fileTreeModel(std::move(fileTreeModel)), id(id)
+        {}
+        QString path;
+        QString name;
+        std::unique_ptr<YADAW::Model::FileTreeModel> fileTreeModel;
+        int id;
+    };
 public:
     AssetDirectoryListModel(QObject* parent = nullptr);
     ~AssetDirectoryListModel() override;
@@ -28,7 +41,7 @@ public:
     Q_INVOKABLE void rename(int id, const QString& name) override;
     Q_INVOKABLE void remove(int id) override;
 private:
-    std::vector<std::tuple<int, QString, QString>> data_;
+    std::vector<Data> data_;
 };
 }
 

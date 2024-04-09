@@ -16,7 +16,8 @@ AssetDirectoryListModel::AssetDirectoryListModel(QObject* parent):
         for(const auto& [id, path, name]: list)
         {
             beginResetModel();
-            data_.emplace_back(id, path, name);
+            data_.emplace_back(
+                path, name, std::make_unique<FileTreeModel>(path), id);
             endResetModel();
         }
     }
@@ -42,7 +43,7 @@ QVariant AssetDirectoryListModel::data(const QModelIndex& index, int role) const
     int row = index.row();
     if(row >= 0 && row < itemCount())
     {
-        const auto& [id, path, name] = data_[row];
+        const auto& [path, name, fileTreeModel, id] = data_[row];
         switch(role)
         {
         case Role::Id:
@@ -53,6 +54,8 @@ QVariant AssetDirectoryListModel::data(const QModelIndex& index, int role) const
             return QVariant::fromValue(name);
         case Role::DefaultName:
             return QVariant::fromValue(QFileInfo(path).baseName());
+        case Role::FileTree:
+            return QVariant::fromValue<QObject*>(fileTreeModel.get());
         default:
             return {};
         }
@@ -65,7 +68,7 @@ bool AssetDirectoryListModel::setData(const QModelIndex& index, const QVariant& 
     int row = index.row();
     if(row >= 0 && row < itemCount())
     {
-        auto& [id, path, name] = data_[row];
+        auto& [path, name, fileTreeModel, id] = data_[row];
         switch(role)
         {
         case Role::Id:
@@ -75,6 +78,8 @@ bool AssetDirectoryListModel::setData(const QModelIndex& index, const QVariant& 
             if(value.canConvert<QString>())
             {
                 path = value.value<QString>();
+                fileTreeModel = std::make_unique<FileTreeModel>(path);
+                dataChanged(index, index, {Role::Path, Role::FileTree});
                 return true;
             }
             return false;
@@ -84,6 +89,7 @@ bool AssetDirectoryListModel::setData(const QModelIndex& index, const QVariant& 
             if(value.canConvert<QString>())
             {
                 name = value.value<QString>();
+                dataChanged(index, index, {Role::Name});
                 return true;
             }
             return false;
@@ -98,9 +104,9 @@ bool AssetDirectoryListModel::setData(const QModelIndex& index, const QVariant& 
 void AssetDirectoryListModel::append(const QString& path, const QString& name)
 {
     if(std::find_if(data_.begin(), data_.end(),
-        [&path](const auto& tuple)
+        [&path](const Data& data)
         {
-            const auto& [dataId, dataPath, dataName] = tuple;
+            const auto& [dataPath, dataName, fileTreeModel, id] = data;
             return dataPath == path;
         }) == data_.end())
     {
@@ -109,7 +115,11 @@ void AssetDirectoryListModel::append(const QString& path, const QString& name)
         {
             auto id = YADAW::DAO::addAssetDirectory(path, name);
             beginInsertRows(QModelIndex(), size, size);
-            data_.emplace_back(id, path, name);
+            data_.emplace_back(
+                path, name,
+                std::make_unique<YADAW::Model::FileTreeModel>(path),
+                id
+            );
             endInsertRows();
         }
         catch(...) {}
@@ -132,14 +142,14 @@ void AssetDirectoryListModel::append(const QUrl& url)
 void AssetDirectoryListModel::rename(int id, const QString& name)
 {
     if(auto it = std::find_if(data_.begin(), data_.end(),
-        [toFind = id](const auto& tuple)
+        [toFind = id](const Data& data)
         {
-            const auto& [dataId, dataPath, dataName] = tuple;
-            return dataId == toFind;
+            const auto& [dataPath, dataName, fileTreeModel, id] = data;
+            return toFind == id;
         }); it != data_.end())
     {
         auto row = std::distance(data_.begin(), it);
-        auto& [dataId, dataPath, dataName] = *it;
+        auto& [dataPath, dataName, fileTreeModel, id] = *it;
         try
         {
             YADAW::DAO::updateAssetDirectoryName(id, name);
@@ -153,10 +163,10 @@ void AssetDirectoryListModel::rename(int id, const QString& name)
 void AssetDirectoryListModel::remove(int id)
 {
     if(auto it = std::find_if(data_.begin(), data_.end(),
-        [toFind = id](const auto& tuple)
+        [toFind = id](const Data& data)
         {
-            const auto& [dataId, dataPath, dataName] = tuple;
-            return dataId == toFind;
+            const auto& [dataPath, dataName, fileTreeModel, id] = data;
+            return id == toFind;
         }); it != data_.end())
     {
         try
@@ -170,5 +180,4 @@ void AssetDirectoryListModel::remove(int id)
         catch(...) {}
     }
 }
-
 }

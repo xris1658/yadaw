@@ -21,6 +21,7 @@ public:
         Path,
         Name,
         DefaultName,
+        FileTree,
         RoleCount
     };
 public:
@@ -43,7 +44,8 @@ protected:
             std::make_pair(Role::Id,          "adlm_id"),
             std::make_pair(Role::Path,        "adlm_path"),
             std::make_pair(Role::Name,        "adlm_name"),
-            std::make_pair(Role::DefaultName, "adlm_default_name")
+            std::make_pair(Role::DefaultName, "adlm_default_name"),
+            std::make_pair(Role::FileTree,    "adlm_file_tree")
         };
         return ret;
     }

@@ -3,6 +3,8 @@ import QtQuick
 import QtQuick.Dialogs
 import QtQuick.Layouts
 
+import QtQuick.Controls as QC
+
 import YADAW.Models
 
 Rectangle {
@@ -207,10 +209,12 @@ Rectangle {
                         signal remove()
                         onRemove: {
                             directoryListModel.remove(pathId);
+                            assetListView.model = null;
                         }
                         onClicked: {
                             rightLayout.currentIndex = 0;
                             directoryList.currentIndex = index;
+                            assetListView.model = adlm_file_tree;
                         }
                     }
                     footer: ItemDelegate {
@@ -351,9 +355,33 @@ Rectangle {
                 anchors.bottomMargin: 1
                 TreeView {
                     id: assetListView
-                    // TODO
+                    clip: true
+                    columnWidthProvider: (column) => {
+                        return assetListView.width;
+                    }
+                    delegate: ItemDelegate {
+                        required property TreeView treeView
+                        required property bool isTreeNode
+                        required property bool expanded
+                        required property int hasChildren
+                        required property int depth
+                        leftPadding: depth * height + indicator.width
+                        Label {
+                            id: indicator
+                            x: depth * parent.height
+                            width: height
+                            height: parent.height
+                            verticalAlignment: Label.AlignVCenter
+                            horizontalAlignment: Label.AlignHCenter
+                            visible: parent.isTreeNode && parent.hasChildren
+                            text: parent.expanded? "\u25bc": "\u25b6"
+                        }
+                        text: ftm_name
+                        onClicked: {
+                            assetListView.toggleExpanded(row);
+                        }
+                    }
                 }
-
                 StackLayout {
                     id: categoriesLayout
                     currentIndex: categoriesLeftColumn.currentIndex
