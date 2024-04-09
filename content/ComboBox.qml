@@ -68,7 +68,7 @@ T.ComboBox {
         y: root.height - 1
         z: 1
         width: root.width + (scrollBar.visible? scrollBar.width: 0)
-        height: Math.min(listView.contentHeight, root.Window.height)
+        height: Math.min(listView.contentHeight + topPadding + bottomPadding, root.Window.height)
         contentItem: ListView {
             id: listView
             clip: true
