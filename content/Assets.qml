@@ -1,9 +1,10 @@
 import QtQml
 import QtQuick
+import QtQuick.Controls as QC
 import QtQuick.Dialogs
 import QtQuick.Layouts
 
-import QtQuick.Controls as QC
+import QtQml.Models
 
 import YADAW.Models
 
@@ -13,18 +14,37 @@ Rectangle {
     border.color: Colors.controlBorder
 
     readonly property int preferredWidth: searchTextBox.height * 15
-
     property alias directoryListModel: directoryList.model
-
-    property alias pluginListModel: pluginListView.model
-    property alias midiEffectListModel: midiEffectListView.model
-    property alias instrumentListModel: instrumentListView.model
-    property alias audioEffectListModel: audioEffectListView.model
-    property alias vestifalPluginListModel: vestifalPluginListView.model
-    property alias vst3PluginListModel: vst3PluginListView.model
-    property alias clapPluginListModel: clapPluginListView.model
+    property alias pluginListModel: pluginListProxyModel.sourceModel
 
     clip: true
+
+    QtObject {
+        id: impl
+        function prepareSortOrder(model: SortFilterProxyListModel) {
+            model.appendSortOrder(IPluginListModel.Format, Qt.AscendingOrder);
+            model.appendSortOrder(IPluginListModel.Name, Qt.AscendingOrder);
+        }
+    }
+
+    ListModel {
+        id: pluginHeaderListModel
+        dynamicRoles: true
+        Component.onCompleted: {
+            append({
+                "title": qsTr("Name"),
+                "field": "plm_name",
+                "columnWidth": 197,
+                "roleId": IPluginListModel.Name
+            });
+            append({
+                "title": qsTr("Vendor"),
+                "field": "plm_vendor",
+                "columnWidth": 100,
+                "roleId": IPluginListModel.Vendor
+            });
+        }
+    }
 
     Menu {
         id: assetDirectoryOptions
@@ -351,6 +371,95 @@ Rectangle {
         }
         Rectangle {
         color: "transparent"
+            Component {
+                id: pluginListItemDelegate
+                ItemDelegate {
+                    id: itemDelegate
+                    width: Math.max(ListView.view.contentWidth, ListView.view.width)
+                    property var itemData: Array.isArray(ListView.view.model)? modelData: model
+                    Row {
+                        Item {
+                            id: formatIconPlaceholder
+                            width: height
+                            height: itemDelegate.height
+                            StackLayout {
+                                id: formatIcons
+                                anchors.centerIn: parent
+                                currentIndex: plm_format
+                                layer.enabled: true
+                                layer.smooth: true
+                                layer.textureSize: Qt.size(width * 2, height * 2)
+                                PluginIcon {
+                                    scale: 16 / originalHeight
+                                    path.fillColor: Colors.secondaryContent
+                                    path.strokeColor: "transparent"
+                                }
+                                VST3Icon {
+                                    scale: 16 / originalHeight
+                                    path.fillColor: Colors.secondaryContent
+                                    path.strokeColor: "transparent"
+                                }
+                                CLAPIcon {
+                                    scale: 16 / originalHeight
+                                    path.fillColor: Colors.secondaryContent
+                                    path.strokeColor: "transparent"
+                                }
+                                VestifalIcon {
+                                    scale: 16 / originalHeight
+                                    path.fillColor: Colors.secondaryContent
+                                    path.strokeColor: "transparent"
+                                }
+                            }
+                        }
+                        Item {
+                            id: typeIconPlaceholder
+                            width: height
+                            height: itemDelegate.height
+                            StackLayout {
+                                id: typeIcons
+                                anchors.centerIn: parent
+                                currentIndex: plm_type
+                                layer.enabled: true
+                                layer.smooth: true
+                                layer.textureSize: Qt.size(width * 2, height * 2)
+                                PluginIcon {
+                                    scale: 16 / originalHeight
+                                    path.fillColor: Colors.secondaryContent
+                                    path.strokeColor: "transparent"
+                                }
+                                MIDIEffectIcon {
+                                    scale: 16 / originalHeight
+                                    path.fillColor: Colors.secondaryContent
+                                    path.strokeColor: "transparent"
+                                }
+                                PianoKeysIcon {
+                                    scale: 16 / originalHeight
+                                    path.fillColor: Colors.secondaryContent
+                                    path.strokeColor: "transparent"
+                                }
+                                AudioIcon {
+                                    scale: 16 / originalHeight
+                                    path.fillColor: Colors.secondaryContent
+                                    path.strokeColor: "transparent"
+                                }
+                            }
+                        }
+                        Repeater {
+                            model: pluginHeaderListModel
+                            Label {
+                                width: index == 0?
+                                    columnWidth - formatIconPlaceholder.height - typeIconPlaceholder.height:
+                                    columnWidth
+                                leftPadding: index == 0? 0: 2
+                                topPadding: 2
+                                bottomPadding: 2
+                                text: itemData[field]
+                                elide: Label.ElideRight
+                            }
+                        }
+                    }
+                }
+            }
             StackLayout {
                 id: rightLayout
                 anchors.fill: parent
@@ -390,79 +499,105 @@ Rectangle {
                     id: categoriesLayout
                     currentIndex: categoriesLeftColumn.currentIndex
                     clip: true
-                    PluginListView {
+                    TableLikeListView {
                         id: pluginListView
+                        listView.delegate: pluginListItemDelegate
+                        headerListModel: pluginHeaderListModel
+                        model: SortFilterProxyListModel {
+                            id: pluginListProxyModel
+                            Component.onCompleted: {
+                                impl.prepareSortOrder(this);
+                            }
+                        }
                     }
-                    PluginListView {
+                    TableLikeListView {
                         id: midiEffectListView
+                        listView.delegate: pluginListItemDelegate
+                        headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
                             sourceModel: root.pluginListModel
-                        }
-                        Component.onCompleted: {
-                            model.setValueOfFilter(
-                                IPluginListModel.Type,
-                                IPluginListModel.MIDIEffect
-                            );
+                            Component.onCompleted: {
+                                impl.prepareSortOrder(this);
+                                setValueOfFilter(
+                                    IPluginListModel.Type,
+                                    IPluginListModel.MIDIEffect
+                                );
+                            }
                         }
                     }
-                    PluginListView {
+                    TableLikeListView {
                         id: instrumentListView
+                        listView.delegate: pluginListItemDelegate
+                        headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
                             sourceModel: root.pluginListModel
-                        }
-                        Component.onCompleted: {
-                            model.setValueOfFilter(
-                                IPluginListModel.Type,
-                                IPluginListModel.Instrument
-                            );
+                            Component.onCompleted: {
+                                impl.prepareSortOrder(this);
+                                setValueOfFilter(
+                                    IPluginListModel.Type,
+                                    IPluginListModel.Instrument
+                                );
+                            }
                         }
                     }
-                    PluginListView {
+                    TableLikeListView {
                         id: audioEffectListView
+                        listView.delegate: pluginListItemDelegate
+                        headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
                             sourceModel: root.pluginListModel
-                        }
-                        Component.onCompleted: {
-                            model.setValueOfFilter(
-                                IPluginListModel.Type,
-                                IPluginListModel.AudioEffect
-                            );
+                            Component.onCompleted: {
+                                impl.prepareSortOrder(this);
+                                setValueOfFilter(
+                                    IPluginListModel.Type,
+                                    IPluginListModel.AudioEffect
+                                );
+                            }
                         }
                     }
-                    PluginListView {
+                    TableLikeListView {
                         id: vst3PluginListView
+                        listView.delegate: pluginListItemDelegate
+                        headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
                             sourceModel: root.pluginListModel
-                        }
-                        Component.onCompleted: {
-                            model.setValueOfFilter(
-                                IPluginListModel.Format,
-                                IPluginListModel.VST3
-                            );
+                            Component.onCompleted: {
+                                impl.prepareSortOrder(this);
+                                setValueOfFilter(
+                                    IPluginListModel.Format,
+                                    IPluginListModel.VST3
+                                );
+                            }
                         }
                     }
-                    PluginListView {
+                    TableLikeListView {
                         id: clapPluginListView
+                        listView.delegate: pluginListItemDelegate
+                        headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
                             sourceModel: root.pluginListModel
-                        }
-                        Component.onCompleted: {
-                            model.setValueOfFilter(
-                                IPluginListModel.Format,
-                                IPluginListModel.CLAP
-                            );
+                            Component.onCompleted: {
+                                impl.prepareSortOrder(this);
+                                setValueOfFilter(
+                                    IPluginListModel.Format,
+                                    IPluginListModel.CLAP
+                                );
+                            }
                         }
                     }
-                    PluginListView {
+                    TableLikeListView {
                         id: vestifalPluginListView
+                        listView.delegate: pluginListItemDelegate
+                        headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
                             sourceModel: root.pluginListModel
-                        }
-                        Component.onCompleted: {
-                            model.setValueOfFilter(
-                                IPluginListModel.Format,
-                                IPluginListModel.Vestifal
-                            );
+                            Component.onCompleted: {
+                                impl.prepareSortOrder(this);
+                                setValueOfFilter(
+                                    IPluginListModel.Format,
+                                    IPluginListModel.Vestifal
+                                );
+                            }
                         }
                     }
                 }

@@ -63,7 +63,6 @@ PianoKeys 1.0 PianoKeys.qml
 PianoKeysIcon 1.0 PianoKeysIcon.qml
 PlayIcon 1.0 PlayIcon.qml
 PluginIcon 1.0 PluginIcon.qml
-PluginListView 1.0 PluginListView.qml
 PluginRouteEditor 1.0 PluginRouteEditor.qml
 PluginRouteEditorWindow 1.0 PluginRouteEditorWindow.qml
 PluginSelector 1.0 PluginSelector.qml

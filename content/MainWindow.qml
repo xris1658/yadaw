@@ -34,12 +34,6 @@ ApplicationWindow {
     property alias alsaOutputDeviceList: preferencesWindow.alsaOutputDeviceList
 
     property alias pluginListModel: assets.pluginListModel
-    property alias midiEffectListModel: assets.midiEffectListModel
-    property alias instrumentListModel: assets.instrumentListModel
-    property alias audioEffectListModel: assets.audioEffectListModel
-    property alias vestifalPluginListModel: assets.vestifalPluginListModel
-    property alias vst3PluginListModel: assets.vst3PluginListModel
-    property alias clapPluginListModel: assets.clapPluginListModel
     property alias pluginDirectoryListModel: preferencesWindow.pluginDirectoryListModel
 
     property alias mixerAudioInputChannelModel: mixer.inputModel

@@ -11,7 +11,7 @@ Item {
     property ListModel headerListModel: ListModel {
         dynamicRoles: true
     }
-    property bool headerResizeable
+    property bool headerResizeable: true
     ListView {
         id: listView
         anchors.fill: parent
@@ -23,6 +23,7 @@ Item {
         model: root.headerListModel
         orientation: ListView.Vertical
         headerPositioning: ListView.OverlayHeader
+        reuseItems: true
         header: ListView {
             z: 2
             id: headerListView
@@ -51,11 +52,13 @@ Item {
                 acceptedButtons: Qt.LeftButton
                 Label {
                     id: headerLabel
+                    width: parent.width
                     leftPadding: headerListView.textPadding
                     rightPadding: headerResizeMouseArea.width
                     topPadding: headerListView.textPadding
                     bottomPadding: headerListView.textPadding
                     text: title
+                    elide: Label.ElideRight
                     // clip: true
                 }
                 Rectangle {
@@ -114,6 +117,7 @@ Item {
         }
         highlightFollowsCurrentItem: true
         highlightMoveDuration: 0
+        highlightResizeDuration: 0
     }
     ScrollBar {
         id: vbar

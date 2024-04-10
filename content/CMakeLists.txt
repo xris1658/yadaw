@@ -106,7 +106,6 @@ set(CONTENT_QML_FILES
     PianoKeysIcon.qml
     PlayIcon.qml
     PluginIcon.qml
-    PluginListView.qml
     PluginRouteEditor.qml
     PluginRouteEditorWindow.qml
     PluginSelector.qml
