@@ -218,6 +218,7 @@ Window {
                                 }
                                 pluginSelectorWindow.x = windowCoordinate.x;
                                 pluginSelectorWindow.y = windowCoordinate.y;
+                                console.log(pluginSelectorWindow.pluginSelector.pluginListModel);
                                 pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
                                     IPluginListModel.Type,
                                     IPluginListModel.Instrument

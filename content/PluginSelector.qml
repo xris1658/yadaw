@@ -19,11 +19,11 @@ QC.Popup {
     signal resetted()
 
     function currentPluginId() {
-        return pluginList.currentItem.pluginId;
+        return pluginList.listView.currentItem.pluginId;
     }
 
     function currentPluginName() {
-        return pluginList.currentItem.pluginName;
+        return pluginList.listView.currentItem.pluginName;
     }
 
     topInset: 0
@@ -58,10 +58,10 @@ QC.Popup {
                 pluginListModel.filterString = text;
             }
             Keys.onDownPressed: (event) => {
-                if(pluginList.count !== 0) {
-                    pluginList.forceActiveFocus();
-                    if(pluginList.currentIndex == -1) {
-                        pluginList.currentIndex = 0;
+                if(pluginList.listView.count !== 0) {
+                    pluginList.listView.forceActiveFocus();
+                    if(pluginList.listView.currentIndex == -1) {
+                        pluginList.listView.currentIndex = 0;
                     }
                 }
             }
@@ -319,287 +319,144 @@ QC.Popup {
                         }
                     }
                 }
-                Item {
-                    ListView {
-                        id: pluginList
-                        anchors.fill: parent
-                        anchors.rightMargin: vbar.visible? vbar.width: 0
-                        anchors.bottomMargin: hbar.visible? hbar.height: 0
-                        activeFocusOnTab: true
-                        ScrollBar.vertical: vbar
-                        ScrollBar.horizontal: hbar
-                        clip: true
-                        flickableDirection: Flickable.AutoFlickDirection
-                        boundsBehavior: Flickable.StopAtBounds
-                        reuseItems: true
-                        property ListModel headerListModel: ListModel {
-                            dynamicRoles: true
-                            Component.onCompleted: {
-                                append({
-                                    "title": qsTr("Name"),
-                                    "field": "plm_name",
-                                    "columnWidth": 200,
-                                    "roleId": IPluginListModel.Name
-                                });
-                                append({
-                                    "title": qsTr("Vendor"),
-                                    "field": "plm_vendor",
-                                    "columnWidth": 181,
-                                    "roleId": IPluginListModel.Vendor
-                                });
-                                append({
-                                    "title": qsTr("Version"),
-                                    "field": "plm_version",
-                                    "columnWidth": 100,
-                                    "roleId": IPluginListModel.Version
-                                });
-                            }
+                TableLikeListView {
+                    id: pluginList
+                    listView.activeFocusOnTab: true
+                    listView.flickableDirection: Flickable.AutoFlickDirection
+                    listView.boundsBehavior: Flickable.StopAtBounds
+                    listView.reuseItems: true
+                    headerListModel: ListModel {
+                        dynamicRoles: true
+                        Component.onCompleted: {
+                            append({
+                                "title": qsTr("Name"),
+                                "field": "plm_name",
+                                "columnWidth": 200,
+                                "roleId": IPluginListModel.Name
+                            });
+                            append({
+                                "title": qsTr("Vendor"),
+                                "field": "plm_vendor",
+                                "columnWidth": 181,
+                                "roleId": IPluginListModel.Vendor
+                            });
+                            append({
+                                "title": qsTr("Version"),
+                                "field": "plm_version",
+                                "columnWidth": 100,
+                                "roleId": IPluginListModel.Version
+                            });
                         }
-                        header: ListView {
-                            z: 2
-                            id: headerListView
-                            width: pluginList.width
-                            property int textPadding: 2
-                            property int minimumColumnWidth: 10
-                            interactive: false
-                            model: pluginList.headerListModel
-                            visible: pluginList.count  !== 0
-                            function getWidth(index: int) {
-                                return model.get(index).columnWidth;
-                            }
-                            orientation: ListView.Horizontal
-                            Rectangle {
-                                z: -1
-                                id: headerBackground
-                                width: Math.max(parent.contentWidth, parent.width)
-                                height: parent.height
-                                color: Colors.controlBackground
-                                Rectangle {
-                                    anchors.bottom: parent.bottom
-                                    width: parent.width
-                                    height: 1
-                                    color: Colors.border
-                                }
-                            }
-                            delegate: MouseArea {
-                                id: headerItemDelegate
-                                height: headerLabel.height
-                                acceptedButtons: Qt.LeftButton
-                                Label {
-                                    id: headerLabel
-                                    leftPadding: headerListView.textPadding
-                                    rightPadding: headerMouseArea.width
-                                    topPadding: headerListView.textPadding
-                                    bottomPadding: headerListView.textPadding
-                                    text: title
-                                    clip: true
-                                }
-                                Label {
-                                    id: sortOrderLabel
-                                    anchors.right: parent.right
-                                    anchors.rightMargin: headerListView.textPadding
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    font.pointSize: Qt.application.font.pointSize * 0.75
-                                    text: "\u25bc"
-                                    clip: true
-                                    color: Colors.secondaryContent
-                                }
-                                Rectangle {
-                                    anchors.right: parent.right
-                                    width: 1
-                                    height: parent.height
-                                    color: Colors.border
-                                }
-                                MouseArea {
-                                    property double originalMouseX
-                                    id: headerMouseArea
-                                    anchors.right: parent.right
-                                    width: 5
-                                    height: parent.height
-                                    cursorShape: Qt.SizeHorCursor
-                                    preventStealing: true
-                                    onPressed: (mouse) => {
-                                        originalMouseX = mouseX;
-                                    }
-                                    onMouseXChanged: (mouse) => {
-                                        const delta = mouseX - originalMouseX;
-                                        if(headerItemDelegate.width + delta < headerListView.minimumColumnWidth) {
-                                            headerItemDelegate.width = headerListView.width;
-                                        }
-                                        else {
-                                            headerItemDelegate.width += delta;
-                                            originalMouseX = mouseX;
-                                        }
-                                    }
-                                }
-                                onWidthChanged: {
-                                    headerListView.model.setProperty(index, "columnWidth", width);
-                                }
-                                onClicked: (mouse) => {
-                                    if(mouse.modifiers & Qt.ControlModifier) {
-                                        //
-                                    }
-                                    // TODO:
-                                    //  Behavior w/o Ctrl/Cmd modifier: Remove other sorts, toggle column sort as not sorted -> ascending -> descending -> not sorted
-                                    //  Behavior w/  Ctrl/Cmd modifier: add/remove sort order
-                                }
-                                Component.onCompleted: {
-                                    // width = headerLabel.width * 2;
-                                    width = headerListView.model.get(index).columnWidth;
-                                    if(index === 0) {
-                                        headerListView.height = height;
-                                    }
-                                }
-                            }
-                            onHeightChanged: {
-                                vbar.anchors.topMargin = height;
-                                headerBackground.height = height;
-                                // `ListView` always flicks item delegates to Y of 0, making the
-                                // first item covered by the header. This happens even if
-                                // `headerPositioning` is set to `ListView.OverlayHeader`,
-                                // The following line is a workaround to correct the initial
-                                // position of those delegates.
-                                pluginList.contentY = -1 * height;
-                            }
-                            Component.onCompleted: {
-                                pluginList.contentWidth = contentWidth;
-                            }
-                            onContentWidthChanged: {
-                                pluginList.contentWidth = contentWidth;
-                            }
-                        }
-                        headerPositioning: ListView.OverlayHeader
-                        delegate: ItemDelegate {
-                            id: itemDelegate
-                            property int pluginId: plm_id
-                            property string pluginName: plm_name
-                            width: Math.max(pluginList.contentWidth, pluginList.width)
-                            property var itemData: Array.isArray(pluginList.model)? modelData: model
-                            Item {
-                                width: height
-                                height: itemDelegate.height
-                                StackLayout {
-                                    id: formatIcons
-                                    anchors.centerIn: parent
-                                    currentIndex: plm_format
-                                    layer.enabled: true
-                                    layer.smooth: true
-                                    layer.textureSize: Qt.size(width * 2, height * 2)
-                                    PluginIcon {
-                                        scale: 16 / originalHeight
-                                        path.fillColor: Colors.secondaryContent
-                                        path.strokeColor: "transparent"
-                                    }
-                                    VST3Icon {
-                                        scale: 16 / originalHeight
-                                        path.fillColor: Colors.secondaryContent
-                                        path.strokeColor: "transparent"
-                                    }
-                                    CLAPIcon {
-                                        scale: 16 / originalHeight
-                                        path.fillColor: Colors.secondaryContent
-                                        path.strokeColor: "transparent"
-                                    }
-                                    VestifalIcon {
-                                        scale: 16 / originalHeight
-                                        path.fillColor: Colors.secondaryContent
-                                        path.strokeColor: "transparent"
-                                    }
-                                }
-                            }
-                            Row {
-                                Repeater {
-                                    model: pluginList.headerListModel
-                                    Label {
-                                        width: columnWidth
-                                        leftPadding: (index == 0? itemDelegate.height: 2)
-                                        topPadding: 2
-                                        bottomPadding: 2
-                                        text: itemData[field]
-                                        clip: true
-                                        elide: Label.ElideRight
-                                    }
-                                }
-                            }
-                            onClicked: {
-                                pluginList.currentIndex = index;
-                            }
-                            onDoubleClicked: {
-                                pluginList.currentIndex = index;
-                                root.accepted();
-                            }
-                        }
-                        highlight: Rectangle {
-                            color: Colors.highlightControlBackground
-                        }
-                        highlightFollowsCurrentItem: true
-                        highlightMoveDuration: 0
-                        Grid {
-                            columns: 1
-                            anchors.centerIn: parent
-                            visible: pluginList.count === 0
-                            horizontalItemAlignment: Grid.AlignHCenter
-                            Item {
-                                width: 128
-                                height: width
+                    }
+                    listView.delegate: ItemDelegate {
+                        id: itemDelegate
+                        property int pluginId: plm_id
+                        property string pluginName: plm_name
+                        width: Math.max(pluginList.listView.contentWidth, pluginList.listView.width)
+                        property var itemData: Array.isArray(pluginList.listView.model)? modelData: model
+                        Item {
+                            width: height
+                            height: itemDelegate.height
+                            StackLayout {
+                                id: formatIcons
+                                anchors.centerIn: parent
+                                currentIndex: plm_format
+                                layer.enabled: true
+                                layer.smooth: true
+                                layer.textureSize: Qt.size(width * 2, height * 2)
                                 PluginIcon {
-                                    anchors.centerIn: parent
-                                    scale: parent.width / originalWidth
+                                    scale: 16 / originalHeight
+                                    path.fillColor: Colors.secondaryContent
+                                    path.strokeColor: "transparent"
+                                }
+                                VST3Icon {
+                                    scale: 16 / originalHeight
+                                    path.fillColor: Colors.secondaryContent
+                                    path.strokeColor: "transparent"
+                                }
+                                CLAPIcon {
+                                    scale: 16 / originalHeight
+                                    path.fillColor: Colors.secondaryContent
+                                    path.strokeColor: "transparent"
+                                }
+                                VestifalIcon {
+                                    scale: 16 / originalHeight
                                     path.fillColor: Colors.secondaryContent
                                     path.strokeColor: "transparent"
                                 }
                             }
-                            Label {
-                                font.pointSize: Qt.application.font.pointSize * 1.5
-                                text: qsTr("No plugins available")
-                                color: Colors.secondaryContent
-                            }
                         }
-                        onModelChanged: {
-                            currentIndex = -1;
-                        }
-                        Keys.onUpPressed: (event) => {
-                            if(pluginList.currentIndex == 0) {
-                                searchTextField.forceActiveFocus();
-                                pluginList.currentIndex = -1;
-                            }
-                            else {
-                                event.accepted = false;
-                            }
-                        }
-                        onCurrentIndexChanged: {
-                            if(highlightItem !== null) {
-                                // Make sure the item at current index is not
-                                // covered by header.
-                                // (Seriously, why doesn't `ListView` do this by
-                                // default when `headerPositioning` is
-                                // `ListView.OverlayHeader`?)
-                                let currentY = highlightItem.mapToItem(pluginList, 0, 0).y;
-                                // We cannot get `header.height` directly,
-                                // so we use properties of `vbar`
-                                let headerHeight = vbar.anchors.topMargin;
-                                if(currentY < headerHeight) {
-                                    pluginList.contentY -= (headerHeight - currentY);
+                        Row {
+                            Repeater {
+                                model: pluginList.headerListModel
+                                Label {
+                                    width: columnWidth
+                                    leftPadding: (index == 0? itemDelegate.height: 2)
+                                    topPadding: 2
+                                    bottomPadding: 2
+                                    text: itemData[field]
+                                    clip: true
+                                    elide: Label.ElideRight
                                 }
                             }
                         }
+                        onClicked: {
+                            pluginList.listView.currentIndex = index;
+                        }
+                        onDoubleClicked: {
+                            pluginList.listView.currentIndex = index;
+                            root.accepted();
+                        }
                     }
-                    ScrollBar {
-                        id: vbar
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-                        anchors.topMargin: pluginList.header.height
-                        anchors.bottom: pluginList.bottom
-                        visible: pluginList.height < pluginList.contentHeight
-                        orientation: Qt.Vertical
+                    Grid {
+                        columns: 1
+                        parent: pluginList.listView
+                        anchors.centerIn: parent
+                        visible: pluginList.listView.count === 0
+                        horizontalItemAlignment: Grid.AlignHCenter
+                        Item {
+                            width: 128
+                            height: width
+                            PluginIcon {
+                                anchors.centerIn: parent
+                                scale: parent.width / originalWidth
+                                path.fillColor: Colors.secondaryContent
+                                path.strokeColor: "transparent"
+                            }
+                        }
+                        Label {
+                            font.pointSize: Qt.application.font.pointSize * 1.5
+                            text: qsTr("No plugins available")
+                            color: Colors.secondaryContent
+                        }
                     }
-                    ScrollBar {
-                        id: hbar
-                        anchors.right: pluginList.right
-                        anchors.bottom: parent.bottom
-                        width: pluginList.width
-                        visible: pluginList.width < pluginList.contentWidth
-                        orientation: Qt.Horizontal
+                    listView.onModelChanged: {
+                        currentIndex = -1;
+                    }
+                    listView.Keys.onUpPressed: (event) => {
+                        if(pluginList.currentIndex == 0) {
+                            searchTextField.forceActiveFocus();
+                            pluginList.currentIndex = -1;
+                        }
+                        else {
+                            event.accepted = false;
+                        }
+                    }
+                    listView.onCurrentIndexChanged: {
+                        if(listView.highlightItem !== null) {
+                            // Make sure the item at current index is not
+                            // covered by header.
+                            // (Seriously, why doesn't `ListView` do this by
+                            // default when `headerPositioning` is
+                            // `ListView.OverlayHeader`?)
+                            let currentY = listView.highlightItem.mapToItem(pluginList, 0, 0).y;
+                            // We cannot get `header.height` directly,
+                            // so we use properties of `vbar`
+                            let headerHeight = pluginList.vbar.anchors.topMargin;
+                            if(currentY < headerHeight) {
+                                pluginList.listView.contentY -= (headerHeight - currentY);
+                            }
+                        }
                     }
                 }
             }
@@ -620,7 +477,7 @@ QC.Popup {
                 spacing: 5
                 Button {
                     id: replaceButton
-                    enabled: pluginList.currentIndex !== -1 && visible
+                    enabled: pluginList.listView.currentIndex !== -1 && visible
                     visible: root.replacing
                     text: qsTr("&Replace")
                     onClicked: {
@@ -629,7 +486,7 @@ QC.Popup {
                 }
                 Button {
                     id: insertButton
-                    enabled: pluginList.currentIndex !== -1 && visible
+                    enabled: pluginList.listView.currentIndex !== -1 && visible
                     visible: !root.replacing
                     text: qsTr("&Insert")
                     onClicked: {
