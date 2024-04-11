@@ -16,9 +16,9 @@
 namespace YADAW::Audio::Mixer
 {
 // Struct of a channel:
-// +------------+   +-------------------+   +-------+   +--------------------+   +-------+   +-----------+   +-------------+
-// | Input Node |-->| Pre-Fader Inserts |-->| Fader |-->| Post-Fader Inserts |-->| Meter |-->| Mute/Solo |-->| Output Node |
-// +------------+   +-------------------+   +-------+   +--------------------+   +-------+   +-----------+   +-------------+
+// +------------+   +-------------------+   +----------------+   +-------+   +--------------------+   +-------+   +-----------------+   +-------------+
+// | Input Node |-->| Pre-Fader Inserts |-->| Pre-Fader Mute |-->| Fader |-->| Post-Fader Inserts |-->| Meter |-->| Post-Fader Mute |-->| Output Node |
+// +------------+   +-------------------+   +----------------+   +-------+   +--------------------+   +-------+   +-----------------+   +-------------+
 //
 // `Mixer` owns faders, meters and input/output devices of regular channels.
 // Input devices:
@@ -163,29 +163,32 @@ private:
     YADAW::Audio::Engine::AudioDeviceGraphWithPDC graphWithPDC_;
 
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioInputPreFaderInserts_;
+    std::vector<MuteAndNode> audioInputPreFaderMutes_;
     std::vector<FaderAndNode> audioInputFaders_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioInputPostFaderInserts_;
     std::vector<MeterAndNode> audioInputMeters_;
-    std::vector<MuteAndNode> audioInputMutes_;
+    std::vector<MuteAndNode> audioInputPostFaderMutes_;
     std::vector<bool> audioInputMuted_;
     std::vector<ChannelInfo> audioInputChannelInfo_;
 
     std::vector<DeviceAndNode> inputDevices_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts_;
+    std::vector<MuteAndNode> preFaderMutes_;
     std::vector<FaderAndNode> faders_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts_;
     std::vector<MeterAndNode> meters_;
-    std::vector<MuteAndNode> mutes_;
+    std::vector<MuteAndNode> postFaderMutes_;
     std::vector<bool> muted_;
     std::vector<DeviceAndNode> outputDevices_;
     std::vector<ChannelInfo> channelInfo_;
 
     std::vector<SummingAndNode> audioOutputSummings_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPreFaderInserts_;
+    std::vector<MuteAndNode> audioOutputPreFaderMutes_;
     std::vector<FaderAndNode> audioOutputFaders_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPostFaderInserts_;
     std::vector<MeterAndNode> audioOutputMeters_;
-    std::vector<MuteAndNode> audioOutputMutes_;
+    std::vector<MuteAndNode> audioOutputPostFaderMutes_;
     std::vector<bool> audioOutputMuted_;
     std::vector<ChannelInfo> audioOutputChannelInfo_;
 
