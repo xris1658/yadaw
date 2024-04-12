@@ -129,6 +129,7 @@ set(CONTENT_QML_FILES
     TabBar.qml
     TabButton.qml
     TableLikeListView.qml
+    TableLikeTreeView.qml
     TagIcon.qml
     TapTempoWindow.qml
     TextField.qml

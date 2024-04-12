@@ -86,6 +86,7 @@ Switch 1.0 Switch.qml
 TabBar 1.0 TabBar.qml
 TabButton 1.0 TabButton.qml
 TableLikeListView 1.0 TableLikeListView.qml
+TableLikeTreeView 1.0 TableLikeTreeView.qml
 TapTempoWindow 1.0 TapTempoWindow.qml
 TagIcon 1.0 TagIcon.qml
 TextField 1.0 TextField.qml

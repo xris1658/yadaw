@@ -28,6 +28,18 @@ Rectangle {
     }
 
     ListModel {
+        id: assetHeaderListModel
+        dynamicRoles: true
+        Component.onCompleted: {
+            append({
+                "title": qsTr("Name"),
+                "field": "ftm_name",
+                "columnWidth": 197,
+                "roleId": IFileTreeModel.Name
+            });
+        }
+    }
+    ListModel {
         id: pluginHeaderListModel
         dynamicRoles: true
         Component.onCompleted: {
@@ -228,7 +240,7 @@ Rectangle {
                         }
                         signal remove()
                         onRemove: {
-                            assetListView.model = null;
+                            assetTreeView.model = null;
                             directoryListModel.remove(pathId);
                         }
                         onClicked: {
@@ -237,7 +249,7 @@ Rectangle {
                         }
                         onHighlightedChanged: {
                             if(highlighted) {
-                                assetListView.model = adlm_file_tree;
+                                assetTreeView.model = adlm_file_tree;
                             }
                         }
                     }
@@ -466,19 +478,19 @@ Rectangle {
                 anchors.rightMargin: 1
                 anchors.topMargin: 1
                 anchors.bottomMargin: 1
-                TreeView {
-                    id: assetListView
-                    clip: true
-                    columnWidthProvider: (column) => {
-                        return assetListView.width;
-                    }
-                    delegate: ItemDelegate {
+                TableLikeTreeView {
+                    id: assetTreeView
+                    headerListModel: assetHeaderListModel
+                    treeView.boundsBehavior: Flickable.StopAtBounds
+                    treeView.clip: true
+                    treeView.delegate: ItemDelegate {
                         required property TreeView treeView
                         required property bool isTreeNode
                         required property bool expanded
                         required property int hasChildren
                         required property int depth
                         leftPadding: depth * height + indicator.width
+                        width: assetTreeView.treeView.columnWidthProvider(column)
                         Label {
                             id: indicator
                             x: depth * parent.height
@@ -491,7 +503,7 @@ Rectangle {
                         }
                         text: ftm_name
                         onClicked: {
-                            assetListView.toggleExpanded(row);
+                            assetTreeView.treeView.toggleExpanded(row);
                         }
                     }
                 }
@@ -501,6 +513,7 @@ Rectangle {
                     clip: true
                     TableLikeListView {
                         id: pluginListView
+                        listView.boundsBehavior: Flickable.StopAtBounds
                         listView.delegate: pluginListItemDelegate
                         headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
@@ -512,6 +525,7 @@ Rectangle {
                     }
                     TableLikeListView {
                         id: midiEffectListView
+                        listView.boundsBehavior: Flickable.StopAtBounds
                         listView.delegate: pluginListItemDelegate
                         headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
@@ -527,6 +541,7 @@ Rectangle {
                     }
                     TableLikeListView {
                         id: instrumentListView
+                        listView.boundsBehavior: Flickable.StopAtBounds
                         listView.delegate: pluginListItemDelegate
                         headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
@@ -542,6 +557,7 @@ Rectangle {
                     }
                     TableLikeListView {
                         id: audioEffectListView
+                        listView.boundsBehavior: Flickable.StopAtBounds
                         listView.delegate: pluginListItemDelegate
                         headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
@@ -557,6 +573,7 @@ Rectangle {
                     }
                     TableLikeListView {
                         id: vst3PluginListView
+                        listView.boundsBehavior: Flickable.StopAtBounds
                         listView.delegate: pluginListItemDelegate
                         headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
@@ -572,6 +589,7 @@ Rectangle {
                     }
                     TableLikeListView {
                         id: clapPluginListView
+                        listView.boundsBehavior: Flickable.StopAtBounds
                         listView.delegate: pluginListItemDelegate
                         headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {
@@ -587,6 +605,7 @@ Rectangle {
                     }
                     TableLikeListView {
                         id: vestifalPluginListView
+                        listView.boundsBehavior: Flickable.StopAtBounds
                         listView.delegate: pluginListItemDelegate
                         headerListModel: pluginHeaderListModel
                         model: SortFilterProxyListModel {

@@ -7,6 +7,7 @@
 #include "model/IAudioDeviceIOGroupListModel.hpp"
 #include "model/IAudioDeviceListModel.hpp"
 #include "model/IAutomationModel.hpp"
+#include "model/IFileTreeModel.hpp"
 #include "model/ILocalizationListModel.hpp"
 #include "model/IMixerChannelInsertListModel.hpp"
 #include "model/IMixerChannelListModel.hpp"
@@ -33,6 +34,7 @@ void initializeModel()
     QML_REGISTER_TYPE(IAudioDeviceIOGroupListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IAudioDeviceListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IAutomationModel, YADAW.Models, 1, 0);
+    QML_REGISTER_TYPE(IFileTreeModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(ILocalizationListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IMixerChannelInsertListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(IMixerChannelListModel, YADAW.Models, 1, 0);
