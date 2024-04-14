@@ -7,9 +7,7 @@
 namespace YADAW::Audio::Util
 {
 AudioChannelGroup::AudioChannelGroup()
-{
-
-}
+{}
 
 AudioChannelGroup AudioChannelGroup::from(const Device::IAudioChannelGroup& rhs)
 {
@@ -18,11 +16,10 @@ AudioChannelGroup AudioChannelGroup::from(const Device::IAudioChannelGroup& rhs)
     ret.type_ = rhs.type();
     ret.isMain_ = rhs.isMain();
     ret.speakers_.resize(rhs.channelCount());
-    ret.speakerNames_.resize(rhs.channelCount());
     FOR_RANGE0(i, ret.speakers_.size())
     {
-        ret.speakers_[i] = rhs.speakerAt(i);
-        ret.speakerNames_[i] = rhs.speakerNameAt(i);
+        ret.speakers_[i].first = rhs.speakerAt(i);
+        ret.speakers_[i].second = rhs.speakerNameAt(i);
     }
     return ret;
 }
@@ -45,14 +42,14 @@ YADAW::Audio::Base::ChannelGroupType AudioChannelGroup::type() const
 YADAW::Audio::Base::ChannelType AudioChannelGroup::speakerAt(std::uint32_t index) const
 {
     return index < speakers_.size()?
-        speakers_[index]:
+        speakers_[index].first:
         YADAW::Audio::Base::ChannelType::Invalid;
 }
 
 QString AudioChannelGroup::speakerNameAt(std::uint32_t index) const
 {
     return index < speakers_.size()?
-        speakerNames_[index]:
+        speakers_[index].second:
         QString();
 }
 
@@ -80,7 +77,6 @@ void AudioChannelGroup::setChannelGroupType(YADAW::Audio::Base::ChannelGroupType
     std::uint32_t channelCount)
 {
     speakers_.clear();
-    speakerNames_.clear();
     if(channelCount == 0)
     {
         auto actualChannelCount = YADAW::Audio::Device::IAudioChannelGroup::channelCount(channelGroupType);
@@ -90,12 +86,16 @@ void AudioChannelGroup::setChannelGroupType(YADAW::Audio::Base::ChannelGroupType
         }
         channelCount = actualChannelCount;
     }
+    speakers_.reserve(channelCount);
     FOR_RANGE0(i, channelCount)
     {
-        speakers_.emplace_back(IAudioChannelGroup::channelAt(channelGroupType, i));
+        speakers_.emplace_back(
+            std::make_pair(
+                IAudioChannelGroup::channelAt(channelGroupType, i),
+                QString()
+            )
+        );
     }
-    speakers_.resize(channelCount, YADAW::Audio::Base::ChannelType::Custom);
-    speakerNames_.resize(channelCount, QString());
     type_ = channelGroupType;
 }
 
@@ -103,7 +103,7 @@ bool AudioChannelGroup::setSpeakerType(std::uint32_t index, YADAW::Audio::Base::
 {
     if(index < speakers_.size())
     {
-        speakers_[index] = type;
+        speakers_[index].first = type;
         return true;
     }
     return false;
@@ -111,9 +111,9 @@ bool AudioChannelGroup::setSpeakerType(std::uint32_t index, YADAW::Audio::Base::
 
 bool AudioChannelGroup::setSpeakerName(std::uint32_t index, const QString& name)
 {
-    if(index < speakerNames_.size())
+    if(index < speakers_.size())
     {
-        speakerNames_[index] = name;
+        speakers_[index].second = name;
         return true;
     }
     return false;
@@ -121,9 +121,9 @@ bool AudioChannelGroup::setSpeakerName(std::uint32_t index, const QString& name)
 
 bool AudioChannelGroup::setSpeakerName(std::uint32_t index, QString&& name)
 {
-    if(index < speakerNames_.size())
+    if(index < speakers_.size())
     {
-        speakerNames_[index] = std::move(name);
+        speakers_[index].second = std::move(name);
         return true;
     }
     return false;

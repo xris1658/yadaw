@@ -35,8 +35,7 @@ private:
     QString name_;
     YADAW::Audio::Base::ChannelGroupType type_ = Base::ChannelGroupType::eEmpty;
     bool isMain_ = false;
-    std::vector<YADAW::Audio::Base::ChannelType> speakers_;
-    std::vector<QString> speakerNames_;
+    std::vector<std::pair<YADAW::Audio::Base::ChannelType, QString>> speakers_;
 };
 }
 
