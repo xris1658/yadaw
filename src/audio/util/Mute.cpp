@@ -43,34 +43,42 @@ std::uint32_t Mute::latencyInSamples() const
     return 0;
 }
 
-constexpr float factor[2] = {1.0f, 0.0f};
-
-void Mute::process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
+void Mute::process(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    if(muteUpdated_)
+    auto automation = muteAutomation_.load(std::memory_order::memory_order_acquire);
+    (this->*processFuncs[automation != nullptr])(audioProcessData, automation);
+}
+
+void Mute::processWithoutAutomation(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
+    const YADAW::Audio::Base::Automation* automation)
+{
+    FOR_RANGE0(i, audioProcessData.outputCounts[0])
     {
-        muteInCallback_ = mute_;
-        muteUpdated_.store(false, std::memory_order::memory_order_release);
+        std::memcpy(
+            audioProcessData.outputs[0][i],
+            audioProcessData.inputs[0][i],
+            sizeof(float) * audioProcessData.singleBufferSize
+        );
     }
-    FOR_RANGE0(i, audioProcessData.inputCounts[0])
+}
+
+static constexpr float factor[2] = {1.0f, 0.0f};
+
+void Mute::processWithAutomation(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
+    const YADAW::Audio::Base::Automation* automation)
+{
+    FOR_RANGE0(i, audioProcessData.outputCounts[0])
     {
+        auto in = audioProcessData.inputs[0][i];
+        auto out = audioProcessData.outputs[0][i];
         FOR_RANGE0(j, audioProcessData.singleBufferSize)
         {
-            audioProcessData.outputs[0][i][j] = audioProcessData.inputs[0][i][j] * factor[muteInCallback_];
+            out[j] = in[j] * factor[(*automation)(time_ + j) != 0.0f];
         }
     }
 }
 
-bool Mute::mute() const
-{
-    while(muteUpdated_.load(std::memory_order::memory_order_acquire)) {}
-    return mute_;
-}
-
-void Mute::setMute(bool mute)
-{
-    while(muteUpdated_.load(std::memory_order::memory_order_acquire)) {}
-    mute_ = mute;
-    muteUpdated_.store(true, std::memory_order::memory_order_release);
-}
 }
