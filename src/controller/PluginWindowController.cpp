@@ -14,6 +14,10 @@ void createPluginWindow()
     auto pluginWindow = pluginWindows.pluginWindow;
     auto pluginFrame = pluginWindow->property("pluginFrame").value<QWindow*>();
     pluginNeedsWindow->gui()->attachToWindow(pluginFrame);
+    // Embed the plugin frame to its outer window (See `PluginWindow.qml`)
+    // This process has to be done AFTER `IPluginGUI::attachToWindow`, or the
+    // initial size of the GUI would be incorrect.
+    pluginFrame->setParent(pluginWindow);
     pluginWindow->setTransientParent(YADAW::UI::mainWindow);
 }
 

@@ -22,38 +22,20 @@ Window {
     onHeightChanged: {
         pluginFrame.height = height - 20;
     }
-    // This is a temporary solution to locate and resize the plugin GUI in the
-    // window, instead of letting the plugin GUI use the entire window area.
-    // Currently this solution has some drawbacks:
-    // - Plugin frame and plugin window will not gain focus at the same time,
-    //   which is different from behavior of most DAWs.
-    // - Resizing process of the plugin frame and the plugin window will not
-    //   be performed at the same time, resulting in visible lags.
-    // - On X11, the lag is more obvious. Even worse, resizing too fast might
-    //   fail, making sizes of plugin frame and plugin window out of sync.
-    // - On X11, no part of the frame could be moved outside the screen, but the
-    //   window itself could.
-    // There are native solutions available.
-    // (At least we can make it on Windows, since every native control is a
-    // window and has an HWND to be passed to the plugin GUI instance. See
-    // https://learn.microsoft.com/windows/win32/learnwin32/what-is-a-window- )
+    // Embedded into `root`. Since embedding windows is not available in QML
+    // codes until Qt 6.7, we have to do this in C++ codes. (although coupling
+    // is often a bad idea...)
+    // See `YADAW::Controller::createPluginWindow()`.
     Window {
         id: pluginFrame
-        flags: Qt.Dialog | Qt.FramelessWindowHint
+        flags: Qt.FramelessWindowHint
         visibility: root.visibility
         transientParent: root
-        x: root.x
-        y: root.y + 20
+        x: 0
+        y: 20
         onClosing: (close) => {
             if (!root.destroyingPlugin) {
                 close.accepted = false;
-                // A temporary fix for Windows so that the main window will gain
-                // focus while some other windows are shown.
-                // Otherwise, one of the other windows will gain focus, which
-                // might lay above the main window. This is definitely not the
-                // desired behavior.
-                root.requestActivate();
-                root.close();
             }
         }
     }
