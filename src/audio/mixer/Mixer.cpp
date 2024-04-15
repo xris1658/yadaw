@@ -254,63 +254,6 @@ std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::channelGroupType(std:
     return std::nullopt;
 }
 
-std::optional<bool> Mixer::audioInputMuted(std::uint32_t index) const
-{
-    if(index < audioInputChannelCount())
-    {
-        return {audioInputMuted_[index]};
-    }
-    return std::nullopt;
-}
-
-std::optional<bool> Mixer::audioOutputMuted(std::uint32_t index) const
-{
-    if(index < audioOutputChannelCount())
-    {
-        return {audioOutputMuted_[index]};
-    }
-    return std::nullopt;
-}
-
-std::optional<bool> Mixer::muted(std::uint32_t index) const
-{
-    if(index < channelCount())
-    {
-        return {muted_[index]};
-    }
-    return std::nullopt;
-}
-
-void Mixer::setAudioInputMuted(std::uint32_t index, bool muted)
-{
-    if(index < audioInputChannelCount())
-    {
-        audioInputPreFaderMutes_[index].first->setMute(muted);
-        audioInputPostFaderMutes_[index].first->setMute(muted);
-        audioInputMuted_[index] = muted;
-    }
-}
-
-void Mixer::setAudioOutputMuted(std::uint32_t index, bool muted)
-{
-    if(index < audioOutputChannelCount())
-    {
-        audioOutputPreFaderMutes_[index].first->setMute(muted);
-        audioOutputPostFaderMutes_[index].first->setMute(muted);
-        audioOutputMuted_[index] = muted;
-    }
-}
-
-void Mixer::setMuted(std::uint32_t index, bool muted)
-{
-    if(index < channelCount())
-    {
-        preFaderMutes_[index].first->setMute(muted);
-        postFaderMutes_[index].first->setMute(muted);
-        muted_[index] = muted;
-    }
-}
-
 bool Mixer::appendAudioInputChannel(
     const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex)
 {

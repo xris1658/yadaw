@@ -83,15 +83,6 @@ public:
     std::optional<YADAW::Audio::Base::ChannelGroupType> audioOutputChannelGroupType(std::uint32_t index) const;
     std::optional<YADAW::Audio::Base::ChannelGroupType> channelGroupType(std::uint32_t index) const;
 public:
-    std::optional<bool> audioInputMuted(std::uint32_t index) const;
-    std::optional<bool> audioOutputMuted(std::uint32_t index) const;
-    std::optional<bool> muted(std::uint32_t index) const;
-    void setAudioInputMuted(std::uint32_t index, bool muted);
-    void setAudioOutputMuted(std::uint32_t index, bool muted);
-    void setMuted(std::uint32_t index, bool muted);
-    bool hasMute() const;
-    void clearMute();
-public:
     bool appendAudioInputChannel(
         const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
     bool insertAudioInputChannel(

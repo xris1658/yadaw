@@ -99,15 +99,6 @@ GetConstChannelInfo getConstChannelInfo[3] = {
     static_cast<GetConstChannelInfo>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelInfoAt)
 };
 
-using GetMute =
-    std::optional<bool>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t) const;
-
-GetMute getMute[3] = {
-    &YADAW::Audio::Mixer::Mixer::audioInputMuted,
-    &YADAW::Audio::Mixer::Mixer::muted,
-    &YADAW::Audio::Mixer::Mixer::audioOutputMuted
-};
-
 using RemoveChannels =
     decltype(&YADAW::Audio::Mixer::Mixer::removeChannel);
 
