@@ -231,7 +231,7 @@ Mixer::audioInputChannelGroupType(std::uint32_t index) const
 {
     if(index < audioInputChannelCount())
     {
-        return {audioInputPostFaderMutes_[index].first->audioInputGroupAt(0)->get().type()};
+        return {audioInputMutes_[index].first->audioInputGroupAt(0)->get().type()};
     }
     return std::nullopt;
 }
@@ -240,7 +240,7 @@ std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::audioOutputChannelGro
 {
     if(index < audioOutputChannelCount())
     {
-        return {audioOutputPostFaderMutes_[index].first->audioInputGroupAt(0)->get().type()};
+        return {audioOutputMutes_[index].first->audioInputGroupAt(0)->get().type()};
     }
     return std::nullopt;
 }
@@ -249,7 +249,7 @@ std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::channelGroupType(std:
 {
     if(index < channelCount())
     {
-        return {postFaderMutes_[index].first->audioInputGroupAt(0)->get().type()};
+        return {mutes_[index].first->audioInputGroupAt(0)->get().type()};
     }
     return std::nullopt;
 }
@@ -280,36 +280,29 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
         auto faderNode = graph_.addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(*fader)
         );
-        auto preFaderMute = std::make_unique<YADAW::Audio::Util::Mute>(
+        auto mute = std::make_unique<YADAW::Audio::Util::Mute>(
             channelGroup.type(), channelGroup.channelCount()
         );
-        auto postFaderMute = std::make_unique<YADAW::Audio::Util::Mute>(
-            channelGroup.type(), channelGroup.channelCount()
-        );
-        auto preFaderMuteNode = graph_.addNode(
-            YADAW::Audio::Engine::AudioDeviceProcess(*preFaderMute)
-        );
-        auto postFaderMuteNode = graph_.addNode(
-            YADAW::Audio::Engine::AudioDeviceProcess(*postFaderMute)
+        auto muteNode = graph_.addNode(
+            YADAW::Audio::Engine::AudioDeviceProcess(*mute)
         );
         audioInputPreFaderInserts_.emplace(
             audioInputPreFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, inNode, preFaderMuteNode, channelGroupIndex, 0
+                graph_, inNode, muteNode, channelGroupIndex, 0
             )
         );
-        audioInputPreFaderMutes_.emplace(
-            audioInputPreFaderMutes_.begin() + position,
-            std::move(preFaderMute), preFaderMuteNode
+        audioInputMutes_.emplace(
+            audioInputMutes_.begin() + position,
+            std::move(mute), muteNode
         );
-        graph_.connect(preFaderMuteNode, faderNode, 0, 0);
+        graph_.connect(muteNode, faderNode, 0, 0);
         audioInputPostFaderInserts_.emplace(
             audioInputPostFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, faderNode, meterNode, 0, 0
             )
         );
-        graph_.connect(meterNode, postFaderMuteNode, 0, 0);
         audioInputFaders_.emplace(
             audioInputFaders_.begin() + position,
             std::move(fader), faderNode
@@ -317,10 +310,6 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
         audioInputMeters_.emplace(
             audioInputMeters_.begin() + position,
             std::move(meter), meterNode
-        );
-        audioInputPostFaderMutes_.emplace(
-            audioInputPostFaderMutes_.begin() + position,
-            std::move(postFaderMute), postFaderMuteNode
         );
         audioInputMuted_.emplace(
             audioInputMuted_.begin() + position,
@@ -342,14 +331,13 @@ bool Mixer::removeAudioInputChannel(
     )
     {
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 5);
+        nodesToRemove.reserve(removeCount * 4);
         FOR_RANGE(i, first, last)
         {
             nodesToRemove.emplace_back(audioInputPreFaderInserts_[i]->inNode());
-            nodesToRemove.emplace_back(audioInputPreFaderMutes_[i].second);
+            nodesToRemove.emplace_back(audioInputMutes_[i].second);
             nodesToRemove.emplace_back(audioInputFaders_[i].second);
             nodesToRemove.emplace_back(audioInputMeters_[i].second);
-            nodesToRemove.emplace_back(audioInputPostFaderMutes_[i].second);
         }
         audioInputPreFaderInserts_.erase(
             audioInputPreFaderInserts_.begin() + first,
@@ -364,9 +352,9 @@ bool Mixer::removeAudioInputChannel(
             graphWithPDC_.removeNode(nodesToRemove[i]);
         }
         nodeRemovedCallback_(*this);
-        audioInputPreFaderMutes_.erase(
-            audioInputPreFaderMutes_.begin() + first,
-            audioInputPreFaderMutes_.begin() + last
+        audioInputMutes_.erase(
+            audioInputMutes_.begin() + first,
+            audioInputMutes_.begin() + last
         );
         audioInputFaders_.erase(
             audioInputFaders_.begin() + first,
@@ -375,10 +363,6 @@ bool Mixer::removeAudioInputChannel(
         audioInputMeters_.erase(
             audioInputMeters_.begin() + first,
             audioInputMeters_.begin() + last
-        );
-        audioInputPostFaderMutes_.erase(
-            audioInputPostFaderMutes_.begin() + first,
-            audioInputPostFaderMutes_.begin() + last
         );
         audioInputMuted_.erase(
             audioInputMuted_.begin() + first,
@@ -431,37 +415,30 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
         auto faderNode = graph_.addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(*fader)
         );
-        auto preFaderMute = std::make_unique<YADAW::Audio::Util::Mute>(
+        auto mute = std::make_unique<YADAW::Audio::Util::Mute>(
             channelGroup.type(), channelGroup.channelCount()
         );
-        auto postFaderMute = std::make_unique<YADAW::Audio::Util::Mute>(
-            channelGroup.type(), channelGroup.channelCount()
-        );
-        auto preFaderMuteNode = graph_.addNode(
-            YADAW::Audio::Engine::AudioDeviceProcess(*preFaderMute)
-        );
-        auto postFaderMuteNode = graph_.addNode(
-            YADAW::Audio::Engine::AudioDeviceProcess(*postFaderMute)
+        auto muteNode = graph_.addNode(
+            YADAW::Audio::Engine::AudioDeviceProcess(*mute)
         );
         audioOutputPreFaderInserts_.emplace(
             audioOutputPreFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, summingNode, preFaderMuteNode, 0, 0
+                graph_, summingNode, muteNode, 0, 0
             )
         );
-        audioOutputPreFaderMutes_.emplace(
-            audioOutputPreFaderMutes_.begin() + position,
-            std::move(preFaderMute), preFaderMuteNode
+        audioOutputMutes_.emplace(
+            audioOutputMutes_.begin() + position,
+            std::move(mute), muteNode
         );
-        graph_.connect(preFaderMuteNode, faderNode, 0, 0);
+        graph_.connect(muteNode, faderNode, 0, 0);
         audioOutputPostFaderInserts_.emplace(
             audioOutputPostFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, faderNode, meterNode, 0, 0
             )
         );
-        graph_.connect(meterNode, postFaderMuteNode, 0, 0);
-        graph_.connect(postFaderMuteNode, outNode, 0, channel);
+        graph_.connect(meterNode, outNode, 0, channel);
         audioOutputSummings_.emplace(
             audioOutputSummings_.begin() + position,
             std::move(summing), summingNode
@@ -473,10 +450,6 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
         audioOutputMeters_.emplace(
             audioOutputMeters_.begin() + position,
             std::move(meter), meterNode
-        );
-        audioOutputPostFaderMutes_.emplace(
-            audioOutputPostFaderMutes_.begin() + position,
-            std::move(postFaderMute), postFaderMuteNode
         );
         audioOutputMuted_.emplace(
             audioOutputMuted_.begin() + position,
@@ -499,16 +472,15 @@ bool Mixer::removeAudioOutputChannel(
     )
     {
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 6);
+        nodesToRemove.reserve(removeCount * 5);
         FOR_RANGE(i, first, last)
         {
             nodesToRemove.emplace_back(audioOutputSummings_[i].second);
-            nodesToRemove.emplace_back(audioOutputPreFaderMutes_[i].second);
+            nodesToRemove.emplace_back(audioOutputMutes_[i].second);
             nodesToRemove.emplace_back(audioOutputFaders_[i].second);
             nodesToRemove.emplace_back(audioOutputMeters_[i].second);
-            nodesToRemove.emplace_back(audioOutputPostFaderMutes_[i].second);
             nodesToRemove.emplace_back(
-                *(audioOutputPostFaderMutes_[i].second->outNodes().begin())
+                *(audioOutputMeters_[i].second->outNodes().begin())
             );
         }
         audioOutputPreFaderInserts_.erase(
@@ -524,9 +496,9 @@ bool Mixer::removeAudioOutputChannel(
             graphWithPDC_.removeNode(nodesToRemove[i]);
         }
         nodeRemovedCallback_(*this);
-        audioOutputPreFaderMutes_.erase(
-            audioOutputPreFaderMutes_.begin() + first,
-            audioOutputPreFaderMutes_.begin() + last
+        audioOutputMutes_.erase(
+            audioOutputMutes_.begin() + first,
+            audioOutputMutes_.begin() + last
         );
         audioOutputSummings_.erase(
             audioOutputSummings_.begin() + first,
@@ -539,10 +511,6 @@ bool Mixer::removeAudioOutputChannel(
         audioOutputMeters_.erase(
             audioOutputMeters_.begin() + first,
             audioOutputMeters_.begin() + last
-        );
-        audioOutputPostFaderMutes_.erase(
-            audioOutputPostFaderMutes_.begin() + first,
-            audioOutputPostFaderMutes_.begin() + last
         );
         audioOutputMuted_.erase(
             audioOutputMuted_.begin() + first,
@@ -600,18 +568,14 @@ bool Mixer::insertChannel(
                 8192, channelGroupType, channelCountInGroup
             );
             auto meterNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*meter));
-            auto preFaderMute = std::make_unique<YADAW::Audio::Util::Mute>(
+            auto mute = std::make_unique<YADAW::Audio::Util::Mute>(
                 channelGroupType, channelCountInGroup
             );
-            auto preFaderMuteNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*preFaderMute));
-            auto postFaderMute = std::make_unique<YADAW::Audio::Util::Mute>(
-                channelGroupType, channelCountInGroup
-            );
-            auto postFaderMuteNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*postFaderMute));
+            auto muteNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*mute));
             auto preFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, inputDeviceNode, preFaderMuteNode, 0, 0
+                graph_, inputDeviceNode, muteNode, 0, 0
             );
-            graph_.connect(preFaderMuteNode, faderNode, 0, 0);
+            graph_.connect(muteNode, faderNode, 0, 0);
             auto postFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, faderNode, meterNode, 0, 0
             );
@@ -630,14 +594,10 @@ bool Mixer::insertChannel(
             meters_.emplace(meters_.begin() + position,
                 std::move(meter), meterNode
             );
-            preFaderMutes_.emplace(preFaderMutes_.begin() + position,
-                std::move(preFaderMute), preFaderMuteNode
-            );
-            postFaderMutes_.emplace(postFaderMutes_.begin() + position,
-                std::move(postFaderMute), postFaderMuteNode
+            mutes_.emplace(mutes_.begin() + position,
+                std::move(mute), muteNode
             );
             muted_.emplace(muted_.begin() + position, false);
-            graph_.connect(meterNode, postFaderMuteNode, 0, 0);
             outputDevices_.emplace(outputDevices_.begin() + position,
                 std::move(outputDevice), outputDeviceNode
             );
@@ -675,18 +635,14 @@ bool Mixer::insertChannel(
                 8192, channelGroupType, channelCountInGroup
             );
             auto meterNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*meter));
-            auto preFaderMute = std::make_unique<YADAW::Audio::Util::Mute>(
+            auto mute = std::make_unique<YADAW::Audio::Util::Mute>(
                 channelGroupType, channelCountInGroup
             );
-            auto preFaderMuteNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*preFaderMute));
-            auto postFaderMute = std::make_unique<YADAW::Audio::Util::Mute>(
-                channelGroupType, channelCountInGroup
-            );
-            auto postFaderMuteNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*postFaderMute));
+            auto muteNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*mute));
             auto preFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, inputDeviceNode, preFaderMuteNode, 0, 0
+                graph_, inputDeviceNode, muteNode, 0, 0
             );
-            graph_.connect(preFaderMuteNode, faderNode, 0, 0);
+            graph_.connect(muteNode, faderNode, 0, 0);
             auto postFaderInserts = std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, faderNode, meterNode, 0, 0
             );
@@ -705,14 +661,10 @@ bool Mixer::insertChannel(
             meters_.emplace(meters_.begin() + position,
                 std::move(meter), meterNode
             );
-            preFaderMutes_.emplace(preFaderMutes_.begin() + position,
-                std::move(preFaderMute), preFaderMuteNode
-            );
-            postFaderMutes_.emplace(postFaderMutes_.begin() + position,
-                std::move(postFaderMute), postFaderMuteNode
+            mutes_.emplace(mutes_.begin() + position,
+                std::move(mute), muteNode
             );
             muted_.emplace(muted_.begin() + position, false);
-            graph_.connect(meterNode, postFaderMuteNode, 0, 0);
             outputDevices_.emplace(outputDevices_.begin() + position,
                 std::move(outputDevice), outputDeviceNode
             );
@@ -749,15 +701,14 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             postFaderInserts_.begin() + last
         );
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 6);
+        nodesToRemove.reserve(removeCount * 5);
         FOR_RANGE(i, first,last)
         {
             nodesToRemove.emplace_back(inputDevices_[i].second);
-            nodesToRemove.emplace_back(preFaderMutes_[i].second);
+            nodesToRemove.emplace_back(mutes_[i].second);
             nodesToRemove.emplace_back(faders_[i].second);
             nodesToRemove.emplace_back(meters_[i].second);
             nodesToRemove.emplace_back(outputDevices_[i].second);
-            nodesToRemove.emplace_back(postFaderMutes_[i].second);
         }
         FOR_RANGE0(i, nodesToRemove.size())
         {
@@ -768,9 +719,9 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             inputDevices_.begin() + first,
             inputDevices_.begin() + last
         );
-        preFaderMutes_.erase(
-            preFaderMutes_.begin() + first,
-            preFaderMutes_.begin() + last
+        mutes_.erase(
+            mutes_.begin() + first,
+            mutes_.begin() + last
         );
         meters_.erase(
             meters_.begin() + first,
@@ -779,10 +730,6 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         faders_.erase(
             faders_.begin() + first,
             faders_.begin() + last
-        );
-        postFaderMutes_.erase(
-            postFaderMutes_.begin() + first,
-            postFaderMutes_.begin() + last
         );
         muted_.erase(
             muted_.begin() + first,
