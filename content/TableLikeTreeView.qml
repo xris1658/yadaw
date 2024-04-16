@@ -14,7 +14,7 @@ Item {
     ListView {
         id: headerListView
         z: 2
-        width: parent.width
+        width: treeView.width
         ScrollBar.horizontal: hbar
         property int textPadding: 2
         property int minimumColumnWidth: 10
@@ -38,7 +38,7 @@ Item {
             Rectangle {
                 anchors.right: parent.right
                 width: 1
-                height: parent.height
+                height: headerResizeMouseArea.containsMouse? root.height: parent.height - headerBottomBorder.height
                 color: Colors.border
             }
             MouseArea {
@@ -46,6 +46,7 @@ Item {
                 visible: root.headerResizeable
                 property double originalMouseX
                 anchors.right: parent.right
+                hoverEnabled: true
                 width: 5
                 height: parent.height
                 cursorShape: Qt.SizeHorCursor
@@ -54,13 +55,15 @@ Item {
                     originalMouseX = mouseX;
                 }
                 onMouseXChanged: (mouse) => {
-                    const delta = mouseX - originalMouseX;
-                    if(headerItemDelegate.width + delta < headerListView.minimumColumnWidth) {
-                        headerItemDelegate.width = headerListView.width;
-                    }
-                    else {
-                        headerItemDelegate.width += delta;
-                        originalMouseX = mouseX;
+                    if(pressed) {
+                        const delta = mouseX - originalMouseX;
+                        if(headerItemDelegate.width + delta < headerListView.minimumColumnWidth) {
+                            headerItemDelegate.width = headerListView.width;
+                        }
+                        else {
+                            headerItemDelegate.width += delta;
+                            originalMouseX = mouseX;
+                        }
                     }
                 }
             }
@@ -75,10 +78,12 @@ Item {
             }
         }
         Rectangle {
+            id: headerBackground
             z: -1
             anchors.fill: parent
             color: Colors.controlBackground
             Rectangle {
+                id: headerBottomBorder
                 anchors.bottom: parent.bottom
                 width: parent.width
                 height: 1
@@ -103,6 +108,7 @@ Item {
         ScrollBar.horizontal: hbar
     }
     ScrollBar {
+        z: 3
         id: vbar
         anchors.right: parent.right
         anchors.top: parent.top
@@ -113,6 +119,7 @@ Item {
     }
     ScrollBar {
         id: hbar
+        z: 3
         anchors.left: treeView.left
         anchors.right: treeView.right
         anchors.bottom: parent.bottom

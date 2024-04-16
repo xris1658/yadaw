@@ -14,6 +14,7 @@ Item {
     property bool headerResizeable: true
     ListView {
         id: listView
+        z: 2
         anchors.fill: parent
         anchors.rightMargin: vbar.visible? vbar.width: 0
         anchors.bottomMargin: hbar.visible? hbar.height: 0
@@ -40,6 +41,7 @@ Item {
                 height: parent.height
                 color: Colors.controlBackground
                 Rectangle {
+                    id: headerBottomBorder
                     anchors.bottom: parent.bottom
                     width: parent.width
                     height: 1
@@ -64,7 +66,7 @@ Item {
                 Rectangle {
                     anchors.right: parent.right
                     width: 1
-                    height: parent.height
+                    height: headerResizeMouseArea.containsMouse? root.height: parent.height - headerBottomBorder.height
                     color: Colors.border
                 }
                 MouseArea {
@@ -72,6 +74,7 @@ Item {
                     visible: root.headerResizeable
                     property double originalMouseX
                     anchors.right: parent.right
+                    hoverEnabled: true
                     width: 5
                     height: parent.height
                     cursorShape: Qt.SizeHorCursor
@@ -80,13 +83,15 @@ Item {
                         originalMouseX = mouseX;
                     }
                     onMouseXChanged: (mouse) => {
-                        const delta = mouseX - originalMouseX;
-                        if(headerItemDelegate.width + delta < headerListView.minimumColumnWidth) {
-                            headerItemDelegate.width = headerListView.width;
-                        }
-                        else {
-                            headerItemDelegate.width += delta;
-                            originalMouseX = mouseX;
+                        if(pressed) {
+                            const delta = mouseX - originalMouseX;
+                            if(headerItemDelegate.width + delta < headerListView.minimumColumnWidth) {
+                                headerItemDelegate.width = headerListView.width;
+                            }
+                            else {
+                                headerItemDelegate.width += delta;
+                                originalMouseX = mouseX;
+                            }
                         }
                     }
                 }
@@ -121,6 +126,7 @@ Item {
     }
     ScrollBar {
         id: vbar
+        z: 1
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.topMargin: listView.header? listView.header.height: 0
@@ -130,6 +136,7 @@ Item {
     }
     ScrollBar {
         id: hbar
+        z: 1
         anchors.left: listView.left
         anchors.right: listView.right
         anchors.bottom: parent.bottom
