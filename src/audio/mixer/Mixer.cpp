@@ -226,6 +226,141 @@ OptionalRef<Mixer::ChannelInfo> Mixer::channelInfoAt(std::uint32_t index)
     return std::nullopt;
 }
 
+OptionalRef<const VolumeFader> Mixer::audioInputVolumeFaderAt(std::uint32_t index) const
+{
+    if(index < audioInputChannelCount())
+    {
+        return {std::ref(*(audioInputFaders_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const VolumeFader> Mixer::audioOutputVolumeFaderAt(std::uint32_t index) const
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {std::ref(*(audioOutputFaders_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const VolumeFader> Mixer::volumeFaderAt(std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        return {std::ref(*(faders_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<VolumeFader> Mixer::audioInputVolumeFaderAt(std::uint32_t index)
+{
+    if(index < audioInputChannelCount())
+    {
+        return {std::ref(*(audioInputFaders_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<VolumeFader> Mixer::audioOutputVolumeFaderAt(std::uint32_t index)
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {std::ref(*(audioOutputFaders_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<VolumeFader> Mixer::volumeFaderAt(std::uint32_t index)
+{
+    if(index < channelCount())
+    {
+        return {std::ref(*(faders_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const YADAW::Audio::Util::Mute> Mixer::audioInputMuteAt(std::uint32_t index) const
+{
+    if(index < audioInputChannelCount())
+    {
+        return {std::ref(*(audioInputMutes_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const YADAW::Audio::Util::Mute> Mixer::audioOutputMuteAt(std::uint32_t index) const
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {std::ref(*(audioOutputMutes_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const YADAW::Audio::Util::Mute> Mixer::muteAt(std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        return {std::ref(*(mutes_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<YADAW::Audio::Util::Mute> Mixer::audioInputMuteAt(std::uint32_t index)
+{
+    if(index < audioInputChannelCount())
+    {
+        return {std::ref(*(audioInputMutes_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<YADAW::Audio::Util::Mute> Mixer::audioOutputMuteAt(std::uint32_t index)
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {std::ref(*(audioOutputMutes_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<YADAW::Audio::Util::Mute> Mixer::muteAt(std::uint32_t index)
+{
+    if(index < channelCount())
+    {
+        return {std::ref(*(mutes_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const Meter> Mixer::audioInputMeterAt(std::uint32_t index) const
+{
+    if(index < audioInputChannelCount())
+    {
+        return {std::ref(*(audioInputMeters_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const Meter> Mixer::audioOutputMeterAt(std::uint32_t index) const
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {std::ref(*(audioOutputMeters_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const Meter> Mixer::meterAt(std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        return {std::ref(*(meters_[index].first))};
+    }
+    return std::nullopt;
+}
+
 std::optional<YADAW::Audio::Base::ChannelGroupType>
 Mixer::audioInputChannelGroupType(std::uint32_t index) const
 {
@@ -311,9 +446,6 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
             audioInputMeters_.begin() + position,
             std::move(meter), meterNode
         );
-        audioInputMuted_.emplace(
-            audioInputMuted_.begin() + position,
-            false);
         nodeAddedCallback_(*this);
         auto& info = *audioInputChannelInfo_.emplace(audioInputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
@@ -363,10 +495,6 @@ bool Mixer::removeAudioInputChannel(
         audioInputMeters_.erase(
             audioInputMeters_.begin() + first,
             audioInputMeters_.begin() + last
-        );
-        audioInputMuted_.erase(
-            audioInputMuted_.begin() + first,
-            audioInputMuted_.begin() + last
         );
         audioInputChannelInfo_.erase(
             audioInputChannelInfo_.begin() + first,
@@ -451,10 +579,6 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
             audioOutputMeters_.begin() + position,
             std::move(meter), meterNode
         );
-        audioOutputMuted_.emplace(
-            audioOutputMuted_.begin() + position,
-            false
-        );
         nodeAddedCallback_(*this);
         auto& info = *audioOutputChannelInfo_.emplace(audioOutputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
@@ -511,10 +635,6 @@ bool Mixer::removeAudioOutputChannel(
         audioOutputMeters_.erase(
             audioOutputMeters_.begin() + first,
             audioOutputMeters_.begin() + last
-        );
-        audioOutputMuted_.erase(
-            audioOutputMuted_.begin() + first,
-            audioOutputMuted_.begin() + last
         );
         audioOutputChannelInfo_.erase(
             audioOutputChannelInfo_.begin() + first,
@@ -597,7 +717,6 @@ bool Mixer::insertChannel(
             mutes_.emplace(mutes_.begin() + position,
                 std::move(mute), muteNode
             );
-            muted_.emplace(muted_.begin() + position, false);
             outputDevices_.emplace(outputDevices_.begin() + position,
                 std::move(outputDevice), outputDeviceNode
             );
@@ -664,7 +783,6 @@ bool Mixer::insertChannel(
             mutes_.emplace(mutes_.begin() + position,
                 std::move(mute), muteNode
             );
-            muted_.emplace(muted_.begin() + position, false);
             outputDevices_.emplace(outputDevices_.begin() + position,
                 std::move(outputDevice), outputDeviceNode
             );
@@ -730,10 +848,6 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         faders_.erase(
             faders_.begin() + first,
             faders_.begin() + last
-        );
-        muted_.erase(
-            muted_.begin() + first,
-            muted_.begin() + last
         );
         outputDevices_.erase(
             outputDevices_.begin() + first,

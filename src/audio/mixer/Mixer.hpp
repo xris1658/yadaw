@@ -79,6 +79,24 @@ public:
     OptionalRef<ChannelInfo> audioInputChannelInfoAt(std::uint32_t index);
     OptionalRef<ChannelInfo> audioOutputChannelInfoAt(std::uint32_t index);
     OptionalRef<ChannelInfo> channelInfoAt(std::uint32_t index);
+    OptionalRef<const VolumeFader> audioInputVolumeFaderAt(std::uint32_t index) const;
+    OptionalRef<const VolumeFader> audioOutputVolumeFaderAt(std::uint32_t index) const;
+    OptionalRef<const VolumeFader> volumeFaderAt(std::uint32_t index) const;
+    OptionalRef<VolumeFader> audioInputVolumeFaderAt(std::uint32_t index);
+    OptionalRef<VolumeFader> audioOutputVolumeFaderAt(std::uint32_t index);
+    OptionalRef<VolumeFader> volumeFaderAt(std::uint32_t index);
+    OptionalRef<const YADAW::Audio::Util::Mute> audioInputMuteAt(std::uint32_t index) const;
+    OptionalRef<const YADAW::Audio::Util::Mute> audioOutputMuteAt(std::uint32_t index) const;
+    OptionalRef<const YADAW::Audio::Util::Mute> muteAt(std::uint32_t index) const;
+    OptionalRef<YADAW::Audio::Util::Mute> audioInputMuteAt(std::uint32_t index);
+    OptionalRef<YADAW::Audio::Util::Mute> audioOutputMuteAt(std::uint32_t index);
+    OptionalRef<YADAW::Audio::Util::Mute> muteAt(std::uint32_t index);
+    OptionalRef<const Meter> audioInputMeterAt(std::uint32_t index) const;
+    OptionalRef<const Meter> audioOutputMeterAt(std::uint32_t index) const;
+    OptionalRef<const Meter> meterAt(std::uint32_t index) const;
+    OptionalRef<Meter> audioInputMeterAt(std::uint32_t index);
+    OptionalRef<Meter> audioOutputMeterAt(std::uint32_t index);
+    OptionalRef<Meter> meterAt(std::uint32_t index);
     std::optional<YADAW::Audio::Base::ChannelGroupType> audioInputChannelGroupType(std::uint32_t index) const;
     std::optional<YADAW::Audio::Base::ChannelGroupType> audioOutputChannelGroupType(std::uint32_t index) const;
     std::optional<YADAW::Audio::Base::ChannelGroupType> channelGroupType(std::uint32_t index) const;
@@ -158,7 +176,6 @@ private:
     std::vector<FaderAndNode> audioInputFaders_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioInputPostFaderInserts_;
     std::vector<MeterAndNode> audioInputMeters_;
-    std::vector<bool> audioInputMuted_;
     std::vector<ChannelInfo> audioInputChannelInfo_;
 
     std::vector<DeviceAndNode> inputDevices_;
@@ -167,7 +184,6 @@ private:
     std::vector<FaderAndNode> faders_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts_;
     std::vector<MeterAndNode> meters_;
-    std::vector<bool> muted_;
     std::vector<DeviceAndNode> outputDevices_;
     std::vector<ChannelInfo> channelInfo_;
 
@@ -177,7 +193,6 @@ private:
     std::vector<FaderAndNode> audioOutputFaders_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPostFaderInserts_;
     std::vector<MeterAndNode> audioOutputMeters_;
-    std::vector<bool> audioOutputMuted_;
     std::vector<ChannelInfo> audioOutputChannelInfo_;
 
     std::unordered_set<ade::EdgeHandle, ade::HandleHasher<ade::Edge>> connections_;
