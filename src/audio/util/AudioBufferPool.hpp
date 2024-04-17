@@ -15,6 +15,7 @@ class AudioBufferPool:
     public YADAW::Util::IntrusiveRefCounter
 {
     friend class Buffer;
+    using AlignType = __m128;
 public:
     using Buffer = YADAW::Audio::Util::Buffer;
 private:
@@ -34,9 +35,11 @@ public:
     Buffer lend();
 private:
     YADAW::Util::IntrusivePointer<AudioBufferPool> intrusiveFromThis();
+    static std::uint32_t alignTypeCount(std::uint32_t singleBufferByteSize);
 private:
     std::uint32_t singleBufferByteSize_;
-    std::vector<std::unique_ptr<std::vector<std::byte>>> pool_;
+    std::uint32_t alignTypeCount_;
+    std::vector<AlignType*> alignedPool_;
     std::vector<std::vector<bool>> vacant_;
     std::mutex mutex_;
 };

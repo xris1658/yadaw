@@ -8,10 +8,11 @@ constexpr std::size_t bufferCount = 64;
 
 AudioBufferPool::AudioBufferPool(std::uint32_t singleBufferByteSize):
     singleBufferByteSize_(singleBufferByteSize),
-    pool_(),
+    alignTypeCount_(alignTypeCount(singleBufferByteSize)),
+    alignedPool_(),
     vacant_()
 {
-    pool_.emplace_back(std::make_unique<std::vector<std::byte>>(bufferCount * singleBufferByteSize_));
+    alignedPool_.emplace_back(new AlignType[alignTypeCount_ * bufferCount]);
     vacant_.emplace_back(bufferCount, true);
 }
 
@@ -29,11 +30,11 @@ std::size_t AudioBufferPool::singleBufferByteSize() const
 
 Buffer AudioBufferPool::lend()
 {
-    std::uint32_t row = pool_.size();
+    std::uint32_t row = alignedPool_.size();
     std::uint32_t column = 0U;
     {
         std::lock_guard<std::mutex> lg(mutex_);
-        FOR_RANGE0(i, pool_.size())
+        FOR_RANGE0(i, alignedPool_.size())
         {
             FOR_RANGE0(j, bufferCount)
             {
@@ -45,12 +46,10 @@ Buffer AudioBufferPool::lend()
                 }
             }
         }
-        if(row == pool_.size())
+        if(row == alignedPool_.size())
         {
-            pool_.emplace_back(
-                std::make_unique<std::vector<std::byte>>(
-                    bufferCount * singleBufferByteSize_
-                )
+            alignedPool_.emplace_back(
+                new AlignType[alignTypeCount_ * bufferCount]
             );
             vacant_.emplace_back(bufferCount, true);
         }
@@ -65,11 +64,21 @@ YADAW::Util::IntrusivePointer<AudioBufferPool> AudioBufferPool::intrusiveFromThi
     return YADAW::Util::IntrusivePointer<AudioBufferPool>(this);
 }
 
+std::uint32_t AudioBufferPool::alignTypeCount(
+    std::uint32_t singleBufferByteSize)
+{
+    return (singleBufferByteSize + sizeof(AlignType) - 1) / sizeof(AlignType);
+}
+
 Buffer::Buffer(
     std::uint32_t row, std::uint32_t column,
     YADAW::Util::IntrusivePointer<AudioBufferPool> pool):
     pool_(std::move(pool)),
-    pointer_(pool_->pool_[row]->data() + pool_->singleBufferByteSize_ * column),
+    pointer_(
+        reinterpret_cast<std::byte*>(
+            pool_->alignedPool_[row] + pool_->alignTypeCount_ * column
+        )
+    ),
     row_(row),
     column_(column)
 {}
