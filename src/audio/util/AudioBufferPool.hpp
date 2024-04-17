@@ -3,6 +3,8 @@
 
 #include "util/IntrusivePointer.hpp"
 
+#include <xmmintrin.h>
+
 #include <memory>
 #include <mutex>
 #include <vector>
