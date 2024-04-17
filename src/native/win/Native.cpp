@@ -301,6 +301,13 @@ bool setBadMemoryAccessHandler()
 {
     return AddVectoredExceptionHandler(1, &accessViolationHandler) != NULL;
 }
+
+std::uint32_t cpuidInfo[4];
+
+void fillCPUIDInfo()
+{
+    __cpuid(reinterpret_cast<int(&)[4]>(cpuidInfo), 1);
+}
 }
 
 #endif

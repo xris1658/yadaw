@@ -69,6 +69,10 @@ const std::vector<QString>& defaultPluginDirectoryList();
 void locateFileInExplorer(const QString& path);
 
 bool setBadMemoryAccessHandler();
+
+extern std::uint32_t cpuidInfo[4];
+
+void fillCPUIDInfo();
 }
 
 #endif //  YADAW_SRC_NATIVE_NATIVE

@@ -19,6 +19,7 @@
 int main(int argc, char *argv[])
 {
     qputenv("QSG_NO_VSYNC", "1");
+    YADAW::Native::fillCPUIDInfo();
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
     YADAW::UI::qmlApplicationEngine = &engine;
