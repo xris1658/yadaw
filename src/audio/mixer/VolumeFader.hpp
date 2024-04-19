@@ -19,33 +19,19 @@ public:
     VolumeFader& operator=(const VolumeFader&) = default;
     VolumeFader& operator=(VolumeFader&&) noexcept = default;
 public:
-    float scale() const;
-    void setScale(float scale);
-public:
     std::uint32_t audioInputGroupCount() const override;
     std::uint32_t audioOutputGroupCount() const override;
     OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const override;
     OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
     std::uint32_t latencyInSamples() const override;
     void process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData) override;
-
-private:
-    void processWithoutAutomation(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData);
-    void processWithAutomation(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData);
 public:
-    void setAutomation(const YADAW::Audio::Base::Automation& automation,
-        YADAW::Audio::Base::Automation::Time time);
-    void unsetAutomation();
+    void setVolumeValueSequence(YADAW::Audio::Base::Automation::Value& value);
+    void unsetVolumeValueSequence();
 private:
-    static constexpr ProcessFunc processFuncs[2] = {
-        &VolumeFader::processWithoutAutomation,
-        &VolumeFader::processWithAutomation,
-    };
-    float scale_ = 1.0f;
     YADAW::Audio::Util::AudioChannelGroup input_;
     YADAW::Audio::Util::AudioChannelGroup output_;
-    const YADAW::Audio::Base::Automation* automation_ = nullptr;
-    YADAW::Audio::Base::Automation::Time time_ = 0;
+    YADAW::Audio::Base::Automation::Value* valueSequence_ = nullptr;
 };
 }
 

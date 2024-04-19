@@ -2,6 +2,8 @@
 
 #include "util/IntegerRange.hpp"
 
+#include <cstdint>
+
 namespace YADAW::Audio::Mixer
 {
 VolumeFader::VolumeFader(
@@ -11,16 +13,6 @@ VolumeFader::VolumeFader(
 {
     input_.setChannelGroupType(channelGroupType, channelCountInGroup);
     output_.setChannelGroupType(channelGroupType, channelCountInGroup);
-}
-
-float VolumeFader::scale() const
-{
-    return scale_;
-}
-
-void VolumeFader::setScale(float scale)
-{
-    scale_ = scale;
 }
 
 std::uint32_t VolumeFader::audioInputGroupCount() const
@@ -54,50 +46,118 @@ std::uint32_t VolumeFader::latencyInSamples() const
     return 0;
 }
 
+template<bool HasValueSeq, bool Aligned>
+void process(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
+    YADAW::Audio::Base::Automation::Value* valueSequence);
+
+template<>
+void process<false, false>(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
+    YADAW::Audio::Base::Automation::Value* valueSequence)
+{
+    FOR_RANGE0(i, audioProcessData.outputCounts[0])
+    {
+        std::memcpy(
+            audioProcessData.outputs[0][i],
+            audioProcessData.inputs[0][i],
+            audioProcessData.singleBufferSize
+        );
+    }
+}
+
+template<>
+void process<false, true>(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
+    YADAW::Audio::Base::Automation::Value* valueSequence)
+{
+    FOR_RANGE0(i, audioProcessData.outputCounts[0])
+    {
+        auto alignCount = audioProcessData.singleBufferSize * sizeof(float) / sizeof(__m128);
+        auto alignedInput = reinterpret_cast<__m128*>(audioProcessData.inputs[0][i]);
+        auto output = audioProcessData.outputs[0][i];
+        FOR_RANGE0(j, alignCount)
+        {
+            _mm_store_ps(
+                output + j * sizeof(float) / sizeof(__m128),
+                alignedInput[j]
+            );
+        }
+    }
+}
+
+template<>
+void process<true, false>(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
+    YADAW::Audio::Base::Automation::Value* valueSequence)
+{
+    FOR_RANGE0(i, audioProcessData.outputCounts[0])
+    {
+        auto input = audioProcessData.inputs[0][i];
+        std::transform(
+            input,
+            input + audioProcessData.singleBufferSize,
+            valueSequence,
+            audioProcessData.outputs[0][i],
+            [](float lhs, float rhs) { return lhs * rhs; }
+        );
+    }
+}
+
+template<>
+void process<true, true>(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
+    YADAW::Audio::Base::Automation::Value* valueSequence)
+{
+    auto alignedValueSeq = reinterpret_cast<__m128*>(valueSequence);
+    FOR_RANGE0(i, audioProcessData.outputCounts[0])
+    {
+        auto alignCount = audioProcessData.singleBufferSize * sizeof(float) / sizeof(__m128);
+        auto alignedInput = reinterpret_cast<__m128*>(audioProcessData.inputs[0][i]);
+        auto output = audioProcessData.outputs[0][i];
+        FOR_RANGE0(j, alignCount)
+        {
+            _mm_store_ps(
+                output + j * sizeof(float) / sizeof(__m128),
+                _mm_mul_ps(alignedInput[j], alignedValueSeq[j])
+            );
+        }
+    }
+}
+
+using ProcessFunc = void(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
+    YADAW::Audio::Base::Automation::Value* valueSequence);
+
+ProcessFunc* const processFuncs[2][2] = {
+    {
+        &process<false, false>,
+        &process<false, true>,
+    },
+    {
+        &process<true, false>,
+        &process<true, true>
+    }
+};
+
 void VolumeFader::process(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    (this->*processFuncs[automation_ != nullptr])(audioProcessData);
+    bool index1 = valueSequence_ != nullptr;
+    bool index2 = ((reinterpret_cast<std::uint64_t>(audioProcessData.outputs[0][0]) & 0x0000000F) == 0) &&
+                (reinterpret_cast<std::uint64_t>(audioProcessData.inputs[0][0]) & 0x0000000F) == 0 &&
+                (reinterpret_cast<std::uint64_t>(valueSequence_) & 0x0000000F) == 0;
+    auto processFunc = processFuncs[index1][index2];
+    processFunc(audioProcessData, valueSequence_);
 }
 
-void VolumeFader::processWithoutAutomation(
-    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
+void VolumeFader::setVolumeValueSequence(YADAW::Audio::Base::Automation::Value& value)
 {
-    // slower but necessary traversing
-    FOR_RANGE0(j, audioProcessData.singleBufferSize)
-    {
-        FOR_RANGE0(i, output_.channelCount())
-        {
-            audioProcessData.outputs[0][i][j] =
-                audioProcessData.inputs[0][i][j] * scale_;
-        }
-    }
+    valueSequence_ = &value;
 }
 
-void VolumeFader::processWithAutomation(
-    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
+void VolumeFader::unsetVolumeValueSequence()
 {
-    // slower but necessary traversing
-    FOR_RANGE0(j, audioProcessData.singleBufferSize)
-    {
-        FOR_RANGE0(i, output_.channelCount())
-        {
-            audioProcessData.outputs[0][i][j] =
-                audioProcessData.inputs[0][i][j] * (*automation_)(time_ + j);
-        }
-    }
-}
-
-void VolumeFader::setAutomation(
-    const YADAW::Audio::Base::Automation& automation,
-    YADAW::Audio::Base::Automation::Time time)
-{
-    automation_ = &automation;
-    time_ = time;
-}
-
-void VolumeFader::unsetAutomation()
-{
-    automation_ = nullptr;
+    valueSequence_ = nullptr;
 }
 }
