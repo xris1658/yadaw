@@ -81,7 +81,7 @@ void process<false, true>(
         FOR_RANGE0(j, alignCount)
         {
             _mm_store_ps(
-                output + j * sizeof(float) / sizeof(__m128),
+                output + j * sizeof(__m128) / sizeof(float),
                 alignedInput[j]
             );
         }
@@ -120,7 +120,7 @@ void process<true, true>(
         FOR_RANGE0(j, alignCount)
         {
             _mm_store_ps(
-                output + j * sizeof(float) / sizeof(__m128),
+                output + j * sizeof(__m128) / sizeof(float),
                 _mm_mul_ps(alignedInput[j], alignedValueSeq[j])
             );
         }
