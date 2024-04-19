@@ -14,4 +14,5 @@ QtObject {
     signal setTranslationIndex(index: int)
     signal setMainWindowFromMaximizedToFullScreen()
     signal setMainWindowFromFullScreenToMaximized()
+    signal requestProcessLoad()
 }

@@ -40,6 +40,8 @@ ApplicationWindow {
     property alias mixerAudioOutputChannelModel: mixer.outputModel
     property alias mixerChannelModel: mixer.channelsModel
 
+    property alias cpuUsagePercentage: bigClock.cpuUsagePercentage
+
     property var pluginWindow: null
     property var genericPluginEditor: null
 
@@ -69,6 +71,7 @@ ApplicationWindow {
     onMainWindowReady: {
         opened = true;
         visible = true;
+        cpuUsageTimer.start();
     }
 
     Component.onCompleted: {
@@ -77,6 +80,7 @@ ApplicationWindow {
 
     onClosing: (close) => {
         if(!canClose) {
+            cpuUsageTimer.stop();
             preferencesWindow.close();
             close.accepted = false;
             EventSender.mainWindowClosing();
@@ -878,5 +882,13 @@ ApplicationWindow {
     PluginRouteEditorWindow {
         id: pluginRouteEditorWindow
         visible: false
+    }
+    Timer {
+        id: cpuUsageTimer
+        interval: 50
+        repeat: true
+        onTriggered: {
+            EventSender.requestProcessLoad();
+        }
     }
 }

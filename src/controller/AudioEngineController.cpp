@@ -93,6 +93,7 @@ SetCLAPPluginProcessing setProcessing[2] = {
 
 void AudioEngine::process()
 {
+    auto now = YADAW::Util::currentTimeValueInNanosecond();
     YADAW::Audio::Host::CLAPHost::setAudioThreadId(std::this_thread::get_id());
     processSequence_.swapIfNeeded();
     vst3PluginPool_.swapIfNeeded();
@@ -132,6 +133,10 @@ void AudioEngine::process()
                 }
             );
         }
+    );
+    processTime_.store(
+        YADAW::Util::currentTimeValueInNanosecond() - now,
+        std::memory_order::memory_order_release
     );
 }
 

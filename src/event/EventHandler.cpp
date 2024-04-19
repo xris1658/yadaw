@@ -90,6 +90,8 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onSetMainWindowFromMaximizedToFullScreen()));
     QObject::connect(sender, SIGNAL(setMainWindowFromFullScreenToMaximized()),
         this, SLOT(onSetMainWindowFromFullScreenToMaximized()));
+    QObject::connect(sender, SIGNAL(requestProcessLoad()),
+        this, SLOT(onRequestProcessLoad()));
 }
 
 void EventHandler::connectToEventReceiver(QObject* receiver)
@@ -607,5 +609,15 @@ void EventHandler::onSetMainWindowFromMaximizedToFullScreen()
 void EventHandler::onSetMainWindowFromFullScreenToMaximized()
 {
     YADAW::UI::setFullScreenWindowToMaximized(*YADAW::UI::mainWindow);
+}
+
+void EventHandler::onRequestProcessLoad()
+{
+    auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
+    auto time = engine.processTime();
+    YADAW::UI::mainWindow->setProperty(
+        "cpuUsagePercentage",
+        QVariant::fromValue<int>(time * engine.sampleRate() / (engine.bufferSize() * 1000000000LL) * 100)
+    );
 }
 }

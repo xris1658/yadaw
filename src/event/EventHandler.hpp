@@ -33,6 +33,7 @@ public slots:
     void onAudioGraphOutputDeviceIndexChanged(int index);
     void onSetMainWindowFromMaximizedToFullScreen();
     void onSetMainWindowFromFullScreenToMaximized();
+    void onRequestProcessLoad();
 private:
     QObject* eventSender_;
     QObject* eventReceiver_;

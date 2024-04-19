@@ -50,6 +50,10 @@ public:
 public:
     void uninitialize();
     void process();
+    std::int64_t processTime()
+    {
+        return processTime_.load(std::memory_order::memory_order_acquire);
+    }
 private:
     void updateProcessSequence();
 public:
@@ -63,6 +67,7 @@ private:
     double sampleRate_ = 0.0;
     std::uint32_t bufferSize_ = 0U;
     bool running_ = false;
+    std::atomic<std::int64_t> processTime_;
     YADAW::Audio::Mixer::Mixer mixer_;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence> processSequence_;
     YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector> vst3PluginPool_;
