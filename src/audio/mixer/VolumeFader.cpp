@@ -4,6 +4,8 @@
 
 #include <cstdint>
 
+#include <xmmintrin.h>
+
 namespace YADAW::Audio::Mixer
 {
 VolumeFader::VolumeFader(
