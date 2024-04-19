@@ -9,9 +9,10 @@ Window {
     title: qsTr("Third party software used by YADAW")
     modality: Qt.WindowModal
     color: Colors.background
-    width: column.width + 20
-    height: minimumHeight + 50
-    minimumHeight: listView.contentHeight + noASIOSupportText.height + buttonArea.height + 20 + column.spacing * 2 + listRect.border.width * 2
+    width: minimumWidth
+    minimumWidth: column.width + 20
+    height: minimumHeight
+    minimumHeight: column.height + 20
     Column {
         id: column
         anchors.centerIn: parent
@@ -20,17 +21,17 @@ Window {
             id: listRect
             color: "transparent"
             border.color: Colors.controlBorder
-            width: 570
-            height: root.height - 20 - noASIOSupportText.height - buttonArea.height - 10
+            width: 640
+            height: 400
             clip: true
-            ListView {
-                id: listView
+            TableLikeListView {
+                id: appList
                 anchors.fill: parent
                 anchors.margins: parent.border.width
                 model: ListModel {
                     ListElement {
                         name: "Qt"
-                        website: "qt.io"
+                        website: "https://www.qt.io"
                         description: qsTr("Cross-platform application development kit")
                         license: "Commercial / LGPL v3"
                     }
@@ -107,40 +108,59 @@ Window {
                         license: "Apache-2.0"
                     }
                 }
-                delegate: Item {
-                    width: listView.width
-                    height: row.height + 4
+                headerListModel: ListModel {
+                    dynamicRoles: true
+                    Component.onCompleted: {
+                        append({
+                            "title": qsTr("Name"),
+                            "field": "name",
+                            "columnWidth": 149
+                        });
+                        append({
+                            "title": qsTr("Description"),
+                            "field": "description",
+                            "columnWidth": 330
+                        });
+                        append({
+                            "title": qsTr("License"),
+                            "field": "license",
+                            "columnWidth": 159
+                        });
+                    }
+                }
+                listView.currentIndex: -1
+                listView.delegate: Item {
+                    width: Math.max(appList.listView.contentWidth, appList.listView.width)
+                    property var itemData: Array.isArray(appList.listView.model)? modelData: model
+                    height: row.height
                     Row {
                         id: row
-                        anchors.centerIn: parent
-                        Label {
-                            id: label
-                            leftPadding: 3
-                            width: 135
-                            text: "<a href=\"%1\">%2</a>".arg(website).arg(name)
-                            ToolTip {
-                                id: toolTip
-                                text: qsTr("<p><b>Click to visit the following link: </b></p>%1").arg(website)
-                            }
-                            onLinkActivated: (link) => {
-                                Qt.openUrlExternally(link);
-                            }
-                            onLinkHovered: (link) => {
-                                if(link) {
-                                    toolTip.open();
+                        Repeater {
+                            model: appList.headerListModel
+                            Label {
+                                width: columnWidth
+                                leftPadding: 2
+                                topPadding: 2
+                                bottomPadding: 2
+                                text: index !== 0? itemData[field]: "<a href=\"%1\">%2</a>".arg(website).arg(name)
+                                clip: true
+                                elide: Label.ElideRight
+                                ToolTip {
+                                    id: toolTip
+                                    text: qsTr("<p><b>Click to visit the following link: </b></p>%1").arg(website)
                                 }
-                                else {
-                                    toolTip.close();
+                                onLinkActivated: (link) => {
+                                    Qt.openUrlExternally(link);
+                                }
+                                onLinkHovered: (link) => {
+                                    if(link) {
+                                        toolTip.open();
+                                    }
+                                    else {
+                                        toolTip.close();
+                                    }
                                 }
                             }
-                        }
-                        Label {
-                            width: 285
-                            text: description
-                        }
-                        Label {
-                            width: 150
-                            text: license
                         }
                     }
                 }
