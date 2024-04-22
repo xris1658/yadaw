@@ -389,6 +389,36 @@ std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::channelGroupType(std:
     return std::nullopt;
 }
 
+std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioInputChannelID(
+    std::uint32_t index) const
+{
+    if(index < audioInputChannelCount())
+    {
+        return {audioInputChannelId_[index]};
+    }
+    return std::nullopt;
+}
+
+std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioOutputChannelID(
+    std::uint32_t index) const
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {audioOutputChannelId_[index]};
+    }
+    return std::nullopt;
+}
+
+std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::channelID(
+    std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        return {channelId_[index]};
+    }
+    return std::nullopt;
+}
+
 bool Mixer::appendAudioInputChannel(
     const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex)
 {
@@ -402,6 +432,22 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
     if(channelGroupIndex < device->audioOutputGroupCount()
        && position <= audioInputChannelCount())
     {
+        auto it = audioInputChannelId_.emplace(
+            audioInputChannelId_.begin() + position,
+            audioInputChannelIdGen_()
+        );
+        audioInputChannelIdAndIndex_.emplace(
+            std::lower_bound(
+                audioInputChannelIdAndIndex_.begin(),
+                audioInputChannelIdAndIndex_.end(),
+                *it,
+                [](IDAndIndex idAndIndex, IDGen::ID id)
+                {
+                    return idAndIndex.id < id;
+                }
+            ),
+            *it, position
+        );
         const auto& channelGroup = device->audioOutputGroupAt(channelGroupIndex)->get();
         auto meter = std::make_unique<YADAW::Audio::Mixer::Meter>(
             8192, channelGroup.type(), channelGroup.channelCount()
@@ -500,6 +546,31 @@ bool Mixer::removeAudioInputChannel(
             audioInputChannelInfo_.begin() + first,
             audioInputChannelInfo_.begin() + last
         );
+        std::sort(
+            audioInputChannelId_.begin() + first,
+            audioInputChannelId_.begin() + last
+        );
+        auto it2 = audioInputChannelId_.begin() + first;
+        audioInputChannelIdAndIndex_.erase(
+            std::remove_if(
+                audioInputChannelIdAndIndex_.begin(),
+                audioInputChannelIdAndIndex_.end(),
+                [&it2](IDAndIndex idAndIndex)
+                {
+                    if(idAndIndex.id == *it2)
+                    {
+                        ++it2;
+                        return true;
+                    }
+                    return false;
+                }
+            ),
+            audioInputChannelIdAndIndex_.end()
+        );
+        audioInputChannelId_.erase(
+            audioInputChannelId_.begin() + first,
+            audioInputChannelId_.begin() + last
+        );
         return true;
     }
     return false;
@@ -511,9 +582,9 @@ void Mixer::clearAudioInputChannels()
 }
 
 bool Mixer::appendAudioOutputChannel(
-    const ade::NodeHandle& outNode, std::uint32_t channel)
+    const ade::NodeHandle& outNode, std::uint32_t channelGroupIndex)
 {
-    return insertAudioOutputChannel(audioOutputChannelCount(), outNode, channel);
+    return insertAudioOutputChannel(audioOutputChannelCount(), outNode, channelGroupIndex);
 }
 
 bool Mixer::insertAudioOutputChannel(std::uint32_t position,
@@ -524,6 +595,22 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
     if(channel < device->audioInputGroupCount()
         && position <= audioOutputChannelCount())
     {
+        auto it = audioOutputChannelId_.emplace(
+            audioOutputChannelId_.begin() + position,
+            audioOutputChannelIdGen_()
+        );
+        audioOutputChannelIdAndIndex_.emplace(
+            std::lower_bound(
+                audioOutputChannelIdAndIndex_.begin(),
+                audioOutputChannelIdAndIndex_.end(),
+                *it,
+                [](IDAndIndex idAndIndex, IDGen::ID id)
+                {
+                    return idAndIndex.id < id;
+                }
+            ),
+            *it, position
+        );
         const auto& channelGroup = device->audioInputGroupAt(channel)->get();
         auto summing = std::make_unique<YADAW::Audio::Util::Summing>(
             0, channelGroup.type(), channelGroup.channelCount()
@@ -640,6 +727,31 @@ bool Mixer::removeAudioOutputChannel(
             audioOutputChannelInfo_.begin() + first,
             audioOutputChannelInfo_.begin() + last
         );
+        std::sort(
+            audioOutputChannelId_.begin() + first,
+            audioOutputChannelId_.begin() + last
+        );
+        auto it2 = audioOutputChannelId_.begin() + first;
+        audioOutputChannelIdAndIndex_.erase(
+            std::remove_if(
+                audioOutputChannelIdAndIndex_.begin(),
+                audioOutputChannelIdAndIndex_.end(),
+                [&it2](IDAndIndex idAndIndex)
+                {
+                    if(idAndIndex.id == *it2)
+                    {
+                        ++it2;
+                        return true;
+                    }
+                    return false;
+                }
+            ),
+            audioOutputChannelIdAndIndex_.end()
+        );
+        audioOutputChannelId_.erase(
+            audioOutputChannelId_.begin() + first,
+            audioOutputChannelId_.begin() + last
+        );
         return true;
     }
     return false;
@@ -655,6 +767,7 @@ bool Mixer::insertChannel(
     YADAW::Audio::Base::ChannelGroupType channelGroupType,
     std::uint32_t channelCountInGroup)
 {
+    auto ret = false;
     if(position <= channelCount())
     {
         switch(channelType)
@@ -720,10 +833,8 @@ bool Mixer::insertChannel(
             outputDevices_.emplace(outputDevices_.begin() + position,
                 std::move(outputDevice), outputDeviceNode
             );
-            nodeAddedCallback_(*this);
-            auto it = channelInfo_.emplace(channelInfo_.begin() + position);
-            it->channelType = channelType;
-            return true;
+            ret = true;
+            break;
         }
         case ChannelType::AudioFX:
         case ChannelType::AudioBus:
@@ -786,14 +897,33 @@ bool Mixer::insertChannel(
             outputDevices_.emplace(outputDevices_.begin() + position,
                 std::move(outputDevice), outputDeviceNode
             );
-            nodeAddedCallback_(*this);
-            auto it = channelInfo_.emplace(channelInfo_.begin() + position);
-            it->channelType = channelType;
-            return true;
+            ret = true;
+            break;
         }
         }
     }
-    return false;
+    if(ret)
+    {
+        auto channelInfoIt = channelInfo_.emplace(channelInfo_.begin() + position);
+        channelInfoIt->channelType = channelType;
+        auto idIt = channelId_.emplace(
+            channelId_.begin() + position,
+            channelIdGen_()
+        );
+        channelIdAndIndex_.emplace(
+            std::lower_bound(
+                channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
+                *idIt,
+                [](IDAndIndex idAndIndex, IDGen::ID id)
+                {
+                    return idAndIndex.id < id;
+                }
+            ),
+            *idIt, position
+        );
+        nodeAddedCallback_(*this);
+    }
+    return ret;
 }
 
 bool Mixer::appendChannel(
@@ -856,6 +986,31 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         channelInfo_.erase(
             channelInfo_.begin() + first,
             channelInfo_.begin() + last
+        );
+        std::sort(
+            channelId_.begin() + first,
+            channelId_.begin() + last
+        );
+        auto it2 = channelId_.begin() + first;
+        channelIdAndIndex_.erase(
+            std::remove_if(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                [&it2](IDAndIndex idAndIndex)
+                {
+                    if(idAndIndex.id == *it2)
+                    {
+                        ++it2;
+                        return true;
+                    }
+                    return false;
+                }
+            ),
+            channelIdAndIndex_.end()
+        );
+        channelId_.erase(
+            channelId_.begin() + first,
+            channelId_.begin() + last
         );
         return true;
     }

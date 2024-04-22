@@ -11,6 +11,7 @@
 #include "audio/mixer/VolumeFader.hpp"
 #include "audio/util/Mute.hpp"
 #include "audio/util/Summing.hpp"
+#include "util/AutoIncrementID.hpp"
 #include "util/OptionalUtil.hpp"
 
 namespace YADAW::Audio::Mixer
@@ -47,6 +48,7 @@ public:
         QColor color;
         ChannelType channelType;
     };
+    using IDGen = YADAW::Util::AutoIncrementID;
     using NodeAddedCallback = void(const Mixer&);
     using NodeRemovedCallback = void(const Mixer&);
     using ConnectionUpdatedCallback = void(const Mixer&);
@@ -100,6 +102,9 @@ public:
     std::optional<YADAW::Audio::Base::ChannelGroupType> audioInputChannelGroupType(std::uint32_t index) const;
     std::optional<YADAW::Audio::Base::ChannelGroupType> audioOutputChannelGroupType(std::uint32_t index) const;
     std::optional<YADAW::Audio::Base::ChannelGroupType> channelGroupType(std::uint32_t index) const;
+    std::optional<IDGen::ID> audioInputChannelID(std::uint32_t index) const;
+    std::optional<IDGen::ID> audioOutputChannelID(std::uint32_t index) const;
+    std::optional<IDGen::ID> channelID(std::uint32_t index) const;
 public:
     bool appendAudioInputChannel(
         const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
@@ -108,7 +113,7 @@ public:
     bool removeAudioInputChannel(std::uint32_t position, std::uint32_t removeCount = 1);
     void clearAudioInputChannels();
     bool appendAudioOutputChannel(
-        const ade::NodeHandle& outNode, std::uint32_t channel);
+        const ade::NodeHandle& outNode, std::uint32_t channelGroupIndex);
     bool insertAudioOutputChannel(
         std::uint32_t position, const ade::NodeHandle& outNode, std::uint32_t channel);
     bool removeAudioOutputChannel(std::uint32_t position, std::uint32_t removeCount = 1);
@@ -116,12 +121,12 @@ public:
     bool insertChannel(
         std::uint32_t position,
         ChannelType channelType,
-        YADAW::Audio::Base::ChannelGroupType chanelGroupType = YADAW::Audio::Base::ChannelGroupType::eInvalid,
+        YADAW::Audio::Base::ChannelGroupType chanelGroupType,
         std::uint32_t channelCountInGroup = 0
     );
     bool appendChannel(
         ChannelType channelType,
-        YADAW::Audio::Base::ChannelGroupType channelGroupType = YADAW::Audio::Base::ChannelGroupType::eInvalid,
+        YADAW::Audio::Base::ChannelGroupType channelGroupType,
         std::uint32_t channelCountInGroup = 0
     );
     bool removeChannel(
@@ -165,12 +170,29 @@ private:
         std::unique_ptr<YADAW::Audio::Device::IAudioDevice>,
         ade::NodeHandle
     >;
+    struct IDAndIndex
+    {
+        IDAndIndex(IDGen::ID id, std::uint32_t index) : id(id), index(index) {}
+        IDAndIndex(const IDAndIndex&) = default;
+        IDAndIndex& operator=(IDAndIndex rhs)
+        {
+            std::swap(id, rhs.id);
+            std::swap(index, rhs.index);
+            return *this;
+        }
+        ~IDAndIndex() noexcept = default;
+        IDGen::ID id;
+        std::uint32_t index;
+    };
 private:
     YADAW::Audio::Engine::AudioDeviceGraph<
         YADAW::Audio::Engine::Extension::Buffer,
         YADAW::Audio::Engine::Extension::UpstreamLatency> graph_;
     YADAW::Audio::Engine::AudioDeviceGraphWithPDC graphWithPDC_;
 
+    IDGen audioInputChannelIdGen_;
+    std::vector<IDGen::ID> audioInputChannelId_;
+    std::vector<IDAndIndex> audioInputChannelIdAndIndex_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioInputPreFaderInserts_;
     std::vector<MuteAndNode> audioInputMutes_;
     std::vector<FaderAndNode> audioInputFaders_;
@@ -178,6 +200,9 @@ private:
     std::vector<MeterAndNode> audioInputMeters_;
     std::vector<ChannelInfo> audioInputChannelInfo_;
 
+    IDGen channelIdGen_;
+    std::vector<IDGen::ID> channelId_;
+    std::vector<IDAndIndex> channelIdAndIndex_;
     std::vector<DeviceAndNode> inputDevices_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts_;
     std::vector<MuteAndNode> mutes_;
@@ -187,6 +212,9 @@ private:
     std::vector<DeviceAndNode> outputDevices_;
     std::vector<ChannelInfo> channelInfo_;
 
+    IDGen audioOutputChannelIdGen_;
+    std::vector<IDGen::ID> audioOutputChannelId_;
+    std::vector<IDAndIndex> audioOutputChannelIdAndIndex_;
     std::vector<SummingAndNode> audioOutputSummings_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPreFaderInserts_;
     std::vector<MuteAndNode> audioOutputMutes_;

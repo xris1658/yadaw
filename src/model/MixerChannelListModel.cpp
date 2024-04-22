@@ -99,6 +99,16 @@ GetConstChannelInfo getConstChannelInfo[3] = {
     static_cast<GetConstChannelInfo>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelInfoAt)
 };
 
+using GetConstID =
+    std::optional<YADAW::Audio::Mixer::Mixer::IDGen::ID>(YADAW::Audio::Mixer::Mixer::*)(
+        std::uint32_t) const;
+
+GetConstID getConstID[3] = {
+    &Audio::Mixer::Mixer::audioInputChannelID,
+    &Audio::Mixer::Mixer::channelID,
+    &Audio::Mixer::Mixer::audioOutputChannelID
+};
+
 using RemoveChannels =
     decltype(&YADAW::Audio::Mixer::Mixer::removeChannel);
 
@@ -164,6 +174,15 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
     {
         switch(role)
         {
+        case Role::Id:
+        {
+            auto optionalId = (mixer_.*getConstID[YADAW::Util::underlyingValue(listType_)])(row);
+            if(optionalId.has_value())
+            {
+                return QVariant::fromValue(*optionalId);
+            }
+            return QVariant();
+        }
         case Role::Name:
         {
             const auto& optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
@@ -190,6 +209,23 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
                 return QVariant::fromValue(getChannelType(optionalInfo->get().channelType));
             }
             return QVariant();
+        }
+        case Role::InputType:
+        {
+            auto optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+            if(optionalInfo.has_value())
+            {
+                auto channelType = optionalInfo->get().channelType;
+                if(channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+                {
+                    return MediaTypes::MediaTypeMIDI;
+                }
+                return MediaTypes::MediaTypeAudio;
+            }
+        }
+        case Role::OutputType:
+        {
+            return MediaTypes::MediaTypeAudio;
         }
         case Role::InstrumentExist:
         {

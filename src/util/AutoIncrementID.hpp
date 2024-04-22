@@ -8,13 +8,14 @@ namespace YADAW::Util
 class AutoIncrementID
 {
 public:
-    static constexpr std::uint64_t InvalidId = 0;
-    constexpr std::uint64_t InitialId = 1;
+    using ID = std::uint64_t;
+    static constexpr ID InvalidId = 0;
+    static constexpr ID InitialId = 1;
 public:
-    std::uint64_t operator()();
+    ID operator()();
     void reset();
 private:
-    std::uint64_t newId_ = InitialId;
+    ID newId_ = InitialId;
 };
 }
 
