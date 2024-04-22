@@ -32,7 +32,8 @@ public:
 public:
     enum Role
     {
-        Name = Qt::UserRole,
+        Id = Qt::UserRole,
+        Name,
         Color,
         ChannelType,
         InputExist,
