@@ -93,6 +93,7 @@ protected:
     {
         static RoleNames ret
         {
+            std::make_pair(Id,                             "mclm_id"),
             std::make_pair(Name,                           "mclm_name"),
             std::make_pair(Color,                          "mclm_color"),
             std::make_pair(ChannelType,                    "mclm_channel_type"),
