@@ -400,6 +400,8 @@ set(YADAW_COMMON_SOURCES
     src/util/ArrayAccess.hpp
     src/util/AtomicMutex.cpp
     src/util/AtomicMutex.hpp
+    src/util/AutoIncrementID.cpp
+    src/util/AutoIncrementID.hpp
     src/util/Base.hpp
     src/util/ButlerThread.cpp
     src/util/ButlerThread.hpp
