@@ -356,6 +356,7 @@ set(YADAW_COMMON_SOURCES
     src/model/FileTreeModel.cpp
     src/model/FileTreeModel.hpp
     src/model/FilterRoleModel.cpp
+    src/model/ListModelListModel.cpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
     src/model/MixerChannelInsertListModel.cpp

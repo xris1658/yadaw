@@ -39,6 +39,7 @@ set(CONTENT_CPP_FILES
     model/ISortFilterListModel.hpp
     model/ISpeakerListModel.hpp
     model/ITrackListModel.hpp
+    model/ListModelListModel.hpp
     model/SortFilterProxyListModel.hpp
     model/SortOrderModel.hpp
     )
