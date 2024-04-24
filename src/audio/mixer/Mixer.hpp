@@ -14,6 +14,8 @@
 #include "util/AutoIncrementID.hpp"
 #include "util/OptionalUtil.hpp"
 
+#include <QColor>
+
 namespace YADAW::Audio::Mixer
 {
 // Struct of a channel:

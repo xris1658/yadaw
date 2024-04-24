@@ -10,11 +10,13 @@
 #include "ui/MessageDialog.hpp"
 #include "ui/UI.hpp"
 
+#include <QDir>
 #include <QFont>
 #include <QFontDatabase>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
+#include <QTranslator>
 
 int main(int argc, char *argv[])
 {

@@ -4,7 +4,10 @@
 #include "util/CircularDeque.hpp"
 #include "util/LockFreeQueue.hpp"
 
+#include <condition_variable>
 #include <functional>
+#include <mutex>
+#include <thread>
 
 namespace YADAW::Util
 {

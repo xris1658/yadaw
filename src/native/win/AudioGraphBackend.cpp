@@ -8,6 +8,8 @@
 
 #include <audioclient.h>
 
+#include <QCoreApplication>
+
 namespace YADAW::Audio::Backend
 {
 AudioGraphBackend::AudioGraphBackend(): pImpl_()

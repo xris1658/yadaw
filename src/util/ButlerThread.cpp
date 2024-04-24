@@ -2,6 +2,8 @@
 
 #include "util/IntegerRange.hpp"
 
+#include <cassert>
+
 namespace YADAW::Util
 {
 ButlerThread::ButlerThread(std::size_t taskCapacity):

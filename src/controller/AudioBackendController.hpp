@@ -3,6 +3,8 @@
 
 #include "entity/AudioBackendSupport.hpp"
 
+#include <yaml-cpp/yaml.h>
+
 namespace YADAW::Controller
 {
 YADAW::Entity::AudioBackendSupport::Backend backendFromConfig(const YAML::Node& node);

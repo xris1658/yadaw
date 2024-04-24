@@ -5,6 +5,9 @@
 #include "audio/util/AudioChannelGroup.hpp"
 #include "util/AtomicMutex.hpp"
 
+#include <mutex>
+#include <utility>
+
 namespace YADAW::Audio::Mixer
 {
 class Meter: public YADAW::Audio::Device::IAudioDevice

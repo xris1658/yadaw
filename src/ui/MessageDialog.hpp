@@ -3,6 +3,8 @@
 
 #include <QString>
 
+class QQuickWindow;
+
 namespace YADAW::UI
 {
 enum IconType
