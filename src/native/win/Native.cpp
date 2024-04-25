@@ -7,7 +7,7 @@
 
 #include <QList>
 
-#include <ShlObj_core.h>
+#include <ShlObj.h>
 #include <shellapi.h>
 #include <processthreadsapi.h>
 #include <synchapi.h>

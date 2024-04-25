@@ -16,7 +16,7 @@
 #include <realtimeapiset.h>
 #include <timezoneapi.h>
 #include <combaseapi.h>
-#include <ShlObj_core.h>
+#include <ShlObj.h>
 #include <synchapi.h>
 
 #include <MemoryBuffer.h>
