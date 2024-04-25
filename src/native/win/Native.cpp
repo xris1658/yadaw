@@ -14,6 +14,8 @@
 #include <timezoneapi.h>
 #include <realtimeapiset.h>
 
+#include <KnownFolders.h>
+
 #include <array>
 #include <bitset>
 #include <charconv>
@@ -31,27 +33,27 @@ using OneHunderdNanoSecondInterval = std::chrono::duration<
     std::ratio<1, 10000000>
 >;
 
-template<int CSIDL>
-class SHGetFolderHelper
+template<const KNOWNFOLDERID& FolderID>
+class SHGetKnownFolderHelper
 {
 private:
-    SHGetFolderHelper()
+    SHGetKnownFolderHelper()
     {
-        auto getFolderResult = SHGetFolderPathW(
-            nullptr,
-            CSIDL,
+        SHGetKnownFolderPath(
+            FolderID,
+            KF_FLAG_NO_ALIAS,
             NULL,
-            SHGFP_TYPE_CURRENT,
-            path_);
-        if(getFolderResult != S_OK)
-        {
-            path_[0] = '\0';
-        }
+            &path_
+        );
+    }
+    ~SHGetKnownFolderHelper()
+    {
+        CoTaskMemFree(path_);
     }
 public:
-    static SHGetFolderHelper& getFolderHelper()
+    static SHGetKnownFolderHelper& instance()
     {
-        static SHGetFolderHelper ret;
+        static SHGetKnownFolderHelper ret;
         return ret;
     }
     const wchar_t* operator()()
@@ -59,13 +61,15 @@ public:
         return path_;
     }
 private:
-    wchar_t path_[MAX_PATH];
+    wchar_t* path_ = nullptr;
 };
 
-template<int CSIDL>
-const QString& getFolderAsWCharArray()
+template<const KNOWNFOLDERID& KnownFolderID>
+const QString& getKnownFolderAsWCharArray()
 {
-    static auto ret = QString::fromWCharArray(SHGetFolderHelper<CSIDL>::getFolderHelper()());
+    static auto ret = QString::fromWCharArray(
+        SHGetKnownFolderHelper<KnownFolderID>::instance()()
+    );
     return ret;
 }
 
@@ -96,17 +100,17 @@ std::int64_t qpf()
 
 const QString& appDataFolder()
 {
-    return Impl::getFolderAsWCharArray<CSIDL_APPDATA>();
+    return Impl::getKnownFolderAsWCharArray<FOLDERID_RoamingAppData>();
 }
 
 const QString& programFilesFolder()
 {
-    return Impl::getFolderAsWCharArray<CSIDL_PROGRAM_FILES>();
+    return Impl::getKnownFolderAsWCharArray<FOLDERID_ProgramFiles>();
 }
 
 const QString& localAppDataFolder()
 {
-    return Impl::getFolderAsWCharArray<CSIDL_LOCAL_APPDATA>();
+    return Impl::getKnownFolderAsWCharArray<FOLDERID_LocalAppData>();
 }
 
 void openSpecialCharacterInput()
