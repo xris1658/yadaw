@@ -85,6 +85,9 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/Native.cpp
     src/native/win/VST3Native.cpp
     src/native/win/VestifalNative.cpp
+    src/native/win/WASAPIExclusiveBackend.cpp
+    src/native/win/WASAPIExclusiveBackendImpl.cpp
+    src/native/win/WASAPIExclusiveBackendImpl.hpp
     src/native/win/winrt/Async.hpp
     src/native/win/winrt/Forward.hpp
     src/native/win/winrt/QStringFromHString.cpp
@@ -437,6 +440,7 @@ set(YADAW_COMMON_SOURCES
     src/util/VectorUtil.hpp
     src/util/YAMLCppUtil.hpp
     src/util/ZeckendorfLogarithm.hpp
+    src/audio/backend/WASAPIExclusiveBackend.hpp
 )
 
 qt_add_executable(YADAW
