@@ -8,6 +8,7 @@
 class IMMDeviceEnumerator;
 class IMMDeviceCollection;
 class IMMDevice;
+class IAudioClient;
 class IAudioCaptureClient;
 class IAudioRenderClient;
 
@@ -20,17 +21,7 @@ namespace YADAW::Audio::Backend
 class WASAPIExclusiveBackend::Impl
 {
 public:
-    // YADAWWSPXCLSVSSN (YADAW WASAPI Exclusive Session)
-    static constexpr GUID sessionGUID = {
-        0x41444159,
-        0x5757,
-        0x5053,
-        {
-            0x58, 0x43, 0x4c, 0x53, 0x56, 0x53, 0x53, 0x4e
-        }
-    };
-public:
-    Impl();
+    Impl(std::uint32_t sampleRate, std::uint32_t frameCount);
     ~Impl();
 public:
     std::uint32_t inputDeviceCount() const;
@@ -39,6 +30,8 @@ public:
     std::optional<QString> outputDeviceIdAt(std::uint32_t index) const;
     std::optional<QString> inputDeviceNameAt(std::uint32_t index) const;
     std::optional<QString> outputDeviceNameAt(std::uint32_t index) const;
+    QString defaultInputDeviceID() const;
+    QString defaultOutputDeviceID() const;
     std::optional<std::uint32_t> findInputDeviceIndexById(const QString& id) const;
     std::optional<std::uint32_t> findOutputDeviceIndexById(const QString& id) const;
     std::optional<bool> isInputDeviceActivated(std::uint32_t index) const;
@@ -46,6 +39,8 @@ public:
     YADAW::Native::ErrorCodeType activateInputDevice(std::uint32_t index, bool activate);
     YADAW::Native::ErrorCodeType activateOutputDevice(std::uint32_t index, bool activate);
 private:
+    std::uint32_t sampleRate_;
+    std::uint32_t frameCount_;
     IMMDeviceEnumerator* deviceEnumerator_ = nullptr;
     IMMDeviceCollection* inputDeviceCollection_ = nullptr;
     IMMDeviceCollection* outputDeviceCollection_ = nullptr;
@@ -55,8 +50,10 @@ private:
     std::vector<QString> outputDeviceNames_;
     std::vector<QString> inputDeviceIDs_;
     std::vector<QString> outputDeviceIDs_;
-    std::vector<IAudioCaptureClient*> inputClients_;
-    std::vector<IAudioRenderClient*> outputClients_;
+    std::vector<IAudioClient*> inputClients_;
+    std::vector<IAudioClient*> outputClients_;
+    std::vector<IAudioCaptureClient*> captureClients_;
+    std::vector<IAudioRenderClient*> renderClients_;
 };
 }
 

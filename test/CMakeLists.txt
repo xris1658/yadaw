@@ -43,6 +43,18 @@ if(WIN32)
                           Qt6::Core
                           version
                           windowsapp)
+
+    add_executable(WASAPIExclusiveBackendTest
+                   ../src/audio/backend/WASAPIExclusiveBackend.hpp
+                   ../src/native/win/WASAPIExclusiveBackend.cpp
+                   ../src/native/win/WASAPIExclusiveBackendImpl.cpp
+                   ../src/native/win/WASAPIExclusiveBackendImpl.hpp
+                   ../src/util/IntegerRange.hpp
+                   WASAPIExclusiveBackendTest/main.cpp
+    )
+    target_link_libraries(WASAPIExclusiveBackendTest PRIVATE
+                          Qt6::Core avrt
+    )
 endif()
 
 if(LINUX)

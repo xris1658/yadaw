@@ -20,15 +20,21 @@ class WASAPIExclusiveBackend
         QString id;
     };
 public:
-    WASAPIExclusiveBackend();
+    WASAPIExclusiveBackend(std::uint32_t sampleRate, std::uint32_t frameCount);
     ~WASAPIExclusiveBackend();
 public:
-    std::uint32_t audioInputDeviceCount() const;
-    std::uint32_t audioOutputDeviceCount() const;
-    std::optional<QString> audioInputDeviceNameAt(std::uint32_t index) const;
-    std::optional<QString> audioOutputDeviceNameAt(std::uint32_t index) const;
-    std::optional<QString> audioInputDeviceIdAt(std::uint32_t index) const;
-    std::optional<QString> audioOutputDeviceIdAt(std::uint32_t index) const;
+    std::uint32_t inputDeviceCount() const;
+    std::uint32_t outputDeviceCount() const;
+    std::optional<QString> inputDeviceNameAt(std::uint32_t index) const;
+    std::optional<QString> outputDeviceNameAt(std::uint32_t index) const;
+    std::optional<QString> inputDeviceIdAt(std::uint32_t index) const;
+    std::optional<QString> outputDeviceIdAt(std::uint32_t index) const;
+    QString defaultInputDeviceId() const;
+    QString defaultOutputDeviceId() const;
+    std::optional<bool> isInputDeviceActivated(std::uint32_t index) const;
+    std::optional<bool> isOutputDeviceActivated(std::uint32_t index) const;
+    YADAW::Native::ErrorCodeType activateInputDevice(std::uint32_t index, bool activate);
+    YADAW::Native::ErrorCodeType activateOutputDevice(std::uint32_t index, bool activate);
 private:
     std::unique_ptr<Impl> pImpl_;
 };
