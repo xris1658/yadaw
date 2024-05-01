@@ -16,6 +16,8 @@ Q_INVOKABLE bool AudioBackendSupport::isBackendSupported(YADAW::Entity::AudioBac
         return YADAW::Audio::Backend::isBackendSupported<YADAW::Audio::Backend::AudioBackend::AudioGraph>;
     case Backend::ALSA:
         return YADAW::Audio::Backend::isBackendSupported<YADAW::Audio::Backend::AudioBackend::ALSA>;
+    case Backend::WASAPIExclusive:
+        return YADAW::Audio::Backend::isBackendSupported<YADAW::Audio::Backend::AudioBackend::WASAPIExclusive>;
     }
     return false;
 }
