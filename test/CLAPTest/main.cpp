@@ -213,7 +213,7 @@ void testPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, bool initializePlugin,
                         plugin.host().setAudioThreadId(std::this_thread::get_id());
                         plugin.startProcessing();
                         // Audio callback goes here...
-                        while(!stop.load(std::memory_order::memory_order_acquire))
+                        while(!stop.load(std::memory_order_acquire))
                         {
                             auto sleepTo =
                                 std::chrono::steady_clock::now() + std::chrono::microseconds(
@@ -240,7 +240,7 @@ void testPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, bool initializePlugin,
                     std::wprintf(L"No GUI available!");
                     getchar();
                 }
-                stop.store(true, std::memory_order::memory_order_release);
+                stop.store(true, std::memory_order_release);
                 audioThread.join();
                 plugin.deactivate();
             }

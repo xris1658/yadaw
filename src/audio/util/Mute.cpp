@@ -46,7 +46,7 @@ std::uint32_t Mute::latencyInSamples() const
 void Mute::process(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    auto automation = muteAutomation_.load(std::memory_order::memory_order_acquire);
+    auto automation = muteAutomation_.load(std::memory_order_acquire);
     (this->*processFuncs[automation != nullptr])(audioProcessData, automation);
 }
 

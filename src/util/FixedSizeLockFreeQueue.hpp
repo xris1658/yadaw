@@ -29,7 +29,7 @@ public:
 public:
     std::size_t size() const noexcept
     {
-        return end_.load(std::memory_order::memory_order_acquire) - begin_.load(std::memory_order::memory_order_acquire);
+        return end_.load(std::memory_order_acquire) - begin_.load(std::memory_order_acquire);
     }
     std::size_t empty() const noexcept
     {
@@ -46,11 +46,11 @@ public:
 private:
     ALWAYS_INLINE void bumpUpEnd()
     {
-        end_.fetch_add(1, std::memory_order::memory_order_acq_rel);
+        end_.fetch_add(1, std::memory_order_acq_rel);
     }
     ALWAYS_INLINE void bumpUpBegin()
     {
-        begin_.fetch_add(1, std::memory_order::memory_order_acq_rel);
+        begin_.fetch_add(1, std::memory_order_acq_rel);
     }
 public:
     bool push(const T& obj)
@@ -58,7 +58,7 @@ public:
         if(!full())
         {
             // 1. Construct at tail
-            auto dest = end_.load(std::memory_order::memory_order_acquire) % (Capacity + 1);
+            auto dest = end_.load(std::memory_order_acquire) % (Capacity + 1);
             new(data_.data() + dest) T(obj);
             // 2. Increase tail
             bumpUpEnd();
@@ -71,7 +71,7 @@ public:
         if(!full())
         {
             // 1. Construct at tail
-            auto dest = end_.load(std::memory_order::memory_order_acquire) % (Capacity + 1);
+            auto dest = end_.load(std::memory_order_acquire) % (Capacity + 1);
             new(data_.data() + dest) T(std::move(obj));
             // 2. Increase tail
             bumpUpEnd();
@@ -85,7 +85,7 @@ public:
         if(!full())
         {
             // 1. Construct at tail
-            auto dest = end_.load(std::memory_order::memory_order_acquire) % (Capacity + 1);
+            auto dest = end_.load(std::memory_order_acquire) % (Capacity + 1);
             new(data_.data() + dest) T(std::forward<Args>(args)...);
             // 2. Increase tail
             bumpUpEnd();
@@ -99,7 +99,7 @@ public:
         {
             // 1. Move and destruct at head
             auto ptr = AlignHelper<T>::fromAligned(data_.data()) +
-                (begin_.load(std::memory_order::memory_order_acquire) % (Capacity + 1));
+                (begin_.load(std::memory_order_acquire) % (Capacity + 1));
             if(std::is_move_assignable_v<T>)
             {
                 obj = std::move(*ptr);
@@ -124,7 +124,7 @@ public:
         {
             // 1. Move and destruct at head
             auto ptr = AlignHelper<T>::fromAligned(data_.data()) +
-                (begin_.load(std::memory_order::memory_order_acquire) % (Capacity + 1));
+                (begin_.load(std::memory_order_acquire) % (Capacity + 1));
             if(!std::is_trivially_destructible_v<T>)
             {
                 ptr->~T();

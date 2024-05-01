@@ -28,24 +28,24 @@ public:
     {
         if(realtimeThreadRunning)
         {
-            while(updated_.load(std::memory_order::memory_order_acquire)) {}
+            while(updated_.load(std::memory_order_acquire)) {}
         }
         data_[1] = std::move(data);
-        updated_.store(true, std::memory_order::memory_order_release);
+        updated_.store(true, std::memory_order_release);
     }
     void swapIfNeeded()
     {
-        if(updated_.load(std::memory_order::memory_order_acquire))
+        if(updated_.load(std::memory_order_acquire))
         {
             std::swap(data_[0], data_[1]);
-            updated_.store(false, std::memory_order::memory_order_release);
+            updated_.store(false, std::memory_order_release);
         }
     }
     void disposeOld(bool realtimeThreadRunning = true)
     {
         if(realtimeThreadRunning)
         {
-            while(updated_.load(std::memory_order::memory_order_acquire)) {}
+            while(updated_.load(std::memory_order_acquire)) {}
         }
         data_[1].reset();
     }

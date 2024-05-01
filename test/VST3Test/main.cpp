@@ -354,7 +354,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                         processContext.projectTimeSamples = 0;
                         decltype(std::chrono::steady_clock::now()) sleepTo;
                         // Audio callback goes here...
-                        while(!stop.load(std::memory_order::memory_order_acquire))
+                        while(!stop.load(std::memory_order_acquire))
                         {
                             auto now = std::chrono::steady_clock::now();
                             {
@@ -389,7 +389,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     std::wprintf(L"No GUI available!");
                     getchar();
                 }
-                stop.store(true, std::memory_order::memory_order_release);
+                stop.store(true, std::memory_order_release);
                 audioThread.join();
                 plugin.stopProcessing();
                 timer.stop();

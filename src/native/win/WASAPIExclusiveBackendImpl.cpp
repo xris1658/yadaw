@@ -532,12 +532,12 @@ YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateOutputDevice(
 
 void WASAPIExclusiveBackend::Impl::audioThread()
 {
-    audioThreadRunning_.store(true, std::memory_order::memory_order_release);
+    audioThreadRunning_.store(true, std::memory_order_release);
     DWORD mmcssTaskIndex;
     auto mmcssHandle = AvSetMmThreadCharacteristics(
         L"Pro Audio", &mmcssTaskIndex
     );
-    while(audioThreadRunning_.load(std::memory_order::memory_order_acquire))
+    while(audioThreadRunning_.load(std::memory_order_acquire))
     {
         //
     }

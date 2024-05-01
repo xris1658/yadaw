@@ -99,7 +99,7 @@ int main(int argc, char** argv)
                             std::thread audioThread(
                                 [&run, &plugin, &inputsAsPtr, &outputsAsPtr]
                                 {
-                                    while(run.load(std::memory_order::memory_order_acquire))
+                                    while(run.load(std::memory_order_acquire))
                                     {
                                         auto next = std::chrono::steady_clock::now() + 10ms;
                                         plugin.effect()->processReplacing(plugin.effect(), inputsAsPtr.data(), outputsAsPtr.data(), 480);
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
                             std::thread idleThread(
                                 [&run, effect = plugin.effect()]
                                 {
-                                    while(run.load(std::memory_order::memory_order_acquire))
+                                    while(run.load(std::memory_order_acquire))
                                     {
                                         auto next = std::chrono::steady_clock::now() + 20ms;
                                         runDispatcher(effect, EffectOpcode::effectEditorIdle);
@@ -131,7 +131,7 @@ int main(int argc, char** argv)
                                 std::printf("No GUI available!");
                                 getchar();
                             }
-                            run.store(false, std::memory_order::memory_order_release);
+                            run.store(false, std::memory_order_release);
                             audioThread.join();
                             idleThread.join();
                             plugin.stopProcessing();

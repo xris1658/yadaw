@@ -52,7 +52,7 @@ public:
     void process();
     std::int64_t processTime()
     {
-        return processTime_.load(std::memory_order::memory_order_acquire);
+        return processTime_.load(std::memory_order_acquire);
     }
 private:
     void updateProcessSequence();

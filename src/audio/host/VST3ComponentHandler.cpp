@@ -112,7 +112,7 @@ tresult VST3ComponentHandler::beginEdit(ParamID id)
 {
     // std::printf("beginEdit(%u)\n", id);
     auto hostBufferIndex = hostBufferIndex_.load(
-        std::memory_order::memory_order_acquire);
+        std::memory_order_acquire);
     auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
     if(auto index = doBeginEdit(hostBufferIndex, id, timestamp); index != -1)
     {
@@ -126,7 +126,7 @@ tresult VST3ComponentHandler::beginEdit(ParamID id)
 tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue)
 {
     auto hostBufferIndex = hostBufferIndex_.load(
-        std::memory_order::memory_order_acquire
+        std::memory_order_acquire
     );
     auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
     auto editingIt = editingParameters_.find(id);
@@ -259,7 +259,7 @@ void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond
 {
     timestamp_ = switchTimestampInNanosecond;
     outputParameterChanges_[hostBufferIndex_.fetch_xor(1)].clearPointsInQueue();
-    const auto hostBufferIndex = hostBufferIndex_.load(std::memory_order::memory_order_acquire);
+    const auto hostBufferIndex = hostBufferIndex_.load(std::memory_order_acquire);
     inputParameterChanges_[hostBufferIndex].clearPointsInQueue();
     auto pluginBufferIndex = hostBufferIndex ^ 1;
     // Add initial values before giving it to the plugin to process.
@@ -284,7 +284,7 @@ void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond
 
 void VST3ComponentHandler::consumeOutputParameterChanges(std::int64_t timestampInNanosecond)
 {
-    auto& outputParameterChanges = outputParameterChanges_[hostBufferIndex_.load(std::memory_order::memory_order_acquire)];
+    auto& outputParameterChanges = outputParameterChanges_[hostBufferIndex_.load(std::memory_order_acquire)];
     auto* editController = plugin_->editController();
     auto outputParameterChangeCount = outputParameterChanges.getParameterCount();
     FOR_RANGE0(i, outputParameterChangeCount)

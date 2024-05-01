@@ -45,7 +45,7 @@ public:
 public:
     std::size_t size() const noexcept
     {
-        return end_.load(std::memory_order::memory_order_acquire) - begin_.load(std::memory_order::memory_order_acquire);
+        return end_.load(std::memory_order_acquire) - begin_.load(std::memory_order_acquire);
     }
     std::size_t empty() const noexcept
     {
@@ -62,18 +62,18 @@ public:
 private:
     ALWAYS_INLINE void bumpUpEnd()
     {
-        end_.fetch_add(1, std::memory_order::memory_order_acq_rel);
+        end_.fetch_add(1, std::memory_order_acq_rel);
     }
     ALWAYS_INLINE void bumpUpBegin()
     {
-        begin_.fetch_add(1, std::memory_order::memory_order_acq_rel);
+        begin_.fetch_add(1, std::memory_order_acq_rel);
     }
 public:
     bool push(const T& obj)
     {
         if(!full())
         {
-            auto dest = end_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1);
+            auto dest = end_.load(std::memory_order_acquire) % (capacity_ + 1);
             new (data_ + dest) T(obj);
             bumpUpEnd();
             return true;
@@ -84,7 +84,7 @@ public:
     {
         if(!full())
         {
-            auto dest = end_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1);
+            auto dest = end_.load(std::memory_order_acquire) % (capacity_ + 1);
             new (data_ + dest) T(std::move(obj));
             bumpUpEnd();
             return true;
@@ -96,7 +96,7 @@ public:
     {
         if(!full())
         {
-            auto dest = end_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1);
+            auto dest = end_.load(std::memory_order_acquire) % (capacity_ + 1);
             new (data_ + dest) T(std::forward<Args>(args)...);
             bumpUpEnd();
             return true;
@@ -107,7 +107,7 @@ public:
     {
         if(!empty())
         {
-            auto ptr = AlignHelper<T>::fromAligned(data_ + (begin_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1)));
+            auto ptr = AlignHelper<T>::fromAligned(data_ + (begin_.load(std::memory_order_acquire) % (capacity_ + 1)));
             if(std::is_move_assignable_v<T>)
             {
                 obj = std::move(*ptr);
@@ -129,7 +129,7 @@ public:
     {
         if(!empty())
         {
-            auto ptr = AlignHelper<T>::fromAligned(data_ + (begin_.load(std::memory_order::memory_order_acquire) % (capacity_ + 1)));
+            auto ptr = AlignHelper<T>::fromAligned(data_ + (begin_.load(std::memory_order_acquire) % (capacity_ + 1)));
             if(!std::is_trivially_destructible_v<T>)
             {
                 ptr->~T();

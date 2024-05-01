@@ -136,7 +136,7 @@ void AudioEngine::process()
     );
     processTime_.store(
         YADAW::Util::currentTimeValueInNanosecond() - now,
-        std::memory_order::memory_order_release
+        std::memory_order_release
     );
 }
 
