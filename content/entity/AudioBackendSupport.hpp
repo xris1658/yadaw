@@ -15,14 +15,14 @@ public:
         AudioGraph,
         ALSA,
         WASAPIExclusive,
-        Last = ALSA
+        Last = WASAPIExclusive
     };
     Q_ENUM(Backend)
 public:
     static constexpr const char* backendNames[] = {
         "Off",
         "AudioGraph",
-        "ALSA"
+        "ALSA",
         "WASAPI Exclusive"
     };
 public:

@@ -39,6 +39,7 @@ set(CONTENT_CPP_FILES
     model/ISortFilterListModel.hpp
     model/ISpeakerListModel.hpp
     model/ITrackListModel.hpp
+    # model/CombinationListProxyModel.hpp
     model/ListModelListModel.hpp
     model/SortFilterProxyListModel.hpp
     model/SortOrderModel.hpp
@@ -141,6 +142,7 @@ set(CONTENT_QML_FILES
     TrackHeader.qml
     VestifalIcon.qml
     VST3Icon.qml
+    WASAPIExclusiveSettings.qml
     WindowIcon.qml
     )
 

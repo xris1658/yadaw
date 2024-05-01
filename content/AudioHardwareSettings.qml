@@ -130,6 +130,11 @@ Item {
             firstColumnWidth: root.firstColumnWidth
             secondColumnWidth: root.secondColumnWidth
         }
+        WASAPIExclusiveSettings {
+            id: wasapiExclusiveSettings
+            firstColumnWidth: root.firstColumnWidth
+            secondColumnWidth: root.secondColumnWidth
+        }
     }
     AudioBusConfigurationWindow {
         id: audioBusConfigurationWindow

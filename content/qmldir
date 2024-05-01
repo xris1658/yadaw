@@ -97,4 +97,5 @@ ToolTip 1.0 ToolTip.qml
 TrackHeader 1.0 TrackHeader.qml
 VestifalIcon 1.0 VestifalIcon.qml
 VST3Icon 1.0 VST3Icon.qml
+WASAPIExclusiveSettings 1.0 WASAPIExclusiveSettings.qml
 WindowIcon 1.0 WindowIcon.qml
