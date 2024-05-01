@@ -9,11 +9,13 @@ class IMMDeviceEnumerator;
 class IMMDeviceCollection;
 class IMMDevice;
 class IAudioClient;
+class IAudioClock;
 class IAudioCaptureClient;
 class IAudioRenderClient;
 
 #include <QString>
 
+#include <atomic>
 #include <thread>
 #include <vector>
 
@@ -39,8 +41,11 @@ public:
     std::optional<bool> isOutputDeviceActivated(std::uint32_t index) const;
     YADAW::Native::ErrorCodeType activateInputDevice(std::uint32_t index, bool activate);
     YADAW::Native::ErrorCodeType activateOutputDevice(std::uint32_t index, bool activate);
+    void start();
+    void stop();
 private:
     YADAW::Native::ErrorCodeType activateDevice(bool isInput, std::uint32_t index, bool activate);
+    void audioThread();
 private:
     std::uint32_t sampleRate_;
     std::uint32_t frameCount_;
@@ -57,7 +62,10 @@ private:
     std::vector<IAudioClient*> outputClients_;
     std::vector<IAudioCaptureClient*> captureClients_;
     std::vector<IAudioRenderClient*> renderClients_;
+    std::vector<IAudioClock*> inputClocks_;
+    std::vector<IAudioClock*> outputClocks_;
     std::thread audioThread_;
+    std::atomic_bool audioThreadRunning_;
 };
 }
 

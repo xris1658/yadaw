@@ -8,6 +8,7 @@
 // https://learn.microsoft.com/en-us/windows/win32/api/propkeydef/nf-propkeydef-define_propertykey#remarks
 #include <initguid.h>
 
+#include <avrt.h>
 #include <combaseapi.h>
 #include <mmdeviceapi.h>
 #include <audioclient.h>
@@ -16,16 +17,8 @@
 
 #include <random>
 
-enum class SampleFormat
-{
-    Float32,
-    Int32,
-    Int24,
-    Int16,
-    Int8
-};
-
-void fillFormat(WAVEFORMATEXTENSIBLE& outFormat, SampleFormat format,
+void fillFormat(WAVEFORMATEXTENSIBLE& outFormat,
+    YADAW::Audio::Backend::WASAPIExclusiveBackend::SampleFormat format,
     std::uint32_t sampleRate, std::uint32_t channelCount, bool extensible)
 {
     constexpr std::uint32_t byteSize[] = {4U, 4U, 3U, 2U, 1U};
@@ -37,7 +30,7 @@ void fillFormat(WAVEFORMATEXTENSIBLE& outFormat, SampleFormat format,
     if(extensible)
     {
         auto subFormat =
-            format == SampleFormat::Float32?
+            format == YADAW::Audio::Backend::WASAPIExclusiveBackend::SampleFormat::Float32?
                 KSDATAFORMAT_SUBTYPE_IEEE_FLOAT:
                 KSDATAFORMAT_SUBTYPE_PCM;
         outFormat.Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
@@ -49,7 +42,7 @@ void fillFormat(WAVEFORMATEXTENSIBLE& outFormat, SampleFormat format,
     else
     {
         outFormat.Format.wFormatTag =
-            format == SampleFormat::Float32?
+            format == YADAW::Audio::Backend::WASAPIExclusiveBackend::SampleFormat::Float32?
                 WAVE_FORMAT_IEEE_FLOAT:
                 WAVE_FORMAT_PCM;
         outFormat.Format.cbSize = 0;
@@ -95,6 +88,7 @@ WASAPIExclusiveBackend::Impl::Impl(std::uint32_t sampleRate, std::uint32_t frame
     captureClients_.resize(audioInputDeviceCount, nullptr);
     inputDeviceNames_.resize(audioInputDeviceCount);
     inputDeviceIDs_.resize(audioInputDeviceCount);
+    inputClocks_.resize(audioInputDeviceCount, nullptr);
     FOR_RANGE0(i, audioInputDeviceCount)
     {
         IPropertyStore* propertyStore = nullptr;
@@ -122,6 +116,7 @@ WASAPIExclusiveBackend::Impl::Impl(std::uint32_t sampleRate, std::uint32_t frame
     renderClients_.resize(audioOutputDeviceCount, nullptr);
     outputDeviceNames_.resize(audioOutputDeviceCount);
     outputDeviceIDs_.resize(audioOutputDeviceCount);
+    outputClocks_.resize(audioOutputDeviceCount, nullptr);
     FOR_RANGE0(i, audioOutputDeviceCount)
     {
         IPropertyStore* propertyStore = nullptr;
@@ -164,17 +159,11 @@ WASAPIExclusiveBackend::Impl::~Impl()
 {
     FOR_RANGE0(i, captureClients_.size())
     {
-        if(captureClients_[i])
-        {
-            activateInputDevice(i, false);
-        }
+        activateInputDevice(i, false);
     }
     FOR_RANGE0(i, renderClients_.size())
     {
-        if(renderClients_[i])
-        {
-            activateOutputDevice(i, false);
-        }
+        activateOutputDevice(i, false);
     }
     inputDeviceCollection_->Release();
     outputDeviceCollection_->Release();
@@ -324,6 +313,7 @@ YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateDevice(
         {
             auto& devices = isInput? inputDevices_: outputDevices_;
             auto& clients = isInput? inputClients_: outputClients_;
+            auto& clocks = isInput? inputClocks_: outputClocks_;
             ret = devices[index]->Activate(
                 __uuidof(IAudioClient),
                 CLSCTX_INPROC_SERVER,
@@ -472,16 +462,25 @@ YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateDevice(
                 {
                     UINT32 bufferSize;
                     client->GetBufferSize(&bufferSize);
+                    client->GetService(__uuidof(IAudioClock),
+                        reinterpret_cast<void**>(clocks.data() + index)
+                    );
                     if(isInput)
                     {
-                        client->GetService(__uuidof(IAudioCaptureClient),
-                            reinterpret_cast<void**>(captureClients_.data() + index)
+                        client->GetService(
+                            __uuidof(IAudioCaptureClient),
+                            reinterpret_cast<void**>(
+                                captureClients_.data() + index
+                            )
                         );
                     }
                     else
                     {
-                        client->GetService(__uuidof(IAudioRenderClient),
-                            reinterpret_cast<void**>(renderClients_.data() + index)
+                        client->GetService(
+                            __uuidof(IAudioRenderClient),
+                            reinterpret_cast<void**>(
+                                renderClients_.data() + index
+                            )
                         );
                     }
                 }
@@ -491,20 +490,29 @@ YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateDevice(
         {
             if(isInput)
             {
-                captureClients_[index]->Release();
-                captureClients_[index] = nullptr;
-                inputClients_[index]->Reset();
-                inputClients_[index]->Release();
-                inputClients_[index] = nullptr;
+                if(inputClients_[index])
+                {
+                    inputClocks_[index]->Release();
+                    captureClients_[index]->Release();
+                    captureClients_[index] = nullptr;
+                    inputClients_[index]->Reset();
+                    inputClients_[index]->Release();
+                    inputClients_[index] = nullptr;
+                }
             }
             else
             {
-                renderClients_[index]->Release();
-                renderClients_[index] = nullptr;
-                outputClients_[index]->Reset();
-                outputClients_[index]->Release();
-                outputClients_[index] = nullptr;
+                if(outputClients_[index])
+                {
+                    outputClocks_[index]->Release();
+                    renderClients_[index]->Release();
+                    renderClients_[index] = nullptr;
+                    outputClients_[index]->Reset();
+                    outputClients_[index]->Release();
+                    outputClients_[index] = nullptr;
+                }
             }
+            ret = S_OK;
         }
     }
     return *reinterpret_cast<YADAW::Native::ErrorCodeType*>(&ret);
@@ -520,6 +528,23 @@ YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateOutputDevice(
     std::uint32_t index, bool activate)
 {
     return activateDevice(false, index, activate);
+}
+
+void WASAPIExclusiveBackend::Impl::audioThread()
+{
+    audioThreadRunning_.store(true, std::memory_order::memory_order_release);
+    DWORD mmcssTaskIndex;
+    auto mmcssHandle = AvSetMmThreadCharacteristics(
+        L"Pro Audio", &mmcssTaskIndex
+    );
+    while(audioThreadRunning_.load(std::memory_order::memory_order_acquire))
+    {
+        //
+    }
+    if(mmcssHandle)
+    {
+        AvRevertMmThreadCharacteristics(mmcssHandle);
+    }
 }
 }
 

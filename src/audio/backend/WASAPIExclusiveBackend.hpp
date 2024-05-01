@@ -13,12 +13,17 @@ namespace YADAW::Audio::Backend
 {
 class WASAPIExclusiveBackend
 {
-    class Impl;
-    class DeviceInfo
+public:
+    enum class SampleFormat
     {
-        QString name;
-        QString id;
+        Float32,
+        Int32,
+        Int24,
+        Int16,
+        Int8
     };
+private:
+    class Impl;
 public:
     WASAPIExclusiveBackend(std::uint32_t sampleRate, std::uint32_t frameCount);
     ~WASAPIExclusiveBackend();
