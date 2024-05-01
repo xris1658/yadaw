@@ -33,4 +33,17 @@ QtObject {
     onMessageDialog: (message, title, icon, modal) => {
         Global.messageDialog(message, title, icon, modal);
     }
+    signal setScanningDirectories(value: bool)
+    onSetScanningDirectories: (value) => {
+        mainWindow.pluginScanProgressWindow.scanningDirectories = value;
+    }
+    signal setPluginScanTotalCount(count: int)
+    onSetPluginScanTotalCount: (count) => {
+        mainWindow.pluginScanProgressWindow.totalFileCount = count;
+    }
+    signal setPluginScanProgress(count: int, currentName: string);
+    onSetPluginScanProgress: (count, currentName) => {
+        mainWindow.pluginScanProgressWindow.currentFileIndex = count;
+        mainWindow.pluginScanProgressWindow.currentFileName = currentName;
+    }
 }

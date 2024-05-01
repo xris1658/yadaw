@@ -148,4 +148,14 @@ Item {
             }
         }
     }
+    onScanningChanged: {
+        if(scanning) {
+            EventReceiver.mainWindow.pluginScanProgressWindow.visible = true;
+            EventReceiver.mainWindow.pluginScanProgressWindow.showNormal();
+        }
+        else {
+            EventReceiver.mainWindow.pluginScanProgressWindow.visible = false;
+            EventReceiver.mainWindow.pluginScanProgressWindow.close();
+        }
+    }
 }

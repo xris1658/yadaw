@@ -110,6 +110,7 @@ set(CONTENT_QML_FILES
     PluginIcon.qml
     PluginRouteEditor.qml
     PluginRouteEditorWindow.qml
+    PluginScanProgressWindow.qml
     PluginSelector.qml
     PluginSettings.qml
     PluginWindow.qml

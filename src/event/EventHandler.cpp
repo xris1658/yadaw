@@ -108,6 +108,15 @@ void EventHandler::connectToEventReceiver(QObject* receiver)
         receiver, SIGNAL(setSplashScreenText(QString)));
     QObject::connect(this, SIGNAL(pluginScanComplete()),
         receiver, SIGNAL(pluginScanComplete()));
+    QObject::connect(this, SIGNAL(setPluginScanTotalCount(int)),
+        receiver, SIGNAL(setPluginScanTotalCount(int)),
+        Qt::ConnectionType::QueuedConnection);
+    QObject::connect(this, SIGNAL(setScanningDirectories(bool)),
+        receiver, SIGNAL(setScanningDirectories(bool)),
+        Qt::ConnectionType::QueuedConnection);
+    QObject::connect(this, SIGNAL(setPluginScanProgress(int, QString)),
+        receiver, SIGNAL(setPluginScanProgress(int, QString)),
+        Qt::ConnectionType::QueuedConnection);
 }
 
 void EventHandler::onStartInitializingApplication()
@@ -516,31 +525,45 @@ void EventHandler::onStartPluginScan()
 {
     std::thread([this]()
     {
+        setScanningDirectories(true);
         YADAW::DAO::removeAllPluginCategories();
         YADAW::DAO::removeAllPlugins();
         YADAW::Controller::appPluginListModel().clear();
         const auto& model = YADAW::Controller::appPluginDirectoryListModel();
         auto itemCount = model.itemCount();
         std::vector<std::vector<QString>> libLists;
+        int libCount = 0;
         FOR_RANGE0(i, itemCount)
         {
             QDir dir(model[i]);
             if(dir.exists())
             {
-                libLists.emplace_back(YADAW::Controller::scanDirectory(dir, true, true/*FIXME*/));
+                auto& libList = libLists.emplace_back(
+                    YADAW::Controller::scanDirectory(dir, true, true/*FIXME*/)
+                );
+                libCount += libList.size();
             }
         }
+        setScanningDirectories(false);
+        setPluginScanTotalCount(libCount);
+        int currentIndex = 0;
         std::deque<YADAW::Controller::PluginScanResult> storeToDatabase;
         for(auto& libList: libLists)
         {
             for(auto& lib: libList)
             {
+                auto name = QFileInfo(lib).completeBaseName();
+                setPluginScanProgress(currentIndex++, name);
                 lib = QDir::toNativeSeparators(lib);
-                if(std::none_of(storeToDatabase.begin(), storeToDatabase.end(),
-                    [&lib](const YADAW::Controller::PluginScanResult& rhs)
-                    {
-                        return rhs.pluginInfo.path == lib;
-                    }))
+                if(
+                    std::none_of(
+                        storeToDatabase.begin(), storeToDatabase.end(),
+                        [&lib](const YADAW::Controller::PluginScanResult& rhs)
+                        {
+                            return rhs.pluginInfo.path == lib;
+                        }
+                    )
+                )
                 {
                     const auto& results = YADAW::Controller::scanSingleLibraryFile(lib);
                     for(const auto& result: results)

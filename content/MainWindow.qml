@@ -45,6 +45,8 @@ ApplicationWindow {
     property var pluginWindow: null
     property var genericPluginEditor: null
 
+    property PluginScanProgressWindow pluginScanProgressWindow: pluginScanProgressWindow
+
     onCurrentTranslationIndexChanged: {
         if(opened) {
             EventSender.setTranslationIndex(currentTranslationIndex);
@@ -882,6 +884,9 @@ ApplicationWindow {
     PluginRouteEditorWindow {
         id: pluginRouteEditorWindow
         visible: false
+    }
+    PluginScanProgressWindow {
+        id: pluginScanProgressWindow
     }
     Timer {
         id: cpuUsageTimer

@@ -65,6 +65,7 @@ PlayIcon 1.0 PlayIcon.qml
 PluginIcon 1.0 PluginIcon.qml
 PluginRouteEditor 1.0 PluginRouteEditor.qml
 PluginRouteEditorWindow 1.0 PluginRouteEditorWindow.qml
+PluginScanProgressWindow 1.0 PluginScanProgressWindow.qml
 PluginSelector 1.0 PluginSelector.qml
 PluginSettings 1.0 PluginSettings.qml
 PluginWindow 1.0 PluginWindow.qml

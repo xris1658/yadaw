@@ -20,6 +20,9 @@ signals:
     void setQtCopyrightYear(const QString& copoyrightYear);
     void setSplashScreenText(const QString& text);
     void pluginScanComplete();
+    void setScanningDirectories(bool value);
+    void setPluginScanTotalCount(int count);
+    void setPluginScanProgress(int count, const QString& currentName);
 public slots:
     void onStartInitializingApplication();
     void onOpenMainWindow();
