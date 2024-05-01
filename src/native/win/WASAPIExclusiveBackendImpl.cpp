@@ -2,6 +2,7 @@
 
 #include "WASAPIExclusiveBackendImpl.hpp"
 
+#include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
 
 // https://learn.microsoft.com/en-us/windows/win32/api/propkeydef/nf-propkeydef-define_propertykey#remarks
@@ -20,48 +21,43 @@ enum class SampleFormat
     Float32,
     Int32,
     Int24,
-    Int20,
     Int16,
-    Int8,
-    None
+    Int8
 };
 
-constexpr std::uint32_t channelCount[] = {8U, 6U, 4U, 2U, 1U};
-
-constexpr DWORD channelConfig[] = {
-    SPEAKER_FRONT_LEFT
-  | SPEAKER_FRONT_RIGHT
-  | SPEAKER_FRONT_CENTER
-  | SPEAKER_FRONT_LEFT_OF_CENTER
-  | SPEAKER_FRONT_RIGHT_OF_CENTER
-  | SPEAKER_BACK_LEFT
-  | SPEAKER_BACK_RIGHT
-  | SPEAKER_LOW_FREQUENCY,
-    SPEAKER_FRONT_LEFT
-  | SPEAKER_FRONT_RIGHT
-  | SPEAKER_FRONT_CENTER
-  | SPEAKER_FRONT_LEFT_OF_CENTER
-  | SPEAKER_FRONT_RIGHT_OF_CENTER
-  | SPEAKER_LOW_FREQUENCY,
-    SPEAKER_FRONT_LEFT
-  | SPEAKER_FRONT_RIGHT
-  | SPEAKER_BACK_LEFT
-  | SPEAKER_BACK_RIGHT,
-    SPEAKER_FRONT_LEFT
-  | SPEAKER_FRONT_RIGHT,
-  SPEAKER_FRONT_CENTER
-};
+void fillFormat(WAVEFORMATEXTENSIBLE& outFormat, SampleFormat format,
+    std::uint32_t sampleRate, std::uint32_t channelCount, bool extensible)
+{
+    constexpr std::uint32_t byteSize[] = {4U, 4U, 3U, 2U, 1U};
+    outFormat.Format.nChannels = channelCount;
+    outFormat.Format.nSamplesPerSec = sampleRate;
+    outFormat.Format.nAvgBytesPerSec = byteSize[YADAW::Util::underlyingValue(format)] * sampleRate * channelCount;
+    outFormat.Format.nBlockAlign = byteSize[YADAW::Util::underlyingValue(format)] * channelCount;
+    outFormat.Format.wBitsPerSample = byteSize[YADAW::Util::underlyingValue(format)] * 8;
+    if(extensible)
+    {
+        auto subFormat =
+            format == SampleFormat::Float32?
+                KSDATAFORMAT_SUBTYPE_IEEE_FLOAT:
+                KSDATAFORMAT_SUBTYPE_PCM;
+        outFormat.Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
+        outFormat.Format.cbSize = 22;
+        outFormat.SubFormat = subFormat;
+        outFormat.Samples.wValidBitsPerSample = outFormat.Format.wBitsPerSample;
+        outFormat.dwChannelMask = SPEAKER_ALL;
+    }
+    else
+    {
+        outFormat.Format.wFormatTag =
+            format == SampleFormat::Float32?
+                WAVE_FORMAT_IEEE_FLOAT:
+                WAVE_FORMAT_PCM;
+        outFormat.Format.cbSize = 0;
+    }
+}
 
 namespace YADAW::Audio::Backend
 {
-namespace Impl
-{
-SampleFormat getHighestFormatSupported(IAudioClient& client)
-{
-return SampleFormat::None;
-}
-}
-
 WASAPIExclusiveBackend::Impl::Impl(std::uint32_t sampleRate, std::uint32_t frameCount):
     sampleRate_(sampleRate), frameCount_(frameCount)
 {
@@ -93,7 +89,7 @@ WASAPIExclusiveBackend::Impl::Impl(std::uint32_t sampleRate, std::uint32_t frame
         //
     }
     UINT audioInputDeviceCount = 0;
-    inputDeviceCollection_->GetCount(&audioInputDeviceCount);
+    auto getInputCountResult = inputDeviceCollection_->GetCount(&audioInputDeviceCount);
     inputDevices_.resize(audioInputDeviceCount, nullptr);
     inputClients_.resize(audioInputDeviceCount, nullptr);
     captureClients_.resize(audioInputDeviceCount, nullptr);
@@ -120,7 +116,7 @@ WASAPIExclusiveBackend::Impl::Impl(std::uint32_t sampleRate, std::uint32_t frame
         propertyStore->Release();
     }
     UINT audioOutputDeviceCount = 0;
-    outputDeviceCollection_->GetCount(&audioOutputDeviceCount);
+    auto getOutputCountResult = outputDeviceCollection_->GetCount(&audioOutputDeviceCount);
     outputDevices_.resize(audioOutputDeviceCount, nullptr);
     outputClients_.resize(audioOutputDeviceCount, nullptr);
     renderClients_.resize(audioOutputDeviceCount, nullptr);
@@ -166,27 +162,19 @@ WASAPIExclusiveBackend::Impl::Impl(std::uint32_t sampleRate, std::uint32_t frame
 
 WASAPIExclusiveBackend::Impl::~Impl()
 {
-    for(auto client: captureClients_)
+    FOR_RANGE0(i, captureClients_.size())
     {
-        if(client)
+        if(captureClients_[i])
         {
-            client->Release();
+            activateInputDevice(i, false);
         }
     }
-    for(auto client: renderClients_)
+    FOR_RANGE0(i, renderClients_.size())
     {
-        if(client)
+        if(renderClients_[i])
         {
-            client->Release();
+            activateOutputDevice(i, false);
         }
-    }
-    for(auto device: inputDevices_)
-    {
-        device->Release();
-    }
-    for(auto device: outputDevices_)
-    {
-        device->Release();
     }
     inputDeviceCollection_->Release();
     outputDeviceCollection_->Release();
@@ -325,23 +313,26 @@ std::optional<bool> WASAPIExclusiveBackend::Impl::isOutputDeviceActivated(
     return std::nullopt;
 }
 
-YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateInputDevice(
-    std::uint32_t index, bool activate)
+YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateDevice(
+    bool isInput, std::uint32_t index, bool activate)
 {
     auto ret = E_INVALIDARG;
-    if(index < inputDeviceCount())
+    auto count = isInput? inputDeviceCount(): outputDeviceCount();
+    if(index < count)
     {
         if(activate)
         {
-            ret = inputDevices_[index]->Activate(
+            auto& devices = isInput? inputDevices_: outputDevices_;
+            auto& clients = isInput? inputClients_: outputClients_;
+            ret = devices[index]->Activate(
                 __uuidof(IAudioClient),
                 CLSCTX_INPROC_SERVER,
                 NULL,
-                reinterpret_cast<void**>(inputClients_.data() + index)
+                reinterpret_cast<void**>(clients.data() + index)
             );
             if(ret == S_OK)
             {
-                auto client = inputClients_[index];
+                auto client = clients[index];
                 // RANT: Negotiating audio device config in WASAPI exclusive
                 // mode is somewhat difficult.
                 // - We cannot retrieve a suitable config for exclusive mode
@@ -383,20 +374,20 @@ YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateInputDevice(
 
                 WAVEFORMATEXTENSIBLE exclusiveFormat;
                 WAVEFORMATEX* formatBase = nullptr;
-                auto getMixFormatResult = client->GetMixFormat(&formatBase);
-                if(getMixFormatResult == S_OK)
+                ret = client->GetMixFormat(&formatBase);
+                if(ret == S_OK)
                 {
                     auto& extensibleFormatBase = *reinterpret_cast<WAVEFORMATEXTENSIBLE*>(formatBase);
                     exclusiveFormat = extensibleFormatBase;
-                    CoTaskMemFree(formatBase);
                     // Find maximum channel count
                     {
+                        constexpr std::uint32_t channelCount[] = {8U, 6U, 4U, 2U, 1U};
                         WAVEFORMATEXTENSIBLE testChannelCountFormat = extensibleFormatBase;
                         std::uint32_t maxChannelIndex = std::size(channelCount);
                         FOR_RANGE0(i, std::size(channelCount))
                         {
                             testChannelCountFormat.Format.nChannels = channelCount[i];
-                            testChannelCountFormat.dwChannelMask = channelConfig[i];
+                            testChannelCountFormat.dwChannelMask = SPEAKER_ALL;
                             testChannelCountFormat.Format.nAvgBytesPerSec =
                                 (testChannelCountFormat.Format.wBitsPerSample >> 3)
                                 * channelCount[i] * testChannelCountFormat.Format.nSamplesPerSec;
@@ -410,54 +401,125 @@ YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateInputDevice(
                                 break;
                             }
                         }
-                        auto& useChannelConfig = maxChannelIndex == std::size(channelCount)? extensibleFormatBase: testChannelCountFormat;
+                        auto& useChannelConfig =
+                            maxChannelIndex == std::size(channelCount)?
+                                extensibleFormatBase:
+                                testChannelCountFormat;
                         exclusiveFormat.Format.nChannels = useChannelConfig.Format.nChannels;
                         exclusiveFormat.Format.nAvgBytesPerSec = useChannelConfig.Format.nAvgBytesPerSec;
                         exclusiveFormat.dwChannelMask = useChannelConfig.dwChannelMask;
                     }
-                    // TODO: Find best sample format
+                    // Find best sample format
+                    {
+                        WAVEFORMATEXTENSIBLE extensibleFormat;
+                        constexpr SampleFormat formatList[] = {
+                            SampleFormat::Float32,
+                            SampleFormat::Int32,
+                            SampleFormat::Int24,
+                            SampleFormat::Int16,
+                            SampleFormat::Int8
+                        };
+                        FOR_RANGE0(i, std::size(formatList))
+                        {
+                            fillFormat(exclusiveFormat, formatList[i],
+                                exclusiveFormat.Format.nSamplesPerSec,
+                                exclusiveFormat.Format.nChannels, true
+                            );
+                            ret = client->IsFormatSupported(
+                                AUDCLNT_SHAREMODE::AUDCLNT_SHAREMODE_EXCLUSIVE,
+                                &(exclusiveFormat.Format),
+                                nullptr
+                            );
+                            if(ret != S_OK)
+                            {
+                                fillFormat(exclusiveFormat, formatList[i],
+                                    exclusiveFormat.Format.nSamplesPerSec,
+                                    exclusiveFormat.Format.nChannels, false
+                                );
+                                ret = client->IsFormatSupported(
+                                    AUDCLNT_SHAREMODE::AUDCLNT_SHAREMODE_EXCLUSIVE,
+                                    &(exclusiveFormat.Format),
+                                    nullptr
+                                );
+                            }
+                            if(ret == S_OK)
+                            {
+                                break;
+                            }
+                        }
+                    }
                 }
+                if(ret != S_OK)
+                {
+                    ret = client->IsFormatSupported(
+                        AUDCLNT_SHAREMODE::AUDCLNT_SHAREMODE_EXCLUSIVE,
+                        formatBase,
+                        nullptr
+                    );
+                }
+                CoTaskMemFree(formatBase);
                 auto period = static_cast<REFERENCE_TIME>(
                     static_cast<float>(frameCount_) * 10'000'000 / static_cast<float>(sampleRate_) + 0.5f
                 );
-                auto initializeClientResult = client->Initialize(
+                ret = client->Initialize(
                     AUDCLNT_SHAREMODE::AUDCLNT_SHAREMODE_EXCLUSIVE,
                     AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
                     period, period,
                     &(exclusiveFormat.Format),
                     NULL
                 );
-                while(initializeClientResult != S_OK)
+                if(ret == S_OK)
                 {
-                    initializeClientResult = client->Initialize(
-                        AUDCLNT_SHAREMODE::AUDCLNT_SHAREMODE_EXCLUSIVE,
-                        AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
-                        period, period,
-                        &(exclusiveFormat.Format),
-                        NULL
-                    );
+                    UINT32 bufferSize;
+                    client->GetBufferSize(&bufferSize);
+                    if(isInput)
+                    {
+                        client->GetService(__uuidof(IAudioCaptureClient),
+                            reinterpret_cast<void**>(captureClients_.data() + index)
+                        );
+                    }
+                    else
+                    {
+                        client->GetService(__uuidof(IAudioRenderClient),
+                            reinterpret_cast<void**>(renderClients_.data() + index)
+                        );
+                    }
                 }
-                client->GetService(__uuidof(IAudioCaptureClient),
-                    reinterpret_cast<void**>(captureClients_.data() + index)
-                );
             }
         }
         else
         {
-            captureClients_[index]->Release();
-            captureClients_[index] = nullptr;
-            inputClients_[index]->Reset();
-            inputClients_[index]->Release();
-            inputClients_[index] = nullptr;
+            if(isInput)
+            {
+                captureClients_[index]->Release();
+                captureClients_[index] = nullptr;
+                inputClients_[index]->Reset();
+                inputClients_[index]->Release();
+                inputClients_[index] = nullptr;
+            }
+            else
+            {
+                renderClients_[index]->Release();
+                renderClients_[index] = nullptr;
+                outputClients_[index]->Reset();
+                outputClients_[index]->Release();
+                outputClients_[index] = nullptr;
+            }
         }
     }
     return *reinterpret_cast<YADAW::Native::ErrorCodeType*>(&ret);
 }
 
+YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateInputDevice(
+    std::uint32_t index, bool activate)
+{
+    return activateDevice(true, index, activate);
+}
+
 YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateOutputDevice(
     std::uint32_t index, bool activate)
 {
-    return false;
+    return activateDevice(false, index, activate);
 }
 }
 

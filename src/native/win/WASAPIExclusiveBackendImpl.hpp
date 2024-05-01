@@ -14,6 +14,7 @@ class IAudioRenderClient;
 
 #include <QString>
 
+#include <thread>
 #include <vector>
 
 namespace YADAW::Audio::Backend
@@ -39,6 +40,8 @@ public:
     YADAW::Native::ErrorCodeType activateInputDevice(std::uint32_t index, bool activate);
     YADAW::Native::ErrorCodeType activateOutputDevice(std::uint32_t index, bool activate);
 private:
+    YADAW::Native::ErrorCodeType activateDevice(bool isInput, std::uint32_t index, bool activate);
+private:
     std::uint32_t sampleRate_;
     std::uint32_t frameCount_;
     IMMDeviceEnumerator* deviceEnumerator_ = nullptr;
@@ -54,6 +57,7 @@ private:
     std::vector<IAudioClient*> outputClients_;
     std::vector<IAudioCaptureClient*> captureClients_;
     std::vector<IAudioRenderClient*> renderClients_;
+    std::thread audioThread_;
 };
 }
 

@@ -1,3 +1,5 @@
+#include <audioclient.h>
+
 #include "audio/backend/WASAPIExclusiveBackend.hpp"
 
 #include "util/IntegerRange.hpp"
@@ -8,7 +10,7 @@ int main()
 {
     YADAW::Audio::Backend::WASAPIExclusiveBackend backend(44100, 512);
     auto inputCount = backend.inputDeviceCount();
-    std::printf("Audio Input Devices:\n");
+    std::printf("%u Audio Input Devices:\n", inputCount);
     auto defaultInputID = backend.defaultInputDeviceId();
     std::uint32_t defaultInputIndex = 0;
     FOR_RANGE0(i, inputCount)
@@ -31,7 +33,7 @@ int main()
         );
     }
     auto outputCount = backend.outputDeviceCount();
-    std::printf("Audio Output Devices:\n");
+    std::printf("%u Audio Output Devices:\n", outputCount);
     auto defaultOutputID = backend.defaultOutputDeviceId();
     std::uint32_t defaultOutputIndex = 0;
     FOR_RANGE0(i, outputCount)
@@ -53,8 +55,12 @@ int main()
             id.toLocal8Bit().data()
         );
     }
-    backend.activateInputDevice(defaultInputIndex, true);
-    backend.activateInputDevice(defaultOutputIndex, true);
-    backend.activateInputDevice(defaultInputIndex, false);
-    backend.activateInputDevice(defaultOutputIndex, false);
+    auto activateInputDeviceResult = backend.activateInputDevice(defaultInputIndex, true);
+    auto activateOutputDeviceResult = backend.activateOutputDevice(defaultOutputIndex, true);
+    std::printf("0x%llx 0x%llx", activateInputDeviceResult, activateOutputDeviceResult);
+    if(activateInputDeviceResult == AUDCLNT_E_SERVICE_NOT_RUNNING)
+    {
+        std::wprintf(L"Windows Audio Service is not running. Please start it by running\n"
+                      "  `net start Audiosrv` as administrator.\n");
+    }
 }
