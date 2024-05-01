@@ -7,7 +7,8 @@ enum AudioBackend
 {
     Off,
     AudioGraph,
-    ALSA
+    ALSA,
+    WASAPIExclusive
 };
 }
 

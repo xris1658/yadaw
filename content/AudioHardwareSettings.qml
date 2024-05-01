@@ -156,6 +156,13 @@ Item {
                 "enabled": impl.audioBackendSupport.isBackendSupported(AudioBackendSupport.ALSA)
             }
         );
+        audioEngineSelector.model.append(
+            {
+                "name": qsTr("WASAPI Exclusive"),
+                "value": AudioBackendSupport.WASAPIExclusive,
+                "enabled": impl.audioBackendSupport.isBackendSupported(AudioBackendSupport.WASAPIExclusive)
+            }
+        );
         audioEngineSelector.currentIndex = 0;
     }
 }

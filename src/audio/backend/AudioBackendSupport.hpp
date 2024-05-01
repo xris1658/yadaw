@@ -19,6 +19,10 @@ constexpr bool isBackendSupported<AudioBackend::AudioGraph> =
 template<>
 constexpr bool isBackendSupported<AudioBackend::ALSA> =
     YADAW::Native::isAudioBackendSupported<AudioBackend::ALSA>;
+
+template<>
+constexpr bool isBackendSupported<AudioBackend::WASAPIExclusive> =
+    YADAW::Native::isAudioBackendSupported<AudioBackend::WASAPIExclusive>;
 }
 
 #endif // YADAW_SRC_AUDIO_BACKEND_AUDIOBACKENDSUPPORT

@@ -154,121 +154,121 @@
 <context>
     <name>Arrangement</name>
     <message>
-        <location filename="../../content/Arrangement.qml" line="126"/>
+        <location filename="../../content/Arrangement.qml" line="127"/>
         <source>Track Options</source>
         <translation>轨道选项</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="156"/>
+        <location filename="../../content/Arrangement.qml" line="157"/>
         <source>Rena&amp;me</source>
         <translation>重命名(&amp;M)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="162"/>
+        <location filename="../../content/Arrangement.qml" line="163"/>
         <source>&amp;Set Color</source>
         <translation>设置颜色(&amp;S)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="165"/>
+        <location filename="../../content/Arrangement.qml" line="166"/>
         <source>Set Color</source>
         <translation>设置颜色</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="174"/>
+        <location filename="../../content/Arrangement.qml" line="175"/>
         <source>&amp;Delete</source>
         <translation>删除(&amp;D)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="192"/>
+        <location filename="../../content/Arrangement.qml" line="193"/>
         <source>Track Header Blank Area Options</source>
         <translation>轨道区空白处选项</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="195"/>
+        <location filename="../../content/Arrangement.qml" line="196"/>
         <source>&amp;Append Track</source>
         <translation>在末尾添加轨道(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="130"/>
-        <location filename="../../content/Arrangement.qml" line="197"/>
+        <location filename="../../content/Arrangement.qml" line="131"/>
+        <location filename="../../content/Arrangement.qml" line="198"/>
         <source>&amp;Audio</source>
         <translation>音频(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="128"/>
+        <location filename="../../content/Arrangement.qml" line="129"/>
         <source>&amp;Insert Track Above</source>
         <translation>在上方插入轨道(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="136"/>
-        <location filename="../../content/Arrangement.qml" line="203"/>
+        <location filename="../../content/Arrangement.qml" line="137"/>
+        <location filename="../../content/Arrangement.qml" line="204"/>
         <source>&amp;Instrument</source>
         <translation>乐器(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="142"/>
-        <location filename="../../content/Arrangement.qml" line="209"/>
+        <location filename="../../content/Arrangement.qml" line="143"/>
+        <location filename="../../content/Arrangement.qml" line="210"/>
         <source>Audio &amp;Effect</source>
         <translation>音频效果(&amp;E)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="148"/>
-        <location filename="../../content/Arrangement.qml" line="215"/>
+        <location filename="../../content/Arrangement.qml" line="149"/>
+        <location filename="../../content/Arrangement.qml" line="216"/>
         <source>Audio &amp;Bus</source>
         <translation>音频总线(&amp;B)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="223"/>
+        <location filename="../../content/Arrangement.qml" line="224"/>
         <source>Show Audio &amp;Inputs</source>
         <translation>显示音频输入(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="229"/>
+        <location filename="../../content/Arrangement.qml" line="230"/>
         <source>Show Audio &amp;Outputs</source>
         <translation>显示音频输出(&amp;O)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="262"/>
+        <location filename="../../content/Arrangement.qml" line="263"/>
         <source>Timeline Options</source>
         <translation>时间轴选项</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="264"/>
+        <location filename="../../content/Arrangement.qml" line="265"/>
         <source>&amp;Beat</source>
         <translation>拍子(&amp;B)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="272"/>
+        <location filename="../../content/Arrangement.qml" line="273"/>
         <source>&amp;Second</source>
         <translation>秒(&amp;S)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="280"/>
+        <location filename="../../content/Arrangement.qml" line="281"/>
         <source>S&amp;ample</source>
         <translation>采样(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="289"/>
+        <location filename="../../content/Arrangement.qml" line="290"/>
         <source>B&amp;eat linear</source>
         <translation>节拍线性(&amp;E)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="297"/>
+        <location filename="../../content/Arrangement.qml" line="298"/>
         <source>T&amp;ime linear</source>
         <translation>时间线性(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="327"/>
+        <location filename="../../content/Arrangement.qml" line="328"/>
         <source>Content Area Zoom Options</source>
         <translation>内容区缩放选项</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="329"/>
+        <location filename="../../content/Arrangement.qml" line="330"/>
         <source>Fit &amp;width</source>
         <translation>适应内容宽度(&amp;W)</translation>
     </message>
     <message>
-        <location filename="../../content/Arrangement.qml" line="332"/>
+        <location filename="../../content/Arrangement.qml" line="333"/>
         <source>Fit &amp;height</source>
         <translation>适应内容高度(&amp;H)</translation>
     </message>
@@ -478,7 +478,7 @@
         <location filename="../../content/AudioHardwareSettings.qml" line="42"/>
         <source>The audio backend will be switched from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt;, so the audio capture and playback will be interrupted.
 Proceed?</source>
-        <translation type="unfinished">音频后端将从&lt;b&gt;%1&lt;/b&gt;切换至&lt;b&gt;%2&lt;/b&gt;，因此音频录制和回放会中断。
+        <translation>音频后端将从&lt;b&gt;%1&lt;/b&gt;切换至&lt;b&gt;%2&lt;/b&gt;，因此音频录制和回放会中断。
 要继续吗？</translation>
     </message>
     <message>
@@ -505,6 +505,11 @@ Proceed?</source>
         <location filename="../../content/AudioHardwareSettings.qml" line="140"/>
         <source>Off</source>
         <translation>关闭</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioHardwareSettings.qml" line="161"/>
+        <source>WASAPI Exclusive</source>
+        <translation>WASAPI 独占</translation>
     </message>
     <message>
         <location filename="../../content/AudioHardwareSettings.qml" line="111"/>
@@ -1138,32 +1143,32 @@ Proceed?</source>
 <context>
     <name>Mixer</name>
     <message>
-        <location filename="../../content/Mixer.qml" line="289"/>
+        <location filename="../../content/Mixer.qml" line="281"/>
         <source>Mixer Channel Blank Area Options</source>
         <translation>混音器空白处选项</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="292"/>
+        <location filename="../../content/Mixer.qml" line="284"/>
         <source>&amp;Append Track</source>
         <translation>在末尾添加轨道(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="294"/>
+        <location filename="../../content/Mixer.qml" line="286"/>
         <source>&amp;Audio</source>
         <translation>音频(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="300"/>
+        <location filename="../../content/Mixer.qml" line="292"/>
         <source>&amp;Instrument</source>
         <translation>乐器(&amp;I)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="312"/>
+        <location filename="../../content/Mixer.qml" line="304"/>
         <source>Audio &amp;Bus</source>
         <translation>音频总线(&amp;B)</translation>
     </message>
     <message>
-        <location filename="../../content/Mixer.qml" line="306"/>
+        <location filename="../../content/Mixer.qml" line="298"/>
         <source>Audio &amp;Effect</source>
         <translation>音频效果(&amp;E)</translation>
     </message>

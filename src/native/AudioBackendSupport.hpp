@@ -9,11 +9,10 @@ template<YADAW::Audio::Backend::AudioBackend> constexpr bool isAudioBackendSuppo
 
 #if _WIN32
 template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBackend::AudioGraph> = true;
-template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBackend::ALSA> = false;
+template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBackend::WASAPIExclusive> = true;
 #endif
 
 #if __linux__
-template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBackend::AudioGraph> = false;
 template<> constexpr bool isAudioBackendSupported<YADAW::Audio::Backend::AudioBackend::ALSA> = true;
 #endif
 }

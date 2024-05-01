@@ -14,6 +14,7 @@ public:
         Off,
         AudioGraph,
         ALSA,
+        WASAPIExclusive,
         Last = ALSA
     };
     Q_ENUM(Backend)
@@ -22,6 +23,7 @@ public:
         "Off",
         "AudioGraph",
         "ALSA"
+        "WASAPI Exclusive"
     };
 public:
     AudioBackendSupport(QObject* parent = nullptr);
