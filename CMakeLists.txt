@@ -14,7 +14,9 @@ find_package(Qt6 6.5 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools
 
 find_package(ade CONFIG REQUIRED)
 if(WIN32)
-    find_package(unofficial-sqlite3 CONFIG REQUIRED)
+    if(DEFINED Z_VCPKG_CMAKE_REQUIRED_MINIMUM_VERSION)
+        find_package(unofficial-sqlite3 CONFIG REQUIRED)
+    endif()
 endif()
 find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
 find_package(yaml-cpp
@@ -839,7 +841,9 @@ if(WIN32 AND MINGW)
 endif()
 
 if(WIN32)
-    set(SQLITE_LIBRARY unofficial::sqlite3::sqlite3)
+    if(DEFINED Z_VCPKG_CMAKE_REQUIRED_MINIMUM_VERSION)
+        set(SQLITE_LIBRARY unofficial::sqlite3::sqlite3)
+    endif()
 elseif(LINUX)
     set(SQLITE_LIBRARY sqlite3)
 endif()
