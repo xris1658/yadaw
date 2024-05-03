@@ -827,6 +827,11 @@ endif()
 
 if(WIN32)
     set(NATIVE_LIBRARY version ole32 user32 windowsapp avrt)
+    if(MINGW)
+        set(NATIVE_LIBRARY ${NATIVE_LIBRARY}
+            ksguid # KSDATAFORMAT_xxx
+        )
+    endif()
 elseif(LINUX)
     set(NATIVE_LIBRARY asound dl xcb)
 endif()

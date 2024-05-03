@@ -7,8 +7,10 @@
 
 // https://learn.microsoft.com/en-us/windows/win32/api/propkeydef/nf-propkeydef-define_propertykey#remarks
 #include <initguid.h>
-
+#include <propkeydef.h> // `PKEY`s in mmdeviceapi.h
 #include <mmdeviceapi.h>
+#include <ks.h>
+#include <ksmedia.h> // KSDATAFORMAT_XXX
 #include <mmreg.h>
 #include <avrt.h>
 #include <combaseapi.h>
