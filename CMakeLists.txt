@@ -39,8 +39,6 @@ add_subdirectory(${VST3SDK_SOURCE_DIR} ${PROJECT_BINARY_DIR}/vst3sdk)
 
 add_subdirectory(content)
 
-add_definitions(-DUNICODE -D_UNICODE)
-
 if(MSVC)
     add_compile_options(/Wall
                         /wd4820 # 'bytes' bytes padding added after construct 'member_name'

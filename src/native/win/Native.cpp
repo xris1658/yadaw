@@ -16,6 +16,8 @@
 
 #include <KnownFolders.h>
 
+#include <intrin.h>
+
 #include <array>
 #include <bitset>
 #include <charconv>
@@ -151,7 +153,7 @@ bool isDebuggerPresent()
 QString errorMessageFromErrorCode(ErrorCodeType errorCode)
 {
     TCHAR* rawErrorString = nullptr;
-    auto messageLength = FormatMessage(
+    auto messageLength = FormatMessageW(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL, errorCode, 0, (LPTSTR)&rawErrorString, 0, nullptr);
     if(messageLength == 0)
@@ -159,7 +161,7 @@ QString errorMessageFromErrorCode(ErrorCodeType errorCode)
         auto handle = LoadLibrary(TEXT("avrt.dll"));
         if(handle)
         {
-            messageLength = FormatMessage(
+            messageLength = FormatMessageW(
                 FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                 handle, errorCode, 0, (LPTSTR)&rawErrorString, 0, nullptr
             );
@@ -226,7 +228,7 @@ QString getProductVersion(const QString& path)
 
 void sleepFor(std::chrono::steady_clock::duration duration)
 {
-    static auto handle = CreateWaitableTimer(NULL, FALSE, NULL);
+    static auto handle = CreateWaitableTimerW(NULL, FALSE, NULL);
     LARGE_INTEGER timeIn10e7;
     timeIn10e7.QuadPart = static_cast<std::int64_t>(
         std::chrono::duration_cast<Impl::OneHunderdNanoSecondInterval>(duration).count()
