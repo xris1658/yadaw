@@ -44,7 +44,6 @@ function(FindWindowsSDKWithUWP)
         message(STATUS "Windows SDK include path is ${WINDOWS_SDK_INCLUDE_BASE_PATH}")
         include_directories(
             ${WINDOWS_SDK_INCLUDE_BASE_PATH}/winrt
-            ${WINDOWS_SDK_INCLUDE_BASE_PATH}/cppwinrt
         )
     else()
         message(FATAL_ERROR "Could not find a Windows SDK with UWP.")

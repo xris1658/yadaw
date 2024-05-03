@@ -15,6 +15,7 @@ class AudioGraphBackend
 {
     class Impl;
 public:
+    using ErrorCode = std::int32_t;
     enum Status
     {
         Empty,
@@ -60,10 +61,10 @@ public:
     QString defaultAudioOutputDeviceId() const;
     DeviceInfo audioInputDeviceAt(std::uint32_t index) const;
     DeviceInfo audioOutputDeviceAt(std::uint32_t index) const;
-    YADAW::Native::ErrorCodeType createAudioGraph(std::uint32_t sampleRate = 0);
-    YADAW::Native::ErrorCodeType createAudioGraph(const QString& id, std::uint32_t sampleRate = 0);
+    ErrorCode createAudioGraph(std::uint32_t sampleRate = 0);
+    ErrorCode createAudioGraph(const QString& id, std::uint32_t sampleRate = 0);
     bool isDeviceInputActivated(std::uint32_t deviceInputIndex) const;
-    YADAW::Native::ErrorCodeType activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
+    ErrorCode activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
     DeviceInfo currentOutputDevice() const;
     void destroyAudioGraph();
     void start(AudioCallbackType* callback);
@@ -82,7 +83,7 @@ private:
     Status status_ = Status::Empty;
 };
 
-QString getAudioGraphErrorStringFromErrorCode(YADAW::Native::ErrorCodeType errorCode);
+QString getAudioGraphErrorStringFromErrorCode(AudioGraphBackend::ErrorCode errorCode);
 }
 
 #endif

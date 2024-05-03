@@ -6,6 +6,8 @@
 #include "audio/backend/AudioGraphBackend.hpp"
 #include "native/Native.hpp"
 
+#include <guiddef.h>
+
 #include <Unknwn.h>
 
 #include <cstdint>
@@ -20,6 +22,7 @@
 #include <winrt/Windows.Media.MediaProperties.h>
 #include <winrt/Windows.Media.Render.h>
 #include <winrt/Windows.Devices.Enumeration.h>
+
 
 #include <vector>
 
@@ -61,10 +64,10 @@ public:
     DeviceInformation audioOutputDeviceAt(std::uint32_t index) const;
     winrt::hstring defaultAudioInputDeviceId() const;
     winrt::hstring defaultAudioOutputDeviceId() const;
-    YADAW::Native::ErrorCodeType createAudioGraph(std::uint32_t sampleRate = 0);
-    YADAW::Native::ErrorCodeType createAudioGraph(const DeviceInformation& audioOutputDevice, std::uint32_t sampleRate = 0);
+    AudioGraphBackend::ErrorCode createAudioGraph(std::uint32_t sampleRate = 0);
+    AudioGraphBackend::ErrorCode createAudioGraph(const DeviceInformation& audioOutputDevice, std::uint32_t sampleRate = 0);
     bool isDeviceInputActivated(std::uint32_t deviceInputIndex) const;
-    YADAW::Native::ErrorCodeType activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
+    AudioGraphBackend::ErrorCode activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
     // This function might fail, in which case returns an invalid DeviceInformation
     DeviceInformation currentOutputDevice() const;
     void destroyAudioGraph();

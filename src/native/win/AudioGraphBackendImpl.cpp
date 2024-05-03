@@ -2,8 +2,11 @@
 
 #include "AudioGraphBackendImpl.hpp"
 #include "audio/backend/AudioGraphBackend.hpp"
+#include "util/IntegerRange.hpp"
 
 #include <cstdint>
+
+#include <guiddef.h>
 
 #include "native/win/winrt/Forward.hpp"
 #include "native/win/winrt/Async.hpp"
@@ -33,6 +36,15 @@ using namespace winrt::Windows::Media::Capture;
 using namespace winrt::Windows::Media::MediaProperties;
 using namespace winrt::Windows::Media::Render;
 using namespace winrt::Windows::Devices::Enumeration;
+
+#ifdef __MINGW64__
+#ifdef __CRT_UUID_DECL
+__CRT_UUID_DECL(
+    IMemoryBufferByteAccess,
+    0x5b0d3235, 0x4dba, 0x4d44, 0x86, 0x5e, 0x8f, 0x1d, 0x0e, 0x4f, 0xd0, 0x4d
+)
+#endif
+#endif
 
 AudioGraphSettings createAudioGraphSettings()
 {
@@ -117,7 +129,7 @@ winrt::hstring AudioGraphBackend::Impl::defaultAudioOutputDeviceId() const
     return MediaDevice::GetDefaultAudioRenderId(AudioDeviceRole::Default);
 }
 
-YADAW::Native::ErrorCodeType AudioGraphBackend::Impl::createAudioGraph(std::uint32_t sampleRate)
+AudioGraphBackend::ErrorCode AudioGraphBackend::Impl::createAudioGraph(std::uint32_t sampleRate)
 {
     auto settings = createAudioGraphSettings();
     if(sampleRate != 0)
@@ -138,10 +150,10 @@ YADAW::Native::ErrorCodeType AudioGraphBackend::Impl::createAudioGraph(std::uint
     audioDeviceOutputNode_ = createOutputResult.DeviceOutputNode();
     audioFrameInputNode_ = audioGraph_.CreateFrameInputNode();
     audioFrameInputNode_.AddOutgoingConnection(audioDeviceOutputNode_);
-    return ERROR_SUCCESS;
+    return S_OK;
 }
 
-YADAW::Native::ErrorCodeType AudioGraphBackend::Impl::createAudioGraph(
+AudioGraphBackend::ErrorCode AudioGraphBackend::Impl::createAudioGraph(
     const DeviceInformation& audioOutputDevice,
     std::uint32_t sampleRate)
 {
@@ -177,7 +189,7 @@ bool AudioGraphBackend::Impl::isDeviceInputActivated(std::uint32_t deviceInputIn
     return false;
 }
 
-YADAW::Native::ErrorCodeType AudioGraphBackend::Impl::activateDeviceInput(
+AudioGraphBackend::ErrorCode AudioGraphBackend::Impl::activateDeviceInput(
     std::uint32_t deviceInputIndex, bool enabled)
 {
     if(deviceInputIndex < audioInputDeviceCount())
@@ -186,7 +198,7 @@ YADAW::Native::ErrorCodeType AudioGraphBackend::Impl::activateDeviceInput(
         {
             if(deviceInputNodes_[deviceInputIndex].audioBuffer_)
             {
-                return ERROR_SUCCESS;
+                return S_OK;
             }
             auto encodingProperties = audioGraph_.EncodingProperties();
             for(std::uint32_t i = 8; i > 0; --i)
@@ -212,7 +224,7 @@ YADAW::Native::ErrorCodeType AudioGraphBackend::Impl::activateDeviceInput(
             {
                 deviceInputNodes_[deviceInputIndex] = {};
             }
-            return ERROR_SUCCESS;
+            return S_OK;
         }
     }
     return E_INVALIDARG;
@@ -248,7 +260,7 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
             {
                 auto properties = sender.EncodingProperties();
                 auto bufferSize = requiredSamples * properties.BitsPerSample() * properties.ChannelCount();
-                for(int i = 0; i < inputAudioBuffer_.size(); ++i)
+                FOR_RANGE0(i, inputAudioBuffer_.size())
                 {
                     auto& input = deviceInputNodes_[i];
                     if(input.deviceInputNode_)
@@ -297,7 +309,7 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                     }
                 }
                 sender.AddFrame(frame);
-                for(int i = 0; i < inputAudioBuffer_.size(); ++i)
+                FOR_RANGE0(i, inputAudioBuffer_.size())
                 {
                     deviceInputNodes_[i].audioBuffer_ = nullptr;
                 }

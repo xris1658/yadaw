@@ -8,6 +8,8 @@
 // https://learn.microsoft.com/en-us/windows/win32/api/propkeydef/nf-propkeydef-define_propertykey#remarks
 #include <initguid.h>
 
+#include <mmdeviceapi.h>
+#include <mmreg.h>
 #include <avrt.h>
 #include <combaseapi.h>
 #include <mmdeviceapi.h>
@@ -302,7 +304,7 @@ std::optional<bool> WASAPIExclusiveBackend::Impl::isOutputDeviceActivated(
     return std::nullopt;
 }
 
-YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateDevice(
+WASAPIExclusiveBackend::ErrorCode WASAPIExclusiveBackend::Impl::activateDevice(
     bool isInput, std::uint32_t index, bool activate)
 {
     auto ret = E_INVALIDARG;
@@ -515,16 +517,16 @@ YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateDevice(
             ret = S_OK;
         }
     }
-    return *reinterpret_cast<YADAW::Native::ErrorCodeType*>(&ret);
+    return ret;
 }
 
-YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateInputDevice(
+WASAPIExclusiveBackend::ErrorCode WASAPIExclusiveBackend::Impl::activateInputDevice(
     std::uint32_t index, bool activate)
 {
     return activateDevice(true, index, activate);
 }
 
-YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::Impl::activateOutputDevice(
+WASAPIExclusiveBackend::ErrorCode WASAPIExclusiveBackend::Impl::activateOutputDevice(
     std::uint32_t index, bool activate)
 {
     return activateDevice(false, index, activate);

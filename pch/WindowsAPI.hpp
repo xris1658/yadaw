@@ -1,11 +1,11 @@
 #ifndef YADAW_PCH_WINDOWSAPI
 #define YADAW_PCH_WINDOWSAPI
 
-#define NOMINMAX
-
 // Windows API
 #if WIN32
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include <Windows.h>
 #include <winreg.h>
 #include <winerror.h>
@@ -15,6 +15,7 @@
 #include <processthreadsapi.h>
 #include <realtimeapiset.h>
 #include <timezoneapi.h>
+
 #include <combaseapi.h>
 #include <ShlObj.h>
 #include <synchapi.h>

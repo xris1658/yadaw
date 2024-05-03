@@ -121,9 +121,9 @@ AudioGraphBackend::DeviceInfo AudioGraphBackend::audioOutputDeviceAt(std::uint32
     return {qStringFromHString(info.Name()), qStringFromHString(info.Id()), info.IsEnabled()};
 }
 
-YADAW::Native::ErrorCodeType AudioGraphBackend::createAudioGraph(std::uint32_t sampleRate)
+AudioGraphBackend::ErrorCode AudioGraphBackend::createAudioGraph(std::uint32_t sampleRate)
 {
-    YADAW::Native::ErrorCodeType ret = pImpl_->createAudioGraph(sampleRate);
+    AudioGraphBackend::ErrorCode ret = pImpl_->createAudioGraph(sampleRate);
     if(ret == 0)
     {
         status_ = Status::Created;
@@ -131,7 +131,7 @@ YADAW::Native::ErrorCodeType AudioGraphBackend::createAudioGraph(std::uint32_t s
     return ret;
 }
 
-YADAW::Native::ErrorCodeType AudioGraphBackend::createAudioGraph(const QString& id, std::uint32_t sampleRate)
+AudioGraphBackend::ErrorCode AudioGraphBackend::createAudioGraph(const QString& id, std::uint32_t sampleRate)
 {
     winrt::hstring idAsHString(reinterpret_cast<const wchar_t*>(id.data()));
     auto async = DeviceInformation::CreateFromIdAsync(idAsHString);
@@ -149,7 +149,7 @@ bool AudioGraphBackend::isDeviceInputActivated(std::uint32_t deviceInputIndex) c
     return pImpl_->isDeviceInputActivated(deviceInputIndex);
 }
 
-YADAW::Native::ErrorCodeType AudioGraphBackend::activateDeviceInput(
+AudioGraphBackend::ErrorCode AudioGraphBackend::activateDeviceInput(
     std::uint32_t deviceInputIndex, bool enabled)
 {
     return pImpl_->activateDeviceInput(deviceInputIndex, enabled);
@@ -239,7 +239,7 @@ void YADAW::Audio::Backend::AudioGraphBackend::swap(YADAW::Audio::Backend::Audio
     std::swap(status_, rhs.status_);
 }
 
-QString getAudioGraphErrorStringFromErrorCode(YADAW::Native::ErrorCodeType errorCode)
+QString getAudioGraphErrorStringFromErrorCode(AudioGraphBackend::ErrorCode errorCode)
 {
     switch(errorCode)
     {
@@ -249,7 +249,7 @@ QString getAudioGraphErrorStringFromErrorCode(YADAW::Native::ErrorCodeType error
     default:
         break;
     }
-    return YADAW::Native::errorMessageFromErrorCode(errorCode);
+    return QString();
 }
 }
 

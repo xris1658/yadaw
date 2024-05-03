@@ -71,13 +71,13 @@ std::optional<bool> WASAPIExclusiveBackend::isOutputDeviceActivated(
     return pImpl_->isOutputDeviceActivated(index);
 }
 
-YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::activateInputDevice(
+WASAPIExclusiveBackend::ErrorCode WASAPIExclusiveBackend::activateInputDevice(
     std::uint32_t index, bool activate)
 {
     return pImpl_->activateInputDevice(index, activate);
 }
 
-YADAW::Native::ErrorCodeType WASAPIExclusiveBackend::activateOutputDevice(
+WASAPIExclusiveBackend::ErrorCode WASAPIExclusiveBackend::activateOutputDevice(
     std::uint32_t index, bool activate)
 {
     return pImpl_->activateOutputDevice(index, activate);

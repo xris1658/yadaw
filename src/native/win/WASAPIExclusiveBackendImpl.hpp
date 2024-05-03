@@ -39,12 +39,12 @@ public:
     std::optional<std::uint32_t> findOutputDeviceIndexById(const QString& id) const;
     std::optional<bool> isInputDeviceActivated(std::uint32_t index) const;
     std::optional<bool> isOutputDeviceActivated(std::uint32_t index) const;
-    YADAW::Native::ErrorCodeType activateInputDevice(std::uint32_t index, bool activate);
-    YADAW::Native::ErrorCodeType activateOutputDevice(std::uint32_t index, bool activate);
+    WASAPIExclusiveBackend::ErrorCode activateInputDevice(std::uint32_t index, bool activate);
+    WASAPIExclusiveBackend::ErrorCode activateOutputDevice(std::uint32_t index, bool activate);
     void start();
     void stop();
 private:
-    YADAW::Native::ErrorCodeType activateDevice(bool isInput, std::uint32_t index, bool activate);
+    WASAPIExclusiveBackend::ErrorCode activateDevice(bool isInput, std::uint32_t index, bool activate);
     void audioThread();
 private:
     std::uint32_t sampleRate_;

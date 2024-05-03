@@ -13,6 +13,8 @@ namespace YADAW::Audio::Backend
 {
 class WASAPIExclusiveBackend
 {
+private:
+    class Impl;
 public:
     enum class SampleFormat
     {
@@ -22,8 +24,7 @@ public:
         Int16,
         Int8
     };
-private:
-    class Impl;
+    using ErrorCode = HRESULT;
 public:
     WASAPIExclusiveBackend(std::uint32_t sampleRate, std::uint32_t frameCount);
     ~WASAPIExclusiveBackend();
@@ -38,8 +39,8 @@ public:
     QString defaultOutputDeviceId() const;
     std::optional<bool> isInputDeviceActivated(std::uint32_t index) const;
     std::optional<bool> isOutputDeviceActivated(std::uint32_t index) const;
-    YADAW::Native::ErrorCodeType activateInputDevice(std::uint32_t index, bool activate);
-    YADAW::Native::ErrorCodeType activateOutputDevice(std::uint32_t index, bool activate);
+    ErrorCode activateInputDevice(std::uint32_t index, bool activate);
+    ErrorCode activateOutputDevice(std::uint32_t index, bool activate);
 private:
     std::unique_ptr<Impl> pImpl_;
 };
