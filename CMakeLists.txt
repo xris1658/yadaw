@@ -5,7 +5,9 @@ project(YADAW VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-set(CMAKE_CXX_STANDARD 17)
+# If Windows SDK 10.0.19041.0 (or older) is used, use C++17 or replace some
+# headers (see https://github.com/xris1658/cppwinrt-19041-cpp20)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Prerequisites and dependencies
