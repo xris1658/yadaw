@@ -4,6 +4,7 @@
 #include "util/QuadraticFunction.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <stdexcept>
 #include <utility>
 #include <vector>

@@ -15,6 +15,8 @@
 #include <xcb/xproto.h>
 #endif
 
+#include <mutex>
+
 namespace YADAW::UI
 {
 QQmlApplicationEngine* qmlApplicationEngine = nullptr;
