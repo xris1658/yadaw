@@ -829,6 +829,15 @@ elseif(LINUX)
     set(NATIVE_LIBRARY asound dl xcb)
 endif()
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+
+include(FindWindowsSDKWithUWP)
+
+if(WIN32 AND MINGW)
+    FindWindowsSDKWithUWP()
+    add_compile_options(-fcoroutines)
+endif()
+
 if(WIN32)
     set(SQLITE_LIBRARY unofficial::sqlite3::sqlite3)
 elseif(LINUX)
