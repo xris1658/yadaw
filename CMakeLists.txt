@@ -27,7 +27,6 @@ find_package(yaml-cpp
 include_directories(${PROJECT_SOURCE_DIR}/content
                     ${PROJECT_SOURCE_DIR}/src
                     ${CLAP_SOURCE_DIR}/include # CLAP
-                    ${CLAP_HELPERS_DIR}/include # CLAP Helpers
                     ${SQLITE_MODERN_CPP_INCLUDE_DIRS}) # sqlite-modern-cpp
 
 ## VST3
