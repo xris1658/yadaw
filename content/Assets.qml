@@ -143,28 +143,26 @@ Rectangle {
             }
         }
         Rectangle {
+            id: leftColumn
             SplitView.preferredWidth: 100
             color: "transparent"
             clip: true
             Column {
-                topPadding: 5
-                bottomPadding: 5
-                width: parent.width
+                padding: 5
                 Label {
                     text: qsTr("Locations")
                     color: Colors.secondaryContent
                     font.pointSize: Qt.application.font.pointSize * 0.9
-                    width: parent.width
+                    width: leftColumn.width
                     height: contentHeight + topPadding + bottomPadding
                     leftPadding: 5
-                    rightPadding: leftPadding
                     topPadding: 3
                     bottomPadding: 0
                     elide: Text.ElideRight
                 }
                 ListView {
                     id: directoryList
-                    width: parent.width
+                    width: leftColumn.width
                     height: contentHeight
                     delegate: ItemDelegate {
                         id: control
@@ -172,8 +170,7 @@ Rectangle {
                         property string pathPath: adlm_path
                         property string pathName: adlm_name
                         property string defaultName: adlm_default_name
-                        width: parent? parent.width - 3 * 2: 0
-                        x: root.border.width + 3
+                        width: parent.width
                         text: pathName
                         leftPadding: height
                         rightPadding: 2
@@ -255,8 +252,7 @@ Rectangle {
                     }
                     footer: ItemDelegate {
                         id: addLocation
-                        width: parent.width - 3 * 2
-                        x: root.border.width + 3
+                        width: parent.width
                         text: qsTr("Add...")
                         rightPadding: 2
                         background: Rectangle {
@@ -285,10 +281,9 @@ Rectangle {
                     text: qsTr("Categories")
                     color: Colors.secondaryContent
                     font.pointSize: Qt.application.font.pointSize * 0.9
-                    width: parent.width
+                    width: leftColumn.width
                     height: contentHeight + topPadding + bottomPadding
                     leftPadding: 5
-                    rightPadding: leftPadding
                     topPadding: 3
                     bottomPadding: 0
                     elide: Text.ElideRight
@@ -325,15 +320,13 @@ Rectangle {
                             iconSource: "VestifalIcon.qml"
                         }
                     }
-
                     // model: ["Plugins", "MIDI Effects", "Instruments", "Audio Effects", "Audio Files", "MIDI Files"]
-                    width: parent.width
+                    width: leftColumn.width
                     height: contentHeight
                     delegate: ItemDelegate {
                         id: pluginItemDelegate
-                        width: parent.width - 3 * 2
+                        width: parent.width
                         height: implicitHeight
-                        x: root.border.width + 3
                         text: name
                         leftPadding: height
                         rightPadding: 2
