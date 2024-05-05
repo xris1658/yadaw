@@ -166,10 +166,6 @@ Rectangle {
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
-                mute: mclm_mute
-                onSetMute: (newMute) => {
-                    mclm_mute = newMute;
-                }
             }
             Rectangle {
                 id: inputMixerChannelBorder
@@ -234,12 +230,8 @@ Rectangle {
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
-                mute: mclm_mute
                 onInstrumentBypassedChanged: {
                     mclm_instrument_bypassed = instrumentBypassed;
-                }
-                onSetMute: (newMute) => {
-                    mclm_mute = newMute;
                 }
                 onSetInstrument: (instrumentId) => {
                     channelsModel.setInstrument(index, instrumentId);
@@ -357,10 +349,6 @@ Rectangle {
                 showFader: root.showFader
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
-                mute: mclm_mute
-                onSetMute: (newMute) => {
-                    mclm_mute = newMute;
-                }
             }
         }
         Rectangle {

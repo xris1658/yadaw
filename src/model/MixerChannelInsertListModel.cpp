@@ -172,7 +172,8 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         auto& libraryPluginMap = YADAW::Controller::appLibraryPluginMap();
         auto pluginInfo = YADAW::DAO::selectPluginById(pluginId);
         auto optionalCreatePluginResult = YADAW::Controller::createPlugin(
-            pluginInfo.path, static_cast<YADAW::DAO::PluginFormat>(pluginInfo.format),
+            pluginInfo.path,
+            static_cast<YADAW::DAO::PluginFormat>(pluginInfo.format),
             pluginInfo.uid
         );
         if(!optionalCreatePluginResult.has_value())

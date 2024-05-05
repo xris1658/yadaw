@@ -431,12 +431,12 @@ QC.Popup {
                         }
                     }
                     listView.onModelChanged: {
-                        currentIndex = -1;
+                        listView.currentIndex = -1;
                     }
                     listView.Keys.onUpPressed: (event) => {
-                        if(pluginList.currentIndex == 0) {
+                        if(listView.currentIndex == 0) {
                             searchTextField.forceActiveFocus();
-                            pluginList.currentIndex = -1;
+                            listView.currentIndex = -1;
                         }
                         else {
                             event.accepted = false;

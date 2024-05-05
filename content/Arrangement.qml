@@ -62,6 +62,7 @@ SplitView {
             anchors.left: parent.left
             anchors.right: parent.right
             clip: true
+            boundsBehavior: ListView.StopAtBounds
             ScrollBar.vertical: ScrollBar {
                 id: vbar
                 parent: vbarPlaceholder

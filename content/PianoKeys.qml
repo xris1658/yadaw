@@ -8,7 +8,7 @@ ListView {
     property double keyHeight: 14
     QtObject {
         id: impl
-        function isBlackKey(index: int) {
+        function isBlackKey(index: int): bool {
             let indexInOctave = index % 12;
             return indexInOctave === 1
                 || indexInOctave === 3
