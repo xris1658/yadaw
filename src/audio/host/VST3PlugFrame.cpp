@@ -1,6 +1,9 @@
 #include "VST3PlugFrame.hpp"
 
+#include "audio/host/VST3RunLoop.hpp"
 #include "audio/plugin/VST3PluginGUI.hpp"
+
+#include <pluginterfaces/base/funknown.h>
 
 namespace YADAW::Audio::Host
 {
@@ -16,6 +19,13 @@ Steinberg::tresult VST3PlugFrame::queryInterface(const char* _iid, void** obj)
 {
     QUERY_INTERFACE(_iid, obj, Steinberg::FUnknown::iid, Steinberg::IPlugFrame)
     QUERY_INTERFACE(_iid, obj, Steinberg::IPlugFrame::iid, Steinberg::IPlugFrame)
+#ifdef __linux__
+    if(Steinberg::FUnknownPrivate::iidEqual(_iid, Steinberg::Linux::IRunLoop::iid))
+    {
+        *obj = &YADAW::Audio::Host::VST3RunLoop::instance();
+        return Steinberg::kResultOk;
+    }
+#endif
     *obj = nullptr;
     return Steinberg::kNoInterface;
 }

@@ -192,6 +192,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VST3ParameterValueQueue.hpp
     src/audio/host/VST3PlugFrame.cpp
     src/audio/host/VST3PlugFrame.hpp
+    src/audio/host/VST3RunLoop.cpp
+    src/audio/host/VST3RunLoop.hpp
     src/audio/host/VestifalCallback.cpp
     src/audio/host/VestifalCallback.hpp
     src/audio/mixer/BlankGenerator.cpp
@@ -749,6 +751,8 @@ add_executable(VST3Test
                src/audio/host/VST3ParameterValueQueue.hpp
                src/audio/host/VST3PlugFrame.cpp
                src/audio/host/VST3PlugFrame.hpp
+               src/audio/host/VST3RunLoop.cpp
+               src/audio/host/VST3RunLoop.hpp
                src/audio/plugin/VST3AudioChannelGroup.hpp
                src/audio/plugin/VST3EventBusInfo.cpp
                src/audio/plugin/VST3EventBusInfo.hpp

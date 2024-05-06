@@ -95,6 +95,9 @@ private:
     std::int32_t unified_ = 0;
     ExitEntry exitEntry_ = nullptr;
     Steinberg::IPluginFactory* factory_ = nullptr;
+#ifdef __linux__
+    Steinberg::IPluginFactory3* factory3_ = nullptr;
+#endif
     Steinberg::Vst::IComponent* component_ = nullptr;
     Steinberg::Vst::IAudioProcessor* audioProcessor_ = nullptr;
     mutable Steinberg::Vst::IEditController* editController_ = nullptr;

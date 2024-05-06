@@ -1,6 +1,9 @@
 #include "VST3Plugin.hpp"
 
 #include "audio/host/VST3Host.hpp"
+#ifdef __linux__
+#include "audio/host/VST3RunLoop.hpp"
+#endif
 #include "audio/plugin/VST3PluginGUI.hpp"
 #include "audio/plugin/VST3PluginParameter.hpp"
 #include "audio/util/VST3Helper.hpp"
@@ -83,6 +86,8 @@ VST3Plugin::VST3Plugin(
             if(auto factory = factoryEntry(); factory)
             {
                 factory_ = factory;
+                queryInterface(factory_, &factory3_);
+                factory3_->setHostContext(&YADAW::Audio::Host::VST3Host::instance());
                 status_ = IAudioPlugin::Status::Loaded;
             }
         }
@@ -95,6 +100,7 @@ VST3Plugin::VST3Plugin(VST3Plugin&& rhs):
     unified_(rhs.unified_),
     exitEntry_(rhs.exitEntry_),
     factory_(rhs.factory_),
+    factory3_(rhs.factory3_),
     component_(rhs.component_),
     audioProcessor_(rhs.audioProcessor_),
     componentPoint_(rhs.componentPoint_),
@@ -160,6 +166,7 @@ VST3Plugin::~VST3Plugin()
     }
     if(status_ == IAudioPlugin::Status::Loaded)
     {
+        releasePointer(factory3_);
         releasePointer(factory_);
     }
     if(exitEntry_)

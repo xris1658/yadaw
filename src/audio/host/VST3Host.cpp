@@ -2,6 +2,9 @@
 
 #include "audio/host/VST3AttributeList.hpp"
 #include "audio/host/VST3Message.hpp"
+#ifdef __linux__
+#include "audio/host/VST3RunLoop.hpp"
+#endif
 
 #include <iterator>
 
@@ -58,6 +61,13 @@ tresult VST3Host::queryInterface(const char* _iid, void** obj)
     }
     QUERY_INTERFACE(_iid, obj, FUnknown::iid, IHostApplication)
     QUERY_INTERFACE(_iid, obj, IHostApplication::iid, IHostApplication)
+#ifdef __linux__
+    if(FUnknownPrivate::iidEqual(_iid, Steinberg::Linux::IRunLoop::iid))
+    {
+        *obj = &YADAW::Audio::Host::VST3RunLoop::instance();
+        return Steinberg::kResultOk;
+    }
+#endif
     *obj = nullptr;
     return kNoInterface;
 }
