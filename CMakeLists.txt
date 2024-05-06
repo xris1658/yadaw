@@ -190,6 +190,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VST3ParameterChanges.hpp
     src/audio/host/VST3ParameterValueQueue.cpp
     src/audio/host/VST3ParameterValueQueue.hpp
+    src/audio/host/VST3PlugFrame.cpp
+    src/audio/host/VST3PlugFrame.hpp
     src/audio/host/VestifalCallback.cpp
     src/audio/host/VestifalCallback.hpp
     src/audio/mixer/BlankGenerator.cpp
@@ -227,8 +229,6 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/VST3EventProcessor.cpp
     src/audio/plugin/VST3EventProcessor.hpp
     src/audio/plugin/VST3MemoryStream.cpp
-    src/audio/plugin/VST3PlugFrame.cpp
-    src/audio/plugin/VST3PlugFrame.hpp
     src/audio/plugin/VST3Plugin.cpp
     src/audio/plugin/VST3Plugin.hpp
     src/audio/plugin/VST3PluginGUI.cpp
@@ -549,6 +549,8 @@ add_executable(PluginDirectoryScanTest
                src/audio/host/VST3ParameterChanges.hpp
                src/audio/host/VST3ParameterValueQueue.cpp
                src/audio/host/VST3ParameterValueQueue.hpp
+               src/audio/host/VST3PlugFrame.cpp
+               src/audio/host/VST3PlugFrame.hpp
                src/audio/plugin/VST3AudioChannelGroup.cpp
                src/audio/plugin/VST3AudioChannelGroup.hpp
                src/audio/plugin/VST3EventBusInfo.cpp
@@ -556,8 +558,6 @@ add_executable(PluginDirectoryScanTest
                src/audio/plugin/VST3EventProcessor.cpp
                src/audio/plugin/VST3EventProcessor.hpp
                src/audio/plugin/VST3MemoryStream.cpp
-               src/audio/plugin/VST3PlugFrame.cpp
-               src/audio/plugin/VST3PlugFrame.hpp
                src/audio/plugin/VST3Plugin.cpp
                src/audio/plugin/VST3Plugin.hpp
                src/audio/plugin/VST3PluginGUI.cpp
@@ -619,6 +619,8 @@ add_executable(PluginScanTest
                src/audio/host/VST3ParameterChanges.hpp
                src/audio/host/VST3ParameterValueQueue.cpp
                src/audio/host/VST3ParameterValueQueue.hpp
+               src/audio/host/VST3PlugFrame.cpp
+               src/audio/host/VST3PlugFrame.hpp
                src/audio/host/VestifalCallback.cpp
                src/audio/host/VestifalCallback.hpp
                src/audio/plugin/CLAPAudioChannelGroup.cpp
@@ -640,8 +642,6 @@ add_executable(PluginScanTest
                src/audio/plugin/VST3EventProcessor.cpp
                src/audio/plugin/VST3EventProcessor.hpp
                src/audio/plugin/VST3MemoryStream.cpp
-               src/audio/plugin/VST3PlugFrame.cpp
-               src/audio/plugin/VST3PlugFrame.hpp
                src/audio/plugin/VST3Plugin.cpp
                src/audio/plugin/VST3Plugin.hpp
                src/audio/plugin/VST3PluginGUI.cpp
@@ -747,14 +747,14 @@ add_executable(VST3Test
                src/audio/host/VST3ParameterChanges.hpp
                src/audio/host/VST3ParameterValueQueue.cpp
                src/audio/host/VST3ParameterValueQueue.hpp
+               src/audio/host/VST3PlugFrame.cpp
+               src/audio/host/VST3PlugFrame.hpp
                src/audio/plugin/VST3AudioChannelGroup.hpp
                src/audio/plugin/VST3EventBusInfo.cpp
                src/audio/plugin/VST3EventBusInfo.hpp
                src/audio/plugin/VST3EventProcessor.cpp
                src/audio/plugin/VST3EventProcessor.hpp
                src/audio/plugin/VST3MemoryStream.cpp
-               src/audio/plugin/VST3PlugFrame.cpp
-               src/audio/plugin/VST3PlugFrame.hpp
                src/audio/plugin/VST3Plugin.cpp
                src/audio/plugin/VST3Plugin.hpp
                src/audio/plugin/VST3PluginGUI.cpp

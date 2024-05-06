@@ -1,8 +1,8 @@
 #ifndef YADAW_SRC_AUDIO_PLUGIN_VST3PLUGINGUI
 #define YADAW_SRC_AUDIO_PLUGIN_VST3PLUGINGUI
 
+#include "audio/host/VST3PlugFrame.hpp"
 #include "audio/plugin/IPluginGUI.hpp"
-#include "audio/plugin/VST3PlugFrame.hpp"
 
 #include <pluginterfaces/gui/iplugview.h>
 
@@ -34,7 +34,7 @@ private:
 private:
     Steinberg::IPlugView* plugView_ = nullptr;
     QWindow* window_ = nullptr;
-    YADAW::Audio::Plugin::VST3PlugFrame frame_;
+    YADAW::Audio::Host::VST3PlugFrame frame_;
     QMetaObject::Connection connections_[2];
     bool inCallback_ = false;
 };

@@ -2,7 +2,7 @@
 
 #include "audio/plugin/VST3PluginGUI.hpp"
 
-namespace YADAW::Audio::Plugin
+namespace YADAW::Audio::Host
 {
 VST3PlugFrame::VST3PlugFrame(YADAW::Audio::Plugin::VST3PluginGUI* gui):
     gui_(gui)

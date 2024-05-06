@@ -6,7 +6,10 @@
 namespace YADAW::Audio::Plugin
 {
 class VST3PluginGUI;
+}
 
+namespace YADAW::Audio::Host
+{
 class VST3PlugFrame final: public Steinberg::IPlugFrame
 {
 public:
