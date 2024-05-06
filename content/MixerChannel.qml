@@ -57,7 +57,7 @@ Rectangle {
     }
     Connections {
         id: connectToPluginSelector
-        target: impl.usingPluginSelector? pluginSelectorWindow.pluginSelector: null
+        target: impl.usingPluginSelector? pluginSelectorWindow: null
         function onAccepted() {
             if(impl.replaceInstrument) {
                 impl.usingPluginSelector = false;

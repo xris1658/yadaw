@@ -801,18 +801,24 @@ ApplicationWindow {
         color: Colors.background
         flags: Qt.Tool | Qt.FramelessWindowHint
         readonly property PluginSelector pluginSelector: pluginSelector
+        signal accepted()
+        signal cancelled()
+        signal resetted()
         PluginSelector {
             id: pluginSelector
             pluginListModel: SortFilterProxyListModel {
                 sourceModel: root.pluginListModel
             }
             onAccepted: {
+                pluginSelectorWindow.accepted();
                 pluginSelectorWindow.hide();
             }
             onCancelled: {
+                pluginSelectorWindow.cancelled();
                 pluginSelectorWindow.hide();
             }
             onResetted: {
+                pluginSelectorWindow.resetted();
                 pluginSelectorWindow.hide();
             }
             onActiveFocusChanged: {

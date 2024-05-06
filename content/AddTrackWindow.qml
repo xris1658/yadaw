@@ -66,7 +66,7 @@ Window {
     }
     Connections {
         id: connectToPluginSelector
-        target: pluginSelectorWindow.pluginSelector
+        target: pluginSelectorWindow
         function onCancelled() {
             instrumentComboBox.checked = false;
             audioEffectComboBox.checked = false;
