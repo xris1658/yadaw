@@ -25,7 +25,7 @@
 - 下载 [Qt 6.5](https://www.qt.io/download-open-source) 或更高版本。在安装时，勾
   选“MSVC 2019 64-bit”和“Qt Debug Information Files”。安装完成后，将 Qt 可执
   行文件所在目录（<Qt 安装目录>\<版本号>\msvc2019_64\bin）添加到系统环境变量
-  Path 中。
+  `Path` 中。
 - 下载 [vcpkg](https://github.com/microsoft/vcpkg)：
   ```shell
   git clone https://github.com/microsoft/vcpkg
@@ -46,7 +46,7 @@
   cd <CLAP 所在目录的路径>
   git clone https://github.com/free-audio/clap
   ```
-- 下载 YADAW 的源码，配置并构建项目。启动 Visual Studio 2022 开发者命令提示符，
+- 下载 YADAW 的源码，配置并构建项目。启动 **Visual Studio 2022 开发者命令提示符**，
   并执行以下命令：
   ```shell
   git clone https://github.com/xris1658/yadaw
@@ -69,9 +69,9 @@
   ```shell
   pacman -S pactoys # pacboy
   pacman -S git
-  pacboy -S gcc:x cppwinrt:x cmake:x qt6-base:x qt6-declarative:x qt6-tools:x qt6-translations:x sqlite3:x yaml-cpp:x
+  pacboy -S gcc:x gdb:x cppwinrt:x cmake:x qt6-base:x qt6-declarative:x qt6-tools:x qt6-translations:x sqlite3:x yaml-cpp:x
   ```
-- 下载 Windows SDK。MSYS2 中自带 Win32 SDK 的头文件和库，cppwinrt 软件包中包含了
+- 下载 Windows SDK。MSYS2 中自带 Win32 SDK 的头文件和库，`cppwinrt` 软件包中包含了
   C++/WinRT SDK 的头文件。然而，由于 YADAW 的源码还使用了 WinRT SDK 中的内容，因此除了上面安装的
   cppwinrt 软件包之外，用户仍需手动下载 Windows SDK，并安装 Windows SDK for UWP
   C++ Apps。（虽然只用了一个写有接口定义的头文件，但毕竟属于专有代码，笔者似乎不
