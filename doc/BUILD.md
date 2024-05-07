@@ -44,12 +44,11 @@ consider add ARM and macOS support in the future.
   cd <path to directory of VST3 SDK>
   git clone --recursive https://github.com/steinbergmedia/vst3sdk
   ```
-- 
 - Download source of [CLAP](https://github.com/free-audio/clap),
   and remember the path to it:
   ```shell
   cd <path to directory of CLAP>
-  git clone --recursive https://github.com/free-audio/clap
+  git clone https://github.com/free-audio/clap
   ```
 - Download source of YADAW, configure and build the project. Launch **Developer
   Command Prompt for VS 2022**, and execute the following commands:
@@ -87,7 +86,7 @@ consider add ARM and macOS support in the future.
 - Download source of [sqlite_modern_cpp](https://github.com/aminroosta/sqlite_modern_cpp),
   and remember the path to it:
   ```shell
-  cd <sqlite_modern_cpp 所在目录的路径>
+  cd <path to directory of sqlite_modern_cpp>
   git clone https://github.com/aminroosta/sqlite_modern_cpp
   ```
 - Download source of [ADE](https://github.com/opencv/ade), build and install it:
@@ -100,7 +99,18 @@ consider add ARM and macOS support in the future.
   cmake --build .
   cmake --install .
   ```
-- Download source of YADAW, configure and build the project.
+- Download source of YADAW, configure and build the project:
+  ```shell
+  git clone https://github.com/xris1658/yadaw
+  cd ./yadaw
+  mkdir build
+  cd build
+  cmake -S .. -B . \
+    -DVST3SDK_SOURCE_DIR=<path to directory of VST3 SDK>/vst3sdk \
+    -DCLAP_SOURCE_DIR=<path to directory of CLAP>/clap \
+    -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<path to directory of sqlite_modern_cpp>/sqlite_modern_cpp/hdr
+  cmake --build . --target YADAW -j 16
+  ```
 
 ### Known problems
 - The application built with MSYS2 cannot handle paths with non-ASCII characters
@@ -109,8 +119,8 @@ consider add ARM and macOS support in the future.
   does not exist in the application built with MSVC.
 
 ## Build on Linux
-The following steps are for Ubuntu and its forks. Though not tested, those might
-be usable on Debian and its forks.
+The following steps are made for Ubuntu and its forks. Though not tested, those
+might be usable on Debian and its forks.
 
 - Install some prerequisites:
   ```shell
@@ -120,5 +130,25 @@ be usable on Debian and its forks.
   ```
 - Download source of VST3 SDK, CLAP and sqlite_modern_cpp, and remember the
   paths to them;
-- Download source of [ADE](https://github.com/opencv/ade), build and install it;
-- Download source of YADAW, configure and build the project.
+- Download source of [ADE](https://github.com/opencv/ade), build and install it:
+  ```shell
+  git clone https://github.com/opencv/ade
+  cd ./ade
+  mkdir build
+  cd build
+  cmake -S .. -B .
+  cmake --build .
+  cmake --install .
+  ```
+- Download source of YADAW, configure and build the project:
+  ```shell
+  git clone https://github.com/xris1658/yadaw
+  cd ./yadaw
+  mkdir build
+  cd build
+  cmake -S .. -B . \
+    -DVST3SDK_SOURCE_DIR=<path to directory of VST3 SDK>/vst3sdk \
+    -DCLAP_SOURCE_DIR=<path to directory of CLAP>/clap \
+    -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<path to directory of sqlite_modern_cpp>/sqlite_modern_cpp/hdr
+  cmake --build . --target YADAW -j 16
+  ```

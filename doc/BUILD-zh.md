@@ -93,7 +93,18 @@
   cmake --build .
   cmake --install .
   ```
-- 下载 YADAW 的源码，配置并构建项目。
+- 下载 YADAW 的源码，配置并构建项目：
+  ```shell
+  git clone https://github.com/xris1658/yadaw
+  cd ./yadaw
+  mkdir build
+  cd build
+  cmake -S .. -B . \
+    -DVST3SDK_SOURCE_DIR=<VST3 SDK 所在目录的路径>/vst3sdk \
+    -DCLAP_SOURCE_DIR=<CLAP 所在目录的路径>/clap \
+    -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<sqlite_modern_cpp 所在目录的路径>/sqlite_modern_cpp/hdr
+  cmake --build . --target YADAW -j 16
+  ```
 
 ### 一些已知问题
 - 使用 MSYS2 构建的应用程序似乎无法正确处理带有非 ASCII 字符的路径。例如，当用户
@@ -112,5 +123,25 @@ Debian 及其分支发行版。
   sudo apt-get install cmake libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
   ```
 - 下载 VST3 SDK、CLAP 和 sqlite_modern_cpp 的源码，并记住路径；
-- 下载 ADE，构建并安装；
-- 下载 YADAW 的源码，配置并构建项目。
+- 下载 ADE，构建并安装：
+  ```shell
+  git clone https://github.com/opencv/ade
+  cd ./ade
+  mkdir build
+  cd build
+  cmake -S .. -B .
+  cmake --build .
+  cmake --install .
+  ```
+- 下载 YADAW 的源码，配置并构建项目：
+  ```shell
+  git clone https://github.com/xris1658/yadaw
+  cd ./yadaw
+  mkdir build
+  cd build
+  cmake -S .. -B . \
+    -DVST3SDK_SOURCE_DIR=<VST3 SDK 所在目录的路径>/vst3sdk \
+    -DCLAP_SOURCE_DIR=<CLAP 所在目录的路径>/clap \
+    -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<sqlite_modern_cpp 所在目录的路径>/sqlite_modern_cpp/hdr
+  cmake --build . --target YADAW -j 16
+  ```
