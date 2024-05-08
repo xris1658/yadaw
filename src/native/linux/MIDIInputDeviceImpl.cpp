@@ -52,7 +52,7 @@ MIDIInputDevice::Impl::~Impl()
     auto seq = Sequencer::instance().seq();
     if(seqPortId_ != -1)
     {
-        snd_seq_delete_port(seq, seqPortId_);
+        snd_seq_delete_simple_port(seq, seqPortId_);
     }
 }
 

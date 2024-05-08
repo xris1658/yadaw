@@ -33,6 +33,8 @@
 #include <thread>
 #include <vector>
 
+#include "audio/host/VST3RunLoop.hpp"
+
 int inputIndex = -1;
 
 int samplePosition = 0;
@@ -318,6 +320,11 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 if(gui)
                 {
                     pluginWindowThread.start();
+#if __linux__
+                    YADAW::Audio::Host::VST3RunLoop::instance().setMainThreadContext(
+                        *pluginWindowThread.window()
+                    );
+#endif
                     auto factory = plugin.factory();
                     auto classCount = plugin.factory()->countClasses();
                     for(int i = 0; i < classCount; ++i)
@@ -389,6 +396,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     std::wprintf(L"No GUI available!");
                     getchar();
                 }
+                YADAW::Audio::Host::VST3RunLoop::instance().stop();
                 stop.store(true, std::memory_order_release);
                 audioThread.join();
                 plugin.stopProcessing();
