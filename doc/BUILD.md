@@ -14,7 +14,7 @@ consider add ARM and macOS support in the future.
   add the path to git.exe to the system environment variable `Path`.
 - Download and install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
   While installing with Visual Studio Installer, check "Desktop devleopment with
-  C++" and "Universal Windows Platform development" in Workloads -> Desktop &
+  C++" and "Universal Windows Platform development" in "Workloads -> Desktop &
   Mobile", and "English" in "Language packs".
   - Pay attention to your Windows SDK version installed to build the project.
     YADAW uses C++20 standard and C++/WinRT SDK, but the C++/WinRT SDK included
@@ -25,15 +25,15 @@ consider add ARM and macOS support in the future.
     **You could edit those files manually, but please DO make backups!**
 - Install [Qt 6.5](https://www.qt.io/download-open-source) or newer. While
   installing, check "MSVC 2019 64-bit" and "Qt Debug Information Files". After
-  the installation, add the directory containing the Qt executable (
-- <Qt install directory>\<version>\msvc2019_64\bin) to the system environment
-  variable `Path`.
+  the installation, add the directory containing the Qt executable (<Qt install
+  directory>\<version>\msvc2019_64\bin) to the system environment variable
+  `Path`.
 - Download [vcpkg](https://github.com/microsoft/vcpkg):
   ```shell
   git clone https://github.com/microsoft/vcpkg
   .\vcpkg\bootstrap-vcpkg.bat
   ```
-- Add directory of vcpkg to the system environment variable `Path`.
+  And add directory of vcpkg to the system environment variable `Path`.
 - Install some prerequisites:
   ```shell
   vcpkg install ade:x64-windows sqlite3:x64-windows sqlite-modern-cpp:x64-windows yaml-cpp:x64-windows
@@ -67,8 +67,8 @@ consider add ARM and macOS support in the future.
 ### Build with MSYS2
 
 - Download and install [MSYS2](https://www.msys2.org/).
-  A lot of environments are available with MSYS2. The following process uses the
-  MINGW64 environment, thus you should open MSYS2 MINGW64 to execute it.
+  Thereare several environments available in MSYS2. The following process uses
+  the MINGW64 environment, thus you should open MSYS2 MINGW64 to execute it.
 - Install some prerequisites:
   ```shell
   pacman -S pactoys # pacboy
@@ -77,11 +77,11 @@ consider add ARM and macOS support in the future.
   ```
 - Download Windows SDK. MSYS2 is shipped with headers and libraries of Win32
   SDK, and the `cppwinrt` package contains headers of C++/WinRT SDK. However,
-  source of YADAW uses contents in WinRT SDK as well, so you need to download
-  Windows SDK manually as well as the previously installed `cppwinrt` package,
-  and install Windows SDK for UWP C++ Apps. (Only one header file with
-  definition of an interface is used but it's proprietary code after all, so I
-- should not redistribute it without premission).
+  source of YADAW uses contents in WinRT SDK (not to be confused with the
+  C++/WinRT SDK) as well, so you still need to download Windows SDK manually,
+  and install Windows SDK for UWP C++ Apps. (Actually only one header file with
+  definition of an interface is used, but it's proprietary code after all, so I
+  should not redistribute it without premission).
 - Download source of VST3 SDK and CLAP, and remember the paths to them;
 - Download source of [sqlite_modern_cpp](https://github.com/aminroosta/sqlite_modern_cpp),
   and remember the path to it:
@@ -115,8 +115,8 @@ consider add ARM and macOS support in the future.
 ### Known problems
 - The application built with MSYS2 cannot handle paths with non-ASCII characters
   correctly. For instance, if the user folder name contains Chinese characters,
-  then YADAW cannot read the configuration file of the application. Such problem
-  does not exist in the application built with MSVC.
+  then YADAW cannot read the configuration file of the application and crashes
+  immediately. Such problem does not exist in the application built with MSVC.
 
 ## Build on Linux
 The following steps are made for Ubuntu and its forks. Though not tested, those
@@ -128,6 +128,7 @@ might be usable on Debian and its forks.
   # Dependencies of VST3 SDK
   sudo apt-get install cmake libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
   ```
+- Download and install Qt;
 - Download source of VST3 SDK, CLAP and sqlite_modern_cpp, and remember the
   paths to them;
 - Download source of [ADE](https://github.com/opencv/ade), build and install it:

@@ -11,10 +11,10 @@
 ### 使用 MSVC
 
 - 下载并安装 [Git for Windows](https://git-scm.com/download/win)，并将 git.exe 
-  所在目录添加到系统环境变量 Path 中。
+  所在目录添加到系统环境变量 `Path` 中。
 - 下载并安装 [Visual Studio 2022](https://visualstudio.microsoft.com/zh-hans/downloads/)。
-  在 Visual Studio Installer 中安装时，勾选“工作负荷”中的“桌面应用和移动应
-  用”中的“使用 C++ 的桌面开发”、“通用 Windows 平台开发”以及“语言包”中的
+  在 Visual Studio Installer 中安装时，勾选“工作负荷 -> 桌面应用和移动应用”中
+  的“使用 C++ 的桌面开发”、“通用 Windows 平台开发”以及“语言包”中的
   “英语”。
   - 请留意安装并用于构建项目的 Windows SDK 版本。YADAW 项目本身使用 C++20 标准，
     且使用了 C++/WinRT SDK，而一些旧版本的 Windows SDK（如 10.0.19041.0）随附的
@@ -31,7 +31,7 @@
   git clone https://github.com/microsoft/vcpkg
   .\vcpkg\bootstrap-vcpkg.bat
   ```
-- 将 vcpkg 目录添加到系统环境变量 Path 中。
+  并将 vcpkg 目录添加到系统环境变量 `Path` 中。
 - 安装一些必要的软件包：
   ```shell
   vcpkg install ade:x64-windows sqlite3:x64-windows sqlite-modern-cpp:x64-windows yaml-cpp:x64-windows
@@ -71,11 +71,11 @@
   pacman -S git
   pacboy -S gcc:x gdb:x cppwinrt:x cmake:x qt6-base:x qt6-declarative:x qt6-tools:x qt6-translations:x sqlite3:x yaml-cpp:x
   ```
-- 下载 Windows SDK。MSYS2 中自带 Win32 SDK 的头文件和库，`cppwinrt` 软件包中包含了
-  C++/WinRT SDK 的头文件。然而，由于 YADAW 的源码还使用了 WinRT SDK 中的内容，因此除了上面安装的
-  cppwinrt 软件包之外，用户仍需手动下载 Windows SDK，并安装 Windows SDK for UWP
-  C++ Apps。（虽然只用了一个写有接口定义的头文件，但毕竟属于专有代码，笔者似乎不
-  应擅自分发。）
+- 下载 Windows SDK。MSYS2 中自带 Win32 SDK 的头文件和库，`cppwinrt` 软件包中包含
+  了 C++/WinRT SDK 的头文件。然而，由于 YADAW 的源码还使用了 WinRT SDK 中的内容
+  ，因 此除了上面安装的 `cppwinrt` 软件包之外，用户仍需手动下载 Windows SDK，并
+  安装 Windows SDK for UWP C++ Apps。（虽然只用了一个写有接口定义的头文件，但毕
+  竟属于专有代码，笔者似乎不应擅自分发。）
 - 下载 VST3 SDK 和 CLAP 的源码，并记住路径；
 - 下载 [sqlite_modern_cpp](https://github.com/aminroosta/sqlite_modern_cpp) 的源
   码，并记住路径：
@@ -108,8 +108,8 @@
 
 ### 一些已知问题
 - 使用 MSYS2 构建的应用程序似乎无法正确处理带有非 ASCII 字符的路径。例如，当用户
-  文件夹名带中文字符时，YADAW 无法读取应用程序的配置文件。使用 MSVC 构建的程序似
-  乎没有这一问题。
+  文件夹名带中文字符时，YADAW 无法读取应用程序的配置文件，并立即崩溃。使用 MSVC
+  构建的程序似乎没有这一问题。
 
 ## 在 Linux 上构建
 
@@ -122,6 +122,7 @@ Debian 及其分支发行版。
   # VST3 SDK 的依赖项
   sudo apt-get install cmake libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
   ```
+- 下载并安装 Qt；
 - 下载 VST3 SDK、CLAP 和 sqlite_modern_cpp 的源码，并记住路径；
 - 下载 ADE，构建并安装：
   ```shell
