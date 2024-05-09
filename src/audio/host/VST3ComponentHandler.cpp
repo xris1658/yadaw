@@ -221,7 +221,11 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
         plugin_->stopProcessing();
         plugin_->deactivate();
         ioChangedCallback_(*plugin_);
-        plugin_->activate();
+        // Some plugins might request a restart even it is not activated.
+        if(status >= IAudioPlugin::Status::Activated)
+        {
+            plugin_->activate();
+        }
         if(status >= IAudioPlugin::Status::Processing)
         {
             plugin_->startProcessing();
@@ -233,8 +237,12 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
         auto status = plugin_->status();
         plugin_->stopProcessing();
         plugin_->deactivate();
-        plugin_->activate();
-        latencyChangedCallback_(*plugin_);
+        // Some plugins might request a restart even it is not activated.
+        if(status >= IAudioPlugin::Status::Activated)
+        {
+            plugin_->activate();
+            latencyChangedCallback_(*plugin_);
+        }
         if(status >= IAudioPlugin::Status::Processing)
         {
             plugin_->startProcessing();
