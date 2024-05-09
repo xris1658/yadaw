@@ -3,6 +3,8 @@
 
 #ifdef __linux__
 
+#include "audio/host/VST3RunLoopEventCaller.hpp"
+
 #include <pluginterfaces/gui/iplugview.h>
 
 #include <QTimer>
@@ -69,6 +71,7 @@ private:
         Steinberg::Linux::ITimerHandler*,
         std::unique_ptr<QTimer>>
     timerHandlers_;
+    VST3RunLoopEventCaller eventCaller_;
     std::thread epollThread_;
 };
 }

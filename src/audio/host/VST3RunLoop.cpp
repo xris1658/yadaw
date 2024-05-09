@@ -54,7 +54,7 @@ Steinberg::tresult VST3RunLoop::registerEventHandler(
     Steinberg::Linux::IEventHandler* handler,
     Steinberg::Linux::FileDescriptor fd)
 {
-    if(handler && fd >= 0)
+    if(!handler || fd < 0)
     {
         return Steinberg::kInvalidArgument;
     }
@@ -186,7 +186,10 @@ bool VST3RunLoop::tryEpollCreateIfNeeded()
                                 auto eventCaller = static_cast<EventCaller*>(
                                     epollEvents[i].data.ptr
                                 );
-                                (*eventCaller)();
+                                eventCaller_.setFD(
+                                    eventCaller->eventHandler,
+                                    eventCaller->fd
+                                );
                             }
                         }
                     }
@@ -200,6 +203,12 @@ bool VST3RunLoop::tryEpollCreateIfNeeded()
 void VST3RunLoop::setMainThreadContext(const QObject& mainThreadContext)
 {
     mainThreadContext_ = &mainThreadContext;
+    auto thread1 = eventCaller_.thread();
+    auto thread2 = mainThreadContext_->thread();
+    if(thread1 != thread2)
+    {
+        eventCaller_.moveToThread(thread2);
+    }
 }
 
 void VST3RunLoop::stop()
