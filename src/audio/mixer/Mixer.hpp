@@ -211,7 +211,6 @@ private:
     std::vector<FaderAndNode> faders_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts_;
     std::vector<MeterAndNode> meters_;
-    std::vector<DeviceAndNode> outputDevices_;
     std::vector<ChannelInfo> channelInfo_;
 
     IDGen audioOutputChannelIdGen_;

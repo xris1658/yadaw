@@ -783,16 +783,7 @@ bool Mixer::insertChannel(
                 break;
             }
             std::unique_ptr<YADAW::Audio::Device::IAudioDevice> inputDevice(blankGenerator);
-            auto blankReceiver = new (std::nothrow) YADAW::Audio::Mixer::BlankReceiver(
-                channelGroupType, channelCountInGroup
-            );
-            if(!blankReceiver)
-            {
-                break;
-            }
-            std::unique_ptr<YADAW::Audio::Device::IAudioDevice> outputDevice(blankReceiver);
             auto inputDeviceNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*blankGenerator));
-            auto outputDeviceNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*blankReceiver));
             auto fader = std::make_unique<YADAW::Audio::Mixer::VolumeFader>(
                 channelGroupType, channelCountInGroup
             );
@@ -829,9 +820,6 @@ bool Mixer::insertChannel(
             );
             mutes_.emplace(mutes_.begin() + position,
                 std::move(mute), muteNode
-            );
-            outputDevices_.emplace(outputDevices_.begin() + position,
-                std::move(outputDevice), outputDeviceNode
             );
             ret = true;
             break;
@@ -894,9 +882,6 @@ bool Mixer::insertChannel(
             mutes_.emplace(mutes_.begin() + position,
                 std::move(mute), muteNode
             );
-            outputDevices_.emplace(outputDevices_.begin() + position,
-                std::move(outputDevice), outputDeviceNode
-            );
             ret = true;
             break;
         }
@@ -949,14 +934,13 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             postFaderInserts_.begin() + last
         );
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 5);
+        nodesToRemove.reserve(removeCount * 4);
         FOR_RANGE(i, first,last)
         {
             nodesToRemove.emplace_back(inputDevices_[i].second);
             nodesToRemove.emplace_back(mutes_[i].second);
             nodesToRemove.emplace_back(faders_[i].second);
             nodesToRemove.emplace_back(meters_[i].second);
-            nodesToRemove.emplace_back(outputDevices_[i].second);
         }
         FOR_RANGE0(i, nodesToRemove.size())
         {
@@ -978,10 +962,6 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         faders_.erase(
             faders_.begin() + first,
             faders_.begin() + last
-        );
-        outputDevices_.erase(
-            outputDevices_.begin() + first,
-            outputDevices_.begin() + last
         );
         channelInfo_.erase(
             channelInfo_.begin() + first,
