@@ -13,7 +13,7 @@ class ISpeakerListModel: public QAbstractListModel
 public:
     enum Role
     {
-        Type,
+        Type = Qt::UserRole,
         Name,
         RoleCount
     };
