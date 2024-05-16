@@ -396,7 +396,9 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     std::wprintf(L"No GUI available!");
                     getchar();
                 }
+#ifdef __linux__
                 YADAW::Audio::Host::VST3RunLoop::instance().stop();
+#endif
                 stop.store(true, std::memory_order_release);
                 audioThread.join();
                 plugin.stopProcessing();
