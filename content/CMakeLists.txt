@@ -176,10 +176,11 @@ qt_add_qml_module(content
                     images/qtlogo-64.png)
 
 set_source_files_properties(../l10n/osct/YADAW_content_zh_CN.ts
+                            DIRECTORY ..
                             PROPERTIES
                             OUTPUT_LOCATION
                             ${CMAKE_CURRENT_BINARY_DIR}/../l10n/osct)
 
 qt_add_translations(content TS_FILES ../l10n/osct/YADAW_content_zh_CN.ts
-                    INCLUDE_DIRECTORIES ./content
+                    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}
                     SOURCES ${CONTENT_QML_FILES})
