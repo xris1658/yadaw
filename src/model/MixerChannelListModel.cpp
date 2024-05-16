@@ -6,6 +6,7 @@
 #include "controller/AudioGraphBackendController.hpp"
 #include "controller/ALSABackendController.hpp"
 #include "controller/PluginController.hpp"
+#include "controller/PluginIOConfigUpdatedCallback.hpp"
 #include "controller/PluginLatencyUpdatedCallback.hpp"
 #include "controller/PluginWindowController.hpp"
 #include "dao/PluginTable.hpp"
@@ -616,6 +617,9 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 vst3ComponentHandler->setLatencyChangedCallback(
                     &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::VST3Plugin>
                 );
+                vst3ComponentHandler->setIOChangedCallback(
+                    &YADAW::Controller::ioConfigUpdated<YADAW::Audio::Plugin::VST3Plugin>
+                );
                 pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
                 auto inputCount = pluginPtr->audioInputGroupCount();
                 auto outputCount = pluginPtr->audioOutputGroupCount();
@@ -926,6 +930,89 @@ void MixerChannelListModel::instrumentLatencyUpdated(std::uint32_t index) const
             this->index(index),
             this->index(index),
             {Role::InstrumentLatency}
+        );
+    }
+}
+
+void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
+{
+    if(listType_ == ListType::Regular
+        && index < itemCount()
+        && mixer_.channelInfoAt(index)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
+        && instruments_[index])
+    {
+        auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
+        auto& graphWithPDC = mixer_.graph();
+        auto& graph = graphWithPDC.graph();
+        auto instrumentNode = instruments_[index]->instrumentNode;
+        struct Point
+        {
+            std::uint32_t fromChannelGroupIndex;
+            std::uint32_t toChannelGroupIndex;
+            ade::NodeHandle node;
+        };
+        std::vector<Point> inputPoints;
+        std::vector<Point> outputPoints;
+        auto inEdges = instrumentNode->inEdges();
+        auto size = inEdges.size();
+        inputPoints.reserve(size);
+        for(const auto& edgeHandle: inEdges)
+        {
+            const auto& edgeData = graph.getEdgeData(edgeHandle);
+            inputPoints.emplace_back(
+                Point {
+                    .fromChannelGroupIndex = edgeData.fromChannel,
+                    .toChannelGroupIndex = edgeData.toChannel,
+                    .node = edgeHandle->srcNode()
+                }
+            );
+        }
+        auto outEdges = instrumentNode->outEdges();
+        size = outEdges.size();
+        outputPoints.reserve(size);
+        for(const auto& edgeHandle: outEdges)
+        {
+            const auto& edgeData = graph.getEdgeData(edgeHandle);
+            outputPoints.emplace_back(
+                Point {
+                    .fromChannelGroupIndex = edgeData.fromChannel,
+                    .toChannelGroupIndex = edgeData.toChannel,
+                    .node = edgeHandle->dstNode()
+                }
+            );
+        }
+        auto instrumentIsBypassed = instrumentBypassed_[index];
+        setData(this->index(index), QVariant::fromValue<bool>(true),
+            IMixerChannelListModel::Role::InstrumentBypassed
+        );
+        auto process = graph.getNodeData(instrumentNode).process;
+        auto device = process.device();
+        if(device->audioInputGroupCount() > 1)
+        {
+            auto multiInput = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(device);
+            process = multiInput->process();
+            device = process.device();
+        }
+        graphWithPDC.removeNode(instrumentNode);
+        YADAW::Controller::AudioEngine::mixerNodeRemovedCallback(mixer_);
+        auto plugin = static_cast<YADAW::Audio::Plugin::IAudioPlugin*>(device);
+        auto status = plugin->status();
+        plugin->stopProcessing();
+        plugin->deactivate();
+        instrumentAudioInputs_[index]->reset();
+        instrumentAudioOutputs_[index]->reset();
+        if(status >= YADAW::Audio::Plugin::IAudioPlugin::Status::Activated)
+        {
+            plugin->activate();
+        }
+        if(status >= YADAW::Audio::Plugin::IAudioPlugin::Status::Processing)
+        {
+            plugin->startProcessing();
+        }
+        instruments_[index]->instrumentNode = graphWithPDC.addNode(std::move(process));
+        // TODO: Restore additional connections
+        setData(this->index(index), QVariant::fromValue<bool>(instrumentIsBypassed),
+            IMixerChannelListModel::Role::InstrumentBypassed
         );
     }
 }

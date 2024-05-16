@@ -9,6 +9,7 @@
 #include "controller/LibraryPluginMap.hpp"
 #include "controller/PluginContextMap.hpp"
 #include "controller/PluginController.hpp"
+#include "controller/PluginIOConfigUpdatedCallback.hpp"
 #include "controller/PluginLatencyUpdatedCallback.hpp"
 #include "controller/PluginListController.hpp"
 #include "controller/PluginWindowController.hpp"
@@ -192,6 +193,9 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             {
                 vst3ComponentHandler->setLatencyChangedCallback(
                     &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::VST3Plugin>
+                );
+                vst3ComponentHandler->setIOChangedCallback(
+                    &YADAW::Controller::ioConfigUpdated<YADAW::Audio::Plugin::VST3Plugin>
                 );
                 pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
                 auto inputCount = pluginPtr->audioInputGroupCount();
@@ -612,6 +616,88 @@ void MixerChannelInsertListModel::latencyUpdated(std::uint32_t index) const
             this->index(index),
             this->index(index),
             {Role::Latency}
+        );
+    }
+}
+
+void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
+{
+    if(index < itemCount())
+    {
+        auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
+        auto& mixer = audioEngine.mixer();
+        auto& graphWithPDC = mixer.graph();
+        auto& graph = graphWithPDC.graph();
+        auto node = *(inserts_->insertAt(index));
+        struct Point
+        {
+            std::uint32_t fromChannelGroupIndex;
+            std::uint32_t toChannelGroupIndex;
+            ade::NodeHandle node;
+        };
+        std::vector<Point> inputPoints;
+        std::vector<Point> outputPoints;
+        auto inEdges = node->inEdges();
+        auto size = inEdges.size();
+        inputPoints.reserve(size);
+        for(const auto& edgeHandle: inEdges)
+        {
+            const auto& edgeData = graph.getEdgeData(edgeHandle);
+            inputPoints.emplace_back(
+                Point {
+                    .fromChannelGroupIndex = edgeData.fromChannel,
+                    .toChannelGroupIndex = edgeData.toChannel,
+                    .node = edgeHandle->srcNode()
+                }
+            );
+        }
+        auto outEdges = node->outEdges();
+        size = outEdges.size();
+        outputPoints.reserve(size);
+        for(const auto& edgeHandle: outEdges)
+        {
+            const auto& edgeData = graph.getEdgeData(edgeHandle);
+            outputPoints.emplace_back(
+                Point {
+                    .fromChannelGroupIndex = edgeData.fromChannel,
+                    .toChannelGroupIndex = edgeData.toChannel,
+                    .node = edgeHandle->dstNode()
+                }
+            );
+        }
+        auto process = graph.getNodeData(node).process;
+        auto device = process.device();
+        if(device->audioInputGroupCount() > 1)
+        {
+            auto multiInput = static_cast<MultiInputDeviceWithPDC*>(device);
+            process = multiInput->process();
+            device = process.device();
+        }
+        inserts_->remove(index);
+        auto name = *inserts_->insertNameAt(index);
+        graphWithPDC.removeNode(node);
+        YADAW::Controller::AudioEngine::insertsNodeRemovedCallback(*inserts_);
+        auto plugin = static_cast<YADAW::Audio::Plugin::IAudioPlugin*>(device);
+        auto status = plugin->status();
+        plugin->stopProcessing();
+        plugin->deactivate();
+        inputAudioChannelGroupLists_[index]->reset();
+        outputAudioChannelGroupLists_[index]->reset();
+        if(status >= IAudioPlugin::Status::Activated)
+        {
+            plugin->activate();
+        }
+        if(status >= IAudioPlugin::Status::Processing)
+        {
+            plugin->startProcessing();
+        }
+        node = graphWithPDC.addNode(std::move(process));
+        inserts_->insert(node, index, name);
+        // TODO: Restore additional connections
+        dataChanged(
+            this->index(index),
+            this->index(index),
+            {Role::AudioInputs, Role::AudioOutputs}
         );
     }
 }

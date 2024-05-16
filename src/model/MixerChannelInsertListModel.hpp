@@ -40,6 +40,7 @@ public:
     void setPreFaderInsert(bool isPreFaderInsert);
     void setInsertsIndex(std::uint32_t insertsIndex);
     void latencyUpdated(std::uint32_t index) const;
+    void updateIOConfig(std::uint32_t index);
     const YADAW::Audio::Mixer::Inserts& inserts() const;
     YADAW::Audio::Mixer::Inserts& inserts();
 private:

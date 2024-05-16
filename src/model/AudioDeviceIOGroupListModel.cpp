@@ -12,17 +12,7 @@ AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(
     speakerListModel_(),
     isInput_(isInput)
 {
-    const auto count = itemCount();
-    speakerListModel_.reserve(count);
-    FOR_RANGE0(i, count)
-    {
-        auto& channelGroup = (
-            isInput_?
-                device_->audioInputGroupAt(i):
-                device_->audioOutputGroupAt(i)
-            )->get();
-        speakerListModel_.emplace_back(channelGroup);
-    }
+    init();
 }
 
 AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(
@@ -99,5 +89,28 @@ QVariant AudioDeviceIOGroupListModel::data(const QModelIndex& index, int role) c
         }
     }
     return {};
+}
+
+void AudioDeviceIOGroupListModel::reset()
+{
+    beginResetModel();
+    speakerListModel_.clear();
+    init();
+    endResetModel();
+}
+
+void AudioDeviceIOGroupListModel::init()
+{
+    const auto count = itemCount();
+    speakerListModel_.reserve(count);
+    FOR_RANGE0(i, count)
+    {
+        auto& channelGroup = (
+            isInput_?
+                device_->audioInputGroupAt(i):
+                device_->audioOutputGroupAt(i)
+            )->get();
+        speakerListModel_.emplace_back(channelGroup);
+    }
 }
 }

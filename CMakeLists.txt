@@ -303,6 +303,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/PluginController.hpp
     src/controller/PluginDirectoryController.cpp
     src/controller/PluginDirectoryController.hpp
+    src/controller/PluginIOConfigUpdatedCallback.cpp
+    src/controller/PluginIOConfigUpdatedCallback.hpp
     src/controller/PluginLatencyUpdatedCallback.cpp
     src/controller/PluginLatencyUpdatedCallback.hpp
     src/controller/PluginListController.cpp

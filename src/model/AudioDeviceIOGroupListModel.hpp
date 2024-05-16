@@ -23,6 +23,10 @@ public:
     int itemCount() const;
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
+public:
+    void reset();
+private:
+    void init();
 private:
     const YADAW::Audio::Device::IAudioDevice* device_ = nullptr;
     mutable std::vector<YADAW::Model::SpeakerListModel> speakerListModel_;
