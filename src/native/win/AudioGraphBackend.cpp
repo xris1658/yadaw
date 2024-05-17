@@ -1,14 +1,13 @@
 #if _WIN32
 
 #include "audio/backend/AudioGraphBackend.hpp"
+#include "audio/backend/AudioGraphErrorText.hpp"
 #include "native/win/AudioGraphBackendImpl.hpp"
 #include "native/win/winrt/Async.hpp"
 #include "native/win/winrt/QStringFromHString.hpp"
 #include "util/IntegerRange.hpp"
 
 #include <audioclient.h>
-
-#include <QCoreApplication>
 
 namespace YADAW::Audio::Backend
 {
@@ -244,8 +243,7 @@ QString getAudioGraphErrorStringFromErrorCode(AudioGraphBackend::ErrorCode error
     switch(errorCode)
     {
     case AUDCLNT_E_DEVICE_IN_USE: // FIXME
-        return QCoreApplication::translate("AudioGraphBackend",
-            "The current audio device is already in use.");
+        return getDeviceInUseErrorText();
     default:
         break;
     }

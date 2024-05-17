@@ -1,6 +1,7 @@
 #if __linux__
 
 #include "audio/backend/ALSABackend.hpp"
+#include "audio/backend/ALSAErrorText.hpp"
 #include "native/linux/ALSABackendImpl.hpp"
 #include "util/IntegerRange.hpp"
 
@@ -121,19 +122,6 @@ std::optional<std::uint32_t> findDeviceBySelector(bool isInput, ALSADeviceSelect
     return std::nullopt;
 }
 
-QString getIOString(bool isInput)
-{
-    return isInput?
-    QCoreApplication::translate(
-        "ALSABackend",
-        "input"
-    ):
-    QCoreApplication::translate(
-        "ALSABackend",
-        "output"
-    );
-}
-
 // "opening audio device {}", process
 QString getALSAProcessString(
     bool isInput,
@@ -144,68 +132,52 @@ QString getALSAProcessString(
     switch(process)
     {
     case ALSABackend::ActivateDeviceProcess::OpenPCM:
-        ret = QCoreApplication::translate("ALSABackend",
-            "opening audio %1 device %2");
+        ret = getOpenPCMErrorText();
         break;
     case ALSABackend::ActivateDeviceProcess::FillHardwareConfigSpace:
-        ret = QCoreApplication::translate("ALSABackend",
-            "retrieving available hardware config of audio %1 device %2");
+        ret = getFillHardwareConfigSpaceText();
         break;
     case ALSABackend::ActivateDeviceProcess::SetSampleFormat:
-        ret = QCoreApplication::translate("ALSABackend",
-            "adjusting sample format of audio %1 device %2");
+        ret = getSetSampleFormatText();
         break;
     case ALSABackend::ActivateDeviceProcess::SetSampleRate:
-        ret = QCoreApplication::translate("ALSABackend",
-            "adjusting sample rate of audio %1 device %2");
+        ret = getSetSampleRateText();
         break;
     case ALSABackend::ActivateDeviceProcess::SetBufferSize:
-        ret = QCoreApplication::translate("ALSABackend",
-            "adjusting buffer size of audio %1 device %2");
+        ret = getSetBufferSizeText();
         break;
     case ALSABackend::ActivateDeviceProcess::SetPeriodSize:
-        ret = QCoreApplication::translate("ALSABackend",
-            "adjusting period size of audio %1 device %2");
+        ret = getSetPeriodSizeText();
         break;
     case ALSABackend::ActivateDeviceProcess::GetChannelCount:
-        ret = QCoreApplication::translate("ALSABackend",
-            "getting available channel count of audio %1 device %2");
+        ret = getGetChannelCountText();
         break;
     case ALSABackend::ActivateDeviceProcess::SetChannelCount:
-        ret = QCoreApplication::translate("ALSABackend",
-            "adjusting channel count of audio %1 device %2");
+        ret = getSetChannelCountText();
         break;
     case ALSABackend::ActivateDeviceProcess::SetSampleAccess:
-        ret = QCoreApplication::translate("ALSABackend",
-            "getting available sample access of audio %1 device %2");
+        ret = getSetSampleAccessText();
         break;
     case ALSABackend::ActivateDeviceProcess::DetermineHardwareConfig:
-        ret = QCoreApplication::translate("ALSABackend",
-            "committing hardware config of audio %1 device %2");
+        ret = getDetermineHardwareConfigText();
         break;
     case ALSABackend::ActivateDeviceProcess::GetSotfwareConfig:
-        ret = QCoreApplication::translate("ALSABackend",
-            "retrieving current software config of audio %1 device %2");
+        ret = getGetSotfwareConfigText();
         break;
     case ALSABackend::ActivateDeviceProcess::SetAvailMin:
-        ret = QCoreApplication::translate("ALSABackend",
-            "adjusting minimum available count of samples of audio %1 device %2");
+        ret = getSetAvailMinText();
         break;
     case ALSABackend::ActivateDeviceProcess::SetStartThreshold:
-        ret = QCoreApplication::translate("ALSABackend",
-            "adjusting start threshold of audio %1 device %2");
+        ret = getSetStartThresholdText();
         break;
     case ALSABackend::ActivateDeviceProcess::DetermineSoftwareConfig:
-        ret = QCoreApplication::translate("ALSABackend",
-            "committing software config of audio %1 device %2");
+        ret = getDetermineSoftwareConfigText();
         break;
     case ALSABackend::ActivateDeviceProcess::AllocateBuffer:
-        ret = QCoreApplication::translate("ALSABackend",
-            "allocating buffer of audio %1 device %2");
+        ret = getAllocateBufferText();
         break;
     case ALSABackend::ActivateDeviceProcess::Finish:
-        ret = QCoreApplication::translate("ALSABackend",
-            "finishing activation of audio %1 device %2");
+        ret = getFinishText();
         break;
     }
     ret = ret.arg(getIOString(isInput), name);
@@ -219,10 +191,7 @@ QString getALSAErrorString(
     auto optionalName = ALSABackend::audioDeviceName(selector);
     if(optionalName.has_value())
     {
-        return QCoreApplication::translate(
-            "ALSABackend",
-            "An error occurred while %1: %2"
-        ).arg(
+        return getALSAErrorText().arg(
             getALSAProcessString(
                 isInput, activateDeviceResult.first, QString::fromStdString(*optionalName)
             ),
@@ -231,9 +200,7 @@ QString getALSAErrorString(
     }
     else
     {
-        return QString(
-            "Unable to find audio %1 device %2-%3"
-        ).arg(
+        return getALSADeviceNotFoundText().arg(
             getIOString(isInput),
             QString::number(selector.cIndex),
             QString::number(selector.dIndex)

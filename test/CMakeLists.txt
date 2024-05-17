@@ -3,6 +3,8 @@ if(WIN32)
                    ../src/audio/backend/AudioGraphBackend.hpp
                    ../src/audio/backend/AudioGraphBusConfiguration.cpp
                    ../src/audio/backend/AudioGraphBusConfiguration.hpp
+                   ../src/audio/backend/AudioGraphErrorText.cpp
+                   ../src/audio/backend/AudioGraphErrorText.hpp
                    ../src/audio/device/IAudioChannelGroup.cpp
                    ../src/audio/device/IAudioChannelGroup.hpp
                    ../src/audio/engine/AudioDeviceGraphBase.cpp
@@ -63,6 +65,8 @@ if(LINUX)
                    ../src/audio/backend/ALSABackend.hpp
                    ../src/audio/backend/ALSABusConfiguration.cpp
                    ../src/audio/backend/ALSABusConfiguration.hpp
+                   ../src/audio/backend/ALSAErrorText.cpp
+                   ../src/audio/backend/ALSAErrorText.hpp
                    ../src/audio/device/IAudioChannelGroup.cpp
                    ../src/audio/device/IAudioChannelGroup.hpp
                    ../src/audio/engine/AudioDeviceGraphBase.cpp
@@ -92,7 +96,7 @@ if(LINUX)
                    common/SineWaveGenerator.cpp
                    common/SineWaveGenerator.hpp
                    ALSATest/main.cpp
-                   )
+    )
     target_precompile_headers(ALSATest PRIVATE ../pch/LinuxAPI.hpp ../pch/QtCore.hpp)
     target_link_libraries(ALSATest PRIVATE
                           ade

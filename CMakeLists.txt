@@ -70,6 +70,7 @@ endif()
 set(WIN32_NATIVE_SOURCES
     rc/YADAW.rc
     src/audio/backend/AudioGraphBackend.hpp
+    src/audio/backend/WASAPIExclusiveBackend.hpp
     src/controller/AudioGraphBackendController.cpp
     src/controller/AudioGraphBackendController.hpp
     src/model/AudioGraphInputDeviceListModel.cpp
@@ -136,11 +137,15 @@ endif()
 
 set(YADAW_COMMON_SOURCES
     ${NATIVE_SOURCES}
+    src/audio/backend/ALSAErrorText.cpp
+    src/audio/backend/ALSAErrorText.hpp
     src/audio/backend/AudioBackendBase.hpp
     src/audio/backend/AudioBackendSupport.hpp
     src/audio/backend/AudioGraphBackend.hpp
     src/audio/backend/AudioGraphBusConfiguration.cpp
     src/audio/backend/AudioGraphBusConfiguration.hpp
+    src/audio/backend/AudioGraphErrorText.cpp
+    src/audio/backend/AudioGraphErrorText.hpp
     src/audio/base/Automation.cpp
     src/audio/base/Automation.hpp
     src/audio/base/Channel.hpp
@@ -450,7 +455,6 @@ set(YADAW_COMMON_SOURCES
     src/util/VectorUtil.hpp
     src/util/YAMLCppUtil.hpp
     src/util/ZeckendorfLogarithm.hpp
-    src/audio/backend/WASAPIExclusiveBackend.hpp
 )
 
 qt_add_executable(YADAW
