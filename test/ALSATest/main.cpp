@@ -86,7 +86,7 @@ int main(int argc, char** argv)
     if(inputIndex.has_value())
     {
         auto activateInputResult = backend.setAudioDeviceActivated(true, *inputIndex, true);
-        if(activateInputResult == decltype(activateInputResult)::Failed)
+        if(activateInputResult.second != 0)
         {
             std::printf("Activate default input failed!\n");
         }
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
     if(outputIndex.has_value())
     {
         auto activateOutputResult = backend.setAudioDeviceActivated(false, *outputIndex, true);
-        if(activateOutputResult == decltype(activateOutputResult)::Failed)
+        if(activateOutputResult.second != 0)
         {
             std::printf("Activate default output failed!\n");
         }
