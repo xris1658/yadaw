@@ -8,11 +8,11 @@
 
 #include "native/win/winrt/Forward.hpp"
 
-#include <winrt/base.h>
-#include <winrt/Windows.Foundation.h>
-#include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.Devices.Enumeration.h>
-#include <winrt/Windows.Devices.Midi.h>
+#include <../include/winrt/base.h>
+#include <../include/winrt/Windows.Foundation.h>
+#include <../include/winrt/Windows.Foundation.Collections.h>
+#include <../include/winrt/Windows.Devices.Enumeration.h>
+#include <../include/winrt/Windows.Devices.Midi.h>
 
 namespace YADAW::MIDI
 {

@@ -14,14 +14,13 @@
 
 #include "native/win/winrt/Forward.hpp"
 
-#include <MemoryBuffer.h> // Windows::Foundation::IMemoryBufferByteAccess
-#include <winrt/Windows.Foundation.h>
-#include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.Media.h>
-#include <winrt/Windows.Media.Audio.h>
-#include <winrt/Windows.Media.MediaProperties.h>
-#include <winrt/Windows.Media.Render.h>
-#include <winrt/Windows.Devices.Enumeration.h>
+#include <../include/winrt/Windows.Foundation.h>
+#include <../include/winrt/Windows.Foundation.Collections.h>
+#include <../include/winrt/Windows.Media.h>
+#include <../include/winrt/Windows.Media.Audio.h>
+#include <../include/winrt/Windows.Media.MediaProperties.h>
+#include <../include/winrt/Windows.Media.Render.h>
+#include <../include/winrt/Windows.Devices.Enumeration.h>
 
 
 #include <vector>

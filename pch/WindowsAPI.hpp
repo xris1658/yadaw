@@ -20,21 +20,19 @@
 #include <ShlObj.h>
 #include <synchapi.h>
 
-#include <MemoryBuffer.h>
-
 // C++/WinRT API
 #include "native/win/winrt/Forward.hpp"
-#include <winrt/base.h>
-#include <winrt/Windows.Foundation.h>
-#include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.Devices.Enumeration.h>
-#include <winrt/Windows.Devices.Midi.h>
-#include <winrt/Windows.Media.h>
-#include <winrt/Windows.Media.Audio.h>
-#include <winrt/Windows.Media.Devices.h>
-#include <winrt/Windows.Media.MediaProperties.h>
-#include <winrt/Windows.Media.Render.h>
-#include <winrt/Windows.Storage.Streams.h>
+#include <../include/winrt/base.h>
+#include <../include/winrt/Windows.Foundation.h>
+#include <../include/winrt/Windows.Foundation.Collections.h>
+#include <../include/winrt/Windows.Devices.Enumeration.h>
+#include <../include/winrt/Windows.Devices.Midi.h>
+#include <../include/winrt/Windows.Media.h>
+#include <../include/winrt/Windows.Media.Audio.h>
+#include <../include/winrt/Windows.Media.Devices.h>
+#include <../include/winrt/Windows.Media.MediaProperties.h>
+#include <../include/winrt/Windows.Media.Render.h>
+#include <../include/winrt/Windows.Storage.Streams.h>
 #endif
 
 #endif // YADAW_PCH_WINDOWSAPI

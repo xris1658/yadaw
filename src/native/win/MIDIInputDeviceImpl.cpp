@@ -6,7 +6,7 @@
 #include "native/win/winrt/QStringFromHString.hpp"
 #include "util/Util.hpp"
 
-#include <winrt/Windows.Storage.Streams.h> // IBuffer from IMidiMessage
+#include <../include/winrt/Windows.Storage.Streams.h> // IBuffer from IMidiMessage
 
 using winrt::Windows::Devices::Enumeration::DeviceInformation;
 using winrt::Windows::Devices::Enumeration::DeviceInformationCollection;

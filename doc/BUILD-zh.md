@@ -16,12 +16,6 @@
   在 Visual Studio Installer 中安装时，勾选“工作负荷 -> 桌面应用和移动应用”中
   的“使用 C++ 的桌面开发”、“通用 Windows 平台开发”以及“语言包”中的
   “英语”。
-  - 请留意安装并用于构建项目的 Windows SDK 版本。YADAW 项目本身使用 C++20 标准，
-    且使用了 C++/WinRT SDK，而一些旧版本的 Windows SDK（如 10.0.19041.0）随附的
-    C++/WinRT SDK 仍使用 C++17 标准，以及实验性的协程支持。笔者参考新版本的头文
-    件对 Windows SDK 10.0.19041.0 中的相关头文件稍作更改，用于构建此项目（
-    [xris1658/cppwinrt-19041-cpp20](https://github.com/xris1658/cppwinrt-19041-cpp20)）。
-    **读者可以自行修改对应的文件，但务必记得备份！**
 - 下载 [Qt 6.5](https://www.qt.io/download-open-source) 或更高版本。在安装时，勾
   选“MSVC 2019 64-bit”和“Qt Debug Information Files”。安装完成后，将 Qt 可执
   行文件所在目录（<Qt 安装目录>\<版本号>\msvc2019_64\bin）添加到系统环境变量
@@ -34,8 +28,15 @@
   并将 vcpkg 目录添加到系统环境变量 `Path` 中。
 - 安装一些必要的软件包：
   ```shell
-  vcpkg install ade:x64-windows sqlite3:x64-windows sqlite-modern-cpp:x64-windows yaml-cpp:x64-windows
+  vcpkg install ade:x64-windows sqlite3:x64-windows sqlite-modern-cpp:x64-windows yaml-cpp:x64-windows cppwinrt
   ```
+  - 虽然 Windows UWP SDK 自带 C++/WinRT SDK，但出于以下两个原因，构建项目使用
+    `cppwinrt` 软件包：
+    - YADAW 使用 C++20 标准，而一些旧版本的 Windows SDK（如 10.0.19041.0）随附的
+      C++/WinRT SDK 仍使用 C++17 标准，以及实验性的协程支持。
+    - 使用 AudioGraph API 时，要获取音频缓冲区，必须将 `IMemoryBufferReference`
+      转换为 `IMemoryBufferByteAccess`，而此类不是 C++/WinRT SDK 中的一部分。新
+      版的 C++/WinRT SDK 添加了 `IMemoryBufferReference::data()`，解决了这一问题。
 - 下载 [VST3 SDK](https://github.com/steinbergmedia/vst3sdk) 的源码，并记住路径：
   ```shell
   cd <VST3 SDK 所在目录的路径>
@@ -71,11 +72,6 @@
   pacman -S git
   pacboy -S gcc:x gdb:x cppwinrt:x cmake:x qt6-base:x qt6-declarative:x qt6-tools:x qt6-translations:x sqlite3:x yaml-cpp:x
   ```
-- 下载 Windows SDK。MSYS2 中自带 Win32 SDK 的头文件和库，`cppwinrt` 软件包中包含
-  了 C++/WinRT SDK 的头文件。然而，由于 YADAW 的源码还使用了 WinRT SDK 中的内容
-  ，因 此除了上面安装的 `cppwinrt` 软件包之外，用户仍需手动下载 Windows SDK，并
-  安装 Windows SDK for UWP C++ Apps。（虽然只用了一个写有接口定义的头文件，但毕
-  竟属于专有代码，笔者似乎不应擅自分发。）
 - 下载 VST3 SDK 和 CLAP 的源码，并记住路径；
 - 下载 [sqlite_modern_cpp](https://github.com/aminroosta/sqlite_modern_cpp) 的源
   码，并记住路径：

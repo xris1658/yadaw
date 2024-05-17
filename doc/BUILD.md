@@ -16,13 +16,6 @@ consider add ARM and macOS support in the future.
   While installing with Visual Studio Installer, check "Desktop devleopment with
   C++" and "Universal Windows Platform development" in "Workloads -> Desktop &
   Mobile", and "English" in "Language packs".
-  - Pay attention to your Windows SDK version installed to build the project.
-    YADAW uses C++20 standard and C++/WinRT SDK, but the C++/WinRT SDK included
-    in some old versions of Windows SDK (e.g. 10.0.19041.0) still uses C++17 and
-    experimental coroutine support. I made some little changes to the relevant
-    headers in Windows SDK 10.0.19041.0 to build this project(
-    [xris1658/cppwinrt-19041-cpp20](https://github.com/xris1658/cppwinrt-19041-cpp20)).
-    **You could edit those files manually, but please DO make backups!**
 - Install [Qt 6.5](https://www.qt.io/download-open-source) or newer. While
   installing, check "MSVC 2019 64-bit" and "Qt Debug Information Files". After
   the installation, add the directory containing the Qt executable (<Qt install
@@ -36,8 +29,17 @@ consider add ARM and macOS support in the future.
   And add directory of vcpkg to the system environment variable `Path`.
 - Install some prerequisites:
   ```shell
-  vcpkg install ade:x64-windows sqlite3:x64-windows sqlite-modern-cpp:x64-windows yaml-cpp:x64-windows
+  vcpkg install ade:x64-windows sqlite3:x64-windows sqlite-modern-cpp:x64-windows yaml-cpp:x64-windows cppwinrt
   ```
+  - Though C++/WinRT SDK is included in the Windows UWP SDK, we use the
+    `cppwinrt` package to build the project for two reasons:
+    - YADAW uses C++20, but the C++/WinRT SDK included in some old versions of
+      Windows SDK (e.g. 10.0.19041.0) is not updated, and still uses C++17 and
+      experimental coroutine support.
+    - To get the audio buffer while using the AudioGraph API, we have to convert
+      `IMemoryBufferReference` to `IMemoryBufferByteAccess`, which is not part
+      of the C++/WinRT SDK. `IMemoryBufferReference::data()` is added in the
+      newer versions of C++/WinRT SDK, which fixes this problem.
 - Download source of [VST3 SDK](https://github.com/steinbergmedia/vst3sdk),
   and remember the path to it:
   ```shell
@@ -75,13 +77,6 @@ consider add ARM and macOS support in the future.
   pacman -S git
   pacboy -S gcc:x gdb:x cppwinrt:x cmake:x qt6-base:x qt6-declarative:x qt6-tools:x qt6-translations:x sqlite3:x yaml-cpp:x
   ```
-- Download Windows SDK. MSYS2 is shipped with headers and libraries of Win32
-  SDK, and the `cppwinrt` package contains headers of C++/WinRT SDK. However,
-  source of YADAW uses contents in WinRT SDK (not to be confused with the
-  C++/WinRT SDK) as well, so you still need to download Windows SDK manually,
-  and install Windows SDK for UWP C++ Apps. (Actually only one header file with
-  definition of an interface is used, but it's proprietary code after all, so I
-  should not redistribute it without premission).
 - Download source of VST3 SDK and CLAP, and remember the paths to them;
 - Download source of [sqlite_modern_cpp](https://github.com/aminroosta/sqlite_modern_cpp),
   and remember the path to it:

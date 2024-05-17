@@ -17,12 +17,12 @@ find_package(Qt6 6.5 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools
 find_package(ade CONFIG REQUIRED)
 if(WIN32)
     if(DEFINED Z_VCPKG_CMAKE_REQUIRED_MINIMUM_VERSION)
+        find_package(cppwinrt CONFIG REQUIRED)
         find_package(unofficial-sqlite3 CONFIG REQUIRED)
     endif()
 endif()
 find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
-find_package(yaml-cpp
-                  CONFIG REQUIRED)
+find_package(yaml-cpp CONFIG REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/content
                     ${PROJECT_SOURCE_DIR}/src
@@ -849,12 +849,7 @@ elseif(LINUX)
     set(NATIVE_LIBRARY asound dl xcb)
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
-
-include(FindWindowsSDKWithUWP)
-
 if(WIN32 AND MINGW)
-    FindWindowsSDKWithUWP()
     add_compile_options(-fcoroutines)
 endif()
 

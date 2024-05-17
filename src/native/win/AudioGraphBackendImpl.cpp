@@ -11,21 +11,19 @@
 #include "native/win/winrt/Forward.hpp"
 #include "native/win/winrt/Async.hpp"
 
-#include <MemoryBuffer.h> // Windows::Foundation::IMemoryBufferByteAccess
-#include <winrt/Windows.Foundation.h>
-#include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.Devices.Enumeration.h>
-#include <winrt/Windows.Media.h>
-#include <winrt/Windows.Media.Audio.h>
-#include <winrt/Windows.Media.Devices.h>
-#include <winrt/Windows.Media.MediaProperties.h>
-#include <winrt/Windows.Media.Render.h>
+#include <../include/winrt/Windows.Foundation.h>
+#include <../include/winrt/Windows.Foundation.Collections.h>
+#include <../include/winrt/Windows.Devices.Enumeration.h>
+#include <../include/winrt/Windows.Media.h>
+#include <../include/winrt/Windows.Media.Audio.h>
+#include <../include/winrt/Windows.Media.Devices.h>
+#include <../include/winrt/Windows.Media.MediaProperties.h>
+#include <../include/winrt/Windows.Media.Render.h>
 
 #if __cplusplus <= 201703L
 #include <future>
 #endif
 
-using namespace ::Windows::Foundation;
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Foundation::Collections;
@@ -36,15 +34,6 @@ using namespace winrt::Windows::Media::Capture;
 using namespace winrt::Windows::Media::MediaProperties;
 using namespace winrt::Windows::Media::Render;
 using namespace winrt::Windows::Devices::Enumeration;
-
-#ifdef __MINGW64__
-#ifdef __CRT_UUID_DECL
-__CRT_UUID_DECL(
-    IMemoryBufferByteAccess,
-    0x5b0d3235, 0x4dba, 0x4d44, 0x86, 0x5e, 0x8f, 0x1d, 0x0e, 0x4f, 0xd0, 0x4d
-)
-#endif
-#endif
 
 AudioGraphSettings createAudioGraphSettings()
 {
@@ -271,17 +260,11 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                             // auto discontinuous = inputFrame.IsDiscontinuous();
                             input.audioBuffer_ = inputFrame.LockBuffer(AudioBufferAccessMode::Read);
                             auto ref = input.audioBuffer_.CreateReference();
-                            auto byteAccess = ref.as<IMemoryBufferByteAccess>();
-                            std::uint8_t* dataInBytes = nullptr;
-                            std::uint32_t capacityInBytes = 0;
-                            if(byteAccess->GetBuffer(&dataInBytes, &capacityInBytes) == S_OK)
-                            {
-                                inputAudioBuffer_[i] = AudioGraphBackend::InterleaveAudioBuffer {
-                                    /*.data = */dataInBytes,
-                                    /*.channelCount = */static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
-                                    /*.frameCount = */requiredSamples
-                                };
-                            }
+                            inputAudioBuffer_[i] = AudioGraphBackend::InterleaveAudioBuffer {
+                                .data = ref.data(),
+                                .channelCount = static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
+                                .frameCount = requiredSamples
+                            };
                         }
                     }
                     else
@@ -293,20 +276,14 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                 {
                     AudioBuffer buffer = frame.LockBuffer(AudioBufferAccessMode::Write);
                     IMemoryBufferReference ref = buffer.CreateReference();
-                    auto byteAccess = ref.as<IMemoryBufferByteAccess>();
-                    std::uint8_t* dataInBytes = nullptr;
-                    std::uint32_t capacityInBytes = 0;
-                    if(byteAccess->GetBuffer(&dataInBytes, &capacityInBytes) == S_OK)
+                    InterleaveAudioBuffer interleaveAudioBuffer
                     {
-                        InterleaveAudioBuffer interleaveAudioBuffer
-                        {
-                            dataInBytes,
-                            static_cast<int>(properties.ChannelCount()),
-                            requiredSamples
-                        };
-                        std::memset(dataInBytes, 0, capacityInBytes);
-                        callback(inputAudioBuffer_.size(), inputAudioBuffer_.data(), 1, &interleaveAudioBuffer);
-                    }
+                        .data = ref.data(),
+                        .channelCount = static_cast<int>(properties.ChannelCount()),
+                        .frameCount = requiredSamples
+                    };
+                    std::memset(ref.data(), 0, ref.Capacity());
+                    callback(inputAudioBuffer_.size(), inputAudioBuffer_.data(), 1, &interleaveAudioBuffer);
                 }
                 sender.AddFrame(frame);
                 FOR_RANGE0(i, inputAudioBuffer_.size())

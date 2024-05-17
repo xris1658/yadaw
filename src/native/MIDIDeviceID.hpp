@@ -2,7 +2,7 @@
 #define YADAW_SRC_NATIVE_MIDIDEVICEID
 
 #if _WIN32
-#include <winrt/base.h>
+#include <../include/winrt/base.h>
 #elif __linux__
 #include <cstdint>
 #endif

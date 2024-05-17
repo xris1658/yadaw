@@ -3,7 +3,7 @@
 
 #if _WIN32
 
-#include <winrt/base.h>
+#include <../include/winrt/base.h>
 
 namespace winrt::impl
 {

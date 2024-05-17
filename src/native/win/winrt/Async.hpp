@@ -3,7 +3,7 @@
 
 #if _WIN32
 
-#include <winrt/Windows.Foundation.h>
+#include <../include/winrt/Windows.Foundation.h>
 
 #include <future>
 
