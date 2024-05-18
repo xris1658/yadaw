@@ -362,7 +362,7 @@ OptionalRef<const Meter> Mixer::meterAt(std::uint32_t index) const
 }
 
 std::optional<YADAW::Audio::Base::ChannelGroupType>
-Mixer::audioInputChannelGroupType(std::uint32_t index) const
+Mixer::audioInputChannelGroupTypeAt(std::uint32_t index) const
 {
     if(index < audioInputChannelCount())
     {
@@ -371,7 +371,7 @@ Mixer::audioInputChannelGroupType(std::uint32_t index) const
     return std::nullopt;
 }
 
-std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::audioOutputChannelGroupType(std::uint32_t index) const
+std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::audioOutputChannelGroupTypeAt(std::uint32_t index) const
 {
     if(index < audioOutputChannelCount())
     {
@@ -380,7 +380,7 @@ std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::audioOutputChannelGro
     return std::nullopt;
 }
 
-std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::channelGroupType(std::uint32_t index) const
+std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::channelGroupTypeAt(std::uint32_t index) const
 {
     if(index < channelCount())
     {
@@ -389,7 +389,7 @@ std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::channelGroupType(std:
     return std::nullopt;
 }
 
-std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioInputChannelID(
+std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioInputChannelIDAt(
     std::uint32_t index) const
 {
     if(index < audioInputChannelCount())
@@ -399,7 +399,7 @@ std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioInputChannelID(
     return std::nullopt;
 }
 
-std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioOutputChannelID(
+std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioOutputChannelIDAt(
     std::uint32_t index) const
 {
     if(index < audioOutputChannelCount())
@@ -409,7 +409,7 @@ std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioOutputChannelID(
     return std::nullopt;
 }
 
-std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::channelID(
+std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::channelIDAt(
     std::uint32_t index) const
 {
     if(index < channelCount())
@@ -417,6 +417,30 @@ std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::channelID(
         return {channelId_[index]};
     }
     return std::nullopt;
+}
+
+OptionalRef<const Mixer::Position> Mixer::mainOutputAt(std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        return {mainOutput_[index]};
+    }
+    return std::nullopt;
+}
+
+bool Mixer::setMainOutputAt(std::uint32_t index, Position position) const
+{
+    if(index >= channelCount())
+    {
+        return false;
+    }
+    const auto& mute = *(mutes_[index].first);
+    const auto& channelGroup = mute.audioOutputGroupAt(0)->get();
+    auto channelGroupType = channelGroup.type();
+    auto channelGroupChannelCount = channelGroup.channelCount();
+    // Check if channel config of the destination position matches the source
+    // Reconnect the graph
+    return false;
 }
 
 bool Mixer::appendAudioInputChannel(
@@ -906,6 +930,14 @@ bool Mixer::insertChannel(
             ),
             *idIt, position
         );
+        mainOutput_.emplace(
+            mainOutput_.begin() + position,
+            Position {
+                .type = Position::Invalid,
+                .channelGroupIndex = 0,
+                .id = IDGen::InvalidId
+            }
+        );
         nodeAddedCallback_(*this);
     }
     return ret;
@@ -947,6 +979,10 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             graphWithPDC_.removeNode(nodesToRemove[i]);
         }
         nodeRemovedCallback_(*this);
+        mainOutput_.erase(
+            mainOutput_.begin() + first,
+            mainOutput_.begin() + last
+        );
         inputDevices_.erase(
             inputDevices_.begin() + first,
             inputDevices_.begin() + last

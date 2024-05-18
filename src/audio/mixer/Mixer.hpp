@@ -51,6 +51,19 @@ public:
         ChannelType channelType;
     };
     using IDGen = YADAW::Util::AutoIncrementID;
+    struct Position
+    {
+        enum Type: std::uint32_t
+        {
+            Invalid,
+            AudioHardwareIOChannel,
+            BusAndFXChannel,
+            SidechainOfPlugin
+        };
+        Type type;
+        std::uint32_t channelGroupIndex;
+        IDGen::ID id;
+    };
     using NodeAddedCallback = void(const Mixer&);
     using NodeRemovedCallback = void(const Mixer&);
     using ConnectionUpdatedCallback = void(const Mixer&);
@@ -101,12 +114,14 @@ public:
     OptionalRef<Meter> audioInputMeterAt(std::uint32_t index);
     OptionalRef<Meter> audioOutputMeterAt(std::uint32_t index);
     OptionalRef<Meter> meterAt(std::uint32_t index);
-    std::optional<YADAW::Audio::Base::ChannelGroupType> audioInputChannelGroupType(std::uint32_t index) const;
-    std::optional<YADAW::Audio::Base::ChannelGroupType> audioOutputChannelGroupType(std::uint32_t index) const;
-    std::optional<YADAW::Audio::Base::ChannelGroupType> channelGroupType(std::uint32_t index) const;
-    std::optional<IDGen::ID> audioInputChannelID(std::uint32_t index) const;
-    std::optional<IDGen::ID> audioOutputChannelID(std::uint32_t index) const;
-    std::optional<IDGen::ID> channelID(std::uint32_t index) const;
+    std::optional<YADAW::Audio::Base::ChannelGroupType> audioInputChannelGroupTypeAt(std::uint32_t index) const;
+    std::optional<YADAW::Audio::Base::ChannelGroupType> audioOutputChannelGroupTypeAt(std::uint32_t index) const;
+    std::optional<YADAW::Audio::Base::ChannelGroupType> channelGroupTypeAt(std::uint32_t index) const;
+    std::optional<IDGen::ID> audioInputChannelIDAt(std::uint32_t index) const;
+    std::optional<IDGen::ID> audioOutputChannelIDAt(std::uint32_t index) const;
+    std::optional<IDGen::ID> channelIDAt(std::uint32_t index) const;
+    OptionalRef<const Position> mainOutputAt(std::uint32_t index) const;
+    bool setMainOutputAt(std::uint32_t index, Position position) const;
 public:
     bool appendAudioInputChannel(
         const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
@@ -212,6 +227,7 @@ private:
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts_;
     std::vector<MeterAndNode> meters_;
     std::vector<ChannelInfo> channelInfo_;
+    std::vector<Position> mainOutput_;
 
     IDGen audioOutputChannelIdGen_;
     std::vector<IDGen::ID> audioOutputChannelId_;
