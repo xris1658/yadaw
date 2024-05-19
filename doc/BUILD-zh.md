@@ -114,10 +114,14 @@ Debian 及其分支发行版。
 
 - 安装一些必要的软件包：
   ```shell
-  sudo apt install git cmake gcc g++ libasound2-dev libsqlite3-dev libyaml-cpp-dev
+  sudo apt install git gcc g++ libasound2-dev libsqlite3-dev libyaml-cpp-dev
   # VST3 SDK 的依赖项
-  sudo apt-get install cmake libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
+  sudo apt-get install libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
   ```
+- 下载并安装 CMake 3.25 或更高版本。此版本添加了 `LINUX` 字段，此项目用于检测
+  目标操作系统。要使用旧版的 CMake 构建 YADAW，请调整
+  `cmake_minimum_required` 中的版本，并将 `if(LINUX)` 替换为
+  `if(UNIX AND NOT APPLE)`。
 - 下载并安装 Qt；
 - 下载 VST3 SDK、CLAP 和 sqlite_modern_cpp 的源码，并记住路径；
 - 下载 ADE，构建并安装：

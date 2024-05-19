@@ -119,10 +119,14 @@ might be usable on Debian and its forks.
 
 - Install some prerequisites:
   ```shell
-  sudo apt install git cmake gcc g++ libasound2-dev libsqlite3-dev libyaml-cpp-dev
+  sudo apt install git gcc g++ libasound2-dev libsqlite3-dev libyaml-cpp-dev
   # Dependencies of VST3 SDK
-  sudo apt-get install cmake libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
+  sudo apt-get install libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
   ```
+- Download and install CMake 3.25 or higher. The field `LINUX` which is used to
+  check target OS is added in this version. To build YADAW with older CMake,
+  set version of `cmake_minimum_required` and replace `if(LINUX)` with
+  `if(UNIX AND NOT APPLE)`.
 - Download and install Qt;
 - Download source of VST3 SDK, CLAP and sqlite_modern_cpp, and remember the
   paths to them;

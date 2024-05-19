@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21.1)
+cmake_minimum_required(VERSION 3.25)
 
 project(YADAW VERSION 0.1 LANGUAGES CXX)
 
