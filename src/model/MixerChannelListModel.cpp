@@ -105,9 +105,9 @@ using GetConstID =
         std::uint32_t) const;
 
 GetConstID getConstID[3] = {
-    &Audio::Mixer::Mixer::audioInputChannelID,
-    &Audio::Mixer::Mixer::channelID,
-    &Audio::Mixer::Mixer::audioOutputChannelID
+    &Audio::Mixer::Mixer::audioInputChannelIDAt,
+    &Audio::Mixer::Mixer::channelIDAt,
+    &Audio::Mixer::Mixer::audioOutputChannelIDAt
 };
 
 using RemoveChannels =
@@ -349,7 +349,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                     FOR_RANGE0(i, instrument->plugin->audioOutputGroupCount())
                     {
                         auto& group = instrument->plugin->audioOutputGroupAt(i)->get();
-                        if(group.isMain() && group.type() == mixer_.channelGroupType(row))
+                        if(group.isMain() && group.type() == mixer_.channelGroupTypeAt(row))
                         {
                             firstOutput = i;
                             break;
@@ -623,7 +623,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
                 auto inputCount = pluginPtr->audioInputGroupCount();
                 auto outputCount = pluginPtr->audioOutputGroupCount();
-                auto channelGroupType = *(mixer_.channelGroupType(position));
+                auto channelGroupType = *(mixer_.channelGroupTypeAt(position));
                 std::vector<YADAW::Audio::Base::ChannelGroupType> inputChannels(
                     inputCount, channelGroupType
                 );
@@ -751,7 +751,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
             FOR_RANGE0(i, plugin->audioOutputGroupCount())
             {
                 auto& group = plugin->audioOutputGroupAt(i)->get();
-                if(group.isMain() && group.type() == mixer_.channelGroupType(position))
+                if(group.isMain() && group.type() == mixer_.channelGroupTypeAt(position))
                 {
                     firstOutput = i;
                     break;
