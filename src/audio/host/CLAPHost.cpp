@@ -1,5 +1,6 @@
 #include "CLAPHost.hpp"
 
+#include "audio/host/CLAPTimerSupport.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
 
 void blankLatencyChangedCallback(YADAW::Audio::Plugin::CLAPPlugin&) {}
@@ -65,6 +66,11 @@ CLAPHost::CLAPHost(YADAW::Audio::Plugin::CLAPPlugin& plugin):
     {
         &isMainThread,
         &isAudioThread
+    },
+    timerSupport_
+    {
+        &registerTimer,
+        &unregisterTimer
     }
 {
 }
@@ -149,6 +155,17 @@ bool CLAPHost::isAudioThread(const clap_host* host)
     return std::this_thread::get_id() == audioThreadId_;
 }
 
+bool CLAPHost::registerTimer(const clap_host* host,
+    std::uint32_t milliseconds, clap_id* timerId)
+{
+    return getHost(host)->doRegisterTimer(milliseconds, timerId);
+}
+
+bool CLAPHost::unregisterTimer(const clap_host* host, clap_id timerId)
+{
+    return getHost(host)->doUnregisterTimer(timerId);
+}
+
 const void* CLAPHost::doGetExtension(const char* extensionId)
 {
     if(std::strcmp(extensionId, CLAP_EXT_GUI) == 0)
@@ -163,9 +180,13 @@ const void* CLAPHost::doGetExtension(const char* extensionId)
     {
         return &params_;
     }
-    if(std::strcmp(extensionId,CLAP_EXT_THREAD_CHECK) == 0)
+    if(std::strcmp(extensionId, CLAP_EXT_THREAD_CHECK) == 0)
     {
         return &threadCheck_;
+    }
+    if(std::strcmp(extensionId, CLAP_EXT_TIMER_SUPPORT) == 0)
+    {
+        return &timerSupport_;
     }
     return nullptr;
 }
@@ -276,6 +297,34 @@ void CLAPHost::doParameterClear(clap_id paramId, clap_param_clear_flags flags)
 void CLAPHost::doParameterRequestFlush()
 {
     // TODO
+}
+
+bool CLAPHost::doRegisterTimer(std::uint32_t milliseconds, clap_id* timerId)
+{
+    auto plugin = plugin_->plugin_;
+    return YADAW::Audio::Host::CLAPTimerSupport::instance().registerTimer(
+        plugin,
+        static_cast<const clap_plugin_timer_support_t*>(
+            plugin->get_extension(
+                plugin, CLAP_EXT_TIMER_SUPPORT
+            )
+        ),
+        timerId, milliseconds
+    );
+}
+
+bool CLAPHost::doUnregisterTimer(clap_id timerId)
+{
+    auto plugin = plugin_->plugin_;
+    return YADAW::Audio::Host::CLAPTimerSupport::instance().unregisterTimer(
+        plugin,
+        static_cast<const clap_plugin_timer_support_t*>(
+            plugin->get_extension(
+                plugin, CLAP_EXT_TIMER_SUPPORT
+            )
+        ),
+        timerId
+    );
 }
 
 YADAW::Audio::Plugin::CLAPPlugin* CLAPHost::plugin()

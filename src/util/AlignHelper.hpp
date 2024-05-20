@@ -7,15 +7,19 @@
 namespace YADAW::Util
 {
 template<typename T>
+using AlignedStorage = std::aligned_storage_t<sizeof(T), alignof(T)>;
+
+template<typename T>
 class AlignHelper
 {
 protected:
-    using Aligned = std::aligned_storage_t<sizeof(T), alignof(T)>;
-    inline static T* fromAligned(Aligned* ptr)
+    using Aligned = AlignedStorage<T>;
+public:
+    inline static T* fromAligned(AlignedStorage<T>* ptr)
     {
         return std::launder(reinterpret_cast<T*>(ptr));
     }
-    inline static const T* fromAligned(const Aligned* ptr)
+    inline static const T* fromAligned(const AlignedStorage<T>* ptr)
     {
         return std::launder(reinterpret_cast<const T*>(ptr));
     }

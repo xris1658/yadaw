@@ -6,6 +6,7 @@
 #include <clap/ext/latency.h>
 #include <clap/ext/params.h>
 #include <clap/ext/thread-check.h>
+#include <clap/ext/timer-support.h>
 
 #include <functional>
 #include <thread>
@@ -50,6 +51,9 @@ private: // clap_host_params functions
 private: // clap_host_thread_check functions
     static bool isMainThread(const clap_host* host);
     static bool isAudioThread(const clap_host* host);
+private: // clap_host_timer_support functions
+    static bool registerTimer(const clap_host* host, std::uint32_t milliseconds, clap_id* timerId);
+    static bool unregisterTimer(const clap_host* host, clap_id timerId);
 private: // clap_host implementations
     const void* doGetExtension(const char* extensionId);
     void doRequestRestart();
@@ -64,6 +68,8 @@ private: // clap_host implementations
     void doParameterRescan(clap_param_rescan_flags flags);
     void doParameterClear(clap_id paramId, clap_param_clear_flags flags);
     void doParameterRequestFlush();
+    bool doRegisterTimer(std::uint32_t milliseconds, clap_id* timerId);
+    bool doUnregisterTimer(clap_id timerId);
 public:
     YADAW::Audio::Plugin::CLAPPlugin* plugin();
     static void setMainThreadId(std::thread::id mainThreadId);
@@ -89,6 +95,7 @@ private:
     clap_host_latency latency_;
     clap_host_params params_;
     clap_host_thread_check threadCheck_;
+    clap_host_timer_support timerSupport_;
 };
 }
 
