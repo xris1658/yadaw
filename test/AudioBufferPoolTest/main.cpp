@@ -4,7 +4,7 @@
 
 int main()
 {
-    auto bufferPool = YADAW::Audio::Util::AudioBufferPool::createPool(256 * sizeof(float));
+    auto bufferPool = YADAW::Audio::Util::AudioBufferPool::createPool<float>(256);
     std::vector<YADAW::Audio::Util::AudioBufferPool::Buffer> vec;
     vec.reserve(128);
     for(int i = 0; i < 128; ++i)
