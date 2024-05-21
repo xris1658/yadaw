@@ -4,8 +4,6 @@
 
 #ifdef __linux__
 
-#include "audio/host/VST3RunLoopEventCaller.hpp"
-
 #include <pluginterfaces/gui/iplugview.h>
 
 #include <QTimer>
