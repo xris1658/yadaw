@@ -4,12 +4,16 @@
 
 #include "util/IntegerRange.hpp"
 
+#include <QCoreApplication>
+
 #include <sys/epoll.h>
 
 #include <array>
 
 namespace YADAW::Audio::Host
 {
+std::array<epoll_event, 64> epollEvents;
+
 std::uint32_t eventFlagsFromCLAP(clap_posix_fd_flags_t flags)
 {
     std::uint32_t ret = 0U;
@@ -31,6 +35,28 @@ std::uint32_t eventFlagsFromCLAP(clap_posix_fd_flags_t flags)
 EventFileDescriptorSupport::EventFileDescriptorSupport():
     epollFD_(epoll_create1(0))
 {
+    zeroTimer_.setInterval(0);
+    zeroTimer_.setSingleShot(false);
+    zeroTimer_.callOnTimeout(
+        QCoreApplication::instance(),
+        [this]()
+        {
+            auto epollEventCount = epoll_wait(
+                epollFD_, epollEvents.data(), epollEvents.size(), 0
+            );
+            if(epollEventCount > 0)
+            {
+                FOR_RANGE0(i, epollEventCount)
+                {
+                    auto pairPtr = static_cast<decltype(eventFDs_)::pointer>(
+                        epollEvents[i].data.ptr
+                    );
+                    auto& [fd, info] = *pairPtr;
+                    notify(fd, info);
+                }
+            }
+        }
+    );
 }
 
 EventFileDescriptorSupport& EventFileDescriptorSupport::instance()
@@ -41,58 +67,23 @@ EventFileDescriptorSupport& EventFileDescriptorSupport::instance()
 
 EventFileDescriptorSupport::~EventFileDescriptorSupport()
 {
-    QObject::disconnect(this, &EventFileDescriptorSupport::notify,
-        this, &EventFileDescriptorSupport::onNotify
-    );
     stop();
     clear();
 }
 
-void EventFileDescriptorSupport::setMainThreadContext(const QObject& object)
+void EventFileDescriptorSupport::start()
 {
-    auto thread1 = this->thread();
-    auto thread2 = object.thread();
-    if(thread1 != thread2)
-    {
-        moveToThread(thread2);
-    }
-    QObject::connect(this, &EventFileDescriptorSupport::notify,
-        this, &EventFileDescriptorSupport::onNotify,
-        Qt::ConnectionType::QueuedConnection
-    );
-}
-
-void EventFileDescriptorSupport::fdThread()
-{
-    running_.test_and_set(std::memory_order_release);
-    std::array<epoll_event, 64> epollEvents;
-    while(running_.test_and_set(std::memory_order_release))
-    {
-        auto epollEventCount = epoll_wait(
-            epollFD_, epollEvents.data(), epollEvents.size(), 0
-        );
-        if(epollEventCount > 0)
-        {
-            FOR_RANGE0(i, epollEventCount)
-            {
-                auto pairPtr = static_cast<decltype(eventFDs_)::pointer>(
-                    epollEvents[i].data.ptr
-                );
-                auto& [fd, info] = *pairPtr;
-                notify(fd, &info);
-            }
-        }
-    }
+    zeroTimer_.start();
 }
 
 void EventFileDescriptorSupport::stop()
 {
-    running_.clear(std::memory_order_release);
+    zeroTimer_.stop();
 }
 
-void EventFileDescriptorSupport::onNotify(int fd, Info* info)
+void EventFileDescriptorSupport::notify(int fd, Info& info)
 {
-    auto& [format, data] = *info;
+    auto& [format, data] = info;
     switch(format)
     {
     case YADAW::Audio::Plugin::IAudioPlugin::Format::VST3:

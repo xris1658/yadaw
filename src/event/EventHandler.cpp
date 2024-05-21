@@ -496,13 +496,7 @@ void EventHandler::onOpenMainWindow()
         this, SLOT(onSetTranslationIndex(int)));
 #if __linux__
     auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
-    eventFDSupport.setMainThreadContext(*YADAW::UI::mainWindow);
-    std::thread(
-        [&eventFDSupport]()
-        {
-            eventFDSupport.fdThread();
-        }
-    ).detach();
+    eventFDSupport.start();
 #endif
     setQtVersion(qVersion());
     setQtCopyrightYear(QT_COPYRIGHT_YEAR);

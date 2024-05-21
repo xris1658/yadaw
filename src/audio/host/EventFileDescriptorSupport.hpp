@@ -10,6 +10,7 @@
 #include <clap/ext/posix-fd-support.h>
 
 #include <QObject>
+#include <QTimer>
 
 #include <sys/epoll.h>
 
@@ -43,13 +44,10 @@ public:
     static EventFileDescriptorSupport& instance();
     ~EventFileDescriptorSupport();
 public:
-    void setMainThreadContext(const QObject& object);
-    void fdThread();
+    void start();
     void stop();
-signals:
-    void notify(int fd, Info* info);
-private slots:
-    void onNotify(int fd, Info* info);
+private:
+    void notify(int fd, Info& info);
 public:
     bool add(int fd, const Info& info);
     bool remove(int fd);
@@ -57,8 +55,8 @@ public:
     bool modifyCLAP(int fd, clap_posix_fd_flags_t flags);
 private:
     std::map<int, Info> eventFDs_;
+    QTimer zeroTimer_;
     int epollFD_;
-    std::atomic_flag running_;
 };
 }
 

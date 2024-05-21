@@ -417,7 +417,7 @@ int main(int argc, char* argv[])
     int argIndex = 1;
 #if __linux__
     auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
-    std::thread([&eventFDSupport]() { eventFDSupport.fdThread(); }).detach();
+    eventFDSupport.start();
 #endif
     while(argIndex != argc)
     {
