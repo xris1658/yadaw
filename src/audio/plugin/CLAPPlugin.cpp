@@ -78,7 +78,13 @@ bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
 {
     if(plugin_)
     {
-        plugin_->init(plugin_);
+        auto initResult = plugin_->init(plugin_);
+        if(!initResult)
+        {
+            plugin_->destroy(plugin_);
+            status_ = IAudioPlugin::Status::Loaded;
+            return false;
+        }
         getExtension(plugin_, CLAP_EXT_AUDIO_PORTS, &audioPorts_);
         if(!audioPorts_)
         {
