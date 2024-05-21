@@ -1,19 +1,21 @@
 #include "test/common/PluginWindowThread.hpp"
 #include "test/common/DisableStreamBuffer.hpp"
 
+#include "audio/host/EventFileDescriptorSupport.hpp"
 #include "audio/host/VST3ComponentHandler.hpp"
 #include "audio/host/VST3EventDoubleBuffer.hpp"
 #include "audio/host/VST3Host.hpp"
+#include "audio/host/VST3RunLoop.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "audio/util/VST3Helper.hpp"
-#include "midi/MessageToVST3Event.hpp"
-#include "midi/MIDIInputDevice.hpp"
-#include "native/VST3Native.hpp"
 #include "dao/PluginTable.hpp"
+#include "midi/MIDIInputDevice.hpp"
+#include "midi/MessageToVST3Event.hpp"
 #include "native/Native.hpp"
+#include "native/VST3Native.hpp"
+#include "util/AtomicMutex.hpp"
 #include "util/Constants.hpp"
 #include "util/Util.hpp"
-#include "util/AtomicMutex.hpp"
 
 #include <pluginterfaces/vst/ivstprocesscontext.h>
 
@@ -33,7 +35,6 @@
 #include <thread>
 #include <vector>
 
-#include "audio/host/VST3RunLoop.hpp"
 
 int inputIndex = -1;
 
@@ -320,11 +321,6 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                 if(gui)
                 {
                     pluginWindowThread.start();
-#if __linux__
-                    YADAW::Audio::Host::VST3RunLoop::instance().setMainThreadContext(
-                        *pluginWindowThread.window()
-                    );
-#endif
                     auto factory = plugin.factory();
                     auto classCount = plugin.factory()->countClasses();
                     for(int i = 0; i < classCount; ++i)
@@ -396,9 +392,6 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     std::wprintf(L"No GUI available!");
                     getchar();
                 }
-#ifdef __linux__
-                YADAW::Audio::Host::VST3RunLoop::instance().stop();
-#endif
                 stop.store(true, std::memory_order_release);
                 audioThread.join();
                 plugin.stopProcessing();
@@ -422,6 +415,10 @@ int main(int argc, char* argv[])
     }
     std::setlocale(LC_ALL, "en_US.UTF-8");
     int argIndex = 1;
+#if __linux__
+    auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
+    std::thread([&eventFDSupport]() { eventFDSupport.fdThread(); }).detach();
+#endif
     while(argIndex != argc)
     {
         YADAW::Native::Library library;
@@ -468,6 +465,9 @@ int main(int argc, char* argv[])
             ++argIndex;
         }
     }
+#if __linux__
+    eventFDSupport.stop();
+#endif
     std::printf("%llu events (%llu overflow, %llu underflow) are rectified in %llu events.\n",
         overflowEventCount + underflowEventCount,
         overflowEventCount,

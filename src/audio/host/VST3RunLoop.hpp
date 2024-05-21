@@ -15,6 +15,7 @@
 #include <atomic>
 #include <map>
 #include <memory>
+#include <set>
 #include <thread>
 
 namespace YADAW::Audio::Plugin

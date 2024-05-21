@@ -471,6 +471,8 @@ add_executable(CLAPTest
                src/audio/host/CLAPHost.hpp
                src/audio/host/CLAPTimerSupport.hpp
                src/audio/host/CLAPTimerSupport.cpp
+               src/audio/host/EventFileDescriptorSupport.cpp
+               src/audio/host/EventFileDescriptorSupport.hpp
                src/audio/plugin/CLAPAudioChannelGroup.cpp
                src/audio/plugin/CLAPAudioChannelGroup.hpp
                src/audio/plugin/CLAPEventBusInfo.cpp
@@ -508,6 +510,10 @@ add_executable(CLAPTest
                test/common/PluginWindowThread.cpp
                test/CLAPTest/main.cpp
 )
+
+# Do this so since `EventFileDescriptorSupport` supports both VST3 and CLAP
+# but we don't actually use VST3 support
+target_include_directories(CLAPTest PRIVATE ${VST3SDK_SOURCE_DIR})
 
 add_executable(MIDIInputDeviceTest
                src/midi/MIDIInputDevice.cpp
@@ -745,6 +751,8 @@ add_executable(VST3Test
                src/audio/plugin/VST3AudioChannelGroup.cpp
                src/audio/base/Automation.cpp
                src/audio/base/Automation.hpp
+               src/audio/host/EventFileDescriptorSupport.cpp
+               src/audio/host/EventFileDescriptorSupport.hpp
                src/audio/host/VST3AttributeList.cpp
                src/audio/host/VST3AttributeList.hpp
                src/audio/host/VST3ComponentHandler.cpp

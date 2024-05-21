@@ -2,6 +2,7 @@
 
 #include "audio/host/CLAPEventList.hpp"
 #include "audio/host/CLAPHost.hpp"
+#include "audio/host/EventFileDescriptorSupport.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
 #include "audio/util/CLAPHelper.hpp"
 #include "native/CLAPNative.hpp"
@@ -22,6 +23,7 @@
 #include <cstdio>
 #include <thread>
 #include <vector>
+
 
 int inputIndex = -1;
 
@@ -227,7 +229,8 @@ void testPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, bool initializePlugin,
                         plugin.stopProcessing();
                     }
                 );
-                auto gui = plugin.pluginGUI();
+                YADAW::Audio::Plugin::CLAPPluginGUI* gui = plugin.pluginGUI();
+                // YADAW::Audio::Plugin::CLAPPluginGUI* gui = nullptr;
                 if(gui)
                 {
                     pluginWindowThread.start();
@@ -259,6 +262,8 @@ int main(int argc, char* argv[])
     }
     std::setlocale(LC_ALL, "en_US.UTF-8");
     int argIndex = 1;
+    auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
+    std::thread([&eventFDSupport]() { eventFDSupport.fdThread(); }).detach();
     while(argIndex != argc)
     {
         YADAW::Native::Library library;
@@ -287,6 +292,7 @@ int main(int argc, char* argv[])
             ++argIndex;
         }
     }
+    eventFDSupport.stop();
     std::printf("Press any key to continue...");
     getchar();
     return 0;
