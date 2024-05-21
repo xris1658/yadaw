@@ -215,10 +215,12 @@ const void* CLAPHost::doGetExtension(const char* extensionId)
     {
         return &timerSupport_;
     }
+#if __linux__
     if(std::strcmp(extensionId, CLAP_EXT_POSIX_FD_SUPPORT) == 0)
     {
         return &posixFDSupport_;
     }
+#endif
     return nullptr;
 }
 

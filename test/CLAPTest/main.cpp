@@ -262,8 +262,10 @@ int main(int argc, char* argv[])
     }
     std::setlocale(LC_ALL, "en_US.UTF-8");
     int argIndex = 1;
+#if __linux__
     auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
     std::thread([&eventFDSupport]() { eventFDSupport.fdThread(); }).detach();
+#endif
     while(argIndex != argc)
     {
         YADAW::Native::Library library;
@@ -292,7 +294,9 @@ int main(int argc, char* argv[])
             ++argIndex;
         }
     }
+#if __linux__
     eventFDSupport.stop();
+#endif
     std::printf("Press any key to continue...");
     getchar();
     return 0;
