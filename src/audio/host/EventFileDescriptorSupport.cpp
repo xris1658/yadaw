@@ -79,7 +79,7 @@ void EventFileDescriptorSupport::fdThread()
                     epollEvents[i].data.ptr
                 );
                 auto& [fd, info] = *pairPtr;
-                notify(fd, info);
+                notify(fd, &info);
             }
         }
     }
@@ -90,9 +90,9 @@ void EventFileDescriptorSupport::stop()
     running_.clear(std::memory_order_release);
 }
 
-void EventFileDescriptorSupport::onNotify(int fd, Info& info)
+void EventFileDescriptorSupport::onNotify(int fd, Info* info)
 {
-    auto& [format, data] = info;
+    auto& [format, data] = *info;
     switch(format)
     {
     case YADAW::Audio::Plugin::IAudioPlugin::Format::VST3:

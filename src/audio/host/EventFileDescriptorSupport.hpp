@@ -47,9 +47,9 @@ public:
     void fdThread();
     void stop();
 signals:
-    void notify(int fd, Info& info);
+    void notify(int fd, Info* info);
 private slots:
-    void onNotify(int fd, Info& info);
+    void onNotify(int fd, Info* info);
 public:
     bool add(int fd, const Info& info);
     bool remove(int fd);
