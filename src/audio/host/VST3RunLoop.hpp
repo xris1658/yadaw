@@ -1,5 +1,6 @@
 #ifndef YADAW_SRC_AUDIO_HOST_VST3RUNLOOP
 #define YADAW_SRC_AUDIO_HOST_VST3RUNLOOP
+#include "util/AlignHelper.hpp"
 
 #ifdef __linux__
 
@@ -15,6 +16,11 @@
 #include <map>
 #include <memory>
 #include <thread>
+
+namespace YADAW::Audio::Plugin
+{
+class VST3Plugin;
+}
 
 namespace YADAW::Audio::Host
 {
@@ -34,11 +40,9 @@ private:
             return std::tie(lhs.eventHandler, lhs.fd) < std::tie(rhs.eventHandler, rhs.fd);
         }
     };
-private:
+public:
     VST3RunLoop();
     ~VST3RunLoop();
-public:
-    static VST3RunLoop& instance();
 public:
     Steinberg::tresult queryInterface(const Steinberg::TUID iid, void** obj) override;
     Steinberg::uint32 addRef() override;
@@ -54,25 +58,17 @@ public:
         Steinberg::Linux::TimerInterval milliseconds) override;
     Steinberg::tresult unregisterTimer(
         Steinberg::Linux::ITimerHandler* handler) override;
-public:
-    void setMainThreadContext(const QObject& mainThreadContext);
-    void stop();
 private:
-    bool tryEpollCreateIfNeeded();
-private:
-    int epollFD_;
-    std::atomic_flag running_;
-    const QObject* mainThreadContext_;
+    std::atomic<std::uint32_t> refCount_;
+    const YADAW::Audio::Plugin::VST3Plugin* plugin_;
     std::map<
         Steinberg::Linux::IEventHandler*,
-        std::map<EventCaller, epoll_event>
-    > eventHandlers_;
+        std::set<Steinberg::Linux::FileDescriptor>
+    > fileDescriptors_;
     std::map<
         Steinberg::Linux::ITimerHandler*,
-        std::unique_ptr<QTimer>>
-    timerHandlers_;
-    VST3RunLoopEventCaller eventCaller_;
-    std::thread epollThread_;
+        YADAW::Util::AlignedStorage<QTimer>
+    > timerHandlers_;
 };
 }
 

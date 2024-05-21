@@ -179,6 +179,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/CLAPHost.hpp
     src/audio/host/CLAPTimerSupport.cpp
     src/audio/host/CLAPTimerSupport.hpp
+    src/audio/host/EventFileDescriptorSupport.cpp
+    src/audio/host/EventFileDescriptorSupport.hpp
     src/audio/host/VST3AttributeList.cpp
     src/audio/host/VST3AttributeList.hpp
     src/audio/host/VST3ComponentHandler.cpp

@@ -2,7 +2,10 @@
 
 #include "VST3RunLoop.hpp"
 
+#include "audio/host/EventFileDescriptorSupport.hpp"
 #include "util/IntegerRange.hpp"
+
+#include <QCoreApplication>
 
 #include <array>
 
@@ -11,25 +14,20 @@ using namespace Steinberg::Linux;
 namespace YADAW::Audio::Host
 {
 VST3RunLoop::VST3RunLoop():
-    epollFD_(-1),
-    running_(ATOMIC_FLAG_INIT)
-{
-    tryEpollCreateIfNeeded();
-}
+    refCount_(1U)
+{}
 
 VST3RunLoop::~VST3RunLoop()
 {
-    running_.clear(std::memory_order_release);
-    if(epollThread_.joinable())
+    auto& eventFDSupport = EventFileDescriptorSupport::instance();
+    for(auto& [handler, fdSet]: fileDescriptors_)
     {
-        epollThread_.join();
+        for(auto fd: fdSet)
+        {
+            eventFDSupport.remove(fd);
+        }
+        handler->release();
     }
-}
-
-VST3RunLoop& VST3RunLoop::instance()
-{
-    static VST3RunLoop ret;
-    return ret;
 }
 
 Steinberg::tresult VST3RunLoop::queryInterface(const char* _iid, void** obj)
@@ -42,79 +40,67 @@ Steinberg::tresult VST3RunLoop::queryInterface(const char* _iid, void** obj)
 
 Steinberg::uint32 VST3RunLoop::addRef()
 {
-    return 1;
+    return refCount_.fetch_add(1, std::memory_order_relaxed) + 1;
 }
 
 Steinberg::uint32 VST3RunLoop::release()
 {
-    return 1;
+    auto ret = refCount_.fetch_sub(1, std::memory_order_acq_rel) - 1;
+    if(ret == 0)
+    {
+        delete this;
+    }
+    return ret;
 }
 
 Steinberg::tresult VST3RunLoop::registerEventHandler(
     Steinberg::Linux::IEventHandler* handler,
     Steinberg::Linux::FileDescriptor fd)
 {
-    if(!handler || fd < 0)
+    if((!handler) || fd < 0)
     {
         return Steinberg::kInvalidArgument;
     }
-    tryEpollCreateIfNeeded();
-    if(epollFD_ < 0)
+    auto& fdSet = fileDescriptors_[handler];
+    if(auto it = fdSet.find(fd); it == fdSet.end())
     {
-        return Steinberg::kResultFalse;
-    }
-    auto& eventCallers = eventHandlers_[handler];
-    auto [it, inserted] = eventCallers.emplace(
-        EventCaller {
-            .eventHandler = handler, .fd = fd
-        },
-        epoll_event {}
-    );
-    if(!inserted)
-    {
-        return Steinberg::kInvalidArgument;
-    }
-    else
-    {
-        auto& [eventCaller, epollEvent] = *it;
-        epollEvent.events = EPOLLIN;
-        epollEvent.data.ptr = static_cast<void*>(
-            const_cast<EventCaller*>(&eventCaller)
+        auto& eventFDSupport = EventFileDescriptorSupport::instance();
+        auto addFDResult = eventFDSupport.add(
+            fd,
+            EventFileDescriptorSupport::Info {
+                .format = YADAW::Audio::Plugin::IAudioPlugin::Format::VST3,
+                .data = EventFileDescriptorSupport::Info::VST3Info {
+                    .eventHandler = handler
+                }
+            }
         );
-        auto controlResult = epoll_ctl(
-            epollFD_, EPOLL_CTL_ADD, fd, &epollEvent
-        );
-        if(controlResult == 0)
+        if(addFDResult)
         {
+            fdSet.emplace(fd);
+            handler->addRef();
             return Steinberg::kResultOk;
         }
-        else
-        {
-            return Steinberg::kResultFalse;
-        }
     }
+    return Steinberg::kResultFalse;
 }
 
 Steinberg::tresult VST3RunLoop::unregisterEventHandler(
     Steinberg::Linux::IEventHandler* handler)
 {
-    auto it = eventHandlers_.find(handler);
-    if(it != eventHandlers_.end())
+    auto it = fileDescriptors_.find(handler);
+    if(it != fileDescriptors_.end())
     {
-        auto& map = it->second;
-        for(auto& [eventCaller, epollEvent]: map)
+        auto& eventFDSupport = EventFileDescriptorSupport::instance();
+        auto& fdSet = it->second;
+        for(auto fd: fdSet)
         {
-            epoll_ctl(
-                epollFD_, EPOLL_CTL_DEL,
-                eventCaller.fd, &epollEvent
-            );
+            eventFDSupport.remove(fd);
         }
+        fileDescriptors_.erase(handler);
+        handler->release();
         return Steinberg::kResultOk;
     }
-    else
-    {
-        return Steinberg::kInvalidArgument;
-    }
+    return Steinberg::kInvalidArgument;
 }
 
 Steinberg::tresult VST3RunLoop::registerTimer(
@@ -122,98 +108,47 @@ Steinberg::tresult VST3RunLoop::registerTimer(
     Steinberg::Linux::TimerInterval milliseconds)
 {
     auto it = timerHandlers_.find(handler);
-    if(it != timerHandlers_.end())
+    if(it == timerHandlers_.end())
     {
-        return Steinberg::kResultFalse;
+        it = timerHandlers_.emplace(
+            handler,
+            YADAW::Util::AlignedStorage<QTimer>()
+        ).first;
+        auto* timer = new(&(it->second)) QTimer();
+        timer->setSingleShot(false);
+        timer->setTimerType(Qt::TimerType::PreciseTimer);
+        QObject::connect(timer, &QTimer::timeout,
+            QCoreApplication::instance(),
+            [handler]()
+            {
+                handler->onTimer();
+            }
+        );
+        timer->start(milliseconds);
+        handler->addRef();
+        return Steinberg::kResultOk;
     }
-    handler->addRef();
-    auto timer = std::make_unique<QTimer>();
-    timer->setInterval(milliseconds);
-    timer->setSingleShot(false);
-    timer->setTimerType(Qt::TimerType::PreciseTimer);
-    timer->callOnTimeout(
-        mainThreadContext_,
-        [handler]()
-        {
-            handler->onTimer();
-        }
-    );
-    timer->start();
-    timerHandlers_.emplace(
-        handler,
-        std::move(timer)
-    );
-    return Steinberg::kResultOk;
+    else
+    {
+        auto* timer = YADAW::Util::AlignHelper<QTimer>::fromAligned(&(it->second));
+        timer->start(milliseconds);
+        return Steinberg::kResultOk;
+    }
 }
 
 Steinberg::tresult VST3RunLoop::unregisterTimer(
     Steinberg::Linux::ITimerHandler* handler)
 {
     auto it = timerHandlers_.find(handler);
-    if(it == timerHandlers_.end())
+    if(it != timerHandlers_.end())
     {
-        return Steinberg::kResultFalse;
+        auto* timer = YADAW::Util::AlignHelper<QTimer>::fromAligned(&(it->second));
+        timer->~QTimer();
+        timerHandlers_.erase(it);
+        handler->release();
+        return Steinberg::kResultOk;
     }
-    timerHandlers_.erase(it);
-    return Steinberg::kResultOk;
-}
-
-bool VST3RunLoop::tryEpollCreateIfNeeded()
-{
-    if(epollFD_ < 0)
-    {
-        epollFD_ = epoll_create1(0);
-        if(epollFD_ >= 0)
-        {
-            running_.test_and_set(std::memory_order_release);
-            epollThread_ = std::thread(
-                [this]()
-                {
-                    std::array<epoll_event, 128> epollEvents;
-                    while(running_.test(std::memory_order_acquire))
-                    {
-                        // FIXME: Might sleep indefinitely here
-                        auto waitResult = epoll_wait(
-                            epollFD_,
-                            epollEvents.data(),
-                            epollEvents.size(),
-                            -1
-                        );
-                        if(waitResult >= 0)
-                        {
-                            FOR_RANGE0(i, waitResult)
-                            {
-                                auto eventCaller = static_cast<EventCaller*>(
-                                    epollEvents[i].data.ptr
-                                );
-                                eventCaller_.setFD(
-                                    eventCaller->eventHandler,
-                                    eventCaller->fd
-                                );
-                            }
-                        }
-                    }
-                }
-            );
-        }
-    }
-    return epollFD_ >= 0;
-}
-
-void VST3RunLoop::setMainThreadContext(const QObject& mainThreadContext)
-{
-    mainThreadContext_ = &mainThreadContext;
-    auto thread1 = eventCaller_.thread();
-    auto thread2 = mainThreadContext_->thread();
-    if(thread1 != thread2)
-    {
-        eventCaller_.moveToThread(thread2);
-    }
-}
-
-void VST3RunLoop::stop()
-{
-    running_.clear(std::memory_order_release);
+    return Steinberg::kInvalidArgument;
 }
 }
 

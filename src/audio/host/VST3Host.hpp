@@ -5,6 +5,11 @@
 #include <pluginterfaces/vst/ivstpluginterfacesupport.h>
 #include <pluginterfaces/vst/ivstprocesscontext.h>
 
+namespace YADAW::Audio::Plugin
+{
+class VST3Plugin;
+}
+
 namespace YADAW::Audio::Host
 {
 using namespace Steinberg;

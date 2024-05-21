@@ -1,6 +1,7 @@
 #include "CLAPHost.hpp"
 
 #include "audio/host/CLAPTimerSupport.hpp"
+#include "audio/host/EventFileDescriptorSupport.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
 
 void blankLatencyChangedCallback(YADAW::Audio::Plugin::CLAPPlugin&) {}
@@ -72,6 +73,15 @@ CLAPHost::CLAPHost(YADAW::Audio::Plugin::CLAPPlugin& plugin):
         &registerTimer,
         &unregisterTimer
     }
+#if __linux__
+    ,
+    posixFDSupport_
+    {
+        &registerFD,
+        &modifyFD,
+        &unregisterFD
+    }
+#endif
 {
 }
 
@@ -166,6 +176,23 @@ bool CLAPHost::unregisterTimer(const clap_host* host, clap_id timerId)
     return getHost(host)->doUnregisterTimer(timerId);
 }
 
+#if __linux__
+bool CLAPHost::registerFD(const clap_host* host, int fd, clap_posix_fd_flags_t flags)
+{
+    return getHost(host)->doRegisterFD(fd, flags);
+}
+
+bool CLAPHost::modifyFD(const clap_host* host, int fd, clap_posix_fd_flags_t flags)
+{
+    return getHost(host)->doModifyFD(fd, flags);
+}
+
+bool CLAPHost::unregisterFD(const clap_host* host, int fd)
+{
+    return getHost(host)->doUnregisterFD(fd);
+}
+#endif
+
 const void* CLAPHost::doGetExtension(const char* extensionId)
 {
     if(std::strcmp(extensionId, CLAP_EXT_GUI) == 0)
@@ -187,6 +214,10 @@ const void* CLAPHost::doGetExtension(const char* extensionId)
     if(std::strcmp(extensionId, CLAP_EXT_TIMER_SUPPORT) == 0)
     {
         return &timerSupport_;
+    }
+    if(std::strcmp(extensionId, CLAP_EXT_POSIX_FD_SUPPORT) == 0)
+    {
+        return &posixFDSupport_;
     }
     return nullptr;
 }
@@ -326,6 +357,41 @@ bool CLAPHost::doUnregisterTimer(clap_id timerId)
         timerId
     );
 }
+
+#if __linux__
+bool CLAPHost::doRegisterFD(int fd, clap_posix_fd_flags_t flags)
+{
+    auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
+    return eventFDSupport.add(
+        fd,
+        YADAW::Audio::Host::EventFileDescriptorSupport::Info {
+            .format = YADAW::Audio::Plugin::IAudioPlugin::Format::CLAP,
+            .data = YADAW::Audio::Host::EventFileDescriptorSupport::Info::CLAPInfo {
+                .plugin = plugin_->plugin_,
+                .posixFDSupport = static_cast<const clap_plugin_posix_fd_support_t*>(
+                    plugin_->plugin_->get_extension(
+                        plugin_->plugin_,
+                        CLAP_EXT_POSIX_FD_SUPPORT
+                    )
+                ),
+                .flags = flags
+            }
+        }
+    );
+}
+
+bool CLAPHost::doModifyFD(int fd, clap_posix_fd_flags_t flags)
+{
+    auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
+    return eventFDSupport.modifyCLAP(fd, flags);
+}
+
+bool CLAPHost::doUnregisterFD(int fd)
+{
+    auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
+    return eventFDSupport.remove(fd);
+}
+#endif
 
 YADAW::Audio::Plugin::CLAPPlugin* CLAPHost::plugin()
 {

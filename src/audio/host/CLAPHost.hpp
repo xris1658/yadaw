@@ -7,6 +7,9 @@
 #include <clap/ext/params.h>
 #include <clap/ext/thread-check.h>
 #include <clap/ext/timer-support.h>
+#if __linux__
+#include <clap/ext/posix-fd-support.h>
+#endif
 
 #include <functional>
 #include <thread>
@@ -54,6 +57,12 @@ private: // clap_host_thread_check functions
 private: // clap_host_timer_support functions
     static bool registerTimer(const clap_host* host, std::uint32_t milliseconds, clap_id* timerId);
     static bool unregisterTimer(const clap_host* host, clap_id timerId);
+#if __linux__
+private: // clap_host_posix_fd_support functions
+    static bool registerFD(const clap_host* host, int fd, clap_posix_fd_flags_t flags);
+    static bool modifyFD(const clap_host* host, int fd, clap_posix_fd_flags_t flags);
+    static bool unregisterFD(const clap_host* host, int fd);
+#endif
 private: // clap_host implementations
     const void* doGetExtension(const char* extensionId);
     void doRequestRestart();
@@ -70,6 +79,11 @@ private: // clap_host implementations
     void doParameterRequestFlush();
     bool doRegisterTimer(std::uint32_t milliseconds, clap_id* timerId);
     bool doUnregisterTimer(clap_id timerId);
+#if __linux__
+    bool doRegisterFD(int fd, clap_posix_fd_flags_t flags);
+    bool doModifyFD(int fd, clap_posix_fd_flags_t flags);
+    bool doUnregisterFD(int fd);
+#endif
 public:
     YADAW::Audio::Plugin::CLAPPlugin* plugin();
     static void setMainThreadId(std::thread::id mainThreadId);
@@ -96,6 +110,9 @@ private:
     clap_host_params params_;
     clap_host_thread_check threadCheck_;
     clap_host_timer_support timerSupport_;
+#if __linux__
+    clap_host_posix_fd_support posixFDSupport_;
+#endif
 };
 }
 

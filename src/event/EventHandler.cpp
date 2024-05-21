@@ -25,6 +25,7 @@
 #include "controller/AudioGraphBackendController.hpp"
 #elif __linux__
 #include "audio/host/VST3RunLoop.hpp"
+#include "audio/host/EventFileDescriptorSupport.hpp"
 #include "controller/ALSABackendController.hpp"
 #endif
 
@@ -494,7 +495,14 @@ void EventHandler::onOpenMainWindow()
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setTranslationIndex(int)),
         this, SLOT(onSetTranslationIndex(int)));
 #if __linux__
-    YADAW::Audio::Host::VST3RunLoop::instance().setMainThreadContext(*YADAW::UI::mainWindow);
+    auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
+    eventFDSupport.setMainThreadContext(*YADAW::UI::mainWindow);
+    std::thread(
+        [&eventFDSupport]()
+        {
+            eventFDSupport.fdThread();
+        }
+    ).detach();
 #endif
     setQtVersion(qVersion());
     setQtCopyrightYear(QT_COPYRIGHT_YEAR);
@@ -505,7 +513,9 @@ void EventHandler::onOpenMainWindow()
 void EventHandler::onMainWindowClosing()
 {
 #if __linux__
-    YADAW::Audio::Host::VST3RunLoop::instance().stop();
+    auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
+    eventFDSupport.stop();
+    eventFDSupport.clear();
 #endif
 #if _WIN32
     YADAW::Controller::appAudioGraphBackend().uninitialize();
