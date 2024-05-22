@@ -69,6 +69,7 @@ EventFileDescriptorSupport::~EventFileDescriptorSupport()
 {
     stop();
     clear();
+    close(epollFD_);
 }
 
 void EventFileDescriptorSupport::start()
