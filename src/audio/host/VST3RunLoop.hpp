@@ -1,8 +1,9 @@
 #ifndef YADAW_SRC_AUDIO_HOST_VST3RUNLOOP
 #define YADAW_SRC_AUDIO_HOST_VST3RUNLOOP
-#include "util/AlignHelper.hpp"
 
 #ifdef __linux__
+
+#include "util/AlignHelper.hpp"
 
 #include <pluginterfaces/gui/iplugview.h>
 
