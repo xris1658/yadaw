@@ -389,6 +389,39 @@ std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::channelGroupTypeAt(st
     return std::nullopt;
 }
 
+std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>>
+Mixer::audioInputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const
+{
+    if(index < audioInputChannelCount())
+    {
+        auto& channelGroup = audioInputMutes_[index].first->audioInputGroupAt(0)->get();
+        return {std::pair(channelGroup.type(), channelGroup.channelCount())};
+    }
+    return std::nullopt;
+}
+
+std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>>
+Mixer::audioOutputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const
+{
+    if(index < audioOutputChannelCount())
+    {
+        auto& channelGroup = audioOutputMutes_[index].first->audioInputGroupAt(0)->get();
+        return {std::pair(channelGroup.type(), channelGroup.channelCount())};
+    }
+    return std::nullopt;
+}
+
+std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>>
+Mixer::channelGroupTypeAndChannelCountAt(std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        auto& channelGroup = mutes_[index].first->audioInputGroupAt(0)->get();
+        return {std::pair(channelGroup.type(), channelGroup.channelCount())};
+    }
+    return std::nullopt;
+}
+
 std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioInputChannelIDAt(
     std::uint32_t index) const
 {
@@ -428,7 +461,7 @@ OptionalRef<const Mixer::Position> Mixer::mainOutputAt(std::uint32_t index) cons
     return std::nullopt;
 }
 
-bool Mixer::setMainOutputAt(std::uint32_t index, Position position) const
+bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
 {
     if(index >= channelCount())
     {
@@ -440,6 +473,70 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position) const
     auto channelGroupChannelCount = channelGroup.channelCount();
     // Check if channel config of the destination position matches the source
     // Reconnect the graph
+    auto& oldPosition = mainOutput_[index];
+    if(oldPosition != position)
+    {
+        // Disconnect
+        if(oldPosition.type == Position::Type::AudioHardwareIOChannel)
+        {
+            auto it = std::lower_bound(
+                audioOutputChannelIdAndIndex_.begin(),
+                audioOutputChannelIdAndIndex_.end(),
+                oldPosition.id,
+                [](const IDAndIndex& idAndIndex, IDGen::ID id)
+                {
+                    return idAndIndex.id < id;
+                }
+            );
+            if(it != audioOutputChannelIdAndIndex_.end() && it->id == oldPosition.id)
+            {
+                auto toNode = audioOutputPreFaderInserts_[it->index]->inNode();
+                auto fromNode = postFaderInserts_[index]->outNode();
+                auto outEdges = fromNode->outEdges();
+                auto outEdgeIt = std::find_if(
+                    outEdges.begin(), outEdges.end(),
+                    [&toNode](const ade::EdgeHandle& edgeHandle)
+                    {
+                        return edgeHandle->dstNode() == toNode;
+                    }
+                );
+                if(outEdgeIt != outEdges.end())
+                {
+                    graph_.disconnect(*outEdgeIt);
+                }
+            }
+        }
+        // Connect
+        if(position.type == Position::Type::AudioHardwareIOChannel)
+        {
+            auto it = std::lower_bound(
+                audioOutputChannelIdAndIndex_.begin(),
+                audioOutputChannelIdAndIndex_.end(),
+                position.id,
+                [](const IDAndIndex& idAndIndex, IDGen::ID id)
+                {
+                    return idAndIndex.id < id;
+                }
+            );
+            if(it != audioOutputChannelIdAndIndex_.end() && it->id == position.id)
+            {
+                auto outputChannelIndex = it->index;
+                const auto& destPair =
+                    *audioOutputChannelGroupTypeAndChannelCountAt(outputChannelIndex);
+                const auto& srcPair =
+                    *channelGroupTypeAndChannelCountAt(index);
+                if(srcPair == destPair)
+                {
+                    //
+                }
+            }
+            return false;
+        }
+        else
+        {
+            // Disconnect
+        }
+    }
     return false;
 }
 

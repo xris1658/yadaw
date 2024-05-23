@@ -61,8 +61,17 @@ public:
             SidechainOfPlugin
         };
         Type type;
-        std::uint32_t channelGroupIndex;
-        IDGen::ID id;
+        std::uint32_t channelGroupIndex = 0;
+        IDGen::ID id = IDGen::InvalidId;
+        friend bool operator==(const Position& lhs, const Position& rhs)
+        {
+            return std::tie(lhs.type, lhs.channelGroupIndex, lhs.id)
+                == std::tie(rhs.type, rhs.channelGroupIndex, rhs.id);
+        }
+        friend bool operator!=(const Position& lhs, const Position& rhs)
+        {
+            return !(lhs == rhs);
+        }
     };
     using NodeAddedCallback = void(const Mixer&);
     using NodeRemovedCallback = void(const Mixer&);
@@ -117,11 +126,14 @@ public:
     std::optional<YADAW::Audio::Base::ChannelGroupType> audioInputChannelGroupTypeAt(std::uint32_t index) const;
     std::optional<YADAW::Audio::Base::ChannelGroupType> audioOutputChannelGroupTypeAt(std::uint32_t index) const;
     std::optional<YADAW::Audio::Base::ChannelGroupType> channelGroupTypeAt(std::uint32_t index) const;
+    std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> audioInputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const;
+    std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> audioOutputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const;
+    std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> channelGroupTypeAndChannelCountAt(std::uint32_t index) const;
     std::optional<IDGen::ID> audioInputChannelIDAt(std::uint32_t index) const;
     std::optional<IDGen::ID> audioOutputChannelIDAt(std::uint32_t index) const;
     std::optional<IDGen::ID> channelIDAt(std::uint32_t index) const;
     OptionalRef<const Position> mainOutputAt(std::uint32_t index) const;
-    bool setMainOutputAt(std::uint32_t index, Position position) const;
+    bool setMainOutputAt(std::uint32_t index, Position position);
 public:
     bool appendAudioInputChannel(
         const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
