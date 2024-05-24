@@ -490,20 +490,35 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
             );
             if(it != audioOutputChannelIdAndIndex_.end() && it->id == oldPosition.id)
             {
-                auto toNode = audioOutputPreFaderInserts_[it->index]->inNode();
                 auto fromNode = postFaderInserts_[index]->outNode();
-                auto outEdges = fromNode->outEdges();
-                auto outEdgeIt = std::find_if(
-                    outEdges.begin(), outEdges.end(),
-                    [&toNode](const ade::EdgeHandle& edgeHandle)
-                    {
-                        return edgeHandle->dstNode() == toNode;
-                    }
+                auto& [oldSumming, oldSummingNode] = audioOutputSummings_[it->index];
+                auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
+                    oldSumming->audioInputGroupCount() - 1,
+                    oldSumming->audioOutputGroupAt(0)->get().type(),
+                    oldSumming->audioOutputGroupAt(0)->get().channelCount()
                 );
-                if(outEdgeIt != outEdges.end())
+                auto newSummingNode = graphWithPDC_.addNode(
+                    YADAW::Audio::Engine::AudioDeviceProcess(*newSumming)
+                );
+                auto newSummingNodeInIndex = 0U;
+                for(const auto& edgeHandle: oldSummingNode->inEdges())
                 {
-                    graph_.disconnect(*outEdgeIt);
+                    if(const auto& srcNode = edgeHandle->srcNode(); srcNode != fromNode)
+                    {
+                        graph_.connect(
+                            srcNode, newSummingNode,
+                            graph_.getEdgeData(edgeHandle).fromChannel,
+                            newSummingNodeInIndex++
+                        );
+                    }
                 }
+                audioOutputPreFaderInserts_[it->index]->setInNode(newSummingNode, 0);
+                {
+                    auto oldSummingMultiInput = graphWithPDC_.removeNode(oldSummingNode);
+                    connectionUpdatedCallback_(*this);
+                }
+                oldSumming = std::move(newSumming);
+                oldSummingNode = newSummingNode;
             }
         }
         // Connect
@@ -527,7 +542,35 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     *channelGroupTypeAndChannelCountAt(index);
                 if(srcPair == destPair)
                 {
-                    //
+                    auto fromNode = postFaderInserts_[index]->outNode();
+                    auto& [oldSumming, oldSummingNode] = audioOutputSummings_[outputChannelIndex];
+                    auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
+                        oldSumming->audioInputGroupCount() + 1,
+                        oldSumming->audioOutputGroupAt(0)->get().type(),
+                        oldSumming->audioOutputGroupAt(0)->get().channelCount()
+                    );
+                    auto newSummingNode = graphWithPDC_.addNode(
+                        YADAW::Audio::Engine::AudioDeviceProcess(*newSumming)
+                    );
+                    auto newSummingNodeInIndex = 0U;
+                    for(const auto& edgeHandle: oldSummingNode->inEdges())
+                    {
+                        graph_.connect(
+                            edgeHandle->srcNode(), newSummingNode,
+                            graph_.getEdgeData(edgeHandle).fromChannel,
+                            newSummingNodeInIndex++
+                        );
+                    }
+                    graph_.connect(
+                        fromNode, newSummingNode, 0, newSummingNodeInIndex
+                    );
+                    {
+                        auto oldSummingMultiInput = graphWithPDC_.removeNode(oldSummingNode);
+                        connectionUpdatedCallback_(*this);
+                    }
+                    oldSumming = std::move(newSumming);
+                    oldSummingNode = newSummingNode;
+                    return true;
                 }
             }
             return false;
@@ -949,7 +992,7 @@ bool Mixer::insertChannel(
         case ChannelType::AudioBus:
         {
             auto summing = new (std::nothrow) YADAW::Audio::Util::Summing(
-                1, channelGroupType, channelCountInGroup
+                0, channelGroupType, channelCountInGroup
             );
             if(!summing)
             {
