@@ -10,7 +10,7 @@ Shape {
     ShapePath {
         id: path
         PathSvg {
-            path: "M192,48V160l-16,16H112v32L64,160l48-48v32h48V48h32Z"
+            path: "M128,128h96v96H128V128Zm0-64,48,48,48-48H192V32H160V64H128ZM112,176L64,128v32H32v32H64v32Z"
         }
     }
 }
