@@ -78,6 +78,7 @@ RouteList 1.0 RouteList.qml
 ScrollBar 1.0 ScrollBar.qml
 SendIcon 1.0 SendIcon.qml
 ShowLeftPaneIcon 1.0 ShowLeftPaneIcon.qml
+SidechainIcon 1.0 SidechainIcon.qml
 Slider 1.0 Slider.qml
 SortIcon 1.0 SortIcon.qml
 SpinBox 1.0 SpinBox.qml
