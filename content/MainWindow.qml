@@ -744,6 +744,7 @@ ApplicationWindow {
                         }
                         Mixer {
                             id: mixer
+                            audioIOSelectorWindow: audioIOSelectorWindow
                             pluginSelectorWindow: pluginSelectorWindow
                             pluginRouteEditorWindow: pluginRouteEditorWindow
                             onInsertTrack: (position, type) => {
@@ -793,6 +794,34 @@ ApplicationWindow {
     }
     TapTempoWindow {
         id: tapTempoWindow
+    }
+    Window {
+        id: audioIOSelectorWindow
+        width: audioIOSelector.width
+        height: audioIOSelector.height
+        color: Colors.background
+        flags: Qt.Tool | Qt.FramelessWindowHint
+        readonly property AudioIOSelector audioIOSelector: audioIOSelector
+        AudioIOSelector {
+            id: audioIOSelector
+            onResetted: {
+                audioIOSelectorWindow.hide();
+            }
+            onAccepted: {
+                audioIOSelectorWindow.hide();
+            }
+            onCancelled: {
+                audioIOSelectorWindow.hide();
+            }
+        }
+        onVisibleChanged: {
+            if(visible) {
+                audioIOSelector.open();
+            }
+            else {
+                audioIOSelector.close();
+            }
+        }
     }
     Window {
         id: pluginSelectorWindow

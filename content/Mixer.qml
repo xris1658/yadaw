@@ -19,6 +19,7 @@ Rectangle {
     property alias showOutputBus: showOutputBusButton.checked
 
     property Window pluginSelectorWindow: null
+    property Window audioIOSelectorWindow: null
 
     property PluginRouteEditorWindow pluginRouteEditorWindow: null
 
@@ -152,8 +153,6 @@ Rectangle {
             MixerChannel {
                 id: inputMixerChannel
                 height: root.height
-                inputModel: 0
-                outputModel: 0
                 insertModel: mclm_inserts
                 inputAvailable: false
                 outputAvailable: false
@@ -164,6 +163,7 @@ Rectangle {
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
+                audioIOSelectorWindow: root.audioIOSelectorWindow
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
             }
@@ -204,8 +204,6 @@ Rectangle {
             MixerChannel {
                 id: mixerChannel
                 height: root.height
-                inputModel: 0
-                outputModel: 0
                 insertModel: mclm_inserts
                 inputAvailable:
                     mclm_channel_type == IMixerChannelListModel.ChannelTypeAudio
@@ -228,6 +226,7 @@ Rectangle {
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
+                audioIOSelectorWindow: root.audioIOSelectorWindow
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
                 onInstrumentBypassedChanged: {
@@ -335,8 +334,6 @@ Rectangle {
             MixerChannel {
                 id: outputMixerChannel
                 height: root.height
-                inputModel: 0
-                outputModel: 0
                 insertModel: mclm_inserts
                 inputAvailable: false
                 outputAvailable: false
@@ -347,6 +344,7 @@ Rectangle {
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader
+                audioIOSelectorWindow: root.audioIOSelectorWindow
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
             }

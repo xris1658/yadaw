@@ -59,6 +59,7 @@ set(CONTENT_QML_FILES
     AudioGraphSettings.qml
     AudioHardwareSettings.qml
     AudioIcon.qml
+    AudioIOSelector.qml
     Automation.qml
     AuxInputIcon.qml
     AuxOutputIcon.qml

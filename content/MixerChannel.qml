@@ -21,8 +21,6 @@ Rectangle {
     property bool instrumentGenericEditorVisible
     property var instrumentAudioInputs: null
     property var instrumentAudioOutputs: null
-    property alias inputModel: inputButton.model
-    property alias outputModel: outputButton.model
     property alias insertModel: insertList.model
     property alias name: nameLabel.text
     property bool showIO: true
@@ -31,6 +29,7 @@ Rectangle {
     property bool showSendSlot: true
     property bool showFader: true
 
+    property Window audioIOSelectorWindow: null
     property Window pluginSelectorWindow: null
     property PluginRouteEditorWindow pluginRouteEditorWindow: null
 
@@ -95,25 +94,29 @@ Rectangle {
                 id: ioComboBoxColumn
                 spacing: impl.padding
                 anchors.centerIn: parent
-                ComboBox {
+                ComboBoxButton {
                     id: inputButton
                     opacity: root.inputAvailable? 1: 0
                     width: ioPlaceholder.width - impl.padding * 2
-                    valueRole: "abcm_name"
-                    textRole: "abcm_name"
-                    displayText: count == 0? qsTr("No Bus Available"): currentIndex == -1? qsTr("Select Bus..."): currentText == ""? qsTr("Bus") + " " + (currentIndex + 1): currentText
-                    indicator.visible: count != 0
-                    enabled: count != 0
                 }
-                ComboBox {
+                ComboBoxButton {
                     id: outputButton
                     opacity: root.outputAvailable? 1: 0
                     width: ioPlaceholder.width - impl.padding * 2
-                    valueRole: "abcm_name"
-                    textRole: "abcm_name"
-                    displayText: count == 0? qsTr("No Bus Available"): currentIndex == -1? qsTr("Select Bus..."): currentText == ""? qsTr("Bus") + " " + (currentIndex + 1): currentText
-                    indicator.visible: count != 0
-                    enabled: count != 0
+                    onCheckedChanged: {
+                        if(checked) {
+                            let windowCoordinate = mapToGlobal(0, height + impl.padding);
+                            if(windowCoordinate.y + audioIOSelectorWindow.height >= audioIOSelectorWindow.screen.desktopAvailableHeight) {
+                                windowCoordinate = mapToGlobal(0, 0 - audioIOSelectorWindow.height - impl.padding);
+                            }
+                            if(windowCoordinate.x + audioIOSelectorWindow.width >= audioIOSelectorWindow.screen.desktopAvailableWidth) {
+                                windowCoordinate.x = audioIOSelectorWindow.screen.desktopAvailableWidth - audioIOSelectorWindow.width;
+                            }
+                            audioIOSelectorWindow.x = windowCoordinate.x;
+                            audioIOSelectorWindow.y = windowCoordinate.y;
+                            audioIOSelectorWindow.showNormal();
+                        }
+                    }
                 }
             }
         }

@@ -21,6 +21,7 @@ AudioBusConfigurationWindow 1.0 AudioBusConfigurationWindow.qml
 AudioGraphSettings 1.0 AudioGraphSettings.qml
 AudioHardwareSettings 1.0 AudioHardwareSettings.qml
 AudioIcon 1.0 AudioIcon.qml
+AudioIOSelector 1.0 AudioIOSelector.qml
 Automation 1.0 Automation.qml
 AuxInputIcon 1.0 AuxInputIcon.qml
 AuxOutputIcon 1.0 AuxOutputIcon.qml
@@ -80,7 +81,6 @@ RouteList 1.0 RouteList.qml
 ScrollBar 1.0 ScrollBar.qml
 SendIcon 1.0 SendIcon.qml
 ShowLeftPaneIcon 1.0 ShowLeftPaneIcon.qml
-SidechainIcon 1.0 SidechainIcon.qml
 Slider 1.0 Slider.qml
 SortIcon 1.0 SortIcon.qml
 SpinBox 1.0 SpinBox.qml
