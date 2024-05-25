@@ -480,7 +480,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
     auto& oldPosition = mainOutput_[index];
     if(oldPosition != position)
     {
-        std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> disconnectingMultiInput;
+        std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> disconnectingOldMultiInput;
         std::unique_ptr<YADAW::Audio::Util::Summing> disconnectingOldSumming;
         // Disconnect
         if(oldPosition.type == Position::Type::AudioHardwareIOChannel)
@@ -516,7 +516,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     }
                 }
                 audioOutputPreFaderInserts_[it->index]->setInNode(newSummingNode, 0);
-                disconnectingMultiInput = graphWithPDC_.removeNode(oldSummingNode);
+                disconnectingOldMultiInput = graphWithPDC_.removeNode(oldSummingNode);
                 disconnectingOldSumming = std::move(oldSumming);
                 oldSumming = std::move(newSumming);
                 oldSummingNode = newSummingNode;
@@ -561,10 +561,10 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         }
                     }
                     preFaderInserts_[it->index]->setInNode(newSummingNode, 0);
-                    disconnectingMultiInput = graphWithPDC_.removeNode(oldSummingNode);
-                    disconnectingOldSumming.reset(oldSumming);
+                    disconnectingOldMultiInput = graphWithPDC_.removeNode(oldSummingNode);
                     oldSummingAsDevice.release();
-                    oldSumming = newSumming.release();
+                    disconnectingOldSumming.reset(oldSumming);
+                    oldSummingAsDevice.reset(newSumming.release());
                     oldSummingNode = newSummingNode;
                 }
             }
@@ -574,6 +574,8 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
             // not-implemented
         }
         // Connect
+        std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> disconnectingNewMultiInput;
+        std::unique_ptr<YADAW::Audio::Util::Summing> disconnectingNewSumming;
         if(position.type == Position::Type::AudioHardwareIOChannel)
         {
             auto it = std::lower_bound(
@@ -614,12 +616,15 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         fromNode, newSummingNode, 0, newSummingNodeInIndex
                     );
                     audioOutputPreFaderInserts_[it->index]->setInNode(newSummingNode, 0);
-                    {
-                        auto oldSummingMultiInput = graphWithPDC_.removeNode(oldSummingNode);
-                        connectionUpdatedCallback_(*this);
-                        oldSumming.reset();Si
-                        disconnectingMultiInput.reset();
-                    }
+                    disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
+                    disconnectingNewSumming = std::move(oldSumming);
+                    connectionUpdatedCallback_(*this);
+                    disconnectingOldSumming.reset();
+                    disconnectingOldMultiInput.reset();
+                    disconnectingNewSumming.reset();
+                    disconnectingNewMultiInput.reset();
+                    oldSumming = std::move(newSumming);
+                    oldSummingNode = newSummingNode;
                     return true;
                 }
             }
@@ -648,7 +653,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         auto fromNode = postFaderInserts_[index]->outNode();
                         auto& [oldSummingAsDevice, oldSummingNode] = inputDevices_[outputChannelIndex];
                         auto oldSumming = static_cast<YADAW::Audio::Util::Summing*>(
-                            oldSummingAsDevice.get()
+                            oldSummingAsDevice.release()
                         );
                         auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
                             oldSumming->audioInputGroupCount() + 1,
@@ -672,10 +677,14 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         );
                         preFaderInserts_[it->index]->setInNode(newSummingNode, 0);
                         {
-                            auto oldSummingMultiInput = graphWithPDC_.removeNode(oldSummingNode);
+                            disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
+                            disconnectingNewSumming.reset(oldSumming);
                             connectionUpdatedCallback_(*this);
-                            oldSummingAsDevice.reset();
-                            disconnectingMultiInput.reset();
+                            oldSummingAsDevice = std::move(newSumming);
+                            disconnectingOldMultiInput.reset();
+                            disconnectingOldSumming.reset();
+                            disconnectingNewMultiInput.reset();
+                            disconnectingNewSumming.reset();
                         }
                         return true;
                     }
