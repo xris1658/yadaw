@@ -126,7 +126,6 @@ set(CONTENT_QML_FILES
     ScrollBar.qml
     SendIcon.qml
     ShowLeftPaneIcon.qml
-    SidechainIcon.qml
     Slider.qml
     SortIcon.qml
     SpinBox.qml
