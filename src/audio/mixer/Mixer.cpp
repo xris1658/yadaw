@@ -463,6 +463,10 @@ OptionalRef<const Mixer::Position> Mixer::mainOutputAt(std::uint32_t index) cons
 
 bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
 {
+    auto compareIdAndIndexWithId = [](const IDAndIndex& idAndIndex, IDGen::ID id)
+    {
+        return idAndIndex.id < id;
+    };
     if(index >= channelCount())
     {
         return false;
@@ -476,6 +480,8 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
     auto& oldPosition = mainOutput_[index];
     if(oldPosition != position)
     {
+        std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> disconnectingMultiInput;
+        std::unique_ptr<YADAW::Audio::Util::Summing> disconnectingOldSumming;
         // Disconnect
         if(oldPosition.type == Position::Type::AudioHardwareIOChannel)
         {
@@ -483,10 +489,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 audioOutputChannelIdAndIndex_.begin(),
                 audioOutputChannelIdAndIndex_.end(),
                 oldPosition.id,
-                [](const IDAndIndex& idAndIndex, IDGen::ID id)
-                {
-                    return idAndIndex.id < id;
-                }
+                compareIdAndIndexWithId
             );
             if(it != audioOutputChannelIdAndIndex_.end() && it->id == oldPosition.id)
             {
@@ -513,13 +516,62 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     }
                 }
                 audioOutputPreFaderInserts_[it->index]->setInNode(newSummingNode, 0);
-                {
-                    auto oldSummingMultiInput = graphWithPDC_.removeNode(oldSummingNode);
-                    connectionUpdatedCallback_(*this);
-                }
+                disconnectingMultiInput = graphWithPDC_.removeNode(oldSummingNode);
+                disconnectingOldSumming = std::move(oldSumming);
                 oldSumming = std::move(newSumming);
                 oldSummingNode = newSummingNode;
             }
+        }
+        else if(oldPosition.type == Position::Type::BusAndFXChannel)
+        {
+            auto it = std::lower_bound(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                oldPosition.id,
+                compareIdAndIndexWithId
+            );
+            if(it != channelIdAndIndex_.end() && it->id == oldPosition.id)
+            {
+                auto oldType = channelInfo_[it->index].channelType;
+                if(oldType == ChannelType::AudioBus || oldType == ChannelType::AudioFX)
+                {
+                    auto fromNode = postFaderInserts_[index]->outNode();
+                    auto& [oldSummingAsDevice, oldSummingNode] = inputDevices_[it->index];
+                    auto oldSumming = static_cast<YADAW::Audio::Util::Summing*>(
+                        oldSummingAsDevice.get()
+                    );
+                    auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
+                        oldSumming->audioInputGroupCount() - 1,
+                        oldSumming->audioOutputGroupAt(0)->get().type(),
+                        oldSumming->audioOutputGroupAt(0)->get().channelCount()
+                    );
+                    auto newSummingNode = graphWithPDC_.addNode(
+                        YADAW::Audio::Engine::AudioDeviceProcess(*newSumming)
+                    );
+                    auto newSummingNodeInIndex = 0U;
+                    for(const auto& edgeHandle: oldSummingNode->inEdges())
+                    {
+                        if(const auto& srcNode = edgeHandle->srcNode(); srcNode != fromNode)
+                        {
+                            graph_.connect(
+                                srcNode, newSummingNode,
+                                graph_.getEdgeData(edgeHandle).fromChannel,
+                                newSummingNodeInIndex++
+                            );
+                        }
+                    }
+                    preFaderInserts_[it->index]->setInNode(newSummingNode, 0);
+                    disconnectingMultiInput = graphWithPDC_.removeNode(oldSummingNode);
+                    disconnectingOldSumming.reset(oldSumming);
+                    oldSummingAsDevice.release();
+                    oldSumming = newSumming.release();
+                    oldSummingNode = newSummingNode;
+                }
+            }
+        }
+        else if(oldPosition.type == Position::Type::SidechainOfPlugin)
+        {
+            // not-implemented
         }
         // Connect
         if(position.type == Position::Type::AudioHardwareIOChannel)
@@ -528,10 +580,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 audioOutputChannelIdAndIndex_.begin(),
                 audioOutputChannelIdAndIndex_.end(),
                 position.id,
-                [](const IDAndIndex& idAndIndex, IDGen::ID id)
-                {
-                    return idAndIndex.id < id;
-                }
+                compareIdAndIndexWithId
             );
             if(it != audioOutputChannelIdAndIndex_.end() && it->id == position.id)
             {
@@ -564,20 +613,79 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     graph_.connect(
                         fromNode, newSummingNode, 0, newSummingNodeInIndex
                     );
+                    audioOutputPreFaderInserts_[it->index]->setInNode(newSummingNode, 0);
                     {
                         auto oldSummingMultiInput = graphWithPDC_.removeNode(oldSummingNode);
                         connectionUpdatedCallback_(*this);
+                        oldSumming.reset();Si
+                        disconnectingMultiInput.reset();
                     }
-                    oldSumming = std::move(newSumming);
-                    oldSummingNode = newSummingNode;
                     return true;
                 }
             }
             return false;
         }
-        else
+        else if(position.type == Position::Type::BusAndFXChannel)
         {
-            // Disconnect
+            auto it = std::lower_bound(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                position.id,
+                compareIdAndIndexWithId
+            );
+            if(it != channelIdAndIndex_.end() && it->id == position.id)
+            {
+                auto outputChannelIndex = it->index;
+                auto channelType = channelInfo_[outputChannelIndex].channelType;
+                if(channelType == ChannelType::AudioBus || channelType == ChannelType::AudioFX)
+                {
+                    const auto& destPair =
+                        *channelGroupTypeAndChannelCountAt(outputChannelIndex);
+                    const auto& srcPair =
+                        *channelGroupTypeAndChannelCountAt(index);
+                    if(srcPair == destPair)
+                    {
+                        auto fromNode = postFaderInserts_[index]->outNode();
+                        auto& [oldSummingAsDevice, oldSummingNode] = inputDevices_[outputChannelIndex];
+                        auto oldSumming = static_cast<YADAW::Audio::Util::Summing*>(
+                            oldSummingAsDevice.get()
+                        );
+                        auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
+                            oldSumming->audioInputGroupCount() + 1,
+                            oldSumming->audioOutputGroupAt(0)->get().type(),
+                            oldSumming->audioOutputGroupAt(0)->get().channelCount()
+                        );
+                        auto newSummingNode = graphWithPDC_.addNode(
+                            YADAW::Audio::Engine::AudioDeviceProcess(*newSumming)
+                        );
+                        auto newSummingNodeInIndex = 0U;
+                        for(const auto& edgeHandle: oldSummingNode->inEdges())
+                        {
+                            graph_.connect(
+                                edgeHandle->srcNode(), newSummingNode,
+                                graph_.getEdgeData(edgeHandle).fromChannel,
+                                newSummingNodeInIndex++
+                            );
+                        }
+                        graph_.connect(
+                            fromNode, newSummingNode, 0, newSummingNodeInIndex
+                        );
+                        preFaderInserts_[it->index]->setInNode(newSummingNode, 0);
+                        {
+                            auto oldSummingMultiInput = graphWithPDC_.removeNode(oldSummingNode);
+                            connectionUpdatedCallback_(*this);
+                            oldSummingAsDevice.reset();
+                            disconnectingMultiInput.reset();
+                        }
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+        else if(position.type == Position::Type::SidechainOfPlugin)
+        {
+            // not implemented
         }
     }
     return false;
