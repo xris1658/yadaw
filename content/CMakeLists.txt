@@ -60,6 +60,8 @@ set(CONTENT_QML_FILES
     AudioHardwareSettings.qml
     AudioIcon.qml
     Automation.qml
+    AuxInputIcon.qml
+    AuxOutputIcon.qml
     BigClock.qml
     Button.qml
     BypassIcon.qml

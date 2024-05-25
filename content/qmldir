@@ -22,6 +22,8 @@ AudioGraphSettings 1.0 AudioGraphSettings.qml
 AudioHardwareSettings 1.0 AudioHardwareSettings.qml
 AudioIcon 1.0 AudioIcon.qml
 Automation 1.0 Automation.qml
+AuxInputIcon 1.0 AuxInputIcon.qml
+AuxOutputIcon 1.0 AuxOutputIcon.qml
 BigClock 1.0 BigClock.qml
 Button 1.0 Button.qml
 BypassIcon 1.0 BypassIcon.qml
