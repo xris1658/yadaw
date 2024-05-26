@@ -56,9 +56,11 @@ set(CONTENT_QML_FILES
     Assets.qml
     AudioBusConfiguration.qml
     AudioBusConfigurationWindow.qml
+    AudioFXIcon.qml
     AudioGraphSettings.qml
     AudioHardwareSettings.qml
     AudioIcon.qml
+    AudioIOIcon.qml
     AudioIOSelector.qml
     Automation.qml
     AuxInputIcon.qml
@@ -102,6 +104,7 @@ set(CONTENT_QML_FILES
     MetronomeIcon.qml
     MIDIEditor.qml
     MIDIEffectIcon.qml
+    MIDIIOIcon.qml
     Mixer.qml
     MixerChannel.qml
     MixerInsertSlot.qml
