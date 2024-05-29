@@ -374,6 +374,8 @@ set(YADAW_COMMON_SOURCES
     src/model/FileTreeModel.cpp
     src/model/FileTreeModel.hpp
     src/model/FilterRoleModel.cpp
+    src/model/HardwareAudioIOPositionModel.cpp
+    src/model/HardwareAudioIOPositionModel.hpp
     src/model/ListModelListModel.cpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp

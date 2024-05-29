@@ -919,6 +919,11 @@ bool MixerChannelListModel::removeInstrument(int position)
     return false;
 }
 
+MixerChannelListModel::ListType MixerChannelListModel::type() const
+{
+    return listType_;
+}
+
 void MixerChannelListModel::instrumentLatencyUpdated(std::uint32_t index) const
 {
     if(listType_ == ListType::Regular

@@ -50,6 +50,8 @@ public:
     bool setInstrument(int position, int pluginId) override;
     bool removeInstrument(int position) override;
 public:
+    ListType type() const;
+public:
     void instrumentLatencyUpdated(std::uint32_t index) const;
     void updateInstrumentIOConfig(std::uint32_t index);
 private:
