@@ -16,7 +16,7 @@ QC.Popup {
 
     QtObject {
         id: impl
-        property int contentWidth: 400
+        property int contentWidth: 300
     }
 
     background: Rectangle {
@@ -64,6 +64,8 @@ QC.Popup {
                         bottomPadding: 5
                         spacing: 5
                         ListView {
+                            width: parent.width
+                            height: contentHeight
                             model: ListModel {
                                 ListElement {
                                     name: qsTr("Audio Bus")
@@ -82,10 +84,19 @@ QC.Popup {
                                 }
                             }
                             delegate: ItemDelegate {
-                                //
+                                width: parent.width - 3 * 2
+                                height: implicitHeight
+                                text: name
+                                leftPadding: height
+                                rightPadding: 2
+                                topPadding: 2
+                                bottomPadding: 2
                             }
                         }
                     }
+                }
+                TableLikeListView {
+                    //
                 }
             }
         }

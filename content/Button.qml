@@ -59,11 +59,11 @@ T.Button {
             root.checked?
                 Colors.checkedButtonContent:
                 Colors.content
-        anchors.fill: root
-        anchors.leftMargin: root.leftPadding
-        anchors.rightMargin: root.rightPadding
-        anchors.topMargin: root.topPadding
-        anchors.bottomMargin: root.bottomPadding
+        // anchors.fill: root
+        // anchors.leftMargin: root.leftPadding
+        // anchors.rightMargin: root.rightPadding
+        // anchors.topMargin: root.topPadding
+        // anchors.bottomMargin: root.bottomPadding
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight

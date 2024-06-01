@@ -80,6 +80,7 @@ Rectangle {
             width: root.width / 2
             height: root.height - busListHeader.height
             clip: true
+            model: null
             boundsBehavior: ListView.StopAtBounds
             ScrollBar.vertical: ScrollBar {
                 id: busListScrollBar

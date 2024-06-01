@@ -155,7 +155,7 @@ Rectangle {
                     font.pointSize: Qt.application.font.pointSize * 0.9
                     width: leftColumn.width
                     height: contentHeight + topPadding + bottomPadding
-                    leftPadding: 5
+                    leftPadding: 0
                     topPadding: 3
                     bottomPadding: 0
                     elide: Text.ElideRight
@@ -283,7 +283,7 @@ Rectangle {
                     font.pointSize: Qt.application.font.pointSize * 0.9
                     width: leftColumn.width
                     height: contentHeight + topPadding + bottomPadding
-                    leftPadding: 5
+                    leftPadding: 0
                     topPadding: 3
                     bottomPadding: 0
                     elide: Text.ElideRight

@@ -813,13 +813,20 @@ ApplicationWindow {
             onCancelled: {
                 audioIOSelectorWindow.hide();
             }
+            onActiveFocusChanged: {
+                if(!activeFocus) {
+                    cancelled();
+                }
+            }
         }
         onVisibleChanged: {
             if(visible) {
                 audioIOSelector.open();
+                audioIOSelector.forceActiveFocus();
+                requestActivate();
             }
             else {
-                audioIOSelector.close();
+                audioIOSelector.cancelled();
             }
         }
     }
