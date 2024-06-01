@@ -16,7 +16,7 @@ QC.Popup {
 
     QtObject {
         id: impl
-        property int contentWidth: 300
+        property int contentWidth: 400
     }
 
     background: Rectangle {
@@ -62,25 +62,31 @@ QC.Popup {
                     Column {
                         topPadding: 5
                         bottomPadding: 5
+                        x: 5
                         spacing: 5
                         ListView {
-                            width: parent.width
+                            width: categoryList.width
                             height: contentHeight
                             model: ListModel {
                                 ListElement {
-                                    name: qsTr("Audio Bus")
+                                    name: qsTr("Audio Hardware I/O")
+                                    iconSource: "IOIcon.qml"
                                 }
                                 ListElement {
                                     name: qsTr("Audio Group Channel")
+                                    iconSource: "GroupIcon.qml"
                                 }
                                 ListElement {
                                     name: qsTr("Audio Effect Channel")
+                                    iconSource: "AudioFXIcon.qml"
                                 }
                                 ListElement {
                                     name: qsTr("Plugin Aux Input")
+                                    iconSource: "AuxInputIcon.qml"
                                 }
                                 ListElement {
                                     name: qsTr("Plugin Aux Output")
+                                    iconSource: "AuxOutputIcon.qml"
                                 }
                             }
                             delegate: ItemDelegate {
@@ -91,6 +97,27 @@ QC.Popup {
                                 rightPadding: 2
                                 topPadding: 2
                                 bottomPadding: 2
+                                Item {
+                                    id: enableLayerForIcons
+                                    width: height
+                                    height: parent.height
+                                    layer.enabled: true
+                                    layer.smooth: true
+                                    layer.textureSize: Qt.size(width * 2, height * 2)
+                                    Loader {
+                                        id: loader
+                                        onLoaded: {
+                                            item.parent = enableLayerForIcons;
+                                            item.scale = 16 / item.originalHeight;
+                                            item.anchors.centerIn = enableLayerForIcons;
+                                            item.path.strokeColor = "transparent";
+                                            item.path.fillColor = Colors.secondaryContent;
+                                        }
+                                    }
+                                }
+                                Component.onCompleted: {
+                                    loader.source = iconSource;
+                                }
                             }
                         }
                     }
@@ -105,7 +132,7 @@ QC.Popup {
             height: cancelButton.height
             Button {
                 id: resetButton
-                text: qsTr("R&eset")
+                text: qsTr("&Disconnect")
                 onClicked: {
                     root.resetted();
                 }
