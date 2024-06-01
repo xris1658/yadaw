@@ -68,4 +68,14 @@ T.Button {
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
     }
+
+    function locatePopupWindow(popupWindow: Window, belowY: int, aboveY: int) {
+        let windowCoordinate = root.mapToGlobal(root.leftInset, belowY);
+        if(windowCoordinate.y + popupWindow.height >= popupWindow.screen.desktopAvailableHeight) {
+            windowCoordinate = mapToGlobal(root.leftInset, 0 + aboveY - popupWindow.height);
+        }
+        windowCoordinate.x = Math.min(windowCoordinate.x, popupWindow.screen.desktopAvailableWidth - popupWindow.width);
+        popupWindow.x = windowCoordinate.x;
+        popupWindow.y = windowCoordinate.y;
+    }
 }

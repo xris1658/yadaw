@@ -19,7 +19,7 @@ Window {
 
     property alias audioInputList: audioInputModel.sourceModel
     property alias audioOutputList: audioOutputModel.sourceModel
-    property alias midiInputList: midiInputComboBox.model
+    property alias midiInputList: midiInputModel.sourceModel
 
     property alias name: nameField.text
     property alias placeholderName: nameField.placeholderText
@@ -31,11 +31,12 @@ Window {
     property alias midiInputEnabled: midiInputCheckBox.checked
     property alias midiInput: midiInputComboBox.currentValue
     property alias audioInputEnabled: audioInputCheckBox.checked
-    property alias audioInput: audioInputComboBox.currentValue
+    // property alias audioInput: audioInputComboBox.currentValue
     property alias audioOutputEnabled: audioOutputCheckBox.checked
-    property alias audioOutput: audioOutputComboBox.currentValue
+    // property alias audioOutput: audioOutputComboBox.currentValue
     property alias count: countField.value
 
+    property Window audioIOSelectorWindow: null
     property Window pluginSelectorWindow: null
 
     signal accepted()
@@ -58,6 +59,12 @@ Window {
     }
     SortFilterProxyListModel {
         id: audioOutputModel
+    }
+    SortFilterProxyListModel {
+        id: midiInputModel
+    }
+    SortFilterProxyListModel {
+        id: midiOutputModel
     }
 
     QtObject {
@@ -209,15 +216,7 @@ Window {
                             readonly property string defaultText: "<i>" + qsTr("No Instrument") + "</i>"
                             text: defaultText
                             onClicked: {
-                                let windowCoordinate = mapToGlobal(0, height);
-                                if(windowCoordinate.y + pluginSelectorWindow.height >= pluginSelectorWindow.screen.desktopAvailableHeight) {
-                                    windowCoordinate = mapToGlobal(0, 0 - pluginSelectorWindow.height);
-                                }
-                                if(windowCoordinate.x + pluginSelectorWindow.width >= pluginSelectorWindow.screen.desktopAvailableWidth) {
-                                    windowCoordinate.x = pluginSelectorWindow.screen.desktopAvailableWidth - pluginSelectorWindow.width;
-                                }
-                                pluginSelectorWindow.x = windowCoordinate.x;
-                                pluginSelectorWindow.y = windowCoordinate.y;
+                                locatePopupWindow(pluginSelectorWindow, height, 0);
                                 pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
                                     IPluginListModel.Type,
                                     IPluginListModel.Instrument
@@ -245,15 +244,7 @@ Window {
                             width: gridContainer.secondColumnWidth
                             visible: audioEffectText.visible
                             onClicked: {
-                                let windowCoordinate = mapToGlobal(0, height);
-                                if(windowCoordinate.y + pluginSelectorWindow.height >= pluginSelectorWindow.screen.desktopAvailableHeight) {
-                                    windowCoordinate = mapToGlobal(0, 0 - pluginSelectorWindow.height);
-                                }
-                                if(windowCoordinate.x + pluginSelectorWindow.width >= pluginSelectorWindow.screen.desktopAvailableWidth) {
-                                    windowCoordinate.x = pluginSelectorWindow.screen.desktopAvailableWidth - pluginSelectorWindow.width;
-                                }
-                                pluginSelectorWindow.x = windowCoordinate.x;
-                                pluginSelectorWindow.y = windowCoordinate.y;
+                                locatePopupWindow(pluginSelectorWindow, height, 0);
                                 pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
                                     IPluginListModel.Type,
                                     IPluginListModel.AudioEffect
@@ -279,6 +270,7 @@ Window {
                             width: gridContainer.secondColumnWidth
                             visible: midiInputCheckBox.visible
                             enabled: midiInputCheckBox.checked
+                            model: midiInputModel
                         }
                         CheckBox {
                             id: audioInputCheckBox
@@ -290,13 +282,19 @@ Window {
                                 leftPadding = width - implicitWidth;
                             }
                         }
-                        ComboBox {
-                            id: audioInputComboBox
+                        ComboBoxButton {
+                            id: audioInputComboBoxButton
                             width: gridContainer.secondColumnWidth
                             visible: audioInputCheckBox.visible
                             enabled: audioInputCheckBox.checked
-                            textRole: "abcm_name"
-                            model: audioInputModel
+                            // model: audioInputModel
+                            // textRole: "abcm_name"
+                            onCheckedChanged: {
+                                if(checked) {
+                                    locatePopupWindow(audioIOSelectorWindow, height, 0);
+                                    audioIOSelectorWindow.showNormal();
+                                }
+                            }
                         }
                         CheckBox {
                             id: audioOutputCheckBox
@@ -311,13 +309,13 @@ Window {
                                 leftPadding = width - implicitWidth;
                             }
                         }
-                        ComboBox {
-                            id: audioOutputComboBox
+                        ComboBoxButton {
+                            id: audioOutputComboBoxButton
                             width: gridContainer.secondColumnWidth
                             visible: audioOutputCheckBox.visible
                             enabled: audioOutputCheckBox.checked
-                            textRole: "abcm_name"
-                            model: audioOutputModel
+                            // model: audioOutputModel
+                            // textRole: "abcm_name"
                         }
                         Label {
                             width: gridContainer.firstColumnWidth

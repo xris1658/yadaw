@@ -53,6 +53,9 @@ Rectangle {
         readonly property int padding: 3
         readonly property int borderWidth: 1
         property bool usingPluginSelector: false
+        property bool usingAudioIOSelector: false
+        property bool selectingInput: false
+        property bool selectingOutput: false
     }
     Connections {
         id: connectToPluginSelector
@@ -80,6 +83,25 @@ Rectangle {
             impl.usingPluginSelector = false;
         }
     }
+    Connections {
+        id: connectToAudioIOSelector
+        target: impl.usingAudioIOSelector? audioIOSelectorWindow.audioIOSelector: null
+        function onAccepted() {
+            //
+        }
+        function onResetted() {
+            //
+        }
+        function onCancelled() {
+            impl.usingAudioIOSelector = false;
+            if(impl.selectingInput) {
+                inputButton.checked = false;
+            }
+            if(impl.selectingOutput) {
+                outputButton.checked = false;
+            }
+        }
+    }
     ColumnLayout {
         width: root.width
         height: root.height
@@ -98,6 +120,14 @@ Rectangle {
                     id: inputButton
                     opacity: root.inputAvailable? 1: 0
                     width: ioPlaceholder.width - impl.padding * 2
+                    onCheckedChanged: {
+                        if(checked) {
+                            locatePopupWindow(audioIOSelectorWindow, height + impl.padding, 0 - impl.padding);
+                            audioIOSelectorWindow.showNormal();
+                            impl.usingAudioIOSelector = true;
+                            impl.selectingInput = true;
+                        }
+                    }
                 }
                 ComboBoxButton {
                     id: outputButton
@@ -105,16 +135,10 @@ Rectangle {
                     width: ioPlaceholder.width - impl.padding * 2
                     onCheckedChanged: {
                         if(checked) {
-                            let windowCoordinate = mapToGlobal(0, height + impl.padding);
-                            if(windowCoordinate.y + audioIOSelectorWindow.height >= audioIOSelectorWindow.screen.desktopAvailableHeight) {
-                                windowCoordinate = mapToGlobal(0, 0 - audioIOSelectorWindow.height - impl.padding);
-                            }
-                            if(windowCoordinate.x + audioIOSelectorWindow.width >= audioIOSelectorWindow.screen.desktopAvailableWidth) {
-                                windowCoordinate.x = audioIOSelectorWindow.screen.desktopAvailableWidth - audioIOSelectorWindow.width;
-                            }
-                            audioIOSelectorWindow.x = windowCoordinate.x;
-                            audioIOSelectorWindow.y = windowCoordinate.y;
+                            locatePopupWindow(audioIOSelectorWindow, height + impl.padding, 0 - impl.padding);
                             audioIOSelectorWindow.showNormal();
+                            impl.usingAudioIOSelector = true;
+                            impl.selectingOutput = true;
                         }
                     }
                 }
@@ -233,15 +257,7 @@ Rectangle {
                     impl.replaceInstrument = true;
                     impl.usingPluginSelector = true;
                     impl.insertPosition = -1;
-                    let windowCoordinate = mapToGlobal(0, height + impl.padding);
-                    if(windowCoordinate.y + pluginSelectorWindow.height >= pluginSelectorWindow.screen.desktopAvailableHeight) {
-                        windowCoordinate = instrumentButton.mapToGlobal(0, 0 - pluginSelectorWindow.height - impl.padding);
-                    }
-                    if(windowCoordinate.x + pluginSelectorWindow.width >= pluginSelectorWindow.screen.desktopAvailableWidth) {
-                        windowCoordinate.x = pluginSelectorWindow.screen.desktopAvailableWidth - pluginSelectorWindow.width;
-                    }
-                    pluginSelectorWindow.x = windowCoordinate.x;
-                    pluginSelectorWindow.y = windowCoordinate.y;
+                    locatePopupWindow(pluginSelectorWindow, height + impl.padding, 0 - impl.padding);
                     pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
                         IPluginListModel.Type,
                         IPluginListModel.Instrument
@@ -350,15 +366,7 @@ Rectangle {
                         impl.replaceInstrument = false;
                         impl.usingPluginSelector = true;
                         impl.insertPosition = index;
-                        let windowCoordinate = mixerInsertSlot.mapToGlobal(0, mixerInsertSlot.height + impl.padding);
-                        if(windowCoordinate.y + pluginSelectorWindow.height >= pluginSelectorWindow.screen.desktopAvailableHeight) {
-                            windowCoordinate = mixerInsertSlot.mapToGlobal(0, 0 - pluginSelectorWindow.height - impl.padding);
-                        }
-                        if(windowCoordinate.x + pluginSelectorWindow.width >= pluginSelectorWindow.screen.desktopAvailableWidth) {
-                            windowCoordinate.x = pluginSelectorWindow.screen.desktopAvailableWidth - pluginSelectorWindow.width;
-                        }
-                        pluginSelectorWindow.x = windowCoordinate.x;
-                        pluginSelectorWindow.y = windowCoordinate.y;
+                        locatePopupWindow(pluginSelectorWindow, height + impl.padding, 0 - impl.padding);
                         pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
                             IPluginListModel.Type,
                             IPluginListModel.AudioEffect
@@ -458,15 +466,7 @@ Rectangle {
                         impl.replaceInstrument = false;
                         impl.usingPluginSelector = true;
                         impl.insertPosition = insertList.count;
-                        let windowCoordinate = mapToGlobal(0, height + impl.padding);
-                        if(windowCoordinate.y + pluginSelectorWindow.height >= pluginSelectorWindow.screen.desktopAvailableHeight) {
-                            windowCoordinate = mapToGlobal(0, 0 - pluginSelectorWindow.height - impl.padding);
-                        }
-                        if(windowCoordinate.x + pluginSelectorWindow.width >= pluginSelectorWindow.screen.desktopAvailableWidth) {
-                            windowCoordinate.x = pluginSelectorWindow.screen.desktopAvailableWidth - pluginSelectorWindow.width;
-                        }
-                        pluginSelectorWindow.x = windowCoordinate.x;
-                        pluginSelectorWindow.y = windowCoordinate.y;
+                        locatePopupWindow(pluginSelectorWindow, height + impl.padding, 0 - impl.padding);
                         pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
                             IPluginListModel.Type,
                             IPluginListModel.AudioEffect
