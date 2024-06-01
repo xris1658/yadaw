@@ -55,8 +55,8 @@ QVariant HardwareAudioIOPositionModel::data(const QModelIndex& index, int role) 
     return QVariant();
 }
 
-int HardwareAudioIOPositionModel::findIndexByID(int id) const
+int HardwareAudioIOPositionModel::findIndexByID(const QString& id) const
 {
-    //
+    return audioHardwareIOModel_->getIndexOfId(id);
 }
 }

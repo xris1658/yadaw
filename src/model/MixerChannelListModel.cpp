@@ -128,6 +128,15 @@ ClearChannels clearChannels[3] = {
     &YADAW::Audio::Mixer::Mixer::clearAudioOutputChannels,
 };
 
+using GetIndexOfId =
+    decltype(&YADAW::Audio::Mixer::Mixer::getIndexOfId);
+
+GetIndexOfId getIndexOfIdFunc[3] = {
+    &YADAW::Audio::Mixer::Mixer::getInputIndexOfId,
+    &YADAW::Audio::Mixer::Mixer::getIndexOfId,
+    &YADAW::Audio::Mixer::Mixer::getOutputIndexOfId,
+};
+
 IMixerChannelListModel::ChannelTypes getChannelType(YADAW::Audio::Mixer::Mixer::ChannelType type)
 {
     return static_cast<IMixerChannelListModel::ChannelTypes>(YADAW::Util::underlyingValue(type));
@@ -180,7 +189,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
             auto optionalId = (mixer_.*getConstID[YADAW::Util::underlyingValue(listType_)])(row);
             if(optionalId.has_value())
             {
-                return QVariant::fromValue(*optionalId);
+                return QVariant::fromValue(QString::number(*optionalId));
             }
             return QVariant();
         }
@@ -917,6 +926,22 @@ bool MixerChannelListModel::removeInstrument(int position)
         return true;
     }
     return false;
+}
+
+int MixerChannelListModel::getIndexOfId(const QString& id) const
+{
+    bool converted = false;
+    auto idAsNum = id.toULongLong(&converted);
+    if(converted)
+    {
+        auto getIndexResult =
+            (mixer_.*getIndexOfIdFunc[YADAW::Util::underlyingValue(listType_)])(idAsNum);
+        if(getIndexResult.has_value())
+        {
+            return *getIndexResult;
+        }
+    }
+    return -1;
 }
 
 MixerChannelListModel::ListType MixerChannelListModel::type() const

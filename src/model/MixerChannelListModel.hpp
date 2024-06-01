@@ -49,6 +49,7 @@ public:
     void clear() override;
     bool setInstrument(int position, int pluginId) override;
     bool removeInstrument(int position) override;
+    int getIndexOfId(const QString& id) const override;
 public:
     ListType type() const;
 public:

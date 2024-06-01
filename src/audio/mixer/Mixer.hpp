@@ -134,6 +134,9 @@ public:
     std::optional<IDGen::ID> channelIDAt(std::uint32_t index) const;
     OptionalRef<const Position> mainOutputAt(std::uint32_t index) const;
     bool setMainOutputAt(std::uint32_t index, Position position);
+    std::optional<std::uint32_t> getInputIndexOfId(IDGen::ID id) const;
+    std::optional<std::uint32_t> getOutputIndexOfId(IDGen::ID id) const;
+    std::optional<std::uint32_t> getIndexOfId(IDGen::ID id) const;
 public:
     bool appendAudioInputChannel(
         const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
@@ -199,6 +202,7 @@ private:
         std::unique_ptr<YADAW::Audio::Device::IAudioDevice>,
         ade::NodeHandle
     >;
+public:
     struct IDAndIndex
     {
         IDAndIndex(IDGen::ID id, std::uint32_t index) : id(id), index(index) {}

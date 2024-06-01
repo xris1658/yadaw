@@ -461,12 +461,13 @@ OptionalRef<const Mixer::Position> Mixer::mainOutputAt(std::uint32_t index) cons
     return std::nullopt;
 }
 
+bool compareIdAndIndexWithId(const Mixer::IDAndIndex& idAndIndex, Mixer::IDGen::ID id)
+{
+    return idAndIndex.id < id;
+}
+
 bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
 {
-    auto compareIdAndIndexWithId = [](const IDAndIndex& idAndIndex, IDGen::ID id)
-    {
-        return idAndIndex.id < id;
-    };
     if(index >= channelCount())
     {
         return false;
@@ -481,7 +482,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
     if(oldPosition != position)
     {
         std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> disconnectingOldMultiInput;
-        std::unique_ptr<YADAW::Audio::Util::Summing> disconnectingOldSumming;
+        std::unique_ptr<YADAW::Audio::Device::IAudioDevice> disconnectingOldSumming;
         // Disconnect
         if(oldPosition.type == Position::Type::AudioHardwareIOChannel)
         {
@@ -489,7 +490,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 audioOutputChannelIdAndIndex_.begin(),
                 audioOutputChannelIdAndIndex_.end(),
                 oldPosition.id,
-                compareIdAndIndexWithId
+                &compareIdAndIndexWithId
             );
             if(it != audioOutputChannelIdAndIndex_.end() && it->id == oldPosition.id)
             {
@@ -528,7 +529,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 channelIdAndIndex_.begin(),
                 channelIdAndIndex_.end(),
                 oldPosition.id,
-                compareIdAndIndexWithId
+                &compareIdAndIndexWithId
             );
             if(it != channelIdAndIndex_.end() && it->id == oldPosition.id)
             {
@@ -562,9 +563,8 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     }
                     preFaderInserts_[it->index]->setInNode(newSummingNode, 0);
                     disconnectingOldMultiInput = graphWithPDC_.removeNode(oldSummingNode);
-                    oldSummingAsDevice.release();
-                    disconnectingOldSumming.reset(oldSumming);
-                    oldSummingAsDevice.reset(newSumming.release());
+                    disconnectingOldSumming = std::move(oldSummingAsDevice);
+                    oldSummingAsDevice = std::move(newSumming);
                     oldSummingNode = newSummingNode;
                 }
             }
@@ -575,14 +575,14 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
         }
         // Connect
         std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> disconnectingNewMultiInput;
-        std::unique_ptr<YADAW::Audio::Util::Summing> disconnectingNewSumming;
+        std::unique_ptr<YADAW::Audio::Device::IAudioDevice> disconnectingNewSumming;
         if(position.type == Position::Type::AudioHardwareIOChannel)
         {
             auto it = std::lower_bound(
                 audioOutputChannelIdAndIndex_.begin(),
                 audioOutputChannelIdAndIndex_.end(),
                 position.id,
-                compareIdAndIndexWithId
+                &compareIdAndIndexWithId
             );
             if(it != audioOutputChannelIdAndIndex_.end() && it->id == position.id)
             {
@@ -636,7 +636,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 channelIdAndIndex_.begin(),
                 channelIdAndIndex_.end(),
                 position.id,
-                compareIdAndIndexWithId
+                &compareIdAndIndexWithId
             );
             if(it != channelIdAndIndex_.end() && it->id == position.id)
             {
@@ -653,7 +653,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         auto fromNode = postFaderInserts_[index]->outNode();
                         auto& [oldSummingAsDevice, oldSummingNode] = inputDevices_[outputChannelIndex];
                         auto oldSumming = static_cast<YADAW::Audio::Util::Summing*>(
-                            oldSummingAsDevice.release()
+                            oldSummingAsDevice.get()
                         );
                         auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
                             oldSumming->audioInputGroupCount() + 1,
@@ -678,14 +678,15 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         preFaderInserts_[it->index]->setInNode(newSummingNode, 0);
                         {
                             disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
-                            disconnectingNewSumming.reset(oldSumming);
-                            connectionUpdatedCallback_(*this);
+                            disconnectingNewSumming = std::move(oldSummingAsDevice);
                             oldSummingAsDevice = std::move(newSumming);
-                            disconnectingOldMultiInput.reset();
-                            disconnectingOldSumming.reset();
-                            disconnectingNewMultiInput.reset();
-                            disconnectingNewSumming.reset();
+                            oldSummingNode = newSummingNode;
+                            connectionUpdatedCallback_(*this);
                         }
+                        disconnectingOldSumming.reset();
+                        disconnectingNewSumming.reset();
+                        disconnectingOldMultiInput.reset();
+                        disconnectingNewMultiInput.reset();
                         return true;
                     }
                 }
@@ -698,6 +699,51 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
         }
     }
     return false;
+}
+
+std::optional<std::uint32_t> Mixer::getInputIndexOfId(IDGen::ID id) const
+{
+    auto it = std::lower_bound(
+        audioInputChannelIdAndIndex_.begin(),
+        audioInputChannelIdAndIndex_.end(),
+        id,
+        &compareIdAndIndexWithId
+    );
+    if(it != audioInputChannelIdAndIndex_.end() && it->id == id)
+    {
+        return {it->index};
+    }
+    return std::nullopt;
+}
+
+std::optional<std::uint32_t> Mixer::getOutputIndexOfId(IDGen::ID id) const
+{
+    auto it = std::lower_bound(
+        audioOutputChannelIdAndIndex_.begin(),
+        audioOutputChannelIdAndIndex_.end(),
+        id,
+        &compareIdAndIndexWithId
+    );
+    if(it != audioOutputChannelIdAndIndex_.end() && it->id == id)
+    {
+        return {it->index};
+    }
+    return std::nullopt;
+}
+
+std::optional<std::uint32_t> Mixer::getIndexOfId(IDGen::ID id) const
+{
+    auto it = std::lower_bound(
+        channelIdAndIndex_.begin(),
+        channelIdAndIndex_.end(),
+        id,
+        &compareIdAndIndexWithId
+    );
+    if(it != channelIdAndIndex_.end() && it->id == id)
+    {
+        return {it->index};
+    }
+    return std::nullopt;
 }
 
 bool Mixer::appendAudioInputChannel(
