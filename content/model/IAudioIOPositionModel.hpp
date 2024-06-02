@@ -38,7 +38,7 @@ public:
     static constexpr int columnCount() { return 1; }
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:
-    virtual Q_INVOKABLE int findIndexByID(int id) const = 0;
+    virtual Q_INVOKABLE int findIndexByID(const QString& id) const = 0;
 protected:
     RoleNames roleNames() const override
     {

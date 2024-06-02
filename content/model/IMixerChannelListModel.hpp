@@ -32,7 +32,7 @@ public:
 public:
     enum Role
     {
-        Id = Qt::UserRole,
+        Id = Qt::UserRole, // QString::number(std::uint64_t)
         Name,
         Color,
         ChannelType,
@@ -88,6 +88,7 @@ public:
     Q_INVOKABLE virtual void clear() = 0;
     Q_INVOKABLE virtual bool setInstrument(int position, int pluginId) = 0;
     Q_INVOKABLE virtual bool removeInstrument(int position) = 0;
+    Q_INVOKABLE virtual int getIndexOfId(const QString& id) const = 0;
 protected:
     RoleNames roleNames() const override
     {
