@@ -33,6 +33,13 @@ ApplicationWindow {
     property alias alsaInputDeviceList: preferencesWindow.alsaInputDeviceList
     property alias alsaOutputDeviceList: preferencesWindow.alsaOutputDeviceList
 
+    property alias audioHardwareInputPositionModel: audioIOSelector.audioHardwareInputPositionModel
+    property alias audioHardwareOutputPositionModel: audioIOSelector.audioHardwareOutputPositionModel
+    property alias audioGroupChannelModel: audioIOSelector.audioGroupChannelModel
+    property alias audioEffectChannelModel: audioIOSelector.audioEffectChannelModel
+    property alias pluginAuxInModel: audioIOSelector.pluginAuxInModel
+    property alias pluginAuxOutModel: audioIOSelector.pluginAuxOutModel
+
     property alias pluginListModel: assets.pluginListModel
     property alias pluginDirectoryListModel: preferencesWindow.pluginDirectoryListModel
 

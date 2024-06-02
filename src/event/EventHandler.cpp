@@ -16,6 +16,7 @@
 #include "controller/PluginListController.hpp"
 #include "entity/ChannelConfigHelper.hpp"
 #include "event/EventBase.hpp"
+#include "model/HardwareAudioIOPositionModel.hpp"
 #include "model/MixerChannelListModel.hpp"
 #include "native/Native.hpp"
 #include "ui/MessageDialog.hpp"
@@ -337,6 +338,18 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&audioInputMixerChannels));
     YADAW::UI::mainWindow->setProperty("mixerAudioOutputChannelModel",
         QVariant::fromValue<QObject*>(&audioOutputMixerChannels));
+    static YADAW::Model::HardwareAudioIOPositionModel hardwareAudioInputPositionModel(
+        audioInputMixerChannels
+    );
+    static YADAW::Model::HardwareAudioIOPositionModel hardwareAudioOutputPositionModel(
+        audioOutputMixerChannels
+    );
+    YADAW::UI::mainWindow->setProperty("audioHardwareInputPositionModel",
+        QVariant::fromValue<QObject*>(&hardwareAudioInputPositionModel)
+    );
+    YADAW::UI::mainWindow->setProperty("audioHardwareOutputPositionModel",
+        QVariant::fromValue<QObject*>(&hardwareAudioOutputPositionModel)
+    );
     QObject::connect(
         &appAudioBusInputConfigurationModel,
         &YADAW::Model::AudioBusConfigurationModel::dataChanged,

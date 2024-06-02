@@ -20,6 +20,23 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
 public:
     int findIndexByID(const QString& id) const override;
+private slots:
+    void onSourceModelRowsAboutToBeInserted(
+        const QModelIndex& parent, int start, int end
+    );
+    void onSourceModelRowsInserted(
+        const QModelIndex& parent, int first, int last
+    );
+    void onSourceModelRowsAboutToBeRemoved(
+        const QModelIndex& parent, int first, int last
+    );
+    void onSourceModelRowsRemoved(
+        const QModelIndex& parent, int first, int last
+    );
+    void onSourceModelDataChanged(
+        const QModelIndex& topLeft, const QModelIndex& bottomRight,
+        const QList<int>& roles
+    );
 private:
     YADAW::Model::MixerChannelListModel* audioHardwareIOModel_;
 };

@@ -123,6 +123,12 @@ Rectangle {
                     onCheckedChanged: {
                         if(checked) {
                             locatePopupWindow(audioIOSelectorWindow, height + impl.padding, 0 - impl.padding);
+                            audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = true;
+                            audioIOSelectorWindow.audioIOSelector.showAudioHardwareOutput = false;
+                            audioIOSelectorWindow.audioIOSelector.showAudioGroupChannel = false;
+                            audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = false;
+                            audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = false;
+                            audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = true;
                             audioIOSelectorWindow.showNormal();
                             impl.usingAudioIOSelector = true;
                             impl.selectingInput = true;
@@ -136,6 +142,12 @@ Rectangle {
                     onCheckedChanged: {
                         if(checked) {
                             locatePopupWindow(audioIOSelectorWindow, height + impl.padding, 0 - impl.padding);
+                            audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = false;
+                            audioIOSelectorWindow.audioIOSelector.showAudioHardwareOutput = true;
+                            audioIOSelectorWindow.audioIOSelector.showAudioGroupChannel = true;
+                            audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = true;
+                            audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = true;
+                            audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = false;
                             audioIOSelectorWindow.showNormal();
                             impl.usingAudioIOSelector = true;
                             impl.selectingOutput = true;
