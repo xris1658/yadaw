@@ -53,9 +53,10 @@ T.ComboBox {
         }
     }
     indicator: Item {
-        width: indicatorLabel.contentWidth + root.spacing * 2
+        width: indicatorLabel.contentWidth
         height: root.height
         anchors.right: root.right
+        anchors.rightMargin: root.rightPadding
         anchors.top: root.top
         Label {
             id: indicatorLabel

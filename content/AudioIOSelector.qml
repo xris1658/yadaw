@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Controls as QC
 import QtQuick.Layouts
 
+import YADAW.Entities
+
 QC.Popup {
     id: root
 
@@ -19,6 +21,10 @@ QC.Popup {
     property bool showPluginAuxIn: true
     property bool showPluginAuxOut: true
 
+    property alias currentIndex: stackLayout.currentIndex
+    property string currentId: ""
+    property int channelConfig
+
     signal accepted()
     signal cancelled()
     signal resetted()
@@ -31,7 +37,15 @@ QC.Popup {
 
     QtObject {
         id: impl
-        property int contentWidth: 400
+        property int contentWidth: 350
+    }
+
+    Component {
+        id: audioIOPositionComponent
+        ItemDelegate {
+            width: parent.width
+            text: aiopm_name
+        }
     }
 
     background: Rectangle {
@@ -73,7 +87,7 @@ QC.Popup {
                 Item {
                     id: categoryList
                     property int currentIndex: 0
-                    SplitView.preferredWidth: 100
+                    SplitView.preferredWidth: 150
                     Item {
                         ListView {
                             x: 5
@@ -126,6 +140,7 @@ QC.Popup {
                                 rightPadding: 2
                                 topPadding: 2
                                 bottomPadding: 2
+                                highlighted: stackLayout.currentIndex === index
                                 clip: true
                                 Item {
                                     id: enableLayerForIcons
@@ -157,21 +172,27 @@ QC.Popup {
                     id: stackLayout
                     ListView {
                         id: audioHardwareInputListView
+                        delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: audioHardwareOutputListView
+                        delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: audioGroupChannelListView
+                        delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: audioEffectChannelListView
+                        delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: pluginAuxInListView
+                        delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: pluginAuxOutListView
+                        delegate: audioIOPositionComponent
                     }
                 }
             }

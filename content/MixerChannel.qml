@@ -129,6 +129,7 @@ Rectangle {
                             audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = false;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = false;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = true;
+                            audioIOSelectorWindow.audioIOSelector.currentIndex = 0;
                             audioIOSelectorWindow.showNormal();
                             impl.usingAudioIOSelector = true;
                             impl.selectingInput = true;
@@ -148,6 +149,7 @@ Rectangle {
                             audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = true;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = true;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = false;
+                            audioIOSelectorWindow.audioIOSelector.currentIndex = 1;
                             audioIOSelectorWindow.showNormal();
                             impl.usingAudioIOSelector = true;
                             impl.selectingOutput = true;
