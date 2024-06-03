@@ -76,9 +76,24 @@ bool IntegerModel::insert(int position, const QList<int>& data)
 {
     if(position >= 0 && position <= itemCount())
     {
-        beginInsertRows(QModelIndex(), position, position + data.size() - 1);
-        std::copy(data.begin(), data.end(),
-            std::inserter(data_, data_.begin() + position));
+        if(!data.empty())
+        {
+            beginInsertRows(QModelIndex(), position, position + data.size() - 1);
+            std::copy(data.begin(), data.end(),
+                std::inserter(data_, data_.begin() + position));
+            endInsertRows();
+        }
+        return true;
+    }
+    return false;
+}
+
+bool IntegerModel::insert(int position, int value)
+{
+    if(position >= 0 && position <= itemCount())
+    {
+        beginInsertRows(QModelIndex(), position, position);
+        data_.insert(data_.begin() + position, value);
         endInsertRows();
         return true;
     }
@@ -90,14 +105,22 @@ bool IntegerModel::append(const QList<int>& data)
     return insert(itemCount(), data);
 }
 
+bool IntegerModel::append(int value)
+{
+    return insert(itemCount(), value);
+}
+
 bool IntegerModel::remove(int position, int count)
 {
     if(position >= 0 && position < itemCount()
         && position + count <= itemCount())
     {
-        beginRemoveRows(QModelIndex(), position, position + count - 1);
-        data_.erase(data_.begin() + position, data_.begin() + position + count);
-        endRemoveRows();
+        if(count > 0)
+        {
+            beginRemoveRows(QModelIndex(), position, position + count - 1);
+            data_.erase(data_.begin() + position, data_.begin() + position + count);
+            endRemoveRows();
+        }
         return true;
     }
     return false;

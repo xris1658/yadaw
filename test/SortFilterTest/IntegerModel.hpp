@@ -30,7 +30,9 @@ public:
     bool isPassed(const QModelIndex &modelIndex, int role, const QVariant &variant) const override;
 public:
     bool insert(int position, const QList<int>& data);
+    bool insert(int position, int value);
     bool append(const QList<int>& data);
+    bool append(int value);
     bool remove(int position, int count);
     void clear();
 protected:
