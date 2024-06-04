@@ -11,8 +11,8 @@ YADAW::Audio::Mixer::Mixer::Position::Type fromEntityType(
         return YADAW::Audio::Mixer::Mixer::Position::Type::AudioHardwareIOChannel;
     case AudioIOPosition::Type::BusAndFXChannel:
         return YADAW::Audio::Mixer::Mixer::Position::Type::BusAndFXChannel;
-    case AudioIOPosition::Type::SidechainOfPlugin:
-        return YADAW::Audio::Mixer::Mixer::Position::Type::SidechainOfPlugin;
+    case AudioIOPosition::Type::PluginAuxIO:
+        return YADAW::Audio::Mixer::Mixer::Position::Type::PluginAuxIO;
     default:
         return YADAW::Audio::Mixer::Mixer::Position::Type::Invalid;
     }
@@ -27,8 +27,8 @@ AudioIOPosition::Type toEntityType(
         return AudioIOPosition::Type::AudioHardwareIOChannel;
     case YADAW::Audio::Mixer::Mixer::Position::Type::BusAndFXChannel:
         return AudioIOPosition::Type::BusAndFXChannel;
-    case YADAW::Audio::Mixer::Mixer::Position::Type::SidechainOfPlugin:
-        return AudioIOPosition::Type::SidechainOfPlugin;
+    case YADAW::Audio::Mixer::Mixer::Position::Type::PluginAuxIO:
+        return AudioIOPosition::Type::PluginAuxIO;
     default:
         return AudioIOPosition::Type::Invalid;
     }

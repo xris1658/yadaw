@@ -62,7 +62,7 @@ public:
             Invalid,
             AudioHardwareIOChannel,
             BusAndFXChannel,
-            SidechainOfPlugin
+            PluginAuxIO
         };
         Type type = Type::Invalid;
         std::uint32_t channelGroupIndex = 0;

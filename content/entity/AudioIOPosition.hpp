@@ -20,7 +20,7 @@ public:
         Invalid,
         AudioHardwareIOChannel,
         BusAndFXChannel,
-        SidechainOfPlugin
+        PluginAuxIO
     };
     Q_ENUM(Type);
 public:

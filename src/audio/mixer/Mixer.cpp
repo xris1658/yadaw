@@ -569,7 +569,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 }
             }
         }
-        else if(oldPosition.type == Position::Type::SidechainOfPlugin)
+        else if(oldPosition.type == Position::Type::PluginAuxIO)
         {
             // not-implemented
         }
@@ -693,7 +693,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 return false;
             }
         }
-        else if(position.type == Position::Type::SidechainOfPlugin)
+        else if(position.type == Position::Type::PluginAuxIO)
         {
             // not implemented
         }
