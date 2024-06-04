@@ -14,7 +14,11 @@
 #include "util/AutoIncrementID.hpp"
 #include "util/OptionalUtil.hpp"
 
-#include <QColor>
+// Since this is included by `AudioIOPosition.hpp`, we could not simply include
+// <QColor>, otherwise the header could not be located.
+// Since we only use `Mixer::Position` in `AudioIOPosition`, it might be a good
+// idea to move those definitions into separate files.
+#include <QtGui/QColor>
 
 namespace YADAW::Audio::Mixer
 {
@@ -60,7 +64,7 @@ public:
             BusAndFXChannel,
             SidechainOfPlugin
         };
-        Type type;
+        Type type = Type::Invalid;
         std::uint32_t channelGroupIndex = 0;
         IDGen::ID id = IDGen::InvalidId;
         friend bool operator==(const Position& lhs, const Position& rhs)
