@@ -4,35 +4,26 @@
 
 namespace YADAW::Model
 {
-bool validateMapping(const std::vector<int>& srcToDst, const std::vector<int>& dstToSrc,
-    std::vector<int>::iterator filteredOutFirst)
+void validateMapping(const std::vector<int>& srcToDst, const std::vector<int>& dstToSrc)
 {
     if(srcToDst.size() == dstToSrc.size())
     {
-        auto acceptedItemCount = filteredOutFirst - dstToSrc.begin();
-        FOR_RANGE0(i, acceptedItemCount)
+        FOR_RANGE0(i, srcToDst.size())
         {
             if(srcToDst[dstToSrc[i]] != i)
             {
-                return false;
+                assert(false);
             }
         }
-        FOR_RANGE(i, acceptedItemCount, dstToSrc.end() - dstToSrc.begin())
-        {
-            if(srcToDst[dstToSrc[i]] != -1)
-            {
-                return false;
-            }
-        }
-        return true;
+        return;
     }
-    return false;
+    assert(false);
 }
 
 SortFilterProxyListModel::SortFilterProxyListModel(QObject* parent):
     QAbstractListModel(parent)
 {
-    filteredOutFirst_ = dstToSrc_.begin();
+    acceptedItemCount_ = 0;
     QObject::connect(&sortOrderModel_, &SortOrderModel::rowsInserted,
         this, &SortFilterProxyListModel::sortOrderModelRowsInserted);
     QObject::connect(&sortOrderModel_, &SortOrderModel::rowsRemoved,
@@ -93,7 +84,7 @@ void SortFilterProxyListModel::setSourceModel(ISortFilterListModel* model)
             srcToDst_.shrink_to_fit();
             dstToSrc_.clear();
             dstToSrc_.shrink_to_fit();
-            filteredOutFirst_ = dstToSrc_.begin();
+            acceptedItemCount_ = 0;
         }
         sourceModel_ = model;
         if(oldItemCount != 0)
@@ -106,7 +97,7 @@ void SortFilterProxyListModel::setSourceModel(ISortFilterListModel* model)
             std::iota(srcToDst_.begin(), srcToDst_.end(), 0);
             dstToSrc_.resize(sourceModel_->rowCount());
             std::iota(dstToSrc_.begin(), dstToSrc_.end(), 0);
-            filteredOutFirst_ = dstToSrc_.end();
+            acceptedItemCount_ = dstToSrc_.size();
             auto newItemCount = itemCount();
             if(newItemCount != 0)
             {
@@ -244,7 +235,7 @@ void SortFilterProxyListModel::clearValueOfFilter(int role)
 
 int SortFilterProxyListModel::itemCount() const
 {
-    return filteredOutFirst_ - dstToSrc_.begin();
+    return acceptedItemCount_;
 }
 
 int SortFilterProxyListModel::rowCount(const QModelIndex&) const
@@ -290,11 +281,13 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
 {
     const auto oldCount = itemCount();
     const auto newItemCount = last - first + 1;
-    dstToSrc_.insert(filteredOutFirst_, newItemCount, -1);
+    dstToSrc_.insert(dstToSrc_.begin() + acceptedItemCount_, newItemCount, -1);
     srcToDst_.insert(srcToDst_.begin() + first, newItemCount, -1);
-    filteredOutFirst_ = dstToSrc_.begin() + oldCount;
-    std::iota(filteredOutFirst_, filteredOutFirst_ + newItemCount, first);
-    auto filteredOutFirst = std::stable_partition(filteredOutFirst_, filteredOutFirst_ + newItemCount,
+    acceptedItemCount_ = oldCount;
+    std::iota(dstToSrc_.begin() + acceptedItemCount_, dstToSrc_.begin() + acceptedItemCount_ + newItemCount, first);
+    auto filteredOutFirst = std::stable_partition(
+        dstToSrc_.begin() + acceptedItemCount_,
+        dstToSrc_.begin() + acceptedItemCount_ + newItemCount,
         [this](int row)
         {
             return isAccepted(row);
@@ -305,62 +298,60 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
 
 void SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last)
 {
-    auto oldItemCount = itemCount();
-    auto removeFirst = srcToDst_.begin() + first;
-    auto removeLast = srcToDst_.begin() + last + 1;
-    std::vector<std::pair<std::size_t, int>> rowsToRemove;
-    rowsToRemove.reserve(removeLast - removeFirst);
-    for(auto it = removeFirst; it != removeLast; ++it)
+    std::vector<std::pair<int, int>> removingRows;
+    std::vector<std::pair<int, int>> removingRowsSortByDest;
+    removingRows.reserve(last + 1 - first);
+    FOR_RANGE(i, first, last + 1)
     {
-        rowsToRemove.emplace_back(it - srcToDst_.begin(), *it);
+        removingRows.emplace_back(i, srcToDst_[i]);
+        removingRowsSortByDest.emplace_back(i, srcToDst_[i]);
     }
-    std::sort(rowsToRemove.begin(), rowsToRemove.end(),
-        [](decltype(rowsToRemove)::const_reference lhs, decltype(rowsToRemove)::const_reference rhs)
+    using Pair = decltype(removingRowsSortByDest)::value_type;
+    std::ranges::sort(removingRowsSortByDest,
+        [](const Pair& lhs, const Pair& rhs)
         {
             return lhs.second < rhs.second;
         }
     );
-    auto middle = std::find_if_not(rowsToRemove.begin(), rowsToRemove.end(),
-        [](decltype(rowsToRemove)::const_reference value)
-        {
-            return value.second != -1;
-        }
-    );
-    std::rotate(
-        rowsToRemove.begin(),
-        middle,
-        rowsToRemove.end()
-    );
-    // `for(auto it = removeLast; it-- > removeFirst; )` might cause an
-    // assertion failure when `removeFirst == srcToDst_.begin()`.
-    // See comment of `mergeNewAcceptedItems`.
-    for(auto i = rowsToRemove.size(); i-- > 0;)
+    FOR_RANGE0(i, removingRowsSortByDest.size())
     {
-        auto it = rowsToRemove.begin() + i;
-        const auto& [srcRow, dstRow] = *it;
-        if(dstRow != -1)
+        const auto& [srcRow, dstRow] = removingRowsSortByDest.back();
+        auto removingIsAccepted = dstRow < acceptedItemCount_;
+        if(removingIsAccepted)
         {
             beginRemoveRows(QModelIndex(), dstRow, dstRow);
-            // Both expressions assigning to `filteredOutFirst_` are needed.
-            // Removing either of them causes an assertion failure called
-            // "vector iterators incompatible" on MSVC.
-            filteredOutFirst_ = dstToSrc_.begin() + (--oldItemCount);
-            dstToSrc_.erase(dstToSrc_.begin() + dstRow);
-            endRemoveRows();
-            filteredOutFirst_ = dstToSrc_.begin() + oldItemCount;
         }
-        else
+        srcToDst_.erase(srcToDst_.begin() + srcRow);
+        FOR_RANGE(j, srcRow, srcToDst_.size())
         {
-            dstToSrc_.erase(
-                std::remove(
-                    filteredOutFirst_, dstToSrc_.end(), srcRow
-                )
-            );
+            --dstToSrc_[srcToDst_[j]];
         }
+        using Pair = decltype(removingRows)::value_type;
+        auto partitionPoint = std::ranges::partition_point(removingRows,
+            [srcRow](const Pair& pair)
+            {
+                return pair.first < srcRow;
+            }
+        );
+        partitionPoint = removingRows.erase(partitionPoint);
+        for(auto it = partitionPoint; it != removingRows.end(); ++it)
+        {
+            --it->first;
+        }
+        if(removingIsAccepted)
+        {
+            --acceptedItemCount_;
+            endRemoveRows();
+        }
+        FOR_RANGE0(j, removingRowsSortByDest.size() - 1)
+        {
+            if(removingRowsSortByDest[j].first > srcRow)
+            {
+                --removingRowsSortByDest[j].first;
+            }
+        }
+        removingRowsSortByDest.pop_back();
     }
-    srcToDst_.erase(removeFirst, removeLast);
-    filteredOutFirst_ = dstToSrc_.begin() + oldItemCount;
-    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
 }
 
 void SortFilterProxyListModel::sourceModelDataChanged(
@@ -368,7 +359,7 @@ void SortFilterProxyListModel::sourceModelDataChanged(
 {
     doSort();
     doFilter();
-    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
+    validateMapping(srcToDst_, dstToSrc_);
 }
 
 void SortFilterProxyListModel::sourceModelAboutToBeReset()
@@ -512,52 +503,52 @@ void SortFilterProxyListModel::doSort()
     {
         srcToDst_[dstToSrc_[i]] = i;
     }
-    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
+    validateMapping(srcToDst_, dstToSrc_);
 }
 
 void SortFilterProxyListModel::doFilter()
 {
-    auto oldFilteredOutFirst = filteredOutFirst_;
+    auto oldAcceptedItemCount = acceptedItemCount_;
     auto oldItemCount = itemCount();
-    auto unchangedEnd = filteredOutFirst_;
+    auto unchangedEndIndex = acceptedItemCount_;
     for(auto i = oldItemCount; i-- > 0;)
     {
         if(auto it = dstToSrc_.begin() + i; !isAccepted(*it))
         {
-            unchangedEnd = it;
+            unchangedEndIndex = it - dstToSrc_.begin();
             beginRemoveRows(QModelIndex(), i, i);
-            std::rotate(it, it + 1, filteredOutFirst_);
-            --filteredOutFirst_;
+            std::shift_left(it, dstToSrc_.begin() + acceptedItemCount_, 1);
+            std::rotate(it, it + 1, dstToSrc_.begin() + acceptedItemCount_);
+            --acceptedItemCount_;
             endRemoveRows();
         }
     }
     auto newItemCount = itemCount();
-    auto unchangedCount = unchangedEnd - dstToSrc_.begin();
-    FOR_RANGE(i, unchangedCount, newItemCount)
+    auto unchangedCount = acceptedItemCount_;
+    FOR_RANGE(i, unchangedCount, oldItemCount)
     {
         srcToDst_[dstToSrc_[i]] = i;
     }
-    FOR_RANGE(i, newItemCount, oldItemCount)
-    {
-        srcToDst_[dstToSrc_[i]] = -1;
-    }
     auto newFilteredOutFirst = std::partition(
-        oldFilteredOutFirst, dstToSrc_.end(),
+        dstToSrc_.begin() + oldAcceptedItemCount, dstToSrc_.end(),
         [this](int row)
         {
             return isAccepted(row);
         }
     );
     newFilteredOutFirst = std::rotate(
-        filteredOutFirst_, oldFilteredOutFirst, newFilteredOutFirst);
+        dstToSrc_.begin() + acceptedItemCount_,
+        dstToSrc_.begin() + oldAcceptedItemCount,
+        newFilteredOutFirst
+    );
     mergeNewAcceptedItems(newFilteredOutFirst);
-    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
+    validateMapping(srcToDst_, dstToSrc_);
 }
 
 void SortFilterProxyListModel::mergeNewAcceptedItems(
     std::vector<int>::iterator filteredOutFirst)
 {
-    auto newAcceptedItemCount = filteredOutFirst - filteredOutFirst_;
+    auto newAcceptedItemCount = (filteredOutFirst - dstToSrc_.begin()) - acceptedItemCount_;
     // Some STL implementations (e.g. MSVC STL) does NOT allow an iterator which
     // is before begin() of the `std::vector`. To prevent this, we have to check
     // if no items are added to the empty list, which calculates `begin() - 1`.
@@ -565,13 +556,13 @@ void SortFilterProxyListModel::mergeNewAcceptedItems(
     // implementations of the same modules.
     if(newAcceptedItemCount != 0)
     {
-        std::sort(filteredOutFirst_, filteredOutFirst,
+        std::sort(dstToSrc_.begin() + acceptedItemCount_, filteredOutFirst,
             [this](int lhs, int rhs)
             {
                 return isLess(lhs, rhs);
             }
         );
-        auto firstNewItem = filteredOutFirst_;
+        auto firstNewItem = dstToSrc_.begin() + acceptedItemCount_;
         // See the comment above
         auto beforeLast = firstNewItem + newAcceptedItemCount - 1;
         FOR_RANGE0(i, newAcceptedItemCount)
@@ -590,12 +581,12 @@ void SortFilterProxyListModel::mergeNewAcceptedItems(
             endInsertRows();
             ++firstNewItem;
         }
-        filteredOutFirst_ = filteredOutFirst;
+        acceptedItemCount_ = filteredOutFirst - dstToSrc_.begin();
         FOR_RANGE0(i, itemCount())
         {
             srcToDst_[dstToSrc_[i]] = i;
         }
     }
-    assert(validateMapping(srcToDst_, dstToSrc_, filteredOutFirst_));
+    validateMapping(srcToDst_, dstToSrc_);
 }
 }

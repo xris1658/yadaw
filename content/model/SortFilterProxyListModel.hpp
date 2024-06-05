@@ -84,7 +84,7 @@ private:
     SortOrderModel sortOrderModel_;
     std::vector<int> srcToDst_;
     std::vector<int> dstToSrc_;
-    std::vector<int>::iterator filteredOutFirst_;
+    int acceptedItemCount_;
     QString filterString_;
     std::map<int, QVariant> valuesOfFilter_;
     std::array<QMetaObject::Connection, 5> connections_;
