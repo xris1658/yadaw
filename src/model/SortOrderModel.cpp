@@ -6,6 +6,11 @@ SortOrderModel::SortOrderModel(QObject* parent):
     QAbstractListModel(parent)
 {}
 
+SortOrderModel::SortOrderModel(const SortOrderModel& rhs):
+    QAbstractListModel(rhs.parent()),
+    sortOrder_(rhs.sortOrder_)
+{}
+
 SortOrderModel::~SortOrderModel()
 {}
 

@@ -22,6 +22,7 @@ private:
     using DataType = std::vector<FilterRoleItem>;
 public:
     FilterRoleModel(QObject* parent = nullptr);
+    FilterRoleModel(const FilterRoleModel& rhs);
     ~FilterRoleModel();
 public:
     DataType::iterator begin() noexcept;

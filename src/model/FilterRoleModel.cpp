@@ -6,6 +6,11 @@ FilterRoleModel::FilterRoleModel(QObject* parent):
     QAbstractListModel(parent)
 {}
 
+FilterRoleModel::FilterRoleModel(const FilterRoleModel& rhs):
+    QAbstractListModel(rhs.parent()),
+    filterRoles_(rhs.filterRoles_)
+{}
+
 FilterRoleModel::~FilterRoleModel()
 {}
 

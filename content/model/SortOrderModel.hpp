@@ -24,6 +24,7 @@ public:
     };
 public:
     SortOrderModel(QObject* parent = nullptr);
+    SortOrderModel(const SortOrderModel& rhs);
     ~SortOrderModel();
 public:
     int itemCount() const;
