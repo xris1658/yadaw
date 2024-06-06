@@ -6,18 +6,11 @@ namespace YADAW::Model
 {
 void validateMapping(const std::vector<int>& srcToDst, const std::vector<int>& dstToSrc)
 {
-    if(srcToDst.size() == dstToSrc.size())
+    assert(srcToDst.size() == dstToSrc.size());
+    FOR_RANGE0(i, srcToDst.size())
     {
-        FOR_RANGE0(i, srcToDst.size())
-        {
-            if(srcToDst[dstToSrc[i]] != i)
-            {
-                assert(false);
-            }
-        }
-        return;
+        assert(srcToDst[dstToSrc[i]] == i);
     }
-    assert(false);
 }
 
 SortFilterProxyListModel::SortFilterProxyListModel(QObject* parent):
