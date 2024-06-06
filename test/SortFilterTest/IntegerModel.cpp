@@ -69,6 +69,10 @@ bool IntegerModel::isSearchPassed(int roleIndex, const QModelIndex& modelIndex, 
 
 bool IntegerModel::isPassed(const QModelIndex& modelIndex, int role, const QVariant& variant) const
 {
+    if(role == Role::Value)
+    {
+        return data_[modelIndex.row()] < variant.value<int>();
+    }
     return true;
 }
 

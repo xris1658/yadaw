@@ -9,6 +9,8 @@
 
 #include <cstdio>
 
+#include "util/IntegerRange.hpp"
+
 int main(int argc, char* argv[])
 {
     using YADAW::Model::SortFilterProxyListModel;
@@ -34,6 +36,5 @@ int main(int argc, char* argv[])
     {
         model.append((i * 3) % count);
     }
-    model.remove(4, 4);
     return app.exec();
 }

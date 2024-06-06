@@ -19,8 +19,8 @@ class SortFilterProxyListModel: public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(QString filterString READ getFilterString WRITE setFilterString NOTIFY filterStringChanged)
     Q_PROPERTY(ISortFilterListModel* sourceModel READ getSourceModel WRITE setSourceModel NOTIFY sourceModelChanged)
-    Q_PROPERTY(SortOrderModel sortOrderModel READ getSortOrderModel)
-    Q_PROPERTY(FilterRoleModel filterRoleModel READ getFilterRoleModel)
+    Q_PROPERTY(SortOrderModel* sortOrderModel READ getSortOrderModel)
+    Q_PROPERTY(FilterRoleModel* filterRoleModel READ getFilterRoleModel)
 public:
     SortFilterProxyListModel(QObject* parent = nullptr);
     SortFilterProxyListModel(const SortFilterProxyListModel& rhs);
@@ -79,6 +79,7 @@ private:
     void doSort();
     void doFilter();
     void mergeNewAcceptedItems(std::vector<int>::iterator filteredOutFirst);
+    void mergeNewAcceptedItems(std::size_t addingItemCount);
 private:
     ISortFilterListModel* sourceModel_ = nullptr;
     FilterRoleModel filterRoleModel_;

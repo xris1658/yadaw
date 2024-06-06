@@ -12,12 +12,17 @@ Window {
     color: "#202020"
 
     property IntegerModel sourceModel
+    readonly property SortFilterProxyListModel proxyModel: sortFilterProxyListModel
     Row {
         ListView {
             id: listView
             model: root.sourceModel
             width: 250
             height: 500
+            header: ItemDelegate {
+                width: listView.width
+                text: "Original"
+            }
             delegate: ItemDelegate {
                 width: listView.width
                 text: im_value
@@ -26,6 +31,7 @@ Window {
         ListView {
             id: proxyView
             model: SortFilterProxyListModel {
+                id: sortFilterProxyListModel
                 sourceModel: listView.model
             }
             width: 250
@@ -34,8 +40,40 @@ Window {
                 width: proxyView.width
                 text: im_value
             }
+            header: ItemDelegate {
+                text: "Toggle sort order"
+                width: proxyView.width
+                property bool sortOn: true;
+                property int sortOrder: Qt.AscendingOrder;
+                Label {
+                    id: indicator
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: ""
+                    anchors.rightMargin: parent.rightPadding
+                }
+                onClicked: {
+                    proxyView.model.removeSortOrder(0);
+                    if(sortOn) {
+                        proxyView.model.appendSortOrder(IntegerModel.Value, sortOrder);
+                        if(sortOrder == Qt.AscendingOrder) {
+                            indicator.text = "^";
+                            sortOrder = Qt.DescendingOrder;
+                        }
+                        else {
+                            indicator.text = "v";
+                            sortOrder = Qt.AscendingOrder;
+                            sortOn = false;
+                        }
+                    }
+                    else {
+                        indicator.text = "";
+                        sortOn = true;
+                    }
+                }
+            }
             Component.onCompleted: {
-                model.appendSortOrder(IntegerModel.Value, Qt.AscendingOrder);
+                model.setValueOfFilter(IntegerModel.Value, 12);
             }
         }
     }

@@ -86,16 +86,6 @@ void SortFilterProxyListModel::setSourceModel(ISortFilterListModel* model)
         }
         if(model)
         {
-            srcToDst_.resize(sourceModel_->rowCount());
-            std::iota(srcToDst_.begin(), srcToDst_.end(), 0);
-            dstToSrc_.resize(sourceModel_->rowCount());
-            std::iota(dstToSrc_.begin(), dstToSrc_.end(), 0);
-            acceptedItemCount_ = dstToSrc_.size();
-            auto newItemCount = itemCount();
-            if(newItemCount != 0)
-            {
-                beginInsertRows(QModelIndex(), 0, itemCount() - 1);
-            }
             connections_[0] = QObject::connect(
                 sourceModel_, &ISortFilterListModel::rowsInserted,
                 this, &SortFilterProxyListModel::sourceModelRowsInserted);
@@ -114,12 +104,20 @@ void SortFilterProxyListModel::setSourceModel(ISortFilterListModel* model)
             connections_[5] = QObject::connect(
                 sourceModel_, &ISortFilterListModel::modelReset,
                 this, &SortFilterProxyListModel::sourceModelReset);
+            YADAW::Util::IntegerRange<int> insertRange(model->rowCount());
+            std::copy(insertRange.begin(), insertRange.end(), std::back_inserter(srcToDst_));
+            std::copy(insertRange.begin(), insertRange.end(), std::back_inserter(dstToSrc_));
+            auto newItemCount = itemCount();
             if(newItemCount != 0)
             {
-                endInsertRows();
+                beginInsertRows(QModelIndex(), 0, itemCount() - 1);
             }
-            doFilter();
-            doSort();
+            mergeNewAcceptedItems(
+                std::partition(
+                    dstToSrc_.begin(), dstToSrc_.end(),
+                    [this](int srcRow) { return isAccepted(srcRow); }
+                ) - dstToSrc_.begin()
+            );
         }
         sourceModelChanged();
     }
@@ -275,21 +273,28 @@ YADAW::Model::RoleNames SortFilterProxyListModel::roleNames() const
 
 void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent, int first, int last)
 {
-    const auto oldCount = itemCount();
+    const auto oldCount = dstToSrc_.size();
     const auto newItemCount = last - first + 1;
-    dstToSrc_.insert(dstToSrc_.begin() + acceptedItemCount_, newItemCount, -1);
+    FOR_RANGE(i, first, oldCount)
+    {
+        dstToSrc_[srcToDst_[i]] += newItemCount;
+    }
+    YADAW::Util::IntegerRange<int> dstInsertRange(first, last + 1);
     srcToDst_.insert(srcToDst_.begin() + first, newItemCount, -1);
-    acceptedItemCount_ = oldCount;
-    std::iota(dstToSrc_.begin() + acceptedItemCount_, dstToSrc_.begin() + acceptedItemCount_ + newItemCount, first);
-    auto filteredOutFirst = std::stable_partition(
+    dstToSrc_.insert(dstToSrc_.begin() + acceptedItemCount_,
+        dstInsertRange.begin(), dstInsertRange.end()
+    );
+    auto filteredOutFirst = std::partition(
         dstToSrc_.begin() + acceptedItemCount_,
         dstToSrc_.begin() + acceptedItemCount_ + newItemCount,
-        [this](int row)
-        {
-            return isAccepted(row);
-        }
+        [this](int srcRow) { return this->isAccepted(srcRow); }
     );
-    mergeNewAcceptedItems(filteredOutFirst);
+    const auto newAcceptedItemCount = filteredOutFirst - (dstToSrc_.begin() + acceptedItemCount_);
+    FOR_RANGE(i, filteredOutFirst - dstToSrc_.begin(), acceptedItemCount_ + newItemCount)
+    {
+        srcToDst_[dstToSrc_[i]] = i;
+    }
+    mergeNewAcceptedItems(newItemCount);
 }
 
 void SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last)
@@ -467,25 +472,40 @@ bool SortFilterProxyListModel::isAccepted(int row) const
 
 void SortFilterProxyListModel::doSort()
 {
-    FOR_RANGE0(i, itemCount())
+    auto sortedCount = std::is_sorted_until(
+        dstToSrc_.begin(), dstToSrc_.begin() + acceptedItemCount_,
+        [this](int lhs, int rhs)
+        {
+            return isLess(lhs, rhs);
+        }
+    ) - dstToSrc_.begin();
+    FOR_RANGE(i, sortedCount, acceptedItemCount_)
     {
-        auto it = dstToSrc_.begin() + i;
-        auto upperBound = std::upper_bound(dstToSrc_.begin(), it, *it,
+        auto upperBound = std::upper_bound(
+            dstToSrc_.begin(), dstToSrc_.begin() + i,
+            dstToSrc_[i],
             [this](int lhs, int rhs)
             {
                 return isLess(lhs, rhs);
             }
         );
-        if(upperBound != it)
+        if(upperBound != dstToSrc_.begin() + i)
         {
-            beginMoveRows(QModelIndex(), i, i, QModelIndex(), upperBound - dstToSrc_.begin());
-            std::rotate(upperBound, it, it + 1);
+            beginMoveRows(
+                QModelIndex(), i, i,
+                QModelIndex(), upperBound - dstToSrc_.begin()
+            );
+            std::rotate(
+                upperBound,
+                dstToSrc_.begin() + i,
+                dstToSrc_.begin() + i + 1
+            );
+            FOR_RANGE(j, upperBound - dstToSrc_.begin(), i + 1)
+            {
+                srcToDst_[dstToSrc_[j]] = j;
+            }
             endMoveRows();
         }
-    }
-    FOR_RANGE0(i, itemCount())
-    {
-        srcToDst_[dstToSrc_[i]] = i;
     }
     validateMapping(srcToDst_, dstToSrc_);
 }
@@ -493,40 +513,61 @@ void SortFilterProxyListModel::doSort()
 void SortFilterProxyListModel::doFilter()
 {
     auto oldAcceptedItemCount = acceptedItemCount_;
-    auto oldItemCount = itemCount();
-    auto unchangedEndIndex = acceptedItemCount_;
-    for(auto i = oldItemCount; i-- > 0;)
+    auto removedItemCount = 0;
+    FOR_RANGE0(i, oldAcceptedItemCount)
     {
-        if(auto it = dstToSrc_.begin() + i; !isAccepted(*it))
+        if(auto index = i - removedItemCount;
+            !isAccepted(dstToSrc_[index]))
         {
-            unchangedEndIndex = it - dstToSrc_.begin();
-            beginRemoveRows(QModelIndex(), i, i);
-            std::shift_left(it, dstToSrc_.begin() + acceptedItemCount_, 1);
-            std::rotate(it, it + 1, dstToSrc_.begin() + acceptedItemCount_);
+            ++removedItemCount;
+            beginRemoveRows(QModelIndex(), index, index);
+            std::rotate(
+                dstToSrc_.begin() + index,
+                dstToSrc_.begin() + index + 1,
+                dstToSrc_.begin() + acceptedItemCount_
+            );
+            FOR_RANGE(j, i, oldAcceptedItemCount)
+            {
+                srcToDst_[dstToSrc_[j]] = j;
+            }
             --acceptedItemCount_;
             endRemoveRows();
         }
     }
-    auto newItemCount = itemCount();
-    auto unchangedCount = acceptedItemCount_;
-    FOR_RANGE(i, unchangedCount, oldItemCount)
-    {
-        srcToDst_[dstToSrc_[i]] = i;
-    }
-    auto newFilteredOutFirst = std::partition(
-        dstToSrc_.begin() + oldAcceptedItemCount, dstToSrc_.end(),
-        [this](int row)
-        {
-            return isAccepted(row);
-        }
-    );
-    newFilteredOutFirst = std::rotate(
-        dstToSrc_.begin() + acceptedItemCount_,
-        dstToSrc_.begin() + oldAcceptedItemCount,
-        newFilteredOutFirst
-    );
-    mergeNewAcceptedItems(newFilteredOutFirst);
-    validateMapping(srcToDst_, dstToSrc_);
+    // auto oldAcceptedItemCount = acceptedItemCount_;
+    // auto oldItemCount = itemCount();
+    // auto unchangedEndIndex = acceptedItemCount_;
+    // for(auto i = oldItemCount; i-- > 0;)
+    // {
+    //     if(auto it = dstToSrc_.begin() + i; !isAccepted(*it))
+    //     {
+    //         unchangedEndIndex = it - dstToSrc_.begin();
+    //         beginRemoveRows(QModelIndex(), i, i);
+    //         std::rotate(it, it + 1, dstToSrc_.begin() + acceptedItemCount_);
+    //         --acceptedItemCount_;
+    //         endRemoveRows();
+    //     }
+    // }
+    // auto newItemCount = itemCount();
+    // auto unchangedCount = acceptedItemCount_;
+    // FOR_RANGE(i, unchangedCount, oldItemCount)
+    // {
+    //     srcToDst_[dstToSrc_[i]] = i;
+    // }
+    // auto newFilteredOutFirst = std::partition(
+    //     dstToSrc_.begin() + oldAcceptedItemCount, dstToSrc_.end(),
+    //     [this](int row)
+    //     {
+    //         return isAccepted(row);
+    //     }
+    // );
+    // newFilteredOutFirst = std::rotate(
+    //     dstToSrc_.begin() + acceptedItemCount_,
+    //     dstToSrc_.begin() + oldAcceptedItemCount,
+    //     newFilteredOutFirst
+    // );
+    // mergeNewAcceptedItems(newFilteredOutFirst);
+    // validateMapping(srcToDst_, dstToSrc_);
 }
 
 void SortFilterProxyListModel::mergeNewAcceptedItems(
@@ -572,5 +613,34 @@ void SortFilterProxyListModel::mergeNewAcceptedItems(
         }
     }
     validateMapping(srcToDst_, dstToSrc_);
+}
+
+void SortFilterProxyListModel::mergeNewAcceptedItems(
+    std::size_t addingItemCount)
+{
+    FOR_RANGE0(i, addingItemCount)
+    {
+        auto it = std::upper_bound(
+            dstToSrc_.begin(), dstToSrc_.begin() + acceptedItemCount_,
+            dstToSrc_[acceptedItemCount_],
+            [this](int newSrcRow, int oldSrcRow)
+            {
+                return isLess(newSrcRow, oldSrcRow);
+            }
+        );
+        auto row = it - dstToSrc_.begin();
+        beginInsertRows(QModelIndex(), row, row);
+        std::rotate(
+            it,
+            dstToSrc_.begin() + acceptedItemCount_,
+            dstToSrc_.begin() + acceptedItemCount_ + 1
+        );
+        ++acceptedItemCount_;
+        FOR_RANGE(j, it - dstToSrc_.begin(), acceptedItemCount_)
+        {
+            srcToDst_[dstToSrc_[j]] = j;
+        }
+        endInsertRows();
+    }
 }
 }
