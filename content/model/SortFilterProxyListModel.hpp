@@ -63,6 +63,7 @@ signals:
 private slots:
     void sourceModelRowsInserted(const QModelIndex& parent, int first, int last);
     void sourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last);
+    void sourceModelRowsRemoved(const QModelIndex& parent, int first, int last);
     void sourceModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles);
     void sourceModelAboutToBeReset();
     void sourceModelReset();
@@ -87,7 +88,7 @@ private:
     int acceptedItemCount_;
     QString filterString_;
     std::map<int, QVariant> valuesOfFilter_;
-    std::array<QMetaObject::Connection, 5> connections_;
+    std::array<QMetaObject::Connection, 6> connections_;
 };
 }
 

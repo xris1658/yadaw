@@ -110,12 +110,15 @@ void SortFilterProxyListModel::setSourceModel(ISortFilterListModel* model)
                 sourceModel_, &ISortFilterListModel::rowsAboutToBeRemoved,
                 this, &SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved);
             connections_[2] = QObject::connect(
+                sourceModel_, &ISortFilterListModel::rowsRemoved,
+                this, &SortFilterProxyListModel::sourceModelRowsRemoved);
+            connections_[3] = QObject::connect(
                 sourceModel_, &ISortFilterListModel::dataChanged,
                 this, &SortFilterProxyListModel::sourceModelDataChanged);
-            connections_[3] = QObject::connect(
+            connections_[4] = QObject::connect(
                 sourceModel_, &ISortFilterListModel::modelAboutToBeReset,
                 this, &SortFilterProxyListModel::sourceModelAboutToBeReset);
-            connections_[4] = QObject::connect(
+            connections_[5] = QObject::connect(
                 sourceModel_, &ISortFilterListModel::modelReset,
                 this, &SortFilterProxyListModel::sourceModelReset);
             if(newItemCount != 0)
@@ -298,12 +301,10 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
 
 void SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last)
 {
-    std::vector<std::pair<int, int>> removingRows;
     std::vector<std::pair<int, int>> removingRowsSortByDest;
-    removingRows.reserve(last + 1 - first);
+    removingRowsSortByDest.reserve(last + 1 - first);
     FOR_RANGE(i, first, last + 1)
     {
-        removingRows.emplace_back(i, srcToDst_[i]);
         removingRowsSortByDest.emplace_back(i, srcToDst_[i]);
     }
     using Pair = decltype(removingRowsSortByDest)::value_type;
@@ -313,44 +314,34 @@ void SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved(const QModelIndex
             return lhs.second < rhs.second;
         }
     );
-    FOR_RANGE0(i, removingRowsSortByDest.size())
+    for(auto it = removingRowsSortByDest.rbegin(); it != removingRowsSortByDest.rend(); ++it)
     {
-        const auto& [srcRow, dstRow] = removingRowsSortByDest.back();
+        const auto& [srcRow, dstRow] = *it;
         auto removingIsAccepted = dstRow < acceptedItemCount_;
         if(removingIsAccepted)
         {
             beginRemoveRows(QModelIndex(), dstRow, dstRow);
         }
-        srcToDst_.erase(srcToDst_.begin() + srcRow);
-        FOR_RANGE(j, srcRow, srcToDst_.size())
+        dstToSrc_.erase(dstToSrc_.begin() + dstRow);
+        FOR_RANGE(i, dstRow, dstToSrc_.size())
         {
-            --dstToSrc_[srcToDst_[j]];
-        }
-        using Pair = decltype(removingRows)::value_type;
-        auto partitionPoint = std::ranges::partition_point(removingRows,
-            [srcRow](const Pair& pair)
-            {
-                return pair.first < srcRow;
-            }
-        );
-        partitionPoint = removingRows.erase(partitionPoint);
-        for(auto it = partitionPoint; it != removingRows.end(); ++it)
-        {
-            --it->first;
+            --srcToDst_[dstToSrc_[i]];
         }
         if(removingIsAccepted)
         {
             --acceptedItemCount_;
             endRemoveRows();
         }
-        FOR_RANGE0(j, removingRowsSortByDest.size() - 1)
-        {
-            if(removingRowsSortByDest[j].first > srcRow)
-            {
-                --removingRowsSortByDest[j].first;
-            }
-        }
-        removingRowsSortByDest.pop_back();
+    }
+}
+
+void SortFilterProxyListModel::sourceModelRowsRemoved(const QModelIndex& parent, int first, int last)
+{
+    srcToDst_.erase(srcToDst_.begin() + first, srcToDst_.begin() + last + 1);
+    auto removeCount = last + 1 - first;
+    FOR_RANGE(i, first, srcToDst_.size())
+    {
+        dstToSrc_[srcToDst_[i]] -= removeCount;
     }
 }
 
