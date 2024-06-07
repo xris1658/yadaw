@@ -14,6 +14,12 @@ public:
     class Iterator
     {
         using Self = Iterator;
+    public: // For generating std::iterator_traits
+        using difference_type = T;
+        using value_type = T;
+        using pointer = void;
+        using reference = const T&;
+        using iterator_category = std::random_access_iterator_tag;
     public:
         Iterator(T value): value_(value) {}
         Iterator(const Self&) = default;
