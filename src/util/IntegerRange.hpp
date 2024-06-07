@@ -70,7 +70,7 @@ public:
         {
             return {self.value_ - value};
         }
-        friend Self operator-(const Self lhs, const Self rhs)
+        friend T operator-(const Self lhs, const Self rhs)
         {
             return lhs - rhs;
         }
