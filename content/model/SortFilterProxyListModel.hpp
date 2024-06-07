@@ -78,7 +78,6 @@ private:
     bool isAccepted(int row) const;
     void doSort();
     void doFilter();
-    void mergeNewAcceptedItems(std::vector<int>::iterator filteredOutFirst);
     void mergeNewAcceptedItems(std::size_t addingItemCount);
     void updateSrcToDst(int dstFirst, int dstLast);
 private:
