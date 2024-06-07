@@ -118,7 +118,8 @@ Rectangle {
                 anchors.centerIn: parent
                 ComboBoxButton {
                     id: inputButton
-                    opacity: root.inputAvailable? 1: 0
+                    enabled: root.inputAvailable
+                    opacity: enabled? 1: 0
                     width: ioPlaceholder.width - impl.padding * 2
                     onCheckedChanged: {
                         if(checked) {
@@ -138,7 +139,8 @@ Rectangle {
                 }
                 ComboBoxButton {
                     id: outputButton
-                    opacity: root.outputAvailable? 1: 0
+                    enabled: root.outputAvailable
+                    opacity: enabled? 1: 0
                     width: ioPlaceholder.width - impl.padding * 2
                     onCheckedChanged: {
                         if(checked) {
