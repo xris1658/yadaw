@@ -112,11 +112,16 @@ void SortFilterProxyListModel::setSourceModel(ISortFilterListModel* model)
             {
                 beginInsertRows(QModelIndex(), 0, itemCount() - 1);
             }
+            auto partitionPoint = std::partition(
+                dstToSrc_.begin(), dstToSrc_.end(),
+                [this](int srcRow) { return isAccepted(srcRow); }
+            );
+            FOR_RANGE0(i, dstToSrc_.size())
+            {
+                srcToDst_[dstToSrc_[i]] = i;
+            }
             mergeNewAcceptedItems(
-                std::partition(
-                    dstToSrc_.begin(), dstToSrc_.end(),
-                    [this](int srcRow) { return isAccepted(srcRow); }
-                ) - dstToSrc_.begin()
+                partitionPoint - dstToSrc_.begin()
             );
         }
         sourceModelChanged();
@@ -289,7 +294,6 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
         dstToSrc_.begin() + acceptedItemCount_ + newItemCount,
         [this](int srcRow) { return this->isAccepted(srcRow); }
     );
-    const auto newAcceptedItemCount = filteredOutFirst - (dstToSrc_.begin() + acceptedItemCount_);
     FOR_RANGE(i, filteredOutFirst - dstToSrc_.begin(), acceptedItemCount_ + newItemCount)
     {
         srcToDst_[dstToSrc_[i]] = i;
@@ -507,7 +511,7 @@ void SortFilterProxyListModel::doSort()
             endMoveRows();
         }
     }
-    validateMapping(srcToDst_, dstToSrc_);
+    validateMapping(srcToDst_, dstToSrc_); // FIXME
 }
 
 void SortFilterProxyListModel::doFilter()
@@ -534,40 +538,21 @@ void SortFilterProxyListModel::doFilter()
             endRemoveRows();
         }
     }
-    // auto oldAcceptedItemCount = acceptedItemCount_;
-    // auto oldItemCount = itemCount();
-    // auto unchangedEndIndex = acceptedItemCount_;
-    // for(auto i = oldItemCount; i-- > 0;)
-    // {
-    //     if(auto it = dstToSrc_.begin() + i; !isAccepted(*it))
-    //     {
-    //         unchangedEndIndex = it - dstToSrc_.begin();
-    //         beginRemoveRows(QModelIndex(), i, i);
-    //         std::rotate(it, it + 1, dstToSrc_.begin() + acceptedItemCount_);
-    //         --acceptedItemCount_;
-    //         endRemoveRows();
-    //     }
-    // }
-    // auto newItemCount = itemCount();
-    // auto unchangedCount = acceptedItemCount_;
-    // FOR_RANGE(i, unchangedCount, oldItemCount)
-    // {
-    //     srcToDst_[dstToSrc_[i]] = i;
-    // }
-    // auto newFilteredOutFirst = std::partition(
-    //     dstToSrc_.begin() + oldAcceptedItemCount, dstToSrc_.end(),
-    //     [this](int row)
-    //     {
-    //         return isAccepted(row);
-    //     }
-    // );
-    // newFilteredOutFirst = std::rotate(
-    //     dstToSrc_.begin() + acceptedItemCount_,
-    //     dstToSrc_.begin() + oldAcceptedItemCount,
-    //     newFilteredOutFirst
-    // );
-    // mergeNewAcceptedItems(newFilteredOutFirst);
-    // validateMapping(srcToDst_, dstToSrc_);
+    auto partitionPoint = std::partition(
+        dstToSrc_.begin() + oldAcceptedItemCount,
+        dstToSrc_.end(),
+        [this](int srcRow) { return isAccepted(srcRow); }
+    );
+    auto filteredOutFirst = std::rotate(
+        dstToSrc_.begin() + acceptedItemCount_,
+        dstToSrc_.begin() + oldAcceptedItemCount,
+        partitionPoint
+    );
+    FOR_RANGE(i, acceptedItemCount_, dstToSrc_.size())
+    {
+        srcToDst_[dstToSrc_[i]] = i;
+    }
+    mergeNewAcceptedItems(filteredOutFirst - dstToSrc_.begin() - acceptedItemCount_);
 }
 
 void SortFilterProxyListModel::mergeNewAcceptedItems(
