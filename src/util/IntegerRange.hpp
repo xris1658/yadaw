@@ -78,7 +78,7 @@ public:
         }
         friend T operator-(const Self lhs, const Self rhs)
         {
-            return lhs - rhs;
+            return *lhs - *rhs;
         }
         friend bool operator==(const Iterator lhs, const Iterator rhs)
         {
