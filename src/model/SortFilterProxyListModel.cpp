@@ -548,10 +548,8 @@ void SortFilterProxyListModel::doFilter()
         dstToSrc_.begin() + oldAcceptedItemCount,
         partitionPoint
     );
-    FOR_RANGE(i, acceptedItemCount_, dstToSrc_.size())
-    {
-        srcToDst_[dstToSrc_[i]] = i;
-    }
+    updateSrcToDst(0, dstToSrc_.size());
+    validateMapping(srcToDst_, dstToSrc_);
     mergeNewAcceptedItems(filteredOutFirst - dstToSrc_.begin() - acceptedItemCount_);
 }
 
@@ -626,6 +624,15 @@ void SortFilterProxyListModel::mergeNewAcceptedItems(
             srcToDst_[dstToSrc_[j]] = j;
         }
         endInsertRows();
+    }
+    validateMapping(srcToDst_, dstToSrc_);
+}
+
+void SortFilterProxyListModel::updateSrcToDst(int dstFirst, int dstLast)
+{
+    FOR_RANGE(i, dstFirst, dstLast)
+    {
+        srcToDst_[dstToSrc_[i]] = i;
     }
 }
 }

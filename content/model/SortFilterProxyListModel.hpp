@@ -80,6 +80,7 @@ private:
     void doFilter();
     void mergeNewAcceptedItems(std::vector<int>::iterator filteredOutFirst);
     void mergeNewAcceptedItems(std::size_t addingItemCount);
+    void updateSrcToDst(int dstFirst, int dstLast);
 private:
     ISortFilterListModel* sourceModel_ = nullptr;
     FilterRoleModel filterRoleModel_;
