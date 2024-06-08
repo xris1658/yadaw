@@ -5,6 +5,7 @@
 #include "audio/plugin/IPluginGUI.hpp"
 
 #include <pluginterfaces/gui/iplugview.h>
+#include <pluginterfaces/gui/iplugviewcontentscalesupport.h>
 
 #include <QMetaObject>
 #include <QObject>
@@ -33,6 +34,7 @@ private:
     void onWindowSizeChanged();
 private:
     Steinberg::IPlugView* plugView_ = nullptr;
+    Steinberg::IPlugViewContentScaleSupport* plugViewContentScaleSupport_ = nullptr;
     QWindow* window_ = nullptr;
     YADAW::Audio::Host::VST3PlugFrame frame_;
     QMetaObject::Connection connections_[2];

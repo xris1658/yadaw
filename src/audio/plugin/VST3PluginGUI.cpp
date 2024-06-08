@@ -1,5 +1,6 @@
 #include "VST3PluginGUI.hpp"
 
+#include "audio/util/VST3Helper.hpp"
 #include "native/VST3Native.hpp"
 
 namespace YADAW::Audio::Plugin
@@ -9,6 +10,10 @@ VST3PluginGUI::VST3PluginGUI(Steinberg::IPlugView* plugView):
     window_(nullptr),
     frame_(this)
 {
+    plugView_->queryInterface(
+        Steinberg::IPlugViewContentScaleSupport::iid,
+        reinterpret_cast<void**>(&plugViewContentScaleSupport_)
+    );
     plugView_->setFrame(&frame_);
 }
 
@@ -20,9 +25,9 @@ VST3PluginGUI::~VST3PluginGUI()
     }
     if(plugView_)
     {
+        releasePointer(plugViewContentScaleSupport_);
         plugView_->setFrame(nullptr);
-        plugView_->release();
-        plugView_ = nullptr;
+        releasePointer(plugView_);
     }
 }
 
@@ -36,6 +41,11 @@ bool VST3PluginGUI::attachToWindow(QWindow* window)
         YADAW::Native::ViewType);
     if(attachResult == Steinberg::kResultOk)
     {
+        auto devicePixelRatio = window->devicePixelRatio();
+        if(plugViewContentScaleSupport_)
+        {
+            plugViewContentScaleSupport_->setContentScaleFactor(devicePixelRatio);
+        }
         window_ = window;
         Steinberg::ViewRect rect;
         if(plugView_->getSize(&rect) == Steinberg::kResultOk)
@@ -44,12 +54,12 @@ bool VST3PluginGUI::attachToWindow(QWindow* window)
             // we give it another try
             if(rect.getWidth() <= 0 || rect.getHeight() <= 0)
             {
-                window_->resize(200, 200);
+                window_->resize(400, 400);
                 onWindowSizeChanged();
             }
             else
             {
-                window_->resize(rect.getWidth(), rect.getHeight());
+                window_->resize(std::round(rect.getWidth() / devicePixelRatio), std::round(rect.getHeight() / devicePixelRatio));
             }
             connect();
         }
@@ -108,6 +118,7 @@ void VST3PluginGUI::onWindowSizeChanged()
 {
     if(!inCallback_)
     {
+        auto devicePixelRatio = window_->devicePixelRatio();
         inCallback_ = true;
         // https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical+Documentation/Workflow+Diagrams/Resize+View+Call+Sequence.html#initiated-from-host
         Steinberg::ViewRect oldRect;
@@ -121,7 +132,7 @@ void VST3PluginGUI::onWindowSizeChanged()
         {
             Steinberg::ViewRect* rects[2] = {&oldRect, &windowRect};
             auto* rect = rects[plugView_->onSize(&windowRect) == Steinberg::kResultOk];
-            window_->resize(rect->getWidth(), rect->getHeight());
+            window_->resize(std::round(rect->getWidth() / devicePixelRatio), std::round(rect->getHeight() / devicePixelRatio));
         }
         inCallback_ = false;
     }
