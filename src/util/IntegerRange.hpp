@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_UTIL_INTEGERRANGE
 #define YADAW_SRC_UTIL_INTEGERRANGE
 
+#include <iterator>
+
 namespace YADAW::Util
 {
 // Convenience class for replacing manual `for` loop.
