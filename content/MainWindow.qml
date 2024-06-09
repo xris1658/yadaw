@@ -849,9 +849,7 @@ ApplicationWindow {
         signal resetted()
         PluginSelector {
             id: pluginSelector
-            pluginListModel: SortFilterProxyListModel {
-                sourceModel: root.pluginListModel
-            }
+            pluginListProxyModel.sourceModel: root.pluginListModel
             onAccepted: {
                 pluginSelectorWindow.accepted();
                 pluginSelectorWindow.hide();

@@ -9,7 +9,7 @@ import YADAW.Models
 QC.Popup {
     id: root
 
-    property alias pluginListModel: pluginList.model
+    property alias pluginListProxyModel: pluginListProxyModel
     property alias categoryListModel: categoryList.model
     property bool replacing: false
     property bool enableReset: false
@@ -38,6 +38,11 @@ QC.Popup {
         readonly property PluginFormatSupport pluginFormatSupport: PluginFormatSupport {}
     }
 
+    SortFilterProxyListModel {
+        id: pluginListProxyModel
+        filterString: searchTextField.text
+    }
+
     background: Rectangle {
         anchors.fill: parent
         anchors.topMargin: root.topInset
@@ -54,9 +59,6 @@ QC.Popup {
             id: searchTextField
             placeholderText: "<i>" + qsTr("Search (Ctrl+F)") + "</i>"
             width: impl.contentWidth
-            onTextChanged: {
-                pluginListModel.filterString = text;
-            }
             Keys.onDownPressed: (event) => {
                 if(pluginList.listView.count !== 0) {
                     pluginList.listView.forceActiveFocus();
@@ -138,7 +140,7 @@ QC.Popup {
                                 }
                                 onClicked: {
                                     leftLists.currentIndex = 0;
-                                    pluginListModel.clearValueOfFilter(IPluginListModel.Format);
+                                    pluginListProxyModel.clearValueOfFilter(IPluginListModel.Format);
                                 }
                                 Keys.onDownPressed: {
                                     leftLists.currentIndex = 1;
@@ -233,13 +235,13 @@ QC.Popup {
                                 onClicked: {
                                     leftLists.currentIndex = 1;
                                     formatList.currentIndex = index;
-                                    // pluginListModel.setValueOfFilter(IPluginListModel.Format, filterableFormat);
-                                    // pluginListModel.setfilterRole(IPluginListModel)
+                                    // pluginListProxyModel.setValueOfFilter(IPluginListModel.Format, filterableFormat);
+                                    // pluginListProxyModel.setfilterRole(IPluginListModel)
                                 }
                             }
                             onCurrentIndexChanged: {
                                 if(currentIndex !== -1) {
-                                    pluginListModel.setValueOfFilter(
+                                    pluginListProxyModel.setValueOfFilter(
                                         IPluginListModel.Format,
                                         itemAtIndex(currentIndex).format
                                     );
@@ -250,7 +252,7 @@ QC.Popup {
                                     formatList.currentIndex = -1;
                                     allList.currentIndex = 0;
                                     leftLists.currentIndex = 0;
-                                    pluginListModel.clearValueOfFilter(IPluginListModel.Format);
+                                    pluginListProxyModel.clearValueOfFilter(IPluginListModel.Format);
                                     allList.forceActiveFocus();
                                 }
                                 else {
@@ -348,6 +350,7 @@ QC.Popup {
                             });
                         }
                     }
+                    model: pluginListProxyModel
                     listView.delegate: ItemDelegate {
                         id: itemDelegate
                         property int pluginId: plm_id
@@ -507,11 +510,11 @@ QC.Popup {
         searchTextField.forceActiveFocus();
         searchTextField.selectAll();
         for(let i = 0; i < pluginList.headerListModel.count; ++i) {
-            pluginListModel.setFilter(pluginList.headerListModel.get(i).roleId, true);
+            pluginListProxyModel.setFilter(pluginList.headerListModel.get(i).roleId, true);
         }
         // VST3 > CLAP > Vestifal
-        pluginListModel.appendSortOrder(IPluginListModel.Format, Qt.AscendingOrder);
-        pluginListModel.appendSortOrder(IPluginListModel.Name, Qt.AscendingOrder);
+        pluginListProxyModel.appendSortOrder(IPluginListModel.Format, Qt.AscendingOrder);
+        pluginListProxyModel.appendSortOrder(IPluginListModel.Name, Qt.AscendingOrder);
     }
     Shortcut {
         sequence: "Ctrl+F"

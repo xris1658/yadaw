@@ -274,7 +274,7 @@ Rectangle {
                     impl.usingPluginSelector = true;
                     impl.insertPosition = -1;
                     locatePopupWindow(pluginSelectorWindow, height + impl.padding, 0 - impl.padding);
-                    pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
+                    pluginSelectorWindow.pluginSelector.pluginListProxyModel.setValueOfFilter(
                         IPluginListModel.Type,
                         IPluginListModel.Instrument
                     );
@@ -383,7 +383,7 @@ Rectangle {
                         impl.usingPluginSelector = true;
                         impl.insertPosition = index;
                         locatePopupWindow(pluginSelectorWindow, height + impl.padding, 0 - impl.padding);
-                        pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
+                        pluginSelectorWindow.pluginSelector.pluginListProxyModel.setValueOfFilter(
                             IPluginListModel.Type,
                             IPluginListModel.AudioEffect
                         );
@@ -483,7 +483,7 @@ Rectangle {
                         impl.usingPluginSelector = true;
                         impl.insertPosition = insertList.count;
                         locatePopupWindow(pluginSelectorWindow, height + impl.padding, 0 - impl.padding);
-                        pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
+                        pluginSelectorWindow.pluginSelector.pluginListProxyModel.setValueOfFilter(
                             IPluginListModel.Type,
                             IPluginListModel.AudioEffect
                         );
