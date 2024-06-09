@@ -19,6 +19,7 @@ public:
         ChannelCount,
         RoleCount
     };
+    Q_ENUM(Role)
 public:
     enum PositionType
     {
@@ -29,6 +30,7 @@ public:
         AudioGroupChannel,
         HardwareAudioOutput
     };
+    Q_ENUM(PositionType)
 public:
     IAudioIOPositionModel(QObject* parent = nullptr): ISortFilterListModel(parent) {}
     virtual ~IAudioIOPositionModel() {}
