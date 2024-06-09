@@ -125,7 +125,7 @@ bool HardwareAudioIOPositionModel::isSearchPassed(int roleIndex,
 bool HardwareAudioIOPositionModel::isPassed(const QModelIndex& modelIndex,
     int role, const QVariant& variant) const
 {
-    if(role == IAudioIOPositionModel::Role::Type)
+    if(isFilterable(role))
     {
         return data(modelIndex, role) == variant;
     }
