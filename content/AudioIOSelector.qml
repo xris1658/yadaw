@@ -8,6 +8,8 @@ import YADAW.Models
 QC.Popup {
     id: root
 
+    property int audioChannelConfig: -1
+
     readonly property alias audioHardwareInputPositionProxyModel: audioHardwareInputPositionProxyModel
     readonly property alias audioHardwareOutputPositionProxyModel: audioHardwareOutputPositionProxyModel
     readonly property alias audioGroupChannelProxyModel: audioGroupChannelProxyModel
@@ -294,5 +296,13 @@ QC.Popup {
         impl.initProxyModel(audioEffectChannelProxyModel);
         impl.initProxyModel(pluginAuxInProxyModel);
         impl.initProxyModel(pluginAuxOutProxyModel);
+    }
+    onAudioChannelConfigChanged: {
+        audioHardwareInputPositionProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
+        audioHardwareOutputPositionProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
+        audioGroupChannelProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
+        audioEffectChannelProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
+        pluginAuxInProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
+        pluginAuxOutProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
     }
 }

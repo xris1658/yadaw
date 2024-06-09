@@ -131,6 +131,7 @@ Rectangle {
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = false;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = true;
                             audioIOSelectorWindow.audioIOSelector.currentIndex = 0;
+                            audioIOSelectorWindow.audioIOSelector.audioChannelConfig = mclm_channel_config;
                             audioIOSelectorWindow.showNormal();
                             impl.usingAudioIOSelector = true;
                             impl.selectingInput = true;
@@ -152,6 +153,7 @@ Rectangle {
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = true;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = false;
                             audioIOSelectorWindow.audioIOSelector.currentIndex = 1;
+                            audioIOSelectorWindow.audioIOSelector.audioChannelConfig = mclm_channel_config;
                             audioIOSelectorWindow.showNormal();
                             impl.usingAudioIOSelector = true;
                             impl.selectingOutput = true;

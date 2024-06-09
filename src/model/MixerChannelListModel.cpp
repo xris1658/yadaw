@@ -137,6 +137,15 @@ GetIndexOfId getIndexOfIdFunc[3] = {
     &YADAW::Audio::Mixer::Mixer::getOutputIndexOfId,
 };
 
+using GetChannelGroupType =
+    decltype(&YADAW::Audio::Mixer::Mixer::audioInputChannelGroupTypeAt);
+
+GetChannelGroupType getChannelGroupType[3] = {
+    &YADAW::Audio::Mixer::Mixer::audioInputChannelGroupTypeAt,
+    &YADAW::Audio::Mixer::Mixer::channelGroupTypeAt,
+    &YADAW::Audio::Mixer::Mixer::audioOutputChannelGroupTypeAt
+};
+
 IMixerChannelListModel::ChannelTypes getChannelType(YADAW::Audio::Mixer::Mixer::ChannelType type)
 {
     return static_cast<IMixerChannelListModel::ChannelTypes>(YADAW::Util::underlyingValue(type));
@@ -219,6 +228,15 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
                 return QVariant::fromValue(getChannelType(optionalInfo->get().channelType));
             }
             return QVariant();
+        }
+        case Role::ChannelConfig:
+        {
+            auto optionalChannelGroupType = (mixer_.*getChannelGroupType[YADAW::Util::underlyingValue(listType_)])(row);
+            if(optionalChannelGroupType.has_value())
+            {
+                auto ret = YADAW::Entity::configFromGroupType(*optionalChannelGroupType);
+                return QVariant::fromValue<int>(ret);
+            }
         }
         case Role::InputType:
         {

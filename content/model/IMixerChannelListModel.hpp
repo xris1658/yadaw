@@ -36,6 +36,7 @@ public:
         Name,
         Color,
         ChannelType,
+        ChannelConfig, // YADAW::Entity::ChannelConfig::Config
         InputExist,
         Input,
         InputType,
@@ -98,6 +99,7 @@ protected:
             std::make_pair(Name,                           "mclm_name"),
             std::make_pair(Color,                          "mclm_color"),
             std::make_pair(ChannelType,                    "mclm_channel_type"),
+            std::make_pair(ChannelConfig,                  "mclm_channel_config"),
             std::make_pair(InputExist,                     "mclm_input_exist"),
             std::make_pair(Input,                          "mclm_input"),
             std::make_pair(InputType,                      "mclm_input_type"),
