@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Dialogs
 import QtQuick.Layouts
 
+import YADAW.Entities
 import YADAW.Models
 
 Rectangle {
@@ -87,7 +88,7 @@ Rectangle {
         id: connectToAudioIOSelector
         target: impl.usingAudioIOSelector? audioIOSelectorWindow.audioIOSelector: null
         function onAccepted() {
-            //
+            // console.log(target.currentIndex, target.currentId);
         }
         function onResetted() {
             //

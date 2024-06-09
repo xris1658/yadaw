@@ -38,11 +38,11 @@ public:
         ChannelType,
         ChannelConfig, // YADAW::Entity::ChannelConfig::Config
         InputExist,
-        Input,
-        InputType,
+        Input, // YADAW::Entity::AudioIOPosition
+        InputType, // MediaTypes
         OutputExist,
-        Output,
-        OutputType,
+        Output, // YADAW::Entity::AudioIOPosition
+        OutputType, // MediaTypes
         InstrumentExist,
         InstrumentBypassed,
         InstrumentName,

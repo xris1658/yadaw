@@ -8,8 +8,6 @@ import YADAW.Models
 QC.Popup {
     id: root
 
-    property int audioChannelConfig: -1
-
     readonly property alias audioHardwareInputPositionProxyModel: audioHardwareInputPositionProxyModel
     readonly property alias audioHardwareOutputPositionProxyModel: audioHardwareOutputPositionProxyModel
     readonly property alias audioGroupChannelProxyModel: audioGroupChannelProxyModel
@@ -31,9 +29,9 @@ QC.Popup {
     property bool showPluginAuxIn: true
     property bool showPluginAuxOut: true
 
+    property int audioChannelConfig: -1
     property alias currentIndex: stackLayout.currentIndex
     property string currentId: ""
-    property int channelConfig
 
     signal accepted()
     signal cancelled()
@@ -83,6 +81,11 @@ QC.Popup {
         ItemDelegate {
             width: parent.width
             text: aiopm_name
+            highlighted: ListView.view.currentIndex === index
+            onClicked: {
+                ListView.view.currentIndex = index;
+                root.currentId = aiopm_id;
+            }
         }
     }
 
@@ -128,6 +131,7 @@ QC.Popup {
                     SplitView.preferredWidth: 150
                     Item {
                         ListView {
+                            id: leftList
                             x: 5
                             y: 5
                             width: categoryList.width
@@ -203,6 +207,15 @@ QC.Popup {
                                     stackLayout.currentIndex = index;
                                 }
                             }
+                            onCurrentIndexChanged: {
+                                audioHardwareInputListView.currentIndex = -1;
+                                audioHardwareOutputListView.currentIndex = -1;
+                                audioGroupChannelListView.currentIndex = -1;
+                                audioEffectChannelListView.currentIndex = -1;
+                                pluginAuxInListView.currentIndex = -1;
+                                pluginAuxOutListView.currentIndex = -1;
+                                root.currentId = "-1";
+                            }
                         }
                     }
                 }
@@ -237,6 +250,9 @@ QC.Popup {
                         id: pluginAuxOutListView
                         model: pluginAuxOutProxyModel
                         delegate: audioIOPositionComponent
+                    }
+                    onCurrentIndexChanged: {
+                        root.currentId = "-1";
                     }
                 }
             }

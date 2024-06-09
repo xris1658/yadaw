@@ -238,6 +238,10 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
                 return QVariant::fromValue<int>(ret);
             }
         }
+        case Role::Input:
+        {
+            //
+        }
         case Role::InputType:
         {
             auto optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);

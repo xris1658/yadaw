@@ -136,6 +136,8 @@ public:
     std::optional<IDGen::ID> audioInputChannelIDAt(std::uint32_t index) const;
     std::optional<IDGen::ID> audioOutputChannelIDAt(std::uint32_t index) const;
     std::optional<IDGen::ID> channelIDAt(std::uint32_t index) const;
+    OptionalRef<const Position> mainInputAt(std::uint32_t index) const;
+    bool setMainInputAt(std::uint32_t index, Position position) const;
     OptionalRef<const Position> mainOutputAt(std::uint32_t index) const;
     bool setMainOutputAt(std::uint32_t index, Position position);
     std::optional<std::uint32_t> getInputIndexOfId(IDGen::ID id) const;
@@ -247,6 +249,7 @@ private:
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts_;
     std::vector<MeterAndNode> meters_;
     std::vector<ChannelInfo> channelInfo_;
+    std::vector<Position> mainInput_;
     std::vector<Position> mainOutput_;
 
     IDGen audioOutputChannelIdGen_;
