@@ -1,13 +1,12 @@
 #ifndef YADAW_CONTENT_MODEL_IAUDIOIOPOSITIONMODEL
 #define YADAW_CONTENT_MODEL_IAUDIOIOPOSITIONMODEL
 
+#include "ISortFilterListModel.hpp"
 #include "ModelBase.hpp"
-
-#include <QAbstractListModel>
 
 namespace YADAW::Model
 {
-class IAudioIOPositionModel: public QAbstractListModel
+class IAudioIOPositionModel: public ISortFilterListModel
 {
     Q_OBJECT
 public:
@@ -31,7 +30,7 @@ public:
         HardwareAudioOutput
     };
 public:
-    IAudioIOPositionModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
+    IAudioIOPositionModel(QObject* parent = nullptr): ISortFilterListModel(parent) {}
     virtual ~IAudioIOPositionModel() {}
 public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }

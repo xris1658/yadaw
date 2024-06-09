@@ -81,6 +81,57 @@ int HardwareAudioIOPositionModel::findIndexByID(const QString& id) const
     return audioHardwareIOModel_->getIndexOfId(id);
 }
 
+bool HardwareAudioIOPositionModel::isComparable(int roleIndex) const
+{
+    return roleIndex == IAudioIOPositionModel::Role::Name;
+}
+
+bool HardwareAudioIOPositionModel::isFilterable(int roleIndex) const
+{
+    return roleIndex == IAudioIOPositionModel::Role::ID
+        || roleIndex == IAudioIOPositionModel::Role::Type
+        || roleIndex == IAudioIOPositionModel::Role::ChannelConfig
+        || roleIndex == IAudioIOPositionModel::Role::ChannelCount;
+}
+
+bool HardwareAudioIOPositionModel::isSearchable(int roleIndex) const
+{
+    return roleIndex == IAudioIOPositionModel::Role::Name;
+}
+
+bool HardwareAudioIOPositionModel::isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const
+{
+    if(roleIndex == IAudioIOPositionModel::Role::Name)
+    {
+        return data(lhs, roleIndex).value<QString>()
+            < data(rhs, roleIndex).value<QString>();
+    }
+    return false;
+}
+
+bool HardwareAudioIOPositionModel::isSearchPassed(int roleIndex,
+    const QModelIndex& modelIndex, const QString& string,
+    Qt::CaseSensitivity caseSensitivity) const
+{
+    if(roleIndex == IAudioIOPositionModel::Role::Name)
+    {
+        return data(modelIndex, roleIndex).value<QString>().contains(
+            string, caseSensitivity
+        );
+    }
+    return true;
+}
+
+bool HardwareAudioIOPositionModel::isPassed(const QModelIndex& modelIndex,
+    int role, const QVariant& variant) const
+{
+    if(role == IAudioIOPositionModel::Role::Type)
+    {
+        return data(modelIndex, role) == variant;
+    }
+    return true;
+}
+
 void HardwareAudioIOPositionModel::onSourceModelRowsAboutToBeInserted(
     const QModelIndex& parent, int start, int end)
 {

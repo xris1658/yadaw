@@ -3,16 +3,24 @@ import QtQuick.Controls as QC
 import QtQuick.Layouts
 
 import YADAW.Entities
+import YADAW.Models
 
 QC.Popup {
     id: root
 
-    property alias audioHardwareInputPositionModel: audioHardwareInputListView.model
-    property alias audioHardwareOutputPositionModel: audioHardwareOutputListView.model
-    property alias audioGroupChannelModel: audioGroupChannelListView.model
-    property alias audioEffectChannelModel: audioEffectChannelListView.model
-    property alias pluginAuxInModel: pluginAuxInListView.model
-    property alias pluginAuxOutModel: pluginAuxOutListView.model
+    readonly property alias audioHardwareInputPositionProxyModel: audioHardwareInputPositionProxyModel
+    readonly property alias audioHardwareOutputPositionProxyModel: audioHardwareOutputPositionProxyModel
+    readonly property alias audioGroupChannelProxyModel: audioGroupChannelProxyModel
+    readonly property alias audioEffectChannelProxyModel: audioEffectChannelProxyModel
+    readonly property alias pluginAuxInProxyModel: pluginAuxInProxyModel
+    readonly property alias pluginAuxOutProxyModel: pluginAuxOutProxyModel
+
+    property alias audioHardwareInputPositionModel: audioHardwareInputPositionProxyModel.sourceModel
+    property alias audioHardwareOutputPositionModel: audioHardwareOutputPositionProxyModel.sourceModel
+    property alias audioGroupChannelModel: audioGroupChannelProxyModel.sourceModel
+    property alias audioEffectChannelModel: audioEffectChannelProxyModel.sourceModel
+    property alias pluginAuxInModel: pluginAuxInProxyModel.sourceModel
+    property alias pluginAuxOutModel: pluginAuxOutProxyModel.sourceModel
 
     property bool showAudioHardwareInput: true
     property bool showAudioHardwareOutput: true
@@ -38,6 +46,34 @@ QC.Popup {
     QtObject {
         id: impl
         property int contentWidth: 350
+        function initProxyModel(proxyModel) {
+            proxyModel.setFilter(IAudioIOPositionModel.Name, true, Qt.CaseInsensitive);
+        }
+    }
+
+    SortFilterProxyListModel {
+        id: audioHardwareInputPositionProxyModel
+        filterString: searchTextField.text
+    }
+    SortFilterProxyListModel {
+        id: audioHardwareOutputPositionProxyModel
+        filterString: searchTextField.text
+    }
+    SortFilterProxyListModel {
+        id: audioGroupChannelProxyModel
+        filterString: searchTextField.text
+    }
+    SortFilterProxyListModel {
+        id: audioEffectChannelProxyModel
+        filterString: searchTextField.text
+    }
+    SortFilterProxyListModel {
+        id: pluginAuxInProxyModel
+        filterString: searchTextField.text
+    }
+    SortFilterProxyListModel {
+        id: pluginAuxOutProxyModel
+        filterString: searchTextField.text
     }
 
     Component {
@@ -172,26 +208,32 @@ QC.Popup {
                     id: stackLayout
                     ListView {
                         id: audioHardwareInputListView
+                        model: audioHardwareInputPositionProxyModel
                         delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: audioHardwareOutputListView
+                        model: audioHardwareOutputPositionProxyModel
                         delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: audioGroupChannelListView
+                        model: audioGroupChannelProxyModel
                         delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: audioEffectChannelListView
+                        model: audioEffectChannelProxyModel
                         delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: pluginAuxInListView
+                        model: pluginAuxInProxyModel
                         delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: pluginAuxOutListView
+                        model: pluginAuxOutProxyModel
                         delegate: audioIOPositionComponent
                     }
                 }
@@ -244,5 +286,13 @@ QC.Popup {
     }
     onShowPluginAuxOutChanged: {
         leftListModel.setProperty(5, "show", showPluginAuxOut);
+    }
+    Component.onCompleted: {
+        impl.initProxyModel(audioHardwareInputPositionProxyModel);
+        impl.initProxyModel(audioHardwareOutputPositionProxyModel);
+        impl.initProxyModel(audioGroupChannelProxyModel);
+        impl.initProxyModel(audioEffectChannelProxyModel);
+        impl.initProxyModel(pluginAuxInProxyModel);
+        impl.initProxyModel(pluginAuxOutProxyModel);
     }
 }
