@@ -16,11 +16,12 @@ consider add ARM and macOS support in the future.
   While installing with Visual Studio Installer, check "Desktop devleopment with
   C++" and "Universal Windows Platform development" in "Workloads -> Desktop &
   Mobile", and "English" in "Language packs".
-- Install [Qt 6.5](https://www.qt.io/download-open-source) or newer. While
-  installing, check "MSVC 2019 64-bit" and "Qt Debug Information Files". After
-  the installation, add the directory containing the Qt executable (<Qt install
-  directory>\<version>\msvc2019_64\bin) to the system environment variable
-  `Path`.
+- Install [Qt](https://www.qt.io/download-open-source) 6.5.1, 6.6.1 or newer
+  versions ([why?](https://bugreports.qt.io/browse/QTBUG-117852)).
+  While installing, check "MSVC 2019 64-bit" and "Qt Debug Information Files".
+  After the installation, add the directory containing the Qt executable (<Qt
+  install directory>\<version>\msvc2019_64\bin) to the system environment
+  variable `Path`.
 - Download [vcpkg](https://github.com/microsoft/vcpkg):
   ```shell
   git clone https://github.com/microsoft/vcpkg
@@ -127,7 +128,8 @@ might be usable on Debian and its forks.
   check target OS is added in this version. To build YADAW with older CMake,
   set version of `cmake_minimum_required` and replace `if(LINUX)` with
   `if(UNIX AND NOT APPLE)`.
-- Download and install Qt;
+- Download and install Qt (see the version requirement described in
+  Build With MSVC);
 - Download source of VST3 SDK, CLAP and sqlite_modern_cpp, and remember the
   paths to them;
 - Download source of [ADE](https://github.com/opencv/ade), build and install it:

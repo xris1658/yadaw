@@ -8,7 +8,7 @@
 
 ## 在 Windows 上构建
 
-### 使用 MSVC
+### 使用 MSVC 构建
 
 - 下载并安装 [Git for Windows](https://git-scm.com/download/win)，并将 git.exe 
   所在目录添加到系统环境变量 `Path` 中。
@@ -16,10 +16,11 @@
   在 Visual Studio Installer 中安装时，勾选“工作负荷 -> 桌面应用和移动应用”中
   的“使用 C++ 的桌面开发”、“通用 Windows 平台开发”以及“语言包”中的
   “英语”。
-- 下载 [Qt 6.5](https://www.qt.io/download-open-source) 或更高版本。在安装时，勾
-  选“MSVC 2019 64-bit”和“Qt Debug Information Files”。安装完成后，将 Qt 可执
-  行文件所在目录（<Qt 安装目录>\<版本号>\msvc2019_64\bin）添加到系统环境变量
-  `Path` 中。
+- 下载 [Qt](https://www.qt.io/download-open-source) 6.5.1 或 6.6.1 或更高版本
+  （[为什么？](https://bugreports.qt.io/browse/QTBUG-117852)）。
+  在安装时，勾选“MSVC 2019 64-bit”和“Qt Debug Information Files”。安装完成后
+  将 Qt 可执 行文件所在目录（<Qt 安装目录>\<版本号>\msvc2019_64\bin）添加到系统
+  环境变量 `Path` 中。
 - 下载 [vcpkg](https://github.com/microsoft/vcpkg)：
   ```shell
   git clone https://github.com/microsoft/vcpkg
@@ -60,7 +61,7 @@
     -DCLAP_SOURCE_DIR=<CLAP 所在目录的路径>/clap \
   cmake --build . --target YADAW -j 16
   ```
-### 使用 MSYS2
+### 使用 MSYS2 构建
 
 - 下载并安装 [MSYS2](https://www.msys2.org/)。  
   MSYS2 带有多套环境。下面的配置过程使用 MINGW64 环境，需要打开 MSYS2 MINGW64 后
@@ -122,7 +123,7 @@ Debian 及其分支发行版。
   目标操作系统。要使用旧版的 CMake 构建 YADAW，请调整
   `cmake_minimum_required` 中的版本，并将 `if(LINUX)` 替换为
   `if(UNIX AND NOT APPLE)`。
-- 下载并安装 Qt；
+- 下载并安装 Qt（参见“使用 MSVC 构建”中描述的版本要求）；
 - 下载 VST3 SDK、CLAP 和 sqlite_modern_cpp 的源码，并记住路径；
 - 下载 ADE，构建并安装：
   ```shell
