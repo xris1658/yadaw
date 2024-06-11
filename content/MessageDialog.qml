@@ -54,6 +54,10 @@ Window {
             anchors.verticalCenter: parent.verticalCenter
             text: message
             color: Colors.content
+            textFormat: Text.RichText
+            onLinkActivated: (link) => {
+                Qt.openUrlExternally(link);
+            }
         }
     }
     DialogButtons {
