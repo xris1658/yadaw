@@ -217,7 +217,7 @@ Window {
                             text: defaultText
                             onClicked: {
                                 locatePopupWindow(pluginSelectorWindow, height, 0);
-                                pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
+                                pluginSelectorWindow.pluginSelector.pluginListProxyModel.setValueOfFilter(
                                     IPluginListModel.Type,
                                     IPluginListModel.Instrument
                                 );
@@ -245,7 +245,7 @@ Window {
                             visible: audioEffectText.visible
                             onClicked: {
                                 locatePopupWindow(pluginSelectorWindow, height, 0);
-                                pluginSelectorWindow.pluginSelector.pluginListModel.setValueOfFilter(
+                                pluginSelectorWindow.pluginSelector.pluginListProxyModel.setValueOfFilter(
                                     IPluginListModel.Type,
                                     IPluginListModel.AudioEffect
                                 );
