@@ -58,7 +58,7 @@ bool AudioGraphInputDeviceListModel::setData(const QModelIndex& index, const QVa
         {
         case Role::Enabled:
         {
-            auto ret = backend_->activateDeviceInput(row, value.value<bool>());
+            auto ret = backend_->activateDeviceInput(row, value.value<bool>()) == S_OK;
             if(ret)
             {
                 dataChanged(index, index, {Role::Enabled});

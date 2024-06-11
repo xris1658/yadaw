@@ -181,6 +181,7 @@ bool AudioGraphBackend::Impl::isDeviceInputActivated(std::uint32_t deviceInputIn
 AudioGraphBackend::ErrorCode AudioGraphBackend::Impl::activateDeviceInput(
     std::uint32_t deviceInputIndex, bool enabled)
 {
+    AudioGraphBackend::ErrorCode ret = E_INVALIDARG;
     if(deviceInputIndex < audioInputDeviceCount())
     {
         if(enabled)
@@ -200,7 +201,9 @@ AudioGraphBackend::ErrorCode AudioGraphBackend::Impl::activateDeviceInput(
                         audioInputDeviceInformationCollection_.GetAt(deviceInputIndex)
                     )
                 );
-                if(auto status = result.Status(); status == decltype(status)::Success)
+                auto status = result.Status();
+                ret = result.ExtendedError().value;
+                if(status == decltype(status)::Success)
                 {
                     deviceInputNodes_[deviceInputIndex] = {result.DeviceInputNode(), audioGraph_.CreateFrameOutputNode()};
                     return result.ExtendedError().value;
@@ -216,7 +219,7 @@ AudioGraphBackend::ErrorCode AudioGraphBackend::Impl::activateDeviceInput(
             return S_OK;
         }
     }
-    return E_INVALIDARG;
+    return ret;
 }
 
 DeviceInformation AudioGraphBackend::Impl::currentOutputDevice() const
