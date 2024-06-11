@@ -85,6 +85,7 @@ void Buffer::setBufferSize(std::uint32_t bufferSize)
     {
         auto pool = AudioBufferPool::createPool<float>(bufferSize);
         auto dummyInput = std::make_shared<AudioBufferPool::Buffer>(pool->lend());
+        std::memset(dummyInput->pointer(), 0, bufferSize * sizeof(float));
         for(const auto& nodeHandle: graph_.nodes())
         {
             auto& container = getData_(graph_, nodeHandle).container;
