@@ -10,6 +10,7 @@
 #include "controller/PluginLatencyUpdatedCallback.hpp"
 #include "controller/PluginWindowController.hpp"
 #include "dao/PluginTable.hpp"
+#include "entity/AudioIOPosition.hpp"
 #include "entity/ChannelConfigHelper.hpp"
 #include "event/EventBase.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
@@ -255,6 +256,20 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
                 return MediaTypes::MediaTypeAudio;
             }
         }
+        case Role::Output:
+        {
+            if(listType_ == ListType::Regular)
+            {
+                auto optionalMainOutput = mixer_.mainOutputAt(row);
+                if(optionalMainOutput.has_value())
+                {
+                    return QVariant::fromValue(
+                        YADAW::Entity::AudioIOPosition(optionalMainOutput->get())
+                    );
+                }
+            }
+            return QVariant();
+        }
         case Role::OutputType:
         {
             return MediaTypes::MediaTypeAudio;
@@ -362,6 +377,22 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                 optionalInfo->get().color = value.value<QColor>();
                 dataChanged(index, index, {Role::Color});
                 return true;
+            }
+            return false;
+        }
+        case Role::Output:
+        {
+            if(listType_ == ListType::Regular)
+            {
+                auto position = static_cast<YADAW::Entity::AudioIOPosition*>(value.value<QObject*>());
+                auto ret = mixer_.setMainOutputAt(
+                    row, position->position_
+                );
+                if(ret)
+                {
+                    dataChanged(this->index(row), this->index(row), {Role::Output});
+                }
+                return ret;
             }
             return false;
         }

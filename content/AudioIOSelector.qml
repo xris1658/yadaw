@@ -31,7 +31,16 @@ QC.Popup {
 
     property int audioChannelConfig: -1
     property alias currentIndex: stackLayout.currentIndex
-    property string currentId: ""
+    property string currentId: "0"
+
+    readonly property var audioIOTypes: [
+        AudioIOPosition.AudioHardwareIOChannel,
+        AudioIOPosition.AudioHardwareIOChannel,
+        AudioIOPosition.BusAndFXChannel,
+        AudioIOPosition.BusAndFXChannel,
+        AudioIOPosition.PluginAuxIO,
+        AudioIOPosition.PluginAuxIO
+    ]
 
     signal accepted()
     signal cancelled()
