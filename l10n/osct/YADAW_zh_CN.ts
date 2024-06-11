@@ -111,5 +111,10 @@
         <source>The current audio device is already in use.</source>
         <translation>当前音频设备已被占用。</translation>
     </message>
+    <message>
+        <location filename="../../src/audio/backend/AudioGraphErrorText.cpp" line="18"/>
+        <source>&lt;p&gt;Access to the audio device is denied.&lt;/p&gt;&lt;p&gt;If you encountered this error while activating audio input devices, go to &lt;a href=&quot;ms-settings:privacy-microphone&quot;&gt;&lt;b&gt;Settings &amp;gt; Privacy &amp;gt; Microphone&lt;/b&gt;&lt;/a&gt;.&lt;br/&gt;In &lt;b&gt;Allow access to the microphone on this device&lt;/b&gt;, click &lt;b&gt;Change&lt;/b&gt; and turn on &lt;b&gt;Microphone access for this device&lt;/b&gt;. Then, turn on &lt;b&gt;Allow apps to access your microphone&lt;/b&gt; and &lt;b&gt;Allow desktop apps to access your microphone&lt;/b&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;拒绝访问音频设备。&lt;/p&gt;&lt;p&gt;如果在启用音频输入设备时遇到此错误，打开 &lt;a href=&quot;ms-settings:privacy-microphone&quot;&gt;&lt;b&gt;设置 &gt; 隐私 &gt; 麦克风&lt;/b&gt;&lt;/a&gt;。&lt;br/&gt;在 &lt;b&gt;允许访问此设备上的麦克风&lt;/b&gt;中，点击 &lt;b&gt;更改&lt;/b&gt; 后打开 &lt;b&gt;此设备的麦克风访问权限&lt;/b&gt;。&lt;/p&gt;&lt;p&gt;之后，打开 &lt;b&gt;允许应用访问你的麦克风&lt;/b&gt; 以及 &lt;b&gt;允许桌面应用访问你的麦克风&lt;/b&gt;。&lt;/p&gt;</translation>
+    </message>
 </context>
 </TS>

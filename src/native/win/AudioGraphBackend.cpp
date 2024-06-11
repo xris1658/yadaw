@@ -244,6 +244,8 @@ QString getAudioGraphErrorStringFromErrorCode(AudioGraphBackend::ErrorCode error
     {
     case AUDCLNT_E_DEVICE_IN_USE: // FIXME
         return getDeviceInUseErrorText();
+    case E_ACCESSDENIED:
+        return getAccessDeniedErrorText();
     default:
         break;
     }
