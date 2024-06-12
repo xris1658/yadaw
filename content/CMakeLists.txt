@@ -95,6 +95,7 @@ set(CONTENT_QML_FILES
     InsertIcon.qml
     ItemDelegate.qml
     Label.qml
+    LocateIcon.qml
     LoopIcon.qml
     MainWindow.qml
     Menu.qml

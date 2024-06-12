@@ -49,6 +49,7 @@ IOIcon 1.0 IOIcon.qml
 InsertIcon 1.0 InsertIcon.qml
 ItemDelegate 1.0 ItemDelegate.qml
 Label 1.0 Label.qml
+LocateIcon 1.0 LocateIcon.qml
 LoopIcon 1.0 LoopIcon.qml
 MainWindow 1.0 MainWindow.qml
 Menu 1.0 Menu.qml
