@@ -55,8 +55,8 @@ Rectangle {
         readonly property int borderWidth: 1
         property bool usingPluginSelector: false
         property bool usingAudioIOSelector: false
-        property bool selectingInput: false
-        property bool selectingOutput: false
+        property alias selectingInput: inputButton.checked
+        property alias selectingOutput: outputButton.checked
     }
     Connections {
         id: connectToPluginSelector
@@ -93,32 +93,44 @@ Rectangle {
                 import YADAW.Entities
                 AudioIOPosition {}
                 `,
-                outputButton, "MixerChannel"
+                root, "MixerChannel"
             );
             audioIOPosition.type = target.audioIOTypes[target.currentIndex];
             audioIOPosition.id = target.currentId;
-            mclm_output = audioIOPosition;
+            if(impl.selectingInput) {
+                mclm_input = audioIOPosition;
+                impl.selectingInput = false;
+            }
+            if(impl.selectingOutput) {
+                mclm_output = audioIOPosition;
+                impl.selectingOutput = false;
+            }
             audioIOPosition.destroy();
         }
         function onResetted() {
             let audioIOPosition = Qt.createQmlObject(
                 `
                 import YADAW.Entities
-                AudioIOPosition {}
+                AudioIOPosition {
+                    type: AudioIOPosition.Invalid
+                }
                 `,
-                outputButton, "MixerChannel"
+                root, "MixerChannel"
             );
-            mclm_output = audioIOPosition;
+            if(impl.selectingInput) {
+                mclm_input = audioIOPosition;
+                impl.selectingInput = false;
+            }
+            if(impl.selectingOutput) {
+                mclm_output = audioIOPosition;
+                impl.selectingOutput = false;
+            }
             audioIOPosition.destroy();
         }
         function onCancelled() {
             impl.usingAudioIOSelector = false;
-            if(impl.selectingInput) {
-                inputButton.checked = false;
-            }
-            if(impl.selectingOutput) {
-                outputButton.checked = false;
-            }
+            impl.selectingInput = false;
+            impl.selectingOutput = false;
         }
     }
     ColumnLayout {
