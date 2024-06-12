@@ -809,15 +809,21 @@ ApplicationWindow {
         color: Colors.background
         flags: Qt.Tool | Qt.FramelessWindowHint
         readonly property AudioIOSelector audioIOSelector: audioIOSelector
+        signal accepted()
+        signal cancelled()
+        signal resetted()
         AudioIOSelector {
             id: audioIOSelector
-            onResetted: {
-                audioIOSelectorWindow.hide();
-            }
             onAccepted: {
+                audioIOSelectorWindow.accepted();
                 audioIOSelectorWindow.hide();
             }
             onCancelled: {
+                audioIOSelectorWindow.cancelled();
+                audioIOSelectorWindow.hide();
+            }
+            onResetted: {
+                audioIOSelectorWindow.resetted();
                 audioIOSelectorWindow.hide();
             }
             onActiveFocusChanged: {

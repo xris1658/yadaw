@@ -86,7 +86,7 @@ Rectangle {
     }
     Connections {
         id: connectToAudioIOSelector
-        target: impl.usingAudioIOSelector? audioIOSelectorWindow.audioIOSelector: null
+        target: impl.usingAudioIOSelector? audioIOSelectorWindow: null
         function onAccepted() {
             let audioIOPosition = Qt.createQmlObject(
                 `
@@ -95,8 +95,8 @@ Rectangle {
                 `,
                 root, "MixerChannel"
             );
-            audioIOPosition.type = target.audioIOTypes[target.currentIndex];
-            audioIOPosition.id = target.currentId;
+            audioIOPosition.type = audioIOSelectorWindow.audioIOSelector.audioIOTypes[audioIOSelectorWindow.audioIOSelector.currentIndex];
+            audioIOPosition.id = audioIOSelectorWindow.audioIOSelector.currentId;
             if(impl.selectingInput) {
                 mclm_input = audioIOPosition;
                 impl.selectingInput = false;
