@@ -472,6 +472,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
     {
         return false;
     }
+    auto ret = false;
     const auto& mute = *(mutes_[index].first);
     const auto& channelGroup = mute.audioOutputGroupAt(0)->get();
     auto channelGroupType = channelGroup.type();
@@ -625,10 +626,9 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     disconnectingNewMultiInput.reset();
                     oldSumming = std::move(newSumming);
                     oldSummingNode = newSummingNode;
-                    return true;
+                    ret = true;
                 }
             }
-            return false;
         }
         else if(position.type == Position::Type::BusAndFXChannel)
         {
@@ -687,18 +687,28 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         disconnectingNewSumming.reset();
                         disconnectingOldMultiInput.reset();
                         disconnectingNewMultiInput.reset();
-                        return true;
+                        ret = true;
                     }
                 }
-                return false;
             }
         }
         else if(position.type == Position::Type::PluginAuxIO)
         {
             // not implemented
         }
+        else if(position.type == Position::Type::Invalid)
+        {
+            connectionUpdatedCallback_(*this);
+            disconnectingOldMultiInput.reset();
+            disconnectingOldSumming.reset();
+            ret = true;
+        }
     }
-    return false;
+    if(ret)
+    {
+        oldPosition = position;
+    }
+    return ret;
 }
 
 std::optional<std::uint32_t> Mixer::getInputIndexOfId(IDGen::ID id) const
