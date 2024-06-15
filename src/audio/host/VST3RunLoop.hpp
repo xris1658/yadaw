@@ -60,7 +60,6 @@ public:
         Steinberg::Linux::ITimerHandler* handler) override;
 private:
     std::atomic<std::uint32_t> refCount_;
-    const YADAW::Audio::Plugin::VST3Plugin* plugin_;
     std::map<
         Steinberg::Linux::IEventHandler*,
         std::set<Steinberg::Linux::FileDescriptor>
