@@ -413,6 +413,7 @@ int main(int argc, char* argv[])
         getchar();
         return 0;
     }
+    QGuiApplication application(argc, argv);
     std::setlocale(LC_ALL, "en_US.UTF-8");
     int argIndex = 1;
 #if __linux__
@@ -427,7 +428,6 @@ int main(int argc, char* argv[])
         if(id == -1)
         {
             std::printf("\nTesting plugin: %s...\n", argv[argIndex]);
-            QGuiApplication application(argc, argv);
             library = YADAW::Native::Library(argv[argIndex]);
             ++argIndex;
             auto plugin = YADAW::Audio::Util::createVST3FromLibrary(library);
@@ -451,7 +451,6 @@ int main(int argc, char* argv[])
         }
         else
         {
-            QGuiApplication application(argc, argv);
             const auto& record = YADAW::DAO::selectPluginById(id);
             std::printf("\nTesting plugin: %ls...\n", record.path.toStdWString().data());
             library = YADAW::Native::Library(record.path);
