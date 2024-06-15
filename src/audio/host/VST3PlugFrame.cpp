@@ -5,6 +5,10 @@
 
 #include <pluginterfaces/base/funknown.h>
 
+#if __linux__
+#include "VST3Host.hpp"
+#endif
+
 namespace YADAW::Audio::Host
 {
 VST3PlugFrame::VST3PlugFrame(YADAW::Audio::Plugin::VST3PluginGUI* gui):
@@ -22,13 +26,8 @@ Steinberg::tresult VST3PlugFrame::queryInterface(const char* _iid, void** obj)
 #ifdef __linux__
     if(Steinberg::FUnknownPrivate::iidEqual(_iid, Steinberg::Linux::IRunLoop::iid))
     {
-        auto runLoop = new(std::nothrow) YADAW::Audio::Host::VST3RunLoop();
-        if(runLoop)
-        {
-            *obj = runLoop;
-            return Steinberg::kResultOk;
-        }
-        return Steinberg::kOutOfMemory;
+        *obj = &(YADAW::Audio::Host::VST3Host::instance().runLoop());
+        return Steinberg::kResultOk;
     }
 #endif
     *obj = nullptr;

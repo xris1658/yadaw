@@ -5,6 +5,10 @@
 #include <pluginterfaces/vst/ivstpluginterfacesupport.h>
 #include <pluginterfaces/vst/ivstprocesscontext.h>
 
+#if __linux__
+#include "audio/host/VST3RunLoop.hpp"
+#endif
+
 namespace YADAW::Audio::Plugin
 {
 class VST3Plugin;
@@ -50,8 +54,15 @@ public:
 public: // IHostApplication interfaces
     tresult PLUGIN_API getName(String128 name) override;
     tresult PLUGIN_API createInstance(TUID cid, TUID iid_, void** obj) override;
+#if __linux__
+public:
+    VST3RunLoop& runLoop();
+#endif
 private:
     PlugInterfaceSupport plugInterfaceSupport_;
+#if __linux__
+    YADAW::Audio::Host::VST3RunLoop runLoop_;
+#endif
 };
 }
 

@@ -40,17 +40,12 @@ Steinberg::tresult VST3RunLoop::queryInterface(const char* _iid, void** obj)
 
 Steinberg::uint32 VST3RunLoop::addRef()
 {
-    return refCount_.fetch_add(1, std::memory_order_relaxed) + 1;
+    return 1U;
 }
 
 Steinberg::uint32 VST3RunLoop::release()
 {
-    auto ret = refCount_.fetch_sub(1, std::memory_order_acq_rel) - 1;
-    if(ret == 0)
-    {
-        delete this;
-    }
-    return ret;
+    return 1U;
 }
 
 Steinberg::tresult VST3RunLoop::registerEventHandler(

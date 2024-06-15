@@ -61,16 +61,11 @@ tresult VST3Host::queryInterface(const char* _iid, void** obj)
     }
     QUERY_INTERFACE(_iid, obj, FUnknown::iid, IHostApplication)
     QUERY_INTERFACE(_iid, obj, IHostApplication::iid, IHostApplication)
-#ifdef __linux__
+#if __linux__
     if(FUnknownPrivate::iidEqual(_iid, Steinberg::Linux::IRunLoop::iid))
     {
-        auto runLoop = new(std::nothrow) YADAW::Audio::Host::VST3RunLoop();
-        if(runLoop)
-        {
-            *obj = runLoop;
-            return Steinberg::kResultOk;
-        }
-        return Steinberg::kOutOfMemory;
+        *obj = &runLoop_;
+        return Steinberg::kResultOk;
     }
 #endif
     *obj = nullptr;
@@ -108,4 +103,11 @@ tresult VST3Host::createInstance(char* cid, char* iid_, void** obj)
     }
     return kNoInterface;
 }
+
+#if __linux__
+VST3RunLoop& VST3Host::runLoop()
+{
+    return runLoop_;
+}
+#endif
 }
