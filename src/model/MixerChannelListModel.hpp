@@ -51,6 +51,16 @@ public:
     bool removeInstrument(int position) override;
     int getIndexOfId(const QString& id) const override;
 public:
+    bool isComparable(int roleIndex) const override;
+    bool isFilterable(int roleIndex) const override;
+    bool isSearchable(int roleIndex) const override;
+    bool isLess(int roleIndex,
+        const QModelIndex& lhs, const QModelIndex& rhs) const override;
+    bool isSearchPassed(int role, const QModelIndex& modelIndex,
+        const QString& string,
+        Qt::CaseSensitivity caseSensitivity) const override;
+    bool isPassed(const QModelIndex& modelIndex, int role,
+        const QVariant& variant) const override;
     ListType type() const;
 public:
     void instrumentLatencyUpdated(std::uint32_t index) const;

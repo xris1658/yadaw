@@ -1023,6 +1023,109 @@ int MixerChannelListModel::getIndexOfId(const QString& id) const
     return -1;
 }
 
+bool MixerChannelListModel::isComparable(int roleIndex) const
+{
+    return false;
+}
+
+bool MixerChannelListModel::isFilterable(int roleIndex) const
+{
+    constexpr auto filterableRoles = std::array {
+        Role::Color,
+        Role::ChannelType,
+        Role::ChannelConfig,
+        Role::ChannelCount,
+        Role::InputExist,
+        Role::InputType,
+        Role::OutputExist,
+        Role::OutputType,
+        Role::InstrumentExist,
+        Role::Mute,
+        Role::Solo,
+        Role::InvertPolarityExist,
+        Role::InvertPolarity,
+        Role::ArmRecordingExist,
+        Role::ArmRecording
+    };
+    return std::ranges::find(
+        filterableRoles.begin(), filterableRoles.end(), roleIndex
+    ) != filterableRoles.end();
+}
+
+bool MixerChannelListModel::isSearchable(int roleIndex) const
+{
+    return roleIndex == Role::Id
+        || roleIndex == Role::Name;
+}
+
+bool MixerChannelListModel::isLess(int roleIndex,
+    const QModelIndex& lhs, const QModelIndex& rhs) const
+{
+    return false;
+}
+
+bool MixerChannelListModel::isSearchPassed(int role,
+    const QModelIndex& modelIndex,
+    const QString& string, Qt::CaseSensitivity caseSensitivity) const
+{
+    if(auto row = modelIndex.row(); row >= 0 && row < itemCount())
+    {
+        switch(role)
+        {
+        case Role::Id:
+            return data(modelIndex, role).value<QString>().contains(string);
+        case Role::Name:
+            return data(modelIndex, role).value<QString>().contains(
+                string, caseSensitivity
+            );
+        }
+    }
+    return false;
+}
+
+bool MixerChannelListModel::isPassed(const QModelIndex& modelIndex,
+    int role, const QVariant& variant) const
+{
+    if(auto row = modelIndex.row(); row >= 0 && row < itemCount())
+    {
+        auto sourceData = data(modelIndex, role);
+        switch(role)
+        {
+        case Role::Color:
+            return sourceData.value<QColor>() == variant.value<QColor>();
+        case Role::ChannelType:
+            return sourceData.value<ChannelTypes>() == variant.value<ChannelTypes>();
+        case Role::ChannelConfig:
+            return sourceData.value<YADAW::Entity::ChannelConfig::Config>() == variant.value<YADAW::Entity::ChannelConfig::Config>();
+        case Role::ChannelCount:
+            return sourceData.value<int>() == variant.value<int>();
+        case Role::InputExist:
+            return sourceData.value<bool>() == variant.value<bool>();
+        case Role::InputType:
+            return sourceData.value<MediaTypes>() == variant.value<MediaTypes>();
+        case Role::OutputExist:
+            return sourceData.value<bool>() == variant.value<bool>();
+        case Role::OutputType:
+            return sourceData.value<MediaTypes>() == variant.value<MediaTypes>();
+        case Role::InstrumentExist:
+            return sourceData.value<bool>() == variant.value<bool>();
+        case Role::Mute:
+            return sourceData.value<bool>() == variant.value<bool>();
+        case Role::Solo:
+            return sourceData.value<bool>() == variant.value<bool>();
+        case Role::InvertPolarityExist:
+            return sourceData.value<bool>() == variant.value<bool>();
+        case Role::InvertPolarity:
+            return sourceData.value<bool>() == variant.value<bool>();
+        case Role::ArmRecordingExist:
+            return sourceData.value<bool>() == variant.value<bool>();
+        case Role::ArmRecording:
+            return sourceData.value<bool>() == variant.value<bool>();
+        }
+    }
+    return false;
+}
+
 MixerChannelListModel::ListType MixerChannelListModel::type() const
 {
     return listType_;

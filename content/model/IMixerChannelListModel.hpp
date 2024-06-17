@@ -4,12 +4,11 @@
 #include "ModelBase.hpp"
 
 #include "entity/ChannelConfig.hpp"
-
-#include <QAbstractListModel>
+#include "model/ISortFilterListModel.hpp"
 
 namespace YADAW::Model
 {
-class IMixerChannelListModel: public QAbstractListModel
+class IMixerChannelListModel: public ISortFilterListModel
 {
     Q_OBJECT
 public:
@@ -71,7 +70,7 @@ public:
     };
     Q_ENUM(Role)
 public:
-    IMixerChannelListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
+    IMixerChannelListModel(QObject* parent = nullptr): ISortFilterListModel(parent) {}
     virtual ~IMixerChannelListModel() {}
 public:
     static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
