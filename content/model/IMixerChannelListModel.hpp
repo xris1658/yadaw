@@ -37,6 +37,7 @@ public:
         Color,
         ChannelType,
         ChannelConfig, // YADAW::Entity::ChannelConfig::Config
+        ChannelCount,
         InputExist,
         Input, // YADAW::Entity::AudioIOPosition
         InputType, // MediaTypes
@@ -100,6 +101,7 @@ protected:
             std::make_pair(Color,                          "mclm_color"),
             std::make_pair(ChannelType,                    "mclm_channel_type"),
             std::make_pair(ChannelConfig,                  "mclm_channel_config"),
+            std::make_pair(ChannelCount,                   "mclm_channel_count"),
             std::make_pair(InputExist,                     "mclm_input_exist"),
             std::make_pair(Input,                          "mclm_input"),
             std::make_pair(InputType,                      "mclm_input_type"),

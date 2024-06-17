@@ -147,6 +147,15 @@ GetChannelGroupType getChannelGroupType[3] = {
     &YADAW::Audio::Mixer::Mixer::audioOutputChannelGroupTypeAt
 };
 
+using GetChannelGroupTypeAndCount =
+    decltype(&YADAW::Audio::Mixer::Mixer::audioInputChannelGroupTypeAndChannelCountAt);
+
+GetChannelGroupTypeAndCount getChannelGroupTypeAndCount[3] = {
+    &YADAW::Audio::Mixer::Mixer::audioInputChannelGroupTypeAndChannelCountAt,
+    &YADAW::Audio::Mixer::Mixer::channelGroupTypeAndChannelCountAt,
+    &YADAW::Audio::Mixer::Mixer::audioOutputChannelGroupTypeAndChannelCountAt
+};
+
 IMixerChannelListModel::ChannelTypes getChannelType(YADAW::Audio::Mixer::Mixer::ChannelType type)
 {
     return static_cast<IMixerChannelListModel::ChannelTypes>(YADAW::Util::underlyingValue(type));
@@ -232,11 +241,28 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::ChannelConfig:
         {
+            auto optionalChannelGroupTypeAndCount = (mixer_.*getChannelGroupTypeAndCount[YADAW::Util::underlyingValue(listType_)])(row);
+            if(optionalChannelGroupTypeAndCount.has_value())
+            {
+                auto ret = YADAW::Entity::configFromGroupType(
+                    optionalChannelGroupTypeAndCount->first
+                );
+                return ret;
+            }
             auto optionalChannelGroupType = (mixer_.*getChannelGroupType[YADAW::Util::underlyingValue(listType_)])(row);
             if(optionalChannelGroupType.has_value())
             {
-                auto ret = YADAW::Entity::configFromGroupType(*optionalChannelGroupType);
-                return QVariant::fromValue<int>(ret);
+                return QVariant::fromValue<int>(
+                    YADAW::Entity::configFromGroupType(*optionalChannelGroupType)
+                );
+            }
+        }
+        case Role::ChannelCount:
+        {
+            auto optionalChannelGroupTypeAndCount = (mixer_.*getChannelGroupTypeAndCount[YADAW::Util::underlyingValue(listType_)])(row);
+            if(optionalChannelGroupTypeAndCount.has_value())
+            {
+                return QVariant::fromValue<int>(optionalChannelGroupTypeAndCount->second);
             }
         }
         case Role::Input:
