@@ -17,7 +17,7 @@ public:
     {
         Name,
         IsMain,
-        ChannelGroupType,
+        ChannelConfig,
         ChannelCount,
         SpeakerList,
         RoleCount
@@ -37,7 +37,7 @@ protected:
         {
             std::make_pair(Role::Name,             "adioglm_name"),
             std::make_pair(Role::IsMain,           "adioglm_is_main"),
-            std::make_pair(Role::ChannelGroupType, "adioglm_channel_group_type"),
+            std::make_pair(Role::ChannelConfig,    "adioglm_channel_config"),
             std::make_pair(Role::SpeakerList,      "adioglm_speaker_list"),
             std::make_pair(Role::ChannelCount,     "adioglm_channel_count")
         };

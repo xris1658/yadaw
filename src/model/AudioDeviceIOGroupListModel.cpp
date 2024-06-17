@@ -1,5 +1,6 @@
 #include "AudioDeviceIOGroupListModel.hpp"
 
+#include "entity/ChannelConfigHelper.hpp"
 #include "util/IntegerRange.hpp"
 
 namespace YADAW::Model
@@ -79,8 +80,8 @@ QVariant AudioDeviceIOGroupListModel::data(const QModelIndex& index, int role) c
                 return QVariant::fromValue(group->get().name());
             case Role::IsMain:
                 return QVariant::fromValue(group->get().isMain());
-            case Role::ChannelGroupType:
-                return QVariant::fromValue(static_cast<int>(group->get().type()) + 1);
+            case Role::ChannelConfig:
+                return QVariant::fromValue<int>(YADAW::Entity::configFromGroupType(group->get().type()));
             case Role::SpeakerList:
                 return QVariant::fromValue<QObject*>(&speakerListModel_[row]);
             case Role::ChannelCount:
