@@ -21,7 +21,7 @@ Rectangle {
     property Window pluginSelectorWindow: null
     property Window audioIOSelectorWindow: null
 
-    property PluginRouteEditorWindow pluginRouteEditorWindow: null
+    property Window pluginRouteEditorWindow: null
 
     signal insertTrack(position: int, type: int) // AddTrackWindow.TrackType
 

@@ -8,6 +8,7 @@ Rectangle {
 
     property alias inputRouteListModel: inputRouteList.model
     property alias outputRouteListModel: outputRouteList.model
+    property Window audioIOSelectorWindow
 
     Rectangle {
         id: splitter
@@ -32,6 +33,8 @@ Rectangle {
             id: inputRouteList
             anchors.fill: parent
             anchors.margins: 5
+            audioIOSelectorWindow: root.audioIOSelectorWindow
+            isInput: true
         }
     }
     Rectangle {
@@ -49,6 +52,8 @@ Rectangle {
             id: outputRouteList
             anchors.fill: parent
             anchors.margins: 5
+            audioIOSelectorWindow: root.audioIOSelectorWindow
+            isInput: false
         }
     }
 }

@@ -934,9 +934,21 @@ ApplicationWindow {
             }
         }
     }
-    PluginRouteEditorWindow {
+    Window {
         id: pluginRouteEditorWindow
-        visible: false
+        color: Colors.background
+        width: 500
+        height: 300
+        property PluginRouteEditor pluginRouteEditor: pluginRouteEditor
+        property int padding: 10
+        PluginRouteEditor {
+            id: pluginRouteEditor
+            width: pluginRouteEditorWindow.width - pluginRouteEditorWindow.padding * 2
+            height: pluginRouteEditorWindow.height - pluginRouteEditorWindow.padding * 2
+            x: pluginRouteEditorWindow.padding
+            y: pluginRouteEditorWindow.padding
+            audioIOSelectorWindow: audioIOSelectorWindow
+        }
     }
     PluginScanProgressWindow {
         id: pluginScanProgressWindow

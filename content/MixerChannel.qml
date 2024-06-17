@@ -32,7 +32,7 @@ Rectangle {
 
     property Window audioIOSelectorWindow: null
     property Window pluginSelectorWindow: null
-    property PluginRouteEditorWindow pluginRouteEditorWindow: null
+    property Window pluginRouteEditorWindow: null
 
     property bool mute: muteButton.checked
     property alias instrumentSlotChecked: instrumentSlot.checked
@@ -258,8 +258,8 @@ Rectangle {
                             onClicked: {
                                 if(root.pluginRouteEditorWindow) {
                                     root.pluginRouteEditorWindow.showNormal();
-                                    root.pluginRouteEditorWindow.inputRouteList = root.instrumentAudioInputs;
-                                    root.pluginRouteEditorWindow.outputRouteList = root.instrumentAudioOutputs;
+                                    root.pluginRouteEditorWindow.pluginRouteEditor.inputRouteListModel = root.instrumentAudioInputs;
+                                    root.pluginRouteEditorWindow.pluginRouteEditor.outputRouteListModel = root.instrumentAudioOutputs;
                                 }
                             }
                         }
@@ -462,8 +462,8 @@ Rectangle {
                                 onClicked: {
                                     if(root.pluginRouteEditorWindow) {
                                         root.pluginRouteEditorWindow.show();
-                                        root.pluginRouteEditorWindow.inputRouteList = mcilm_audio_inputs;
-                                        root.pluginRouteEditorWindow.outputRouteList = mcilm_audio_outputs;
+                                        root.pluginRouteEditorWindow.pluginRouteEditor.inputRouteListModel = mcilm_audio_inputs;
+                                        root.pluginRouteEditorWindow.pluginRouteEditor.outputRouteListModel = mcilm_audio_outputs;
                                     }
                                 }
                             }

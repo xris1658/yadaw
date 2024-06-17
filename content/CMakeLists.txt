@@ -118,7 +118,6 @@ set(CONTENT_QML_FILES
     PlayIcon.qml
     PluginIcon.qml
     PluginRouteEditor.qml
-    PluginRouteEditorWindow.qml
     PluginScanProgressWindow.qml
     PluginSelector.qml
     PluginSettings.qml
