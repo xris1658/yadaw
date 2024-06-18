@@ -159,7 +159,7 @@ void SortFilterProxyListModel::setFilterString(const QString& filterString)
     filterStringChanged();
 }
 
-int SortFilterProxyListModel::mapToSource(int destIndex)
+int SortFilterProxyListModel::mapToSource(int destIndex) const
 {
     if(destIndex >= 0 && destIndex < itemCount())
     {
@@ -168,7 +168,7 @@ int SortFilterProxyListModel::mapToSource(int destIndex)
     return -1;
 }
 
-int SortFilterProxyListModel::mapFromSource(int sourceIndex)
+int SortFilterProxyListModel::mapFromSource(int sourceIndex) const
 {
     if(sourceModel_ && sourceIndex >= 0 && sourceIndex < sourceModel_->rowCount())
     {

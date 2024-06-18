@@ -36,8 +36,8 @@ public:
     const FilterRoleModel* getFilterRoleModel() const;
     Q_INVOKABLE QString getFilterString() const;
     Q_INVOKABLE void setFilterString(const QString& filterString);
-    Q_INVOKABLE int mapToSource(int destIndex);
-    Q_INVOKABLE int mapFromSource(int sourceIndex);
+    Q_INVOKABLE int mapToSource(int destIndex) const;
+    Q_INVOKABLE int mapFromSource(int sourceIndex) const;
     Q_INVOKABLE bool insertSortOrder(int role, Qt::SortOrder sortOrder, int position);
     Q_INVOKABLE bool appendSortOrder(int role, Qt::SortOrder sortOrder);
     Q_INVOKABLE int getSortIndexOfRole(int role) const;
