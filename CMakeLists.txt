@@ -396,6 +396,8 @@ set(YADAW_COMMON_SOURCES
     src/model/PluginListModel.hpp
     src/model/PluginParameterListModel.cpp
     src/model/PluginParameterListModel.hpp
+    src/model/RegularAudioIOPositionModel.cpp
+    src/model/RegularAudioIOPositionModel.hpp
     src/model/SortOrderModel.cpp
     src/model/SortFilterProxyListModel.cpp
     src/model/SpeakerListModel.cpp
