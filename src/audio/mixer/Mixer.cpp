@@ -1172,16 +1172,7 @@ bool Mixer::insertChannel(
                 break;
             }
             std::unique_ptr<YADAW::Audio::Device::IAudioDevice> inputDevice(summing);
-            auto blankReceiver = new (std::nothrow) YADAW::Audio::Mixer::BlankReceiver(
-                channelGroupType, channelCountInGroup
-            );
-            if(!blankReceiver)
-            {
-                break;
-            }
-            std::unique_ptr<YADAW::Audio::Device::IAudioDevice> outputDevice(blankReceiver);
             auto inputDeviceNode = graphWithPDC_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*summing));
-            auto outputDeviceNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*blankReceiver));
             auto fader = std::make_unique<YADAW::Audio::Mixer::VolumeFader>(
                 channelGroupType, channelCountInGroup
             );
