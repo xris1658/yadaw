@@ -156,13 +156,26 @@ public:
         std::uint32_t position, const ade::NodeHandle& outNode, std::uint32_t channel);
     bool removeAudioOutputChannel(std::uint32_t position, std::uint32_t removeCount = 1);
     void clearAudioOutputChannels();
+    // TODO: Reimplement mixer manipulation as transactions
     bool insertChannel(
         std::uint32_t position,
         ChannelType channelType,
         YADAW::Audio::Base::ChannelGroupType chanelGroupType,
         std::uint32_t channelCountInGroup = 0
     );
+    bool insertChannels(
+        std::uint32_t position, std::uint32_t count,
+        ChannelType channelType,
+        YADAW::Audio::Base::ChannelGroupType channelGroupType,
+        std::uint32_t channelCountInGroup = 0
+    );
     bool appendChannel(
+        ChannelType channelType,
+        YADAW::Audio::Base::ChannelGroupType channelGroupType,
+        std::uint32_t channelCountInGroup = 0
+        );
+    bool appendChannels(
+        std::uint32_t count,
         ChannelType channelType,
         YADAW::Audio::Base::ChannelGroupType channelGroupType,
         std::uint32_t channelCountInGroup = 0
