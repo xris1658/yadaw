@@ -293,7 +293,7 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
         dstToSrc_.begin() + acceptedItemCount_ + newItemCount,
         [this](int srcRow) { return this->isAccepted(srcRow); }
     );
-    updateSrcToDst(filteredOutFirst - dstToSrc_.begin(), acceptedItemCount_ + newItemCount);
+    updateSrcToDst(acceptedItemCount_, dstToSrc_.size());
     mergeNewAcceptedItems(newItemCount);
 }
 
