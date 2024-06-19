@@ -139,7 +139,7 @@ bool RegularAudioIOPositionModel::isSearchPassed(int roleIndex, const QModelInde
 
 void RegularAudioIOPositionModel::onSourceModelRowsAboutToBeInserted(const QModelIndex& parent, int start, int end)
 {
-    beginInsertColumns(QModelIndex(), start, end);
+    beginInsertRows(QModelIndex(), start, end);
 }
 
 void RegularAudioIOPositionModel::onSourceModelRowsInserted(const QModelIndex& parent, int start, int end)
