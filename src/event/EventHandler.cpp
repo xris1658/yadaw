@@ -416,7 +416,7 @@ void EventHandler::onOpenMainWindow()
         {
             auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
             audioInputMixerChannels.insert(
-                first,
+                first, 1,
                 YADAW::Model::IMixerChannelListModel::ChannelTypes::ChannelTypeAudioHardwareInput,
                 static_cast<YADAW::Entity::ChannelConfig::Config>(
                     appAudioBusInputConfigurationModel.data(
@@ -442,7 +442,7 @@ void EventHandler::onOpenMainWindow()
         {
             auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
             audioOutputMixerChannels.insert(
-                first,
+                first, 1,
                 YADAW::Model::IMixerChannelListModel::ChannelTypes::ChannelTypeAudioHardwareOutput,
                 appAudioBusOutputConfigurationModel.data(
                     appAudioBusOutputConfigurationModel.index(first),

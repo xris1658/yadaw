@@ -897,8 +897,8 @@ ApplicationWindow {
         }
         onAccepted: {
             let trackName = name? name: placeholderName;
+            mixerChannelModel.insert(position, count, trackType, channelConfig);
             if(count === 1) {
-                mixerChannelModel.insert(position, trackType, channelConfig);
                 let index = mixerChannelModel.index(position, 0);
                 mixerChannelModel.setData(
                     index,
@@ -913,7 +913,6 @@ ApplicationWindow {
             }
             else {
                 for(let i = 0; i < count; ++i) {
-                    mixerChannelModel.insert(position + i, trackType, channelConfig);
                     let index = mixerChannelModel.index(position + i, 0);
                     mixerChannelModel.setData(
                         index,

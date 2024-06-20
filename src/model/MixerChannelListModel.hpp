@@ -37,10 +37,10 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 public:
-    bool insert(int position, ChannelTypes type,
+    bool insert(int position, int count, ChannelTypes type,
         YADAW::Entity::ChannelConfig::Config channelConfig,
         int channelCountInGroup = 0) override;
-    bool append(ChannelTypes type,
+    bool append(int count, ChannelTypes type,
         YADAW::Entity::ChannelConfig::Config channelConfig,
         int channelCountInGroup = 0) override;
     bool remove(int position, int removeCount) override;

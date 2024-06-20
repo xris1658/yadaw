@@ -77,10 +77,10 @@ public:
     static constexpr int columnCount() { return 1; }
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:
-    Q_INVOKABLE virtual bool insert(int position, ChannelTypes type,
+    Q_INVOKABLE virtual bool insert(int position, int count, ChannelTypes type,
         YADAW::Entity::ChannelConfig::Config channelConfig,
         int channelCount = 0) = 0;
-    Q_INVOKABLE virtual bool append(ChannelTypes type,
+    Q_INVOKABLE virtual bool append(int count, ChannelTypes type,
         YADAW::Entity::ChannelConfig::Config channelConfig,
         int channelCount = 0) = 0;
     Q_INVOKABLE virtual bool remove(int position, int removeCount) = 0;
