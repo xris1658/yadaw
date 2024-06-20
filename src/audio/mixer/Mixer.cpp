@@ -1281,12 +1281,10 @@ bool Mixer::insertChannels(
                 {
                     auto node = graph_.addNode(
                         YADAW::Audio::Engine::AudioDeviceProcess(
-                            static_cast<YADAW::Audio::Mixer::BlankGenerator&>(
-                                *inputDevicesAndNode[i].first
-                            )
+                            *blankGenerators[i]
                         )
                     );
-                    inputDevicesAndNode.emplace_back(blankGenerators[i].release(), node);
+                    inputDevicesAndNode.emplace_back(std::move(blankGenerators[i]), node);
                 }
             }
             // faders ----------------------------------------------------------
@@ -1343,7 +1341,7 @@ bool Mixer::insertChannels(
             // pre-fader inserts -----------------------------------------------
             std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts;
             preFaderInserts.reserve(count);
-            FOR_RANGE0(i, preFaderInserts.size())
+            FOR_RANGE0(i, count)
             {
                 preFaderInserts.emplace_back(
                     std::make_unique<YADAW::Audio::Mixer::Inserts>(
@@ -1356,7 +1354,7 @@ bool Mixer::insertChannels(
             // post-fader inserts ----------------------------------------------
             std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts;
             postFaderInserts.reserve(count);
-            FOR_RANGE0(i, postFaderInserts.size())
+            FOR_RANGE0(i, count)
             {
                 postFaderInserts.emplace_back(
                     std::make_unique<YADAW::Audio::Mixer::Inserts>(
@@ -1402,6 +1400,12 @@ bool Mixer::insertChannels(
                     faders_, faders_.begin() + position
                 )
             );
+            std::move(
+                mutesAndNode.begin(), mutesAndNode.end(),
+                std::inserter(
+                    mutes_, mutes_.begin() + position
+                )
+            );
             ret = true;
             break;
         }
@@ -1426,9 +1430,7 @@ bool Mixer::insertChannels(
                 {
                     auto node = graph_.addNode(
                         YADAW::Audio::Engine::AudioDeviceProcess(
-                            static_cast<YADAW::Audio::Mixer::BlankGenerator&>(
-                                *(inputDevicesAndNode[i].first)
-                            )
+                            *summings[i]
                         )
                     );
                     inputDevicesAndNode.emplace_back(summings[i].release(), node);
@@ -1488,7 +1490,7 @@ bool Mixer::insertChannels(
             // pre-fader inserts -----------------------------------------------
             std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts;
             preFaderInserts.reserve(count);
-            FOR_RANGE0(i, preFaderInserts.size())
+            FOR_RANGE0(i, count)
             {
                 preFaderInserts.emplace_back(
                     std::make_unique<YADAW::Audio::Mixer::Inserts>(
@@ -1501,7 +1503,7 @@ bool Mixer::insertChannels(
             // post-fader inserts ----------------------------------------------
             std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts;
             postFaderInserts.reserve(count);
-            FOR_RANGE0(i, postFaderInserts.size())
+            FOR_RANGE0(i, count)
             {
                 postFaderInserts.emplace_back(
                     std::make_unique<YADAW::Audio::Mixer::Inserts>(
@@ -1548,6 +1550,12 @@ bool Mixer::insertChannels(
                     faders_, faders_.begin() + position
                 )
             );
+            std::move(
+                mutesAndNode.begin(), mutesAndNode.end(),
+                std::inserter(
+                    mutes_, mutes_.begin() + position
+                )
+            );
             ret = true;
             break;
         }
@@ -1555,17 +1563,13 @@ bool Mixer::insertChannels(
     }
     if(ret)
     {
-        std::generate_n(
+        std::fill_n(
             std::inserter(channelInfo_, channelInfo_.begin() + position), count,
-            [channelType]()
-            {
-                return ChannelInfo {
-                    .channelType = channelType
-                };
+            ChannelInfo {
+                .channelType = channelType
             }
         );
         std::generate_n(
-            std::execution::seq,
             std::inserter(channelId_, channelId_.begin() + position), count,
             [this]()
             {
@@ -1586,16 +1590,12 @@ bool Mixer::insertChannels(
                 channelId_[position + i], position + i
             );
         }
-        std::generate_n(
-            std::execution::seq,
+        std::fill_n(
             std::inserter(mainOutput_, mainOutput_.begin() + position), count,
-            []()
-            {
-                return Position {
-                    .type = Position::Invalid,
-                    .channelGroupIndex = 0,
-                    .id = IDGen::InvalidId
-                };
+            Position {
+                .type = Position::Invalid,
+                .channelGroupIndex = 0,
+                .id = IDGen::InvalidId
             }
         );
         nodeAddedCallback_(*this);
@@ -1618,7 +1618,7 @@ bool Mixer::appendChannels(
     std::uint32_t channelCountInGroup)
 {
     return insertChannels(
-        channelCount(), channelType, channelGroupType, channelCountInGroup);
+        channelCount(), count, channelType, channelGroupType, channelCountInGroup);
 }
 
 bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
