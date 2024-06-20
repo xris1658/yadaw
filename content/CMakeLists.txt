@@ -38,6 +38,7 @@ set(CONTENT_CPP_FILES
     model/IPluginDirectoryListModel.hpp
     model/IPluginListModel.hpp
     model/IPluginParameterListModel.hpp
+    model/ISendListModel.hpp
     model/ISortFilterListModel.hpp
     model/ISpeakerListModel.hpp
     model/ITrackListModel.hpp
