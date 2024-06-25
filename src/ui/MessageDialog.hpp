@@ -20,6 +20,8 @@ enum IconType
 extern QQuickWindow* messageDialog;
 
 void createMessageDialog();
+
+int getMessageDialogResult();
 }
 
 #endif // YADAW_SRC_UI_MESSAGEDIALOG

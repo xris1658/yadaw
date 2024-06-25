@@ -171,6 +171,7 @@ void EventHandler::onOpenMainWindow()
             messageDialog->setTitle(YADAW::Base::ProductName);
             messageDialog->setModality(Qt::WindowModality::ApplicationModal);
             messageDialog->setVisible(true);
+            YADAW::UI::getMessageDialogResult();
         }
     }
     const auto& currentOutputDeviceId = backend.currentOutputDevice().id;

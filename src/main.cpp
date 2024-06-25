@@ -143,6 +143,7 @@ int main(int argc, char *argv[])
                     messageDialog->setVisible(true);
                 }
                 messageDialog->showNormal();
+                YADAW::UI::getMessageDialogResult();
             }
             YADAW::Controller::currentTranslationIndex = i;
             break;
@@ -168,6 +169,7 @@ int main(int argc, char *argv[])
             messageDialog->setVisible(true);
         }
         messageDialog->showNormal();
+        YADAW::UI::getMessageDialogResult();
         YADAW::Controller::currentTranslationIndex = 0;
     }
     engine.loadFromModule("Main", "Events");
