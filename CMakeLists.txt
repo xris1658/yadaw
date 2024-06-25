@@ -343,7 +343,11 @@ set(YADAW_COMMON_SOURCES
     src/entity/ChannelConfigHelper.hpp
     src/entity/EntityInitializer.cpp
     src/entity/EntityInitializer.hpp
+    src/entity/HardwareAudioIOPosition.cpp
+    src/entity/HardwareAudioIOPosition.hpp
     src/entity/PluginFormatSupport.cpp
+    src/entity/RegularAudioIOPosition.cpp
+    src/entity/RegularAudioIOPosition.hpp
     src/event/EventBase.cpp
     src/event/EventBase.hpp
     src/event/EventHandler.cpp

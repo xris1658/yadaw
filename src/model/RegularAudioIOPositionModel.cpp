@@ -54,23 +54,10 @@ QVariant RegularAudioIOPositionModel::data(const QModelIndex& index, int role) c
     {
         switch(role)
         {
-        case Role::ID:
-            return model_.data(index, IMixerChannelListModel::Role::Id);
-        case Role::Name:
-            return model_.data(index, IMixerChannelListModel::Role::Name);
-        case Role::Type:
-        {
-            auto typeAsInt = model_.valueOfFilter(IMixerChannelListModel::Role::ChannelType).value<int>();
-            if(typeAsInt == IMixerChannelListModel::ChannelTypes::ChannelTypeAudioFX)
-            {
-                return QVariant::fromValue<int>(IAudioIOPositionModel::PositionType::AudioFXChannel);
-            }
-            if(typeAsInt == IMixerChannelListModel::ChannelTypes::ChannelTypeBus)
-            {
-                return QVariant::fromValue<int>(IAudioIOPositionModel::PositionType::AudioGroupChannel);
-            }
-            return QVariant();
-        }
+        case Role::Position:
+            return QVariant::fromValue<QObject*>(
+                positions_[row].get()
+            );
         case Role::ChannelConfig:
             return model_.data(index, IMixerChannelListModel::Role::ChannelConfig);
         case Role::ChannelCount:
@@ -90,28 +77,25 @@ int RegularAudioIOPositionModel::findIndexByID(const QString& id) const
 
 bool RegularAudioIOPositionModel::isComparable(int roleIndex) const
 {
-    return roleIndex == IAudioIOPositionModel::Role::Name;
+    return roleIndex == IAudioIOPositionModel::Role::Position;
 }
 
 bool RegularAudioIOPositionModel::isSearchable(int roleIndex) const
 {
-    return roleIndex == IAudioIOPositionModel::Role::Name;
+    return roleIndex == IAudioIOPositionModel::Role::Position;
 }
 
 bool RegularAudioIOPositionModel::isFilterable(int roleIndex) const
 {
-    return roleIndex == IAudioIOPositionModel::Role::ID
-        || roleIndex == IAudioIOPositionModel::Role::Type
-        || roleIndex == IAudioIOPositionModel::Role::ChannelConfig
+    return roleIndex == IAudioIOPositionModel::Role::ChannelConfig
         || roleIndex == IAudioIOPositionModel::Role::ChannelCount;
 }
 
 bool RegularAudioIOPositionModel::isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const
 {
-    if(roleIndex == IAudioIOPositionModel::Role::Name)
+    if(roleIndex == IAudioIOPositionModel::Role::Position)
     {
-        return data(lhs, roleIndex).value<QString>()
-            < data(rhs, roleIndex).value<QString>();
+        return positions_[lhs.row()]->getName() < positions_[rhs.row()]->getName();
     }
     return false;
 }
@@ -128,13 +112,18 @@ bool RegularAudioIOPositionModel::isPassed(const QModelIndex& modelIndex, int ro
 bool RegularAudioIOPositionModel::isSearchPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string,
     Qt::CaseSensitivity caseSensitivity) const
 {
-    if(roleIndex == IAudioIOPositionModel::Role::Name)
+    if(roleIndex == IAudioIOPositionModel::Role::Position)
     {
-        return data(modelIndex, roleIndex).value<QString>().contains(
+        return positions_[modelIndex.row()]->getName().contains(
             string, caseSensitivity
         );
     }
     return true;
+}
+
+const YADAW::Model::SortFilterProxyListModel& RegularAudioIOPositionModel::getModel() const
+{
+    return model_;
 }
 
 void RegularAudioIOPositionModel::onSourceModelRowsAboutToBeInserted(const QModelIndex& parent, int start, int end)
@@ -142,8 +131,23 @@ void RegularAudioIOPositionModel::onSourceModelRowsAboutToBeInserted(const QMode
     beginInsertRows(QModelIndex(), start, end);
 }
 
-void RegularAudioIOPositionModel::onSourceModelRowsInserted(const QModelIndex& parent, int start, int end)
+void RegularAudioIOPositionModel::onSourceModelRowsInserted(
+    const QModelIndex& parent, int start, int end)
 {
+    std::generate_n(
+        std::inserter(positions_, positions_.begin() + start),
+        end - start + 1,
+        [this, i = start]() mutable
+        {
+            return std::unique_ptr<YADAW::Entity::RegularAudioIOPosition>(
+                new YADAW::Entity::RegularAudioIOPosition(*this, i++)
+            );
+        }
+    );
+    FOR_RANGE(i, end + 1, positions_.size())
+    {
+        positions_[i]->updateIndex(i);
+    }
     endInsertRows();
 }
 
@@ -154,6 +158,14 @@ void RegularAudioIOPositionModel::onSourceModelRowsAboutToBeRemoved(const QModel
 
 void RegularAudioIOPositionModel::onSourceModelRowsRemoved(const QModelIndex& parent, int first, int last)
 {
+    positions_.erase(
+        positions_.begin() + first,
+        positions_.begin() + last + 1
+    );
+    FOR_RANGE(i, first, positions_.size())
+    {
+        positions_[i]->updateIndex(i);
+    }
     endRemoveRows();
 }
 
@@ -165,11 +177,7 @@ void RegularAudioIOPositionModel::onSourceModelDataChanged(const QModelIndex& to
     {
         if(role == YADAW::Model::IMixerChannelListModel::Role::Name)
         {
-            destRoles.append(IAudioIOPositionModel::Role::Name);
-        }
-        else if(role == YADAW::Model::IMixerChannelListModel::Role::Id)
-        {
-            destRoles.append(IAudioIOPositionModel::Role::ID);
+            destRoles.append(IAudioIOPositionModel::Role::Position);
         }
     }
     dataChanged(

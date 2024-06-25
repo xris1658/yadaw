@@ -31,15 +31,15 @@ QC.Popup {
 
     property int audioChannelConfig: -1
     property alias currentIndex: stackLayout.currentIndex
-    property string currentId: "0"
+    property IAudioIOPosition currentPosition: null
 
     readonly property var audioIOTypes: [
-        AudioIOPosition.AudioHardwareIOChannel,
-        AudioIOPosition.AudioHardwareIOChannel,
-        AudioIOPosition.BusAndFXChannel,
-        AudioIOPosition.BusAndFXChannel,
-        AudioIOPosition.PluginAuxIO,
-        AudioIOPosition.PluginAuxIO
+       IAudioIOPosition.AudioHardwareIOChannel,
+       IAudioIOPosition.AudioHardwareIOChannel,
+       IAudioIOPosition.BusAndFXChannel,
+       IAudioIOPosition.BusAndFXChannel,
+       IAudioIOPosition.PluginAuxIO,
+       IAudioIOPosition.PluginAuxIO
     ]
 
     signal accepted()
@@ -89,11 +89,11 @@ QC.Popup {
         id: audioIOPositionComponent
         ItemDelegate {
             width: parent.width
-            text: aiopm_name
+            text: aiopm_position.completeName
             highlighted: ListView.view.currentIndex === index
             onClicked: {
                 ListView.view.currentIndex = index;
-                root.currentId = aiopm_id;
+                // root.currentId = aiopm_id;
             }
         }
     }

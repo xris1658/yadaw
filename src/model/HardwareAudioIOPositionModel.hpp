@@ -2,6 +2,7 @@
 #define YADAW_SRC_MODEL_HARDWAREAUDIOIOPOSITIONMODEL
 
 #include "MixerChannelListModel.hpp"
+#include "entity/HardwareAudioIOPosition.hpp"
 #include "model/IAudioIOPositionModel.hpp"
 
 namespace YADAW::Model
@@ -28,6 +29,8 @@ public:
     bool isSearchPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string,
         Qt::CaseSensitivity caseSensitivity) const override;
     bool isPassed(const QModelIndex& modelIndex, int role, const QVariant& variant) const override;
+public:
+    const YADAW::Model::MixerChannelListModel& getModel() const;
 private slots:
     void onSourceModelRowsAboutToBeInserted(
         const QModelIndex& parent, int start, int end
@@ -47,6 +50,7 @@ private slots:
     );
 private:
     YADAW::Model::MixerChannelListModel* audioHardwareIOModel_;
+    std::vector<std::unique_ptr<YADAW::Entity::HardwareAudioIOPosition>> positions_;
 };
 }
 

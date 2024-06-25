@@ -88,44 +88,24 @@ Rectangle {
         id: connectToAudioIOSelector
         target: impl.usingAudioIOSelector? audioIOSelectorWindow: null
         function onAccepted() {
-            let audioIOPosition = Qt.createQmlObject(
-                `
-                import YADAW.Entities
-                AudioIOPosition {}
-                `,
-                root, "MixerChannel"
-            );
-            audioIOPosition.type = audioIOSelectorWindow.audioIOSelector.audioIOTypes[audioIOSelectorWindow.audioIOSelector.currentIndex];
-            audioIOPosition.id = audioIOSelectorWindow.audioIOSelector.currentId;
             if(impl.selectingInput) {
-                mclm_input = audioIOPosition;
+                mclm_input = audioIOSelectorWindow.audioIOSelector.currentPosition;
                 impl.selectingInput = false;
             }
             if(impl.selectingOutput) {
-                mclm_output = audioIOPosition;
+                mclm_input = audioIOSelectorWindow.audioIOSelector.currentPosition;
                 impl.selectingOutput = false;
             }
-            audioIOPosition.destroy();
         }
         function onResetted() {
-            let audioIOPosition = Qt.createQmlObject(
-                `
-                import YADAW.Entities
-                AudioIOPosition {
-                    type: AudioIOPosition.Invalid
-                }
-                `,
-                root, "MixerChannel"
-            );
             if(impl.selectingInput) {
-                mclm_input = audioIOPosition;
+                mclm_input = null;
                 impl.selectingInput = false;
             }
             if(impl.selectingOutput) {
-                mclm_output = audioIOPosition;
+                mclm_output = null;
                 impl.selectingOutput = false;
             }
-            audioIOPosition.destroy();
         }
         function onCancelled() {
             impl.usingAudioIOSelector = false;

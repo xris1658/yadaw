@@ -19,6 +19,7 @@ set(CONTENT_CPP_FILES
     entity/AudioBackendSupport.hpp
     entity/AudioIOPosition.hpp
     entity/ChannelConfig.hpp
+    entity/IAudioIOPosition.hpp
     entity/PluginFormatSupport.hpp
     model/FilterRoleModel.hpp
     model/IAssetDirectoryListModel.hpp

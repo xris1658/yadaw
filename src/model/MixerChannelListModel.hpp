@@ -4,6 +4,7 @@
 #include "model/IMixerChannelListModel.hpp"
 
 #include "audio/mixer/Mixer.hpp"
+#include "entity/IAudioIOPosition.hpp"
 #include "model/AudioDeviceIOGroupListModel.hpp"
 
 #include <memory>
@@ -73,6 +74,7 @@ private:
     std::vector<std::unique_ptr<InstrumentInstance>> instruments_;
     mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> instrumentAudioInputs_;
     mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> instrumentAudioOutputs_;
+    std::vector<YADAW::Entity::IAudioIOPosition*> mainOutput_;
     std::vector<ade::NodeHandle> blankInputNodes_;
     std::vector<bool> instrumentBypassed_;
     ListType listType_;

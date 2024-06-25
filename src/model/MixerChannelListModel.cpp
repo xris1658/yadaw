@@ -12,6 +12,8 @@
 #include "dao/PluginTable.hpp"
 #include "entity/AudioIOPosition.hpp"
 #include "entity/ChannelConfigHelper.hpp"
+#include "entity/HardwareAudioIOPosition.hpp"
+#include "entity/RegularAudioIOPosition.hpp"
 #include "event/EventBase.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
 #include "util/Base.hpp"
@@ -286,13 +288,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         {
             if(listType_ == ListType::Regular)
             {
-                auto optionalMainOutput = mixer_.mainOutputAt(row);
-                if(optionalMainOutput.has_value())
-                {
-                    return QVariant::fromValue(
-                        YADAW::Entity::AudioIOPosition(optionalMainOutput->get())
-                    );
-                }
+                return QVariant::fromValue<QObject*>(mainOutput_[row]);
             }
             return QVariant();
         }
@@ -410,13 +406,44 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         {
             if(listType_ == ListType::Regular)
             {
-                auto position = static_cast<YADAW::Entity::AudioIOPosition*>(value.value<QObject*>());
-                auto ret = mixer_.setMainOutputAt(
-                    row, position->position_
-                );
+                auto ret = false;
+                auto pPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(value.value<QObject*>());
+                if(!pPosition)
+                {
+                    ret = mixer_.setMainOutputAt(
+                        row,
+                        YADAW::Audio::Mixer::Mixer::Position {
+                            .type = YADAW::Audio::Mixer::Mixer::Position::Type::Invalid
+                        }
+                    );
+                }
+                else
+                {
+                    switch(pPosition->getType())
+                    {
+                    case YADAW::Entity::IAudioIOPosition::Type::AudioHardwareIOChannel:
+                    {
+                        const auto& hardwareAudioIOPosition = static_cast<const YADAW::Entity::HardwareAudioIOPosition&>(*pPosition);
+                        ret = mixer_.setMainOutputAt(
+                            row,
+                            static_cast<YADAW::Audio::Mixer::Mixer::Position>(hardwareAudioIOPosition)
+                        );
+                        break;
+                    }
+                    case YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel:
+                    {
+                        const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioIOPosition&>(*pPosition);
+                        ret = mixer_.setMainOutputAt(
+                            row,
+                            static_cast<YADAW::Audio::Mixer::Mixer::Position>(regularAudioIOPosition)
+                        );
+                        break;
+                    }
+                    }
+                }
                 if(ret)
                 {
-                    dataChanged(this->index(row), this->index(row), {Role::Output});
+                    dataChanged(this->index(row), this->index(row, {Role::Output}));
                 }
                 return ret;
             }
@@ -553,6 +580,11 @@ bool MixerChannelListModel::insert(int position, int count,
                 ), count, false
             );
             updateInstrumentConnections(position + count);
+            std::fill_n(
+                std::inserter(
+                    mainOutput_, mainOutput_.begin() + position),
+                    count, nullptr
+                );
             endInsertRows();
         }
         return ret;

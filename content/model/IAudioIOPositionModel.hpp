@@ -12,9 +12,7 @@ class IAudioIOPositionModel: public ISortFilterListModel
 public:
     enum Role
     {
-        ID = Qt::UserRole,
-        Name,
-        Type,
+        Position = Qt::UserRole,
         ChannelConfig,
         ChannelCount,
         RoleCount
@@ -45,9 +43,7 @@ protected:
     {
         static RoleNames ret
         {
-            std::make_pair(Role::ID,            "aiopm_id"),
-            std::make_pair(Role::Name,          "aiopm_name"),
-            std::make_pair(Role::Type,          "aiopm_type"),
+            std::make_pair(Role::Position,      "aiopm_position"),
             std::make_pair(Role::ChannelConfig, "aiopm_channel_config"),
             std::make_pair(Role::ChannelCount,  "aiopm_channel_count")
         };

@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_MODEL_REGULARAUDIOIOPOSITIONMODEL
 #define YADAW_SRC_MODEL_REGULARAUDIOIOPOSITIONMODEL
 
+#include "entity/RegularAudioIOPosition.hpp"
 #include "model/IAudioIOPositionModel.hpp"
 #include "model/IMixerChannelListModel.hpp"
 #include "model/SortFilterProxyListModel.hpp"
@@ -32,6 +33,8 @@ public:
         const QString& string,
         Qt::CaseSensitivity caseSensitivity) const override;
 public:
+    const YADAW::Model::SortFilterProxyListModel& getModel() const;
+public:
     void onSourceModelRowsAboutToBeInserted(
         const QModelIndex& parent, int start, int end);
     void onSourceModelRowsInserted(
@@ -48,6 +51,7 @@ public:
     );
 private:
     YADAW::Model::SortFilterProxyListModel model_;
+    std::vector<std::unique_ptr<YADAW::Entity::RegularAudioIOPosition>> positions_;
 };
 }
 
