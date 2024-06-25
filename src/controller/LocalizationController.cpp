@@ -43,10 +43,7 @@ void initializeLocalizationListModel(YADAW::Model::LocalizationListModel& model)
                     for(const auto& i: translationFileListNode)
                     {
                         auto translationFileName = QString::fromStdString(i.as<std::string, std::string>({}));
-                        if(subdir.exists(translationFileName))
-                        {
-                            translationFileList.emplace_back(subdir.absoluteFilePath(translationFileName));
-                        }
+                        translationFileList.emplace_back(subdir.absoluteFilePath(translationFileName));
                     }
                     std::vector<QString> fontFamilyList;
                     const auto& fontFamilyListNode = node["font-family"];
@@ -61,10 +58,7 @@ void initializeLocalizationListModel(YADAW::Model::LocalizationListModel& model)
                     for(const auto& i: fontListNode)
                     {
                         auto fileName = QString::fromStdString(i.as<std::string, std::string>({}));
-                        if(subdir.exists(fileName))
-                        {
-                            fontList.emplace_back(subdir.absoluteFilePath(fileName));
-                        }
+                        fontList.emplace_back(subdir.absoluteFilePath(fileName));
                     }
                     model.append(
                         YADAW::Model::LocalizationListModel::Item {

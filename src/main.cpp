@@ -1,3 +1,4 @@
+#include "base/Constants.hpp"
 #include "controller/ConfigController.hpp"
 #include "controller/LocalizationController.hpp"
 #include "controller/PluginWindowController.hpp"
@@ -78,6 +79,14 @@ int main(int argc, char *argv[])
     );
     YADAW::Controller::initializeApplicationConfig();
     auto config = YADAW::Controller::loadConfig();
+    auto systemFontRendering = config["general"]["system-font-rendering"].as<bool>();
+    if(systemFontRendering)
+    {
+        if((!YADAW::Native::isDebuggerPresent()) || config["general"]["system-font-rendering-while-debugging"].as<bool>())
+        {
+            QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
+        }
+    }
     QDir dir(YADAW::UI::defaultFontDir());
     if(dir.exists())
     {
@@ -103,38 +112,63 @@ int main(int argc, char *argv[])
                     return translator.load(QLocale(localization.languageCode), translationFile);
                 }
             );
-            if(fileCountLoaded == translationFileList.size())
+            QCoreApplication::installTranslator(&translator);
+            for(const auto& font: localization.fontList)
             {
-                QCoreApplication::installTranslator(&translator);
-                for(const auto& font: localization.fontList)
-                {
-                    QFontDatabase::addApplicationFont(font);
-                }
-                QString fontName("Fira Sans");
-                for(const auto& fontFamily: localization.fontFamilyList)
-                {
-                    QFont::insertSubstitution(fontName, fontFamily);
-                }
-                YADAW::Controller::currentTranslationIndex = i;
+                QFontDatabase::addApplicationFont(font);
             }
-            else
+            QString fontName("Fira Sans");
+            for(const auto& fontFamily: localization.fontFamilyList)
             {
-                // TODO: Inform the user that translation file cannot be loaded
+                QFont::insertSubstitution(fontName, fontFamily);
             }
+            if(fileCountLoaded != translationFileList.size())
+            {
+                YADAW::UI::createMessageDialog();
+                auto messageDialog = YADAW::UI::messageDialog;
+                if(messageDialog)
+                {
+                    messageDialog->setProperty(
+                        "icon",
+                        QVariant::fromValue<int>(YADAW::UI::IconType::Warning)
+                    );
+                    messageDialog->setProperty(
+                        "message",
+                        QVariant::fromValue<QString>(
+                            "Failed to load some translation files. YADAW will use the files loaded, with English as fallback."
+                        )
+                    );
+                    messageDialog->setTitle(YADAW::Base::ProductName);
+                    messageDialog->setModality(Qt::WindowModality::ApplicationModal);
+                    messageDialog->setVisible(true);
+                }
+                messageDialog->showNormal();
+            }
+            YADAW::Controller::currentTranslationIndex = i;
             break;
         }
     }
     if(YADAW::Controller::currentTranslationIndex == -1)
     {
-        YADAW::Controller::currentTranslationIndex = 0;
-    }
-    auto systemFontRendering = config["general"]["system-font-rendering"].as<bool>();
-    if(systemFontRendering)
-    {
-        if((!YADAW::Native::isDebuggerPresent()) || config["general"]["system-font-rendering-while-debugging"].as<bool>())
+        YADAW::UI::createMessageDialog();
+        auto dialog = YADAW::UI::messageDialog;
+        auto messageDialog = YADAW::UI::messageDialog;
+        if(messageDialog)
         {
-            QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
+            messageDialog->setProperty(
+                "icon",
+                QVariant::fromValue<int>(YADAW::UI::IconType::Warning)
+            );
+            messageDialog->setProperty(
+                "message",
+                QVariant::fromValue<QString>("The selecting translation file does not exist. YADAW is showing English as fallback.")
+            );
+            messageDialog->setTitle(YADAW::Base::ProductName);
+            messageDialog->setModality(Qt::WindowModality::ApplicationModal);
+            messageDialog->setVisible(true);
         }
+        messageDialog->showNormal();
+        YADAW::Controller::currentTranslationIndex = 0;
     }
     engine.loadFromModule("Main", "Events");
     YADAW::Event::EventHandler eh(YADAW::Event::eventSender, YADAW::Event::eventReceiver);
