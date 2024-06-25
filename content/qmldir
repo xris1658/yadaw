@@ -82,6 +82,7 @@ RemoveIcon 1.0 RemoveIcon.qml
 RenameIcon 1.0 RenameIcon.qml
 RouteList 1.0 RouteList.qml
 ScrollBar 1.0 ScrollBar.qml
+SendButton 1.0 SendButton.qml
 SendIcon 1.0 SendIcon.qml
 ShowLeftPaneIcon 1.0 ShowLeftPaneIcon.qml
 Slider 1.0 Slider.qml

@@ -11,6 +11,7 @@ T.Button {
     property alias border: background.border
     property alias backgroundColor: background.color
     property alias contentColor: label.color
+    readonly property int maxBorderWidth: 2
 
     topPadding: 3
     bottomPadding: 3
@@ -34,7 +35,7 @@ T.Button {
         anchors.rightMargin: root.rightInset
         border.color: root.enabled? Colors.controlBorder:
             Colors.disabledControlBorder
-        border.width: root.activeFocus? 2: 1
+        border.width: root.activeFocus? root.maxBorderWidth: 1
         color: (!root.enabled)?
             Colors.background:
             root.checked?

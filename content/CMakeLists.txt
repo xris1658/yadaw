@@ -130,6 +130,7 @@ set(CONTENT_QML_FILES
     RenameIcon.qml
     RouteList.qml
     ScrollBar.qml
+    SendButton.qml
     SendIcon.qml
     ShowLeftPaneIcon.qml
     Slider.qml
