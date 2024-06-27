@@ -22,6 +22,7 @@
 #include "model/ITrackListModel.hpp"
 
 #include "model/FilterRoleModel.hpp"
+#include "model/MessageDialogButtonBoxModel.hpp"
 #include "model/SortFilterProxyListModel.hpp"
 #include "model/SortOrderModel.hpp"
 
@@ -52,6 +53,7 @@ void initializeModel()
     QML_REGISTER_UNCREATABLE_TYPE(ITrackListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
 
     QML_REGISTER_TYPE(FilterRoleModel, YADAW.Models, 1, 0);
+    QML_REGISTER_TYPE(MessageDialogButtonBoxModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(SortFilterProxyListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(SortOrderModel, YADAW.Models, 1, 0);
 }

@@ -383,6 +383,7 @@ set(YADAW_COMMON_SOURCES
     src/model/ListModelListModel.cpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
+    src/model/MessageDialogButtonBoxModel.cpp
     src/model/MixerChannelInsertListModel.cpp
     src/model/MixerChannelInsertListModel.hpp
     src/model/MixerChannelListModel.cpp

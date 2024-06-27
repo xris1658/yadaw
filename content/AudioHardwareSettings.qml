@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 
 import YADAW.Entities
+import YADAW.Models
 
 Item {
     id: root
@@ -42,22 +43,23 @@ Item {
         message: qsTr("The audio backend will be switched from <b>%1</b> to <b>%2</b>, so the audio capture and playback will be interrupted.\nProceed?")
             .arg(audioEngineSelector.model.get(currentBackend).name).arg(audioEngineSelector.currentText)
         title: "YADAW"
-        buttonModel: ListModel {
-            ListElement {
-                buttonRole: DialogButtons.Yes
-                buttonText: qsTr("&Switch")
-            }
-            ListElement {
-                buttonRole: DialogButtons.No
-                buttonText: qsTr("&Keep")
+        buttonModel: MessageDialogButtonBoxModel {
+            Component.onCompleted: {
+                append(MessageDialogButtonBoxModel.ButtonRoleYes, qsTr("&Switch"));
+                append(MessageDialogButtonBoxModel.ButtonRoleNo, qsTr("&Keep"));
             }
         }
-        onClicked: (buttonRole) => {
-            if(buttonRole === DialogButtons.Yes) {
+        onClicked: (buttonIndex) => {
+            if(buttonIndex === 0) {
                 currentBackend = audioEngineSelector.currentIndex;
             }
             else {
                 audioEngineSelector.currentIndex = currentBackend;
+            }
+        }
+        onVisibleChanged: {
+            if(visible) {
+                focusButton(1);
             }
         }
     }

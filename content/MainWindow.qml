@@ -54,12 +54,18 @@ ApplicationWindow {
 
     property PluginScanProgressWindow pluginScanProgressWindow: pluginScanProgressWindow
 
+    MessageDialog {
+        id: restartMessageDialog
+        message: qsTr("The settings are saved. Please restart the application to apply the new settings.")
+        icon: MessageDialog.Icon.Info
+        title: "YADAW"
+    }
+
     onCurrentTranslationIndexChanged: {
         if(opened) {
             EventSender.setTranslationIndex(currentTranslationIndex);
-            Global.messageDialog(qsTr("The settings are saved. Please restart the application to apply the new settings."),
-                "YADAW",
-                MessageDialog.Icon.Info);
+            restartMessageDialog.focusButton(0);
+            restartMessageDialog.showNormal();
         }
     }
 
@@ -785,17 +791,15 @@ ApplicationWindow {
         onSystemFontRenderingChanged: {
             if(opened) {
                 EventSender.setSystemFontRendering(systemFontRendering);
-                Global.messageDialog(qsTr("The settings are saved. Please restart the application to apply the new settings."),
-                    "YADAW",
-                    MessageDialog.Info);
+                restartMessageDialog.focusButton(0);
+                restartMessageDialog.showNormal();
             }
         }
         onSystemFontRenderingWhileDebuggingChanged: {
             if(opened) {
                 EventSender.setSystemFontRenderingWhileDebugging(systemFontRenderingWhileDebugging);
-                Global.messageDialog(qsTr("The settings are saved. Please restart the application to apply the new settings."),
-                    "YADAW",
-                    MessageDialog.Info);
+                restartMessageDialog.focusButton(0);
+                restartMessageDialog.showNormal();
             }
         }
     }

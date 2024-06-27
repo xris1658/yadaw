@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Window
 
+import YADAW.Models
+
 Window {
     id: root
     // ui/MessageDialog.hpp
@@ -25,9 +27,13 @@ Window {
     y: (screen.height - height) / 2
     property string message: "Message Text"
     title: "Title of dialog"
-    signal clicked(buttonRole: int)
-    onClicked: (buttonRole) => {
+    signal clicked(buttonIndex: int)
+    onClicked: (buttonIndex) => {
         close();
+    }
+    signal focusButton(buttonIndex: int)
+    onFocusButton: (buttonIndex) => {
+        dialogButtonBox.focusButton(buttonIndex);
     }
     Row {
         id: row
@@ -65,15 +71,13 @@ Window {
         anchors.top: row.bottom
         anchors.right: parent.right
         anchors.rightMargin: 10
-        model: ListModel {
-            ListElement {
-                buttonRole: DialogButtons.Ok
+        model: MessageDialogButtonBoxModel {
+            Component.onCompleted: {
+                append(MessageDialogButtonBoxModel.ButtonRoleOk, "");
             }
         }
-        onButtonClicked: (buttonRole) => {
-            root.clicked(buttonRole);
+        onButtonClicked: (buttonIndex) => {
+            root.clicked(buttonIndex);
         }
-    }
-    Component.onCompleted: {
     }
 }

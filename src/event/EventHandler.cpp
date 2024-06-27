@@ -171,6 +171,7 @@ void EventHandler::onOpenMainWindow()
             messageDialog->setTitle(YADAW::Base::ProductName);
             messageDialog->setModality(Qt::WindowModality::ApplicationModal);
             messageDialog->setVisible(true);
+            YADAW::UI::focusMessageDialogButton(0);
             YADAW::UI::getMessageDialogResult();
         }
     }

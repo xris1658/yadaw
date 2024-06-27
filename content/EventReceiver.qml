@@ -29,10 +29,6 @@ QtObject {
     onPluginScanComplete: {
         mainWindow.pluginScanComplete();
     }
-    signal messageDialog(message: string, title: string, icon: int, modal: bool)
-    onMessageDialog: (message, title, icon, modal) => {
-        Global.messageDialog(message, title, icon, modal);
-    }
     signal setScanningDirectories(value: bool)
     onSetScanningDirectories: (value) => {
         mainWindow.pluginScanProgressWindow.scanningDirectories = value;

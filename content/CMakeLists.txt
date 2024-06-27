@@ -32,6 +32,7 @@ set(CONTENT_CPP_FILES
     model/ILocalizationListModel.hpp
     model/IMixerChannelInsertListModel.hpp
     model/IMixerChannelListModel.hpp
+    model/MessageDialogButtonBoxModel.hpp
     model/ModelBase.hpp
     model/IParameterValueAndTextListModel.hpp
     model/IPluginCategoryListModel.hpp

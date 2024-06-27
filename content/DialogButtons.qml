@@ -1,13 +1,16 @@
 import QtQuick
 
+import YADAW.Models
+
 Row {
     id: root
     property alias model: buttons.model
-    enum ButtonRole {
-        Ok, Cancel, Apply,
-        Yes, No,
-        YesToAll, NoToAll,
-        Abort, Retry, Ignore
+    signal focusButton(buttonIndex: int)
+    onFocusButton: (buttonIndex) => {
+        let button = buttons.itemAt(buttonIndex);
+        if(button) {
+            button.forceActiveFocus();
+        }
     }
     QtObject {
         id: impl
@@ -29,16 +32,15 @@ Row {
         id: buttons
         model: ListModel {
             ListElement {
-                buttonRole: DialogButtons.Ok
+                buttonRole: MessageDialogButtonBoxModel.ButtonRoleOk
             }
         }
         Button {
-            property int role: buttonRole
-            text: model.buttonText !== undefined? buttonText: impl.buttonText[role - DialogButtons.Ok]
+            text: model.mdbbm_button_text != 0? mdbbm_button_text: impl.buttonText[mdbbm_button_role - MessageDialogButtonBoxModel.ButtonRoleOk]
             onClicked: {
-                root.buttonClicked(role);
+                root.buttonClicked(index);
             }
         }
     }
-    signal buttonClicked(role: int)
+    signal buttonClicked(buttonIndex: int)
 }

@@ -140,8 +140,8 @@ int main(int argc, char *argv[])
                     );
                     messageDialog->setTitle(YADAW::Base::ProductName);
                     messageDialog->setModality(Qt::WindowModality::ApplicationModal);
-                    messageDialog->setVisible(true);
                 }
+                YADAW::UI::focusMessageDialogButton(0);
                 messageDialog->showNormal();
                 YADAW::UI::getMessageDialogResult();
             }
@@ -167,9 +167,11 @@ int main(int argc, char *argv[])
             messageDialog->setTitle(YADAW::Base::ProductName);
             messageDialog->setModality(Qt::WindowModality::ApplicationModal);
             messageDialog->setVisible(true);
+            qDebug("focusMessageDialogButton");
+            YADAW::UI::focusMessageDialogButton(0);
+            messageDialog->showNormal();
+            YADAW::UI::getMessageDialogResult();
         }
-        messageDialog->showNormal();
-        YADAW::UI::getMessageDialogResult();
         YADAW::Controller::currentTranslationIndex = 0;
     }
     engine.loadFromModule("Main", "Events");
