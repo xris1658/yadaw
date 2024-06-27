@@ -8,6 +8,17 @@ HardwareAudioIOPositionModel::HardwareAudioIOPositionModel(
     IAudioIOPositionModel(parent),
     audioHardwareIOModel_(&audioHardwareIOModel)
 {
+    auto count = audioHardwareIOModel.itemCount();
+    positions_.reserve(count);
+    std::generate_n(
+        std::back_inserter(positions_), count,
+        [this, i = 0U]() mutable
+        {
+            return std::unique_ptr<YADAW::Entity::HardwareAudioIOPosition>(
+                new YADAW::Entity::HardwareAudioIOPosition(*this, i++)
+            );
+        }
+    );
     QObject::connect(
         audioHardwareIOModel_, &YADAW::Model::MixerChannelListModel::rowsAboutToBeInserted,
         this, &HardwareAudioIOPositionModel::onSourceModelRowsAboutToBeInserted

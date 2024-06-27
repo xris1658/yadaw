@@ -5,11 +5,22 @@
 namespace YADAW::Model
 {
 RegularAudioIOPositionModel::RegularAudioIOPositionModel(
-    YADAW::Model::IMixerChannelListModel& model,
+    YADAW::Model::MixerChannelListModel& model,
     YADAW::Model::IMixerChannelListModel::ChannelTypes type, QObject* parent):
     IAudioIOPositionModel(parent),
     model_(model)
 {
+    auto count = model.itemCount();
+    positions_.reserve(count);
+    std::generate_n(
+        std::back_inserter(positions_), count,
+        [this, i = 0U]() mutable
+        {
+            return std::unique_ptr<YADAW::Entity::RegularAudioIOPosition>(
+                new YADAW::Entity::RegularAudioIOPosition(*this, i++)
+            );
+        }
+    );
     model_.setValueOfFilter(
         IMixerChannelListModel::Role::ChannelType, type
         );

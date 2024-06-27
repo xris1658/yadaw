@@ -3,7 +3,7 @@
 
 #include "entity/RegularAudioIOPosition.hpp"
 #include "model/IAudioIOPositionModel.hpp"
-#include "model/IMixerChannelListModel.hpp"
+#include "model/MixerChannelListModel.hpp"
 #include "model/SortFilterProxyListModel.hpp"
 
 namespace YADAW::Model
@@ -11,7 +11,7 @@ namespace YADAW::Model
 class RegularAudioIOPositionModel: public IAudioIOPositionModel
 {
 public:
-    RegularAudioIOPositionModel(YADAW::Model::IMixerChannelListModel& model,
+    RegularAudioIOPositionModel(YADAW::Model::MixerChannelListModel& model,
         YADAW::Model::IMixerChannelListModel::ChannelTypes type,
         QObject* parent = nullptr);
     ~RegularAudioIOPositionModel() override;
