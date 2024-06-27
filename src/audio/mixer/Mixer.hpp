@@ -14,11 +14,7 @@
 #include "util/AutoIncrementID.hpp"
 #include "util/OptionalUtil.hpp"
 
-// Since this is included by `AudioIOPosition.hpp`, we could not simply include
-// <QColor>, otherwise the header could not be located.
-// Since we only use `Mixer::Position` in `AudioIOPosition`, it might be a good
-// idea to move those definitions into separate files.
-#include <QtGui/QColor>
+#include <QColor>
 
 namespace YADAW::Audio::Mixer
 {

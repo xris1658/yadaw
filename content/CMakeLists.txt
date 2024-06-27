@@ -17,7 +17,6 @@ set(QT_QML_IMPORT_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/imports CACHE STR
 
 set(CONTENT_CPP_FILES
     entity/AudioBackendSupport.hpp
-    entity/AudioIOPosition.hpp
     entity/ChannelConfig.hpp
     entity/IAudioIOPosition.hpp
     entity/PluginFormatSupport.hpp

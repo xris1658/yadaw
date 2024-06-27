@@ -10,7 +10,6 @@
 #include "controller/PluginLatencyUpdatedCallback.hpp"
 #include "controller/PluginWindowController.hpp"
 #include "dao/PluginTable.hpp"
-#include "entity/AudioIOPosition.hpp"
 #include "entity/ChannelConfigHelper.hpp"
 #include "entity/HardwareAudioIOPosition.hpp"
 #include "entity/RegularAudioIOPosition.hpp"
