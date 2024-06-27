@@ -78,6 +78,7 @@ private:
     std::vector<ade::NodeHandle> blankInputNodes_;
     std::vector<bool> instrumentBypassed_;
     ListType listType_;
+    std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToPositions_;
 };
 }
 

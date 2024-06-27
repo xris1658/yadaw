@@ -403,9 +403,9 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         }
         case Role::Output:
         {
+            auto ret = false;
             if(listType_ == ListType::Regular)
             {
-                auto ret = false;
                 auto pPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(value.value<QObject*>());
                 if(!pPosition)
                 {
@@ -442,11 +442,52 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                 }
                 if(ret)
                 {
-                    dataChanged(this->index(row), this->index(row, {Role::Output}));
+                    if(pPosition)
+                    {
+                        auto& [refCount, connection] = connectToPositions_[pPosition];
+                        if(!connection)
+                        {
+                            // output destination is about to be removed
+                            connection = QObject::connect(
+                                pPosition, &QObject::destroyed,
+                                this,
+                                [this](QObject* obj) mutable
+                                {
+                                    FOR_RANGE0(i, mainOutput_.size())
+                                    {
+                                        if(mainOutput_[i] == obj)
+                                        {
+                                            setData(
+                                                this->index(i),
+                                                QVariant::fromValue<QObject*>(nullptr),
+                                                IMixerChannelListModel::Role::Output
+                                            );
+                                        }
+                                    }
+                                }
+                            );
+                        }
+                        ++refCount;
+                    }
+                    else
+                    {
+                        auto oldPosition = mainOutput_[row];
+                        auto it = connectToPositions_.find(oldPosition);
+                        if(it != connectToPositions_.end())
+                        {
+                            auto& [refCount, connection] = it->second;
+                            if(--refCount == 0)
+                            {
+                                QObject::disconnect(connection);
+                                connectToPositions_.erase(it);
+                            }
+                        }
+                    }
+                    mainOutput_[row] = pPosition;
+                    dataChanged(this->index(row), this->index(row), {Role::Output});
                 }
-                return ret;
             }
-            return false;
+            return ret;
         }
         case Role::InstrumentBypassed:
         {
@@ -581,9 +622,10 @@ bool MixerChannelListModel::insert(int position, int count,
             updateInstrumentConnections(position + count);
             std::fill_n(
                 std::inserter(
-                    mainOutput_, mainOutput_.begin() + position),
-                    count, nullptr
-                );
+                    mainOutput_, mainOutput_.begin() + position
+                ),
+                count, nullptr
+            );
             endInsertRows();
         }
         return ret;
@@ -659,6 +701,17 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             insertModels_[i]->clear();
             removeInstrument(i);
         }
+        if(listType_ == ListType::Regular)
+        {
+            FOR_RANGE(i, position, position + removeCount)
+            {
+                setData(
+                    this->index(i),
+                    QVariant::fromValue<QObject*>(nullptr),
+                    IMixerChannelListModel::Role::Output
+                );
+            }
+        }
         (mixer_.*removeChannels[YADAW::Util::underlyingValue(listType_)])(
             position, removeCount
         );
@@ -691,6 +744,10 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             instrumentBypassed_.erase(
                 instrumentBypassed_.begin() + position,
                 instrumentBypassed_.begin() + position + removeCount
+            );
+            mainOutput_.erase(
+                mainOutput_.begin() + position,
+                mainOutput_.begin() + position + removeCount
             );
             updateInstrumentConnections(position);
         }
