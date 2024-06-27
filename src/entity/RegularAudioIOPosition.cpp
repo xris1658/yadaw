@@ -29,7 +29,7 @@ IAudioIOPosition::Type RegularAudioIOPosition::getType() const
 
 QString RegularAudioIOPosition::getName() const
 {
-    return model_->data(
+    return model_->getModel().data(
         model_->index(index_),
         YADAW::Model::IMixerChannelListModel::Role::Name
     ).value<QString>();

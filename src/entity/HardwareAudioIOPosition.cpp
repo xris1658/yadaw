@@ -31,7 +31,7 @@ IAudioIOPosition::Type HardwareAudioIOPosition::getType() const
 
 QString HardwareAudioIOPosition::getName() const
 {
-    return model_->data(
+    return model_->getModel().data(
         model_->index(index_),
         YADAW::Model::IMixerChannelListModel::Role::Name
     ).value<QString>();
@@ -63,7 +63,7 @@ HardwareAudioIOPosition::operator Audio::Mixer::Mixer::Position() const
     auto idAsString = mixerChannelListModel.data(
         mixerChannelListModel.index(getIndex()),
         YADAW::Model::MixerChannelListModel::Role::Id
-    );
+    ).value<QString>();
     return YADAW::Audio::Mixer::Mixer::Position {
         .type = YADAW::Audio::Mixer::Mixer::Position::AudioHardwareIOChannel,
         .id = idAsString.toULongLong()
