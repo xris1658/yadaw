@@ -194,11 +194,11 @@ void HardwareAudioIOPositionModel::onSourceModelDataChanged(
     {
         if(role == YADAW::Model::MixerChannelListModel::Role::Name)
         {
-            destRoles.append(IAudioIOPositionModel::Role::Position);
+            FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
+            {
+                positions_[i]->nameChanged();
+            }
         }
     }
-    dataChanged(
-        index(topLeft.row()), index(bottomRight.row()), destRoles
-    );
 }
 }
