@@ -93,7 +93,7 @@ Rectangle {
                 impl.selectingInput = false;
             }
             if(impl.selectingOutput) {
-                mclm_input = audioIOSelectorWindow.audioIOSelector.currentPosition;
+                mclm_output = audioIOSelectorWindow.audioIOSelector.currentPosition;
                 impl.selectingOutput = false;
             }
         }

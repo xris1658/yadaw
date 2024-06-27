@@ -93,7 +93,7 @@ QC.Popup {
             highlighted: ListView.view.currentIndex === index
             onClicked: {
                 ListView.view.currentIndex = index;
-                // root.currentId = aiopm_id;
+                root.currentPosition = aiopm_position;
             }
         }
     }
@@ -223,7 +223,7 @@ QC.Popup {
                                 audioEffectChannelListView.currentIndex = -1;
                                 pluginAuxInListView.currentIndex = -1;
                                 pluginAuxOutListView.currentIndex = -1;
-                                root.currentId = "-1";
+                                root.currentPosition = null;
                             }
                         }
                     }
@@ -261,7 +261,7 @@ QC.Popup {
                         delegate: audioIOPositionComponent
                     }
                     onCurrentIndexChanged: {
-                        root.currentId = "-1";
+                        root.currentPosition = null;
                     }
                 }
             }
