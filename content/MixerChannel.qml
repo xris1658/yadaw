@@ -132,6 +132,7 @@ Rectangle {
                     enabled: root.inputAvailable
                     opacity: enabled? 1: 0
                     width: ioPlaceholder.width - impl.padding * 2
+                    text: mclm_input? mclm_input.completeName: undefined
                     onCheckedChanged: {
                         if(checked) {
                             locatePopupWindow(audioIOSelectorWindow, height + impl.padding, 0 - impl.padding);
@@ -154,6 +155,7 @@ Rectangle {
                     enabled: root.outputAvailable
                     opacity: enabled? 1: 0
                     width: ioPlaceholder.width - impl.padding * 2
+                    text: mclm_output? mclm_output.completeName: undefined
                     onCheckedChanged: {
                         if(checked) {
                             locatePopupWindow(audioIOSelectorWindow, height + impl.padding, 0 - impl.padding);
