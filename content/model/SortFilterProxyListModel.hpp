@@ -90,6 +90,7 @@ private:
     QString filterString_;
     std::map<int, QVariant> valuesOfFilter_;
     std::array<QMetaObject::Connection, 6> connections_;
+    std::vector<std::pair<int, int>> removingRowsSortByDest_;
 };
 }
 

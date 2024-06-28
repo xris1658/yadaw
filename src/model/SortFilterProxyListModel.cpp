@@ -299,20 +299,23 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
 
 void SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last)
 {
-    std::vector<std::pair<int, int>> removingRowsSortByDest;
-    removingRowsSortByDest.reserve(last + 1 - first);
+    removingRowsSortByDest_.reserve(last + 1 - first);
     FOR_RANGE(i, first, last + 1)
     {
-        removingRowsSortByDest.emplace_back(i, srcToDst_[i]);
+        removingRowsSortByDest_.emplace_back(i, srcToDst_[i]);
     }
-    using Pair = decltype(removingRowsSortByDest)::value_type;
-    std::ranges::sort(removingRowsSortByDest,
+    using Pair = decltype(removingRowsSortByDest_)::value_type;
+    std::ranges::sort(removingRowsSortByDest_,
         [](const Pair& lhs, const Pair& rhs)
         {
             return lhs.second < rhs.second;
         }
     );
-    for(auto it = removingRowsSortByDest.rbegin(); it != removingRowsSortByDest.rend(); ++it)
+}
+
+void SortFilterProxyListModel::sourceModelRowsRemoved(const QModelIndex& parent, int first, int last)
+{
+    for(auto it = removingRowsSortByDest_.rbegin(); it != removingRowsSortByDest_.rend(); ++it)
     {
         const auto& [srcRow, dstRow] = *it;
         auto removingIsAccepted = dstRow < acceptedItemCount_;
@@ -331,10 +334,8 @@ void SortFilterProxyListModel::sourceModelRowsAboutToBeRemoved(const QModelIndex
             endRemoveRows();
         }
     }
-}
-
-void SortFilterProxyListModel::sourceModelRowsRemoved(const QModelIndex& parent, int first, int last)
-{
+    removingRowsSortByDest_.clear();
+    removingRowsSortByDest_.shrink_to_fit();
     srcToDst_.erase(srcToDst_.begin() + first, srcToDst_.begin() + last + 1);
     auto removeCount = last + 1 - first;
     FOR_RANGE(i, first, srcToDst_.size())
