@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     for(int i = 0; i < localizationList.itemCount(); ++i)
     {
         const auto& localization = localizationList.at(i);
-        if(localization.name == language && (!localization.translationFileList.empty()))
+        if(localization.name == language)
         {
             const auto& translationFileList = localization.translationFileList;
             decltype(translationFileList.size()) fileCountLoaded = std::count_if(
