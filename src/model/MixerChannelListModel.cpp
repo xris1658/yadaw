@@ -896,7 +896,6 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
             instrumentAudioOutputs_[position] = std::make_unique<YADAW::Model::AudioDeviceIOGroupListModel>(
                 *plugin, false
             );
-            engine.mixerNodeAddedCallback(mixer_);
             auto& instrument = instruments_[position];
             instrument = std::make_unique<InstrumentInstance>(
                 mixer_, plugin
@@ -951,6 +950,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 }
             }
             mixer_.channelPreFaderInsertsAt(position)->get().setInNode(nodeHandle, firstOutput);
+            engine.mixerNodeAddedCallback(mixer_);
             auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
             const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
                 plugin,
