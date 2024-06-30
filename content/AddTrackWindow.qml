@@ -390,8 +390,9 @@ Window {
             cancelButton.clicked();
         }
     }
-
-    Component.onCompleted: {
-        nameField.forceActiveFocus();
+    onVisibleChanged: {
+        if(visible) {
+            nameField.forceActiveFocus();
+        }
     }
 }
