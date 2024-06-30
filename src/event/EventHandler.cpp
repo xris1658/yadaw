@@ -157,6 +157,7 @@ void EventHandler::onOpenMainWindow()
     {
         auto errorString = YADAW::Audio::Backend::getAudioGraphErrorStringFromErrorCode(errorCode);
         YADAW::UI::createMessageDialog();
+        YADAW::UI::setHideCloseButton(true);
         auto messageDialog = YADAW::UI::messageDialog;
         if(messageDialog)
         {

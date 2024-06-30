@@ -15,6 +15,17 @@ void createMessageDialog()
     qmlApplicationEngine->loadFromModule("content", "MessageDialog");
 }
 
+void setHideCloseButton(bool hide)
+{
+    if(messageDialog)
+    {
+        messageDialog->setProperty(
+            "removeCloseButton",
+            QVariant::fromValue<bool>(hide)
+        );
+    }
+}
+
 void focusMessageDialogButton(int index)
 {
     if(messageDialog)

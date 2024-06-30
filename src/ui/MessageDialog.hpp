@@ -21,6 +21,8 @@ extern QQuickWindow* messageDialog;
 
 void createMessageDialog();
 
+void setHideCloseButton(bool hide);
+
 void focusMessageDialogButton(int index);
 
 int getMessageDialogResult();

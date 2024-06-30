@@ -125,6 +125,7 @@ int main(int argc, char *argv[])
             if(fileCountLoaded != translationFileList.size())
             {
                 YADAW::UI::createMessageDialog();
+                YADAW::UI::setHideCloseButton(true);
                 auto messageDialog = YADAW::UI::messageDialog;
                 if(messageDialog)
                 {
@@ -152,7 +153,7 @@ int main(int argc, char *argv[])
     if(YADAW::Controller::currentTranslationIndex == -1)
     {
         YADAW::UI::createMessageDialog();
-        auto dialog = YADAW::UI::messageDialog;
+        YADAW::UI::setHideCloseButton(true);
         auto messageDialog = YADAW::UI::messageDialog;
         if(messageDialog)
         {

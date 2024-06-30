@@ -16,7 +16,8 @@ Window {
     }
     property int icon: MessageDialog.Icon.None
     property alias buttonModel: dialogButtonBox.model
-    flags: Qt.Dialog
+    property bool removeCloseButton: false
+    flags: Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | (removeCloseButton? 0: Qt.WindowCloseButtonHint)
     modality: Qt.ApplicationModal
     color: Colors.background
     height: icon.height + dialogButtonBox.height + row.padding * 3

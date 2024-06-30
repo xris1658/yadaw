@@ -40,6 +40,7 @@ Item {
         id: messageDialog
         visible: false
         icon: MessageDialog.Warning
+        removeCloseButton: true
         message: qsTr("The audio backend will be switched from <b>%1</b> to <b>%2</b>, so the audio capture and playback will be interrupted.\nProceed?")
             .arg(audioEngineSelector.model.get(currentBackend).name).arg(audioEngineSelector.currentText)
         title: "YADAW"

@@ -3,7 +3,7 @@ import QtQuick.Window
 
 Window {
     id: root
-    flags: Qt.Dialog
+    flags: Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowCloseButtonHint
     modality: Qt.NonModal
     color: Colors.background
     property bool destroyingPlugin: false
