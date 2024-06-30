@@ -9,6 +9,13 @@ Rectangle {
     color: Colors.background
     property var deviceListModel: ListModel {}
     property alias model: busList.model
+    readonly property alias editingText: impl.editingText
+
+    QtObject {
+        id: impl
+        // Create a property that is read-only from outside
+        property bool editingText: false
+    }
 
     Column {
         id: busListColumn
@@ -104,6 +111,9 @@ Rectangle {
                     }
                     Keys.onEscapePressed:  {
                         audioBusNameTextField.visible = false;
+                    }
+                    onVisibleChanged: {
+                        impl.editingText = visible;
                     }
                 }
                 Menu {

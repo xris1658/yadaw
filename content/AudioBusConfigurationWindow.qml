@@ -80,6 +80,7 @@ Window {
     Shortcut {
         context: Qt.WindowShortcut
         sequence: "Esc"
+        enabled: !(inputConfig.editingText || outputConfig.editingText)
         onActivated: {
             root.close();
         }
