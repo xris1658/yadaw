@@ -18,9 +18,16 @@ void saveConfig(const YAML::Node& node, const QString& path)
 
 YAML::Node loadConfig(const QString& path)
 {
+    QFile file(path);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        return {};
+    }
+    QTextStream textStream(&file);
+    auto content = textStream.readAll().toStdString();
     try
     {
-        return YAML::LoadFile(path.toStdString());
+        return YAML::Load(content);
     }
     catch(...)
     {

@@ -1,6 +1,6 @@
 #include "LocalizationController.hpp"
 
-#include <yaml-cpp/yaml.h>
+#include "dao/Config.hpp"
 
 #include <QDir>
 
@@ -29,42 +29,47 @@ void initializeLocalizationListModel(YADAW::Model::LocalizationListModel& model)
             {
                 if(yamlFileInfo.exists())
                 {
-                    const auto& node = YAML::LoadFile(yamlFileInfo.absoluteFilePath().toStdString());
-                    auto name = QString::fromStdString(node["name"].as<std::string, std::string>({}));
-                    auto author = QString::fromStdString(node["author"].as<std::string, std::string>({}));
-                    auto languageCode = QString::fromStdString(node["language-code"].as<std::string, std::string>({}));
-                    auto translationFileListNode = node["translation-file-list"];
-                    if(!translationFileListNode.IsSequence())
+                    const auto& node = YADAW::DAO::loadConfig(yamlFileInfo.absoluteFilePath());
+                    try
                     {
-                        return;
-                    }
-                    std::vector<QString> translationFileList;
-                    translationFileList.reserve(translationFileListNode.size());
-                    for(const auto& i: translationFileListNode)
-                    {
-                        auto translationFileName = QString::fromStdString(i.as<std::string, std::string>({}));
-                        translationFileList.emplace_back(subdir.absoluteFilePath(translationFileName));
-                    }
-                    std::vector<QString> fontFamilyList;
-                    const auto& fontFamilyListNode = node["font-family"];
-                    fontFamilyList.reserve(fontFamilyListNode.size());
-                    for(const auto& i: fontFamilyListNode)
-                    {
-                        fontFamilyList.emplace_back(QString::fromStdString(i.as<std::string, std::string>({})));
-                    }
-                    std::vector<QString> fontList;
-                    const auto& fontListNode = node["font-list"];
-                    fontList.reserve(fontListNode.size());
-                    for(const auto& i: fontListNode)
-                    {
-                        auto fileName = QString::fromStdString(i.as<std::string, std::string>({}));
-                        fontList.emplace_back(subdir.absoluteFilePath(fileName));
-                    }
-                    model.append(
-                        YADAW::Model::LocalizationListModel::Item {
-                            name, author, languageCode, translationFileList, fontFamilyList, fontList
+                        auto name = QString::fromStdString(node["name"].as<std::string, std::string>({}));
+                        auto author = QString::fromStdString(node["author"].as<std::string, std::string>({}));
+                        auto languageCode = QString::fromStdString(node["language-code"].as<std::string, std::string>({}));
+                        auto translationFileListNode = node["translation-file-list"];
+                        if(!translationFileListNode.IsSequence())
+                        {
+                            return;
                         }
-                    );
+                        std::vector<QString> translationFileList;
+                        translationFileList.reserve(translationFileListNode.size());
+                        for(const auto& i: translationFileListNode)
+                        {
+                            auto translationFileName = QString::fromStdString(i.as<std::string, std::string>({}));
+                            translationFileList.emplace_back(subdir.absoluteFilePath(translationFileName));
+                        }
+                        std::vector<QString> fontFamilyList;
+                        const auto& fontFamilyListNode = node["font-family"];
+                        fontFamilyList.reserve(fontFamilyListNode.size());
+                        for(const auto& i: fontFamilyListNode)
+                        {
+                            fontFamilyList.emplace_back(QString::fromStdString(i.as<std::string, std::string>({})));
+                        }
+                        std::vector<QString> fontList;
+                        const auto& fontListNode = node["font-list"];
+                        fontList.reserve(fontListNode.size());
+                        for(const auto& i: fontListNode)
+                        {
+                            auto fileName = QString::fromStdString(i.as<std::string, std::string>({}));
+                            fontList.emplace_back(subdir.absoluteFilePath(fileName));
+                        }
+                        model.append(
+                            YADAW::Model::LocalizationListModel::Item {
+                                name, author, languageCode, translationFileList, fontFamilyList, fontList
+                            }
+                        );
+                    }
+                    catch(...)
+                    {}
                 }
             }
         }
