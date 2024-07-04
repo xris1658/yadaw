@@ -380,7 +380,6 @@ set(YADAW_COMMON_SOURCES
     src/model/FilterRoleModel.cpp
     src/model/HardwareAudioIOPositionModel.cpp
     src/model/HardwareAudioIOPositionModel.hpp
-    src/model/ListModelListModel.cpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
     src/model/MessageDialogButtonBoxModel.cpp
