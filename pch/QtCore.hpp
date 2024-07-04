@@ -1,22 +1,27 @@
 #ifndef YADAW_PCH_QTCORE
 #define YADAW_PCH_QTCORE
 
-#include <QCoreApplication>
-#include <QUrl>
-#include <QtGlobal>
-#include <QString>
-#include <QList>
-#include <QFileInfo>
-#include <QDir>
-#include <QFile>
 #include <QtCore/qobjectdefs.h>
-#include <QObject>
-#include <QDebug>
-#include <QThread>
+#include <QtGlobal>
+#include <QAbstractItemModel>
 #include <QAbstractListModel>
-#include <QHash>
 #include <QByteArray>
-#include <QVector>
+#include <QCoreApplication>
+#include <QDir>
+#include <QEventLoop>
+#include <QFile>
+#include <QFileInfo>
+#include <QHash>
+#include <QLatin1StringView>
+#include <QList>
+#include <QMetaObject>
+#include <QObject>
+#include <QString>
+#include <QStringList>
+#include <QTextStream>
+#include <QThread>
+#include <QTimer>
 #include <QTranslator>
+#include <QUrl>
 
 #endif // YADAW_PCH_QTCORE
