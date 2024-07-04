@@ -108,12 +108,6 @@ consider add ARM and macOS support in the future.
   cmake --build . --target YADAW -j 16
   ```
 
-### Known problems
-- The application built with MSYS2 cannot handle paths with non-ASCII characters
-  correctly. For instance, if the user folder name contains Chinese characters,
-  then YADAW cannot read the configuration file of the application and crashes
-  immediately. Such problem does not exist in the application built with MSVC.
-
 ## Build on Linux
 The following steps are made for Ubuntu and its forks. Though not tested, those
 might be usable on Debian and its forks.
