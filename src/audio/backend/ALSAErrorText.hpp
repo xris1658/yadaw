@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_AUDIO_BACKEND_ALSAERRORTEXT
 #define YADAW_SRC_AUDIO_BACKEND_ALSAERRORTEXT
 
+#include <QString>
+
 namespace YADAW::Audio::Backend
 {
 QString getIOString(bool isInput);

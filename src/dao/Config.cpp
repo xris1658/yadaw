@@ -3,6 +3,7 @@
 #include "dao/DAOBase.hpp"
 
 #include <QFile>
+#include <QTextStream>
 
 namespace YADAW::DAO
 {

@@ -1,5 +1,7 @@
 #include "ALSAErrorText.hpp"
 
+#include <QCoreApplication>
+
 namespace YADAW::Audio::Backend
 {
 QString getIOString(bool isInput)
