@@ -6,9 +6,10 @@ namespace YADAW::Audio::Util
 {
 InputSwitcher::InputSwitcher(std::uint32_t inputCount,
     YADAW::Audio::Base::ChannelGroupType channelGroupType,
-    std::uint32_t channelCount)
+    std::uint32_t channelCount):
+    inputGroupCount_(inputCount)
 {
-    if(inputCount > 0)
+    if(inputCount == 0)
     {
         throw std::invalid_argument(
             "Input count should be more than zero. Use `BlankGenerator` instead."
@@ -68,6 +69,8 @@ bool InputSwitcher::setInputIndex(std::uint32_t inputIndex)
     if(inputIndex < inputGroupCount_)
     {
         inputIndex_.store(inputIndex, std::memory_order_relaxed);
+        return true;
     }
+    return false;
 }
 }
