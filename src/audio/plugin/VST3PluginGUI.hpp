@@ -30,6 +30,9 @@ public:
 public:
     void connect();
     void disconnect();
+    bool isConnected() const;
+public:
+    void resizeViewCalled();
 private:
     void onWindowSizeChanged();
 private:
@@ -38,7 +41,9 @@ private:
     QWindow* window_ = nullptr;
     YADAW::Audio::Host::VST3PlugFrame frame_;
     QMetaObject::Connection connections_[2];
+    bool isConnected_ = false;
     bool inCallback_ = false;
+    bool resizeViewCalled_ = false;
 };
 }
 

@@ -49,15 +49,11 @@ Steinberg::tresult VST3PlugFrame::resizeView(Steinberg::IPlugView* view, Steinbe
     // https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical+Documentation/Workflow+Diagrams/Resize+View+Call+Sequence.html#initiated-from-plug-in
     if(auto window = gui_->window())
     {
+        gui_->resizeViewCalled();
         auto devicePixelRatio = window->devicePixelRatio();
         Steinberg::ViewRect oldSize;
         if(auto result = view->getSize(&oldSize); result != Steinberg::kResultOk)
         {
-            return result;
-        }
-        if(auto result = view->onSize(newSize); result != Steinberg::kResultOk)
-        {
-            view->onSize(&oldSize);
             return result;
         }
         auto& tweakedNewSize = oldSize;
@@ -65,12 +61,22 @@ Steinberg::tresult VST3PlugFrame::resizeView(Steinberg::IPlugView* view, Steinbe
         {
             return result;
         }
+        auto isConnected = gui_->isConnected();
         gui_->disconnect();
         window->resize(
             std::round(tweakedNewSize.getWidth() / devicePixelRatio),
             std::round(tweakedNewSize.getHeight() / devicePixelRatio)
         );
-        gui_->connect();
+        if(auto result = view->onSize(newSize); result != Steinberg::kResultOk)
+        {
+            view->onSize(&oldSize);
+            return result;
+        }
+        view->getSize(newSize);
+        if(isConnected)
+        {
+            gui_->connect();
+        }
         return Steinberg::kResultOk;
     }
     return Steinberg::kInvalidArgument;
