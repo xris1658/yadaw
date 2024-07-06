@@ -452,6 +452,57 @@ std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::channelIDAt(
     return std::nullopt;
 }
 
+bool compareIdAndIndexWithId(const Mixer::IDAndIndex& idAndIndex, Mixer::IDGen::ID id)
+{
+    return idAndIndex.id < id;
+}
+
+OptionalRef<const Mixer::Position> Mixer::mainInputAt(std::uint32_t index) const
+{
+    if(index < channelCount()
+        && channelInfo_[index].channelType == ChannelType::Audio)
+    {
+        return {mainInput_[index]};
+    }
+    return std::nullopt;
+}
+
+bool Mixer::setMainInputAt(std::uint32_t index, Position position)
+{
+    if(index < channelCount()
+        && channelInfo_[index].channelType == ChannelType::Audio)
+    {
+        // Disconnect
+        auto toNode = preFaderInserts_[index]->inNode();
+        auto inEdges = toNode->inEdges();
+        if(!inEdges.empty())
+        {
+            graph_.disconnect(inEdges.front);
+        }
+        auto ret = false;
+        if(position.type == Position::Type::AudioHardwareIOChannel)
+        {
+            auto it = std::lower_bound(
+                audioInputChannelIdAndIndex_.begin(),
+                audioInputChannelIdAndIndex_.end(),
+                position.id
+                &compareIdAndIndexWithId
+            );
+            if(it != audioInputChannelIdAndIndex_.end() && it->id == position.id)
+            {
+                auto fromNode = audioInputPostFaderInserts_[it->index]->outNode();
+                ret = graph_.connect(fromNode, toNode, 0, 1).has_value();
+            }
+        }
+        if(ret)
+        {
+            mainInput_[index] = position;
+        }
+        return ret;
+    }
+    return false;
+}
+
 OptionalRef<const Mixer::Position> Mixer::mainOutputAt(std::uint32_t index) const
 {
     if(index < channelCount())
@@ -459,11 +510,6 @@ OptionalRef<const Mixer::Position> Mixer::mainOutputAt(std::uint32_t index) cons
         return {mainOutput_[index]};
     }
     return std::nullopt;
-}
-
-bool compareIdAndIndexWithId(const Mixer::IDAndIndex& idAndIndex, Mixer::IDGen::ID id)
-{
-    return idAndIndex.id < id;
 }
 
 bool Mixer::setMainOutputAt(std::uint32_t index, Position position)

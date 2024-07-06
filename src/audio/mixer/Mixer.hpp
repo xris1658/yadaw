@@ -136,7 +136,7 @@ public:
     std::optional<IDGen::ID> audioOutputChannelIDAt(std::uint32_t index) const;
     std::optional<IDGen::ID> channelIDAt(std::uint32_t index) const;
     OptionalRef<const Position> mainInputAt(std::uint32_t index) const;
-    bool setMainInputAt(std::uint32_t index, Position position) const;
+    bool setMainInputAt(std::uint32_t index, Position position);
     OptionalRef<const Position> mainOutputAt(std::uint32_t index) const;
     bool setMainOutputAt(std::uint32_t index, Position position);
     std::optional<std::uint32_t> getInputIndexOfId(IDGen::ID id) const;
