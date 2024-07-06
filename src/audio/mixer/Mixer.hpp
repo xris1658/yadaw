@@ -26,9 +26,12 @@ namespace YADAW::Audio::Mixer
 // `Mixer` owns faders, meters and input/output devices of regular channels.
 // Input devices:
 // - `AudioHardwareInput`: A not-owned `YADAW::Audio::Device::IBus`.
-// - `Audio`: An owned `BlankGenerator` if no audio input is selected,
-//            a not-owned mute/solo of an audio input channel otherwise.
-// - `Instrument`: An owned `IAudioDevice`.
+// - `Audio`: An `InputSwitcher` with 2 inputs:
+//            1. Contents of the audio track. Not connected for now,
+//               reserved for future use.
+//            2. A not-owned mute/solo of the The external audio in.
+// - `Instrument`: A not-owned `IAudioDevice` which is the instrument, or
+//                 an owned `BlankGenerator` if there is no instrument.
 // - `AudioFX`: An owned `YADAW::Audio::Util::Summing`.
 // - `AudioBus`: An owned `YADAW::Audio::Util::Summing`.
 // - `AudioHardwareOutput`: An owned `YADAW::Audio::Util::Summing`.

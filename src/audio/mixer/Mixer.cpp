@@ -1,9 +1,7 @@
 #include "Mixer.hpp"
 
-#include <execution>
-
 #include "audio/mixer/BlankGenerator.hpp"
-#include "audio/mixer/BlankReceiver.hpp"
+#include "audio/util/InputSwitcher.hpp"
 
 namespace YADAW::Audio::Mixer
 {
@@ -1107,157 +1105,124 @@ bool Mixer::insertChannels(
     YADAW::Audio::Base::ChannelGroupType channelGroupType,
     std::uint32_t channelCountInGroup)
 {
+    std::vector<DeviceAndNode> inputDevicesAndNode;
+    std::vector<FaderAndNode> fadersAndNode;
+    std::vector<MeterAndNode> metersAndNode;
+    std::vector<MuteAndNode> mutesAndNode;
+    std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts;
+    std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts;
     auto ret = false;
     if(position <= channelCount() && count > 0)
     {
+        // inputs ----------------------------------------------------------
+        inputDevicesAndNode.reserve(count);
+        // faders ----------------------------------------------------------
+        fadersAndNode.reserve(count);
+        FOR_RANGE0(i, count)
+        {
+            auto& faderAndNode = fadersAndNode.emplace_back(
+                std::make_unique<YADAW::Audio::Mixer::VolumeFader>(
+                    channelGroupType, channelCountInGroup
+                ),
+                ade::NodeHandle()
+            );
+            faderAndNode.second = graph_.addNode(
+                YADAW::Audio::Engine::AudioDeviceProcess(
+                    *(faderAndNode.first)
+                )
+            );
+        }
+        // meters ----------------------------------------------------------
+        metersAndNode.reserve(count);
+        FOR_RANGE0(i, count)
+        {
+            auto& meterAndNode = metersAndNode.emplace_back(
+                std::make_unique<YADAW::Audio::Mixer::Meter>(
+                    8192, channelGroupType, channelCountInGroup
+                ),
+                ade::NodeHandle()
+            );
+            meterAndNode.second = graph_.addNode(
+                YADAW::Audio::Engine::AudioDeviceProcess(
+                    *(meterAndNode.first)
+                )
+            );
+        }
+        // mutes -----------------------------------------------------------
+        mutesAndNode.reserve(count);
+        FOR_RANGE0(i, count)
+        {
+            auto& muteAndNode = mutesAndNode.emplace_back(
+                std::make_unique<YADAW::Audio::Util::Mute>(
+                    channelGroupType, channelCountInGroup
+                ),
+                ade::NodeHandle()
+            );
+            muteAndNode.second = graph_.addNode(
+                YADAW::Audio::Engine::AudioDeviceProcess(
+                    *(muteAndNode.first)
+                )
+            );
+        }
+        // post-fader inserts ----------------------------------------------
+        postFaderInserts.reserve(count);
+        FOR_RANGE0(i, count)
+        {
+            postFaderInserts.emplace_back(
+                std::make_unique<YADAW::Audio::Mixer::Inserts>(
+                    graph_,
+                    fadersAndNode[i].second, metersAndNode[i].second, 0, 0
+                )
+            );
+        }
         switch(channelType)
         {
         case ChannelType::Audio:
-        case ChannelType::Instrument:
         {
             // inputs ----------------------------------------------------------
-            std::vector<DeviceAndNode> inputDevicesAndNode;
-            inputDevicesAndNode.reserve(count);
-            {
-                std::vector<std::unique_ptr<YADAW::Audio::Mixer::BlankGenerator>> blankGenerators;
-                blankGenerators.reserve(count);
-                FOR_RANGE0(i, count)
-                {
-                    blankGenerators.emplace_back(
-                        std::make_unique<YADAW::Audio::Mixer::BlankGenerator>(
-                            channelGroupType, channelCountInGroup
-                        )
-                    );
-                }
-                FOR_RANGE0(i, count)
-                {
-                    auto node = graph_.addNode(
-                        YADAW::Audio::Engine::AudioDeviceProcess(
-                            *blankGenerators[i]
-                        )
-                    );
-                    inputDevicesAndNode.emplace_back(std::move(blankGenerators[i]), node);
-                }
-            }
-            // faders ----------------------------------------------------------
-            std::vector<FaderAndNode> fadersAndNode;
-            fadersAndNode.reserve(count);
+            std::vector<std::unique_ptr<YADAW::Audio::Util::InputSwitcher>> inputSwitchers;
+            inputSwitchers.reserve(count);
             FOR_RANGE0(i, count)
             {
-                auto& faderAndNode = fadersAndNode.emplace_back(
-                    std::make_unique<YADAW::Audio::Mixer::VolumeFader>(
+                inputSwitchers.emplace_back(
+                    std::make_unique<YADAW::Audio::Util::InputSwitcher>(
+                        2, channelGroupType, channelCountInGroup
+                    )
+                );
+            }
+            FOR_RANGE0(i, count)
+            {
+                auto node = graph_.addNode(
+                    YADAW::Audio::Engine::AudioDeviceProcess(
+                        *inputSwitchers[i]
+                    )
+                );
+                inputDevicesAndNode.emplace_back(std::move(inputSwitchers[i]), node);
+            }
+            ret = true;
+            break;
+        }
+        case ChannelType::Instrument:
+        {
+            std::vector<std::unique_ptr<YADAW::Audio::Mixer::BlankGenerator>> blankGenerators;
+            blankGenerators.reserve(count);
+            FOR_RANGE0(i, count)
+            {
+                blankGenerators.emplace_back(
+                    std::make_unique<YADAW::Audio::Mixer::BlankGenerator>(
                         channelGroupType, channelCountInGroup
-                    ),
-                    ade::NodeHandle()
+                    )
                 );
-                faderAndNode.second = graph_.addNode(
+            }
+            FOR_RANGE0(i, count)
+            {
+                auto node = graph_.addNode(
                     YADAW::Audio::Engine::AudioDeviceProcess(
-                        *(faderAndNode.first)
+                        *blankGenerators[i]
                     )
                 );
+                inputDevicesAndNode.emplace_back(blankGenerators[i].release(), node);
             }
-            // meters ----------------------------------------------------------
-            std::vector<MeterAndNode> metersAndNode;
-            metersAndNode.reserve(count);
-            FOR_RANGE0(i, count)
-            {
-                auto& meterAndNode = metersAndNode.emplace_back(
-                    std::make_unique<YADAW::Audio::Mixer::Meter>(
-                        8192, channelGroupType, channelCountInGroup
-                    ),
-                    ade::NodeHandle()
-                );
-                meterAndNode.second = graph_.addNode(
-                    YADAW::Audio::Engine::AudioDeviceProcess(
-                        *(meterAndNode.first)
-                    )
-                );
-            }
-            // mutes -----------------------------------------------------------
-            std::vector<MuteAndNode> mutesAndNode;
-            mutesAndNode.reserve(count);
-            FOR_RANGE0(i, count)
-            {
-                auto& muteAndNode = mutesAndNode.emplace_back(
-                    std::make_unique<YADAW::Audio::Util::Mute>(
-                        channelGroupType, channelCountInGroup
-                    ),
-                    ade::NodeHandle()
-                );
-                muteAndNode.second = graph_.addNode(
-                    YADAW::Audio::Engine::AudioDeviceProcess(
-                        *(muteAndNode.first)
-                    )
-                );
-            }
-            // pre-fader inserts -----------------------------------------------
-            std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts;
-            preFaderInserts.reserve(count);
-            FOR_RANGE0(i, count)
-            {
-                preFaderInserts.emplace_back(
-                    std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                        graph_,
-                        inputDevicesAndNode[i].second, mutesAndNode[i].second,
-                        0, 0
-                    )
-                );
-            }
-            // post-fader inserts ----------------------------------------------
-            std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts;
-            postFaderInserts.reserve(count);
-            FOR_RANGE0(i, count)
-            {
-                postFaderInserts.emplace_back(
-                    std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                        graph_,
-                        fadersAndNode[i].second, metersAndNode[i].second, 0, 0
-                    )
-                );
-            }
-            // connect and move-------------------------------------------------
-            FOR_RANGE0(i, count)
-            {
-                graph_.connect(
-                    mutesAndNode[i].second, fadersAndNode[i].second, 0, 0
-                );
-            }
-            std::move(
-                inputDevicesAndNode.begin(), inputDevicesAndNode.end(),
-                std::inserter(
-                    inputDevices_, inputDevices_.begin() + position
-                )
-            );
-            std::move(
-                preFaderInserts.begin(), preFaderInserts.end(),
-                std::inserter(
-                    preFaderInserts_, preFaderInserts_.begin() + position
-                )
-            );
-            std::move(
-                postFaderInserts.begin(), postFaderInserts.end(),
-                std::inserter(
-                    postFaderInserts_, postFaderInserts_.begin() + position
-                )
-            );
-            std::move(
-                metersAndNode.begin(), metersAndNode.end(),
-                std::inserter(
-                    meters_, meters_.begin() + position
-                )
-            );
-            std::move(
-                fadersAndNode.begin(), fadersAndNode.end(),
-                std::inserter(
-                    faders_, faders_.begin() + position
-                )
-            );
-            std::move(
-                mutesAndNode.begin(), mutesAndNode.end(),
-                std::inserter(
-                    mutes_, mutes_.begin() + position
-                )
-            );
             ret = true;
             break;
         }
@@ -1265,7 +1230,6 @@ bool Mixer::insertChannels(
         case ChannelType::AudioBus:
         {
             // inputs ----------------------------------------------------------
-            std::vector<DeviceAndNode> inputDevicesAndNode;
             inputDevicesAndNode.reserve(count);
             {
                 std::vector<std::unique_ptr<YADAW::Audio::Util::Summing>> summings;
@@ -1288,126 +1252,6 @@ bool Mixer::insertChannels(
                     inputDevicesAndNode.emplace_back(summings[i].release(), node);
                 }
             }
-            // faders ----------------------------------------------------------
-            std::vector<FaderAndNode> fadersAndNode;
-            fadersAndNode.reserve(count);
-            FOR_RANGE0(i, count)
-            {
-                auto& faderAndNode = fadersAndNode.emplace_back(
-                    std::make_unique<YADAW::Audio::Mixer::VolumeFader>(
-                        channelGroupType, channelCountInGroup
-                    ),
-                    ade::NodeHandle()
-                );
-                faderAndNode.second = graph_.addNode(
-                    YADAW::Audio::Engine::AudioDeviceProcess(
-                        *(faderAndNode.first)
-                    )
-                );
-            }
-            // meters ----------------------------------------------------------
-            std::vector<MeterAndNode> metersAndNode;
-            metersAndNode.reserve(count);
-            FOR_RANGE0(i, count)
-            {
-                auto& meterAndNode = metersAndNode.emplace_back(
-                    std::make_unique<YADAW::Audio::Mixer::Meter>(
-                        8192, channelGroupType, channelCountInGroup
-                    ),
-                    ade::NodeHandle()
-                );
-                meterAndNode.second = graph_.addNode(
-                    YADAW::Audio::Engine::AudioDeviceProcess(
-                        *(meterAndNode.first)
-                    )
-                );
-            }
-            // mutes -----------------------------------------------------------
-            std::vector<MuteAndNode> mutesAndNode;
-            mutesAndNode.reserve(count);
-            FOR_RANGE0(i, count)
-            {
-                auto& muteAndNode = mutesAndNode.emplace_back(
-                    std::make_unique<YADAW::Audio::Util::Mute>(
-                        channelGroupType, channelCountInGroup
-                    ),
-                    ade::NodeHandle()
-                );
-                muteAndNode.second = graph_.addNode(
-                    YADAW::Audio::Engine::AudioDeviceProcess(
-                        *(muteAndNode.first)
-                    )
-                );
-            }
-            // pre-fader inserts -----------------------------------------------
-            std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts;
-            preFaderInserts.reserve(count);
-            FOR_RANGE0(i, count)
-            {
-                preFaderInserts.emplace_back(
-                    std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                        graph_,
-                        inputDevicesAndNode[i].second, mutesAndNode[i].second,
-                        0, 0
-                    )
-                );
-            }
-            // post-fader inserts ----------------------------------------------
-            std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts;
-            postFaderInserts.reserve(count);
-            FOR_RANGE0(i, count)
-            {
-                postFaderInserts.emplace_back(
-                    std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                        graph_,
-                        fadersAndNode[i].second, metersAndNode[i].second,
-                        0, 0
-                    )
-                );
-            }
-            // connect and move-------------------------------------------------
-            FOR_RANGE0(i, count)
-            {
-                graph_.connect(
-                    mutesAndNode[i].second, fadersAndNode[i].second, 0, 0
-                );
-            }
-            std::move(
-                inputDevicesAndNode.begin(), inputDevicesAndNode.end(),
-                std::inserter(
-                    inputDevices_, inputDevices_.begin() + position
-                )
-            );
-            std::move(
-                preFaderInserts.begin(), preFaderInserts.end(),
-                std::inserter(
-                    preFaderInserts_, preFaderInserts_.begin() + position
-                )
-            );
-            std::move(
-                postFaderInserts.begin(), postFaderInserts.end(),
-                std::inserter(
-                    postFaderInserts_, postFaderInserts_.begin() + position
-                )
-            );
-            std::move(
-                metersAndNode.begin(), metersAndNode.end(),
-                std::inserter(
-                    meters_, meters_.begin() + position
-                )
-            );
-            std::move(
-                fadersAndNode.begin(), fadersAndNode.end(),
-                std::inserter(
-                    faders_, faders_.begin() + position
-                )
-            );
-            std::move(
-                mutesAndNode.begin(), mutesAndNode.end(),
-                std::inserter(
-                    mutes_, mutes_.begin() + position
-                )
-            );
             ret = true;
             break;
         }
@@ -1415,6 +1259,63 @@ bool Mixer::insertChannels(
     }
     if(ret)
     {
+        // pre-fader inserts -----------------------------------------------
+        std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts;
+        preFaderInserts.reserve(count);
+        FOR_RANGE0(i, count)
+        {
+            preFaderInserts.emplace_back(
+                std::make_unique<YADAW::Audio::Mixer::Inserts>(
+                    graph_,
+                    inputDevicesAndNode[i].second, mutesAndNode[i].second,
+                    0, 0
+                )
+            );
+        }
+        // connect and move-------------------------------------------------
+        FOR_RANGE0(i, count)
+        {
+            graph_.connect(
+                mutesAndNode[i].second, fadersAndNode[i].second, 0, 0
+            );
+        }
+        std::move(
+            inputDevicesAndNode.begin(), inputDevicesAndNode.end(),
+            std::inserter(
+                inputDevices_, inputDevices_.begin() + position
+            )
+        );
+        std::move(
+            preFaderInserts.begin(), preFaderInserts.end(),
+            std::inserter(
+                preFaderInserts_, preFaderInserts_.begin() + position
+            )
+        );
+        std::move(
+            postFaderInserts.begin(), postFaderInserts.end(),
+            std::inserter(
+                postFaderInserts_, postFaderInserts_.begin() + position
+            )
+        );
+        std::move(
+            metersAndNode.begin(), metersAndNode.end(),
+            std::inserter(
+                meters_, meters_.begin() + position
+            )
+        );
+        std::move(
+            fadersAndNode.begin(), fadersAndNode.end(),
+            std::inserter(
+                faders_, faders_.begin() + position
+            )
+        );
+        std::move(
+            mutesAndNode.begin(), mutesAndNode.end(),
+            std::inserter(
+                mutes_, mutes_.begin() + position
+            )
+        );
+        // info, etc.
         std::fill_n(
             std::inserter(channelInfo_, channelInfo_.begin() + position), count,
             ChannelInfo {
