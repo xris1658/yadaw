@@ -477,7 +477,7 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
         auto inEdges = toNode->inEdges();
         if(!inEdges.empty())
         {
-            graph_.disconnect(inEdges.front);
+            graph_.disconnect(inEdges.front());
         }
         auto ret = false;
         if(position.type == Position::Type::AudioHardwareIOChannel)
@@ -485,12 +485,12 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
             auto it = std::lower_bound(
                 audioInputChannelIdAndIndex_.begin(),
                 audioInputChannelIdAndIndex_.end(),
-                position.id
+                position.id,
                 &compareIdAndIndexWithId
             );
             if(it != audioInputChannelIdAndIndex_.end() && it->id == position.id)
             {
-                auto fromNode = audioInputPostFaderInserts_[it->index]->outNode();
+                const auto& fromNode = audioInputPostFaderInserts_[it->index]->outNode();
                 ret = graph_.connect(fromNode, toNode, 0, 1).has_value();
             }
         }
