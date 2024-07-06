@@ -268,8 +268,13 @@ void CLAPHost::doResizeHintsChanged()
 
 bool CLAPHost::doRequestResize(std::uint32_t width, std::uint32_t height)
 {
-    auto window = plugin_->pluginGUI()->window();
-    window->resize(width, height);
+    auto gui = plugin_->pluginGUI();
+    auto window = gui->window();
+    auto devicePixelRatio = window->devicePixelRatio();
+    window->resize(
+        std::round(width / devicePixelRatio),
+        std::round(height / devicePixelRatio)
+    );
     return true;
 }
 
