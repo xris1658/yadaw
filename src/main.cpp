@@ -9,6 +9,7 @@
 #include "model/ModelInitializer.hpp"
 #include "native/Native.hpp"
 #include "ui/MessageDialog.hpp"
+#include "ui/Runtime.hpp"
 #include "ui/UI.hpp"
 
 #include <QDir>

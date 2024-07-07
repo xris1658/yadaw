@@ -1,5 +1,6 @@
 #include "PluginWindowController.hpp"
 
+#include "ui/Runtime.hpp"
 #include "ui/UI.hpp"
 
 namespace YADAW::Controller

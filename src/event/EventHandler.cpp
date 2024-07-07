@@ -21,6 +21,7 @@
 #include "model/RegularAudioIOPositionModel.hpp"
 #include "native/Native.hpp"
 #include "ui/MessageDialog.hpp"
+#include "ui/Runtime.hpp"
 #include "ui/UI.hpp"
 #include "util/IntegerRange.hpp"
 #if _WIN32

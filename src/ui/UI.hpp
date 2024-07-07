@@ -1,14 +1,11 @@
 #ifndef YADAW_SRC_UI_UI
 #define YADAW_SRC_UI_UI
 
-#include <QQmlApplicationEngine>
-#include <QQuickWindow>
+#include <QString>
+#include <QWindow>
 
 namespace YADAW::UI
 {
-extern QQmlApplicationEngine* qmlApplicationEngine;
-extern QQuickWindow* mainWindow;
-
 const QString& defaultFontDir();
 
 // Try setting window state from maximized to fullscreen without showing the

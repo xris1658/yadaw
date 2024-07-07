@@ -1,8 +1,7 @@
 #include "MessageDialog.hpp"
 
 #include "event/EventBase.hpp"
-#include "ui/UI.hpp"
-#include "util/IntegerRange.hpp"
+#include "ui/Runtime.hpp"
 
 #include <QEventLoop>
 

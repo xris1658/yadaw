@@ -19,9 +19,6 @@
 
 namespace YADAW::UI
 {
-QQmlApplicationEngine* qmlApplicationEngine = nullptr;
-QQuickWindow* mainWindow = nullptr;
-
 const QString& defaultFontDir()
 {
     static QString ret =
