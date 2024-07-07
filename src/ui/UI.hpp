@@ -19,6 +19,10 @@ void setMaximizedWindowToFullScreen(QWindow& window);
 // Since it relies on private `QPlatformWindow` implementations, this function
 // might not work correctly on several Qt versions.
 void setFullScreenWindowToMaximized(QWindow& window);
+
+bool isWindowResizable(QWindow& window);
+
+void setWindowResizable(QWindow& window, bool resizable);
 }
 
 #endif // YADAW_SRC_UI_UI

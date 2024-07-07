@@ -27,7 +27,7 @@ public:
     QWindow* window() override;
     const QWindow* window() const override;
     bool detachWithWindow() override;
-public:
+    bool resizableByUser() const override;
     void connect();
     void disconnect();
     bool isConnected() const;

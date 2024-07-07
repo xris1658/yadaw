@@ -13,6 +13,7 @@
 #include "midi/MessageToVST3Event.hpp"
 #include "native/Native.hpp"
 #include "native/VST3Native.hpp"
+#include "ui/UI.hpp"
 #include "util/AtomicMutex.hpp"
 #include "util/Constants.hpp"
 #include "util/Util.hpp"
@@ -323,6 +324,7 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                     pluginWindowThread.start();
                     auto factory = plugin.factory();
                     auto classCount = plugin.factory()->countClasses();
+                    auto window = pluginWindowThread.window();
                     for(int i = 0; i < classCount; ++i)
                     {
                         Steinberg::PClassInfo classInfo;
@@ -332,12 +334,17 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                            // do not use std::strcmp; use std::memcmp instead
                            && std::memcmp(tuid, classInfo.cid, 16) == 0)
                         {
-                            pluginWindowThread.window()->setTitle(QString::fromLocal8Bit(classInfo.name));
+                            window->setTitle(QString::fromLocal8Bit(classInfo.name));
                             break;
                         }
                     }
-                    gui->attachToWindow(pluginWindowThread.window());
-                    pluginWindowThread.window()->showNormal();
+                    gui->attachToWindow(window);
+                    window->showNormal();
+                    window->setFlags(Qt::WindowType::Dialog | Qt::WindowType::CustomizeWindowHint | Qt::WindowType::WindowTitleHint | Qt::WindowType::WindowCloseButtonHint);
+                    if(!gui->resizableByUser())
+                    {
+                        YADAW::UI::setWindowResizable(*window, false);
+                    }
                 }
                 QTimer timer;
                 timer.setInterval(std::chrono::milliseconds(10));

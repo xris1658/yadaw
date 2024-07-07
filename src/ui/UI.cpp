@@ -3,6 +3,7 @@
 #include "native/Native.hpp"
 
 #include <QCoreApplication>
+#include <QGuiApplication>
 
 #if _WIN32
 #include "native/Library.hpp"
@@ -13,9 +14,11 @@
 #if __linux__
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
+#include <xcb/xcb_icccm.h>
 #endif
 
 #include <mutex>
+#include <X11/Xutil.h>
 
 namespace YADAW::UI
 {
@@ -33,10 +36,12 @@ xcb_atom_t stateAtom;
 xcb_atom_t fullscreenAtom;
 xcb_atom_t fillWidthAtom;
 xcb_atom_t fillHeightAtom;
-const char stateText[] = "_NET_WM_STATE\0";
-const char fullscreenText[] = "_NET_WM_STATE_FULLSCREEN\0";
-const char fillWidthText[] = "_NET_WM_STATE_MAXIMIZED_HORZ\0";
-const char fillHeightText[] = "_NET_WM_STATE_MAXIMIZED_VERT\0";
+const char stateText[] = "_NET_WM_STATE";
+const char fullscreenText[] = "_NET_WM_STATE_FULLSCREEN";
+const char fillWidthText[] = "_NET_WM_STATE_MAXIMIZED_HORZ";
+const char fillHeightText[] = "_NET_WM_STATE_MAXIMIZED_VERT";
+const char resizeText[] = "_NET_WM_ACTION_RESIZE";
+const char changeStateText[] = "WM_CHANGE_STATE";
 
 std::once_flag initializeAtomFlag;
 
@@ -231,4 +236,57 @@ void setFullScreenWindowToMaximized(QWindow& window)
         window.showMaximized();
     }
 }
+
+#if _WIN32
+bool isWindowResizable(QWindow& window)
+{
+    auto hwnd = reinterpret_cast<HWND>(window.winId());
+    return GetWindowLongPtrW(hwnd, GWL_STYLE) & WS_THICKFRAME;
+}
+
+void setWindowResizable(QWindow& window, bool resizable)
+{
+    auto hwnd = reinterpret_cast<HWND>(window.winId());
+    auto style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+    if(resizable)
+    {
+        style |= WS_THICKFRAME;
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+    }
+    else if(style & WS_THICKFRAME)
+    {
+        style ^= WS_THICKFRAME;
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+    }
+}
+#elif __linux__
+bool isWindowResizable(QWindow& window)
+{
+    return false;
+}
+
+void setWindowResizable(QWindow& window, bool resizable)
+{
+    auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
+    if(x11Interface)
+    {
+        auto windowHandle = static_cast<xcb_window_t>(window.winId());
+        auto connection = x11Interface->connection();
+        if(resizable)
+        {
+            xcb_delete_property(connection, windowHandle, XCB_ATOM_WM_NORMAL_HINTS);
+        }
+        else
+        {
+            xcb_size_hints_t hints;
+            auto getGeometryCookie = xcb_get_geometry(connection, windowHandle);
+            auto geometry = xcb_get_geometry_reply(connection, getGeometryCookie, nullptr);
+            xcb_icccm_size_hints_set_min_size(&hints, geometry->width, geometry->height);
+            xcb_icccm_size_hints_set_max_size(&hints, geometry->width, geometry->height);
+            free(geometry);
+            xcb_icccm_set_wm_size_hints(connection, windowHandle, XCB_ATOM_WM_NORMAL_HINTS, &hints);
+        }
+    }
+}
+#endif
 }

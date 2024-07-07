@@ -14,6 +14,7 @@ public:
     virtual QWindow* window() = 0;
     virtual const QWindow* window() const = 0;
     virtual bool detachWithWindow() = 0;
+    virtual bool resizableByUser() const = 0;
 };
 }
 

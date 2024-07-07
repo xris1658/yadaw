@@ -75,6 +75,15 @@ bool CLAPPluginGUI::detachWithWindow()
     return true;
 }
 
+bool CLAPPluginGUI::resizableByUser() const
+{
+    if(gui_)
+    {
+        return gui_->can_resize(plugin_);
+    }
+    return false;
+}
+
 void CLAPPluginGUI::connect()
 {
     connections_[0] = QObject::connect(window_, &QWindow::widthChanged,

@@ -91,6 +91,15 @@ bool VST3PluginGUI::detachWithWindow()
     return detachResult == Steinberg::kResultOk;
 }
 
+bool VST3PluginGUI::resizableByUser() const
+{
+    if(plugView_)
+    {
+        return plugView_->canResize() == Steinberg::kResultTrue;
+    }
+    return false;
+}
+
 void VST3PluginGUI::connect()
 {
     if(!isConnected_)

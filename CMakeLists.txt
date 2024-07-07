@@ -514,6 +514,8 @@ add_executable(CLAPTest
                src/native/win/Native.cpp
                src/native/linux/Library.cpp
                src/native/win/Library.cpp
+               src/ui/UI.cpp
+               src/ui/UI.hpp
                src/util/Util.cpp
                src/util/Util.hpp
                test/common/PluginWindowThread.hpp
@@ -833,6 +835,8 @@ add_executable(VST3Test
                src/native/win/MIDIInputDeviceImpl.cpp
                src/native/win/MIDIInputDeviceImpl.hpp
                src/native/win/Native.cpp
+               src/ui/UI.cpp
+               src/ui/UI.hpp
                src/util/AtomicMutex.cpp
                src/util/AtomicMutex.hpp
                src/util/QuadraticFunction.cpp
@@ -866,7 +870,7 @@ if(WIN32)
         )
     endif()
 elseif(LINUX)
-    set(NATIVE_LIBRARY asound dl xcb)
+    set(NATIVE_LIBRARY asound dl xcb xcb-icccm)
 endif()
 
 if(WIN32 AND MINGW)

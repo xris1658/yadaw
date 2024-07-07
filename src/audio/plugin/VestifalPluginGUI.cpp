@@ -55,4 +55,9 @@ bool VestifalPluginGUI::detachWithWindow()
     }
     return false;
 }
+
+bool VestifalPluginGUI::resizableByUser() const
+{
+    return false; // TODO
+}
 }

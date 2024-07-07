@@ -8,6 +8,7 @@
 #include "native/CLAPNative.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/Native.hpp"
+#include "ui/UI.hpp"
 #include "util/Constants.hpp"
 #include "util/Util.hpp"
 
@@ -234,8 +235,14 @@ void testPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, bool initializePlugin,
                 if(gui)
                 {
                     pluginWindowThread.start();
-                    pluginWindowThread.window()->showNormal();
-                    gui->attachToWindow(pluginWindowThread.window());
+                    auto window = pluginWindowThread.window();
+                    window->showNormal();
+                    gui->attachToWindow(window);
+                    window->setFlags(Qt::WindowType::Dialog | Qt::WindowType::CustomizeWindowHint | Qt::WindowType::WindowTitleHint | Qt::WindowType::WindowCloseButtonHint);
+                    if(!gui->resizableByUser())
+                    {
+                        YADAW::UI::setWindowResizable(*window, false);
+                    }
                     QGuiApplication::exec();
                 }
                 else

@@ -14,7 +14,13 @@ void createPluginWindow()
     YADAW::UI::qmlApplicationEngine->loadFromModule("content", "PluginWindow");
     auto pluginWindow = pluginWindows.pluginWindow;
     auto pluginFrame = pluginWindow->property("pluginFrame").value<QWindow*>();
-    pluginNeedsWindow->gui()->attachToWindow(pluginFrame);
+    auto gui = pluginNeedsWindow->gui();
+    gui->attachToWindow(pluginFrame);
+    if(!gui->resizableByUser())
+    {
+        YADAW::UI::setWindowResizable(*pluginFrame, false);
+        YADAW::UI::setWindowResizable(*pluginWindow, false);
+    }
     // Embed the plugin frame to its outer window (See `PluginWindow.qml`)
     // This process has to be done AFTER `IPluginGUI::attachToWindow`, or the
     // initial size of the GUI would be incorrect.

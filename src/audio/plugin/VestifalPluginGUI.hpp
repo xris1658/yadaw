@@ -17,6 +17,7 @@ public:
     QWindow* window() override;
     const QWindow* window() const override;
     bool detachWithWindow() override;
+    bool resizableByUser() const override;
 private:
     AEffect* effect_;
     QWindow* window_ = nullptr;
