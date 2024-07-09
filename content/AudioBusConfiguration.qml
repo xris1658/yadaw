@@ -103,6 +103,7 @@ Rectangle {
                 TextField {
                     id: audioBusNameTextField
                     visible: false
+                    enabled: visible
                     width: audioBusButton.width
                     height: parent.height
                     onAccepted: {

@@ -84,6 +84,7 @@ Rectangle {
     TextField {
         id: assetDirectoryRenameTextField
         visible: false
+        enabled: visible
         padding: 2
         Keys.onEscapePressed: (event) => {
             visible = false;

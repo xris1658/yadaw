@@ -48,6 +48,7 @@ Rectangle {
                         z: 2
                         text: nameText.text
                         visible: false
+                        enabled: visible
                         padding: 0
                         Keys.onEscapePressed: (event) => {
                             visible = false;
