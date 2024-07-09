@@ -480,6 +480,11 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
             graph_.disconnect(inEdges.front());
         }
         auto ret = false;
+        // Connect
+        if(position.type == Position::Type::Invalid)
+        {
+            ret = true;
+        }
         if(position.type == Position::Type::AudioHardwareIOChannel)
         {
             auto it = std::lower_bound(
@@ -494,8 +499,17 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
                 ret = graph_.connect(fromNode, toNode, 0, 1).has_value();
             }
         }
+        else if(position.type == Position::Type::BusAndFXChannel)
+        {
+            // not implemented
+        }
+        else if(position.type == Position::Type::PluginAuxIO)
+        {
+            // not implemented
+        }
         if(ret)
         {
+            connectionUpdatedCallback_(*this);
             mainInput_[index] = position;
         }
         return ret;
@@ -1390,6 +1404,14 @@ bool Mixer::insertChannels(
             );
         }
         std::fill_n(
+            std::inserter(mainInput_, mainInput_.begin() + position), count,
+            Position {
+                .type = Position::Invalid,
+                .channelGroupIndex = 0,
+                .id = IDGen::InvalidId
+            }
+        );
+        std::fill_n(
             std::inserter(mainOutput_, mainOutput_.begin() + position), count,
             Position {
                 .type = Position::Invalid,
@@ -1441,6 +1463,10 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         mainOutput_.erase(
             mainOutput_.begin() + first,
             mainOutput_.begin() + last
+        );
+        mainInput_.erase(
+            mainInput_.begin() + first,
+            mainInput_.begin() + last
         );
         inputDevices_.erase(
             inputDevices_.begin() + first,
