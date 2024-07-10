@@ -84,6 +84,21 @@ bool CLAPPluginGUI::resizableByUser() const
     return false;
 }
 
+void CLAPPluginGUI::requestResizeCalled()
+{
+    requestResizeCalled_ = true;
+}
+
+void CLAPPluginGUI::fetchResizeHints()
+{
+    gui_->get_resize_hints(plugin_, &resizeHints_);
+}
+
+clap_gui_resize_hints CLAPPluginGUI::resizeHints() const
+{
+    return resizeHints_;
+}
+
 void CLAPPluginGUI::connect()
 {
     connections_[0] = QObject::connect(window_, &QWindow::widthChanged,
@@ -98,16 +113,6 @@ void CLAPPluginGUI::disconnect()
     QObject::disconnect(connections_[1]);
 }
 
-void CLAPPluginGUI::fetchResizeHints()
-{
-    gui_->get_resize_hints(plugin_, &resizeHints_);
-}
-
-clap_gui_resize_hints CLAPPluginGUI::resizeHints() const
-{
-    return resizeHints_;
-}
-
 const clap_plugin_gui* CLAPPluginGUI::gui()
 {
     return gui_;
@@ -115,11 +120,16 @@ const clap_plugin_gui* CLAPPluginGUI::gui()
 
 void CLAPPluginGUI::onWindowSizeChanged()
 {
+    if(requestResizeCalled_)
+    {
+        requestResizeCalled_ = false;
+        return;
+    }
     auto devicePixelRatio = window_->devicePixelRatio();
     std::uint32_t oldWidth, oldHeight;
     gui_->get_size(plugin_, &oldWidth, &oldHeight);
-    std::uint32_t width = window_->width();
-    std::uint32_t height = window_->height();
+    std::uint32_t width = window_->width() * devicePixelRatio;
+    std::uint32_t height = window_->height() * devicePixelRatio;
     if(gui_->adjust_size(plugin_, &width, &height))
     {
         disconnect();
@@ -138,6 +148,5 @@ void CLAPPluginGUI::onWindowSizeChanged()
         std::round(width / devicePixelRatio),
         std::round(height / devicePixelRatio)
     );
-    return;
 }
 }
