@@ -28,12 +28,11 @@ public:
     const QWindow* window() const override;
     bool detachWithWindow() override;
     bool resizableByUser() const override;
-    void connect();
-    void disconnect();
-    bool isConnected() const;
 public:
     void resizeViewCalled();
 private:
+    void connect();
+    void disconnect();
     void onWindowSizeChanged();
 private:
     Steinberg::IPlugView* plugView_ = nullptr;

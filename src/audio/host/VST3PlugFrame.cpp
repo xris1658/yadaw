@@ -61,8 +61,6 @@ Steinberg::tresult VST3PlugFrame::resizeView(Steinberg::IPlugView* view, Steinbe
         {
             return result;
         }
-        auto isConnected = gui_->isConnected();
-        gui_->disconnect();
         window->resize(
             std::round(tweakedNewSize.getWidth() / devicePixelRatio),
             std::round(tweakedNewSize.getHeight() / devicePixelRatio)
@@ -73,10 +71,6 @@ Steinberg::tresult VST3PlugFrame::resizeView(Steinberg::IPlugView* view, Steinbe
             return result;
         }
         view->getSize(newSize);
-        if(isConnected)
-        {
-            gui_->connect();
-        }
         return Steinberg::kResultOk;
     }
     return Steinberg::kInvalidArgument;

@@ -102,6 +102,11 @@ bool VST3PluginGUI::resizableByUser() const
     return false;
 }
 
+void VST3PluginGUI::resizeViewCalled()
+{
+    resizeViewCalled_ = true;
+}
+
 void VST3PluginGUI::connect()
 {
     if(!isConnected_)
@@ -132,16 +137,6 @@ void VST3PluginGUI::disconnect()
         QObject::disconnect(connections_[1]);
         isConnected_ = false;
     }
-}
-
-bool VST3PluginGUI::isConnected() const
-{
-    return isConnected_;
-}
-
-void VST3PluginGUI::resizeViewCalled()
-{
-    resizeViewCalled_ = true;
 }
 
 void VST3PluginGUI::onWindowSizeChanged()
