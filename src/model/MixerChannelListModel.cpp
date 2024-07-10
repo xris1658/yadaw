@@ -666,6 +666,15 @@ bool MixerChannelListModel::insert(int position, int count,
         );
         if(ret)
         {
+            FOR_RANGE(i, position, position + count)
+            {
+                mixer_.channelPreFaderInsertsAt(i)->get().setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
+                mixer_.channelPreFaderInsertsAt(i)->get().setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
+                mixer_.channelPreFaderInsertsAt(i)->get().setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
+                mixer_.channelPostFaderInsertsAt(i)->get().setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
+                mixer_.channelPostFaderInsertsAt(i)->get().setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
+                mixer_.channelPostFaderInsertsAt(i)->get().setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
+            }
             beginInsertRows(QModelIndex(), position, position + count - 1);
             int offset = 0;
             std::generate_n(
