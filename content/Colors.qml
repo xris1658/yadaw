@@ -39,6 +39,7 @@ QtObject {
     readonly property color mutedButtonBackground: "#FFC000"
     readonly property color soloedButtonBackground: "#00A0FF"
     readonly property color invertedButtonBackground: "#40C000"
+    readonly property color monitorButtonBackground: "#C6F000"
     readonly property color armRecordingButtonBackground: "#F02000"
 
     readonly property color bigClockBackground: background

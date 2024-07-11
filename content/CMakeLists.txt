@@ -91,6 +91,7 @@ set(CONTENT_QML_FILES
     GenericPluginEditor.qml
     Global.qml
     GroupIcon.qml
+    HeadphoneIcon.qml
     IOIcon.qml
     InsertIcon.qml
     ItemDelegate.qml

@@ -583,7 +583,7 @@ Rectangle {
             id: controlButtonPlaceholder
             color: "transparent"
             width: root.width
-            Layout.preferredHeight: muteButton.height + panningButton.height + impl.padding * 3
+            Layout.preferredHeight: muteButton.height + monitorButton.height + paddingSlider.height + impl.padding * 4
             Column {
                 anchors.centerIn: parent
                 spacing: impl.padding
@@ -592,7 +592,7 @@ Rectangle {
                     Button {
                         id: muteButton
                         text: "M"
-                        width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
+                        width: (controlButtonPlaceholder.width - impl.padding * 3) / 2
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
@@ -616,7 +616,7 @@ Rectangle {
                     Button {
                         id: soloButton
                         text: "S"
-                        width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
+                        width: (controlButtonPlaceholder.width - impl.padding * 3) / 2
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
@@ -634,10 +634,12 @@ Rectangle {
                                         Colors.mouseOverControlBackground:
                                         Colors.controlBackground
                     }
+                }
+                Row {
+                    spacing: impl.padding
                     Button {
-                        id: invertPolarityButton
-                        text: "∅"
-                        width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
+                        id: monitorButton
+                        width: (controlButtonPlaceholder.width - impl.padding * 3) / 2
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
@@ -645,20 +647,26 @@ Rectangle {
                             Colors.background:
                             checked?
                                 down?
-                                    Qt.darker(Colors.invertedButtonBackground, 1.25):
+                                    Qt.darker(Colors.monitorButtonBackground, 1.25):
                                     hovered?
-                                        Qt.lighter(Colors.invertedButtonBackground, 1.25):
-                                        Colors.invertedButtonBackground:
+                                        Qt.lighter(Colors.monitorButtonBackground, 1.25):
+                                        Colors.monitorButtonBackground:
                                 down?
                                     Colors.pressedControlBackground:
                                     hovered?
                                         Colors.mouseOverControlBackground:
                                         Colors.controlBackground
+                        HeadphoneIcon {
+                            path.fillColor: parent.contentItem.color
+                            path.strokeWidth: 0
+                            anchors.centerIn: parent
+                            scale: 16 / originalWidth
+                        }
                     }
                     Button {
                         id: armRecordingButton
                         text: "R"
-                        width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
+                        width: (controlButtonPlaceholder.width - impl.padding * 3) / 2
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
@@ -677,49 +685,49 @@ Rectangle {
                                         Colors.controlBackground
                     }
                 }
-                Item {
-                    id: panningButton
-                    width: root.width - impl.padding * 2
-                    height: panningText.contentHeight
-                    Item {
-                        anchors.left: parent.left
-                        width: parent.width / 2
-                        height: parent.height
-                        Row {
-                            anchors.centerIn: parent
-                            spacing: 5
-                            Dial {
-                                id: panningDial
-                                diameter: panningText.contentHeight
-                                from: -100
-                                to: 100
-                            }
-                            Label {
-                                id: panningText
-                                width: panningTextMax.contentWidth
-                                horizontalAlignment: Label.AlignHCenter
-                                text: Math.floor(panningDial.value)
-                                Label {
-                                    id: panningTextMax
-                                    text: "-100"
-                                    visible: false
-                                }
-                            }
+                Row {
+                    spacing: impl.padding
+                    ProgressBarLikeSlider {
+                        id: paddingSlider
+                        width: muteButton.width
+                        height: invertPolarityButton.height
+                        from: -100
+                        to: 100
+                        Label {
+                            anchors.fill: parent
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            text: paddingSlider.value
                         }
                     }
-                    Item {
-                        anchors.right: parent.right
-                        width: parent.width / 2
-                        height: parent.height
-                        Button {
-                            anchors.centerIn: parent
-                            height: panningButton.height
-                            text: "MONO"
-                            checkable: true
-                        }
+                    Button {
+                        id: invertPolarityButton
+                        text: "∅"
+                        width: (soloButton.width - impl.padding) / 2
+                        topPadding: 1
+                        bottomPadding: 1
+                        checkable: true
+                        backgroundColor: (!enabled)?
+                            Colors.background:
+                            checked?
+                                down?
+                                    Qt.darker(Colors.invertedButtonBackground, 1.25):
+                                    hovered?
+                                        Qt.lighter(Colors.invertedButtonBackground, 1.25):
+                                        Colors.invertedButtonBackground:
+                                down?
+                                    Colors.pressedControlBackground:
+                                    hovered?
+                                        Colors.mouseOverControlBackground:
+                                        Colors.controlBackground
+                    }
+                    Button {
+                        width: (soloButton.width - impl.padding) / 2
+                        height: invertPolarityButton.height
+                        text: "MONO"
+                        checkable: true
                     }
                 }
-
             }
         }
         Rectangle {

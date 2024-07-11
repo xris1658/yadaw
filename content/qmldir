@@ -45,6 +45,7 @@ FollowIcon 1.0 FollowIcon.qml
 GeneralSettings 1.0 GeneralSettings.qml
 GenericPluginEditor 1.0 GenericPluginEditor.qml
 GroupIcon 1.0 GroupIcon.qml
+HeadphoneIcon 1.0 HeadphoneIcon.qml
 IOIcon 1.0 IOIcon.qml
 InsertIcon 1.0 InsertIcon.qml
 ItemDelegate 1.0 ItemDelegate.qml
