@@ -7,15 +7,13 @@
 int main()
 {
     disableStdOutBuffer();
-    YADAW::Concurrent::PassDataToRealtimeThread<int> passDataToRealtimeThread(
-        std::make_unique<int>(0)
-    );
+    YADAW::Concurrent::PassDataToRealtimeThread<int> passDataToRealtimeThread(0);
     std::thread realtimeThread(
         [&passDataToRealtimeThread]()
         {
             while(true)
             {
-                const auto& data = *(passDataToRealtimeThread.get());
+                const auto& data = passDataToRealtimeThread.get();
                 // std::printf("%d\n", data);
                 if(data == -1)
                 {
@@ -30,7 +28,7 @@ int main()
     {
         int newData;
         std::scanf("%d", &newData);
-        passDataToRealtimeThread.update(std::make_unique<int>(newData));
+        passDataToRealtimeThread.update(newData);
         passDataToRealtimeThread.disposeOld();
         if(newData == -1)
         {

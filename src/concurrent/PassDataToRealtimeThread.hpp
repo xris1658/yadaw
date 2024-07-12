@@ -11,26 +11,54 @@ template<typename T>
 class PassDataToRealtimeThread
 {
 public:
-    PassDataToRealtimeThread(std::unique_ptr<T>&& initialData):
-        data_{std::move(initialData), std::unique_ptr<T>(nullptr)},
+    PassDataToRealtimeThread(const T& initialData):
+        data_{initialData, T()},
+        updated_(false)
+    {}
+    PassDataToRealtimeThread(T&& initialData):
+        data_{std::move(initialData), T()},
+        updated_(false)
+    {}
+    template<typename... Args>
+    PassDataToRealtimeThread(Args&&... args):
+        data_{T(std::forward<Args>(args)...), T()},
         updated_(false)
     {}
 public:
-    T* get()
+    T& get()
     {
-        return data_[0].get();
+        return data_[0];
     }
-    const T* get() const
+    const T& get() const
     {
-        return data_[0].get();
+        return data_[0];
     }
-    void update(std::unique_ptr<T>&& data, bool realtimeThreadRunning = true)
+    void update(const T& data, bool realtimeThreadRunning = true)
+    {
+        if(realtimeThreadRunning)
+        {
+            while(updated_.load(std::memory_order_acquire)) {}
+        }
+        data_[1] = data;
+        updated_.store(true, std::memory_order_release);
+    }
+    void update(T&& data, bool realtimeThreadRunning = true)
     {
         if(realtimeThreadRunning)
         {
             while(updated_.load(std::memory_order_acquire)) {}
         }
         data_[1] = std::move(data);
+        updated_.store(true, std::memory_order_release);
+    }
+    template<typename... Args>
+    void emplace(Args&&... args, bool realtimeThreadRunning = true)
+    {
+        if(realtimeThreadRunning)
+        {
+            while(updated_.load(std::memory_order_acquire)) {}
+        }
+        data_[1] = T(std::forward<Args>(args)...);
         updated_.store(true, std::memory_order_release);
     }
     void swapIfNeeded()
@@ -47,22 +75,46 @@ public:
         {
             while(updated_.load(std::memory_order_acquire)) {}
         }
-        data_[1].reset();
     }
-    void updateAndDispose(std::unique_ptr<T>&& data, bool realtimeThreadRunning = true)
+    void updateAndDispose(const T& data, bool realtimeThreadRunning = true)
+    {
+        if(realtimeThreadRunning)
+        {
+            update(data, realtimeThreadRunning);
+            while(updated_.load(std::memory_order_acquire)) {}
+        }
+        else
+        {
+            data_[0] = data; // ABA happens here, but maybe it's okay?
+        }
+    }
+    void updateAndDispose(T&& data, bool realtimeThreadRunning = true)
     {
         if(realtimeThreadRunning)
         {
             update(std::move(data), realtimeThreadRunning);
-            disposeOld(realtimeThreadRunning);
+            while(updated_.load(std::memory_order_acquire)) {}
         }
         else
         {
             data_[0] = std::move(data); // ABA happens here, but maybe it's okay?
         }
     }
+    template<typename... Args>
+    void emplaceAndDispose(Args&&... args, bool realtimeThreadRunning = true)
+    {
+        if(realtimeThreadRunning)
+        {
+            update(std::forward<Args>(args)..., realtimeThreadRunning);
+            while(updated_.load(std::memory_order_acquire)) {}
+        }
+        else
+        {
+            data_[0] = T(std::forward<Args>(args)...); // ABA happens here, but maybe it's okay?
+        }
+    }
 private:
-    std::array<std::unique_ptr<T>, 2> data_;
+    std::array<T, 2> data_;
     std::atomic<bool> updated_;
 };
 }

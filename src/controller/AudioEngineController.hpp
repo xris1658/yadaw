@@ -37,14 +37,14 @@ public:
     void setBufferSize(std::uint32_t bufferSize);
     const YADAW::Audio::Mixer::Mixer& mixer() const;
     YADAW::Audio::Mixer::Mixer& mixer();
-    const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>& processSequence() const;
-    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>& processSequence();
-    const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>& vst3PluginPool() const;
-    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>& vst3PluginPool();
-    const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector>& clapPluginPool() const;
-    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector>& clapPluginPool();
-    const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginToSetProcessVector>& clapPluginToSetProcess() const;
-    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginToSetProcessVector>& clapPluginToSetProcess();
+    const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>& processSequence() const;
+    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>& processSequence();
+    const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>>& vst3PluginPool() const;
+    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>>& vst3PluginPool();
+    const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginPoolVector>>& clapPluginPool() const;
+    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginPoolVector>>& clapPluginPool();
+    const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginToSetProcessVector>>& clapPluginToSetProcess() const;
+    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginToSetProcessVector>>& clapPluginToSetProcess();
     bool running() const;
     void setRunning(bool running);
 public:
@@ -69,10 +69,10 @@ private:
     bool running_ = false;
     std::atomic<std::int64_t> processTime_;
     YADAW::Audio::Mixer::Mixer mixer_;
-    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence> processSequence_;
-    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector> vst3PluginPool_;
-    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector> clapPluginPool_;
-    YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginToSetProcessVector> clapPluginToSetProcess_;
+    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>> processSequence_;
+    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>> vst3PluginPool_;
+    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginPoolVector>> clapPluginPool_;
+    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginToSetProcessVector>> clapPluginToSetProcess_;
 };
 }
 

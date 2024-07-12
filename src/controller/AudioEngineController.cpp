@@ -59,13 +59,13 @@ YADAW::Audio::Mixer::Mixer& AudioEngine::mixer()
     return mixer_;
 }
 
-const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>&
+const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>&
 AudioEngine::processSequence() const
 {
     return processSequence_;
 }
 
-YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Audio::Engine::ProcessSequence>& AudioEngine::processSequence()
+YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>& AudioEngine::processSequence()
 {
     return processSequence_;
 }
@@ -194,36 +194,37 @@ void AudioEngine::insertsConnectionUpdatedCallback(const Audio::Mixer::Inserts& 
     instance.updateProcessSequence();
 }
 
-const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>&
+const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>>&
     AudioEngine::vst3PluginPool() const
 {
     return vst3PluginPool_;
 }
 
-YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::VST3PluginPoolVector>&
+YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>>&
     AudioEngine::vst3PluginPool()
 {
     return vst3PluginPool_;
 }
 
-const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector>&
+const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginPoolVector>>&
 AudioEngine::clapPluginPool() const
 {
     return clapPluginPool_;
 }
 
-YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginPoolVector>& AudioEngine::clapPluginPool()
+YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginPoolVector>>&
+AudioEngine::clapPluginPool()
 {
     return clapPluginPool_;
 }
 
-const YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginToSetProcessVector>&
+const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginToSetProcessVector>>&
 AudioEngine::clapPluginToSetProcess() const
 {
     return clapPluginToSetProcess_;
 }
 
-YADAW::Concurrent::PassDataToRealtimeThread<YADAW::Controller::CLAPPluginToSetProcessVector>&
+YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginToSetProcessVector>>&
 AudioEngine::clapPluginToSetProcess()
 {
     return clapPluginToSetProcess_;
