@@ -697,7 +697,7 @@ Rectangle {
                             anchors.fill: parent
                             verticalAlignment: Text.AlignVCenter
                             horizontalAlignment: Text.AlignHCenter
-                            text: paddingSlider.value
+                            text: Math.round(paddingSlider.value)
                         }
                     }
                     Button {

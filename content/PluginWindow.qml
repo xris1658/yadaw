@@ -9,7 +9,7 @@ Window {
     property bool destroyingPlugin: false
     property Window pluginFrame: pluginFrame
     width: pluginFrame.width
-    height: pluginFrame.height + 20
+    height: pluginFrame.height + topBar.height
     onClosing: (close) => {
         if(!root.destroyingPlugin) {
             close.accepted = false;
@@ -20,7 +20,12 @@ Window {
         pluginFrame.width = width;
     }
     onHeightChanged: {
-        pluginFrame.height = height - 20;
+        pluginFrame.height = height - topBar.height;
+    }
+    Rectangle {
+        id: topBar
+        width: parent.width
+        height: 20
     }
     // Embedded into `root`. Since embedding windows is not available in QML
     // codes until Qt 6.7, we have to do this in C++ codes. (although coupling
@@ -32,7 +37,7 @@ Window {
         visibility: root.visibility
         transientParent: root
         x: 0
-        y: 20
+        y: topBar.height
         onClosing: (close) => {
             if (!root.destroyingPlugin) {
                 close.accepted = false;
