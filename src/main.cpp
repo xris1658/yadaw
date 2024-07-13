@@ -176,6 +176,7 @@ int main(int argc, char *argv[])
         }
         YADAW::Controller::currentTranslationIndex = 0;
     }
+    auto& timer = YADAW::UI::idleProcessTimer();
     engine.loadFromModule("Main", "Events");
     YADAW::Event::EventHandler eh(YADAW::Event::eventSender, YADAW::Event::eventReceiver);
     YADAW::Event::eventHandler = &eh;

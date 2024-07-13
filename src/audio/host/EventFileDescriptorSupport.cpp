@@ -1,3 +1,4 @@
+#include "ui/Runtime.hpp"
 #if __linux__
 
 #include "EventFileDescriptorSupport.hpp"
@@ -34,10 +35,25 @@ std::uint32_t eventFlagsFromCLAP(clap_posix_fd_flags_t flags)
 
 EventFileDescriptorSupport::EventFileDescriptorSupport():
     epollFD_(epoll_create1(0))
+{}
+
+EventFileDescriptorSupport& EventFileDescriptorSupport::instance()
 {
-    zeroTimer_.setInterval(0);
-    zeroTimer_.setSingleShot(false);
-    zeroTimer_.callOnTimeout(
+    static EventFileDescriptorSupport ret;
+    return ret;
+}
+
+EventFileDescriptorSupport::~EventFileDescriptorSupport()
+{
+    stop();
+    clear();
+    close(epollFD_);
+}
+
+void EventFileDescriptorSupport::start()
+{
+    auto& timer = YADAW::UI::idleProcessTimer();
+    connectToTimer_ = timer.callOnTimeout(
         QCoreApplication::instance(),
         [this]()
         {
@@ -59,27 +75,13 @@ EventFileDescriptorSupport::EventFileDescriptorSupport():
     );
 }
 
-EventFileDescriptorSupport& EventFileDescriptorSupport::instance()
-{
-    static EventFileDescriptorSupport ret;
-    return ret;
-}
-
-EventFileDescriptorSupport::~EventFileDescriptorSupport()
-{
-    stop();
-    clear();
-    close(epollFD_);
-}
-
-void EventFileDescriptorSupport::start()
-{
-    zeroTimer_.start();
-}
-
 void EventFileDescriptorSupport::stop()
 {
-    zeroTimer_.stop();
+    if(connectToTimer_)
+    {
+        QObject::disconnect(connectToTimer_);
+        connectToTimer_ = {};
+    }
 }
 
 void EventFileDescriptorSupport::notify(int fd, Info& info)

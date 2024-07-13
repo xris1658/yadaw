@@ -55,7 +55,7 @@ public:
     bool modifyCLAP(int fd, clap_posix_fd_flags_t flags);
 private:
     std::map<int, Info> eventFDs_;
-    QTimer zeroTimer_;
+    QMetaObject::Connection connectToTimer_;
     int epollFD_;
 };
 }

@@ -1,8 +1,10 @@
 #ifndef YADAW_SRC_UI_RUNTIME
 #define YADAW_SRC_UI_RUNTIME
 
-#include <QQmlApplicationEngine>
-#include <QQuickWindow>
+#include <QTimer>
+
+class QQmlApplicationEngine;
+class QQuickWindow;
 
 namespace YADAW::UI
 {
@@ -10,5 +12,7 @@ namespace YADAW::UI
 // use these pointers.
 extern QQmlApplicationEngine* qmlApplicationEngine;
 extern QQuickWindow* mainWindow;
+
+QTimer& idleProcessTimer();
 }
 #endif // YADAW_SRC_UI_RUNTIME

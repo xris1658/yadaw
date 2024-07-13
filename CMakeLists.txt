@@ -516,6 +516,8 @@ add_executable(CLAPTest
                src/native/win/Library.cpp
                src/ui/UI.cpp
                src/ui/UI.hpp
+               src/ui/Runtime.cpp
+               src/ui/Runtime.hpp
                src/util/Util.cpp
                src/util/Util.hpp
                test/common/PluginWindowThread.hpp
@@ -835,6 +837,8 @@ add_executable(VST3Test
                src/native/win/MIDIInputDeviceImpl.cpp
                src/native/win/MIDIInputDeviceImpl.hpp
                src/native/win/Native.cpp
+               src/ui/Runtime.cpp
+               src/ui/Runtime.hpp
                src/ui/UI.cpp
                src/ui/UI.hpp
                src/util/AtomicMutex.cpp
