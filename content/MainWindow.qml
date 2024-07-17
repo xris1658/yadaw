@@ -86,7 +86,6 @@ ApplicationWindow {
     onMainWindowReady: {
         opened = true;
         visible = true;
-        cpuUsageTimer.start();
     }
 
     Component.onCompleted: {
@@ -95,7 +94,6 @@ ApplicationWindow {
 
     onClosing: (close) => {
         if(!canClose) {
-            cpuUsageTimer.stop();
             preferencesWindow.close();
             close.accepted = false;
             EventSender.mainWindowClosing();
@@ -955,13 +953,5 @@ ApplicationWindow {
     }
     PluginScanProgressWindow {
         id: pluginScanProgressWindow
-    }
-    Timer {
-        id: cpuUsageTimer
-        interval: 50
-        repeat: true
-        onTriggered: {
-            EventSender.requestProcessLoad();
-        }
     }
 }
