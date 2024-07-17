@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_UTIL_INTEGERRANGE
 #define YADAW_SRC_UTIL_INTEGERRANGE
 
+#include <cassert>
 #include <iterator>
 
 namespace YADAW::Util
@@ -110,8 +111,8 @@ public:
         T value_;
     };
 public:
-    IntegerRange(T first, T last): first_(first), last_(last) {}
-    IntegerRange(T last): first_(T(0)), last_(last) {}
+    IntegerRange(T first, T last): first_(first), last_(last) { assert(first <= last); }
+    IntegerRange(T last): IntegerRange(T(0), last) {}
     IntegerRange(const Self&) = default;
     IntegerRange(Self&&) noexcept = default;
     Self& operator=(const Self&) = default;

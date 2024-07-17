@@ -339,7 +339,7 @@ set(YADAW_COMMON_SOURCES
     src/dao/PluginTable.cpp
     src/dao/PluginTable.hpp
     src/entity/AudioBackendSupport.cpp
-        src/entity/ChannelConfig.cpp
+    src/entity/ChannelConfig.cpp
     src/entity/ChannelConfigHelper.cpp
     src/entity/ChannelConfigHelper.hpp
     src/entity/EntityInitializer.cpp
