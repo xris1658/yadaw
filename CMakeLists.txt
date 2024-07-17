@@ -893,7 +893,7 @@ endif()
 
 target_link_libraries(YADAW PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickTemplates2
-                      contentplugin
+                      content
                       ade
                       ${NATIVE_LIBRARY}
                       base pluginterfaces sdk_common sdk_hosting

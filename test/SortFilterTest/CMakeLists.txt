@@ -14,4 +14,4 @@ add_executable(SortFilterTest
 
 target_link_libraries(SortFilterTest PRIVATE
                       Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick
-                      SortFilterTestContentplugin)
+                      SortFilterTestContent)

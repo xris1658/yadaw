@@ -3,6 +3,7 @@ qt_add_library(SortFilterTestContent STATIC)
 qt_add_qml_module(SortFilterTestContent
                   URI "SortFilterTestContent"
                   VERSION 1.0
+                  NO_PLUGIN
                   QML_FILES
                   MainWindow.qml
                   RESOURCES

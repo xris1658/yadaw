@@ -162,6 +162,7 @@ message(NOTICE "Close the UI project in Qt Design Studio BEFORE building things.
 qt_add_qml_module(content
                   URI "content"
                   VERSION 1.0
+                  NO_PLUGIN
                   QML_FILES
                     ${CONTENT_QML_FILES}
                   SOURCES
