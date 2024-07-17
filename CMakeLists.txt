@@ -419,6 +419,8 @@ set(YADAW_COMMON_SOURCES
     src/native/VestifalNative.hpp
     src/ui/MessageDialog.cpp
     src/ui/MessageDialog.hpp
+    src/ui/NativePopupEventFilter.cpp
+    src/ui/NativePopupEventFilter.hpp
     src/ui/Runtime.cpp
     src/ui/Runtime.hpp
     src/ui/UI.cpp
