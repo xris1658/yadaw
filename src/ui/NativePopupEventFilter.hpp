@@ -1,17 +1,27 @@
 #ifndef YADAW_SRC_UI_NATIVEPOPUPEVENTFILTER
 #define YADAW_SRC_UI_NATIVEPOPUPEVENTFILTER
 
-#include <QObject>
 #include <QAbstractNativeEventFilter>
+#include <QObject>
+#include <QWindow>
 
 namespace YADAW::UI
 {
 class NativePopupEventFilter: public QObject, public QAbstractNativeEventFilter
 {
+private:
+    struct WindowAndId
+    {
+        QWindow* window;
+        WId winId;
+        WindowAndId(QWindow& window): window(&window), winId(window.winId()) {}
+    };
 public:
     NativePopupEventFilter(QWindow& parentWindow);
     ~NativePopupEventFilter() override;
 public:
+    const QWindow& parentWindow() const;
+    QWindow& parentWindow();
     bool empty() const;
     std::uint32_t count() const;
     const QWindow& operator[](std::uint32_t index) const;
@@ -27,8 +37,9 @@ public:
     bool eventFilter(QObject* watched, QEvent* event) override;
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
 private:
-    QWindow* parentWindow_;
-    std::vector<QWindow*> nativePopups_;
+    WindowAndId parentWindow_;
+    std::vector<WindowAndId> nativePopups_;
+
 };
 }
 
