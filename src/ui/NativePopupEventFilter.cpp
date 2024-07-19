@@ -115,17 +115,42 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
             || type == QEvent::Type::MouseButtonPress
             || type == QEvent::Type::MouseButtonRelease
             || type == QEvent::Type::MouseButtonDblClick
-            || type == QEvent::Type::Gesture
+        )
+        {
+            auto* mouseEvent = static_cast<QMouseEvent*>(event);
+            auto ret = false;
+            for(auto& [nativePopup, winId]: nativePopups_)
+            {
+                QMouseEvent mouseEventForPopup(
+                    type,
+                    QPointF(
+                        mouseEvent->globalPosition().x() - nativePopup->x(),
+                        mouseEvent->globalPosition().y() - nativePopup->y()
+                    ),
+                    mouseEvent->button(),
+                    mouseEvent->buttons(),
+                    mouseEvent->modifiers(),
+                    mouseEvent->pointingDevice()
+                );
+                ret |= static_cast<QObject*>(nativePopup)->event(&mouseEventForPopup);
+            }
+            return ret | QObject::eventFilter(watched, event);
+        }
+        else if(type == QEvent::Type::Gesture
             || type == QEvent::Type::GestureOverride
             || type == QEvent::Type::NativeGesture
             || type == QEvent::Type::KeyRelease
-        )
+            || type == QEvent::Type::TouchBegin
+            || type == QEvent::Type::TouchCancel
+            || type == QEvent::Type::TouchEnd
+            || type == QEvent::Type::TouchUpdate)
         {
+            auto ret = false;
             for(auto& [nativePopup, winId]: nativePopups_)
             {
-                static_cast<QObject*>(nativePopup)->event(event);
+                ret |= static_cast<QObject*>(nativePopup)->event(event);
             }
-            return true;
+            return ret | QObject::eventFilter(watched, event);
         }
         else if(type == QEvent::Type::KeyPress)
         {
@@ -133,6 +158,10 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
             // Windows: Alt + F4; macOS: Command + Q
             if(keyEvent->matches(QKeySequence::StandardKey::Close))
             {
+                if(nativePopups_.empty())
+                {
+                    return QObject::eventFilter(watched, event);
+                }
                 for(auto& [nativePopup, winId]: nativePopups_)
                 {
                     nativePopup->close();
