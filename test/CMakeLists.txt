@@ -215,4 +215,6 @@ target_link_libraries(SampleDelayTest PRIVATE Qt6::Core)
 
 add_subdirectory(FileTreeModelTest)
 
+add_subdirectory(NativePopupTest)
+
 add_subdirectory(SortFilterTest)
