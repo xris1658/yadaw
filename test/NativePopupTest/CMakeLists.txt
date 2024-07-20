@@ -7,4 +7,10 @@ qt_add_executable(NativePopupTest
                   EventHandler.cpp
                   EventHandler.hpp)
 
-target_link_libraries(NativePopupTest PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick NativePopupTestContent)
+if(LINUX)
+    set(NATIVE_POPUP_TEST_NATIVE_LIBRARY xcb)
+endif()
+
+target_link_libraries(NativePopupTest PRIVATE
+                      Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick NativePopupTestContent
+                      ${NATIVE_POPUP_TEST_NATIVE_LIBRARY})

@@ -5,6 +5,8 @@
 
 #if _WIN32
 #include <windows.h>
+#elif __linux__
+#include <xcb/xcb.h>
 #endif
 
 namespace YADAW::UI
@@ -226,6 +228,24 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
                 }
             }
         }
+    }
+#elif __linux__
+    if(eventType == "xcb_generic_event_t")
+    {
+        auto event = static_cast<xcb_generic_event_t*>(message);
+        // Use the event
+        // if(event->response_type == XCB_EXPOSE)
+        // {
+        //     auto exposeEvent = reinterpret_cast<xcb_expose_event_t*>(event);
+        //     for(auto& [nativePopup, winId]: nativePopups_)
+        //     {
+        //         if(exposeEvent->window == static_cast<xcb_window_t>(winId))
+        //         {
+        //             return true;
+        //         }
+        //     }
+        // }
+        qDebug() << event->full_sequence << event->response_type;
     }
 #endif
     return false;

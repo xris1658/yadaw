@@ -27,6 +27,7 @@ Window {
             nativePopup.x = globalPoint.x;
             nativePopup.y = globalPoint.y;
             showNativePopup(globalPoint.x, globalPoint.y);
+            nativePopup.visible = true;
         }
     }
     Button {
@@ -41,7 +42,7 @@ Window {
     }
     Window {
         id: nativePopup
-        flags: Qt.FramelessWindowHint
+        flags: Qt.Tool | Qt.FramelessWindowHint
         visible: false
         width: 200
         height: column.height
@@ -80,6 +81,7 @@ Window {
                             parent.containsMouse? "#0050A0": "transparent"
                     }
                     onClicked: {
+                        button.text = (index + 1);
                         nativePopup.hide();
                     }
                 }
