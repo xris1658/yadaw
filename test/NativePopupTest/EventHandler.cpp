@@ -2,7 +2,9 @@
 
 #include <QVariant>
 
+#if _WIN32
 #include <windows.h>
+#endif
 
 EventHandler::EventHandler(QWindow& mainWindow):
     mainWindow_(&mainWindow)
