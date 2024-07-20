@@ -111,11 +111,7 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
     if(watched == parentWindow_.window)
     {
         auto type = event->type();
-        if(type == QEvent::Type::MouseMove
-            || type == QEvent::Type::MouseButtonPress
-            || type == QEvent::Type::MouseButtonRelease
-            || type == QEvent::Type::MouseButtonDblClick
-        )
+        if(type == QEvent::Type::MouseMove)
         {
             auto* mouseEvent = static_cast<QMouseEvent*>(event);
             auto ret = false;
@@ -133,6 +129,45 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
                     mouseEvent->pointingDevice()
                 );
                 ret |= static_cast<QObject*>(nativePopup)->event(&mouseEventForPopup);
+            }
+            return ret | QObject::eventFilter(watched, event);
+        }
+        else if(type == QEvent::Type::MouseButtonPress
+            || type == QEvent::Type::MouseButtonRelease
+            || type == QEvent::Type::MouseButtonDblClick)
+        {
+            auto* mouseEvent = static_cast<QMouseEvent*>(event);
+            auto shouldSendMousePressed = std::all_of(
+                nativePopups_.begin(), nativePopups_.end(),
+                [&mouseEvent](WindowAndId& windowAndId)
+                {
+                    auto& [window, winId] = windowAndId;
+                    return mouseEvent->globalX() < window->x()
+                    || mouseEvent->globalX() > window->x() + window->width()
+                    || mouseEvent->globalY() < window->y()
+                    || mouseEvent->globalY() > window->y() + window->height();
+                }
+            );
+            auto ret = false;
+            for(auto& [nativePopup, winId]: nativePopups_)
+            {
+                QMouseEvent mouseEventForPopup(
+                    type,
+                    QPointF(
+                        mouseEvent->globalPosition().x() - nativePopup->x(),
+                        mouseEvent->globalPosition().y() - nativePopup->y()
+                    ),
+                    mouseEvent->button(),
+                    mouseEvent->buttons(),
+                    mouseEvent->modifiers(),
+                    mouseEvent->pointingDevice()
+                );
+                ret |= static_cast<QObject*>(nativePopup)->event(&mouseEventForPopup);
+            }
+            if(shouldSendMousePressed)
+            {
+                mousePressedOutside();
+                return QObject::eventFilter(watched, event);
             }
             return ret | QObject::eventFilter(watched, event);
         }

@@ -31,6 +31,10 @@ int main(int argc, char** argv)
             if(visible)
             {
                 nativePopup->raise();
+                QObject::connect(
+                    &eventFilter, SIGNAL(mousePressedOutside()),
+                    nativePopup, SIGNAL(mousePressedOutside())
+                );
                 eventFilter.append(*nativePopup);
             }
             else
@@ -39,6 +43,10 @@ int main(int argc, char** argv)
                 {
                     if(&eventFilter[i] == nativePopup)
                     {
+                        QObject::disconnect(
+                            &eventFilter, &YADAW::UI::NativePopupEventFilter::mousePressedOutside,
+                            nativePopup, nullptr
+                        );
                         eventFilter.remove(i, 1);
                     }
                 }

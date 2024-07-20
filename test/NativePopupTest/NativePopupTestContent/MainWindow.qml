@@ -11,14 +11,32 @@ Window {
     signal showNativePopup(x: int, y: int)
     MouseArea {
         id: mouseArea
+        z: 1
         anchors.fill: parent
         hoverEnabled: true
         acceptedButtons: Qt.RightButton
         onReleased: (mouse) => {
             let globalPoint = mapToGlobal(mouse.x, mouse.y);
+            if(globalPoint.y + nativePopup.height >= root.screen.desktopAvailableHeight) {
+                globalPoint.y -= nativePopup.height;
+                if(globalPoint.y < 0) {
+                    globalPoint.y = root.screen.desktopAvailableHeight - nativePopup.height;
+                }
+            }
+            globalPoint.x = Math.min(globalPoint.x, root.screen.desktopAvailableWidth - nativePopup.width);
             nativePopup.x = globalPoint.x;
             nativePopup.y = globalPoint.y;
             showNativePopup(globalPoint.x, globalPoint.y);
+        }
+    }
+    Button {
+        id: button
+        width: 40
+        height: 40
+        anchors.centerIn: parent
+        z: 2
+        onClicked: {
+            console.log("clicked");
         }
     }
     Window {
@@ -26,7 +44,7 @@ Window {
         flags: Qt.FramelessWindowHint
         visible: false
         width: 200
-        height: 325
+        height: column.height
         color: "#202020"
         Rectangle {
             z: 2
@@ -34,28 +52,13 @@ Window {
             color: "transparent"
             border.color: "#555555"
         }
-        Button {
-            z: 1
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.rightMargin: 5
-            anchors.topMargin: 5
-            width: 15
-            height: 15
-            onClicked: {
-                nativePopup.hide();
-            }
-            Text {
-                anchors.centerIn: parent
-                text: "x"
-            }
-        }
         Column {
+            id: column
             x: 0
-            y: 25
+            y: 0
             z: 1
             Repeater {
-                model: 15
+                model: 25
                 MouseArea {
                     width: nativePopup.width
                     height: 20
@@ -82,10 +85,17 @@ Window {
                 }
             }
         }
+        signal mousePressedOutside()
+        onMousePressedOutside: {
+            hide();
+        }
         onActiveChanged: {
             if(!active) {
                 hide();
             }
         }
+    }
+    onActiveChanged: {
+        nativePopup.hide();
     }
 }
