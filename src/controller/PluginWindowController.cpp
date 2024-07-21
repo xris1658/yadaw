@@ -3,6 +3,10 @@
 #include "ui/Runtime.hpp"
 #include "ui/UI.hpp"
 
+#include <QQmlApplicationEngine>
+#include <QQuickWindow>
+#include <QVariant>
+
 namespace YADAW::Controller
 {
 YADAW::Audio::Plugin::IAudioPlugin* pluginNeedsWindow = nullptr;

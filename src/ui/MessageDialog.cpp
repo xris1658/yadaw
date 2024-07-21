@@ -4,6 +4,9 @@
 #include "ui/Runtime.hpp"
 
 #include <QEventLoop>
+#include <QQmlApplicationEngine>
+#include <QQuickWindow>
+#include <QVariant>
 
 namespace YADAW::UI
 {

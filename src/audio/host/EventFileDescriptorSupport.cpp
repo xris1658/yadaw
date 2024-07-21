@@ -1,8 +1,8 @@
-#include "ui/Runtime.hpp"
 #if __linux__
 
 #include "EventFileDescriptorSupport.hpp"
 
+#include "ui/Runtime.hpp"
 #include "util/IntegerRange.hpp"
 
 #include <QCoreApplication>

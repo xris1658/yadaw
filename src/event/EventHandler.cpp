@@ -33,6 +33,8 @@
 #endif
 
 #include <QDir>
+#include <QQmlApplicationEngine>
+#include <QQuickWindow>
 #include <QtCore/private/qconfig_p.h>
 // `QT_COPYRIGHT_YEAR` is a private macro added since Qt 6.5.1
 // Define this macro as the year of now since it's absent from Qt 6.5.0 and
