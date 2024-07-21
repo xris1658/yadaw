@@ -5,6 +5,7 @@
 
 #if _WIN32
 #include <windows.h>
+#include <windowsx.h>
 #elif __linux__
 #include <xcb/xcb.h>
 #endif
@@ -216,12 +217,13 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
 #if _WIN32
     if(eventType == "windows_generic_MSG")
     {
-        auto msg = static_cast<MSG*>(message);
-        for(auto& [window, winId]: nativePopups_)
+    auto msg = static_cast<MSG*>(message);
+        // Mouse click in the native popups
+        if(msg->message == WM_MOUSEACTIVATE)
         {
-            if(msg->hwnd == reinterpret_cast<HWND>(winId))
+            for(auto& [window, winId]: nativePopups_)
             {
-                if(msg->message == WM_MOUSEACTIVATE)
+                if(msg->hwnd == reinterpret_cast<HWND>(winId))
                 {
                     *result = MA_NOACTIVATE;
                     return true;
