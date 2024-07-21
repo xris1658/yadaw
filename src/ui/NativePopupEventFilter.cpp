@@ -228,6 +228,33 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
                 }
             }
         }
+        // Mouse click in the parent window's non-client area, e.g. title bar
+        // `WM_NCLBUTTONDOWN` starts dragging and moving the window;
+        // `WM_NCRBUTTONUP` after `WM_NCRBUTTONDOWN` shows the control menu
+        else if(
+            (msg->message == WM_NCLBUTTONDOWN || msg->message == WM_NCRBUTTONDOWN)
+            && msg->hwnd == reinterpret_cast<HWND>(parentWindow_.winId)
+        )
+        {
+            auto x = GET_X_LPARAM(msg->lParam);
+            auto y = GET_Y_LPARAM(msg->lParam);
+            auto shouldSendMousePressed = std::all_of(
+                nativePopups_.begin(), nativePopups_.end(),
+                [x, y](WindowAndId& windowAndId)
+                {
+                    auto& [window, winId] = windowAndId;
+                    return x < window->x()
+                    || x > window->x() + window->width()
+                    || y < window->y()
+                    || y > window->y() + window->height();
+                }
+            );
+            if(shouldSendMousePressed)
+            {
+                mousePressedOutside();
+            }
+            return false;
+        }
     }
 #elif __linux__
     if(eventType == "xcb_generic_event_t")
