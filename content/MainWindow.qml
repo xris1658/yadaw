@@ -53,6 +53,7 @@ ApplicationWindow {
     property var genericPluginEditor: null
 
     property PluginScanProgressWindow pluginScanProgressWindow: pluginScanProgressWindow
+    property INativePopupEventFilterModel nativePopupEventFilterModel: null
 
     MessageDialog {
         id: restartMessageDialog

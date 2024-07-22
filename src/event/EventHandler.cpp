@@ -18,6 +18,7 @@
 #include "event/EventBase.hpp"
 #include "model/HardwareAudioIOPositionModel.hpp"
 #include "model/MixerChannelListModel.hpp"
+#include "model/NativePopupEventFilterModel.hpp"
 #include "model/RegularAudioIOPositionModel.hpp"
 #include "native/Native.hpp"
 #include "ui/MessageDialog.hpp"
@@ -546,13 +547,12 @@ void EventHandler::onOpenMainWindow()
             );
         }
     );
-    // timer.callOnTimeout(
-    //     this,
-    //     []()
-    //     {
-    //         //
-    //     }
-    // );
+    YADAW::UI::mainWindow->setProperty(
+        "nativePopupEventFilterModel",
+        QVariant::fromValue<QObject*>(
+            YADAW::Model::NativePopupEventFilterModel::create(*YADAW::UI::mainWindow)
+        )
+    );
     mainWindowReady();
 }
 
