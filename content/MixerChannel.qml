@@ -592,7 +592,7 @@ Rectangle {
                     Button {
                         id: muteButton
                         text: "M"
-                        width: (controlButtonPlaceholder.width - impl.padding * 3) / 2
+                        width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
@@ -616,7 +616,7 @@ Rectangle {
                     Button {
                         id: soloButton
                         text: "S"
-                        width: (controlButtonPlaceholder.width - impl.padding * 3) / 2
+                        width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
@@ -634,12 +634,9 @@ Rectangle {
                                         Colors.mouseOverControlBackground:
                                         Colors.controlBackground
                     }
-                }
-                Row {
-                    spacing: impl.padding
                     Button {
                         id: monitorButton
-                        width: (controlButtonPlaceholder.width - impl.padding * 3) / 2
+                        width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
@@ -656,17 +653,25 @@ Rectangle {
                                     hovered?
                                         Colors.mouseOverControlBackground:
                                         Colors.controlBackground
-                        HeadphoneIcon {
-                            path.fillColor: parent.contentItem.color
-                            path.strokeWidth: 0
+                        Item {
                             anchors.centerIn: parent
-                            scale: 16 / originalWidth
+                            width: 16
+                            height: 16
+                            layer.enabled: true
+                            layer.smooth: true
+                            layer.textureSize: Qt.size(width * 2, height * 2)
+                            HeadphoneIcon {
+                                path.fillColor: monitorButton.contentItem.color
+                                path.strokeWidth: 0
+                                anchors.centerIn: parent
+                                scale: 16 / originalWidth
+                            }
                         }
                     }
                     Button {
                         id: armRecordingButton
                         text: "R"
-                        width: (controlButtonPlaceholder.width - impl.padding * 3) / 2
+                        width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
                         topPadding: 1
                         bottomPadding: 1
                         checkable: true
@@ -685,47 +690,92 @@ Rectangle {
                                         Colors.controlBackground
                     }
                 }
-                Row {
-                    spacing: impl.padding
-                    ProgressBarLikeSlider {
-                        id: paddingSlider
-                        width: muteButton.width
-                        height: invertPolarityButton.height
-                        from: -100
-                        to: 100
-                        Label {
-                            anchors.fill: parent
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignHCenter
-                            text: Math.round(paddingSlider.value)
+                ProgressBarLikeSlider {
+                    id: paddingSlider
+                    width: controlButtonPlaceholder.width - impl.padding * 2
+                    height: muteButton.height
+                    from: -100
+                    to: 100
+                    Label {
+                        anchors.fill: parent
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        text: Math.round(paddingSlider.value)
+                    }
+                }
+                ComboBoxButton {
+                    id: invertPolarityButton
+                    text: "\u2205"
+                    width: controlButtonPlaceholder.width - impl.padding * 2
+                    height: paddingSlider.height
+                    checkable: true
+                    backgroundColor: (!enabled)?
+                        Colors.background:
+                        checked?
+                            down?
+                                Qt.darker(Colors.invertedButtonBackground, 1.25):
+                                hovered?
+                                    Qt.lighter(Colors.invertedButtonBackground, 1.25):
+                                    Colors.invertedButtonBackground:
+                            down?
+                                Colors.pressedControlBackground:
+                                hovered?
+                                    Colors.mouseOverControlBackground:
+                                    Colors.controlBackground
+                    Window {
+                        id: invertPolarityNativePopup
+                        width: invertPolarityMenu.width
+                        height: invertPolarityMenu.height
+                        flags: Qt.Tool | Qt.FramelessWindowHint
+                        Menu {
+                            id: invertPolarityMenu
+                            width: Math.max(invertPolarityButton.width, implicitWidth)
+                            visible: invertPolarityNativePopup.visible
+                            onVisibleChanged: {
+                                if(!visible) {
+                                    invertPolarityNativePopup.close();
+                                }
+                            }
+                            MenuItem {
+                                text: qsTr("Invert all")
+                                minimumSpaceBetweenTextAndShortcut: 0
+                            }
+                            MenuItem {
+                                text: qsTr("Invert none")
+                                minimumSpaceBetweenTextAndShortcut: 0
+                            }
+                            MenuItem {
+                                text: qsTr("Toggle all")
+                                minimumSpaceBetweenTextAndShortcut: 0
+                            }
+                            MenuSeparator {}
+                            Repeater {
+                                model: mclm_channel_count
+                                MenuItem {
+                                    checkable: true
+                                    checked: false
+                                    text: "\u2205" + (index + 1)
+                                    minimumSpaceBetweenTextAndShortcut: 0
+                                }
+                            }
+                        }
+                        onClosing: {
+                            let nativePopupEventFilterModel = EventReceiver.mainWindow.nativePopupEventFilterModel;
+                            if(nativePopupEventFilterModel) {
+                                nativePopupEventFilterModel.remove(invertPolarityNativePopup);
+                            }
+                            invertPolarityButton.checked = false;
                         }
                     }
-                    Button {
-                        id: invertPolarityButton
-                        text: "∅"
-                        width: (soloButton.width - impl.padding) / 2
-                        topPadding: 1
-                        bottomPadding: 1
-                        checkable: true
-                        backgroundColor: (!enabled)?
-                            Colors.background:
-                            checked?
-                                down?
-                                    Qt.darker(Colors.invertedButtonBackground, 1.25):
-                                    hovered?
-                                        Qt.lighter(Colors.invertedButtonBackground, 1.25):
-                                        Colors.invertedButtonBackground:
-                                down?
-                                    Colors.pressedControlBackground:
-                                    hovered?
-                                        Colors.mouseOverControlBackground:
-                                        Colors.controlBackground
-                    }
-                    Button {
-                        width: (soloButton.width - impl.padding) / 2
-                        height: invertPolarityButton.height
-                        text: "MONO"
-                        checkable: true
+                    onCheckedChanged: {
+                        if(checked) {
+                            locatePopupWindow(invertPolarityNativePopup, height, 0);
+                            let nativePopupEventFilterModel = EventReceiver.mainWindow.nativePopupEventFilterModel;
+                            if(nativePopupEventFilterModel) {
+                                nativePopupEventFilterModel.append(invertPolarityNativePopup);
+                            }
+                            invertPolarityNativePopup.showNormal();
+                        }
                     }
                 }
             }
@@ -763,7 +813,7 @@ Rectangle {
                     width: faderAndMeterPlaceholder.width / 2
                     height: faderAndMeterPlaceholder.height - volumeLabel.height - parent.rowSpacing
                     Rectangle {
-                        color: "#003300"
+                        color: "#000000"
                         width: 20
                         height: parent.height - impl.padding
                         anchors.bottom: parent.bottom
