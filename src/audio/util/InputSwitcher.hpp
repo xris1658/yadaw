@@ -22,6 +22,7 @@ public:
     std::uint32_t latencyInSamples() const override;
     void process(const Device::AudioProcessData<float>& audioProcessData) override;
 public:
+    std::uint32_t getInputIndex() const;
     bool setInputIndex(std::uint32_t inputIndex);
 private:
     AudioChannelGroup inputChannelGroup_;

@@ -2,6 +2,7 @@
 
 #include "audio/plugin/CLAPPlugin.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
+#include "audio/util/InputSwitcher.hpp"
 #include "controller/AudioEngineController.hpp"
 #include "controller/AudioGraphBackendController.hpp"
 #include "controller/ALSABackendController.hpp"
@@ -371,6 +372,30 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         {
             return QVariant::fromValue<QObject*>(insertModels_[row].get());
         }
+        case Role::MonitorExist:
+        {
+            if(listType_ == ListType::Regular)
+            {
+                const auto& channelInfo = mixer_.channelInfoAt(row)->get();
+                return QVariant::fromValue<bool>(
+                    channelInfo.channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Audio
+                );
+            }
+            return QVariant::fromValue<bool>(false);
+        }
+        case Role::Monitor:
+        {
+            if(data(index, Role::MonitorExist).value<bool>())
+            {
+                auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
+                    mixer_.graph().graph().getNodeData(
+                        mixer_.channelPreFaderInsertsAt(row)->get().inNode()
+                    ).process.device()
+                );
+                return QVariant::fromValue<bool>(inputSwitcher->getInputIndex());
+            }
+            break;
+        }
         }
     }
     return QVariant();
@@ -641,6 +666,31 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                 return true;
             }
             return false;
+        }
+        case Role::Monitor:
+        {
+            auto ret = false;
+            if(data(index, Role::MonitorExist).value<bool>())
+            {
+                auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
+                    mixer_.graph().graph().getNodeData(
+                        mixer_.channelPreFaderInsertsAt(row)->get().inNode()
+                    ).process.device()
+                );
+                auto inputIndex = static_cast<std::uint32_t>(value.value<bool>());
+                if(static_cast<bool>(inputSwitcher->getInputIndex()) != inputIndex)
+                {
+                    ret = inputSwitcher->setInputIndex(inputIndex);
+                    if(ret)
+                    {
+                        dataChanged(
+                            this->index(row), this->index(row),
+                            { Role::Monitor }
+                        );
+                    }
+                }
+            }
+            return ret;
         }
         }
     }

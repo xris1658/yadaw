@@ -66,6 +66,11 @@ void InputSwitcher::process(
     }
 }
 
+std::uint32_t InputSwitcher::getInputIndex() const
+{
+    return inputIndex_.load(std::memory_order_acquire);
+}
+
 bool InputSwitcher::setInputIndex(std::uint32_t inputIndex)
 {
     if(inputIndex < inputGroupCount_)
