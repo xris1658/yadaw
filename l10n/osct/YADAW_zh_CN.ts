@@ -4,102 +4,102 @@
 <context>
     <name>ALSAErrorText</name>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="7"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="9"/>
         <source>input</source>
         <translation>输入</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="11"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="13"/>
         <source>output</source>
         <translation>输出</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="20"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="22"/>
         <source>opening audio %1 device %2</source>
         <translation>启动音频%1设备%2</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="28"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="30"/>
         <source>retrieving available hardware config of audio %1 device %2</source>
         <translation>获取音频%1设备%2的可用硬件配置</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="36"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="38"/>
         <source>adjusting sample format of audio %1 device %2</source>
         <translation>设置音频%1设备%2的采样格式</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="44"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="46"/>
         <source>adjusting sample rate of audio %1 device %2</source>
         <translation>设置音频%1设备%2的采样率</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="52"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="54"/>
         <source>adjusting buffer size of audio %1 device %2</source>
         <translation>设置音频%1设备%2的缓冲区大小</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="60"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="62"/>
         <source>adjusting period size of audio %1 device %2</source>
         <translation>设置音频%1设备%2的周期大小</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="68"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="70"/>
         <source>getting available channel count of audio %1 device %2</source>
         <translation>获取音频%1设备%2可用的声道数</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="76"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="78"/>
         <source>adjusting channel count of audio %1 device %2</source>
         <translation>设置音频%1设备%2的声道数</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="84"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="86"/>
         <source>getting available sample access of audio %1 device %2</source>
         <translation>获取音频%1设备%2的采样访问方式</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="92"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="94"/>
         <source>committing hardware config of audio %1 device %2</source>
         <translation>应用音频%1设备%2的硬件配置</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="100"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="102"/>
         <source>retrieving current software config of audio %1 device %2</source>
         <translation>获取音频%1设备%2当前的软件配置</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="108"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="110"/>
         <source>adjusting minimum available count of samples of audio %1 device %2</source>
         <translation>设置音频%1设备%2的最小可用采样数</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="116"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="118"/>
         <source>adjusting start threshold of audio %1 device %2</source>
         <translation>设置音频%1设备%2的启动阈值</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="124"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="126"/>
         <source>committing software config of audio %1 device %2</source>
         <translation>应用音频%1设备%2的软件配置</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="132"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="134"/>
         <source>allocating buffer of audio %1 device %2</source>
         <translation>为音频%1设备%2分配缓冲区</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="140"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="142"/>
         <source>finishing activation of audio %1 device %2</source>
         <translation>完成音频%1设备%2的启用工作</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="148"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="150"/>
         <source>An error occurred while %1: %2</source>
         <translation>在%1时发生了错误：%2</translation>
     </message>
     <message>
-        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="156"/>
+        <location filename="../../src/audio/backend/ALSAErrorText.cpp" line="158"/>
         <source>Unable to find audio %1 device %2-%3</source>
         <translation>找不到音频%1设备 %2-%3</translation>
     </message>
