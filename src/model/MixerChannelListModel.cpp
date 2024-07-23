@@ -726,16 +726,16 @@ bool MixerChannelListModel::insert(int position, int count,
                 mixer_.channelPostFaderInsertsAt(i)->get().setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
             }
             beginInsertRows(QModelIndex(), position, position + count - 1);
-            int offset = 0;
             std::generate_n(
                 std::inserter(insertModels_, insertModels_.begin() + position),
                 count,
                 [this, position, offset = 0]() mutable
                 {
+                    auto index = position + (offset++);
                     return std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
-                        mixer_.channelPreFaderInsertsAt(position)->get(),
+                        mixer_.channelPreFaderInsertsAt(index)->get(),
                         listType_,
-                        position + (offset++),
+                        index,
                         true,
                         0
                     );
@@ -763,7 +763,6 @@ bool MixerChannelListModel::insert(int position, int count,
                     instrumentAudioOutputs_.begin() + position
                 ), count, nullptr
             );
-            offset = 0;
             std::generate_n(
                 std::inserter(
                     blankInputNodes_, blankInputNodes_.begin() + position
