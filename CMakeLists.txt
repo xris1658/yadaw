@@ -67,6 +67,8 @@ endif()
 
 set(WIN32_NATIVE_SOURCES
     rc/YADAW.rc
+    # https://cmake.org/cmake/help/v3.4/release/3.4.html#other
+    rc/YADAW.exe.manifest
     src/audio/backend/AudioGraphBackend.hpp
     src/audio/backend/WASAPIExclusiveBackend.hpp
     src/controller/AudioGraphBackendController.cpp

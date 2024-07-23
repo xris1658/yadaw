@@ -161,31 +161,10 @@ std::once_flag getWindowsVersionFlag;
 
 typedef void(__stdcall*NTPROC)(DWORD*, DWORD*, DWORD*);
 
-// Undocumented `RtlGetNtVersionNumbers` API, documented by Wine:
-// https://source.winehq.org/WineAPI/RtlGetNtVersionNumbers.html
-// Why NOT the documented `GetVersionExW` API:
-// https://learn.microsoft.com/en-us/windows/win32/sysinfo/targeting-your-application-at-windows-8-1
 void getWindowsVersion()
 {
-    YADAW::Native::Library ntdll("ntdll.dll");
-    if(!ntdll.loaded())
-    {
-        throw std::runtime_error("Cannot load ntdll.dll");
-    }
-    auto getVersionFunc = ntdll.getExport<NTPROC>("RtlGetNtVersionNumbers");
-    if(!getVersionFunc)
-    {
-        throw std::runtime_error(
-            "Cannot find `RtlGetNtVersionNumbers`, it might have been removed "
-            "in the current version of Windows."
-        );
-    }
-    DWORD major;
-    DWORD minor;
-    DWORD build;
-    getVersionFunc(&major, &minor, &build);
-    build -= 0xF0000000;
-    if(build >= 21996) // The first leaked Windows 11 build
+    auto version = YADAW::Native::getWindowsVersion();
+    if(version.buildVersion >= 21996) // The first leaked Windows 11 build
     {
         isWindows11 = true;
     }

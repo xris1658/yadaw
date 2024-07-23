@@ -76,6 +76,17 @@ bool setBadMemoryAccessHandler();
 extern std::uint32_t cpuidInfo[4];
 
 void fillCPUIDInfo();
+
+#if _WIN32
+struct WindowsVersion
+{
+    DWORD majorVersion;
+    DWORD minorVersion;
+    DWORD buildVersion;
+};
+
+WindowsVersion getWindowsVersion();
+#endif
 }
 
 #endif //  YADAW_SRC_NATIVE_NATIVE

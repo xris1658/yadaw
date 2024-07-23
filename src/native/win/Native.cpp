@@ -314,6 +314,19 @@ void fillCPUIDInfo()
 {
     __cpuid(reinterpret_cast<int(&)[4]>(cpuidInfo), 1);
 }
+
+WindowsVersion getWindowsVersion()
+{
+    // https://learn.microsoft.com/windows/win32/sysinfo/targeting-your-application-at-windows-8-1
+    OSVERSIONINFOW versionInfo;
+    versionInfo.dwOSVersionInfoSize = sizeof(versionInfo);
+    GetVersionExW(&versionInfo);
+    return WindowsVersion {
+        .majorVersion = versionInfo.dwMajorVersion,
+        .minorVersion = versionInfo.dwMinorVersion,
+        .buildVersion = versionInfo.dwBuildNumber
+    };
+}
 }
 
 #endif
