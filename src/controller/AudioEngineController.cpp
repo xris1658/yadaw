@@ -121,7 +121,9 @@ void AudioEngine::process()
         [](Vector2D<YADAW::Audio::Engine::ProcessPair>& row)
         {
         // TODO: Replace this with implementation based on thread pool
-            std::for_each(std::execution::par_unseq, row.begin(), row.end(),
+            std::for_each(
+                // std::execution::par_unseq,
+                row.begin(), row.end(),
                 [](std::vector<YADAW::Audio::Engine::ProcessPair>& cell)
                 {
                     std::for_each(cell.begin(), cell.end(),
