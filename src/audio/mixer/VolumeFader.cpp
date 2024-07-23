@@ -63,7 +63,7 @@ void process<false, false>(
         std::memcpy(
             audioProcessData.outputs[0][i],
             audioProcessData.inputs[0][i],
-            audioProcessData.singleBufferSize
+            sizeof(float) * audioProcessData.singleBufferSize
         );
     }
 }
