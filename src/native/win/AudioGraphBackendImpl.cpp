@@ -205,8 +205,11 @@ AudioGraphBackend::ErrorCode AudioGraphBackend::Impl::activateDeviceInput(
                 ret = result.ExtendedError().value;
                 if(status == decltype(status)::Success)
                 {
-                    deviceInputNodes_[deviceInputIndex] = {result.DeviceInputNode(), audioGraph_.CreateFrameOutputNode()};
-                    return result.ExtendedError().value;
+                    deviceInputNodes_[deviceInputIndex] = {
+                        result.DeviceInputNode(),
+                        audioGraph_.CreateFrameOutputNode(encodingProperties)
+                };
+                return result.ExtendedError().value;
                 }
             }
         }
