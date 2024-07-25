@@ -50,10 +50,6 @@ Window {
         AudioBus
     }
 
-    onTrackTypeChanged: {
-        nameField.placeholderText = trackTypeTabBar.itemAt(trackType).text;
-    }
-
     SortFilterProxyListModel {
         id: audioInputModel
     }
@@ -176,6 +172,7 @@ Window {
                         TextField {
                             id: nameField
                             width: gridContainer.secondColumnWidth
+                            placeholderText: trackTypeTabBar.itemAt(root.trackType).text
                         }
                         Label {
                             id: channelConfigLabel

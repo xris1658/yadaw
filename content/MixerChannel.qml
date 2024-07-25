@@ -639,10 +639,10 @@ Rectangle {
                         width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
                         topPadding: 1
                         bottomPadding: 1
-                        enabled: mclm_monitor_exist
-                        opacity: enabled? 1: 0
+                        enabled: mclm_monitor_exist && mclm_input
+                        opacity: mclm_monitor_exist? 1: 0
                         checkable: true
-                        checked: mclm_monitor
+                        checked: mclm_monitor_exist? mclm_monitor: false
                         onCheckedChanged: {
                             mclm_monitor = checked;
                         }
