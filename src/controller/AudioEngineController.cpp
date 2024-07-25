@@ -14,7 +14,6 @@ AudioEngine::AudioEngine():
     clapPluginPool_(std::make_unique<YADAW::Controller::CLAPPluginPoolVector>()),
     clapPluginToSetProcess_(std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>())
 {
-    mixer_.bufferExtension().setBufferSize(bufferSize_);
     mixer_.setNodeAddedCallback(&AudioEngine::mixerNodeAddedCallback);
     mixer_.setNodeRemovedCallback(&AudioEngine::mixerNodeRemovedCallback);
     mixer_.setConnectionUpdatedCallback(&AudioEngine::mixerConnectionUpdatedCallback);
