@@ -115,6 +115,7 @@ set(CONTENT_QML_FILES
     MixerInsertSlot.qml
     Mnemonic.qml
     MnemonicFunctions.js
+    NativePopup.qml
     PianoKeys.qml
     PianoKeysIcon.qml
     PlayIcon.qml

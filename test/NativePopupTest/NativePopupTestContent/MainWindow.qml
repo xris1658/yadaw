@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Controls.Basic
 
+import content as Content
+
 Window {
     id: root
     width: 400
@@ -40,10 +42,8 @@ Window {
             console.log("clicked");
         }
     }
-    Window {
+    Content.NativePopup {
         id: nativePopup
-        flags: Qt.Tool | Qt.FramelessWindowHint
-        visible: false
         width: 200
         height: column.height
         color: "#202020"
@@ -87,14 +87,8 @@ Window {
                 }
             }
         }
-        signal mousePressedOutside()
         onMousePressedOutside: {
             hide();
-        }
-        onActiveChanged: {
-            if(!active) {
-                hide();
-            }
         }
     }
     onActiveChanged: {

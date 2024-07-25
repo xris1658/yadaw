@@ -3,6 +3,8 @@
 #include <QCoreApplication>
 #include <QKeyEvent>
 
+#include "util/IntegerRange.hpp"
+
 #if _WIN32
 #include <windows.h>
 #include <windowsx.h>
@@ -80,6 +82,10 @@ bool NativePopupEventFilter::insert(QWindow& nativePopup, std::uint32_t index)
     if(index < count())
     {
         nativePopups_.emplace(nativePopups_.begin() + index, nativePopup);
+        QObject::connect(
+            this, SIGNAL(mousePressedOutside()),
+            &nativePopup, SIGNAL(mousePressedOutside())
+        );
         return true;
     }
     return false;
@@ -87,7 +93,12 @@ bool NativePopupEventFilter::insert(QWindow& nativePopup, std::uint32_t index)
 
 void NativePopupEventFilter::append(QWindow& nativePopup)
 {
-    nativePopups_.push_back(nativePopup);
+    nativePopups_.emplace_back(nativePopup);
+    QObject::connect(
+        this, SIGNAL(mousePressedOutside()),
+        &nativePopup, SIGNAL(mousePressedOutside()),
+        Qt::ConnectionType::QueuedConnection
+    );
 }
 
 bool NativePopupEventFilter::remove(std::uint32_t index, std::uint32_t removeCount)
@@ -95,6 +106,14 @@ bool NativePopupEventFilter::remove(std::uint32_t index, std::uint32_t removeCou
     auto count = this->count();
     if(index < count && index + removeCount <= count)
     {
+        FOR_RANGE(i, index, index + removeCount)
+        {
+            QObject::disconnect(
+                this, &NativePopupEventFilter::mousePressedOutside,
+                nativePopups_[i].window, nullptr
+            );
+            nativePopups_[i].window->close();
+        }
         nativePopups_.erase(
             nativePopups_.begin() + index,
             nativePopups_.begin() + index + removeCount
@@ -106,6 +125,10 @@ bool NativePopupEventFilter::remove(std::uint32_t index, std::uint32_t removeCou
 
 void NativePopupEventFilter::clear()
 {
+    for(auto& [window, winId]: nativePopups_)
+    {
+        window->close();
+    }
     nativePopups_.clear();
 }
 

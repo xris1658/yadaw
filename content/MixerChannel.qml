@@ -728,18 +728,18 @@ Rectangle {
                                 hovered?
                                     Colors.mouseOverControlBackground:
                                     Colors.controlBackground
-                    Window {
+                    NativePopup {
                         id: invertPolarityNativePopup
                         width: invertPolarityMenu.width
-                        height: invertPolarityMenu.height
-                        flags: Qt.Tool | Qt.FramelessWindowHint
+                        height: Math.min(invertPolarityMenu.implicitHeight, screen.desktopAvailableHeight)
                         Menu {
                             id: invertPolarityMenu
                             width: Math.max(invertPolarityButton.width, implicitWidth)
+                            height: parent.height
                             visible: invertPolarityNativePopup.visible
                             onVisibleChanged: {
                                 if(!visible) {
-                                    invertPolarityNativePopup.close();
+                                    invertPolarityNativePopup.hide();
                                 }
                             }
                             MenuItem {
@@ -765,12 +765,17 @@ Rectangle {
                                 }
                             }
                         }
-                        onClosing: {
-                            let nativePopupEventFilterModel = EventReceiver.mainWindow.nativePopupEventFilterModel;
-                            if(nativePopupEventFilterModel) {
-                                nativePopupEventFilterModel.remove(invertPolarityNativePopup);
+                        onVisibleChanged: {
+                            if(!visible) {
+                                let nativePopupEventFilterModel = EventReceiver.mainWindow.nativePopupEventFilterModel;
+                                if(nativePopupEventFilterModel) {
+                                    nativePopupEventFilterModel.remove(invertPolarityNativePopup);
+                                }
+                                invertPolarityButton.checked = false;
                             }
-                            invertPolarityButton.checked = false;
+                        }
+                        onMousePressedOutside: {
+                            hide();
                         }
                     }
                     onCheckedChanged: {
