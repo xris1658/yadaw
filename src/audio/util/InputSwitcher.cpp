@@ -85,16 +85,22 @@ void doProcess<true>(
 {
     FOR_RANGE0(i, audioProcessData.outputCounts[0])
     {
-        auto alignCount = audioProcessData.singleBufferSize * sizeof(float) / sizeof(__m128);
+        constexpr auto floatCount = std::size(__m128().m128_f32);
+        auto alignCount = audioProcessData.singleBufferSize / floatCount;
         auto alignedInput = reinterpret_cast<__m128*>(audioProcessData.inputs[inputIndex][i]);
         auto output = audioProcessData.outputs[0][i];
         FOR_RANGE0(j, alignCount)
         {
             _mm_store_ps(
-                output + j * sizeof(__m128) / sizeof(float),
+                output + j * floatCount,
                 alignedInput[j]
             );
         }
+        std::memcpy(
+            output + alignCount * floatCount,
+            alignedInput + alignCount,
+            audioProcessData.singleBufferSize - alignCount * floatCount
+        );
     }
 }
 
@@ -108,8 +114,22 @@ void InputSwitcher::process(
 {
     auto inputIndex = inputIndex_.load(std::memory_order_relaxed);
     bool aligned =
-        (reinterpret_cast<std::uint64_t>(audioProcessData.outputs[0][0]) & 0x0000000F) == 0
-     && (reinterpret_cast<std::uint64_t>(audioProcessData.inputs [inputIndex][0]) & 0x0000000F) == 0;
+        std::all_of(
+            audioProcessData.inputs[inputIndex],
+            audioProcessData.inputs[inputIndex] + audioProcessData.inputCounts[inputIndex],
+            [](float* buffer)
+            {
+                return (reinterpret_cast<std::uint64_t>(buffer) & 0x0000000F) == 0;
+            }
+        ) &&
+        std::all_of(
+            audioProcessData.outputs[0],
+            audioProcessData.outputs[0] + audioProcessData.outputCounts[0],
+            [](float* buffer)
+            {
+                return (reinterpret_cast<std::uint64_t>(buffer) & 0x0000000F) == 0;
+            }
+        );
     processFuncs[aligned](audioProcessData, inputIndex);
 }
 
