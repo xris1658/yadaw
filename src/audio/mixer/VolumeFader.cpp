@@ -75,7 +75,7 @@ void process<false, true>(
 {
     FOR_RANGE0(i, audioProcessData.outputCounts[0])
     {
-        constexpr auto floatCount = std::size(__m128().m128_f32);
+        constexpr auto floatCount = sizeof(__m128) / sizeof(float);
         auto alignCount = audioProcessData.singleBufferSize / floatCount;
         auto alignedInput = reinterpret_cast<__m128*>(audioProcessData.inputs[0][i]);
         auto output = audioProcessData.outputs[0][i];
@@ -120,7 +120,7 @@ void process<true, true>(
     auto alignedValueSeq = reinterpret_cast<__m128d*>(valueSequence);
     FOR_RANGE0(i, audioProcessData.outputCounts[0])
     {
-        constexpr auto floatCount = std::size(__m128().m128_f32);
+        constexpr auto floatCount = sizeof(__m128) / sizeof(float);
         auto alignCount = audioProcessData.singleBufferSize / floatCount;
         auto input = audioProcessData.inputs[0][i];
         auto alignedInput = reinterpret_cast<__m128*>(input);
