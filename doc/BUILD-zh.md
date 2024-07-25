@@ -110,7 +110,7 @@ Debian 及其分支发行版。
 
 - 安装一些必要的软件包：
   ```shell
-  sudo apt install git gcc g++ libasound2-dev libsqlite3-dev libyaml-cpp-dev
+  sudo apt install git gcc g++ libasound2-dev libsqlite3-dev libxcb-icccm4-dev libyaml-cpp-dev
   # VST3 SDK 的依赖项
   sudo apt-get install libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
   ```

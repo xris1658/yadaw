@@ -114,7 +114,7 @@ might be usable on Debian and its forks.
 
 - Install some prerequisites:
   ```shell
-  sudo apt install git gcc g++ libasound2-dev libsqlite3-dev libyaml-cpp-dev
+  sudo apt install git gcc g++ libasound2-dev libsqlite3-dev libxcb-icccm4-dev libyaml-cpp-dev
   # Dependencies of VST3 SDK
   sudo apt-get install libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
   ```
