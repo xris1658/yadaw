@@ -191,7 +191,7 @@ AudioGraphBackend::ErrorCode AudioGraphBackend::Impl::activateDeviceInput(
                 return S_OK;
             }
             auto encodingProperties = audioGraph_.EncodingProperties();
-            for(std::uint32_t i = 8; i > 0; --i)
+            for(std::uint32_t i = 2; i > 0; --i)
             {
                 setChannelCount(encodingProperties, i);
                 auto result = asyncResult(
@@ -266,8 +266,9 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                             // auto discontinuous = inputFrame.IsDiscontinuous();
                             input.audioBuffer_ = inputFrame.LockBuffer(AudioBufferAccessMode::Read);
                             auto ref = input.audioBuffer_.CreateReference();
+                            auto bufferData = ref.data();
                             inputAudioBuffer_[i] = AudioGraphBackend::InterleaveAudioBuffer {
-                                .data = ref.data(),
+                                .data = bufferData,
                                 .channelCount = static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
                                 .frameCount = requiredSamples
                             };
