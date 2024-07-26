@@ -13,9 +13,11 @@ QtObject {
     onMainWindowClosingAccepted: {
         mainWindow.closingAccepted();
     }
-    signal setQtVersion(version: string)
-    onSetQtVersion: (version) => {
-        Global.qtVersion = version;
+    signal setQtVersion(majorVersion: int, minorVersion: int, microVersion: int)
+    onSetQtVersion: (majorVersion, minorVersion, microVersion) => {
+        Global.qtMajorVersion = majorVersion;
+        Global.qtMinorVersion = minorVersion;
+        Global.qtMicroVersion = microVersion;
     }
     signal setQtCopyrightYear(copyrightYear: string)
     onSetQtCopyrightYear: (copyrightYear) => {

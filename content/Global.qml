@@ -3,7 +3,9 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-    property string qtVersion: "Unknown"
+    property int qtMajorVersion: 0
+    property int qtMinorVersion: 0
+    property int qtMicroVersion: 0
     property string qtCopyrightYear: "Unknown"
     function messageDialog(message: string, title: string, icon: int, modal: bool) {
         let component = Qt.createComponent("./MessageDialog.qml");

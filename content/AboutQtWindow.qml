@@ -35,7 +35,10 @@ Window {
                 font.pointSize: Qt.application.font.pointSize * 1.6
             }
             Label {
-                text: "This program uses Qt version %1.".arg(Global.qtVersion)
+                text: "This program uses Qt version %1.%2.%3."
+                    .arg(Global.qtMajorVersion)
+                    .arg(Global.qtMinorVersion)
+                    .arg(Global.qtMicroVersion)
                 color: Colors.content
             }
             // Source: <Qt install path>\<Qt version>\Src\qtbase\src\widgets\dialogs\qmessagebox.cpp

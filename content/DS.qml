@@ -252,7 +252,7 @@ MainWindow {
 
     Component.onCompleted: {
         EventReceiver.mainWindow = mainWindow;
-        Global.qtVersion = "6.5.1";
+        EventReceiver.setQtVersion(6, 5, 1);
         Global.qtCopyrightYear = "2023";
         mainWindowReady();
     }

@@ -16,7 +16,7 @@ private:
 signals:
     void mainWindowReady();
     void mainWindowCloseAccepted();
-    void setQtVersion(const QString& version);
+    void setQtVersion(int majorVersion, int miinorVersion, int microVersion);
     void setQtCopyrightYear(const QString& copoyrightYear);
     void setSplashScreenText(const QString& text);
     void pluginScanComplete();

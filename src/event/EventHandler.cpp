@@ -34,6 +34,7 @@
 #endif
 
 #include <QDir>
+#include <QLibraryInfo>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
 #include <QtCore/private/qconfig_p.h>
@@ -106,8 +107,8 @@ void EventHandler::connectToEventReceiver(QObject* receiver)
         receiver, SIGNAL(mainWindowReady()));
     QObject::connect(this, SIGNAL(mainWindowCloseAccepted()),
         receiver, SIGNAL(mainWindowClosingAccepted()));
-    QObject::connect(this, SIGNAL(setQtVersion(QString)),
-        receiver, SIGNAL(setQtVersion(QString)));
+    QObject::connect(this, SIGNAL(setQtVersion(int, int, int)),
+        receiver, SIGNAL(setQtVersion(int, int, int)));
     QObject::connect(this, SIGNAL(setQtCopyrightYear(QString)),
         receiver, SIGNAL(setQtCopyrightYear(QString)));
     QObject::connect(this, SIGNAL(setSplashScreenText(QString)),
@@ -531,7 +532,8 @@ void EventHandler::onOpenMainWindow()
     auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
     eventFDSupport.start();
 #endif
-    setQtVersion(qVersion());
+    auto version = QLibraryInfo::version();
+    setQtVersion(version.majorVersion(), version.minorVersion(), version.microVersion());
     setQtCopyrightYear(QT_COPYRIGHT_YEAR);
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
     auto& timer = YADAW::UI::idleProcessTimer();
