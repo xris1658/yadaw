@@ -201,6 +201,7 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
             || type == QEvent::Type::GestureOverride
             || type == QEvent::Type::NativeGesture
             || type == QEvent::Type::KeyRelease
+            || type == QEvent::Type::KeyPress
             || type == QEvent::Type::TouchBegin
             || type == QEvent::Type::TouchCancel
             || type == QEvent::Type::TouchEnd
@@ -212,24 +213,6 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
                 ret |= static_cast<QObject*>(nativePopup)->event(event);
             }
             return ret | QObject::eventFilter(watched, event);
-        }
-        else if(type == QEvent::Type::KeyPress)
-        {
-            auto keyEvent = static_cast<QKeyEvent*>(event);
-            // Windows: Alt + F4; macOS: Command + Q
-            if(keyEvent->matches(QKeySequence::StandardKey::Close))
-            {
-                if(nativePopups_.empty())
-                {
-                    return QObject::eventFilter(watched, event);
-                }
-                for(auto& [nativePopup, winId]: nativePopups_)
-                {
-                    nativePopup->close();
-                }
-                parentWindow_.window->close();
-                return true;
-            }
         }
     }
     return QObject::eventFilter(watched, event);
