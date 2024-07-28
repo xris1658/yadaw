@@ -6,9 +6,28 @@ Window {
     width: 400
     height: 400
     visible: true
-    color: mouseArea.containsMouse? "#333333": "#202020"
+    color: mouseArea.containsMouse? "#252525": "#202020"
     property Window nativePopup: nativePopup
     signal showNativePopup(x: int, y: int)
+    Item {
+        id: keyboardForwarder
+        property Item previousActiveFocusItem: null
+        focus: false
+        Keys.onPressed: (event) => {
+            menu.keysPressed(event);
+        }
+        signal startForwarding(previousActiveFocusItem: Item)
+        onStartForwarding: (previousActiveFocusItem) => {
+            keyboardForwarder.previousActiveFocusItem = root.activeFocusItem;
+            keyboardForwarder.focus = true;
+            keyboardForwarder.forceActiveFocus();
+        }
+        signal endForwarding()
+        onEndForwarding: {
+            keyboardForwarder.focus = false;
+            keyboardForwarder.previousActiveFocusItem.forceActiveFocus();
+        }
+    }
     MouseArea {
         id: mouseArea
         z: 1
@@ -26,8 +45,19 @@ Window {
             globalPoint.x = Math.min(globalPoint.x, root.screen.desktopAvailableWidth - nativePopup.width);
             nativePopup.x = globalPoint.x;
             nativePopup.y = globalPoint.y;
+            keyboardForwarder.startForwarding(button);
             showNativePopup(globalPoint.x, globalPoint.y);
             nativePopup.visible = true;
+        }
+        Rectangle {
+            width: 10
+            height: 10
+            color: "#FF0000"
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.topMargin: 5
+            anchors.leftMargin: 5
+            visible: mouseArea.activeFocus
         }
     }
     Button {
@@ -36,8 +66,34 @@ Window {
         height: 40
         anchors.centerIn: parent
         z: 2
+        focus: true
         onClicked: {
             console.log("clicked");
+        }
+        Keys.onMenuPressed: {
+            let globalPoint = mapToGlobal(width / 2, height / 2);
+            if(globalPoint.y + nativePopup.height >= root.screen.desktopAvailableHeight) {
+                globalPoint.y -= nativePopup.height;
+                if(globalPoint.y < 0) {
+                    globalPoint.y = root.screen.desktopAvailableHeight - nativePopup.height;
+                }
+            }
+            globalPoint.x = Math.min(globalPoint.x, root.screen.desktopAvailableWidth - nativePopup.width);
+            nativePopup.x = globalPoint.x;
+            nativePopup.y = globalPoint.y;
+            keyboardForwarder.startForwarding(button);
+            showNativePopup(globalPoint.x, globalPoint.y);
+            nativePopup.visible = true;
+        }
+        Rectangle {
+            width: 10
+            height: 10
+            color: "#FF0000"
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.topMargin: 5
+            anchors.leftMargin: 5
+            visible: button.activeFocus
         }
     }
     Window {
@@ -45,26 +101,19 @@ Window {
         flags: Qt.Tool | Qt.FramelessWindowHint
         visible: false
         width: 200
-        height: column.height
+        height: Math.min(menu.implicitHeight, nativePopup.screen.desktopAvailableHeight)
         color: "#202020"
-        Rectangle {
-            z: 2
-            anchors.fill: parent
-            color: "transparent"
-            border.color: "#555555"
-        }
-        Column {
-            id: column
-            x: 0
-            y: 0
-            z: 1
+        Menu {
+            id: menu
+            width: 200
+            height: nativePopup.height
+            visible: nativePopup.visible
+            padding: 1
             Repeater {
                 model: 25
-                MouseArea {
-                    width: nativePopup.width
+                MenuItem {
+                    width: menu.width - menu.padding * 2
                     height: 20
-                    acceptedButtons: Qt.LeftButton
-                    hoverEnabled: true
                     Text {
                         x: 3
                         z: 2
@@ -75,10 +124,9 @@ Window {
                         verticalAlignment: Text.AlignVCenter
                         color: "#FFFFFF"
                     }
-                    Rectangle {
-                        anchors.fill: parent
+                    background: Rectangle {
                         color: parent.pressed? "#002040":
-                            parent.containsMouse? "#0050A0": "transparent"
+                            menu.currentIndex == index? "#0050A0": "transparent"
                     }
                     onClicked: {
                         button.text = (index + 1);
@@ -86,10 +134,55 @@ Window {
                     }
                 }
             }
+            background: Rectangle {
+                color: "transparent"
+                border.color: "#808080"
+                border.width: menu.padding
+            }
+            signal keysPressed(event: var)
+            onKeysPressed: (event) => {
+                let accepted = false;
+                if(event.key == Qt.Key_Up
+                    || event.key == Qt.Key_Backtab
+                    || ((event.key == Qt.Key_Tab && event.modifiers == Qt.ShiftModifier))) {
+                    if(menu.currentIndex <= 0) {
+                        menu.currentIndex = menu.count - 1;
+                    }
+                    else {
+                        --menu.currentIndex;
+                    }
+                    accepted = true;
+                }
+                else if(event.key == Qt.Key_Down
+                    || ((event.key == Qt.Key_Tab && event.modifiers == Qt.NoModifier))) {
+                    if(menu.currentIndex == -1 || menu.currentIndex == menu.count - 1) {
+                        menu.currentIndex = 0;
+                    }
+                    else {
+                        ++menu.currentIndex;
+                    }
+                    accepted = true;
+                }
+                else if(event.key == Qt.Key_Return) {
+                    if(menu.currentIndex != -1) {
+                        menu.itemAt(menu.currentIndex).clicked();
+                        accepted = true;
+                    }
+                }
+                else if(event.key == Qt.Key_Escape) {
+                    nativePopup.hide();
+                }
+                event.accepted = accepted;
+            }
         }
         signal mousePressedOutside()
         onMousePressedOutside: {
             hide();
+        }
+        onVisibleChanged: {
+            if(!visible) {
+                keyboardForwarder.endForwarding();
+            }
         }
     }
     onActiveChanged: {
@@ -98,5 +191,8 @@ Window {
         if(!active) {
             nativePopup.hide();
         }
+    }
+    Component.onCompleted: {
+        mouseArea.forceActiveFocus();
     }
 }

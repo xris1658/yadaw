@@ -2,6 +2,7 @@
 
 #include <QCoreApplication>
 #include <QKeyEvent>
+#include <QQuickWindow>
 
 #include "util/IntegerRange.hpp"
 
@@ -156,7 +157,7 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
                 );
                 ret |= static_cast<QObject*>(nativePopup)->event(&mouseEventForPopup);
             }
-            return ret | QObject::eventFilter(watched, event);
+            return ret || watched->event(event);
         }
         else if(type == QEvent::Type::MouseButtonPress
             || type == QEvent::Type::MouseButtonRelease
@@ -193,15 +194,13 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
             if(shouldSendMousePressed)
             {
                 mousePressedOutside();
-                return QObject::eventFilter(watched, event);
+                return watched->event(event);
             }
-            return ret | QObject::eventFilter(watched, event);
+            return ret || watched->event(event);
         }
         else if(type == QEvent::Type::Gesture
             || type == QEvent::Type::GestureOverride
             || type == QEvent::Type::NativeGesture
-            || type == QEvent::Type::KeyRelease
-            || type == QEvent::Type::KeyPress
             || type == QEvent::Type::TouchBegin
             || type == QEvent::Type::TouchCancel
             || type == QEvent::Type::TouchEnd
@@ -212,10 +211,27 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
             {
                 ret |= static_cast<QObject*>(nativePopup)->event(event);
             }
-            return ret | QObject::eventFilter(watched, event);
+            return ret | watched->event(event);
+        }
+        else if(type == QEvent::Type::KeyPress
+            || type == QEvent::Type::KeyRelease)
+        {
+            auto ret = false;
+            for(auto& [nativePopup, winId]: nativePopups_)
+            {
+                // An inactive `QQuickWindow` will not process key events. So
+                // it's useless to forward those events.
+                // (See https://doc.qt.io/qt-6/qtquick-input-focus.html#key-handling-overview)
+                if(auto quickWindow = qobject_cast<QQuickWindow*>(nativePopup);
+                    (!quickWindow) || quickWindow->isActive())
+                {
+                    ret |= static_cast<QObject*>(nativePopup)->event(event);
+                }
+            }
+            return ret | watched->event(event);
         }
     }
-    return QObject::eventFilter(watched, event);
+    return false;
 }
 
 bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result)
