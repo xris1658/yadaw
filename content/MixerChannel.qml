@@ -765,6 +765,44 @@ Rectangle {
                                 }
                             }
                         }
+                        Connections {
+                            target: visible? EventReceiver.mainWindow.keyEventForwarder: null
+                            function onKeysPressed(event: var) {
+                                console.log(event.key);
+                                let accepted = false;
+                                if(event.key == Qt.Key_Up
+                                    || event.key == Qt.Key_Backtab
+                                    || ((event.key == Qt.Key_Tab && event.modifiers == Qt.ShiftModifier))) {
+                                    if(invertPolarityMenu.currentIndex <= 0) {
+                                        invertPolarityMenu.currentIndex = invertPolarityMenu.count - 1;
+                                    }
+                                    else {
+                                        --invertPolarityMenu.currentIndex;
+                                    }
+                                    accepted = true;
+                                }
+                                else if(event.key == Qt.Key_Down
+                                    || ((event.key == Qt.Key_Tab && event.modifiers == Qt.NoModifier))) {
+                                    if(invertPolarityMenu.currentIndex == -1 || invertPolarityMenu.currentIndex == invertPolarityMenu.count - 1) {
+                                        invertPolarityMenu.currentIndex = 0;
+                                    }
+                                    else {
+                                        ++invertPolarityMenu.currentIndex;
+                                    }
+                                    accepted = true;
+                                }
+                                else if(event.key == Qt.Key_Return) {
+                                    if(invertPolarityMenu.currentIndex != -1) {
+                                        invertPolarityMenu.itemAt(invertPolarityMenu.currentIndex).clicked();
+                                        accepted = true;
+                                    }
+                                }
+                                else if(event.key == Qt.Key_Escape) {
+                                    nativePopup.hide();
+                                }
+                                event.accepted = accepted;
+                            }
+                        }
                         onVisibleChanged: {
                             if(!visible) {
                                 let nativePopupEventFilterModel = EventReceiver.mainWindow.nativePopupEventFilterModel;
@@ -785,7 +823,11 @@ Rectangle {
                             if(nativePopupEventFilterModel) {
                                 nativePopupEventFilterModel.append(invertPolarityNativePopup);
                             }
+                            EventReceiver.mainWindow.keyEventForwarder.startForwarding(invertPolarityButton);
                             invertPolarityNativePopup.showNormal();
+                        }
+                        else {
+                            EventReceiver.mainWindow.keyEventForwarder.endForwarding();
                         }
                     }
                 }

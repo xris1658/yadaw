@@ -96,6 +96,7 @@ set(CONTENT_QML_FILES
     IOIcon.qml
     InsertIcon.qml
     ItemDelegate.qml
+    KeyEventForwarder.qml
     Label.qml
     LocateIcon.qml
     LoopIcon.qml

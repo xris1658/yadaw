@@ -55,6 +55,10 @@ ApplicationWindow {
     property PluginScanProgressWindow pluginScanProgressWindow: pluginScanProgressWindow
     property INativePopupEventFilterModel nativePopupEventFilterModel: null
 
+    KeyEventForwarder {
+        id: keyEventForwarder
+    }
+    property KeyEventForwarder keyEventForwarder: keyEventForwarder
     MessageDialog {
         id: restartMessageDialog
         message: qsTr("The settings are saved. Please restart the application to apply the new settings.")
