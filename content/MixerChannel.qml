@@ -768,7 +768,6 @@ Rectangle {
                         Connections {
                             target: visible? EventReceiver.mainWindow.keyEventForwarder: null
                             function onKeysPressed(event: var) {
-                                console.log(event.key);
                                 let accepted = false;
                                 if(event.key == Qt.Key_Up
                                     || event.key == Qt.Key_Backtab
@@ -798,7 +797,8 @@ Rectangle {
                                     }
                                 }
                                 else if(event.key == Qt.Key_Escape) {
-                                    nativePopup.hide();
+                                    invertPolarityNativePopup.hide();
+                                    accepted = true;
                                 }
                                 event.accepted = accepted;
                             }
