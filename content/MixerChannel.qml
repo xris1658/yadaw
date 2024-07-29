@@ -820,11 +820,10 @@ Rectangle {
                         if(checked) {
                             locatePopupWindow(invertPolarityNativePopup, height, 0);
                             let nativePopupEventFilterModel = EventReceiver.mainWindow.nativePopupEventFilterModel;
-                            if(nativePopupEventFilterModel) {
-                                nativePopupEventFilterModel.append(invertPolarityNativePopup);
-                            }
+                            nativePopupEventFilterModel.append(invertPolarityNativePopup);
                             EventReceiver.mainWindow.keyEventForwarder.startForwarding(invertPolarityButton);
-                            invertPolarityNativePopup.showNormal();
+                            nativePopupEventFilterModel.showNativePopup(invertPolarityNativePopup);
+                            invertPolarityNativePopup.visible = true;
                         }
                         else {
                             EventReceiver.mainWindow.keyEventForwarder.endForwarding();

@@ -102,6 +102,7 @@ Window {
     Window {
         id: nativePopup
         flags: Qt.Tool | Qt.FramelessWindowHint
+        // flags: Qt.FramelessWindowHint
         visible: false
         width: 200
         height: Math.min(menu.implicitHeight, nativePopup.screen.desktopAvailableHeight)

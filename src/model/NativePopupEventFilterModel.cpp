@@ -1,5 +1,6 @@
 #include "NativePopupEventFilterModel.hpp"
 
+#include "ui/UI.hpp"
 #include "util/IntegerRange.hpp"
 
 namespace YADAW::Model
@@ -96,5 +97,10 @@ void NativePopupEventFilterModel::clear()
         nativePopupEventFilter_.clear();
         endRemoveRows();
     }
+}
+
+void NativePopupEventFilterModel::showNativePopup(QWindow* nativePopup)
+{
+    YADAW::UI::showWindowWithoutActivating(nativePopup->winId());
 }
 }

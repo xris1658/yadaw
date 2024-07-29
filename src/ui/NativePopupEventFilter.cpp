@@ -13,16 +13,10 @@
 #include <xcb/xcb.h>
 #endif
 
+#include <cinttypes>
+
 namespace YADAW::UI
 {
-void showWindowWithoutActivating(QWindow& window)
-{
-#if _WIN32
-    auto hwnd = reinterpret_cast<HWND>(window.winId());
-    ShowWindow(hwnd, SW_SHOWNOACTIVATE);
-#endif
-}
-
 NativePopupEventFilter::NativePopupEventFilter(QWindow& parentWindow):
     QObject(nullptr),
     QAbstractNativeEventFilter(),
@@ -213,23 +207,7 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
             }
             return ret | watched->event(event);
         }
-        else if(type == QEvent::Type::KeyPress
-            || type == QEvent::Type::KeyRelease)
-        {
-            auto ret = false;
-            for(auto& [nativePopup, winId]: nativePopups_)
-            {
-                // An inactive `QQuickWindow` will not process key events. So
-                // it's useless to forward those events.
-                // (See https://doc.qt.io/qt-6/qtquick-input-focus.html#key-handling-overview)
-                if(auto quickWindow = qobject_cast<QQuickWindow*>(nativePopup);
-                    (!quickWindow) || quickWindow->isActive())
-                {
-                    ret |= static_cast<QObject*>(nativePopup)->event(event);
-                }
-            }
-            return ret | watched->event(event);
-        }
+        // We don't need to handle key events manually.
     }
     return false;
 }
@@ -279,24 +257,6 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
             }
             return false;
         }
-    }
-#elif __linux__
-    if(eventType == "xcb_generic_event_t")
-    {
-        auto event = static_cast<xcb_generic_event_t*>(message);
-        // Use the event
-        // if(event->response_type == XCB_EXPOSE)
-        // {
-        //     auto exposeEvent = reinterpret_cast<xcb_expose_event_t*>(event);
-        //     for(auto& [nativePopup, winId]: nativePopups_)
-        //     {
-        //         if(exposeEvent->window == static_cast<xcb_window_t>(winId))
-        //         {
-        //             return true;
-        //         }
-        //     }
-        // }
-        qDebug() << event->full_sequence << event->response_type;
     }
 #endif
     return false;

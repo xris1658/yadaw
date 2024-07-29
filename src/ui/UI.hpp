@@ -8,6 +8,8 @@ namespace YADAW::UI
 {
 const QString& defaultFontDir();
 
+void showWindowWithoutActivating(WId winId);
+
 // Try setting window state from maximized to fullscreen without showing the
 // intermediate normal visibility.
 // Since it relies on private `QPlatformWindow` implementations, this function

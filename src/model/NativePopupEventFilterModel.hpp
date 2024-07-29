@@ -26,6 +26,7 @@ public:
     bool append(QWindow* nativePopup) override;
     bool remove(QWindow* nativePopup) override;
     void clear() override;
+    void showNativePopup(QWindow* nativePopup) override;
 private:
     YADAW::UI::NativePopupEventFilter nativePopupEventFilter_;
 };

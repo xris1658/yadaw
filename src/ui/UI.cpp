@@ -32,6 +32,25 @@ const QString& defaultFontDir()
     return ret;
 }
 
+void showWindowWithoutActivating(WId winId)
+{
+#if _WIN32
+    auto hwnd = reinterpret_cast<HWND>(winId);
+    ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+#elif __linux__
+    auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
+    if(x11Interface)
+    {
+        auto windowHandle = static_cast<xcb_window_t>(winId);
+        auto connection = x11Interface->connection();
+        auto value = 1;
+        xcb_change_window_attributes(connection, windowHandle, XCB_CW_OVERRIDE_REDIRECT, &value);
+        xcb_map_window(connection, windowHandle);
+        xcb_flush(connection);
+    }
+#endif
+}
+
 #if __linux__
 xcb_atom_t stateAtom;
 xcb_atom_t fullscreenAtom;
