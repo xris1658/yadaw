@@ -10,6 +10,9 @@ Window {
     property Window nativePopup: nativePopup
     signal showNativePopup(x: int, y: int)
     Item {
+        // Since an inactive `QQuickWindow` does not receive key events even if
+        // QQuickWindow::event() is called, we have to manually forward the
+        // event to the native popup.
         id: keyboardForwarder
         property Item previousActiveFocusItem: null
         focus: false
@@ -18,7 +21,7 @@ Window {
         }
         signal startForwarding(previousActiveFocusItem: Item)
         onStartForwarding: (previousActiveFocusItem) => {
-            keyboardForwarder.previousActiveFocusItem = root.activeFocusItem;
+            keyboardForwarder.previousActiveFocusItem = previousActiveFocusItem;
             keyboardForwarder.focus = true;
             keyboardForwarder.forceActiveFocus();
         }
@@ -45,7 +48,7 @@ Window {
             globalPoint.x = Math.min(globalPoint.x, root.screen.desktopAvailableWidth - nativePopup.width);
             nativePopup.x = globalPoint.x;
             nativePopup.y = globalPoint.y;
-            keyboardForwarder.startForwarding(button);
+            keyboardForwarder.startForwarding(mouseArea);
             showNativePopup(globalPoint.x, globalPoint.y);
             nativePopup.visible = true;
         }
