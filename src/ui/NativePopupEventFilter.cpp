@@ -203,22 +203,14 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
             && msg->hwnd == reinterpret_cast<HWND>(parentWindow_.winId)
         )
         {
-            auto x = GET_X_LPARAM(msg->lParam);
-            auto y = GET_Y_LPARAM(msg->lParam);
-            auto shouldSendMousePressed = (!nativePopups_.empty()) && std::all_of(
-                nativePopups_.begin(), nativePopups_.end(),
-                [x, y](WindowAndId& windowAndId)
-                {
-                    auto& [window, winId] = windowAndId;
-                    return x < window->x()
-                    || x > window->x() + window->width()
-                    || y < window->y()
-                    || y > window->y() + window->height();
-                }
-            );
-            if(shouldSendMousePressed)
+            for(auto& [nativePopup, winId]: nativePopups_)
             {
-                mousePressedOutside();
+                auto metaObject = nativePopup->metaObject();
+                auto signalIndex = metaObject->indexOfSignal("mousePressedOutside()");
+                if(signalIndex != -1)
+                {
+                    metaObject->method(signalIndex).invoke(nativePopup);
+                }
             }
             return false;
         }
