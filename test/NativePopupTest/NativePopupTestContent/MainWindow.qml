@@ -191,8 +191,6 @@ Window {
         }
     }
     onActiveChanged: {
-        // Workaround on X11 since I don't know how to prevent the fake menu
-        // from take focus from the main window
         if(!active) {
             nativePopup.hide();
         }
