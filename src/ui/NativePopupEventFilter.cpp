@@ -17,6 +17,45 @@
 
 namespace YADAW::UI
 {
+#if __linux__
+std::map<int, const char*> events = {
+    {2, "KeyPress"},
+    {3, "KeyRelease"},
+    {4, "ButtonPress"},
+    {5, "ButtonRelease"},
+    {6, "MotionNotify"},
+    {7, "EnterNotify"},
+    {8, "LeaveNotify"},
+    {9, "FocusIn"},
+    {10, "FocusOut"},
+    {11, "KeymapNotify"},
+    {12, "Expose"},
+    {13, "GraphicsExposure"},
+    {14, "NoExposure"},
+    {15, "VisibilityNotify"},
+    {16, "CreateNotify"},
+    {17, "DestroyNotify"},
+    {18, "UnmapNotify"},
+    {19, "MapNotify"},
+    {20, "MapRequest"},
+    {21, "ReparentNotify"},
+    {22, "ConfigureNotify"},
+    {23, "ConfigureRequest"},
+    {24, "GravityNotify"},
+    {25, "ResizeRequest"},
+    {26, "CirculateNotify"},
+    {27, "CirculateRequest"},
+    {28, "PropertyNotify"},
+    {29, "SelectionClear"},
+    {30, "SelectionRequest"},
+    {31, "SelectionNotify"},
+    {32, "ColormapNotify"},
+    {33, "ClientMessage"},
+    {34, "MappingNotify"},
+    {35, "GeGeneric"}
+};
+#endif
+
 NativePopupEventFilter::NativePopupEventFilter(QWindow& parentWindow):
     QObject(nullptr),
     QAbstractNativeEventFilter(),
@@ -213,6 +252,103 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
                 }
             }
             return false;
+        }
+    }
+#elif __linux__
+    if (eventType == "xcb_generic_event_t") {
+        auto event = static_cast<xcb_generic_event_t*>(message);
+        auto responseType = event->response_type & 0x7F;
+        auto it = events.find(responseType);
+        const char* eventTypeText = it != events.end()? it->second: "Unknown";
+        // qDebug("%" PRIu32", %" PRIu8": %s", event->full_sequence, responseType, eventTypeText);
+        if(responseType == XCB_CLIENT_MESSAGE)
+        {
+            qDebug("%" PRIu32", %" PRIu8": %s", event->full_sequence, responseType, eventTypeText);
+            auto clientMessageEvent = reinterpret_cast<xcb_client_message_event_t*>(event);
+            auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
+            auto connection = x11Interface->connection();
+            auto windowHandle = static_cast<xcb_window_t>(parentWindow_.winId);
+            auto getAtomNameCookie = xcb_get_atom_name(connection, clientMessageEvent->type);
+            xcb_generic_error_t* error = nullptr;
+            auto reply = xcb_get_atom_name_reply(connection, getAtomNameCookie, &error);
+            if(!error)
+            {
+                std::vector<char> name(xcb_get_atom_name_name_length(reply) + 1);
+                name[name.size() - 1] = 0;
+                std::memcpy(name.data(), xcb_get_atom_name_name(reply), name.size() - 1);
+                std::fprintf(stderr, "Atom: 0x%" PRIX32" (%s)\n", clientMessageEvent->type, name.data());
+                if(std::strcmp(name.data(), "WM_PROTOCOLS") == 0)
+                {
+                    getAtomNameCookie = xcb_get_atom_name(connection, clientMessageEvent->data.data32[0]);
+                    reply = xcb_get_atom_name_reply(connection, getAtomNameCookie, &error);
+                    if(!error)
+                    {
+                        name.resize(xcb_get_atom_name_name_length(reply) + 1);
+                        name[name.size() - 1] = 0;
+                        std::memcpy(name.data(), xcb_get_atom_name_name(reply), name.size() - 1);
+                        std::fprintf(stderr, "Client message atom: 0x%" PRIX32" (%s)\n", clientMessageEvent->data.data32[0], name.data());
+                        if(std::strcmp(name.data(), "WM_TAKE_FOCUS") == 0)
+                        {
+                            for(auto& [nativePopup, winId]: nativePopups_)
+                            {
+                                auto metaObject = nativePopup->metaObject();
+                                auto signalIndex = metaObject->indexOfSignal("mousePressedOutside()");
+                                if(signalIndex != -1)
+                                {
+                                    metaObject->method(signalIndex).invoke(nativePopup);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        std::fprintf(stderr, "Client message atom: 0x%" PRIX32"\n", clientMessageEvent->data.data32[0]);
+                    }
+                }
+            }
+            else
+            {
+                std::fprintf(stderr, "Atom: 0x%" PRIX32"\n", clientMessageEvent->type);
+            }
+            auto& clientMessageData = clientMessageEvent->data;
+            const char c[2] = {' ', '\n'};
+            std::fprintf(stderr, "    Data: ");
+            switch(clientMessageEvent->format)
+            {
+            case 8:
+            {
+                FOR_RANGE0(i, std::size(clientMessageData.data8))
+                {
+                    std::fprintf(
+                        stderr, "0x%" PRIX8"%c",
+                        clientMessageData.data8[i],
+                        c[i == std::size(clientMessageData.data8) - 1]);
+                }
+                break;
+            }
+            case 16:
+            {
+                FOR_RANGE0(i, std::size(clientMessageData.data16))
+                {
+                    std::fprintf(
+                        stderr, "0x%" PRIX16"%c",
+                        clientMessageData.data16[i],
+                        c[i == std::size(clientMessageData.data16) - 1]);
+                }
+                break;
+            }
+            case 32:
+            {
+                FOR_RANGE0(i, std::size(clientMessageData.data32))
+                {
+                    std::fprintf(
+                        stderr, "0x%" PRIX32"%c",
+                        clientMessageData.data32[i],
+                        c[i == std::size(clientMessageData.data32) - 1]);
+                }
+                break;
+            }
+            }
         }
     }
 #endif
