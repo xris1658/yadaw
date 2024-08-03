@@ -175,6 +175,7 @@ Window {
                 }
                 else if(event.key == Qt.Key_Escape) {
                     nativePopup.hide();
+                    accepted = true;
                 }
                 event.accepted = accepted;
             }
