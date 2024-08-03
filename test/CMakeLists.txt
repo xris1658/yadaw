@@ -112,6 +112,9 @@ add_executable(ADEUtilsTest
                ADEUtilsTest/main.cpp)
 
 add_executable(AudioBufferPoolTest
+               ../src/util/IntrusivePointer.hpp
+               ../src/util/IntrusiveRefCounter.cpp
+               ../src/util/IntrusiveRefCounter.hpp
                ../src/audio/util/AudioBufferPool.cpp
                ../src/audio/util/AudioBufferPool.hpp
                AudioBufferPoolTest/main.cpp)
@@ -150,10 +153,13 @@ add_executable(AudioDeviceGraphTest
                AudioDeviceGraphTest/main.cpp)
 
 add_executable(AudioProcessDataBufferContainerTest
+               ../src/audio/engine/AudioProcessDataBufferContainer.hpp
                ../src/audio/util/AudioBufferPool.cpp
                ../src/audio/util/AudioBufferPool.hpp
                ../src/audio/util/AudioProcessDataPointerContainer.hpp
-               ../src/audio/engine/AudioProcessDataBufferContainer.hpp
+               ../src/util/IntrusivePointer.hpp
+               ../src/util/IntrusiveRefCounter.cpp
+               ../src/util/IntrusiveRefCounter.hpp
                AudioProcessDataBufferContainerTest/main.cpp)
 
 add_executable(BadMemoryAccessHandlerTest

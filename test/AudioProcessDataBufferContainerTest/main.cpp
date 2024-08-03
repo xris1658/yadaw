@@ -4,7 +4,7 @@
 int main()
 {
     constexpr auto singleBufferSize = 64;
-    auto audioBufferPool = YADAW::Audio::Util::AudioBufferPool::createPool(singleBufferSize * sizeof(float));
+    auto audioBufferPool = YADAW::Audio::Util::AudioBufferPool::createPool<float>(singleBufferSize);
     auto container = YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>();
     container.setSingleBufferSize(singleBufferSize);
     const auto& audioProcessData = container.audioProcessData();

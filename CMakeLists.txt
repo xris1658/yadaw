@@ -558,25 +558,12 @@ add_executable(MIDIInputDeviceTest
                test/MIDIInputDeviceTest/main.cpp)
 
 add_executable(PluginDirectoryScanTest
+               src/audio/base/Automation.cpp
+               src/audio/base/Automation.hpp
                src/audio/host/CLAPHost.cpp
                src/audio/host/CLAPHost.hpp
-               src/audio/plugin/CLAPAudioChannelGroup.cpp
-               src/audio/plugin/CLAPAudioChannelGroup.hpp
-               src/audio/plugin/CLAPEventBusInfo.cpp
-               src/audio/plugin/CLAPEventBusInfo.hpp
-               src/audio/plugin/CLAPEventProcessor.cpp
-               src/audio/plugin/CLAPEventProcessor.hpp
-               src/audio/plugin/CLAPPlugin.cpp
-               src/audio/plugin/CLAPPlugin.hpp
-               src/audio/plugin/CLAPPluginGUI.cpp
-               src/audio/plugin/CLAPPluginGUI.hpp
-               src/audio/plugin/CLAPPluginParameter.cpp
-               src/audio/plugin/CLAPPluginParameter.hpp
-               src/audio/util/CLAPHelper.cpp
-               src/audio/util/CLAPHelper.hpp
-               src/native/CLAPNative.hpp
-               src/native/linux/CLAPNative.cpp
-               src/native/win/CLAPNative.cpp
+               src/audio/host/CLAPTimerSupport.cpp
+               src/audio/host/CLAPTimerSupport.hpp
                src/audio/host/VST3AttributeList.cpp
                src/audio/host/VST3AttributeList.hpp
                src/audio/host/VST3ComponentHandler.cpp
@@ -591,6 +578,20 @@ add_executable(PluginDirectoryScanTest
                src/audio/host/VST3ParameterValueQueue.hpp
                src/audio/host/VST3PlugFrame.cpp
                src/audio/host/VST3PlugFrame.hpp
+               src/audio/host/VestifalCallback.cpp
+               src/audio/host/VestifalCallback.hpp
+               src/audio/plugin/CLAPAudioChannelGroup.cpp
+               src/audio/plugin/CLAPAudioChannelGroup.hpp
+               src/audio/plugin/CLAPEventBusInfo.cpp
+               src/audio/plugin/CLAPEventBusInfo.hpp
+               src/audio/plugin/CLAPEventProcessor.cpp
+               src/audio/plugin/CLAPEventProcessor.hpp
+               src/audio/plugin/CLAPPlugin.cpp
+               src/audio/plugin/CLAPPlugin.hpp
+               src/audio/plugin/CLAPPluginGUI.cpp
+               src/audio/plugin/CLAPPluginGUI.hpp
+               src/audio/plugin/CLAPPluginParameter.cpp
+               src/audio/plugin/CLAPPluginParameter.hpp
                src/audio/plugin/VST3AudioChannelGroup.cpp
                src/audio/plugin/VST3AudioChannelGroup.hpp
                src/audio/plugin/VST3EventBusInfo.cpp
@@ -604,22 +605,20 @@ add_executable(PluginDirectoryScanTest
                src/audio/plugin/VST3PluginGUI.hpp
                src/audio/plugin/VST3PluginParameter.cpp
                src/audio/plugin/VST3PluginParameter.hpp
-               src/audio/util/VST3Helper.cpp
-               src/audio/util/VST3Helper.hpp
-               src/native/VST3Native.hpp
-               src/native/linux/VST3Native.cpp
-               src/native/win/VST3Native.cpp
-               src/audio/host/VestifalCallback.cpp
-               src/audio/host/VestifalCallback.hpp
                src/audio/plugin/VestifalPlugin.cpp
                src/audio/plugin/VestifalPlugin.hpp
                src/audio/plugin/VestifalPluginGUI.cpp
                src/audio/plugin/VestifalPluginGUI.hpp
+               src/audio/plugin/VestifalPluginParameter.cpp
+               src/audio/plugin/VestifalPluginParameter.hpp
+               src/audio/util/CLAPHelper.cpp
+               src/audio/util/CLAPHelper.hpp
+               src/audio/util/VST3Helper.cpp
+               src/audio/util/VST3Helper.hpp
                src/audio/util/VestifalHelper.cpp
                src/audio/util/VestifalHelper.hpp
-               src/native/VestifalNative.hpp
-               src/native/linux/VestifalNative.cpp
-               src/native/win/VestifalNative.cpp
+               src/controller/LibraryPluginMap.cpp
+               src/controller/LibraryPluginMap.hpp
                src/controller/PluginController.cpp
                src/controller/PluginController.hpp
                src/dao/DAOBase.cpp
@@ -630,14 +629,25 @@ add_executable(PluginDirectoryScanTest
                src/dao/PluginCategoryTable.hpp
                src/dao/PluginTable.cpp
                src/dao/PluginTable.hpp
+               src/native/CLAPNative.hpp
                src/native/Library.hpp
                src/native/Native.hpp
-               src/native/linux/Native.cpp
-               src/native/win/Native.cpp
+               src/native/VST3Native.hpp
+               src/native/VestifalNative.hpp
+               src/native/linux/CLAPNative.cpp
                src/native/linux/Library.cpp
+               src/native/linux/Native.cpp
+               src/native/linux/VST3Native.cpp
+               src/native/linux/VestifalNative.cpp
+               src/native/win/CLAPNative.cpp
                src/native/win/Library.cpp
+               src/native/win/Native.cpp
+               src/native/win/VST3Native.cpp
+               src/native/win/VestifalNative.cpp
                src/util/AtomicMutex.cpp
                src/util/AtomicMutex.hpp
+               src/util/QuadraticFunction.cpp
+               src/util/QuadraticFunction.hpp
                src/util/Util.cpp
                src/util/Util.hpp
                test/PluginDirectoryScanTest/main.cpp)
@@ -647,6 +657,8 @@ add_executable(PluginScanTest
                src/audio/base/Automation.hpp
                src/audio/host/CLAPHost.cpp
                src/audio/host/CLAPHost.hpp
+               src/audio/host/CLAPTimerSupport.cpp
+               src/audio/host/CLAPTimerSupport.hpp
                src/audio/host/VST3AttributeList.cpp
                src/audio/host/VST3AttributeList.hpp
                src/audio/host/VST3ComponentHandler.cpp
