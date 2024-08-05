@@ -18,11 +18,11 @@ QC.Popup {
     signal cancelled()
     signal resetted()
 
-    function currentPluginId() {
+    function currentPluginId(): int {
         return pluginList.listView.currentItem.pluginId;
     }
 
-    function currentPluginName() {
+    function currentPluginName(): string {
         return pluginList.listView.currentItem.pluginName;
     }
 

@@ -9,7 +9,7 @@ Item {
     property var model
     QtObject {
         id: impl
-        function normalizeValue(automationModel, value: real) {
+        function normalizeValue(automationModel, value: real): real {
             return (value - automationModel.minValue) / (automationModel.maxValue - automationModel.minValue)
         }
     }

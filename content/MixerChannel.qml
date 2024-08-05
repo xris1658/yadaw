@@ -862,7 +862,7 @@ Rectangle {
                         anchors.horizontalCenter: parent.horizontalCenter
                         value: 0.796875
                         property double decibelValue: 0
-                        function getDecibelValue(position: double) {
+                        function getDecibelValue(position: double): double {
                             for(let i = scales.model.count - 1; i >= 1; --i) {
                                 let fromPosition = scales.model.get(i - 1).position;
                                 let fromValue = scales.model.get(i - 1).value;
@@ -874,7 +874,7 @@ Rectangle {
                             }
                             return -1 * Infinity;
                         }
-                        function getPosition(decibelValue: double) {
+                        function getPosition(decibelValue: double): double {
                             let maxValue = scales.model.get(scales.model.count - 1).value;
                             if(decibelValue > maxValue) {
                                 return scales.model.get(scales.model.count - 1).position;

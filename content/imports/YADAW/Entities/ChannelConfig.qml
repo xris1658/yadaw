@@ -14,7 +14,7 @@ QtObject {
         C61,
         C71
     }
-    function channelCount(config: int) {
+    function channelCount(config: int): int {
         const channelCounts = [0, 0, 1, 2, 3, 4, 5, 6, 7, 8];
         return impl.channelCounts[config];
     }

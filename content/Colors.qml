@@ -51,7 +51,7 @@ QtObject {
 
     readonly property color automationColor: "#D06040"
 
-    function isBright(color) {
+    function isBright(color): bool {
         return color.r * 0.299 + color.g * 0.587 + color.b * 0.514 > 0.6;
     }
 }

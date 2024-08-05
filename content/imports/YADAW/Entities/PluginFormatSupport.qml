@@ -6,7 +6,7 @@ QtObject {
         CLAP,
         Vestifal
     }
-    function isPluginFormatSupported(pluginFormat) {
+    function isPluginFormatSupported(pluginFormat): bool {
         return true;
     }
 }

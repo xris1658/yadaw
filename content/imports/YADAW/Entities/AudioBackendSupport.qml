@@ -6,7 +6,7 @@ QtObject {
         AudioGraph,
         ALSA
     }
-    function isBackendSupported(backend) {
+    function isBackendSupported(backend): bool {
         return true;
     }
 }

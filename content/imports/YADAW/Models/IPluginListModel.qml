@@ -27,7 +27,7 @@ ListModel {
         AudioEffect
     }
     dynamicRoles: true
-    function getSortIndexOfRole(role: int) {
+    function getSortIndexOfRole(role: int): int {
         return -1;
     }
 }
