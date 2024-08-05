@@ -3,6 +3,7 @@
 #include "audio/host/CLAPEventList.hpp"
 #include "audio/host/CLAPHost.hpp"
 #include "audio/host/EventFileDescriptorSupport.hpp"
+#include "audio/host/HostContext.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
 #include "audio/util/CLAPHelper.hpp"
 #include "native/CLAPNative.hpp"
@@ -218,6 +219,7 @@ void testPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, bool initializePlugin,
                         // Audio callback goes here...
                         while(!stop.load(std::memory_order_acquire))
                         {
+                            YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.flip();
                             auto sleepTo =
                                 std::chrono::steady_clock::now() + std::chrono::microseconds(
                                     bufferSize * 10000 / 441);

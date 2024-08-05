@@ -1,5 +1,6 @@
 #include "CLAPEventList.hpp"
 
+#include "audio/host/HostContext.hpp"
 #include "util/Algorithm.hpp"
 
 #include <cstdlib>
@@ -30,12 +31,12 @@ const clap_event_header* CLAPEventList::get(const clap_input_events* list, std::
 
 std::uint32_t CLAPEventList::doSize() const
 {
-    return inputEventLists_[pluginBufferIndex_.load(std::memory_order_acquire)].size();
+    return inputEventLists_[YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get()].size();
 }
 
 const clap_event_header* CLAPEventList::doGet(std::uint32_t index) const
 {
-    auto& inputEventList = inputEventLists_[pluginBufferIndex_.load(std::memory_order_acquire)];
+    auto& inputEventList = inputEventLists_[YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get()];
     if(index < inputEventList.size())
     {
         return inputEventList[index].get();
@@ -50,7 +51,7 @@ bool CLAPEventList::tryPush(const clap_output_events* list, const clap_event_hea
 
 bool CLAPEventList::doTryPush(const clap_event_header* event)
 {
-    auto& outputEventList = outputEventLists_[pluginBufferIndex_.load(std::memory_order_acquire)];
+    auto& outputEventList = outputEventLists_[YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get()];
     if(outputEventList.full())
     {
         return false;
@@ -78,7 +79,7 @@ bool CLAPEventList::doTryPush(const clap_event_header* event)
 
 bool CLAPEventList::pushBackEvent(const clap_event_header* event)
 {
-    auto& inputEventList = inputEventLists_[pluginBufferIndex_.load(std::memory_order_acquire) ^ 1];
+    auto& inputEventList = inputEventLists_[YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get() ^ 1];
     if(inputEventList.full())
     {
         return false;
@@ -92,27 +93,28 @@ bool CLAPEventList::pushBackEvent(const clap_event_header* event)
 
 std::size_t CLAPEventList::outputEventCount() const
 {
-    return outputEventLists_[pluginBufferIndex_.load(std::memory_order_acquire) ^ 1].size();
+    return outputEventLists_[YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get() ^ 1].size();
 }
 
 const clap_event_header* CLAPEventList::outputEventAt(std::size_t index) const
 {
     if(index < outputEventCount())
     {
-        return outputEventLists_[pluginBufferIndex_.load(std::memory_order_acquire) ^ 1][index].get();
+        return outputEventLists_[YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get() ^ 1][index].get();
     }
     return nullptr;
 }
 
-void CLAPEventList::flip()
+void CLAPEventList::flipped()
 {
-    inputEventLists_[pluginBufferIndex_.fetch_xor(1)].clear();
-    outputEventLists_[pluginBufferIndex_.load(std::memory_order_acquire)].clear();
+    auto newIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
+    inputEventLists_[newIndex ^ 1].clear();
+    outputEventLists_[newIndex].clear();
 }
 
 void CLAPEventList::attachToProcessData(clap_process& process)
 {
-    auto& inputEventList = inputEventLists_[pluginBufferIndex_.load(std::memory_order_acquire)];
+    auto& inputEventList = inputEventLists_[YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get()];
     YADAW::Util::insertionSort(inputEventList.begin(), inputEventList.end(),
         [](const EventUniquePointer& lhs, const EventUniquePointer& rhs)
         {

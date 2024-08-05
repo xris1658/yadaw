@@ -183,6 +183,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/CLAPTimerSupport.hpp
     src/audio/host/EventFileDescriptorSupport.cpp
     src/audio/host/EventFileDescriptorSupport.hpp
+    src/audio/host/HostContext.cpp
+    src/audio/host/HostContext.hpp
     src/audio/host/VST3AttributeList.cpp
     src/audio/host/VST3AttributeList.hpp
     src/audio/host/VST3ComponentHandler.cpp
@@ -281,6 +283,7 @@ set(YADAW_COMMON_SOURCES
     src/audio/util/VestifalHelper.cpp
     src/audio/util/VestifalHelper.hpp
     src/base/Constants.hpp
+    src/concurrent/DoubleBufferSwitch.hpp
     src/concurrent/PassDataToRealtimeThread.hpp
     src/controller/AppController.cpp
     src/controller/AppController.hpp
@@ -489,6 +492,8 @@ add_executable(CLAPTest
                src/audio/host/CLAPTimerSupport.cpp
                src/audio/host/EventFileDescriptorSupport.cpp
                src/audio/host/EventFileDescriptorSupport.hpp
+               src/audio/host/HostContext.cpp
+               src/audio/host/HostContext.hpp
                src/audio/plugin/CLAPAudioChannelGroup.cpp
                src/audio/plugin/CLAPAudioChannelGroup.hpp
                src/audio/plugin/CLAPEventBusInfo.cpp
@@ -564,6 +569,8 @@ add_executable(PluginDirectoryScanTest
                src/audio/host/CLAPHost.hpp
                src/audio/host/CLAPTimerSupport.cpp
                src/audio/host/CLAPTimerSupport.hpp
+               src/audio/host/HostContext.cpp
+               src/audio/host/HostContext.hpp
                src/audio/host/VST3AttributeList.cpp
                src/audio/host/VST3AttributeList.hpp
                src/audio/host/VST3ComponentHandler.cpp
@@ -659,6 +666,8 @@ add_executable(PluginScanTest
                src/audio/host/CLAPHost.hpp
                src/audio/host/CLAPTimerSupport.cpp
                src/audio/host/CLAPTimerSupport.hpp
+               src/audio/host/HostContext.cpp
+               src/audio/host/HostContext.hpp
                src/audio/host/VST3AttributeList.cpp
                src/audio/host/VST3AttributeList.hpp
                src/audio/host/VST3ComponentHandler.cpp
@@ -785,6 +794,8 @@ add_executable(VST3Test
                src/audio/base/Automation.hpp
                src/audio/host/EventFileDescriptorSupport.cpp
                src/audio/host/EventFileDescriptorSupport.hpp
+               src/audio/host/HostContext.cpp
+               src/audio/host/HostContext.hpp
                src/audio/host/VST3AttributeList.cpp
                src/audio/host/VST3AttributeList.hpp
                src/audio/host/VST3ComponentHandler.cpp

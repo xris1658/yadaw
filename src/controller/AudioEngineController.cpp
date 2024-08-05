@@ -1,6 +1,7 @@
 #include "AudioEngineController.hpp"
 
 #include "audio/host/CLAPHost.hpp"
+#include "audio/host/HostContext.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
 #include "util/Util.hpp"
 
@@ -93,6 +94,7 @@ SetCLAPPluginProcessing setProcessing[2] = {
 void AudioEngine::process()
 {
     auto now = YADAW::Util::currentTimeValueInNanosecond();
+    YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.flip();
     YADAW::Audio::Host::CLAPHost::setAudioThreadId(std::this_thread::get_id());
     processSequence_.swapIfNeeded();
     vst3PluginPool_.swapIfNeeded();

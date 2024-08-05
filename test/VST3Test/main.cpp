@@ -2,6 +2,7 @@
 #include "test/common/DisableStreamBuffer.hpp"
 
 #include "audio/host/EventFileDescriptorSupport.hpp"
+#include "audio/host/HostContext.hpp"
 #include "audio/host/VST3ComponentHandler.hpp"
 #include "audio/host/VST3EventDoubleBuffer.hpp"
 #include "audio/host/VST3Host.hpp"
@@ -366,14 +367,15 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                         // Audio callback goes here...
                         while(!stop.load(std::memory_order_acquire))
                         {
+                            YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.flip();
                             auto now = std::chrono::steady_clock::now();
                             {
                                 std::lock_guard<YADAW::Util::AtomicMutex> lg(audioCallbackTimeMutex);
                                 audioCallbackTime = now.time_since_epoch().count();
-                                componentHandler.switchBuffer(audioCallbackTime);
+                                componentHandler.bufferSwitched(audioCallbackTime);
                                 {
                                     std::lock_guard<YADAW::Util::AtomicMutex> lg(mutex);
-                                    doubleBuffer.switchBuffer();
+                                    doubleBuffer.bufferSwitched();
                                 }
                                 processContext.systemTime = audioCallbackTime;
                             }

@@ -69,7 +69,7 @@ public:
     tresult PLUGIN_API endEdit(ParamID id) override;
     tresult PLUGIN_API restartComponent(int32 flags) override;
 public:
-    void switchBuffer(std::int64_t switchTimestampInNanosecond);
+    void bufferSwitched(std::int64_t switchTimestampInNanosecond);
     // TODO: Use timestamp
     void consumeOutputParameterChanges(std::int64_t timestampInNanosecond);
     double sampleRate() const;
@@ -100,8 +100,6 @@ private:
     ParameterPerformEditCallback* parameterPerformEditCallback_;
     ParameterEndEditCallback* parameterEndEditCallback_;
 
-    // Used by host
-    std::atomic<int> hostBufferIndex_;
     // Set on switchBuffer
     std::int64_t timestamp_;
     std::map<ParamID, std::unique_ptr<QTimer>> editingParameters_;

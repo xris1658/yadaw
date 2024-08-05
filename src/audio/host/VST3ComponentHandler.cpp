@@ -1,5 +1,6 @@
 #include "VST3ComponentHandler.hpp"
 
+#include "audio/host/HostContext.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "util/IntegerRange.hpp"
 #include "util/Util.hpp"
@@ -45,7 +46,6 @@ VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin& plu
     parameterBeginEditCallback_(&blankParameterBeginEditCallback),
     parameterPerformEditCallback_(&blankParameterPerformEditCallback),
     parameterEndEditCallback_(&blankParameterEndEditCallback),
-    hostBufferIndex_{0},
     timestamp_(0),
     inputParameterChanges_{},
     outputParameterChanges_{},
@@ -111,8 +111,7 @@ tresult VST3ComponentHandler::doEndEdit(ParamID id, std::int64_t timestampInNano
 tresult VST3ComponentHandler::beginEdit(ParamID id)
 {
     // std::printf("beginEdit(%u)\n", id);
-    auto hostBufferIndex = hostBufferIndex_.load(
-        std::memory_order_acquire);
+    auto hostBufferIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
     auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
     if(auto index = doBeginEdit(hostBufferIndex, id, timestamp); index != -1)
     {
@@ -125,9 +124,7 @@ tresult VST3ComponentHandler::beginEdit(ParamID id)
 
 tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue)
 {
-    auto hostBufferIndex = hostBufferIndex_.load(
-        std::memory_order_acquire
-    );
+    auto hostBufferIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
     auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
     auto editingIt = editingParameters_.find(id);
     int32 mappingIndex = -1;
@@ -263,11 +260,12 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
     return kNotImplemented;
 }
 
-void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond)
+void VST3ComponentHandler::bufferSwitched(std::int64_t switchTimestampInNanosecond)
 {
     timestamp_ = switchTimestampInNanosecond;
-    outputParameterChanges_[hostBufferIndex_.fetch_xor(1)].clearPointsInQueue();
-    const auto hostBufferIndex = hostBufferIndex_.load(std::memory_order_acquire);
+    auto oldHostBufferIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
+    outputParameterChanges_[oldHostBufferIndex].clearPointsInQueue();
+    const auto hostBufferIndex = oldHostBufferIndex ^ 1;
     inputParameterChanges_[hostBufferIndex].clearPointsInQueue();
     auto pluginBufferIndex = hostBufferIndex ^ 1;
     // Add initial values before giving it to the plugin to process.
@@ -292,7 +290,7 @@ void VST3ComponentHandler::switchBuffer(std::int64_t switchTimestampInNanosecond
 
 void VST3ComponentHandler::consumeOutputParameterChanges(std::int64_t timestampInNanosecond)
 {
-    auto& outputParameterChanges = outputParameterChanges_[hostBufferIndex_.load(std::memory_order_acquire)];
+    auto& outputParameterChanges = outputParameterChanges_[YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get()];
     auto* editController = plugin_->editController();
     auto outputParameterChangeCount = outputParameterChanges.getParameterCount();
     FOR_RANGE0(i, outputParameterChangeCount)

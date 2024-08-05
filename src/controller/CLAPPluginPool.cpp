@@ -28,7 +28,7 @@ void fillCLAPInputParameterChanges(CLAPPluginPoolVector& pool,
     {
         auto& [plugin, context] = *ptr;
         auto eventList = context.eventList;
-        eventList->flip();
+        eventList->flipped();
         eventList->attachToProcessData(plugin->processData());
     }
 }

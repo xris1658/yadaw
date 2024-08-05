@@ -27,7 +27,7 @@ void fillVST3InputParameterChanges(VST3PluginPoolVector& pool,
     for(auto* ptr: pool)
     {
         auto& [plugin, context] = *ptr;
-        context.componentHandler->switchBuffer(
+        context.componentHandler->bufferSwitched(
             callbackTimestampInNanosecond
         );
     }

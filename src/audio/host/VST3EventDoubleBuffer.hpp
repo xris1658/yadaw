@@ -13,10 +13,8 @@ public:
     OptionalRef<Steinberg::Vst::Event> emplaceInputEvent();
     YADAW::Audio::Host::VST3EventList& hostOutputEventList();
     std::pair<YADAW::Audio::Host::VST3EventList&, YADAW::Audio::Host::VST3EventList&> pluginSideEventList();
-    void switchBuffer();
+    void bufferSwitched();
 private:
-    int hostSideBufferIndex_ = 1;
-    mutable YADAW::Util::AtomicMutex mutex_;
     YADAW::Audio::Host::VST3EventList inputs_[2];
     YADAW::Audio::Host::VST3EventList outputs_[2];
 };
