@@ -29,6 +29,7 @@ Rectangle {
     property bool showInsertSlot: true
     property bool showSendSlot: true
     property bool showFader: true
+    property alias decibelValue: volumeFader.decibelValue
 
     property Window audioIOSelectorWindow: null
     property Window pluginSelectorWindow: null
@@ -854,10 +855,97 @@ Rectangle {
                     width: faderAndMeterPlaceholder.width / 2
                     height: faderAndMeterPlaceholder.height - volumeLabel.height - parent.rowSpacing
                     Slider {
+                        id: volumeFader
                         orientation: Qt.Vertical
                         height: parent.height - impl.padding
                         anchors.bottom: parent.bottom
                         anchors.horizontalCenter: parent.horizontalCenter
+                        value: 0.796875
+                        property double decibelValue: 0
+                        function getDecibelValue(position: double) {
+                            for(let i = scales.model.count - 1; i >= 1; --i) {
+                                let fromPosition = scales.model.get(i - 1).position;
+                                let fromValue = scales.model.get(i - 1).value;
+                                let toPosition = scales.model.get(i).position;
+                                let toValue = scales.model.get(i).value;
+                                if(position > fromPosition && position <= toPosition) {
+                                    return fromValue + (position - fromPosition) / (toPosition - fromPosition) * (toValue - fromValue);
+                                }
+                            }
+                            return -1 * Infinity;
+                        }
+                        function getPosition(decibelValue: double) {
+                            let maxValue = scales.model.get(scales.model.count - 1).value;
+                            if(decibelValue > maxValue) {
+                                return scales.model.get(scales.model.count - 1).position;
+                            }
+                            let minValue = scales.model.get(0).value;
+                            if(decibelValue <= minValue) {
+                                return scales.model.get(0).position;
+                            }
+                            for(let i = scales.model.count - 1; i >= 1; --i) {
+                                let fromPosition = scales.model.get(i - 1).position;
+                                let fromValue = scales.model.get(i - 1).value;
+                                let toPosition = scales.model.get(i).position;
+                                let toValue = scales.model.get(i).value;
+                                if(decibelValue > fromValue && decibelValue <= toValue) {
+                                    return fromPosition + (decibelValue - fromValue) / (toValue - fromValue) * (toPosition - fromPosition);
+                                }
+                            }
+                        }
+                        onPositionChanged: {
+                            decibelValue = getDecibelValue(position);
+                        }
+                        onDecibelValueChanged: {
+                            mclm_volume = decibelValue;
+                        }
+                        Component {
+                            id: volumeFaderScale
+                            Item {
+                                anchors.horizontalCenter: volumeFader.horizontalCenter
+                                property int scaleWidth: volumeFader.handleThickness / 2 - 1
+                                width: volumeFader.handleThickness + 2 * 2
+                                height: 1
+                                y: volumeFader.handleLength / 2 + (1 - position) * (volumeFader.height - volumeFader.handleLength)
+                                Rectangle {
+                                    width: scaleWidth
+                                    height: 1
+                                    anchors.left: parent.left
+                                    color: Colors.border
+                                }
+                                Rectangle {
+                                    width: scaleWidth
+                                    height: 1
+                                    anchors.right: parent.right
+                                    color: Colors.border
+                                }
+                                Label {
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: 1
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.verticalCenterOffset: value > 0? 0: -1
+                                    color: Colors.secondaryContent
+                                    text: index == 0? "-\u221e": value > 0? "+" + value.toString(): value
+                                    font.pointSize: Qt.application.font.pointSize * 0.75
+                                }
+                                Label {
+                                    anchors.left: parent.right
+                                    anchors.leftMargin: 1
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.verticalCenterOffset: value > 0? 0: -1
+                                    color: Colors.secondaryContent
+                                    text: index == 0? "-\u221e": value > 0? "+" + value.toString(): value
+                                    font.pointSize: Qt.application.font.pointSize * 0.75
+                                }
+                            }
+                        }
+                        handle.z: 3
+                        Repeater {
+                            id: scales
+                            z: 2
+                            delegate: volumeFaderScale
+                            model: Constants.volumeFaderScaleModel
+                        }
                     }
                 }
                 Item {
@@ -872,14 +960,59 @@ Rectangle {
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                 }
-                Label {
-                    id: volumeLabel
-                    text: "-6.00"
+                MouseArea {
                     width: faderAndMeterPlaceholder.width / 2
-                    topPadding: 0
-                    bottomPadding: impl.padding
-                    horizontalAlignment: Label.AlignHCenter
-                    verticalAlignment: Label.AlignVCenter
+                    height: volumeLabel.height
+                    hoverEnabled: true
+                    acceptedButtons: Qt.LeftButton
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.bottomMargin: impl.padding / 2
+                        z: 1
+                        color: Colors.mouseOverControlBackground
+                        visible: parent.containsMouse
+                    }
+                    Label {
+                        id: volumeLabel
+                        z: 2
+                        text: volumeFader.position == 0? "-\u221e":
+                            volumeFader.decibelValue < 0.01 && volumeFader.decibelValue > 0.0?   "+0.00":
+                            volumeFader.decibelValue < 0.0  && volumeFader.decibelValue > -0.01? "-0.00":
+                            volumeFader.decibelValue < 0.1  && volumeFader.decibelValue > -0.1?  volumeFader.decibelValue.toPrecision(1):
+                            volumeFader.decibelValue < 1.0  && volumeFader.decibelValue > -1.0?  volumeFader.decibelValue.toPrecision(2):
+                            volumeFader.decibelValue.toPrecision(3)
+                        width: faderAndMeterPlaceholder.width / 2
+                        topPadding: 0
+                        bottomPadding: impl.padding
+                        horizontalAlignment: Label.AlignHCenter
+                        verticalAlignment: Label.AlignVCenter
+                        TextField {
+                            id: volumeTextField
+                            anchors.fill: parent
+                            topPadding: 0
+                            bottomPadding: impl.padding
+                            horizontalAlignment: Label.AlignHCenter
+                            verticalAlignment: Label.AlignVCenter
+                            visible: false
+                            enabled: visible
+                            onAccepted: {
+                                let parsed = parseFloat(volumeTextField.text);
+                                if(!isNaN(parsed)) {
+                                    volumeFader.value = volumeFader.getPosition(volumeTextField.text);
+                                }
+                                visible = false;
+                            }
+                            Keys.onEscapePressed: (event) => {
+                                visible = false;
+                            }
+                        }
+                    }
+                    onDoubleClicked: {
+                        volumeTextField.visible = true;
+                        volumeTextField.text = volumeLabel.text;
+                        volumeTextField.selectAll();
+                        volumeTextField.forceActiveFocus();
+                    }
                 }
                 Label {
                     id: levelLabel

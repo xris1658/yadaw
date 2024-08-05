@@ -140,6 +140,50 @@ QtObject {
         }
     }
 
+    readonly property ListModel volumeFaderScaleModel: ListModel {
+        id: volumeFaderScaleList
+        ListElement {
+            position: 0
+            value: -144
+        }
+        ListElement {
+            position: 0.0625
+            value: -72
+        }
+        ListElement {
+            position: 0.125
+            value: -48
+        }
+        ListElement {
+            position: 0.203125
+            value: -36
+        }
+        ListElement {
+            position: 0.28125
+            value: -24
+        }
+        ListElement {
+            position: 0.375
+            value: -18
+        }
+        ListElement {
+            position: 0.5
+            value: -12
+        }
+        ListElement {
+            position: 0.640625
+            value: -6
+        }
+        ListElement {
+            position: 0.796875
+            value: 0
+        }
+        ListElement {
+            position: 1
+            value: 6
+        }
+    }
+
     enum NoteName { Sharp, Flat }
     readonly property int midiValueRange: 128
     readonly property int maxVelocity: midiValueRange - 1
