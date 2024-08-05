@@ -16,7 +16,7 @@ QTimer& idleProcessTimer()
         initializeIdleProcessTimerFlag,
         []()
         {
-            timer.setInterval(0);
+            timer.setInterval(16);
             timer.setSingleShot(false);
             timer.start();
         }
