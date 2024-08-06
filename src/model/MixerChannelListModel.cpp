@@ -1,5 +1,6 @@
 #include "MixerChannelListModel.hpp"
 
+#include "RegularAudioIOPositionModel.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "audio/util/InputSwitcher.hpp"
@@ -868,6 +869,24 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         }
         if(listType_ == ListType::Regular)
         {
+            FOR_RANGE0(i, mixer_.channelCount())
+            {
+                auto audioIOPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
+                    data(
+                        this->index(i),
+                        IMixerChannelListModel::Role::Output
+                    ).value<QObject*>()
+                );
+                if(audioIOPosition && audioIOPosition->getType() == YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel)
+                {
+                    auto regularAudioIOPosition = static_cast<YADAW::Entity::RegularAudioIOPosition*>(audioIOPosition);
+                    auto sourceIndex = regularAudioIOPosition->getModel().getModel().mapToSource(regularAudioIOPosition->getIndex());
+                    if(sourceIndex >= position && sourceIndex < position + removeCount)
+                    {
+                        setData(this->index(i), QVariant::fromValue<QObject*>(nullptr), IMixerChannelListModel::Role::Output);
+                    }
+                }
+            }
             FOR_RANGE(i, position, position + removeCount)
             {
                 setData(
