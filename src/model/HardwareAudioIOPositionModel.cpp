@@ -163,6 +163,10 @@ void HardwareAudioIOPositionModel::onSourceModelRowsInserted(
         positions_[i]->updateIndex(i);
     }
     endInsertRows();
+    for(auto& position: positions_)
+    {
+        position->completeNameChanged();
+    }
 }
 
 void HardwareAudioIOPositionModel::onSourceModelRowsAboutToBeRemoved(
@@ -183,6 +187,10 @@ void HardwareAudioIOPositionModel::onSourceModelRowsRemoved(
         positions_[i]->updateIndex(i);
     }
     endRemoveRows();
+    for(auto& position: positions_)
+    {
+        position->completeNameChanged();
+    }
 }
 
 void HardwareAudioIOPositionModel::onSourceModelDataChanged(
@@ -197,6 +205,7 @@ void HardwareAudioIOPositionModel::onSourceModelDataChanged(
             FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
             {
                 positions_[i]->nameChanged();
+                positions_[i]->completeNameChanged();
             }
         }
     }
