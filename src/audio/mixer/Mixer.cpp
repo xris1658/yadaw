@@ -1389,6 +1389,13 @@ bool Mixer::insertChannels(
                 return channelIdGen_();
             }
         );
+        for(auto& [id, index]: channelIdAndIndex_)
+        {
+            if(index >= position)
+            {
+                index += count;
+            }
+        }
         FOR_RANGE0(i, count)
         {
             channelIdAndIndex_.emplace(
@@ -1497,18 +1504,26 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             std::remove_if(
                 channelIdAndIndex_.begin(),
                 channelIdAndIndex_.end(),
-                [&it2](IDAndIndex idAndIndex)
+                [this, first, last](IDAndIndex idAndIndex)
                 {
-                    if(idAndIndex.id == *it2)
-                    {
-                        ++it2;
-                        return true;
-                    }
-                    return false;
+                    auto it = std::lower_bound(
+                        channelId_.begin() + first,
+                        channelId_.begin() + last,
+                        idAndIndex.id
+                    );
+                    return it != channelId_.begin() + last
+                        && *it == idAndIndex.id;
                 }
             ),
             channelIdAndIndex_.end()
         );
+        for(auto& [id, index]: channelIdAndIndex_)
+        {
+            if(index >= last)
+            {
+                index -= removeCount;
+            }
+        }
         channelId_.erase(
             channelId_.begin() + first,
             channelId_.begin() + last
