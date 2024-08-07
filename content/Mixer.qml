@@ -300,9 +300,9 @@ Rectangle {
                         }
                     }
                     MenuItem {
-                        text: qsTr("Audio &Bus") + "..."
+                        text: qsTr("Audio &Group") + "..."
                         onTriggered: {
-                            root.appendTrack(AddTrackWindow.TrackType.AudioBus);
+                            root.appendTrack(AddTrackWindow.TrackType.AudioGroup);
                         }
                     }
                 }

@@ -47,7 +47,7 @@ Window {
         Audio,
         Instrument,
         AudioEffect,
-        AudioBus
+        AudioGroup
     }
 
     SortFilterProxyListModel {
@@ -137,7 +137,7 @@ Window {
                     TabButton {
                         id: audioBusButton
                         width: implicitWidth
-                        text: qsTr("Audio Bus")
+                        text: qsTr("Audio Group")
                         onClicked: {
                             root.trackType = TabBar.index;
                         }
@@ -301,7 +301,7 @@ Window {
                             visible: root.trackType === AddTrackWindow.TrackType.Audio
                                 || root.trackType === AddTrackWindow.TrackType.Instrument
                                 || root.trackType === AddTrackWindow.TrackType.AudioEffect
-                                || root.trackType === AddTrackWindow.TrackType.AudioBus
+                                || root.trackType === AddTrackWindow.TrackType.AudioGroup
                             Component.onCompleted: {
                                 leftPadding = width - implicitWidth;
                             }
