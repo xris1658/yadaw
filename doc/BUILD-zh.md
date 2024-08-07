@@ -137,8 +137,35 @@ Debian 及其分支发行版。
   mkdir build
   cd build
   cmake -S .. -B . \
+    -DCMAKE_PREFIX_PATH=<>/home/xris1658/apps/Qt/6.5.3/gcc_64 \
     -DVST3SDK_SOURCE_DIR=<VST3 SDK 所在目录的路径>/vst3sdk \
     -DCLAP_SOURCE_DIR=<CLAP 所在目录的路径>/clap \
     -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<sqlite_modern_cpp 所在目录的路径>/sqlite_modern_cpp/hdr
   cmake --build . --target YADAW -j 16
+  ```
+  
+### 输入法支持
+
+Qt 6 中内置了 IBus 输入法支持。如果使用 Fcitx，则需要构建并安装 Fcitx 的平台集成插件。步骤如下：
+- 安装所需的依赖项：
+  ```shell
+  sudo apt install extra-cmake-modules
+   ```
+- 下载 fcitx5-qt 的源码，配置并构建项目：
+  ```shell
+  git clone https://github.com/fcitx/fcitx5-qt
+  cd ./fcitx5-qt
+  mkdir build
+  cd build
+  cmake -S .. -B . \
+    -DCMAKE_PREFIX_PATH=<Qt 所在路径 e.g. /home/xris1658/apps/Qt/6.7.0/gcc_64> \
+    -DENABLE_QT5=FALSE \
+    -DBUILD_ONLY_PLUGIN=TRUE
+  cmake --build . --target fcitx5platforminputcontextplugin-qt6
+  ```
+
+- 安装构建的插件：
+  ```shell
+  cp ./qt6/platforminputcontext/libfcitx5platforminputcontextplugin.so \
+    <Qt 所在路径 e.g. /home/xris1658/apps/Qt/6.7.0/gcc_64>/plugins/platforminputcontexts
   ```

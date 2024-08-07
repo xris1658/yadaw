@@ -148,3 +148,30 @@ might be usable on Debian and its forks.
     -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<path to directory of sqlite_modern_cpp>/sqlite_modern_cpp/hdr
   cmake --build . --target YADAW -j 16
   ```
+
+### IME Support
+
+Qt 6 has a built-in IBus IME support. If you're using Fcitx, then you need to build and  
+install the platform integration plugin of Fcitx. The steps are as follows:
+- Install prerequisites needed:
+  ```shell
+  sudo apt install extra-cmake-modules
+   ```
+- Download source of fcitx5-qt, configure and build the project:
+  ```shell
+  git clone https://github.com/fcitx/fcitx5-qt
+  cd ./fcitx5-qt
+  mkdir build
+  cd build
+  cmake -S .. -B . \
+    -DCMAKE_PREFIX_PATH=<Path of Qt e.g. /home/xris1658/apps/Qt/6.7.0/gcc_64> \
+    -DENABLE_QT5=FALSE \
+    -DBUILD_ONLY_PLUGIN=TRUE
+  cmake --build . --target fcitx5platforminputcontextplugin-qt6
+  ```
+
+- Install the built plugin:
+  ```shell
+  cp ./qt6/platforminputcontext/libfcitx5platforminputcontextplugin.so \
+    <Path of Qt e.g. /home/xris1658/apps/Qt/6.7.0/gcc_64>/plugins/platforminputcontexts
+  ```
