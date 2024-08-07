@@ -348,6 +348,13 @@ void SortFilterProxyListModel::sourceModelRowsRemoved(const QModelIndex& parent,
 void SortFilterProxyListModel::sourceModelDataChanged(
     const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles)
 {
+    FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
+    {
+        if(auto dstIndex = mapFromSource(i); dstIndex != -1)
+        {
+            dataChanged(index(dstIndex), index(dstIndex), roles);
+        }
+    }
     doSort();
     doFilter();
     validateMapping(srcToDst_, dstToSrc_);
