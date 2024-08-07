@@ -172,7 +172,11 @@ int SortFilterProxyListModel::mapFromSource(int sourceIndex) const
 {
     if(sourceModel_ && sourceIndex >= 0 && sourceIndex < sourceModel_->rowCount())
     {
-        return srcToDst_[sourceIndex];
+        auto ret = srcToDst_[sourceIndex];
+        if(ret < itemCount())
+        {
+            return ret;
+        }
     }
     return -1;
 }
