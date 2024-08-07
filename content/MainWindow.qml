@@ -779,6 +779,9 @@ ApplicationWindow {
                             onInsertTrack: (position, type) => {
                                 addTrackWindow.openWindow(position, type);
                             }
+                            onChannelsModelChanged: {
+                                assets.mixerChannelListModel = mixerChannelModel;
+                            }
                         }
                     }
                 }

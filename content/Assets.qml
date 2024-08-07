@@ -16,6 +16,7 @@ Rectangle {
     readonly property int preferredWidth: searchTextBox.height * 15
     property alias directoryListModel: directoryList.model
     property alias pluginListModel: pluginListProxyModel.sourceModel
+    property IMixerChannelListModel mixerChannelListModel: null
 
     clip: true
 
@@ -373,6 +374,59 @@ Rectangle {
                         }
                     }
                 }
+                Label {
+                    text: qsTr("Tracks")
+                    color: Colors.secondaryContent
+                    font.pointSize: Qt.application.font.pointSize * 0.9
+                    width: leftColumn.width
+                    height: contentHeight + topPadding + bottomPadding
+                    leftPadding: 0
+                    topPadding: 3
+                    bottomPadding: 0
+                    elide: Text.ElideRight
+                }
+                ListView {
+                    id: tracksLeftColumn
+                    width: leftColumn.width
+                    height: contentHeight
+                    model: ListModel {
+                        ListElement {
+                            name: qsTr("All Tracks")
+                            type: IMixerChannelListModel.ChannelTypeAudio
+                        }
+                        ListElement {
+                            name: qsTr("Audio Tracks")
+                            type: IMixerChannelListModel.ChannelTypeAudio
+                        }
+                        ListElement {
+                            name: qsTr("Instrument Tracks")
+                            type: IMixerChannelListModel.ChannelTypeInstrument
+                        }
+                        ListElement {
+                            name: qsTr("Audio Effect Tracks")
+                            type: IMixerChannelListModel.ChannelTypeAudioFX
+                        }
+                        ListElement {
+                            name: qsTr("Audio Group Tracks")
+                            type: IMixerChannelListModel.ChannelTypeBus
+                        }
+                    }
+                    delegate: ItemDelegate {
+                        id: trackItemDelegate
+                        width: parent.width
+                        height: implicitHeight
+                        text: name
+                        leftPadding: 2
+                        rightPadding: 2
+                        topPadding: 2
+                        bottomPadding: 2
+                        highlighted: rightLayout.currentIndex === 2 && tracksLeftColumn.currentIndex === index
+                        onClicked: {
+                            rightLayout.currentIndex = 2;
+                            tracksLeftColumn.currentIndex = index;
+                        }
+                    }
+                }
             }
         }
         Rectangle {
@@ -610,6 +664,35 @@ Rectangle {
                                     IPluginListModel.Format,
                                     IPluginListModel.Vestifal
                                 );
+                            }
+                        }
+                    }
+                }
+                StackLayout {
+                    id: tracksLayout
+                    currentIndex: tracksLeftColumn.currentIndex
+                    clip: true
+                    Repeater {
+                        model: tracksLeftColumn.model
+                        ListView {
+                            id: tracksListView
+                            required property int index
+                            required property int type
+                            boundsBehavior: Flickable.StopAtBounds
+                            model: SortFilterProxyListModel {
+                                sourceModel: root.mixerChannelListModel
+                                Component.onCompleted: {
+                                    if(tracksListView.index != 0) {
+                                        setValueOfFilter(
+                                            IMixerChannelListModel.ChannelType,
+                                            tracksListView.type
+                                        );
+                                    }
+                                }
+                            }
+                            delegate: ItemDelegate {
+                                width: parent.width
+                                text: mclm_name
                             }
                         }
                     }
