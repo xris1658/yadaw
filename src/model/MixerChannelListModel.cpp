@@ -224,6 +224,15 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
             }
             return QVariant();
         }
+        case Role::NameWithIndex:
+        {
+            const auto& optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+            if(optionalInfo.has_value())
+            {
+                return QVariant::fromValue(QString("%1: %2").arg(QString::number(row + 1), optionalInfo->get().name));
+            }
+            return QVariant();
+        }
         case Role::Color:
         {
             const auto& optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
@@ -415,7 +424,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
             if(optionalInfo.has_value())
             {
                 optionalInfo->get().name = value.value<QString>();
-                dataChanged(index, index, {Role::Name});
+                dataChanged(index, index, {Role::Name, Role::NameWithIndex});
                 return true;
             }
             return false;
@@ -793,6 +802,7 @@ bool MixerChannelListModel::insert(int position, int count,
                 count, nullptr
             );
             endInsertRows();
+            dataChanged(index(position + count), index(itemCount() - 1), {Role::NameWithIndex});
         }
         return ret;
     }
@@ -844,6 +854,7 @@ bool MixerChannelListModel::insert(int position, int count,
             insertModels_[i]->setChannelIndex(i);
         }
         endInsertRows();
+        dataChanged(index(position + count), index(itemCount() - 1), {Role::NameWithIndex});
         return true;
     }
     return false;
@@ -940,6 +951,10 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             updateInstrumentConnections(position);
         }
         endRemoveRows();
+        if(itemCount() != 0)
+        {
+            dataChanged(index(position), index(itemCount() - 1), {Role::NameWithIndex});
+        }
         return true;
     }
     return false;

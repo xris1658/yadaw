@@ -33,6 +33,7 @@ public:
     {
         Id = Qt::UserRole, // QString::number(std::uint64_t)
         Name,
+        NameWithIndex,
         Color,
         ChannelType,
         ChannelConfig, // YADAW::Entity::ChannelConfig::Config
@@ -99,6 +100,7 @@ protected:
         {
             std::make_pair(Id,                             "mclm_id"),
             std::make_pair(Name,                           "mclm_name"),
+            std::make_pair(NameWithIndex,                  "mclm_name_with_index"),
             std::make_pair(Color,                          "mclm_color"),
             std::make_pair(ChannelType,                    "mclm_channel_type"),
             std::make_pair(ChannelConfig,                  "mclm_channel_config"),

@@ -37,10 +37,10 @@ QString RegularAudioIOPosition::getName() const
 
 QString RegularAudioIOPosition::getCompleteName() const
 {
-    return QString("%1: %2").arg(
-        QString::number(model_->getModel().mapToSource(index_) + 1),
-        getName()
-    );
+    return model_->getModel().data(
+        model_->index(index_),
+        YADAW::Model::IMixerChannelListModel::Role::NameWithIndex
+    ).value<QString>();
 }
 
 const YADAW::Model::RegularAudioIOPositionModel& RegularAudioIOPosition::getModel() const
