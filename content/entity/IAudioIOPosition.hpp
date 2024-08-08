@@ -21,7 +21,13 @@ public:
     };
     Q_ENUM(Type);
 public:
-    IAudioIOPosition(QObject* parent = nullptr): QObject(parent) {}
+    IAudioIOPosition(QObject* parent = nullptr): QObject(parent)
+    {
+        QObject::connect(
+            this, &IAudioIOPosition::nameChanged,
+            this, &IAudioIOPosition::completeNameChanged
+        );
+    }
     ~IAudioIOPosition() override {}
 public:
     virtual Type getType() const = 0;

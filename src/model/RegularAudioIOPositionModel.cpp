@@ -184,15 +184,19 @@ void RegularAudioIOPositionModel::onSourceModelDataChanged(const QModelIndex& to
     const QList<int>& roles)
 {
     QList<int> destRoles;
-    for(auto role: roles)
+    if(roles.contains(YADAW::Model::IMixerChannelListModel::Role::NameWithIndex))
     {
-        if(role == YADAW::Model::IMixerChannelListModel::Role::Name)
+        FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
         {
-            destRoles.append(IAudioIOPositionModel::Role::Position);
+            positions_[i]->completeNameChanged();
         }
     }
-    dataChanged(
-        index(topLeft.row()), index(bottomRight.row()), destRoles
-    );
+    else if(roles.contains(YADAW::Model::IMixerChannelListModel::Role::Name))
+    {
+        FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
+        {
+            positions_[i]->nameChanged();
+        }
+    }
 }
 }
