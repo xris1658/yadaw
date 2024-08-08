@@ -692,7 +692,7 @@ Rectangle {
                             }
                             delegate: ItemDelegate {
                                 width: parent.width
-                                text: mclm_name
+                                text: mclm_name_with_index
                             }
                         }
                     }
