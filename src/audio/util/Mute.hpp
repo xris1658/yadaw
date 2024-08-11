@@ -4,7 +4,8 @@
 #include "audio/base/Automation.hpp"
 #include "audio/device/IAudioDevice.hpp"
 #include "audio/util/AudioChannelGroup.hpp"
-#include "util/AtomicMutex.hpp"
+
+#include <atomic>
 
 namespace YADAW::Audio::Util
 {
@@ -25,23 +26,12 @@ public:
     std::uint32_t latencyInSamples() const override;
     void process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData) override;
 public:
-    void setProcessStartTime(YADAW::Audio::Base::Automation::Time time);
+    bool getMute() const;
+    void setMute(bool mute);
 private:
-    void processWithoutAutomation(
-        const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
-        const YADAW::Audio::Base::Automation* automation);
-    void processWithAutomation(
-        const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
-        const YADAW::Audio::Base::Automation* automation);
-private:
-    static constexpr ProcessFunc processFuncs[2] = {
-        &Mute::processWithoutAutomation,
-        &Mute::processWithAutomation,
-    };
-    std::atomic<const YADAW::Audio::Base::Automation*> muteAutomation_ = nullptr;
-    YADAW::Audio::Base::Automation::Time time_;
     YADAW::Audio::Util::AudioChannelGroup input_;
     YADAW::Audio::Util::AudioChannelGroup output_;
+    std::atomic<bool> mute_ {false};
 };
 }
 

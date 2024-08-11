@@ -159,6 +159,24 @@ GetChannelGroupTypeAndCount getChannelGroupTypeAndCount[3] = {
     &YADAW::Audio::Mixer::Mixer::audioOutputChannelGroupTypeAndChannelCountAt
 };
 
+using GetConstMuteAt =
+    OptionalRef<const YADAW::Audio::Util::Mute>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t index) const;
+
+GetConstMuteAt getConstMuteAt[3] = {
+    static_cast<GetConstMuteAt>(&YADAW::Audio::Mixer::Mixer::audioInputMuteAt),
+    static_cast<GetConstMuteAt>(&YADAW::Audio::Mixer::Mixer::muteAt),
+    static_cast<GetConstMuteAt>(&YADAW::Audio::Mixer::Mixer::audioOutputMuteAt)
+};
+
+using GetMuteAt =
+    OptionalRef<YADAW::Audio::Util::Mute>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t index);
+
+GetMuteAt getMuteAt[3] = {
+    static_cast<GetMuteAt>(&YADAW::Audio::Mixer::Mixer::audioInputMuteAt),
+    static_cast<GetMuteAt>(&YADAW::Audio::Mixer::Mixer::muteAt),
+    static_cast<GetMuteAt>(&YADAW::Audio::Mixer::Mixer::audioOutputMuteAt)
+};
+
 IMixerChannelListModel::ChannelTypes getChannelType(YADAW::Audio::Mixer::Mixer::ChannelType type)
 {
     return static_cast<IMixerChannelListModel::ChannelTypes>(YADAW::Util::underlyingValue(type));
@@ -377,6 +395,13 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         case Role::Inserts:
         {
             return QVariant::fromValue<QObject*>(insertModels_[row].get());
+        }
+        case Role::Mute:
+        {
+            const auto& mute = (mixer_.*getConstMuteAt[listType_])(row)->get();
+            return QVariant::fromValue<bool>(
+                mute.getMute()
+            );
         }
         case Role::MonitorExist:
         {
@@ -672,6 +697,13 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                 return true;
             }
             return false;
+        }
+        case Role::Mute:
+        {
+            auto& mute = (mixer_.*getMuteAt[listType_])(row)->get();
+            mute.setMute(value.value<bool>());
+            dataChanged(this->index(row), this->index(row), {Role::Mute});
+            return true;
         }
         case Role::Monitor:
         {

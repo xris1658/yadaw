@@ -43,42 +43,58 @@ std::uint32_t Mute::latencyInSamples() const
     return 0;
 }
 
-void Mute::process(
+void processWithMute(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    auto automation = muteAutomation_.load(std::memory_order_acquire);
-    (this->*processFuncs[automation != nullptr])(audioProcessData, automation);
-}
-
-void Mute::processWithoutAutomation(
-    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
-    const YADAW::Audio::Base::Automation* automation)
-{
-    FOR_RANGE0(i, audioProcessData.outputCounts[0])
+    FOR_RANGE0(i, audioProcessData.outputGroupCount)
     {
-        std::memcpy(
-            audioProcessData.outputs[0][i],
-            audioProcessData.inputs[0][i],
-            sizeof(float) * audioProcessData.singleBufferSize
-        );
-    }
-}
-
-static constexpr float factor[2] = {1.0f, 0.0f};
-
-void Mute::processWithAutomation(
-    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
-    const YADAW::Audio::Base::Automation* automation)
-{
-    FOR_RANGE0(i, audioProcessData.outputCounts[0])
-    {
-        auto in = audioProcessData.inputs[0][i];
-        auto out = audioProcessData.outputs[0][i];
-        FOR_RANGE0(j, audioProcessData.singleBufferSize)
+        FOR_RANGE0(j, audioProcessData.outputCounts[i])
         {
-            out[j] = in[j] * factor[(*automation)(time_ + j) != 0.0f];
+            std::memset(
+                audioProcessData.outputs[i][j], 0,
+                audioProcessData.singleBufferSize * sizeof(float)
+            );
         }
     }
 }
 
+void processWithoutMute(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
+{
+    FOR_RANGE0(i, audioProcessData.outputGroupCount)
+    {
+        FOR_RANGE0(j, audioProcessData.outputCounts[i])
+        {
+            std::memcpy(
+                audioProcessData.outputs[i][j],
+                audioProcessData.inputs[i][j],
+                audioProcessData.singleBufferSize * sizeof(float)
+            );
+        }
+    }
+}
+
+using ProcessFuncType = decltype(&processWithMute);
+
+ProcessFuncType processFuncs[2] = {
+    &processWithoutMute,
+    &processWithMute
+};
+
+void Mute::process(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
+{
+    auto func = processFuncs[mute_.load(std::memory_order_acquire)];
+    func(audioProcessData);
+}
+
+bool Mute::getMute() const
+{
+    return mute_.load(std::memory_order_acquire);
+}
+
+void Mute::setMute(bool mute)
+{
+    mute_.store(mute, std::memory_order_release);
+}
 }

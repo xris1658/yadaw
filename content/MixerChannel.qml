@@ -35,9 +35,7 @@ Rectangle {
     property Window pluginSelectorWindow: null
     property Window pluginRouteEditorWindow: null
 
-    property bool mute: muteButton.checked
     property alias instrumentSlotChecked: instrumentSlot.checked
-    signal setMute(newMute: bool)
 
     signal setInstrument(pluginId: int)
     signal removeInstrument()
@@ -611,7 +609,7 @@ Rectangle {
                                         Colors.mouseOverControlBackground:
                                         Colors.controlBackground
                         onClicked: {
-                            root.setMute(muteButton.checked);
+                            mclm_mute = muteButton.checked;
                         }
                     }
                     Button {
