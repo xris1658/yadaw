@@ -261,13 +261,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
                 );
                 return ret;
             }
-            auto optionalChannelGroupType = (mixer_.*getChannelGroupType[YADAW::Util::underlyingValue(listType_)])(row);
-            if(optionalChannelGroupType.has_value())
-            {
-                return QVariant::fromValue<int>(
-                    YADAW::Entity::configFromGroupType(*optionalChannelGroupType)
-                );
-            }
+            break;
         }
         case Role::ChannelCount:
         {
@@ -276,6 +270,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
             {
                 return QVariant::fromValue<int>(optionalChannelGroupTypeAndCount->second);
             }
+            break;
         }
         case Role::Input:
         {
@@ -297,6 +292,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
                 }
                 return MediaTypes::MediaTypeAudio;
             }
+            break;
         }
         case Role::Output:
         {
@@ -1045,8 +1041,8 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                     engine.running()
                 );
                 ret = true;
-                break;
             }
+            break;
         }
         case PluginFormat::PluginFormatCLAP:
         {
