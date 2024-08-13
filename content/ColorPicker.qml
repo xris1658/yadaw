@@ -71,7 +71,7 @@ Item {
                 radius: width / 2
                 color: "transparent"
                 border.width: 2
-                border.color: root.color.hsvValue > 0.5? "#000000": "#FFFFFF"
+                border.color: Colors.isBright(root.color)? "#000000": "#FFFFFF"
                 x: centerX - Math.floor(width / 2)
                 y: centerY - Math.floor(height / 2)
             }

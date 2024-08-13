@@ -70,7 +70,7 @@ Rectangle {
             Button {
                 id: sendButton
                 checkable: true
-                checked: true
+                checked: false
                 border.width: 0
                 width: 16
                 height: 16

@@ -679,96 +679,57 @@ ApplicationWindow {
             id: assetDetailSplitView
             SplitView.minimumWidth: assetTabButton.height
             SplitView.maximumWidth: Math.max(SplitView.minimumWidth, contents.width * 0.4)
-            SplitView.preferredWidth: assets.preferredWidth + assetTabButton.height
+            SplitView.preferredWidth: assets.preferredWidth
             orientation: Qt.Vertical
-            Row {
-                id: assetRow
+            Assets {
+                id: assets
+                width: parent.width
                 SplitView.minimumHeight: assetTabButton.width
                 SplitView.preferredHeight: Math.max(SplitView.minimumHeight, contents.height * 0.7)
-                Item {
-                    width: assetTabButton.height
-                    height: parent.height
-                    TabButton {
-                        id: assetTabButton
-                        text: qsTr("Assets")
-                        x: -width
-                        y: 0
-                        transformOrigin: Item.TopRight
-                        rotation: -90
-                    }
-                }
-                Assets {
-                    id: assets
-                    width: parent.width - assetTabButton.height
-                    height: parent.height
-                }
             }
-            Row {
-                id: detailRow
-                SplitView.minimumHeight: detailTabButton.width
-                Item {
-                    width: detailTabButton.height
-                    height: parent.height
-                    TabButton {
-                        id: detailTabButton
-                        text: qsTr("Detail")
-                        x: height
-                        y: parent.height - height
-                        transformOrigin: Item.BottomLeft
-                        rotation: -90
-                    }
-                }
-                Detail {
-                    width: parent.width - detailTabButton.height
-                    height: parent.height
-                }
+            Detail {
+                width: parent.width
+                SplitView.minimumHeight: 100
             }
         }
         SplitView {
             orientation: Qt.Vertical
             onResizingChanged: {
                 if(!resizing) {
-                    arrangementColumn.ratio = arrangementColumn.height / height;
+                    arrangementPlaceholder.ratio = arrangementPlaceholder.height / height;
                 }
             }
-            Column {
-                id: arrangementColumn
+            Rectangle {
+                id: arrangementPlaceholder
                 property double ratio: 0.6
+                width: parent.width
                 SplitView.minimumHeight: arrangementTabButton.height
                 SplitView.preferredHeight: contents.height * ratio
-                TabButton {
-                    id: arrangementTabButton
-                    text: qsTr("Arrangement")
-                }
-                Rectangle {
-                    width: parent.width
-                    height: parent.height - arrangementTabButton.height
-                    color: "transparent"
-                    border.color: Colors.controlBorder
-                    Arrangement {
-                        id: arrangement
-                        anchors.fill: parent
-                        anchors.margins: parent.border.width
-                        clip: true
-                        onInsertTrack: (position, type) => {
-                            addTrackWindow.openWindow(position, type);
-                        }
-                        trackList: root.mixerChannelModel
+                color: "transparent"
+                border.color: Colors.controlBorder
+                Arrangement {
+                    id: arrangement
+                    anchors.fill: parent
+                    anchors.margins: parent.border.width
+                    clip: true
+                    onInsertTrack: (position, type) => {
+                        addTrackWindow.openWindow(position, type);
                     }
+                    trackList: root.mixerChannelModel
                 }
             }
             Column {
-                SplitView.minimumHeight: editorAndMixerTabButtonRow.height
-                SplitView.preferredHeight: root.height * (1 - arrangementColumn.ratio)
+                SplitView.minimumHeight: editorAndMixerTabBar.height
+                SplitView.preferredHeight: root.height * (1 - arrangementPlaceholder.ratio)
                 Rectangle {
                     width: parent.width
-                    height: parent.height - editorAndMixerTabButtonRow.height
+                    height: parent.height - editorAndMixerTabBar.height
                     color: "transparent"
                     border.color: Colors.controlBorder
                     StackLayout {
                         anchors.fill: parent
                         anchors.margins: parent.border.width
-                        currentIndex: mixerButton.checked? 1: 0
+                        currentIndex: editorAndMixerTabBar.currentIndex
                         MIDIEditor {
                         }
                         Mixer {
@@ -785,9 +746,10 @@ ApplicationWindow {
                         }
                     }
                 }
-                Row {
-                    id: editorAndMixerTabButtonRow
+                TabBar {
+                    id: editorAndMixerTabBar
                     width: parent.width
+                    currentIndex: 1
                     TabButton {
                         id: editorButton
                         width: implicitWidth

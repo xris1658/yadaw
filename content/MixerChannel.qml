@@ -116,9 +116,8 @@ Rectangle {
         width: root.width
         height: root.height
         spacing: 0
-        Rectangle {
+        Item {
             id: ioPlaceholder
-            color: "transparent"
             width: root.width
             Layout.preferredHeight: ioComboBoxColumn.height + impl.padding * 2
             visible: root.showIO
@@ -180,9 +179,8 @@ Rectangle {
             color: Colors.border
             visible: ioPlaceholder.visible
         }
-        Rectangle {
+        Item {
             id: instrumentPlaceholder
-            color: "transparent"
             width: root.width
             Layout.preferredHeight: instrumentButton.height + impl.padding * 2
             visible: root.showInstrumentSlot
@@ -313,9 +311,8 @@ Rectangle {
             color: Colors.border
             visible: instrumentPlaceholder.visible
         }
-        Rectangle {
+        Item {
             id: insertPlaceholder
-            color: "transparent"
             width: root.width
             Layout.fillHeight: true
             Layout.verticalStretchFactor: 1
@@ -515,9 +512,8 @@ Rectangle {
             color: Colors.border
             visible: insertPlaceholder.visible
         }
-        Rectangle {
+        Item {
             id: sendPlaceholder
-            color: "transparent"
             width: root.width
             Layout.fillHeight: true
             Layout.verticalStretchFactor: 1
@@ -578,9 +574,8 @@ Rectangle {
             color: Colors.border
             visible: sendPlaceholder.visible
         }
-        Rectangle {
+        Item {
             id: controlButtonPlaceholder
-            color: "transparent"
             width: root.width
             Layout.preferredHeight: muteButton.height + monitorButton.height + paddingSlider.height + impl.padding * 4
             Column {
@@ -836,12 +831,11 @@ Rectangle {
             Layout.preferredHeight: impl.borderWidth
             color: Colors.border
         }
-        Rectangle {
+        Item {
             id: faderAndMeterPlaceholder
             Layout.fillHeight: true
             Layout.verticalStretchFactor: 2
             visible: root.showFader
-            color: "transparent"
             width: root.width
             clip: true
             Grid {

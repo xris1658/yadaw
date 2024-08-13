@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Layouts
 import QtQuick.Shapes
 
 ApplicationWindow {
@@ -149,6 +150,40 @@ ApplicationWindow {
             ComboBoxButton {
                 width: 300
                 text: "Combo box button"
+            }
+        }
+        Column {
+            TabBar {
+                id: tabBar
+                TabButton {
+                    text: qsTr("Home")
+                    width: implicitWidth
+                }
+                TabButton {
+                    text: qsTr("Discover")
+                    width: implicitWidth
+                }
+                TabButton {
+                    text: qsTr("Activity")
+                    width: implicitWidth
+                }
+            }
+
+            StackLayout {
+                width: tabBar.width + 50
+                height: 50
+                currentIndex: tabBar.currentIndex
+                Repeater {
+                    model: tabBar.count
+                    Rectangle {
+                        color: "transparent"
+                        border.color: Colors.border
+                        Label {
+                            anchors.centerIn: parent
+                            text: index + 1
+                        }
+                    }
+                }
             }
         }
 
