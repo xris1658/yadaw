@@ -3,7 +3,7 @@
 
 #include "audio/device/IAudioDevice.hpp"
 #include "audio/util/AudioChannelGroup.hpp"
-#include "util/AtomicMutex.hpp"
+#include "concurrent/AtomicMutex.hpp"
 
 #include <mutex>
 #include <utility>
@@ -26,13 +26,13 @@ public:
 public:
     std::pair<
         const float*,
-        std::unique_lock<YADAW::Util::AtomicMutex>
+        std::unique_lock<YADAW::Concurrent::AtomicMutex>
     > currentPeaks() const;
     void resetPeak();
     std::uint32_t rmsWindowSize() const;
     std::pair<
         const float*,
-        std::unique_lock<YADAW::Util::AtomicMutex>
+        std::unique_lock<YADAW::Concurrent::AtomicMutex>
     > currentRMS() const;
     void setRMSWindowSize(std::uint32_t rmsWindowSize);
     void resetRMS();
@@ -43,8 +43,8 @@ private:
     std::vector<float> rms_;
     std::uint32_t rmsWindowSize_;
     std::uint32_t index_ = 0;
-    mutable YADAW::Util::AtomicMutex accessingPeak_;
-    mutable YADAW::Util::AtomicMutex accessingRMS_;
+    mutable YADAW::Concurrent::AtomicMutex accessingPeak_;
+    mutable YADAW::Concurrent::AtomicMutex accessingRMS_;
     std::vector<std::vector<float>> samples_;
 };
 }

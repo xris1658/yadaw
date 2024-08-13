@@ -283,6 +283,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/util/VestifalHelper.cpp
     src/audio/util/VestifalHelper.hpp
     src/base/Constants.hpp
+    src/concurrent/AtomicMutex.cpp
+    src/concurrent/AtomicMutex.hpp
     src/concurrent/DoubleBufferSwitch.hpp
     src/concurrent/PassDataToRealtimeThread.hpp
     src/controller/AppController.cpp
@@ -438,8 +440,6 @@ set(YADAW_COMMON_SOURCES
     src/util/Algorithm.hpp
     src/util/AlignHelper.hpp
     src/util/ArrayAccess.hpp
-    src/util/AtomicMutex.cpp
-    src/util/AtomicMutex.hpp
     src/util/AutoIncrementID.cpp
     src/util/AutoIncrementID.hpp
     src/util/Base.hpp
@@ -624,6 +624,8 @@ add_executable(PluginDirectoryScanTest
                src/audio/util/VST3Helper.hpp
                src/audio/util/VestifalHelper.cpp
                src/audio/util/VestifalHelper.hpp
+               src/concurrent/AtomicMutex.cpp
+               src/concurrent/AtomicMutex.hpp
                src/controller/LibraryPluginMap.cpp
                src/controller/LibraryPluginMap.hpp
                src/controller/PluginController.cpp
@@ -651,8 +653,6 @@ add_executable(PluginDirectoryScanTest
                src/native/win/Native.cpp
                src/native/win/VST3Native.cpp
                src/native/win/VestifalNative.cpp
-               src/util/AtomicMutex.cpp
-               src/util/AtomicMutex.hpp
                src/util/QuadraticFunction.cpp
                src/util/QuadraticFunction.hpp
                src/util/Util.cpp
@@ -721,6 +721,8 @@ add_executable(PluginScanTest
                src/audio/util/VST3Helper.hpp
                src/audio/util/VestifalHelper.cpp
                src/audio/util/VestifalHelper.hpp
+               src/concurrent/AtomicMutex.cpp
+               src/concurrent/AtomicMutex.hpp
                src/controller/LibraryPluginMap.cpp
                src/controller/LibraryPluginMap.hpp
                src/controller/PluginController.cpp
@@ -748,8 +750,6 @@ add_executable(PluginScanTest
                src/native/win/Native.cpp
                src/native/win/VST3Native.cpp
                src/native/win/VestifalNative.cpp
-               src/util/AtomicMutex.cpp
-               src/util/AtomicMutex.hpp
                src/util/QuadraticFunction.cpp
                src/util/QuadraticFunction.hpp
                src/util/Util.cpp
@@ -789,7 +789,6 @@ add_executable(VestifalPluginTest
                test/VestifalPluginTest/main.cpp)
 
 add_executable(VST3Test
-               src/audio/plugin/VST3AudioChannelGroup.cpp
                src/audio/base/Automation.cpp
                src/audio/base/Automation.hpp
                src/audio/host/EventFileDescriptorSupport.cpp
@@ -816,6 +815,7 @@ add_executable(VST3Test
                src/audio/host/VST3PlugFrame.hpp
                src/audio/host/VST3RunLoop.cpp
                src/audio/host/VST3RunLoop.hpp
+               src/audio/plugin/VST3AudioChannelGroup.cpp
                src/audio/plugin/VST3AudioChannelGroup.hpp
                src/audio/plugin/VST3EventBusInfo.cpp
                src/audio/plugin/VST3EventBusInfo.hpp
@@ -830,9 +830,8 @@ add_executable(VST3Test
                src/audio/plugin/VST3PluginParameter.hpp
                src/audio/util/VST3Helper.cpp
                src/audio/util/VST3Helper.hpp
-               src/native/VST3Native.hpp
-               src/native/linux/VST3Native.cpp
-               src/native/win/VST3Native.cpp
+               src/concurrent/AtomicMutex.cpp
+               src/concurrent/AtomicMutex.hpp
                src/dao/DAOBase.cpp
                src/dao/DAOBase.hpp
                src/dao/Database.cpp
@@ -841,14 +840,15 @@ add_executable(VST3Test
                src/dao/PluginCategoryTable.hpp
                src/dao/PluginTable.cpp
                src/dao/PluginTable.hpp
-               src/midi/MessageToVST3Event.cpp
-               src/midi/MessageToVST3Event.hpp
                src/midi/MIDIInputDevice.cpp
                src/midi/MIDIInputDevice.hpp
                src/midi/Message.hpp
+               src/midi/MessageToVST3Event.cpp
+               src/midi/MessageToVST3Event.hpp
                src/native/Library.hpp
                src/native/MIDIInputDeviceImpl.hpp
                src/native/Native.hpp
+               src/native/VST3Native.hpp
                src/native/linux/ALSADeviceEnumerator.cpp
                src/native/linux/ALSADeviceEnumerator.hpp
                src/native/linux/ALSAHelper.hpp
@@ -858,20 +858,20 @@ add_executable(VST3Test
                src/native/linux/Native.cpp
                src/native/linux/Sequencer.cpp
                src/native/linux/Sequencer.hpp
-               src/native/win/winrt/Async.hpp
-               src/native/win/winrt/Forward.hpp
-               src/native/win/winrt/QStringFromHString.cpp
-               src/native/win/winrt/QStringFromHString.hpp
+               src/native/linux/VST3Native.cpp
                src/native/win/Library.cpp
                src/native/win/MIDIInputDeviceImpl.cpp
                src/native/win/MIDIInputDeviceImpl.hpp
                src/native/win/Native.cpp
+               src/native/win/VST3Native.cpp
+               src/native/win/winrt/Async.hpp
+               src/native/win/winrt/Forward.hpp
+               src/native/win/winrt/QStringFromHString.cpp
+               src/native/win/winrt/QStringFromHString.hpp
                src/ui/Runtime.cpp
                src/ui/Runtime.hpp
                src/ui/UI.cpp
                src/ui/UI.hpp
-               src/util/AtomicMutex.cpp
-               src/util/AtomicMutex.hpp
                src/util/QuadraticFunction.cpp
                src/util/QuadraticFunction.hpp
                src/util/Util.cpp

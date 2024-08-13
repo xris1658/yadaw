@@ -138,17 +138,17 @@ void Meter::process(const Device::AudioProcessData<float>& audioProcessData)
     }
 }
 
-std::pair<const float*, std::unique_lock<YADAW::Util::AtomicMutex>> Meter::currentPeaks() const
+std::pair<const float*, std::unique_lock<YADAW::Concurrent::AtomicMutex>> Meter::currentPeaks() const
 {
     return {
         currentPeaks_.data(),
-        std::unique_lock<YADAW::Util::AtomicMutex>(accessingPeak_)
+        std::unique_lock<YADAW::Concurrent::AtomicMutex>(accessingPeak_)
     };
 }
 
 void Meter::resetPeak()
 {
-    std::unique_lock<YADAW::Util::AtomicMutex> lock(accessingPeak_);
+    std::unique_lock<YADAW::Concurrent::AtomicMutex> lock(accessingPeak_);
     std::fill(currentPeaks_.begin(), currentPeaks_.end(), 0.0f);
 }
 
@@ -157,17 +157,17 @@ std::uint32_t Meter::rmsWindowSize() const
     return rmsWindowSize_;
 }
 
-std::pair<const float*, std::unique_lock<YADAW::Util::AtomicMutex>> Meter::currentRMS() const
+std::pair<const float*, std::unique_lock<YADAW::Concurrent::AtomicMutex>> Meter::currentRMS() const
 {
     return {
         rms_.data(),
-        std::unique_lock<YADAW::Util::AtomicMutex>(accessingRMS_)
+        std::unique_lock<YADAW::Concurrent::AtomicMutex>(accessingRMS_)
     };
 }
 
 void Meter::setRMSWindowSize(std::uint32_t rmsWindowSize)
 {
-    std::unique_lock<YADAW::Util::AtomicMutex> lock(accessingRMS_);
+    std::unique_lock<YADAW::Concurrent::AtomicMutex> lock(accessingRMS_);
     FOR_RANGE0(i, samples_.size())
     {
         samples_[i].clear();
@@ -183,7 +183,7 @@ void Meter::setRMSWindowSize(std::uint32_t rmsWindowSize)
 
 void Meter::resetRMS()
 {
-    std::unique_lock<YADAW::Util::AtomicMutex> lock(accessingRMS_);
+    std::unique_lock<YADAW::Concurrent::AtomicMutex> lock(accessingRMS_);
     for(auto& rms: rms_)
     {
         rms = 0.0f;

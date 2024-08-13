@@ -2,7 +2,7 @@
 #define YADAW_SRC_AUDIO_HOST_VST3EVENTDOUBLEBUFFER
 
 #include "audio/host/VST3EventList.hpp"
-#include "util/AtomicMutex.hpp"
+#include "concurrent/AtomicMutex.hpp"
 #include "util/OptionalUtil.hpp"
 
 namespace YADAW::Audio::Host

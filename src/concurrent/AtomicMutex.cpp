@@ -1,6 +1,6 @@
 #include "AtomicMutex.hpp"
 
-namespace YADAW::Util
+namespace YADAW::Concurrent
 {
 void AtomicMutex::lock()
 {

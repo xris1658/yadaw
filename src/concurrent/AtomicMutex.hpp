@@ -1,9 +1,9 @@
-#ifndef YADAW_SRC_UTIL_ATOMICMUTEX
-#define YADAW_SRC_UTIL_ATOMICMUTEX
+#ifndef YADAW_SRC_CONCURRENT_ATOMICMUTEX
+#define YADAW_SRC_CONCURRENT_ATOMICMUTEX
 
 #include <atomic>
 
-namespace YADAW::Util
+namespace YADAW::Concurrent
 {
 class AtomicMutex
 {
@@ -21,4 +21,4 @@ private:
 };
 }
 
-#endif // YADAW_SRC_UTIL_ATOMICMUTEX
+#endif // YADAW_SRC_CONCURRENT_ATOMICMUTEX

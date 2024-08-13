@@ -15,7 +15,7 @@
 #include "native/Native.hpp"
 #include "native/VST3Native.hpp"
 #include "ui/UI.hpp"
-#include "util/AtomicMutex.hpp"
+#include "concurrent/AtomicMutex.hpp"
 #include "util/Constants.hpp"
 #include "util/Util.hpp"
 
@@ -62,7 +62,7 @@ const std::uint32_t bufferSize = 480;
 
 std::int64_t audioCallbackTime = 0;
 
-YADAW::Util::AtomicMutex audioCallbackTimeMutex;
+YADAW::Concurrent::AtomicMutex audioCallbackTimeMutex;
 
 YADAW::Audio::Host::VST3EventDoubleBuffer doubleBuffer;
 
@@ -76,7 +76,7 @@ std::int32_t maxOverflow = 0;
 
 std::int32_t maxUnderflow = 0;
 
-YADAW::Util::AtomicMutex mutex;
+YADAW::Concurrent::AtomicMutex mutex;
 
 std::int64_t translateEventDuration = 0;
 
@@ -98,7 +98,7 @@ void translateEvent(const YADAW::MIDI::MIDIInputDevice& device, const YADAW::MID
         vst3Event.flags = Event::EventFlags::kIsLive;
         vst3Event.ppqPosition = 0;
         {
-            std::lock_guard<YADAW::Util::AtomicMutex> lg(audioCallbackTimeMutex);
+            std::lock_guard<YADAW::Concurrent::AtomicMutex> lg(audioCallbackTimeMutex);
             auto& sampleOffset = vst3Event.sampleOffset;
             sampleOffset = (message.timestampInNanoseconds - audioCallbackTime) * sampleRate / 1000000000;
             bool rectified = false;
@@ -370,11 +370,11 @@ void testPlugin(YADAW::Audio::Plugin::VST3Plugin& plugin, bool initializePlugin,
                             YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.flip();
                             auto now = std::chrono::steady_clock::now();
                             {
-                                std::lock_guard<YADAW::Util::AtomicMutex> lg(audioCallbackTimeMutex);
+                                std::lock_guard<YADAW::Concurrent::AtomicMutex> lg(audioCallbackTimeMutex);
                                 audioCallbackTime = now.time_since_epoch().count();
                                 componentHandler.bufferSwitched(audioCallbackTime);
                                 {
-                                    std::lock_guard<YADAW::Util::AtomicMutex> lg(mutex);
+                                    std::lock_guard<YADAW::Concurrent::AtomicMutex> lg(mutex);
                                     doubleBuffer.bufferSwitched();
                                 }
                                 processContext.systemTime = audioCallbackTime;

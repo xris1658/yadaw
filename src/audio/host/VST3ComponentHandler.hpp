@@ -2,7 +2,7 @@
 #define YADAW_SRC_AUDIO_HOST_VST3COMPONENTHANDLER
 
 #include "audio/host/VST3ParameterChanges.hpp"
-#include "util/AtomicMutex.hpp"
+#include "concurrent/AtomicMutex.hpp"
 
 #include <pluginterfaces/vst/ivstaudioprocessor.h>
 #include <pluginterfaces/vst/ivsteditcontroller.h>
