@@ -674,18 +674,21 @@ ApplicationWindow {
         id: contents
         anchors.fill: parent
         anchors.margins: 5
+        anchors.topMargin: 0
         orientation: Qt.Horizontal
         SplitView {
             id: assetDetailSplitView
-            SplitView.minimumWidth: assetTabButton.height
             SplitView.maximumWidth: Math.max(SplitView.minimumWidth, contents.width * 0.4)
             SplitView.preferredWidth: assets.preferredWidth
             orientation: Qt.Vertical
-            Assets {
-                id: assets
+            Item {
                 width: parent.width
-                SplitView.minimumHeight: assetTabButton.width
                 SplitView.preferredHeight: Math.max(SplitView.minimumHeight, contents.height * 0.7)
+                Assets {
+                    id: assets
+                    anchors.fill: parent
+                    anchors.topMargin: 5
+                }
             }
             Detail {
                 width: parent.width
@@ -693,29 +696,33 @@ ApplicationWindow {
             }
         }
         SplitView {
+            id: arrangementAndEditorMixerSplitView
             orientation: Qt.Vertical
             onResizingChanged: {
                 if(!resizing) {
                     arrangementPlaceholder.ratio = arrangementPlaceholder.height / height;
                 }
             }
-            Rectangle {
+            Item {
                 id: arrangementPlaceholder
                 property double ratio: 0.6
                 width: parent.width
-                SplitView.minimumHeight: arrangementTabButton.height
                 SplitView.preferredHeight: contents.height * ratio
-                color: "transparent"
-                border.color: Colors.controlBorder
-                Arrangement {
-                    id: arrangement
+                Rectangle {
                     anchors.fill: parent
-                    anchors.margins: parent.border.width
-                    clip: true
-                    onInsertTrack: (position, type) => {
-                        addTrackWindow.openWindow(position, type);
+                    anchors.topMargin: 5
+                    color: "transparent"
+                    border.color: Colors.controlBorder
+                    Arrangement {
+                        id: arrangement
+                        anchors.fill: parent
+                        anchors.margins: parent.border.width
+                        clip: true
+                        onInsertTrack: (position, type) => {
+                            addTrackWindow.openWindow(position, type);
+                        }
+                        trackList: root.mixerChannelModel
                     }
-                    trackList: root.mixerChannelModel
                 }
             }
             Column {
