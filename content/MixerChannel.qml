@@ -306,264 +306,266 @@ Rectangle {
             }
         }
         Rectangle {
-            width: root.width
+            Layout.preferredWidth: root.width
             Layout.preferredHeight: impl.borderWidth
             color: Colors.border
             visible: instrumentPlaceholder.visible
         }
-        Item {
-            id: insertPlaceholder
-            width: root.width
+        ColumnLayout {
+            id: insertAndSendPlaceholder
             Layout.fillHeight: true
             Layout.verticalStretchFactor: 1
-            visible: root.showInsertSlot
-            clip: true
-            Rectangle {
-                id: insertHeader
-                anchors.top: parent.top
-                width: parent.width
-                height: insertLabel.height + impl.padding
-                color: Colors.border
-                Label {
-                    id: insertLabel
-                    text: "INSERTS"
-                    font.pointSize: Qt.application.font.pointSize * 0.8
-                    anchors.centerIn: parent
-                }
-                Button {
-                    id: bypassedButton
-                    anchors.right: parent.right
-                    width: height
-                    height: parent.height
-                    z: 2
-                    property int contentDiameter: parent.height / 2
-                    leftInset: (width - contentDiameter) / 2
-                    rightInset: leftInset
-                    topInset: (height - contentDiameter) / 2
-                    bottomInset: topInset
-                    background: Rectangle {
+            visible: root.showInsertSlot || root.showSendSlot
+            spacing: 0
+            Item {
+                id: insertPlaceholder
+                Layout.preferredWidth: root.width
+                Layout.fillHeight: true
+                Layout.verticalStretchFactor: 1
+                visible: root.showInsertSlot
+                clip: true
+                Rectangle {
+                    id: insertHeader
+                    anchors.top: parent.top
+                    width: parent.width
+                    height: insertLabel.height + impl.padding
+                    color: Colors.border
+                    Label {
+                        id: insertLabel
+                        text: "INSERTS"
+                        font.pointSize: Qt.application.font.pointSize * 0.8
                         anchors.centerIn: parent
-                        width: parent.contentDiameter
-                        height: width
-                        radius: width / 2
-                        color: Colors.background
-                        border.color: Colors.secondaryBackground
+                    }
+                    Button {
+                        id: bypassedButton
+                        anchors.right: parent.right
+                        width: height
+                        height: parent.height
+                        z: 2
+                        property int contentDiameter: parent.height / 2
+                        leftInset: (width - contentDiameter) / 2
+                        rightInset: leftInset
+                        topInset: (height - contentDiameter) / 2
+                        bottomInset: topInset
+                        background: Rectangle {
+                            anchors.centerIn: parent
+                            width: parent.contentDiameter
+                            height: width
+                            radius: width / 2
+                            color: Colors.background
+                            border.color: Colors.secondaryBackground
+                        }
                     }
                 }
-            }
-            ListView {
-                id: insertList
-                anchors.top: insertHeader.bottom
-                anchors.topMargin: impl.padding
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: impl.padding
-                width: insertPlaceholder.width - impl.padding * 2
-                spacing: impl.padding
-                delegate: MixerInsertSlot {
-                    id: mixerInsertSlot
-                    width: insertList.width
-                    text: mcilm_name
-                    bypassed: mcilm_bypassed
-                    onBypassedChanged: {
-                        mcilm_bypassed = bypassed;
-                    }
-                    property bool windowVisible: mcilm_window_visible
-                    property bool genericEditorVisible: mcilm_generic_editor_visible
-                    checked: windowVisible || genericEditorVisible
-                    onClicked: {
-                        if(!checked) {
-                            mcilm_window_visible = false;
-                            mcilm_generic_editor_visible = false;
+                ListView {
+                    id: insertList
+                    anchors.top: insertHeader.bottom
+                    anchors.topMargin: impl.padding
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: impl.padding
+                    width: insertPlaceholder.width - impl.padding * 2
+                    spacing: impl.padding
+                    delegate: MixerInsertSlot {
+                        id: mixerInsertSlot
+                        width: insertList.width
+                        text: mcilm_name
+                        bypassed: mcilm_bypassed
+                        onBypassedChanged: {
+                            mcilm_bypassed = bypassed;
                         }
-                        else {
-                            if(mcilm_has_ui) {
-                                mcilm_window_visible = true;
+                        property bool windowVisible: mcilm_window_visible
+                        property bool genericEditorVisible: mcilm_generic_editor_visible
+                        checked: windowVisible || genericEditorVisible
+                        onClicked: {
+                            if(!checked) {
+                                mcilm_window_visible = false;
+                                mcilm_generic_editor_visible = false;
                             }
                             else {
-                                mcilm_generic_editor_visible = true;
+                                if(mcilm_has_ui) {
+                                    mcilm_window_visible = true;
+                                }
+                                else {
+                                    mcilm_generic_editor_visible = true;
+                                }
                             }
                         }
-                    }
-                    property int itemIndex: index
-                    function removeThis() {
-                        insertModel.remove(itemIndex, 1);
-                    }
-                    function showPluginSelector(replacing: bool) {
-                        impl.replaceInstrument = false;
-                        impl.usingPluginSelector = true;
-                        impl.insertPosition = index;
-                        locatePopupWindow(pluginSelectorWindow, height + impl.padding, 0 - impl.padding);
-                        pluginSelectorWindow.pluginSelector.pluginListProxyModel.setValueOfFilter(
-                            IPluginListModel.Type,
-                            IPluginListModel.AudioEffect
-                        );
-                        pluginSelectorWindow.pluginSelector.enableReset = false;
-                        pluginSelectorWindow.pluginSelector.replacing = replacing;
-                        pluginSelectorWindow.transientParent = EventReceiver.mainWindow;
-                        pluginSelectorWindow.showNormal();
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        anchors.leftMargin: root.leftInset
-                        anchors.rightMargin: root.rightInset
-                        anchors.topMargin: root.topInset
-                        anchors.bottomMargin: root.bottomInset
-                        acceptedButtons: Qt.RightButton
-                        Menu {
-                            id: insertSlotOptions
-                            title: qsTr("Insert Slot Options")
-                            MenuItem {
-                                id: latencyMenuItem
-                                text: qsTr("Latency: ") + mcilm_latency + " " + qsTr("samples")
-                            }
-                            MenuSeparator {}
-                            MenuItem {
-                                text: mixerInsertSlot.windowVisible?
-                                    qsTr("Hide &Plugin Editor"):
-                                    qsTr("Show &Plugin Editor")
-                                enabled: mcilm_has_ui
-                                onClicked: {
-                                    mcilm_window_visible = !mcilm_window_visible;
+                        property int itemIndex: index
+                        function removeThis() {
+                            insertModel.remove(itemIndex, 1);
+                        }
+                        function showPluginSelector(replacing: bool) {
+                            impl.replaceInstrument = false;
+                            impl.usingPluginSelector = true;
+                            impl.insertPosition = index;
+                            locatePopupWindow(pluginSelectorWindow, height + impl.padding, 0 - impl.padding);
+                            pluginSelectorWindow.pluginSelector.pluginListProxyModel.setValueOfFilter(
+                                IPluginListModel.Type,
+                                IPluginListModel.AudioEffect
+                            );
+                            pluginSelectorWindow.pluginSelector.enableReset = false;
+                            pluginSelectorWindow.pluginSelector.replacing = replacing;
+                            pluginSelectorWindow.transientParent = EventReceiver.mainWindow;
+                            pluginSelectorWindow.showNormal();
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            anchors.leftMargin: root.leftInset
+                            anchors.rightMargin: root.rightInset
+                            anchors.topMargin: root.topInset
+                            anchors.bottomMargin: root.bottomInset
+                            acceptedButtons: Qt.RightButton
+                            Menu {
+                                id: insertSlotOptions
+                                title: qsTr("Insert Slot Options")
+                                MenuItem {
+                                    id: latencyMenuItem
+                                    text: qsTr("Latency: ") + mcilm_latency + " " + qsTr("samples")
                                 }
-                            }
-                            MenuItem {
-                                text: mixerInsertSlot.genericEditorVisible?
-                                    qsTr("Hide &Generic Editor"):
-                                    qsTr("Show &Generic Editor")
-                                onClicked: {
-                                    mcilm_generic_editor_visible = !mcilm_generic_editor_visible;
+                                MenuSeparator {}
+                                MenuItem {
+                                    text: mixerInsertSlot.windowVisible?
+                                        qsTr("Hide &Plugin Editor"):
+                                        qsTr("Show &Plugin Editor")
+                                    enabled: mcilm_has_ui
+                                    onClicked: {
+                                        mcilm_window_visible = !mcilm_window_visible;
+                                    }
                                 }
-                            }
-                            MenuItem {
-                                text: qsTr("&Edit Route...")
-                                onClicked: {
-                                    if(root.pluginRouteEditorWindow) {
-                                        root.pluginRouteEditorWindow.show();
-                                        root.pluginRouteEditorWindow.pluginRouteEditor.inputRouteListModel = mcilm_audio_inputs;
-                                        root.pluginRouteEditorWindow.pluginRouteEditor.outputRouteListModel = mcilm_audio_outputs;
+                                MenuItem {
+                                    text: mixerInsertSlot.genericEditorVisible?
+                                        qsTr("Hide &Generic Editor"):
+                                        qsTr("Show &Generic Editor")
+                                    onClicked: {
+                                        mcilm_generic_editor_visible = !mcilm_generic_editor_visible;
+                                    }
+                                }
+                                MenuItem {
+                                    text: qsTr("&Edit Route...")
+                                    onClicked: {
+                                        if(root.pluginRouteEditorWindow) {
+                                            root.pluginRouteEditorWindow.show();
+                                            root.pluginRouteEditorWindow.pluginRouteEditor.inputRouteListModel = mcilm_audio_inputs;
+                                            root.pluginRouteEditorWindow.pluginRouteEditor.outputRouteListModel = mcilm_audio_outputs;
+                                        }
+                                    }
+                                }
+                                MenuItem {
+                                    text: qsTr("&Insert") + "..."
+                                    onClicked: {
+                                        mixerInsertSlot.showPluginSelector(false);
+                                    }
+                                }
+                                MenuItem {
+                                    text: qsTr("&Replace") + "..."
+                                    onClicked: {
+                                        mixerInsertSlot.showPluginSelector(true);
+                                    }
+                                }
+                                MenuItem {
+                                    text: qsTr("&Delete")
+                                    onClicked: {
+                                        mixerInsertSlot.removeThis();
                                     }
                                 }
                             }
-                            MenuItem {
-                                text: qsTr("&Insert") + "..."
-                                onClicked: {
-                                    mixerInsertSlot.showPluginSelector(false);
-                                }
-                            }
-                            MenuItem {
-                                text: qsTr("&Replace") + "..."
-                                onClicked: {
-                                    mixerInsertSlot.showPluginSelector(true);
-                                }
-                            }
-                            MenuItem {
-                                text: qsTr("&Delete")
-                                onClicked: {
-                                    mixerInsertSlot.removeThis();
-                                }
-                            }
-                        }
-                        onClicked: (mouse) => {
-                            if(mouse.button === Qt.RightButton) {
-                                let mainWindowItem = EventReceiver.mainWindow.background;
-                                let initialCoordinate = mixerInsertSlot.mapFromItem(mainWindowItem, 0, 0);
-                                insertSlotOptions.x = initialCoordinate.x;
-                                insertSlotOptions.y = initialCoordinate.y;
-                                insertSlotOptions.open();
-                                let coor = mixerInsertSlot.mapToItem(mainWindowItem, 0, mixerInsertSlot.height + insertSlotOptions.height);
-                                if (coor.y >= mainWindowItem.height) {
-                                    insertSlotOptions.y = 0 - insertSlotOptions.height;
-                                } else {
-                                    insertSlotOptions.y = mixerInsertSlot.height;
-                                }
-                                if (coor.x + insertSlotOptions.width >= mainWindowItem.width) {
-                                    insertSlotOptions.x = mixerInsertSlot.width - insertSlotOptions.width;
-                                } else {
-                                    insertSlotOptions.x = 0;
+                            onClicked: (mouse) => {
+                                if(mouse.button === Qt.RightButton) {
+                                    let mainWindowItem = EventReceiver.mainWindow.background;
+                                    let initialCoordinate = mixerInsertSlot.mapFromItem(mainWindowItem, 0, 0);
+                                    insertSlotOptions.x = initialCoordinate.x;
+                                    insertSlotOptions.y = initialCoordinate.y;
+                                    insertSlotOptions.open();
+                                    let coor = mixerInsertSlot.mapToItem(mainWindowItem, 0, mixerInsertSlot.height + insertSlotOptions.height);
+                                    if (coor.y >= mainWindowItem.height) {
+                                        insertSlotOptions.y = 0 - insertSlotOptions.height;
+                                    } else {
+                                        insertSlotOptions.y = mixerInsertSlot.height;
+                                    }
+                                    if (coor.x + insertSlotOptions.width >= mainWindowItem.width) {
+                                        insertSlotOptions.x = mixerInsertSlot.width - insertSlotOptions.width;
+                                    } else {
+                                        insertSlotOptions.x = 0;
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                footer: Button {
-                    topInset: insertList.count !== 0? impl.padding: 0
-                    width: insertList.width
-                    onClicked: {
-                        impl.replaceInstrument = false;
-                        impl.usingPluginSelector = true;
-                        impl.insertPosition = insertList.count;
-                        locatePopupWindow(pluginSelectorWindow, height + impl.padding, 0 - impl.padding);
-                        pluginSelectorWindow.pluginSelector.pluginListProxyModel.setValueOfFilter(
-                            IPluginListModel.Type,
-                            IPluginListModel.AudioEffect
-                        );
-                        pluginSelectorWindow.pluginSelector.enableReset = false;
-                        pluginSelectorWindow.pluginSelector.replacing = false;
-                        pluginSelectorWindow.transientParent = EventReceiver.mainWindow;
-                        pluginSelectorWindow.showNormal();
+                    footer: Button {
+                        topInset: insertList.count !== 0? impl.padding: 0
+                        width: insertList.width
+                        onClicked: {
+                            impl.replaceInstrument = false;
+                            impl.usingPluginSelector = true;
+                            impl.insertPosition = insertList.count;
+                            locatePopupWindow(pluginSelectorWindow, height + impl.padding, 0 - impl.padding);
+                            pluginSelectorWindow.pluginSelector.pluginListProxyModel.setValueOfFilter(
+                                IPluginListModel.Type,
+                                IPluginListModel.AudioEffect
+                            );
+                            pluginSelectorWindow.pluginSelector.enableReset = false;
+                            pluginSelectorWindow.pluginSelector.replacing = false;
+                            pluginSelectorWindow.transientParent = EventReceiver.mainWindow;
+                            pluginSelectorWindow.showNormal();
+                        }
                     }
                 }
             }
-        }
-        Rectangle {
-            width: root.width
-            Layout.preferredHeight: impl.borderWidth
-            color: Colors.border
-            visible: insertPlaceholder.visible
-        }
-        Item {
-            id: sendPlaceholder
-            width: root.width
-            Layout.fillHeight: true
-            Layout.verticalStretchFactor: 1
-            visible: root.showSendSlot
-            clip: true
-            Rectangle {
-                id: sendHeader
-                anchors.top: parent.top
-                width: parent.width
-                height: sendLabel.height + impl.padding
-                color: Colors.border
-                Label {
-                    id: sendLabel
-                    text: "SENDS"
-                    font.pointSize: Qt.application.font.pointSize * 0.8
-                    anchors.centerIn: parent
-                }
-                Button {
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: height
-                    height: sendLabel.height
-                    anchors.rightMargin: (parent.height - height) / 2
-                    radius: height / 2
-                }
-            }
-            ListView {
-                id: sendList
-                anchors.top: sendHeader.bottom
-                anchors.topMargin: impl.padding
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: sendPlaceholder.width - impl.padding * 2
-                spacing: impl.padding
-                delegate: Button {
-                    width: sendList.width
-                }
-                footer: Button {
-                    width: sendList.width
-                }
-            }
-
-            Column {
-                anchors.top: sendHeader.bottom
-                anchors.topMargin: impl.padding
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: impl.padding
-                Repeater {
-                    model: 1
+            Item {
+                id: sendPlaceholder
+                Layout.preferredWidth: root.width
+                Layout.fillHeight: true
+                Layout.verticalStretchFactor: 1
+                visible: root.showSendSlot
+                clip: true
+                Rectangle {
+                    id: sendHeader
+                    anchors.top: parent.top
+                    width: parent.width
+                    height: sendLabel.height + impl.padding
+                    color: Colors.border
+                    Label {
+                        id: sendLabel
+                        text: "SENDS"
+                        font.pointSize: Qt.application.font.pointSize * 0.8
+                        anchors.centerIn: parent
+                    }
                     Button {
-                        width: sendPlaceholder.width - impl.padding * 2
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: height
+                        height: sendLabel.height
+                        anchors.rightMargin: (parent.height - height) / 2
+                        radius: height / 2
+                    }
+                }
+                ListView {
+                    id: sendList
+                    anchors.top: sendHeader.bottom
+                    anchors.topMargin: impl.padding
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: sendPlaceholder.width - impl.padding * 2
+                    spacing: impl.padding
+                    Layout.fillHeight: true
+                    Layout.verticalStretchFactor: 1
+                    delegate: Button {
+                        width: sendList.width
+                    }
+                    footer: Button {
+                        width: sendList.width
+                    }
+                }
+                Column {
+                    anchors.top: sendHeader.bottom
+                    anchors.topMargin: impl.padding
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: impl.padding
+                    Repeater {
+                        model: 1
+                        Button {
+                            width: sendPlaceholder.width - impl.padding * 2
+                        }
                     }
                 }
             }
@@ -572,7 +574,7 @@ Rectangle {
             width: root.width
             Layout.preferredHeight: impl.borderWidth
             color: Colors.border
-            visible: sendPlaceholder.visible
+            visible: insertAndSendPlaceholder.visible
         }
         Item {
             id: controlButtonPlaceholder
@@ -834,7 +836,7 @@ Rectangle {
         Item {
             id: faderAndMeterPlaceholder
             Layout.fillHeight: true
-            Layout.verticalStretchFactor: 2
+            Layout.verticalStretchFactor: 1
             visible: root.showFader
             width: root.width
             clip: true
