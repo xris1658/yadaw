@@ -94,6 +94,7 @@ set(CONTENT_QML_FILES
     GroupIcon.qml
     HeadphoneIcon.qml
     IOIcon.qml
+    InfoIcon.qml
     InsertIcon.qml
     ItemDelegate.qml
     KeyEventForwarder.qml

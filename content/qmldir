@@ -47,6 +47,7 @@ GenericPluginEditor 1.0 GenericPluginEditor.qml
 GroupIcon 1.0 GroupIcon.qml
 HeadphoneIcon 1.0 HeadphoneIcon.qml
 IOIcon 1.0 IOIcon.qml
+InfoIcon 1.0 InfoIcon.qml
 InsertIcon 1.0 InsertIcon.qml
 ItemDelegate 1.0 ItemDelegate.qml
 KeyEventForwarder 1.0 KeyEventForwarder.qml
