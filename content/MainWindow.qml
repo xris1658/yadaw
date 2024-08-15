@@ -655,6 +655,91 @@ ApplicationWindow {
                     color: parent.contentItem.color
                 }
             }
+            GridLayout {
+                id: showPaneButtons
+                width: height
+                height: loopButton.height
+                rows: 2
+                columns: 2
+                rowSpacing: 0
+                columnSpacing: 0
+                Button {
+                    id: showAssetsButton
+                    Layout.preferredWidth: showPaneButtons.width / 2
+                    Layout.preferredHeight: showPaneButtons.height / 2
+                    border.width: 0
+                    checkable: true
+                    checked: true
+                    FolderIcon {
+                        anchors.centerIn: parent
+                        scale: 16 / originalHeight
+                        path.fillColor: parent.contentItem.color
+                    }
+                }
+                Button {
+                    id: showDetailButton
+                    Layout.preferredWidth: showPaneButtons.width / 2
+                    Layout.preferredHeight: showPaneButtons.height / 2
+                    border.width: 0
+                    enabled: showAssetsButton.checked
+                    checkable: true
+                    checked: true
+                    InfoIcon {
+                        anchors.centerIn: parent
+                        scale: 16 / originalHeight
+                        path.fillColor: parent.contentItem.color
+                    }
+                }
+                Button {
+                    id: showEditorButton
+                    Layout.preferredWidth: showPaneButtons.width / 2
+                    Layout.preferredHeight: showPaneButtons.height / 2
+                    border.width: 0
+                    checkable: true
+                    checked: false
+                    PianoKeysIcon {
+                        anchors.centerIn: parent
+                        scale: 16 / originalHeight
+                        path.fillColor: parent.contentItem.color
+                    }
+                    onCheckedChanged: {
+                        if(checked) {
+                            showMixerButton.checked = false;
+                            editorAndMixerStack.currentIndex = 0;
+                        }
+                    }
+                }
+                Button {
+                    id: showMixerButton
+                    Layout.preferredWidth: showPaneButtons.width / 2
+                    Layout.preferredHeight: showPaneButtons.height / 2
+                    border.width: 0
+                    checkable: true
+                    checked: true
+                    Row {
+                        anchors.centerIn: parent
+                        Repeater {
+                            model: 2
+                            Item {
+                                width: 16 * faderIcon.contentWidth / faderIcon.originalWidth + 2
+                                height: showMixerButton.height
+                                FaderIcon {
+                                    id: faderIcon
+                                    anchors.centerIn: parent
+                                    scale: 16 / originalHeight
+                                    path.fillColor: showMixerButton.contentItem.color
+                                }
+                            }
+                        }
+                    }
+                    onCheckedChanged: {
+                        if(checked) {
+                            showEditorButton.checked = false;
+                            editorAndMixerStack.currentIndex = 1;
+                        }
+                    }
+                }
+            }
         }
     }
     footer: Label {
@@ -681,7 +766,9 @@ ApplicationWindow {
             SplitView.maximumWidth: Math.max(SplitView.minimumWidth, contents.width * 0.4)
             SplitView.preferredWidth: assets.preferredWidth
             orientation: Qt.Vertical
+            visible: showAssetsButton.checked
             Item {
+                id: assetsPlaceholder
                 width: parent.width
                 SplitView.preferredHeight: Math.max(SplitView.minimumHeight, contents.height * 0.7)
                 Assets {
@@ -691,8 +778,10 @@ ApplicationWindow {
                 }
             }
             Detail {
+                id: detail
                 width: parent.width
                 SplitView.minimumHeight: 100
+                visible: showDetailButton.checked
             }
         }
         SplitView {
@@ -725,47 +814,31 @@ ApplicationWindow {
                     }
                 }
             }
-            Column {
-                SplitView.minimumHeight: editorAndMixerTabBar.height
+            Rectangle {
+                id: editorAndMixerPlaceholder
                 SplitView.preferredHeight: root.height * (1 - arrangementPlaceholder.ratio)
-                Rectangle {
-                    width: parent.width
-                    height: parent.height - editorAndMixerTabBar.height
-                    color: "transparent"
-                    border.color: Colors.controlBorder
-                    StackLayout {
-                        anchors.fill: parent
-                        anchors.margins: parent.border.width
-                        currentIndex: editorAndMixerTabBar.currentIndex
-                        MIDIEditor {
-                        }
-                        Mixer {
-                            id: mixer
-                            audioIOSelectorWindow: audioIOSelectorWindow
-                            pluginSelectorWindow: pluginSelectorWindow
-                            pluginRouteEditorWindow: pluginRouteEditorWindow
-                            onInsertTrack: (position, type) => {
-                                addTrackWindow.openWindow(position, type);
-                            }
-                            onChannelsModelChanged: {
-                                assets.mixerChannelListModel = mixerChannelModel;
-                            }
-                        }
+                visible: showEditorButton.checked || showMixerButton.checked
+                color: "transparent"
+                border.color: Colors.controlBorder
+                StackLayout {
+                    id: editorAndMixerStack
+                    anchors.fill: parent
+                    anchors.margins: parent.border.width
+                    currentIndex: showEditorButton.checked? 0: 1
+                    MIDIEditor {
+                        id: editor
                     }
-                }
-                TabBar {
-                    id: editorAndMixerTabBar
-                    width: parent.width
-                    currentIndex: 1
-                    TabButton {
-                        id: editorButton
-                        width: implicitWidth
-                        text: qsTr("Editor")
-                    }
-                    TabButton {
-                        id: mixerButton
-                        width: implicitWidth
-                        text: qsTr("Mixer")
+                    Mixer {
+                        id: mixer
+                        audioIOSelectorWindow: audioIOSelectorWindow
+                        pluginSelectorWindow: pluginSelectorWindow
+                        pluginRouteEditorWindow: pluginRouteEditorWindow
+                        onInsertTrack: (position, type) => {
+                            addTrackWindow.openWindow(position, type);
+                        }
+                        onChannelsModelChanged: {
+                            assets.mixerChannelListModel = mixerChannelModel;
+                        }
                     }
                 }
             }

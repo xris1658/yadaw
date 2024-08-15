@@ -4,6 +4,7 @@ import QtQuick.Shapes
 Shape {
     readonly property int originalWidth: 256
     readonly property int originalHeight: 256
+    readonly property int contentWidth: 64
     width: originalWidth
     height: originalHeight
     property alias path: path
