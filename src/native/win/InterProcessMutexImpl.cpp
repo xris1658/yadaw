@@ -26,7 +26,7 @@ void InterProcessMutex::Impl::lock()
     }
     else if(errorCode != ERROR_SUCCESS)
     {
-        throw std::system_error(std::error_code<>(errorCode));
+        throw std::runtime_error("Failed to lock mutex");
     }
 }
 
@@ -43,7 +43,7 @@ bool InterProcessMutex::Impl::try_lock()
         mutex_ = NULL;
         return false;
     }
-    throw std::system_error(std::error_code<>(errorCode));
+    throw std::runtime_error("Failed to lock mutex");
 }
 
 void InterProcessMutex::Impl::unlock()
