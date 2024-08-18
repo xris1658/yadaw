@@ -2,6 +2,7 @@
 #define YADAW_SRC_AUDIO_DEVICE_IAUDIODEVICE
 
 #include "audio/device/IAudioChannelGroup.hpp"
+#include "audio/device/IAudioDeviceParameter.hpp"
 #include "util/OptionalUtil.hpp"
 
 namespace YADAW::Audio::Device
@@ -76,6 +77,15 @@ public:
     virtual OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const = 0;
     virtual OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const = 0;
     virtual std::uint32_t latencyInSamples() const = 0;
+public:
+    virtual YADAW::Audio::Device::IAudioDeviceParameter* parameter()
+    {
+        return nullptr;
+    }
+    virtual const YADAW::Audio::Device::IAudioDeviceParameter* parameter() const
+    {
+        return nullptr;
+    }
 public:
     virtual void process(const AudioProcessData<float>& audioProcessData) = 0;
 };

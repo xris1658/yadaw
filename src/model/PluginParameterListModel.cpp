@@ -5,7 +5,7 @@
 namespace YADAW::Model
 {
 PluginParameterListModel::PluginParameterListModel(
-    YADAW::Audio::Plugin::IPluginParameter& pluginParameter, QObject* parent):
+    YADAW::Audio::Device::IAudioDeviceParameter& pluginParameter, QObject* parent):
     IPluginParameterListModel(parent),
     pluginParameter_(&pluginParameter)
 {
@@ -29,7 +29,7 @@ int PluginParameterListModel::itemCount() const
     return pluginParameter_->parameterCount();
 }
 
-const YADAW::Audio::Plugin::IPluginParameter&
+const YADAW::Audio::Device::IAudioDeviceParameter&
     PluginParameterListModel::parameter() const
 {
     return *pluginParameter_;
@@ -42,7 +42,7 @@ int PluginParameterListModel::rowCount(const QModelIndex& parent) const
 
 QVariant PluginParameterListModel::data(const QModelIndex& index, int role) const
 {
-    using namespace YADAW::Audio::Plugin;
+    using namespace YADAW::Audio::Device;
     auto row = index.row();
     if(row >= 0 && row < itemCount())
     {
@@ -99,7 +99,7 @@ QVariant PluginParameterListModel::data(const QModelIndex& index, int role) cons
 bool PluginParameterListModel::setData(
     const QModelIndex& index, const QVariant& value, int role)
 {
-    using namespace YADAW::Audio::Plugin;
+    using namespace YADAW::Audio::Device;
     auto row = index.row();
     if(row >= 0 && row < itemCount())
     {

@@ -190,12 +190,12 @@ IPluginGUI* CLAPPlugin::gui()
     return pluginGUI();
 }
 
-const IPluginParameter* CLAPPlugin::parameter() const
+const IAudioDeviceParameter* CLAPPlugin::parameter() const
 {
     return pluginParameter();
 }
 
-IPluginParameter* CLAPPlugin::parameter()
+IAudioDeviceParameter* CLAPPlugin::parameter()
 {
     return pluginParameter();
 }

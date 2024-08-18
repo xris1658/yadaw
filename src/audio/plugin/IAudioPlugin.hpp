@@ -3,7 +3,6 @@
 
 #include "audio/device/IAudioDevice.hpp"
 #include "audio/plugin/IPluginGUI.hpp"
-#include "audio/plugin/IPluginParameter.hpp"
 
 #include <limits>
 
@@ -43,9 +42,6 @@ public:
     // Owned by `IPlugin`
     virtual IPluginGUI* gui() = 0;
     virtual const IPluginGUI* gui() const = 0;
-    // Owned by `IPlugin`
-    virtual IPluginParameter* parameter() = 0;
-    virtual const IPluginParameter* parameter() const = 0;
 };
 }
 

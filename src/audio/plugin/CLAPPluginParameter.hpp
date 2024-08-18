@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_PLUGIN_CLAPPLUGINPARAMETER
 #define YADAW_SRC_AUDIO_PLUGIN_CLAPPLUGINPARAMETER
 
-#include "audio/plugin/IPluginParameter.hpp"
+#include "audio/device/IAudioDeviceParameter.hpp"
 
 #include <clap/plugin.h>
 #include <clap/ext/params.h>
@@ -15,7 +15,7 @@ class CLAPHost;
 
 namespace YADAW::Audio::Plugin
 {
-class CLAPParameter: public IParameter
+class CLAPParameter: public YADAW::Audio::Device::IParameter
 {
     friend class CLAPPluginParameter;
 public:
@@ -43,7 +43,7 @@ private:
     std::uint32_t index_;
     clap_param_info paramInfo_ = {};
 };
-class CLAPPluginParameter: public IPluginParameter
+class CLAPPluginParameter: public YADAW::Audio::Device::IAudioDeviceParameter
 {
     friend class CLAPPlugin;
     friend class YADAW::Audio::Host::CLAPHost;
@@ -57,8 +57,8 @@ public:
     ~CLAPPluginParameter() noexcept;
 public:
     std::uint32_t parameterCount() const override;
-    IParameter* parameter(std::uint32_t index) override;
-    const IParameter* parameter(std::uint32_t index) const override;
+    YADAW::Audio::Device::IParameter* parameter(std::uint32_t index) override;
+    const YADAW::Audio::Device::IParameter* parameter(std::uint32_t index) const override;
 public:
     void swap(Self& rhs) noexcept;
 private:

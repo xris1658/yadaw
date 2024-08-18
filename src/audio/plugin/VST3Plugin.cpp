@@ -404,12 +404,12 @@ const IPluginGUI* VST3Plugin::gui() const
     return pluginGUI();
 }
 
-IPluginParameter* VST3Plugin::parameter()
+IAudioDeviceParameter* VST3Plugin::parameter()
 {
     return pluginParameter();
 }
 
-const IPluginParameter* VST3Plugin::parameter() const
+const IAudioDeviceParameter* VST3Plugin::parameter() const
 {
     return pluginParameter();
 }

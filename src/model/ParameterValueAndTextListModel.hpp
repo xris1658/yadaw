@@ -3,7 +3,7 @@
 
 #include "model/IParameterValueAndTextListModel.hpp"
 
-#include "audio/plugin/IParameter.hpp"
+#include "../audio/device/IParameter.hpp"
 
 namespace YADAW::Model
 {

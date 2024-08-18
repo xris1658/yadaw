@@ -3,7 +3,7 @@
 
 #include "model/IPluginParameterListModel.hpp"
 
-#include "audio/plugin/IPluginParameter.hpp"
+#include "../audio/device/IAudioDeviceParameter.hpp"
 #include "model/ParameterValueAndTextListModel.hpp"
 
 #include <vector>
@@ -15,12 +15,12 @@ class PluginParameterListModel: public IPluginParameterListModel
     Q_OBJECT
 public:
     PluginParameterListModel(
-        YADAW::Audio::Plugin::IPluginParameter& pluginParameter,
+        YADAW::Audio::Device::IAudioDeviceParameter& pluginParameter,
         QObject* parent = nullptr);
     ~PluginParameterListModel() override;
 public:
     int itemCount() const;
-    const YADAW::Audio::Plugin::IPluginParameter& parameter() const;
+    const YADAW::Audio::Device::IAudioDeviceParameter& parameter() const;
 public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
@@ -29,7 +29,7 @@ public:
     QString stringFromValue(int index, double value) const override;
     double valueFromString(int index, const QString& string) const override;
 private:
-    YADAW::Audio::Plugin::IPluginParameter* pluginParameter_;
+    YADAW::Audio::Device::IAudioDeviceParameter* pluginParameter_;
     std::vector<std::unique_ptr<ParameterValueAndTextListModel>> valueAndTextList_;
 };
 }

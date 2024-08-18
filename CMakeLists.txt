@@ -235,9 +235,9 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/CLAPPluginParameter.cpp
     src/audio/plugin/CLAPPluginParameter.hpp
     src/audio/plugin/IAudioPlugin.hpp
-    src/audio/plugin/IParameter.hpp
+    src/audio/device/IParameter.hpp
     src/audio/plugin/IPluginGUI.hpp
-    src/audio/plugin/IPluginParameter.hpp
+    src/audio/device/IAudioDeviceParameter.hpp
     src/audio/plugin/VST3AudioChannelGroup.cpp
     src/audio/plugin/VST3AudioChannelGroup.hpp
     src/audio/plugin/VST3EventBusInfo.cpp

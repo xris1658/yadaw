@@ -35,8 +35,8 @@ public:
     std::uint32_t tailSizeInSamples() override;
     IPluginGUI* gui() override;
     const IPluginGUI* gui() const override;
-    IPluginParameter* parameter() override;
-    const IPluginParameter* parameter() const override;
+    YADAW::Audio::Device::IAudioDeviceParameter* parameter() override;
+    const YADAW::Audio::Device::IAudioDeviceParameter* parameter() const override;
 public:
     VestifalPluginGUI* pluginGUI();
     const VestifalPluginGUI* pluginGUI() const;

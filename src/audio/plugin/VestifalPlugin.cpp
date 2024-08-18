@@ -125,7 +125,7 @@ const IPluginGUI* VestifalPlugin::gui() const
     return pluginGUI();
 }
 
-const IPluginParameter* VestifalPlugin::parameter() const
+const YADAW::Audio::Device::IAudioDeviceParameter* VestifalPlugin::parameter() const
 {
     if(!parameter_)
     {
@@ -136,9 +136,9 @@ const IPluginParameter* VestifalPlugin::parameter() const
     return parameter_.get();
 }
 
-IPluginParameter* VestifalPlugin::parameter()
+YADAW::Audio::Device::IAudioDeviceParameter* VestifalPlugin::parameter()
 {
-    return const_cast<IPluginParameter*>(
+    return const_cast<YADAW::Audio::Device::IAudioDeviceParameter*>(
         static_cast<const VestifalPlugin*>(this)->parameter()
     );
 }

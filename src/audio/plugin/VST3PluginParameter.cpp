@@ -1,6 +1,6 @@
 #include "VST3PluginParameter.hpp"
 
-#include "audio/plugin/IParameter.hpp"
+#include "audio/device/IParameter.hpp"
 #include "audio/util/VST3Helper.hpp"
 #include "util/ArrayAccess.hpp"
 

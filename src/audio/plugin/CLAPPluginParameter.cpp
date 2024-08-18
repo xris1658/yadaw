@@ -12,8 +12,8 @@ CLAPParameter::CLAPParameter(const clap_plugin* plugin, const clap_plugin_params
     index_(index)
 {
     refreshInfo();
-    flags_ |= ParameterFlags::SupportMinMaxValue;
-    flags_ |= ParameterFlags::SupportDefaultValue;
+    flags_ |= YADAW::Audio::Device::ParameterFlags::SupportMinMaxValue;
+    flags_ |= YADAW::Audio::Device::ParameterFlags::SupportDefaultValue;
 }
 
 std::uint32_t CLAPParameter::id() const
@@ -55,12 +55,12 @@ void CLAPParameter::setValue(double value)
 
 double CLAPParameter::stepSize() const
 {
-    return flags_ & ParameterFlags::Discrete? 1: 0;
+    return flags_ & YADAW::Audio::Device::ParameterFlags::Discrete? 1: 0;
 }
 
 std::uint32_t CLAPParameter::stepCount() const
 {
-    return flags_ & ParameterFlags::Discrete? maxValue() - minValue(): 0;
+    return flags_ & YADAW::Audio::Device::ParameterFlags::Discrete? maxValue() - minValue(): 0;
 }
 
 QString CLAPParameter::unit() const
@@ -93,27 +93,27 @@ void CLAPParameter::refreshInfo()
     auto flags = paramInfo_.flags;
     if(flags & CLAP_PARAM_IS_HIDDEN)
     {
-        flags_ |= ParameterFlags::Hidden;
+        flags_ |= YADAW::Audio::Device::ParameterFlags::Hidden;
     }
     if(flags & CLAP_PARAM_IS_STEPPED)
     {
-        flags_ |= ParameterFlags::Discrete;
+        flags_ |= YADAW::Audio::Device::ParameterFlags::Discrete;
     }
     if(flags & CLAP_PARAM_IS_PERIODIC)
     {
-        flags_ |= ParameterFlags::Periodic;
+        flags_ |= YADAW::Audio::Device::ParameterFlags::Periodic;
     }
     if(flags & CLAP_PARAM_IS_HIDDEN)
     {
-        flags_ |= ParameterFlags::Hidden;
+        flags_ |= YADAW::Audio::Device::ParameterFlags::Hidden;
     }
     if(flags & CLAP_PARAM_IS_READONLY)
     {
-        flags_ |= ParameterFlags::Readonly;
+        flags_ |= YADAW::Audio::Device::ParameterFlags::Readonly;
     }
     if(flags & CLAP_PARAM_IS_AUTOMATABLE)
     {
-        flags_ |= ParameterFlags::Automatable;
+        flags_ |= YADAW::Audio::Device::ParameterFlags::Automatable;
     }
 }
 
@@ -140,12 +140,12 @@ std::uint32_t CLAPPluginParameter::parameterCount() const
     return params_->count(plugin_);
 }
 
-IParameter* CLAPPluginParameter::parameter(std::uint32_t index)
+YADAW::Audio::Device::IParameter* CLAPPluginParameter::parameter(std::uint32_t index)
 {
     return YADAW::Util::getOrNull(parameters_, index);
 }
 
-const IParameter* CLAPPluginParameter::parameter(std::uint32_t index) const
+const YADAW::Audio::Device::IParameter* CLAPPluginParameter::parameter(std::uint32_t index) const
 {
     return YADAW::Util::getOrNull(parameters_, index);
 }

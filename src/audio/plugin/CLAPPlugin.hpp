@@ -49,8 +49,8 @@ public:
     std::uint32_t tailSizeInSamples() override;
     const IPluginGUI* gui() const override;
     IPluginGUI* gui() override;
-    const IPluginParameter* parameter() const override;
-    IPluginParameter* parameter() override;
+    const IAudioDeviceParameter* parameter() const override;
+    IAudioDeviceParameter* parameter() override;
 public:
     const CLAPPluginGUI* pluginGUI() const;
     CLAPPluginGUI* pluginGUI();

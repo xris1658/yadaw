@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <type_traits>
 
-namespace YADAW::Audio::Plugin
+namespace YADAW::Audio::Device
 {
 enum ParameterFlags: std::int32_t
 {

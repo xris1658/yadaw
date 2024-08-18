@@ -1,8 +1,8 @@
 #ifndef YADAW_SRC_AUDIO_PLUGIN_VST3PLUGINPARAMETER
 #define YADAW_SRC_AUDIO_PLUGIN_VST3PLUGINPARAMETER
 
-#include "audio/plugin/IParameter.hpp"
-#include "audio/plugin/IPluginParameter.hpp"
+#include "audio/device/IParameter.hpp"
+#include "audio/device/IAudioDeviceParameter.hpp"
 
 #include <pluginterfaces/vst/ivsteditcontroller.h>
 
@@ -10,9 +10,9 @@
 
 namespace YADAW::Audio::Plugin
 {
-using YADAW::Audio::Plugin::IPluginParameter;
-using YADAW::Audio::Plugin::IParameter;
-class VST3Parameter: public IParameter
+using YADAW::Audio::Device::IAudioDeviceParameter;
+using YADAW::Audio::Device::IParameter;
+class VST3Parameter: public YADAW::Audio::Device::IParameter
 {
     friend class VST3PluginParameter;
     using Self = VST3Parameter;
@@ -42,7 +42,7 @@ private:
     Steinberg::Vst::ParameterInfo parameterInfo_ = {};
     std::int32_t index_ = -1;
 };
-class VST3PluginParameter: public IPluginParameter
+class VST3PluginParameter: public YADAW::Audio::Device::IAudioDeviceParameter
 {
     friend class VST3Plugin;
     using Self = VST3PluginParameter;

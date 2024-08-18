@@ -13,7 +13,7 @@ VestifalParameter::VestifalParameter(AEffect* effect, std::uint32_t index):
     if(runDispatcher(effect, EffectOpcode::effectGetParameterProperties,
         index_, 0, &properties_) == 1)
     {
-        IParameter::flags_ |= ParameterFlags::SupportMinMaxValue;
+        IParameter::flags_ |= YADAW::Audio::Device::ParameterFlags::SupportMinMaxValue;
         if(
             properties_.flags & (
                 VestifalParameterFlag::ParameterIsSwitch
@@ -22,11 +22,11 @@ VestifalParameter::VestifalParameter(AEffect* effect, std::uint32_t index):
             )
         )
         {
-            IParameter::flags_ |= ParameterFlags::Discrete;
+            IParameter::flags_ |= YADAW::Audio::Device::ParameterFlags::Discrete;
         }
         if(properties_.flags & VestifalParameterFlag::ParameterIsSwitch)
         {
-            IParameter::flags_ |= ParameterFlags::ShowAsSwitch;
+            IParameter::flags_ |= YADAW::Audio::Device::ParameterFlags::ShowAsSwitch;
         }
     }
 }
@@ -149,12 +149,12 @@ std::uint32_t VestifalPluginParameter::parameterCount() const
     return effect_->parameterCount;
 }
 
-IParameter* VestifalPluginParameter::parameter(std::uint32_t index)
+YADAW::Audio::Device::IParameter* VestifalPluginParameter::parameter(std::uint32_t index)
 {
     return YADAW::Util::getOrNull(parameters_, index);
 }
 
-const IParameter* VestifalPluginParameter::parameter(std::uint32_t index) const
+const YADAW::Audio::Device::IParameter* VestifalPluginParameter::parameter(std::uint32_t index) const
 {
     return YADAW::Util::getOrNull(parameters_, index);
 }

@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_PLUGIN_VESTIFALPLUGINPARAMETER
 #define YADAW_SRC_AUDIO_PLUGIN_VESTIFALPLUGINPARAMETER
 
-#include "audio/plugin/IPluginParameter.hpp"
+#include "audio/device/IAudioDeviceParameter.hpp"
 
 #include "audio/plugin/vestifal/Vestifal.h"
 
@@ -9,7 +9,7 @@
 
 namespace YADAW::Audio::Plugin
 {
-class VestifalParameter: public IParameter
+class VestifalParameter: public YADAW::Audio::Device::IParameter
 {
 public:
     VestifalParameter(AEffect* effect, std::uint32_t index);
@@ -33,14 +33,14 @@ private:
     VestifalParameterProperties properties_;
 };
 
-class VestifalPluginParameter: public IPluginParameter
+class VestifalPluginParameter: public YADAW::Audio::Device::IAudioDeviceParameter
 {
 public:
     VestifalPluginParameter(AEffect* effect);
 public:
     std::uint32_t parameterCount() const override;
-    IParameter* parameter(std::uint32_t index) override;
-    const IParameter* parameter(std::uint32_t index) const override;
+    YADAW::Audio::Device::IParameter* parameter(std::uint32_t index) override;
+    const YADAW::Audio::Device::IParameter* parameter(std::uint32_t index) const override;
 public:
 
 private:
