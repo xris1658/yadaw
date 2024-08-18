@@ -81,6 +81,9 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/AudioGraphBackendImpl.cpp
     src/native/win/AudioGraphBackendImpl.hpp
     src/native/win/CLAPNative.cpp
+    src/native/win/InterProcessMutexImpl.cpp
+    src/native/win/InterProcessMutexImpl.hpp
+    src/native/win/InterProcessMutex.cpp
     src/native/win/Library.cpp
     src/native/win/Library.cpp
     src/native/win/MIDIInputDeviceImpl.cpp
@@ -286,6 +289,7 @@ set(YADAW_COMMON_SOURCES
     src/concurrent/AtomicMutex.cpp
     src/concurrent/AtomicMutex.hpp
     src/concurrent/DoubleBufferSwitch.hpp
+    src/concurrent/InterProcessMutex.hpp
     src/concurrent/PassDataToRealtimeThread.hpp
     src/controller/AppController.cpp
     src/controller/AppController.hpp
