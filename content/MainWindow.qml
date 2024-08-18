@@ -760,6 +760,7 @@ ApplicationWindow {
         anchors.fill: parent
         anchors.margins: 5
         anchors.topMargin: 0
+        anchors.bottomMargin: 0
         orientation: Qt.Horizontal
         SplitView {
             id: assetDetailSplitView
@@ -775,13 +776,19 @@ ApplicationWindow {
                     id: assets
                     anchors.fill: parent
                     anchors.topMargin: 5
+                    anchors.bottomMargin: detailPlaceholder.visible? 0: 5
                 }
             }
-            Detail {
-                id: detail
+            Item {
+                id: detailPlaceholder
                 width: parent.width
-                SplitView.minimumHeight: 100
+                SplitView.minimumHeight: 100 + detail.anchors.bottomMargin
                 visible: showDetailButton.checked
+                Detail {
+                    id: detail
+                    anchors.fill: parent
+                    anchors.bottomMargin: 5
+                }
             }
         }
         SplitView {
@@ -800,6 +807,7 @@ ApplicationWindow {
                 Rectangle {
                     anchors.fill: parent
                     anchors.topMargin: 5
+                    anchors.bottomMargin: editorAndMixerPlaceholder.visible? 0: 5
                     color: "transparent"
                     border.color: Colors.controlBorder
                     Arrangement {
@@ -814,30 +822,34 @@ ApplicationWindow {
                     }
                 }
             }
-            Rectangle {
+            Item {
                 id: editorAndMixerPlaceholder
                 SplitView.preferredHeight: root.height * (1 - arrangementPlaceholder.ratio)
                 visible: showEditorButton.checked || showMixerButton.checked
-                color: "transparent"
-                border.color: Colors.controlBorder
-                StackLayout {
-                    id: editorAndMixerStack
+                Rectangle {
+                    color: "transparent"
+                    border.color: Colors.controlBorder
                     anchors.fill: parent
-                    anchors.margins: parent.border.width
-                    currentIndex: showEditorButton.checked? 0: 1
-                    MIDIEditor {
-                        id: editor
-                    }
-                    Mixer {
-                        id: mixer
-                        audioIOSelectorWindow: audioIOSelectorWindow
-                        pluginSelectorWindow: pluginSelectorWindow
-                        pluginRouteEditorWindow: pluginRouteEditorWindow
-                        onInsertTrack: (position, type) => {
-                            addTrackWindow.openWindow(position, type);
+                    anchors.bottomMargin: 5
+                    StackLayout {
+                        id: editorAndMixerStack
+                        anchors.fill: parent
+                        anchors.margins: parent.border.width
+                        currentIndex: showEditorButton.checked? 0: 1
+                        MIDIEditor {
+                            id: editor
                         }
-                        onChannelsModelChanged: {
-                            assets.mixerChannelListModel = mixerChannelModel;
+                        Mixer {
+                            id: mixer
+                            audioIOSelectorWindow: audioIOSelectorWindow
+                            pluginSelectorWindow: pluginSelectorWindow
+                            pluginRouteEditorWindow: pluginRouteEditorWindow
+                            onInsertTrack: (position, type) => {
+                                addTrackWindow.openWindow(position, type);
+                            }
+                            onChannelsModelChanged: {
+                                assets.mixerChannelListModel = mixerChannelModel;
+                            }
                         }
                     }
                 }
