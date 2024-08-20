@@ -128,7 +128,7 @@ QString VestifalParameter::valueToString(double value) const
 double VestifalParameter::stringToValue(const QString& string) const
 {
     bool ok = false;
-    double ret[2] = {-1.0, -1.0};
+    double ret[2] = {NAN, -1.0};
     ret[1] = string.toDouble(&ok);
     return ret[ok];
 }

@@ -110,9 +110,8 @@ bool PluginParameterListModel::setData(
             {
             case Role::Value:
             {
-                parameter->setValue(value.value<double>());
-                dataChanged(index, index, {Role::Value});
-                return true;
+                // TODO: Implement this by beginEdit-performEdit-endEdit if possible
+                return false;
             }
             }
         }

@@ -48,11 +48,6 @@ double CLAPParameter::value() const
     return ret;
 }
 
-void CLAPParameter::setValue(double value)
-{
-    // TODO
-}
-
 double CLAPParameter::stepSize() const
 {
     return flags_ & YADAW::Audio::Device::ParameterFlags::Discrete? 1: 0;
@@ -84,7 +79,7 @@ double CLAPParameter::stringToValue(const QString& string) const
 {
     auto utf8 = string.toUtf8();
     double ret;
-    return params_->text_to_value(plugin_, paramInfo_.id, utf8.data(), &ret)? ret: -1;
+    return params_->text_to_value(plugin_, paramInfo_.id, utf8.data(), &ret)? ret: NAN;
 }
 
 void CLAPParameter::refreshInfo()

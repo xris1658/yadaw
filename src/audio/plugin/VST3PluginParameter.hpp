@@ -26,7 +26,6 @@ public:
     double maxValue() const override;
     double defaultValue() const override;
     double value() const override;
-    void setValue(double value) override;
     double stepSize() const override;
     std::uint32_t stepCount() const override;
     QString unit() const override;

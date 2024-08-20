@@ -51,11 +51,6 @@ double VST3Parameter::value() const
     return editController_->getParamNormalized(parameterInfo_.id);
 }
 
-void VST3Parameter::setValue(double value)
-{
-    editController_->setParamNormalized(parameterInfo_.id, value);
-}
-
 double VST3Parameter::stepSize() const
 {
     return parameterInfo_.stepCount == 0?
@@ -96,7 +91,7 @@ double VST3Parameter::stringToValue(const QString& string) const
         ),
         ret
     );
-    return getValueResult == Steinberg::kResultOk? ret: -1;
+    return getValueResult == Steinberg::kResultOk? ret: NAN;
 }
 
 const Steinberg::Vst::ParameterInfo& VST3Parameter::getParameterInfo() const

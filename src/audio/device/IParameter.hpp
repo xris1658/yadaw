@@ -32,7 +32,6 @@ public:
     virtual double maxValue() const = 0;
     virtual double defaultValue() const = 0;
     virtual double value() const = 0;
-    virtual void setValue(double value) = 0;
     virtual double stepSize() const = 0;
     virtual std::uint32_t stepCount() const = 0;
     virtual QString unit() const = 0;
