@@ -1,20 +1,119 @@
 #include "VolumeFader.hpp"
 
+#include "audio/base/Gain.hpp"
+#include "audio/host/HostContext.hpp"
 #include "util/IntegerRange.hpp"
 
 #include <cstdint>
+#include <QCoreApplication>
 
 #include <xmmintrin.h>
 
+#include "util/Util.hpp"
+
 namespace YADAW::Audio::Mixer
 {
+VolumeFader::GainParameter::GainParameter()
+{
+    flags_ = YADAW::Audio::Device::ParameterFlags::SupportDefaultValue
+        | YADAW::Audio::Device::ParameterFlags::SupportMinMaxValue;
+}
+
+VolumeFader::GainParameter::~GainParameter()
+{}
+
+std::uint32_t VolumeFader::GainParameter::id() const
+{
+    return VolumeFader::ParamId::Gain;
+}
+
+QString VolumeFader::GainParameter::name() const
+{
+    return QCoreApplication::translate("VolumeFader", "Gain");
+}
+
+double VolumeFader::GainParameter::minValue() const
+{
+    return -144.0;
+}
+
+double VolumeFader::GainParameter::maxValue() const
+{
+    return +6.0;
+}
+
+double VolumeFader::GainParameter::defaultValue() const
+{
+    return 0.0;
+}
+
+double VolumeFader::GainParameter::value() const
+{
+    return value_;
+}
+
+double VolumeFader::GainParameter::stepSize() const
+{
+    return 0;
+}
+
+std::uint32_t VolumeFader::GainParameter::stepCount() const
+{
+    return 0;
+}
+
+QString VolumeFader::GainParameter::unit() const
+{
+    return "dB";
+}
+
+QString VolumeFader::GainParameter::valueToString(double value) const
+{
+    return QString::number(value);
+}
+
+double VolumeFader::GainParameter::stringToValue(const QString& string) const
+{
+    bool ok = false;
+    double ret = 0.0;
+    ret = string.toDouble(&ok);
+    if(ok)
+    {
+        ret = std::clamp(ret, minValue(), maxValue());
+        return ret;
+    }
+    return NAN;
+}
+
 VolumeFader::VolumeFader(
     YADAW::Audio::Base::ChannelGroupType channelGroupType,
     std::uint32_t channelCountInGroup):
-    input_(), output_()
+    input_(), output_(), gainParameter_()
 {
     input_.setChannelGroupType(channelGroupType, channelCountInGroup);
     output_.setChannelGroupType(channelGroupType, channelCountInGroup);
+}
+
+bool VolumeFader::initialize(double sampleRate, std::uint32_t maxSampleCount)
+{
+    if(sampleRate > 0
+        && maxSampleCount > 0
+        && maxSampleCount < valueSeq_[0].max_size())
+    {
+        sampleRate_ = sampleRate;
+        valueSeq_[0].resize(maxSampleCount, 1.0);
+        valueSeq_[1].resize(maxSampleCount, 1.0);
+        return true;
+    }
+    return false;
+}
+
+void VolumeFader::uninitialize()
+{
+    valueSeq_[0].clear();
+    valueSeq_[0].shrink_to_fit();
+    valueSeq_[1].clear();
+    valueSeq_[1].shrink_to_fit();
 }
 
 std::uint32_t VolumeFader::audioInputGroupCount() const
@@ -48,56 +147,15 @@ std::uint32_t VolumeFader::latencyInSamples() const
     return 0;
 }
 
-template<bool HasValueSeq, bool Aligned>
+template<bool Aligned>
 void process(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
     YADAW::Audio::Base::Automation::Value* valueSequence);
 
 template<>
-void process<false, false>(
+void process<false>(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
-    YADAW::Audio::Base::Automation::Value*)
-{
-    FOR_RANGE0(i, audioProcessData.outputCounts[0])
-    {
-        std::memcpy(
-            audioProcessData.outputs[0][i],
-            audioProcessData.inputs[0][i],
-            sizeof(float) * audioProcessData.singleBufferSize
-        );
-    }
-}
-
-template<>
-void process<false, true>(
-    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
-    YADAW::Audio::Base::Automation::Value*)
-{
-    FOR_RANGE0(i, audioProcessData.outputCounts[0])
-    {
-        constexpr auto floatCount = sizeof(__m128) / sizeof(float);
-        auto alignCount = audioProcessData.singleBufferSize / floatCount;
-        auto alignedInput = reinterpret_cast<__m128*>(audioProcessData.inputs[0][i]);
-        auto output = audioProcessData.outputs[0][i];
-        FOR_RANGE0(j, alignCount)
-        {
-            _mm_store_ps(
-                output + j * floatCount,
-                alignedInput[j]
-            );
-        }
-        std::memcpy(
-            output + alignCount * floatCount,
-            alignedInput + alignCount,
-            audioProcessData.singleBufferSize - alignCount * floatCount
-        );
-    }
-}
-
-template<>
-void process<true, false>(
-    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
-    YADAW::Audio::Base::Automation::Value* valueSequence)
+    double* valueSequence)
 {
     FOR_RANGE0(i, audioProcessData.outputCounts[0])
     {
@@ -113,9 +171,9 @@ void process<true, false>(
 }
 
 template<>
-void process<true, true>(
+void process<true>(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
-    YADAW::Audio::Base::Automation::Value* valueSequence)
+    double* valueSequence)
 {
     auto alignedValueSeq = reinterpret_cast<__m128d*>(valueSequence);
     FOR_RANGE0(i, audioProcessData.outputCounts[0])
@@ -156,21 +214,46 @@ using ProcessFunc = void(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
     YADAW::Audio::Base::Automation::Value* valueSequence);
 
-ProcessFunc* const processFuncs[2][2] = {
-    {
-        &process<false, false>,
-        &process<false, true>,
-    },
-    {
-        &process<true, false>,
-        &process<true, true>
-    }
+ProcessFunc* const processFuncs[2] = {
+    &process<false>,
+    &process<true>
 };
 
 void VolumeFader::process(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    bool index1 = valueSequence_ != nullptr;
+    auto currentPluginIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
+    auto valueSeq = valueSeq_[currentPluginIndex];
+    auto valuePoints = valuePoints_[currentPluginIndex];
+    auto valuePointCount = valuePoints.size();
+    if(valuePointCount > 0)
+    {
+        double value = YADAW::Audio::Base::scaleFromDecibel(valuePoints.front().second);
+        std::fill(
+            valueSeq.begin(), valueSeq.begin() + valuePoints.front().first,
+            value
+        );
+        for(decltype(valuePointCount) i = 0; i < valuePointCount - 1; ++i)
+        {
+            auto delta = YADAW::Audio::Base::scaleFromDecibel(
+                (valuePoints[i + 1].second - valuePoints[i].second) / (valuePoints[i + 1].first - valuePoints[i].first)
+            );
+            FOR_RANGE(j, valuePoints[i].first, valuePoints[i + 1].first)
+            {
+                valueSeq[j] = value;
+                value *= delta;
+            }
+        }
+        value = YADAW::Audio::Base::scaleFromDecibel(valuePoints.back().second);
+        std::fill(valueSeq.begin() + valuePoints.back().first, valueSeq.end(), value);
+    }
+    else
+    {
+        std::fill(
+            valueSeq.begin(), valueSeq.end(),
+            YADAW::Audio::Base::scaleFromDecibel(prevValue_)
+        );
+    }
     bool index2 =
         std::all_of(
             audioProcessData.outputs[0],
@@ -188,17 +271,96 @@ void VolumeFader::process(
                 return (reinterpret_cast<std::uint64_t>(buffer) & 0x0000000F) == 0;
             }
         )
-     && (reinterpret_cast<std::uint64_t>(valueSequence_) & 0x0000000F) == 0;
-    processFuncs[index1][index2](audioProcessData, valueSequence_);
+     && (reinterpret_cast<std::uint64_t>(valueSeq.data()) & 0x0000000F) == 0;
+    processFuncs[index2](audioProcessData, valueSeq.data());
 }
 
-void VolumeFader::setVolumeValueSequence(YADAW::Audio::Base::Automation::Value& value)
+std::uint32_t VolumeFader::parameterCount() const
 {
-    valueSequence_ = &value;
+    return 1U;
 }
 
-void VolumeFader::unsetVolumeValueSequence()
+const YADAW::Audio::Device::IParameter* VolumeFader::parameter(std::uint32_t index) const
 {
-    valueSequence_ = nullptr;
+    return index == 0? &gainParameter_: nullptr;
+}
+
+YADAW::Audio::Device::IParameter* VolumeFader::parameter(std::uint32_t index)
+{
+    return const_cast<YADAW::Audio::Device::IParameter*>(
+        static_cast<const VolumeFader*>(this)->parameter(index)
+    );
+}
+
+void VolumeFader::beginEditGain()
+{
+    addPoint();
+}
+
+void VolumeFader::performEditGain(double value)
+{
+    addPoint(value);
+}
+
+void VolumeFader::endEditGain()
+{
+    addPoint();
+}
+
+void VolumeFader::onBufferSwitched(std::int64_t switchTimestampInNanosecond)
+{
+    auto currentPluginBufferIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
+    switchTimestampInNanosecond_ = switchTimestampInNanosecond;
+    auto currentHostBufferIndex = currentPluginBufferIndex ^ 1;
+    valuePoints_[currentHostBufferIndex].clear();
+    auto& pluginValuePoints = valuePoints_[currentPluginBufferIndex];
+    if(!pluginValuePoints.empty())
+    {
+        prevValue_ = pluginValuePoints.back().second;
+    }
+}
+
+void VolumeFader::addPoint()
+{
+    auto hostIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get() ^ 1;
+    std::uint32_t sampleOffset = std::round(
+        (YADAW::Util::currentTimeValueInNanosecond() - switchTimestampInNanosecond_) / (sampleRate_ * 1000000000)
+    );
+    auto& valuePoints = valuePoints_[hostIndex];
+    if(valuePoints.size() == 0)
+    {
+        valuePoints.emplace_back(sampleOffset, prevValue_);
+    }
+    else
+    {
+        if(auto& back = valuePoints.back(); back.first != sampleOffset)
+        {
+            valuePoints.emplace_back(sampleOffset, back.second);
+        }
+    }
+}
+
+void VolumeFader::addPoint(double value)
+{
+    auto hostIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get() ^ 1;
+    std::uint32_t sampleOffset = std::round(
+        (YADAW::Util::currentTimeValueInNanosecond() - switchTimestampInNanosecond_) / (sampleRate_ * 1000000000)
+    );
+    auto& valuePoints = valuePoints_[hostIndex];
+    if(valuePoints.size() == 0)
+    {
+        valuePoints.emplace_back(sampleOffset, prevValue_);
+    }
+    else
+    {
+        if(auto& back = valuePoints.back(); back.first != sampleOffset)
+        {
+            valuePoints.emplace_back(sampleOffset, back.second);
+        }
+        else
+        {
+            back.second = value;
+        }
+    }
 }
 }
