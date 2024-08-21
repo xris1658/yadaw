@@ -36,17 +36,24 @@ std::uint32_t AudioEngine::bufferSize() const
     return bufferSize_;
 }
 
-void AudioEngine::setSampleRate(double sampleRate)
+void AudioEngine::initialize(double sampleRate, std::uint32_t bufferSize)
 {
     sampleRate_ = sampleRate;
-    // FIXME: Reset all audio devices in the graph
-}
-
-void AudioEngine::setBufferSize(std::uint32_t bufferSize)
-{
     bufferSize_ = bufferSize;
     mixer_.bufferExtension().setBufferSize(bufferSize_);
     // FIXME: Reset all audio devices in the graph
+    FOR_RANGE0(i, mixer_.audioInputChannelCount())
+    {
+        mixer_.audioInputVolumeFaderAt(i)->get().initialize(sampleRate, bufferSize);
+    }
+    FOR_RANGE0(i, mixer_.audioOutputChannelCount())
+    {
+        mixer_.audioOutputVolumeFaderAt(i)->get().initialize(sampleRate, bufferSize);
+    }
+    FOR_RANGE0(i, mixer_.channelCount())
+    {
+        mixer_.volumeFaderAt(i)->get().initialize(sampleRate, bufferSize);
+    }
 }
 
 const YADAW::Audio::Mixer::Mixer& AudioEngine::mixer() const
@@ -117,6 +124,18 @@ void AudioEngine::process()
     // trivially destructible on unknown STL implementations.
     // On MSVC STL, it is O(1). On libstdc++ and libcxx, it seems not.
     clapPluginToSetProcess.clear();
+    FOR_RANGE0(i, mixer_.audioInputChannelCount())
+    {
+        mixer_.audioInputVolumeFaderAt(i)->get().onBufferSwitched(now);
+    }
+    FOR_RANGE0(i, mixer_.channelCount())
+    {
+        mixer_.volumeFaderAt(i)->get().onBufferSwitched(now);
+    }
+    FOR_RANGE0(i, mixer_.audioOutputChannelCount())
+    {
+        mixer_.audioOutputVolumeFaderAt(i)->get().onBufferSwitched(now);
+    }
     auto& processSequence = *(processSequence_.get());
     std::for_each(processSequence.begin(), processSequence.end(),
         [](Vector2D<YADAW::Audio::Engine::ProcessPair>& row)

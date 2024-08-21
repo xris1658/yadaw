@@ -889,7 +889,6 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
             audioInputMeters_.begin() + position,
             std::move(meter), meterNode
         );
-        nodeAddedCallback_(*this);
         auto& info = *audioInputChannelInfo_.emplace(audioInputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
         return true;
@@ -1063,7 +1062,6 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
             audioOutputMeters_.begin() + position,
             std::move(meter), meterNode
         );
-        nodeAddedCallback_(*this);
         auto& info = *audioOutputChannelInfo_.emplace(audioOutputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
         return true;
@@ -1426,7 +1424,6 @@ bool Mixer::insertChannels(
                 .id = IDGen::InvalidId
             }
         );
-        nodeAddedCallback_(*this);
     }
     return ret;
 }

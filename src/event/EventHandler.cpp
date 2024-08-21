@@ -228,11 +228,9 @@ void EventHandler::onOpenMainWindow()
     auto& appGraph = appGraphWithPDC.graph();
     auto& bufferExt = mixer.bufferExtension();
 #if _WIN32
-    engine.setSampleRate(backend.sampleRate());
-    engine.setBufferSize(backend.bufferSizeInFrames());
+    engine.initialize(backend.sampleRate(), backend.bufferSizeInFrames());
 #elif __linux__
-    engine.setSampleRate(backend.sampleRate());
-    engine.setBufferSize(backend.frameCount());
+    engine.initialize(backend.sampleRate(), backend.frameCount());
 #endif
     // Add audio input channels
     FOR_RANGE0(i, audioBusConfiguration.inputBusCount())
@@ -274,6 +272,9 @@ void EventHandler::onOpenMainWindow()
             YADAW::Model::IAudioBusConfigurationModel::Role::Name
         ).value<QString>();
     }
+    auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
+    auto& mixerChannels = YADAW::Controller::appMixerChannels();
+    auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
     // Pass the process sequence into the audio callback
     auto& processSequence = engine.processSequence();
     processSequence.update(
@@ -339,12 +340,12 @@ void EventHandler::onOpenMainWindow()
     YADAW::UI::mainWindow->setProperty("audioOutputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAOutputDeviceListModel()));
 #endif
-    auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
-    auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
     YADAW::UI::mainWindow->setProperty("mixerAudioInputChannelModel",
-        QVariant::fromValue<QObject*>(&audioInputMixerChannels));
+        QVariant::fromValue<QObject*>(&audioInputMixerChannels)
+    );
     YADAW::UI::mainWindow->setProperty("mixerAudioOutputChannelModel",
-        QVariant::fromValue<QObject*>(&audioOutputMixerChannels));
+        QVariant::fromValue<QObject*>(&audioOutputMixerChannels)
+    );
     static YADAW::Model::HardwareAudioIOPositionModel hardwareAudioInputPositionModel(
         audioInputMixerChannels
     );
@@ -352,11 +353,11 @@ void EventHandler::onOpenMainWindow()
         audioOutputMixerChannels
     );
     static YADAW::Model::RegularAudioIOPositionModel audioFXIOPositionModel(
-        YADAW::Controller::appMixerChannels(),
+        mixerChannels,
         YADAW::Model::IMixerChannelListModel::ChannelTypes::ChannelTypeAudioFX
     );
     static YADAW::Model::RegularAudioIOPositionModel audioGroupIOPositionModel(
-        YADAW::Controller::appMixerChannels(),
+        mixerChannels,
         YADAW::Model::IMixerChannelListModel::ChannelTypes::ChannelTypeBus
     );
     YADAW::UI::mainWindow->setProperty("audioHardwareInputPositionModel",
@@ -483,8 +484,10 @@ void EventHandler::onOpenMainWindow()
             audioOutputMixerChannels.remove(first, last - first + 1);
         }
     );
-    YADAW::UI::mainWindow->setProperty("mixerChannelModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannels()));
+    YADAW::UI::mainWindow->setProperty(
+        "mixerChannelModel",
+        QVariant::fromValue<QObject*>(&mixerChannels)
+    );
 
     YADAW::UI::mainWindow->setProperty("audioInputBusConfigurationModel",
         QVariant::fromValue<QObject*>(&appAudioBusInputConfigurationModel));

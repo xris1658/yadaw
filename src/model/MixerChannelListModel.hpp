@@ -78,6 +78,7 @@ private:
     std::vector<YADAW::Entity::IAudioIOPosition*> mainOutput_;
     std::vector<ade::NodeHandle> blankInputNodes_;
     std::vector<bool> instrumentBypassed_;
+    std::vector<bool> editingVolume_;
     ListType listType_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToInputPositions_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToOutputPositions_;

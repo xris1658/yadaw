@@ -887,6 +887,9 @@ Rectangle {
                                 }
                             }
                         }
+                        onPressedChanged: {
+                            mclm_editing_volume = pressed;
+                        }
                         onPositionChanged: {
                             decibelValue = getDecibelValue(position);
                         }
@@ -992,7 +995,9 @@ Rectangle {
                             onAccepted: {
                                 let parsed = parseFloat(volumeTextField.text);
                                 if(!isNaN(parsed)) {
+                                    mclm_editing_volume = true;
                                     volumeFader.value = volumeFader.getPosition(volumeTextField.text);
+                                    mclm_editing_volume = false;
                                 }
                                 visible = false;
                             }

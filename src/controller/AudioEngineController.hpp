@@ -33,8 +33,7 @@ public:
 public:
     double sampleRate() const;
     std::uint32_t bufferSize() const;
-    void setSampleRate(double sampleRate);
-    void setBufferSize(std::uint32_t bufferSize);
+    void initialize(double sampleRate, std::uint32_t bufferSize);
     const YADAW::Audio::Mixer::Mixer& mixer() const;
     YADAW::Audio::Mixer::Mixer& mixer();
     const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>& processSequence() const;

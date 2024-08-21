@@ -22,7 +22,7 @@ public:
     {
         friend class VolumeFader;
     private:
-        GainParameter();
+        GainParameter(VolumeFader& volumeFader);
     public:
         ~GainParameter();
     public:
@@ -40,8 +40,9 @@ public:
         QString valueToString(double value) const override;
         double stringToValue(const QString& string) const override;
     private:
-        double value_ = 0.0;
+        VolumeFader& volumeFader_;
     };
+    friend class GainParameter;
 public:
     VolumeFader(YADAW::Audio::Base::ChannelGroupType channelGroupType,
         std::uint32_t channelCountInGroup = 0);

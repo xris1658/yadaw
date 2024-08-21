@@ -13,10 +13,13 @@
 
 namespace YADAW::Audio::Mixer
 {
-VolumeFader::GainParameter::GainParameter()
+
+VolumeFader::GainParameter::GainParameter(VolumeFader& volumeFader):
+    volumeFader_(volumeFader)
 {
     flags_ = YADAW::Audio::Device::ParameterFlags::SupportDefaultValue
-        | YADAW::Audio::Device::ParameterFlags::SupportMinMaxValue;
+        | YADAW::Audio::Device::ParameterFlags::SupportMinMaxValue
+        | YADAW::Audio::Device::ParameterFlags::Automatable;
 }
 
 VolumeFader::GainParameter::~GainParameter()
@@ -49,7 +52,7 @@ double VolumeFader::GainParameter::defaultValue() const
 
 double VolumeFader::GainParameter::value() const
 {
-    return value_;
+    return volumeFader_.prevValue_;
 }
 
 double VolumeFader::GainParameter::stepSize() const
@@ -88,7 +91,7 @@ double VolumeFader::GainParameter::stringToValue(const QString& string) const
 VolumeFader::VolumeFader(
     YADAW::Audio::Base::ChannelGroupType channelGroupType,
     std::uint32_t channelCountInGroup):
-    input_(), output_(), gainParameter_()
+    input_(), output_(), gainParameter_(*this)
 {
     input_.setChannelGroupType(channelGroupType, channelCountInGroup);
     output_.setChannelGroupType(channelGroupType, channelCountInGroup);

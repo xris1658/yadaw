@@ -86,6 +86,24 @@ GetConstInserts getConstPostFaderInserts[3] = {
     static_cast<GetConstInserts>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelPostFaderInsertsAt)
 };
 
+using GetFader =
+    OptionalRef<YADAW::Audio::Mixer::VolumeFader>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t);
+
+GetFader getFader[3] = {
+    static_cast<GetFader>(&YADAW::Audio::Mixer::Mixer::audioInputVolumeFaderAt),
+    static_cast<GetFader>(&YADAW::Audio::Mixer::Mixer::volumeFaderAt),
+    static_cast<GetFader>(&YADAW::Audio::Mixer::Mixer::audioOutputVolumeFaderAt)
+};
+
+using GetConstFader =
+    OptionalRef<const YADAW::Audio::Mixer::VolumeFader>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t) const;
+
+GetConstFader getConstFader[3] = {
+    static_cast<GetConstFader>(&YADAW::Audio::Mixer::Mixer::audioInputVolumeFaderAt),
+    static_cast<GetConstFader>(&YADAW::Audio::Mixer::Mixer::volumeFaderAt),
+    static_cast<GetConstFader>(&YADAW::Audio::Mixer::Mixer::audioOutputVolumeFaderAt)
+};
+
 using GetChannelInfo =
     OptionalRef<YADAW::Audio::Mixer::Mixer::ChannelInfo>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t);
 
@@ -190,6 +208,8 @@ MixerChannelListModel::MixerChannelListModel(
 {
     auto count = itemCount();
     insertModels_.reserve(count);
+    editingVolume_.resize(count, false);
+    auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
     FOR_RANGE0(i, count)
     {
         insertModels_.emplace_back(
@@ -200,6 +220,9 @@ MixerChannelListModel::MixerChannelListModel(
                 true,
                 0
             )
+        );
+        (mixer_.*getFader[listType_])(i)->get().initialize(
+            audioEngine.sampleRate(), audioEngine.bufferSize()
         );
     }
 }
@@ -426,6 +449,17 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
                 return QVariant::fromValue<bool>(inputSwitcher->getInputIndex());
             }
             break;
+        }
+        case Role::Volume:
+        {
+            return QVariant::fromValue<double>(
+                (mixer_.*getConstFader[listType_])(row)->get()
+                .parameter(0)->value()
+            );
+        }
+        case Role::EditingVolume:
+        {
+            return QVariant::fromValue<bool>(editingVolume_[row]);
         }
         }
     }
@@ -730,6 +764,36 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
             }
             return ret;
         }
+        case Role::Volume:
+        {
+            auto& fader = (mixer_.*getFader[listType_])(row)->get();
+            if(!editingVolume_[row])
+            {
+                fader.beginEditGain();
+                fader.performEditGain(value.value<double>());
+                fader.endEditGain();
+            }
+            else
+            {
+                fader.performEditGain(value.value<double>());
+            }
+            dataChanged(this->index(row), this->index(row), {Role::Volume});
+            return true;
+        }
+        case Role::EditingVolume:
+        {
+            auto& fader = (mixer_.*getFader[listType_])(row)->get();
+            if(value.value<bool>())
+            {
+                fader.beginEditGain();
+            }
+            else
+            {
+                fader.endEditGain();
+            }
+            dataChanged(this->index(row), this->index(row), {Role::EditingVolume});
+            return true;
+        }
         }
     }
     return false;
@@ -745,9 +809,10 @@ bool MixerChannelListModel::insert(int position, int count,
     YADAW::Entity::ChannelConfig::Config channelConfig,
     int channelCountInGroup)
 {
+    auto ret = false;
     if(listType_ == ListType::Regular)
     {
-        auto ret = mixer_.insertChannels(position, count,
+        ret = mixer_.insertChannels(position, count,
             channelTypeFromModelTypes(type),
             YADAW::Entity::groupTypeFromConfig(channelConfig),
             channelCountInGroup
@@ -832,8 +897,7 @@ bool MixerChannelListModel::insert(int position, int count,
             endInsertRows();
             dataChanged(index(position + count), index(itemCount() - 1), {Role::NameWithIndex});
         }
-        return ret;
-    }
+        }
     else if(listType_ == ListType::AudioHardwareInput || listType_ == ListType::AudioHardwareOutput)
     {
         auto& audioBusConfiguration = YADAW::Controller::appAudioBusConfiguration();
@@ -883,9 +947,22 @@ bool MixerChannelListModel::insert(int position, int count,
         }
         endInsertRows();
         dataChanged(index(position + count), index(itemCount() - 1), {Role::NameWithIndex});
-        return true;
+        ret = true;
     }
-    return false;
+    if(ret)
+    {
+        std::fill_n(
+            std::inserter(editingVolume_, editingVolume_.begin() + position),
+            count, false
+        );
+        auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
+        FOR_RANGE(i, position, position + count)
+        {
+            (mixer_.*getFader[listType_])(i)->get().initialize(audioEngine.sampleRate(), audioEngine.bufferSize());
+        }
+        audioEngine.mixerNodeAddedCallback(mixer_);
+    }
+    return ret;
 }
 
 bool MixerChannelListModel::append(int count,
@@ -901,6 +978,10 @@ bool MixerChannelListModel::remove(int position, int removeCount)
     if(position < itemCount() && position + removeCount <= itemCount())
     {
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
+        editingVolume_.erase(
+            editingVolume_.begin() + position,
+            editingVolume_.begin() + position + removeCount
+        );
         FOR_RANGE(i, position, position + removeCount)
         {
             insertModels_[i]->clear();

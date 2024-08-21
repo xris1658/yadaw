@@ -69,6 +69,7 @@ public:
         Volume,
         Panning,
         DBMeter,
+        EditingVolume,
         RoleCount
     };
     Q_ENUM(Role)
@@ -135,7 +136,8 @@ protected:
             std::make_pair(ArmRecording,                   "mclm_arm_recording"),
             std::make_pair(Volume,                         "mclm_volume"),
             std::make_pair(Panning,                        "mclm_panning"),
-            std::make_pair(DBMeter,                        "mclm_db_meter")
+            std::make_pair(DBMeter,                        "mclm_db_meter"),
+            std::make_pair(EditingVolume,                  "mclm_editing_volume")
         };
         return ret;
     }
