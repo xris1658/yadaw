@@ -39,7 +39,9 @@ if(WIN32)
                    ../src/util/Util.cpp
                    ../src/util/Util.hpp
                    AudioGraphTest/main.cpp)
-    target_precompile_headers(AudioGraphTest PRIVATE ../pch/WindowsAPI.hpp ../pch/QtCore.hpp)
+    if(${ENABLE_PRECOMPILE})
+        target_precompile_headers(AudioGraphTest PRIVATE ../pch/WindowsAPI.hpp ../pch/QtCore.hpp)
+    endif()
     target_link_libraries(AudioGraphTest PRIVATE
                           ade
                           Qt6::Core
@@ -97,7 +99,9 @@ if(LINUX)
                    common/SineWaveGenerator.hpp
                    ALSATest/main.cpp
     )
-    target_precompile_headers(ALSATest PRIVATE ../pch/LinuxAPI.hpp ../pch/QtCore.hpp)
+    if(${ENABLE_PRECOMPILE})
+        target_precompile_headers(ALSATest PRIVATE ../pch/LinuxAPI.hpp ../pch/QtCore.hpp)
+    endif()
     target_link_libraries(ALSATest PRIVATE
                           ade
                           Qt6::Core

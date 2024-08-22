@@ -8,6 +8,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(ENABLE_PRECOMPILE "Enable precompile" ON)
+
 # Prerequisites and dependencies
 find_package(QT NAMES Qt6 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 find_package(Qt6 6.5 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
@@ -885,7 +887,9 @@ add_executable(VST3Test
                test/VST3Test/main.cpp
 )
 
-target_precompile_headers(YADAW PRIVATE src/pch.hpp)
+if(${ENABLE_PRECOMPILE})
+    target_precompile_headers(YADAW PRIVATE src/pch.hpp)
+endif()
 
 qt_add_qml_module(YADAW
                   URI "Main"
