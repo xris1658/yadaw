@@ -37,8 +37,8 @@ void RawMouseEventFilter::beginLockCursor(const QPoint& point)
     RECT rect;
     rect.left = point.x();
     rect.top = point.y();
-    rect.right = rect.left() + 1;
-    rect.bottom = rect.top() + 1;
+    rect.right = rect.left + 1;
+    rect.bottom = rect.top + 1;
     ClipCursor(&rect);
 #endif
 }
