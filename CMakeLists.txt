@@ -440,6 +440,7 @@ set(YADAW_COMMON_SOURCES
     src/ui/Runtime.hpp
     src/ui/UI.cpp
     src/ui/UI.hpp
+    src/ui/WindowAndId.hpp
     src/ui/WindowAndConnection.hpp
     src/util/ADEUtil.cpp
     src/util/ADEUtil.hpp
