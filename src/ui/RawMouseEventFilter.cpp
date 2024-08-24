@@ -33,12 +33,12 @@ void RawMouseEventFilter::endHideCursor()
 
 void RawMouseEventFilter::beginLockCursor(const QPoint& point)
 {
+ #if _WIN32
     RECT rect;
     rect.left = point.x();
     rect.top = point.y();
     rect.right = rect.left() + 1;
     rect.bottom = rect.top() + 1;
-#if _WIN32
     ClipCursor(&rect);
 #endif
 }

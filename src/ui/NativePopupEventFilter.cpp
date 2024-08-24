@@ -1,6 +1,7 @@
 #include "NativePopupEventFilter.hpp"
 
 #include <QCoreApplication>
+#include <QGuiApplication>
 #include <QKeyEvent>
 #include <QQuickWindow>
 
@@ -216,6 +217,10 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
     return false;
 }
 
+#if 0
+#define PRINT_NATIVE_EVENTS
+#endif
+
 bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result)
 {
 #if _WIN32
@@ -260,10 +265,11 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
         auto responseType = event->response_type & 0x7F;
         auto it = events.find(responseType);
         const char* eventTypeText = it != events.end()? it->second: "Unknown";
-        // qDebug("%" PRIu32", %" PRIu8": %s", event->full_sequence, responseType, eventTypeText);
+#ifdef PRINT_NATIVE_EVENTS
+        qDebug("%" PRIu32", %" PRIu8": %s", event->full_sequence, responseType, eventTypeText);
+#endif
         if(responseType == XCB_CLIENT_MESSAGE)
         {
-            qDebug("%" PRIu32", %" PRIu8": %s", event->full_sequence, responseType, eventTypeText);
             auto clientMessageEvent = reinterpret_cast<xcb_client_message_event_t*>(event);
             auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
             auto connection = x11Interface->connection();
@@ -276,7 +282,9 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
                 std::vector<char> name(xcb_get_atom_name_name_length(reply) + 1);
                 name[name.size() - 1] = 0;
                 std::memcpy(name.data(), xcb_get_atom_name_name(reply), name.size() - 1);
+#ifdef PRINT_NATIVE_EVENTS
                 std::fprintf(stderr, "Atom: 0x%" PRIX32" (%s)\n", clientMessageEvent->type, name.data());
+#endif
                 if(std::strcmp(name.data(), "WM_PROTOCOLS") == 0)
                 {
                     getAtomNameCookie = xcb_get_atom_name(connection, clientMessageEvent->data.data32[0]);
@@ -286,7 +294,9 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
                         name.resize(xcb_get_atom_name_name_length(reply) + 1);
                         name[name.size() - 1] = 0;
                         std::memcpy(name.data(), xcb_get_atom_name_name(reply), name.size() - 1);
+#ifdef PRINT_NATIVE_EVENTS
                         std::fprintf(stderr, "Client message atom: 0x%" PRIX32" (%s)\n", clientMessageEvent->data.data32[0], name.data());
+#endif
                         if(std::strcmp(name.data(), "WM_TAKE_FOCUS") == 0)
                         {
                             for(auto& [nativePopup, winId]: nativePopups_)
@@ -300,17 +310,22 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
                             }
                         }
                     }
+#ifdef PRINT_NATIVE_EVENTS
                     else
                     {
                         std::fprintf(stderr, "Client message atom: 0x%" PRIX32"\n", clientMessageEvent->data.data32[0]);
                     }
+#endif
                 }
             }
+#ifdef PRINT_NATIVE_EVENTS
             else
             {
                 std::fprintf(stderr, "Atom: 0x%" PRIX32"\n", clientMessageEvent->type);
             }
+#endif
             auto& clientMessageData = clientMessageEvent->data;
+#ifdef PRINT_NATIVE_EVENTS
             const char c[2] = {' ', '\n'};
             std::fprintf(stderr, "    Data: ");
             switch(clientMessageEvent->format)
@@ -349,6 +364,7 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
                 break;
             }
             }
+#endif
         }
     }
 #endif
