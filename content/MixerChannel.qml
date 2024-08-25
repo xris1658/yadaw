@@ -29,6 +29,7 @@ Rectangle {
     property bool showInsertSlot: true
     property bool showSendSlot: true
     property bool showFader: true
+    property alias mute: muteButton.checked
     property alias decibelValue: volumeFader.decibelValue
 
     property Window audioIOSelectorWindow: null
@@ -605,9 +606,6 @@ Rectangle {
                                     hovered?
                                         Colors.mouseOverControlBackground:
                                         Colors.controlBackground
-                        onClicked: {
-                            mclm_mute = muteButton.checked;
-                        }
                     }
                     Button {
                         id: soloButton

@@ -97,6 +97,21 @@ Rectangle {
                     scale: parent.width / originalWidth
                 }
             }
+            Button {
+                id: unmuteAllButton
+                checkable: true
+                enabled: inputModel.hasMute || outputModel.hasMute || channelsModel.hasMute
+                checked: enabled
+                border.width: 0
+                width: 16
+                height: 16
+                text: "M"
+                onClicked: {
+                    inputModel.unmuteAll();
+                    outputModel.unmuteAll();
+                    channelsModel.unmuteAll();
+                }
+            }
         }
         Column {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -166,6 +181,10 @@ Rectangle {
                 audioIOSelectorWindow: root.audioIOSelectorWindow
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
+                mute: mclm_mute
+                onMuteChanged: {
+                    mclm_mute = mute;
+                }
             }
             Rectangle {
                 id: inputMixerChannelBorder
@@ -229,6 +248,10 @@ Rectangle {
                 audioIOSelectorWindow: root.audioIOSelectorWindow
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
+                mute: mclm_mute
+                onMuteChanged: {
+                    mclm_mute = mute;
+                }
                 onInstrumentBypassedChanged: {
                     mclm_instrument_bypassed = instrumentBypassed;
                 }
@@ -347,6 +370,10 @@ Rectangle {
                 audioIOSelectorWindow: root.audioIOSelectorWindow
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
+                mute: mclm_mute
+                onMuteChanged: {
+                    mclm_mute = mute;
+                }
             }
         }
         Rectangle {
