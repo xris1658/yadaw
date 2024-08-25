@@ -142,6 +142,13 @@ public:
     std::optional<std::uint32_t> getInputIndexOfId(IDGen::ID id) const;
     std::optional<std::uint32_t> getOutputIndexOfId(IDGen::ID id) const;
     std::optional<std::uint32_t> getIndexOfId(IDGen::ID id) const;
+    bool hasMuteInAudioInputChannels() const;
+    bool hasMuteInRegularChannels() const;
+    bool hasMuteInAudioOutputChannels() const;
+    void unmuteAudioInputChannels();
+    void unmuteRegularChannels();
+    void unmuteAudioOutputChannels();
+    void unmuteAllChannels();
 public:
     bool appendAudioInputChannel(
         const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);

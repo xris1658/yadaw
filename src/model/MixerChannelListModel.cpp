@@ -195,6 +195,24 @@ GetMuteAt getMuteAt[3] = {
     static_cast<GetMuteAt>(&YADAW::Audio::Mixer::Mixer::audioOutputMuteAt)
 };
 
+using HasMute =
+    decltype(&YADAW::Audio::Mixer::Mixer::hasMuteInRegularChannels);
+
+HasMute hasMuteFunc[3] = {
+    &YADAW::Audio::Mixer::Mixer::hasMuteInAudioInputChannels,
+    &YADAW::Audio::Mixer::Mixer::hasMuteInRegularChannels,
+    &YADAW::Audio::Mixer::Mixer::hasMuteInAudioOutputChannels
+};
+
+using UnmuteAll =
+    decltype(&YADAW::Audio::Mixer::Mixer::unmuteRegularChannels);
+
+UnmuteAll unmuteAllFunc[3] = {
+    &YADAW::Audio::Mixer::Mixer::unmuteAudioInputChannels,
+    &YADAW::Audio::Mixer::Mixer::unmuteRegularChannels,
+    &YADAW::Audio::Mixer::Mixer::unmuteAudioOutputChannels
+};
+
 IMixerChannelListModel::ChannelTypes getChannelType(YADAW::Audio::Mixer::Mixer::ChannelType type)
 {
     return static_cast<IMixerChannelListModel::ChannelTypes>(YADAW::Util::underlyingValue(type));
@@ -737,6 +755,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
             auto& mute = (mixer_.*getMuteAt[listType_])(row)->get();
             mute.setMute(value.value<bool>());
             dataChanged(this->index(row), this->index(row), {Role::Mute});
+            hasMuteChanged();
             return true;
         }
         case Role::Monitor:
@@ -1438,6 +1457,18 @@ int MixerChannelListModel::getIndexOfId(const QString& id) const
         }
     }
     return -1;
+}
+
+bool MixerChannelListModel::hasMute() const
+{
+    return (mixer_.*hasMuteFunc[listType_])();
+}
+
+void MixerChannelListModel::unmuteAll()
+{
+    (mixer_.*unmuteAllFunc[listType_])();
+    dataChanged(index(0), index(itemCount() - 1), {Role::Mute});
+    hasMuteChanged();
 }
 
 bool MixerChannelListModel::isComparable(int roleIndex) const

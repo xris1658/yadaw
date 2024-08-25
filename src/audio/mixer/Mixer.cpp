@@ -816,6 +816,70 @@ std::optional<std::uint32_t> Mixer::getIndexOfId(IDGen::ID id) const
     return std::nullopt;
 }
 
+bool Mixer::hasMuteInAudioInputChannels() const
+{
+    auto range = YADAW::Util::IntegerRange(audioInputChannelCount());
+    return std::any_of(
+        range.begin(), range.end(),
+        [this](std::uint32_t index)
+        {
+            return audioInputMutes_[index].first->getMute();
+        }
+    );
+}
+
+bool Mixer::hasMuteInRegularChannels() const
+{
+    auto range = YADAW::Util::IntegerRange(channelCount());
+    return std::any_of(
+        range.begin(), range.end(),
+        [this](std::uint32_t index)
+        {
+            return mutes_[index].first->getMute();
+        }
+    );
+}
+
+bool Mixer::hasMuteInAudioOutputChannels() const
+{
+    auto range = YADAW::Util::IntegerRange(audioOutputChannelCount());
+    return std::any_of(
+        range.begin(), range.end(),
+        [this](std::uint32_t index)
+        {
+            return audioOutputMutes_[index].first->getMute();
+        }
+    );
+}
+
+void Mixer::unmuteAudioInputChannels()
+{
+    FOR_RANGE0(i, audioInputChannelCount())
+    {
+        audioInputMutes_[i].first->setMute(false);
+    }
+}
+
+void Mixer::unmuteRegularChannels()
+{
+    FOR_RANGE0(i, channelCount())
+    {
+        mutes_[i].first->setMute(false);
+    }
+}
+
+void Mixer::unmuteAudioOutputChannels()
+{
+    FOR_RANGE0(i, audioOutputChannelCount())
+    {
+        audioOutputMutes_[i].first->setMute(false);
+    }
+}
+
+void Mixer::unmuteAllChannels()
+{
+}
+
 bool Mixer::appendAudioInputChannel(
     const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex)
 {

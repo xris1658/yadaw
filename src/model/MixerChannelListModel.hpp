@@ -51,6 +51,8 @@ public:
     bool setInstrument(int position, int pluginId) override;
     bool removeInstrument(int position) override;
     int getIndexOfId(const QString& id) const override;
+    bool hasMute() const override;
+    void unmuteAll() override;
 public:
     bool isComparable(int roleIndex) const override;
     bool isFilterable(int roleIndex) const override;

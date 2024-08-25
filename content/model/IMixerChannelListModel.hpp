@@ -11,6 +11,7 @@ namespace YADAW::Model
 class IMixerChannelListModel: public ISortFilterListModel
 {
     Q_OBJECT
+    Q_PROPERTY(bool hasMute READ hasMute NOTIFY hasMuteChanged)
 public:
     enum ChannelTypes
     {
@@ -94,6 +95,10 @@ public:
     Q_INVOKABLE virtual bool setInstrument(int position, int pluginId) = 0;
     Q_INVOKABLE virtual bool removeInstrument(int position) = 0;
     Q_INVOKABLE virtual int getIndexOfId(const QString& id) const = 0;
+    Q_INVOKABLE virtual bool hasMute() const = 0;
+    Q_INVOKABLE virtual void unmuteAll() = 0;
+signals:
+    void hasMuteChanged();
 protected:
     RoleNames roleNames() const override
     {
