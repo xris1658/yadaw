@@ -4,8 +4,6 @@
 #include "audio/device/IAudioDevice.hpp"
 #include "util/Concepts.hpp"
 
-#include <concepts>
-
 namespace YADAW::Audio::Engine
 {
 using YADAW::Audio::Device::AudioProcessData;
