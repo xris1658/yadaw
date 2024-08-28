@@ -72,6 +72,8 @@ set(WIN32_NATIVE_SOURCES
     # https://cmake.org/cmake/help/v3.4/release/3.4.html#other
     rc/YADAW.exe.manifest
     src/audio/backend/AudioGraphBackend.hpp
+    src/audio/backend/AudioGraphBusConfiguration.cpp
+    src/audio/backend/AudioGraphBusConfiguration.hpp
     src/audio/backend/WASAPIExclusiveBackend.hpp
     src/controller/AudioGraphBackendController.cpp
     src/controller/AudioGraphBackendController.hpp
@@ -146,9 +148,6 @@ set(YADAW_COMMON_SOURCES
     src/audio/backend/ALSAErrorText.hpp
     src/audio/backend/AudioBackendBase.hpp
     src/audio/backend/AudioBackendSupport.hpp
-    src/audio/backend/AudioGraphBackend.hpp
-    src/audio/backend/AudioGraphBusConfiguration.cpp
-    src/audio/backend/AudioGraphBusConfiguration.hpp
     src/audio/backend/AudioGraphErrorText.cpp
     src/audio/backend/AudioGraphErrorText.hpp
     src/audio/base/Automation.cpp
