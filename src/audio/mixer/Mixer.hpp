@@ -16,8 +16,39 @@
 
 #include <QColor>
 
+#include <concepts>
+
+#include "Mixer.hpp"
+
 namespace YADAW::Audio::Mixer
 {
+class Mixer;
+
+namespace Impl
+{
+void blankNodeAddedCallback(const Mixer&);
+void blankNodeRemovedCallback(const Mixer&);
+void blankConnectionUpdatedCallback(const Mixer&);
+}
+
+template<typename Factory, typename Device>
+concept DeviceFactory = requires
+(
+    Factory factory,
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    std::uint32_t channelCountInGroup)
+{
+    { factory(channelGroupType, channelCountInGroup) }
+    -> std::same_as<std::unique_ptr<Device>>;
+}
+&& std::derived_from<Device, YADAW::Audio::Device::IAudioDevice>;
+
+template<typename Device>
+using DeviceFactoryType = std::unique_ptr<Device>(
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    std::uint32_t channelCountInGroup
+);
+
 // Struct of a channel:
 // +------------+   +-------------------+   +------+   +-------+   +--------------------+   +-------+   +-------------+
 // | Input Node |-->| Pre-Fader Inserts |-->| Mute |-->| Fader |-->| Post-Fader Inserts |-->| Meter |-->| Output Node |
@@ -79,8 +110,31 @@ public:
     using NodeAddedCallback = void(const Mixer&);
     using NodeRemovedCallback = void(const Mixer&);
     using ConnectionUpdatedCallback = void(const Mixer&);
+    // using VolumeFaderFactoryCallback = std::unique_ptr<VolumeFader>(
+    //     YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    //     std::uint32_t channelCountInGroup
+    // );
+    // using MeterFactoryCallback = std::unique_ptr<Meter>(
+    //     YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    //     std::uint32_t channelCountInGroup
+    // );
 public:
-    Mixer();
+    template<
+        DeviceFactory<VolumeFader> VolumeFaderFactory,
+        DeviceFactory<Meter> MeterFactory
+    >
+    Mixer(
+        VolumeFaderFactory&& volumeFaderFactory,
+        MeterFactory&& meterFactory):
+        graph_(),
+        graphWithPDC_(graph_),
+        nodeAddedCallback_(&Impl::blankNodeAddedCallback),
+        nodeRemovedCallback_(&Impl::blankNodeRemovedCallback),
+        connectionUpdatedCallback_(&Impl::blankConnectionUpdatedCallback),
+        volumeFaderFactory_(std::move(volumeFaderFactory)),
+        meterFactory_(std::move(meterFactory))
+    {
+    }
 public:
     const YADAW::Audio::Engine::AudioDeviceGraphWithPDC& graph() const;
     YADAW::Audio::Engine::AudioDeviceGraphWithPDC& graph();
@@ -275,6 +329,8 @@ private:
     NodeAddedCallback* nodeAddedCallback_;
     NodeRemovedCallback* nodeRemovedCallback_;
     ConnectionUpdatedCallback* connectionUpdatedCallback_;
+    std::function<DeviceFactoryType<VolumeFader>> volumeFaderFactory_;
+    std::function<DeviceFactoryType<Meter>> meterFactory_;
 };
 }
 

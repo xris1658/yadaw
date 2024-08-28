@@ -5,17 +5,12 @@
 
 namespace YADAW::Audio::Mixer
 {
+namespace Impl
+{
 void blankNodeAddedCallback(const Mixer&) {}
 void blankNodeRemovedCallback(const Mixer&) {}
 void blankConnectionUpdatedCallback(const Mixer&) {}
-
-Mixer::Mixer():
-    graph_(),
-    graphWithPDC_(graph_),
-    nodeAddedCallback_(&blankNodeAddedCallback),
-    nodeRemovedCallback_(&blankNodeRemovedCallback),
-    connectionUpdatedCallback_(&blankConnectionUpdatedCallback)
-{}
+}
 
 const YADAW::Audio::Engine::AudioDeviceGraphWithPDC& Mixer::graph() const
 {
@@ -910,15 +905,11 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
             *it, position
         );
         const auto& channelGroup = device->audioOutputGroupAt(channelGroupIndex)->get();
-        auto meter = std::make_unique<YADAW::Audio::Mixer::Meter>(
-            8192, channelGroup.type(), channelGroup.channelCount()
-        );
+        auto meter = meterFactory_(channelGroup.type(), channelGroup.channelCount());
         auto meterNode = graph_.addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(*meter)
         );
-        auto fader = std::make_unique<YADAW::Audio::Mixer::VolumeFader>(
-            channelGroup.type(), channelGroup.channelCount()
-        );
+        auto fader = volumeFaderFactory_(channelGroup.type(), channelGroup.channelCount());
         auto faderNode = graph_.addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(*fader)
         );
@@ -953,6 +944,7 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
             audioInputMeters_.begin() + position,
             std::move(meter), meterNode
         );
+        nodeRemovedCallback_(*this);
         auto& info = *audioInputChannelInfo_.emplace(audioInputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
         return true;
@@ -1078,15 +1070,11 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
         auto summingNode = graphWithPDC_.addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(*summing)
         );
-        auto meter = std::make_unique<YADAW::Audio::Mixer::Meter>(
-            8192, channelGroup.type(), channelGroup.channelCount()
-        );
+        auto meter = meterFactory_(channelGroup.type(), channelGroup.channelCount());
         auto meterNode = graph_.addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(*meter)
         );
-        auto fader = std::make_unique<YADAW::Audio::Mixer::VolumeFader>(
-            channelGroup.type(), channelGroup.channelCount()
-        );
+        auto fader = volumeFaderFactory_(channelGroup.type(), channelGroup.channelCount());
         auto faderNode = graph_.addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(*fader)
         );
@@ -1126,6 +1114,7 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
             audioOutputMeters_.begin() + position,
             std::move(meter), meterNode
         );
+        nodeAddedCallback_(*this);
         auto& info = *audioOutputChannelInfo_.emplace(audioOutputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
         return true;
@@ -1242,10 +1231,8 @@ bool Mixer::insertChannels(
         fadersAndNode.reserve(count);
         FOR_RANGE0(i, count)
         {
-            auto& faderAndNode = fadersAndNode.emplace_back(
-                std::make_unique<YADAW::Audio::Mixer::VolumeFader>(
-                    channelGroupType, channelCountInGroup
-                ),
+            auto& faderAndNode =  fadersAndNode.emplace_back(
+                volumeFaderFactory_(channelGroupType, channelCountInGroup),
                 ade::NodeHandle()
             );
             faderAndNode.second = graph_.addNode(
@@ -1259,9 +1246,7 @@ bool Mixer::insertChannels(
         FOR_RANGE0(i, count)
         {
             auto& meterAndNode = metersAndNode.emplace_back(
-                std::make_unique<YADAW::Audio::Mixer::Meter>(
-                    8192, channelGroupType, channelCountInGroup
-                ),
+                meterFactory_(channelGroupType, channelCountInGroup),
                 ade::NodeHandle()
             );
             meterAndNode.second = graph_.addNode(
@@ -1488,6 +1473,7 @@ bool Mixer::insertChannels(
                 .id = IDGen::InvalidId
             }
         );
+        nodeAddedCallback_(*this);
     }
     return ret;
 }
@@ -1619,17 +1605,17 @@ void Mixer::setConnectionUpdatedCallback(
 
 void Mixer::resetNodeAddedCallback()
 {
-    nodeAddedCallback_ = &blankNodeAddedCallback;
+    nodeAddedCallback_ = &Impl::blankNodeAddedCallback;
 }
 
 void Mixer::resetNodeRemovedCallback()
 {
-    nodeRemovedCallback_ = &blankNodeRemovedCallback;
+    nodeRemovedCallback_ = &Impl::blankNodeRemovedCallback;
 }
 
 void Mixer::resetConnectionUpdatedCallback()
 {
-    connectionUpdatedCallback_ = &blankConnectionUpdatedCallback;
+    connectionUpdatedCallback_ = &Impl::blankConnectionUpdatedCallback;
 }
 
 std::optional<ade::EdgeHandle> Mixer::addConnection(

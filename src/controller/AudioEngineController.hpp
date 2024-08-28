@@ -63,6 +63,15 @@ public:
     static void insertsNodeRemovedCallback(const YADAW::Audio::Mixer::Inserts& inserts);
     static void insertsConnectionUpdatedCallback(const YADAW::Audio::Mixer::Inserts& inserts);
 private:
+    std::unique_ptr<YADAW::Audio::Mixer::VolumeFader> createVolumeFader(
+        YADAW::Audio::Base::ChannelGroupType channelGroupType,
+        std::uint32_t channelCountInGroup = 0
+    );
+    std::unique_ptr<YADAW::Audio::Mixer::Meter> createMeter(
+        YADAW::Audio::Base::ChannelGroupType channelGroupType,
+        std::uint32_t channelCountInGroup = 0
+    );
+private:
     double sampleRate_ = 0.0;
     std::uint32_t bufferSize_ = 0U;
     bool running_ = false;

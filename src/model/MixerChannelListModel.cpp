@@ -239,9 +239,6 @@ MixerChannelListModel::MixerChannelListModel(
                 0
             )
         );
-        (mixer_.*getFader[listType_])(i)->get().initialize(
-            audioEngine.sampleRate(), audioEngine.bufferSize()
-        );
     }
 }
 
@@ -975,11 +972,6 @@ bool MixerChannelListModel::insert(int position, int count,
             count, false
         );
         auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
-        FOR_RANGE(i, position, position + count)
-        {
-            (mixer_.*getFader[listType_])(i)->get().initialize(audioEngine.sampleRate(), audioEngine.bufferSize());
-        }
-        audioEngine.mixerNodeAddedCallback(mixer_);
     }
     return ret;
 }

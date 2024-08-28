@@ -10,6 +10,20 @@
 namespace YADAW::Controller
 {
 AudioEngine::AudioEngine():
+    mixer_(
+        [this](
+            YADAW::Audio::Base::ChannelGroupType channelGroupType,
+            std::uint32_t channelCountInGroup = 0)
+        {
+            return createVolumeFader(channelGroupType, channelCountInGroup);
+        },
+        [this](
+            YADAW::Audio::Base::ChannelGroupType channelGroupType,
+            std::uint32_t channelCountInGroup = 0)
+        {
+            return createMeter(channelGroupType, channelCountInGroup);
+        }
+    ),
     processSequence_(std::make_unique<YADAW::Audio::Engine::ProcessSequence>()),
     vst3PluginPool_(std::make_unique<YADAW::Controller::VST3PluginPoolVector>()),
     clapPluginPool_(std::make_unique<YADAW::Controller::CLAPPluginPoolVector>()),
@@ -183,35 +197,30 @@ void AudioEngine::mixerNodeAddedCallback(const Audio::Mixer::Mixer& mixer)
 
 void AudioEngine::mixerNodeRemovedCallback(const Audio::Mixer::Mixer& mixer)
 {
-
     auto& instance = AudioEngine::appAudioEngine();
     instance.updateProcessSequence();
 }
 
 void AudioEngine::mixerConnectionUpdatedCallback(const Audio::Mixer::Mixer& mixer)
 {
-
     auto& instance = AudioEngine::appAudioEngine();
     instance.updateProcessSequence();
 }
 
 void AudioEngine::insertsNodeAddedCallback(const Audio::Mixer::Inserts& inserts)
 {
-
     auto& instance = AudioEngine::appAudioEngine();
     instance.updateProcessSequence();
 }
 
 void AudioEngine::insertsNodeRemovedCallback(const Audio::Mixer::Inserts& inserts)
 {
-
     auto& instance = AudioEngine::appAudioEngine();
     instance.updateProcessSequence();
 }
 
 void AudioEngine::insertsConnectionUpdatedCallback(const Audio::Mixer::Inserts& inserts)
 {
-
     auto& instance = AudioEngine::appAudioEngine();
     instance.updateProcessSequence();
 }
@@ -260,5 +269,23 @@ bool AudioEngine::running() const
 void AudioEngine::setRunning(bool running)
 {
     running_ = running;
+}
+
+std::unique_ptr<YADAW::Audio::Mixer::VolumeFader> AudioEngine::createVolumeFader(
+    YADAW::Audio::Base::ChannelGroupType channelGroupType,
+    std::uint32_t channelCountInGroup
+)
+{
+    auto ret = std::make_unique<YADAW::Audio::Mixer::VolumeFader>(channelGroupType, channelCountInGroup);
+    ret->initialize(sampleRate_, bufferSize_);
+    return ret;
+}
+
+std::unique_ptr<YADAW::Audio::Mixer::Meter> AudioEngine::createMeter(
+    YADAW::Audio::Base::ChannelGroupType channelGroupType, std::uint32_t channelCountInGroup)
+{
+    return std::make_unique<YADAW::Audio::Mixer::Meter>(
+        8192, channelGroupType, channelCountInGroup
+    );
 }
 }
