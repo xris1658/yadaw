@@ -456,6 +456,7 @@ set(YADAW_COMMON_SOURCES
     src/util/ButlerThread.hpp
     src/util/CircularDeque.hpp
     src/util/CompilerSpecifics.hpp
+    src/util/Concepts.hpp
     src/util/Constants.hpp
     src/util/Endian.hpp
     src/util/FibonacciIterator.hpp

@@ -5,23 +5,20 @@
 #include "audio/host/VST3ParameterValueQueue.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "native/Library.hpp"
+#include "util/Concepts.hpp"
 
 #include <pluginterfaces/base/funknown.h>
 #include <pluginterfaces/base/ipluginbase.h>
 
-#include <type_traits>
-
-template<typename To>
+template<DerivedTo<Steinberg::FUnknown> To>
 inline Steinberg::tresult queryInterface(Steinberg::FUnknown* from, To** to)
 {
-    static_assert(std::is_base_of_v<Steinberg::FUnknown, To>);
     return from->queryInterface(To::iid, reinterpret_cast<void**>(to));
 }
 
-template<typename T>
+template<DerivedTo<Steinberg::FUnknown> T>
 inline void releasePointer(T*& pointer)
 {
-    static_assert(std::is_base_of_v<Steinberg::FUnknown, T>);
     if(pointer)
     {
         pointer->release();

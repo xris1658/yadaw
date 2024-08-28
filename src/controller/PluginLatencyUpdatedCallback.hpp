@@ -2,8 +2,7 @@
 #define YADAW_SRC_CONTROLLER_PLUGINLATENCYUPDATEDCALLBACK
 
 #include "audio/plugin/IAudioPlugin.hpp"
-
-#include <type_traits>
+#include "util/Concepts.hpp"
 
 namespace YADAW::Controller
 {
@@ -12,15 +11,9 @@ namespace Impl
 void latencyUpdated(YADAW::Audio::Plugin::IAudioPlugin& plugin);
 }
 
-template<typename Plugin>
+template<DerivedTo<YADAW::Audio::Plugin::IAudioPlugin> Plugin>
 void latencyUpdated(Plugin& plugin)
 {
-    static_assert(
-        std::is_base_of_v<
-            YADAW::Audio::Plugin::IAudioPlugin,
-            Plugin
-        >
-    );
     Impl::latencyUpdated(
         static_cast<YADAW::Audio::Plugin::IAudioPlugin&>(plugin)
     );

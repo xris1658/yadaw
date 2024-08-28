@@ -2,10 +2,9 @@
 #define YADAW_SRC_AUDIO_ENGINE_AUDIODEVICEPROCESS
 
 #include "audio/device/IAudioDevice.hpp"
+#include "util/Concepts.hpp"
 
-#include <type_traits>
-
-#define DECLVAL_FUNCTION(class_name, function_name, data_type) std::declval<class_name>().function_name(std::declval<data_type>())
+#include <concepts>
 
 namespace YADAW::Audio::Engine
 {
@@ -14,20 +13,11 @@ using YADAW::Audio::Device::AudioProcessData;
 // A not-owning version of `std::function`
 class AudioDeviceProcess
 {
-private: // Expression SFINAE
-    template<typename T, typename U = void>
-    struct HasProcessMethodHelper: std::false_type {};
-    template<typename T>
-    struct HasProcessMethodHelper<T,
-        std::void_t<decltype(DECLVAL_FUNCTION(T, process, const AudioProcessData<float>&))>
-    >: std::true_type {};
-    template<typename T>
-    static constexpr bool hasProcess = HasProcessMethodHelper<T>::value;
 public:
-    template<typename T>
-    explicit AudioDeviceProcess(T& audioDevice):
-        audioDevice_(static_cast<YADAW::Audio::Device::IAudioDevice*>(&audioDevice)),
-        func_(&doProcess<T>)
+    template<DerivedTo<YADAW::Audio::Device::IAudioDevice> Device>
+    explicit AudioDeviceProcess(Device& device):
+        audioDevice_(static_cast<YADAW::Audio::Device::IAudioDevice*>(&device)),
+        func_(&doProcess<Device>)
     {}
     AudioDeviceProcess(const AudioDeviceProcess& rhs) = default;
     AudioDeviceProcess(AudioDeviceProcess&& rhs) = default;
@@ -35,12 +25,11 @@ public:
     AudioDeviceProcess& operator=(AudioDeviceProcess&& rhs) = default;
     ~AudioDeviceProcess() = default;
 private:
-    template<typename T>
+    template<DerivedTo<YADAW::Audio::Device::IAudioDevice> Device>
     static void doProcess(YADAW::Audio::Device::IAudioDevice* ptr,
         const AudioProcessData<float>& audioProcessData)
     {
-        static_assert(hasProcess<T>);
-        static_cast<T*>(ptr)->process(audioProcessData);
+        static_cast<Device*>(ptr)->process(audioProcessData);
     }
 public:
     const YADAW::Audio::Device::IAudioDevice* device() const
