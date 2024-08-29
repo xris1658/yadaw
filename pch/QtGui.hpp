@@ -5,6 +5,8 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QGuiApplication>
+#include <QKeyEvent>
+#include <QMouseEvent>
 #include <QWindow>
 
 #endif // YADAW_PCH_QTGUI

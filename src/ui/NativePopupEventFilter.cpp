@@ -1,8 +1,6 @@
 #include "NativePopupEventFilter.hpp"
 
-#include <QCoreApplication>
-#include <QGuiApplication>
-#include <QKeyEvent>
+#include <QMouseEvent>
 #include <QQuickWindow>
 
 #include "util/IntegerRange.hpp"
@@ -172,7 +170,7 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
     if(watched == parentWindow_.window)
     {
         auto type = event->type();
-        // We don't need to handle mouse move eventsmanually.
+        // We don't need to handle mouse move events manually.
         if(type == QEvent::Type::MouseButtonPress
             || type == QEvent::Type::MouseButtonRelease
             || type == QEvent::Type::MouseButtonDblClick)

@@ -44,6 +44,7 @@ void loadAudioBusConfiguration(const YAML::Node& node,
                 if(std::strcmp(channelConfigNames[i], channelConfigName.c_str()) == 0)
                 {
                     channelGroupType = static_cast<YADAW::Audio::Base::ChannelGroupType>(i - 2);
+                    break;
                 }
             }
             if(channelGroupType != YADAW::Audio::Base::ChannelGroupType::eInvalid)

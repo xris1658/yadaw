@@ -1,5 +1,7 @@
 #include "RawMouseEventFilter.hpp"
 
+#include <QMouseEvent>
+
 #if _WIN32
 #include <Windows.h>
 #endif

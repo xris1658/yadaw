@@ -5,6 +5,7 @@
 #include <QtGlobal>
 #include <QAbstractItemModel>
 #include <QAbstractListModel>
+#include <QAbstractNativeEventFilter>
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QDir>
@@ -13,6 +14,7 @@
 #include <QFileInfo>
 #include <QHash>
 #include <QLatin1StringView>
+#include <QLibraryInfo>
 #include <QList>
 #include <QMetaObject>
 #include <QObject>
@@ -23,5 +25,6 @@
 #include <QTimer>
 #include <QTranslator>
 #include <QUrl>
+#include <QVariant>
 
 #endif // YADAW_PCH_QTCORE

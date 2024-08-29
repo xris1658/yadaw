@@ -33,19 +33,13 @@ YADAW::Native::ErrorCodeType activateDefaultDevice(
 {
     YADAW::Native::ErrorCodeType ret = ERROR_SUCCESS;
     auto outputIndex = backend.defaultAudioOutputDeviceIndex();
-    if(outputIndex != -1)
+    ret = backend.createAudioGraph(
+        backend.audioOutputDeviceAt(outputIndex).id
+    );
+    if(ret == ERROR_SUCCESS)
     {
-        ret = backend.createAudioGraph(
-            backend.audioOutputDeviceAt(outputIndex).id
-        );
-        if(ret == ERROR_SUCCESS)
-        {
-            auto inputIndex = backend.defaultAudioInputDeviceIndex();
-            if(inputIndex != -1)
-            {
-                ret = backend.activateDeviceInput(inputIndex, true);
-            }
-        }
+        auto inputIndex = backend.defaultAudioInputDeviceIndex();
+        ret = backend.activateDeviceInput(inputIndex, true);
     }
     return ret;
 }
@@ -58,15 +52,8 @@ YADAW::Native::ErrorCodeType createAudioGraphFromConfig(const YAML::Node& node)
     if(const auto& defaultOutputIdNode = node["default-output-id"];
         !defaultOutputIdNode.IsDefined())
     {
-        if(const auto index = backend.defaultAudioOutputDeviceIndex();
-            index == -1)
-        {
-            ret = backend.createAudioGraph();
-        }
-        else
-        {
-            ret = backend.createAudioGraph(backend.audioOutputDeviceAt(index).id);
-        }
+        const auto index = backend.defaultAudioOutputDeviceIndex();
+        ret = backend.createAudioGraph(backend.audioOutputDeviceAt(index).id);
     }
     else
     {

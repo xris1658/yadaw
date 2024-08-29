@@ -181,7 +181,7 @@ void EventHandler::onOpenMainWindow()
     }
     const auto& currentOutputDeviceId = backend.currentOutputDevice().id;
     int currentOutputDeviceIndex = -1;
-    for(int i = 0; i < backend.audioOutputDeviceCount(); ++i)
+    FOR_RANGE0(i, backend.audioOutputDeviceCount())
     {
         if(backend.audioOutputDeviceAt(i).id == currentOutputDeviceId)
         {

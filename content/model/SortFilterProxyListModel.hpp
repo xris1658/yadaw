@@ -8,7 +8,6 @@
 #include <QAbstractListModel>
 #include <QMetaObject>
 #include <QList>
-#include <QQmlEngine>
 
 #include <array>
 
