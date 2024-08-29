@@ -221,6 +221,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/mixer/Meter.hpp
     src/audio/mixer/Mixer.cpp
     src/audio/mixer/Mixer.hpp
+    src/audio/mixer/PolarityInverter.cpp
+    src/audio/mixer/PolarityInverter.hpp
     src/audio/mixer/VolumeFader.cpp
     src/audio/mixer/VolumeFader.hpp
     src/audio/plugin/CLAPAudioChannelGroup.cpp
