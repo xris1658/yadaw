@@ -2,7 +2,7 @@
 
 #include "util/IntegerRange.hpp"
 
-#include <xmmintrin.h>
+#include <immintrin.h>
 
 namespace YADAW::Audio::Mixer
 {
@@ -50,7 +50,7 @@ void process(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
     std::uint64_t invert);
 
-float sign[2] = {1.0f, -1.0f};
+const float sign[2] = {1.0f, -1.0f};
 
 template<>
 void process<false>(
@@ -69,10 +69,20 @@ void process<false>(
     }
 }
 
+#ifdef _MSC_VER
 __m128 mul[2] = {
-    _mm_broadcast_ss(sign),
-    _mm_broadcast_ss(sign + 1),
+    __m128 {.m128_f32 = {1.0f, 1.0f, 1.0f, 1.0f}},
+    __m128 {.m128_f32 = {-1.0f, -1.0f, -1.0f, -1.0f}},
 };
+#else
+#ifdef __GNUC__
+__m128 mul[2] = {
+    __m128 {1.0f, 1.0f, 1.0f, 1.0f},
+    __m128 {-1.0f, -1.0f, -1.0f, -1.0f}
+};
+#endif
+#endif
+
 
 template<>
 void process<true>(
