@@ -179,10 +179,10 @@ void process<true>(
     double* valueSequence)
 {
     auto alignedValueSeq = reinterpret_cast<__m128d*>(valueSequence);
+    constexpr auto floatCount = sizeof(__m128) / sizeof(float);
+    auto alignCount = audioProcessData.singleBufferSize / floatCount;
     FOR_RANGE0(i, audioProcessData.outputCounts[0])
     {
-        constexpr auto floatCount = sizeof(__m128) / sizeof(float);
-        auto alignCount = audioProcessData.singleBufferSize / floatCount;
         auto input = audioProcessData.inputs[0][i];
         auto alignedInput = reinterpret_cast<__m128*>(input);
         auto output = audioProcessData.outputs[0][i];
@@ -193,7 +193,7 @@ void process<true>(
                 _mm_mul_ps(
                     alignedInput[j],
                     _mm_movelh_ps(                                // | 0.0 | 1.0 | 2.0 | 3.0 |
-                                                                  //    A     A
+                                                                  //    ^     ^
                                                                   //    |     |___________
                                                                   //    |___________      |
                                                                   //                |     |
