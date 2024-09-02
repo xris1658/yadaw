@@ -645,9 +645,9 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
             const auto& edgeData = graph.getEdgeData(edgeHandle);
             inputPoints.emplace_back(
                 Point {
-                    .fromChannelGroupIndex = edgeData.fromChannel,
-                    .toChannelGroupIndex = edgeData.toChannel,
-                    .node = edgeHandle->srcNode()
+                    edgeData.fromChannel,
+                    edgeData.toChannel,
+                    edgeHandle->srcNode()
                 }
             );
         }
@@ -659,9 +659,9 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
             const auto& edgeData = graph.getEdgeData(edgeHandle);
             outputPoints.emplace_back(
                 Point {
-                    .fromChannelGroupIndex = edgeData.fromChannel,
-                    .toChannelGroupIndex = edgeData.toChannel,
-                    .node = edgeHandle->dstNode()
+                    edgeData.fromChannel,
+                    edgeData.toChannel,
+                    edgeHandle->dstNode()
                 }
             );
         }

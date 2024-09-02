@@ -268,9 +268,9 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                             auto ref = input.audioBuffer_.CreateReference();
                             auto bufferData = ref.data();
                             inputAudioBuffer_[i] = AudioGraphBackend::InterleaveAudioBuffer {
-                                .data = bufferData,
-                                .channelCount = static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
-                                .frameCount = requiredSamples
+                                bufferData,
+                                static_cast<int>(input.frameOutputNode_.EncodingProperties().ChannelCount()),
+                                requiredSamples
                             };
                         }
                     }
@@ -285,9 +285,9 @@ void AudioGraphBackend::Impl::start(AudioGraphBackend::AudioCallbackType* callba
                     IMemoryBufferReference ref = buffer.CreateReference();
                     InterleaveAudioBuffer interleaveAudioBuffer
                     {
-                        .data = ref.data(),
-                        .channelCount = static_cast<int>(properties.ChannelCount()),
-                        .frameCount = requiredSamples
+                        ref.data(),
+                        static_cast<int>(properties.ChannelCount()),
+                        requiredSamples
                     };
                     std::memset(ref.data(), 0, ref.Capacity());
                     callback(inputAudioBuffer_.size(), inputAudioBuffer_.data(), 1, &interleaveAudioBuffer);

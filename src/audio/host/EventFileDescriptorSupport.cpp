@@ -126,8 +126,8 @@ bool EventFileDescriptorSupport::add(int fd, const Info& info)
             auto it = eventFDs_.emplace(fd, info).first;
             auto& vst3Info = std::get<Info::VST3Info>(it->second.data);
             epoll_event epollEvent {
-                .events = EPOLL_EVENTS::EPOLLIN,
-                .data = epoll_data_t{.ptr = &*it},
+                EPOLL_EVENTS::EPOLLIN,
+                epoll_data_t{&*it},
             };
             epoll_ctl(epollFD_, EPOLL_CTL_ADD, fd, &epollEvent);
             ret = true;
@@ -141,8 +141,8 @@ bool EventFileDescriptorSupport::add(int fd, const Info& info)
             auto it = eventFDs_.emplace(fd, info).first;
             auto& clapInfo = std::get<Info::CLAPInfo>(it->second.data);
             epoll_event epollEvent {
-                .events = eventFlagsFromCLAP(clapInfo.flags),
-                .data = epoll_data_t{.ptr = &*it},
+                eventFlagsFromCLAP(clapInfo.flags),
+                epoll_data_t{&*it},
             };
             epoll_ctl(epollFD_, EPOLL_CTL_ADD, fd, &epollEvent);
             ret = true;
@@ -187,8 +187,8 @@ bool EventFileDescriptorSupport::modifyCLAP(int fd, clap_posix_fd_flags_t flags)
             auto& clapInfo = std::get<Info::CLAPInfo>(info);
             clapInfo.flags = flags;
             epoll_event epollEvent {
-                .events = eventFlagsFromCLAP(clapInfo.flags),
-                .data = epoll_data_t{.ptr = &*it},
+                eventFlagsFromCLAP(clapInfo.flags),
+                epoll_data_t{&*it},
             };
             epoll_ctl(epollFD_, EPOLL_CTL_MOD, fd, &epollEvent);
         }

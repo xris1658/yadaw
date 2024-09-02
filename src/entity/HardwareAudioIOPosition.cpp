@@ -65,8 +65,8 @@ HardwareAudioIOPosition::operator Audio::Mixer::Mixer::Position() const
         YADAW::Model::MixerChannelListModel::Role::Id
     ).value<QString>();
     return YADAW::Audio::Mixer::Mixer::Position {
-        .type = YADAW::Audio::Mixer::Mixer::Position::AudioHardwareIOChannel,
-        .id = idAsString.toULongLong()
+        YADAW::Audio::Mixer::Mixer::Position::AudioHardwareIOChannel,
+        idAsString.toULongLong()
     };
 }
 }

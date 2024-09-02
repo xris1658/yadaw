@@ -322,9 +322,9 @@ WindowsVersion getWindowsVersion()
     versionInfo.dwOSVersionInfoSize = sizeof(versionInfo);
     GetVersionExW(&versionInfo);
     return WindowsVersion {
-        .majorVersion = versionInfo.dwMajorVersion,
-        .minorVersion = versionInfo.dwMinorVersion,
-        .buildVersion = versionInfo.dwBuildNumber
+        versionInfo.dwMajorVersion,
+        versionInfo.dwMinorVersion,
+        versionInfo.dwBuildNumber
     };
 }
 }

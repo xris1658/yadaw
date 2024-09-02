@@ -373,16 +373,16 @@ bool CLAPHost::doRegisterFD(int fd, clap_posix_fd_flags_t flags)
     return eventFDSupport.add(
         fd,
         YADAW::Audio::Host::EventFileDescriptorSupport::Info {
-            .format = YADAW::Audio::Plugin::IAudioPlugin::Format::CLAP,
-            .data = YADAW::Audio::Host::EventFileDescriptorSupport::Info::CLAPInfo {
-                .plugin = plugin_->plugin_,
-                .posixFDSupport = static_cast<const clap_plugin_posix_fd_support_t*>(
+            YADAW::Audio::Plugin::IAudioPlugin::Format::CLAP,
+            YADAW::Audio::Host::EventFileDescriptorSupport::Info::CLAPInfo {
+                plugin_->plugin_,
+                static_cast<const clap_plugin_posix_fd_support_t*>(
                     plugin_->plugin_->get_extension(
                         plugin_->plugin_,
                         CLAP_EXT_POSIX_FD_SUPPORT
                     )
                 ),
-                .flags = flags
+                flags
             }
         }
     );

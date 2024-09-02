@@ -1425,9 +1425,7 @@ bool Mixer::insertChannels(
         // info, etc.
         std::fill_n(
             std::inserter(channelInfo_, channelInfo_.begin() + position), count,
-            ChannelInfo {
-                .channelType = channelType
-            }
+            ChannelInfo {QString(), QColor(), channelType}
         );
         std::generate_n(
             std::inserter(channelId_, channelId_.begin() + position), count,
@@ -1460,18 +1458,12 @@ bool Mixer::insertChannels(
         std::fill_n(
             std::inserter(mainInput_, mainInput_.begin() + position), count,
             Position {
-                .type = Position::Invalid,
-                .channelGroupIndex = 0,
-                .id = IDGen::InvalidId
+                Position::Invalid, 0, IDGen::InvalidId
             }
         );
         std::fill_n(
             std::inserter(mainOutput_, mainOutput_.begin() + position), count,
-            Position {
-                .type = Position::Invalid,
-                .channelGroupIndex = 0,
-                .id = IDGen::InvalidId
-            }
+            Position {Position::Invalid, 0, IDGen::InvalidId}
         );
         nodeAddedCallback_(*this);
     }

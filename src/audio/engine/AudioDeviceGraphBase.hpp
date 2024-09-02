@@ -17,6 +17,13 @@
 
 namespace YADAW::Audio::Engine
 {
+// TODO: Improve API design
+// 1. Manage connections by channels instead of channel groups.
+//    This requires an updated latency calculation and compensation.
+//    In return, we get a more flexible signal routing.
+// 2. Return node data on removing nodes.
+//    Extending the lifetime of removed nodes makes it easier to synchronize
+//    audio and UI threads.
 class AudioDeviceGraphBase
 {
 public:

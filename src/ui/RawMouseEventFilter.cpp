@@ -62,10 +62,10 @@ void RawMouseEventFilter::beginHandlingRawMouseEvent()
         prevX_ = point.x;
         prevY_ = point.y;
         RAWINPUTDEVICE rawInputDevice {
-            .usUsagePage = 0x0001,
-            .usUsage = 0x0002,
-            .dwFlags = 0,
-            .hwndTarget = reinterpret_cast<HWND>(windowAndId_.winId)
+            0x0001,
+            0x0002,
+            0,
+            reinterpret_cast<HWND>(windowAndId_.winId)
         };
         RegisterRawInputDevices(&rawInputDevice, 1, sizeof(rawInputDevice));
         handlingRawMouseEvent_ = true;
@@ -79,10 +79,10 @@ void RawMouseEventFilter::endHandlingRawMouseEvent()
     {
 #if _WIN32
         RAWINPUTDEVICE rawInputDevice {
-            .usUsagePage = 0x0001,
-            .usUsage = 0x0002,
-            .dwFlags = RIDEV_REMOVE,
-            .hwndTarget = reinterpret_cast<HWND>(windowAndId_.winId)
+            0x0001,
+            0x0002,
+            RIDEV_REMOVE,
+            reinterpret_cast<HWND>(windowAndId_.winId)
         };
         RegisterRawInputDevices(&rawInputDevice, 1, sizeof(rawInputDevice));
         handlingRawMouseEvent_ = false;
@@ -110,7 +110,7 @@ bool RawMouseEventFilter::eventFilter(QObject* watched, QEvent* event)
             endHandlingRawMouseEvent();
 #if _WIN32
             auto point = rawCursorPosition();
-            POINT nativePoint {.x = point.x(), .y = point.y()};
+            POINT nativePoint {point.x(), point.y()};
             MapWindowPoints(
                 HWND_DESKTOP,
                 reinterpret_cast<HWND>(windowAndId_.winId),

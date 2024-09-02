@@ -521,7 +521,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                     ret = mixer_.setMainInputAt(
                         row,
                         YADAW::Audio::Mixer::Mixer::Position {
-                            .type = YADAW::Audio::Mixer::Mixer::Position::Type::Invalid
+                            YADAW::Audio::Mixer::Mixer::Position::Type::Invalid
                         }
                     );
                 }
@@ -613,7 +613,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                     ret = mixer_.setMainOutputAt(
                         row,
                         YADAW::Audio::Mixer::Mixer::Position {
-                            .type = YADAW::Audio::Mixer::Mixer::Position::Type::Invalid
+                            YADAW::Audio::Mixer::Mixer::Position::Type::Invalid
                         }
                     );
                 }
@@ -1487,7 +1487,7 @@ bool MixerChannelListModel::isFilterable(int roleIndex) const
         Role::ArmRecordingExist,
         Role::ArmRecording
     };
-    return std::ranges::find(
+    return std::find(
         filterableRoles.begin(), filterableRoles.end(), roleIndex
     ) != filterableRoles.end();
 }
@@ -1613,9 +1613,9 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
             const auto& edgeData = graph.getEdgeData(edgeHandle);
             inputPoints.emplace_back(
                 Point {
-                    .fromChannelGroupIndex = edgeData.fromChannel,
-                    .toChannelGroupIndex = edgeData.toChannel,
-                    .node = edgeHandle->srcNode()
+                    edgeData.fromChannel,
+                    edgeData.toChannel,
+                    edgeHandle->srcNode()
                 }
             );
         }
@@ -1627,9 +1627,9 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
             const auto& edgeData = graph.getEdgeData(edgeHandle);
             outputPoints.emplace_back(
                 Point {
-                    .fromChannelGroupIndex = edgeData.fromChannel,
-                    .toChannelGroupIndex = edgeData.toChannel,
-                    .node = edgeHandle->dstNode()
+                    edgeData.fromChannel,
+                    edgeData.toChannel,
+                    edgeHandle->dstNode()
                 }
             );
         }
