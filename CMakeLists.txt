@@ -20,6 +20,10 @@ if(WIN32)
         find_package(cppwinrt CONFIG REQUIRED)
         find_package(unofficial-sqlite3 CONFIG REQUIRED)
     endif()
+elseif(APPLE)
+    if(DEFINED Z_VCPKG_CMAKE_REQUIRED_MINIMUM_VERSION)
+        find_package(unofficial-sqlite3 CONFIG REQUIRED)
+    endif()
 endif()
 find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
 find_package(yaml-cpp CONFIG REQUIRED)
@@ -30,6 +34,13 @@ include_directories(${PROJECT_SOURCE_DIR}/content
                     ${SQLITE_MODERN_CPP_INCLUDE_DIRS}) # sqlite-modern-cpp
 
 ## VST3
+# If you're building with only command-line tools, comment the following lines
+# of ${VST3SDK_SOURCE_DIR}/cmake/modules/SMTG_DetectPlatform.cmake:
+# ```cmake
+# if(XCODE_VERSION VERSION_LESS "9")
+#     message(FATAL_ERROR "[SMTG] XCode 9 or newer is required")
+# endif()
+# ```
 set(SMTG_ADD_VSTGUI OFF)
 set(SMTG_ENABLE_VST3_PLUGIN_EXAMPLES OFF)
 set(SMTG_CREATE_MODULE_INFO OFF)
@@ -106,6 +117,26 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/winrt/QStringFromHString.hpp
 )
 
+set(MAC_NATIVE_SOURCES
+    src/native/mac/Native.cpp
+    src/native/mac/VST3Native.cpp
+    src/native/mac/CLAPNative.cpp
+    src/native/mac/Library.cpp
+    src/native/mac/VestifalNative.cpp
+    src/native/mac/MIDIInputDeviceImpl.cpp
+    src/native/mac/MIDIInputDeviceImpl.hpp
+    src/native/mac/MIDIOutputDeviceImpl.cpp
+    src/native/mac/MIDIOutputDeviceImpl.hpp
+    src/audio/backend/CoreAudioBackend.hpp
+    src/controller/CoreAudioBackendController.cpp
+    src/controller/CoreAudioBackendController.hpp
+    src/audio/backend/CoreAudioBusConfiguration.cpp
+    src/audio/backend/CoreAudioBusConfiguration.hpp
+    src/audio/plugin/AudioUnitV3Plugin.cpp
+    src/audio/plugin/AudioUnitV3Plugin.hpp
+    src/ui/mac/NativeEventFilterImpl.mm
+)
+
 set(LINUX_NATIVE_SOURCES
     src/audio/backend/ALSABackend.hpp
     src/audio/backend/ALSABusConfiguration.cpp
@@ -138,6 +169,8 @@ set(LINUX_NATIVE_SOURCES
 
 if(WIN32)
     set(NATIVE_SOURCES ${WIN32_NATIVE_SOURCES})
+elseif(APPLE)
+    set(NATIVE_SOURCES ${MAC_NATIVE_SOURCES})
 elseif(LINUX)
     set(NATIVE_SOURCES ${LINUX_NATIVE_SOURCES})
 endif()
@@ -659,6 +692,11 @@ add_executable(PluginDirectoryScanTest
                src/native/linux/Native.cpp
                src/native/linux/VST3Native.cpp
                src/native/linux/VestifalNative.cpp
+               src/native/mac/Library.cpp
+               src/native/mac/Native.cpp
+               src/native/mac/CLAPNative.cpp
+               src/native/mac/VST3Native.cpp
+               src/native/mac/VestifalNative.cpp
                src/native/win/CLAPNative.cpp
                src/native/win/Library.cpp
                src/native/win/Native.cpp
@@ -756,6 +794,11 @@ add_executable(PluginScanTest
                src/native/linux/Native.cpp
                src/native/linux/VST3Native.cpp
                src/native/linux/VestifalNative.cpp
+               src/native/mac/Library.cpp
+               src/native/mac/Native.cpp
+               src/native/mac/CLAPNative.cpp
+               src/native/mac/VST3Native.cpp
+               src/native/mac/VestifalNative.cpp
                src/native/win/CLAPNative.cpp
                src/native/win/Library.cpp
                src/native/win/Native.cpp
@@ -928,6 +971,10 @@ if(WIN32)
         set(SQLITE_LIBRARY unofficial::sqlite3::sqlite3)
     else()
         set(SQLITE_LIBRARY sqlite3)
+    endif()
+elseif(APPLE)
+    if(DEFINED Z_VCPKG_CMAKE_REQUIRED_MINIMUM_VERSION)
+        set(SQLITE_LIBRARY unofficial::sqlite3::sqlite3)
     endif()
 elseif(LINUX)
     set(SQLITE_LIBRARY sqlite3)

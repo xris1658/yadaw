@@ -42,7 +42,8 @@ int main(int argc, char** argv)
         if(id != -1)
         {
             const auto& record = YADAW::DAO::selectPluginById(id);
-            std::printf("\nTesting plugin: %ls...\n", reinterpret_cast<const wchar_t*>(record.name.data()));
+            auto name = record.name.toLocal8Bit();
+            std::printf("\nTesting plugin: %s...\n", name.data());
             auto library = YADAW::Native::Library(record.path);
             {
                 std::printf("[INFO] Library loaded\n");

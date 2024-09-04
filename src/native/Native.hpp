@@ -26,6 +26,9 @@ constexpr char PathSeparator = '\\';
 
 using WindowType = HWND;
 using ErrorCodeType = decltype(GetLastError());
+#elif __APPLE__
+constexpr char PathSeparator = '/';
+using ErrorCodeType = int;
 #elif __linux__
 constexpr char PathSeparator = '/';
 

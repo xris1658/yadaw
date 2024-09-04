@@ -7,6 +7,7 @@
 #include "controller/AudioEngineController.hpp"
 #include "controller/AudioGraphBackendController.hpp"
 #include "controller/ALSABackendController.hpp"
+#include "controller/CoreAudioBackendController.hpp"
 #include "controller/PluginController.hpp"
 #include "controller/PluginIOConfigUpdatedCallback.hpp"
 #include "controller/PluginLatencyUpdatedCallback.hpp"

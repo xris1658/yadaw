@@ -1,5 +1,6 @@
 #include "NativePopupEventFilter.hpp"
 
+#include <QCoreApplication>
 #include <QMouseEvent>
 #include <QQuickWindow>
 
@@ -16,6 +17,9 @@
 
 namespace YADAW::UI
 {
+#if __APPLE__
+extern bool nativePopupNativeEventFilter(const QByteArray& eventType, void* message, qintptr* result);
+#endif
 #if __linux__
 std::map<int, const char*> events = {
     {2, "KeyPress"},
@@ -257,8 +261,11 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
             return false;
         }
     }
+#elif __APPLE__
+    return nativePopupNativeEventFilter(eventType, message, result);
 #elif __linux__
-    if (eventType == "xcb_generic_event_t") {
+    if (eventType == "xcb_generic_event_t")
+    {
         auto event = static_cast<xcb_generic_event_t*>(message);
         auto responseType = event->response_type & 0x7F;
         auto it = events.find(responseType);

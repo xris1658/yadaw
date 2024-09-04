@@ -13,11 +13,11 @@ using VST3InitEntry = bool(*)();
 constexpr char vst3FilePattern[] = "*.vst3";
 constexpr char initEntryName[] = "InitDll";
 constexpr char exitEntryName[] = "ExitDll";
-#elif(TARGET_OS_MAC)
+#elif __APPLE__
 using VST3InitEntry = bool(*)(void*);
-constexpr char vst3FilePattern[] = "*.so"; // *.dylib?
-constexpr char initEntryName[] = "BundleEntry";
-constexpr char exitEntryName[] = "BundleExit";
+constexpr char vst3FilePattern[] = "*.vst3"; // *.dylib?
+constexpr char initEntryName[] = "bundleEntry";
+constexpr char exitEntryName[] = "bundleExit";
 #elif __linux__
 using VST3InitEntry = bool(*)(void*);
 constexpr char vst3FilePattern[] = "*.so";

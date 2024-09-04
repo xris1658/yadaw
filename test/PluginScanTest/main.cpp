@@ -16,14 +16,16 @@ int main(int argc, char** argv)
         int j = 1;
         for(auto& [pluginInfo, pluginCategories]: results)
         {
+            auto name = pluginInfo.name.toLocal8Bit();
+            auto vendor = pluginInfo.vendor.toLocal8Bit();
+            auto version = pluginInfo.version.toLocal8Bit();
             std::printf("%d:\n", j++);
-            std::wprintf(L"   Name: %s\n"
-                          " Vendor: %s\n"
-                          "Version: %s\n"
-                          "   Type: ",
-                          reinterpret_cast<const wchar_t*>(pluginInfo.name.data()),
-                          reinterpret_cast<const wchar_t*>(pluginInfo.vendor.data()),
-                          reinterpret_cast<const wchar_t*>(pluginInfo.version.data()));
+            std::printf("   Name: %s\n"
+                        " Vendor: %s\n"
+                        "Version: %s\n"
+                        "   Type: ",
+                name.data(), vendor.data(), version.data()
+            );
             if(pluginInfo.type == YADAW::DAO::PluginTypeInstrument)
             {
                 std::printf("Instrument\n");
@@ -69,7 +71,8 @@ int main(int argc, char** argv)
                 std::printf(":\n");
                 for(const auto& tag: pluginCategories)
                 {
-                    std::wprintf(L"%s", reinterpret_cast<const wchar_t*>(tag.data()));
+                    auto tagString = tag.toLocal8Bit();
+                    std::printf("%s", tagString.data());
                     if(&tag != &(pluginCategories.back()))
                     {
                         std::printf(" / ");

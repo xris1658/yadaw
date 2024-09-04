@@ -258,6 +258,16 @@ void setWindowResizable(QWindow& window, bool resizable)
         SetWindowLongPtrW(hwnd, GWL_STYLE, style);
     }
 }
+#elif __APPLE__
+
+bool isWindowResizable(QWindow& window)
+{
+    return true;
+}
+
+
+void setWindowResizable(QWindow& window, bool resizable)
+{}
 #elif __linux__
 bool isWindowResizable(QWindow& window)
 {

@@ -5,6 +5,10 @@ if(WIN32)
         ../../src/native/win/Native.cpp
         ../../src/native/Native.hpp
     )
+elseif(APPLE)
+    set(NATIVE_POPUP_TEST_NATIVE_SOURCE
+        ../../src/ui/mac/NativeEventFilterImpl.mm
+    )
 endif()
 
 qt_add_executable(NativePopupTest

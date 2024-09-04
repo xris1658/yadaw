@@ -5,6 +5,12 @@
 
 #include <QString>
 
+#if _WIN32
+#elif __APPLE__
+#include <../../System/Library/Frameworks/CoreFoundation.framework/Headers/CFBundle.h>
+#include <../../System/Library/Frameworks/CoreFoundation.framework/Headers/CFError.h>
+#endif
+
 #include <memory>
 
 namespace YADAW::Native
@@ -14,6 +20,8 @@ class Library
 private:
 #if _WIN32
     using HandleType = HMODULE;
+#elif __APPLE__
+    using HandleType = CFBundleRef;
 #elif __linux__
     using HandleType = void*;
 #else
@@ -22,6 +30,8 @@ private:
 public:
 #if _WIN32
     using ExportType = FARPROC;
+#elif __APPLE__
+    using ExportType = void*;
 #elif __linux__
     using ExportType = void*;
 #else
@@ -50,6 +60,8 @@ private:
     QString path_;
 #if _WIN32
     ErrorCodeType errorCode_ = 0;
+#elif __APPLE__
+    CFErrorRef error_;
 #endif
     HandleType handle_;
 };

@@ -2,6 +2,7 @@
 #define YADAW_SRC_MIDI_MIDIOUTPUTDEVICE
 
 #include "midi/DeviceInfo.hpp"
+#include "midi/Message.hpp"
 
 #include <QString>
 
@@ -13,7 +14,8 @@ namespace YADAW::MIDI
 class MIDIOutputDevice
 {
     class Impl;
-
+public:
+    using SendToOutputFunc = void(const MIDIOutputDevice& device, const YADAW::MIDI::Message& message);
 public:
     static std::size_t outputDeviceCount();
     static std::optional<DeviceInfo> outputDeviceAt(std::size_t index);

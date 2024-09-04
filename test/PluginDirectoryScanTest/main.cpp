@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 {
     if(argc == 1 || argc == 0)
     {
-        std::wprintf(L"Usage: PluginDirectoryScanTest [path] <more paths>");
+        std::printf("Usage: PluginDirectoryScanTest [path] <more paths>");
         return 0;
     }
     for(int i = 1; i < argc; ++i)
@@ -18,18 +18,26 @@ int main(int argc, char** argv)
         for(const auto& item: list)
         {
             auto results = YADAW::Controller::scanSingleLibraryFile(item);
-            std::wprintf(L"Complete scanning %s, %d results found\n", reinterpret_cast<const wchar_t*>(item.data()), static_cast<int>(results.size()));
+            {
+                auto itemString = item.toLocal8Bit();
+                std::wprintf(
+                    L"Complete scanning %s, %d results found\n",
+                    itemString.data(), static_cast<int>(results.size())
+                );
+            }
             int j = 1;
             for(auto& [pluginInfo, pluginCategories]: results)
             {
+                auto name = pluginInfo.name.toLocal8Bit();
+                auto vendor = pluginInfo.vendor.toLocal8Bit();
+                auto version = pluginInfo.version.toLocal8Bit();
                 std::printf("%d:\n", j++);
-                std::wprintf(L"   Name: %s\n"
-                             " Vendor: %s\n"
-                             "Version: %s\n"
-                             "   Type: ",
-                    reinterpret_cast<const wchar_t*>(pluginInfo.name.data()),
-                    reinterpret_cast<const wchar_t*>(pluginInfo.vendor.data()),
-                    reinterpret_cast<const wchar_t*>(pluginInfo.version.data()));
+                std::printf("   Name: %s\n"
+                            " Vendor: %s\n"
+                            "Version: %s\n"
+                            "   Type: ",
+                    name.data(), vendor.data(), version.data()
+                );
                 if(pluginInfo.type == YADAW::DAO::PluginTypeInstrument)
                 {
                     std::printf("Instrument\n");
@@ -69,7 +77,8 @@ int main(int argc, char** argv)
                     std::printf(":\n");
                     for(const auto& tag: pluginCategories)
                     {
-                        std::wprintf(L"%s", reinterpret_cast<const wchar_t*>(tag.data()));
+                        auto tagString = tag.toLocal8Bit();
+                        std::printf("%s", tagString.data());
                         if(&tag != &(pluginCategories.back()))
                         {
                             std::printf(" / ");
@@ -80,7 +89,7 @@ int main(int argc, char** argv)
             }
         }
     }
-    std::wprintf(L"Scan complete. Press any key to continue...");
+    std::printf("Scan complete. Press any key to continue...");
     std::getchar();
     return 0;
 }

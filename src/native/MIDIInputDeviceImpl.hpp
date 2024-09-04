@@ -3,6 +3,8 @@
 
 #if _WIN32
 #include "native/win/MIDIInputDeviceImpl.hpp"
+#elif __APPLE__
+#include "native/mac/MIDIInputDeviceImpl.hpp"
 #elif __linux__
 #include "native/linux/MIDIInputDeviceImpl.hpp"
 #endif

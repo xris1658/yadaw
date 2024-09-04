@@ -3,6 +3,8 @@
 
 #if _WIN32
 #include <../include/winrt/base.h>
+#elif __APPLE__
+#include <../../System/Library/Frameworks/CoreFoundation.framework/Headers/CFString.h>
 #elif __linux__
 #include <cstdint>
 #endif
@@ -11,6 +13,8 @@ namespace YADAW::Native
 {
 #if _WIN32
 using MIDIDeviceID = winrt::hstring;
+#elif __APPLE__
+using MIDIDeviceID = CFStringRef;
 #elif __linux__
 struct MIDIDeviceID
 {

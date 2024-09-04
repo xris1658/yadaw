@@ -42,7 +42,13 @@ public:
         data_[1] = data;
         updated_.store(true, std::memory_order_release);
     }
-    void update(T&& data, bool realtimeThreadRunning = true)
+    void update(T&& data, bool realtimeThreadRunning =
+#if __APPLE__
+        false
+#else
+        true
+#endif
+    )
     {
         if(realtimeThreadRunning)
         {
@@ -52,7 +58,13 @@ public:
         updated_.store(true, std::memory_order_release);
     }
     template<typename... Args>
-    void emplace(Args&&... args, bool realtimeThreadRunning = true)
+    void emplace(Args&&... args, bool realtimeThreadRunning =
+#if __APPLE__
+        false
+#else
+        true
+#endif
+        )
     {
         if(realtimeThreadRunning)
         {
@@ -76,7 +88,13 @@ public:
             while(updated_.load(std::memory_order_acquire)) {}
         }
     }
-    void updateAndDispose(const T& data, bool realtimeThreadRunning = true)
+    void updateAndDispose(const T& data, bool realtimeThreadRunning =
+#if __APPLE__
+        false
+#else
+        true
+#endif
+        )
     {
         if(realtimeThreadRunning)
         {
@@ -88,7 +106,13 @@ public:
             data_[0] = data; // ABA happens here, but maybe it's okay?
         }
     }
-    void updateAndDispose(T&& data, bool realtimeThreadRunning = true)
+    void updateAndDispose(T&& data, bool realtimeThreadRunning =
+#if __APPLE__
+        false
+#else
+        true
+#endif
+        )
     {
         if(realtimeThreadRunning)
         {
@@ -101,7 +125,13 @@ public:
         }
     }
     template<typename... Args>
-    void emplaceAndDispose(Args&&... args, bool realtimeThreadRunning = true)
+    void emplaceAndDispose(Args&&... args, bool realtimeThreadRunning =
+#if __APPLE__
+        false
+#else
+        true
+#endif
+        )
     {
         if(realtimeThreadRunning)
         {

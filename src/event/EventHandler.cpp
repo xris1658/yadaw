@@ -27,6 +27,8 @@
 #include "util/IntegerRange.hpp"
 #if _WIN32
 #include "controller/AudioGraphBackendController.hpp"
+#elif __APPLE__
+#include "controller/CoreAudioBackendController.hpp"
 #elif __linux__
 #include "audio/host/VST3RunLoop.hpp"
 #include "audio/host/EventFileDescriptorSupport.hpp"
@@ -229,6 +231,8 @@ void EventHandler::onOpenMainWindow()
     auto& bufferExt = mixer.bufferExtension();
 #if _WIN32
     engine.initialize(backend.sampleRate(), backend.bufferSizeInFrames());
+#elif __APPLE__
+    engine.initialize(44100, 512);
 #elif __linux__
     engine.initialize(backend.sampleRate(), backend.frameCount());
 #endif
@@ -289,7 +293,10 @@ void EventHandler::onOpenMainWindow()
     auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
     YADAW::Audio::Host::CLAPHost::setMainThreadId(std::this_thread::get_id());
     // Start the audio backend
+#if __APPLE__
+#else
     engine.setRunning(true);
+#endif
 #if _WIN32
     backend.start(&YADAW::Controller::audioGraphCallback);
 #elif __linux__

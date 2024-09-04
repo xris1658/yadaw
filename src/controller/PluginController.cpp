@@ -60,6 +60,16 @@ std::vector<QString> scanDirectory(const QDir& dir, bool recursive, bool include
             ret.emplace_back(entryInfo.absoluteFilePath());
         }
     }
+#if __APPLE__
+    const auto& dirEntryInfoList = dir.entryInfoList(
+        nameFilters,
+        QDir::Filter::AllDirs | QDir::Filter::Hidden | QDir::Filter::NoDotAndDotDot
+    );
+    for(auto& entryInfo: dirEntryInfoList)
+    {
+        ret.emplace_back(entryInfo.absoluteFilePath());
+    }
+#endif
     if(recursive)
     {
         const auto& dirList = dir.entryInfoList(QDir::Filter::AllDirs | QDir::Filter::Hidden | QDir::Filter::NoDotAndDotDot);
