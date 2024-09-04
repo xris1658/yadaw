@@ -3,8 +3,8 @@
 
 # Build YADAW
 
-YADAW can be built and used on Windows x64 and Linux x64. If possible, I'd
-consider add ARM and macOS support in the future.
+YADAW can be built and used on Windows x64, Linux x64 and macOS x64. If
+possible, I'd consider add ARM support in the future.
 
 ## Build on Windows
 
@@ -63,7 +63,7 @@ consider add ARM and macOS support in the future.
   cmake -S .. -B . \
     -DCMAKE_TOOLCHAIN_FILE=<path to vcpkg directory>/vcpkg/scripts/buildsystems/vcpkg.cmake \
     -DVST3SDK_SOURCE_DIR=<path to directory of VST3 SDK>/vst3sdk \
-    -DCLAP_SOURCE_DIR=<path to directory of CLAP>/clap \
+    -DCLAP_SOURCE_DIR=<path to directory of CLAP>/clap
   cmake --build . --target YADAW -j 16
   ```
 
@@ -174,4 +174,64 @@ install the platform integration plugin of Fcitx. The steps are as follows:
   ```shell
   cp ./qt6/platforminputcontext/libfcitx5platforminputcontextplugin.so \
     <Path of Qt e.g. /home/xris1658/apps/Qt/6.7.0/gcc_64>/plugins/platforminputcontexts
+  ```
+
+## Build on macOS
+
+The following process is tested on macOS Monterey 12 with macOS SDK 13.1 and 
+**without Xcode**.
+
+- Install macOS Command-Line developer tools:
+  ```shell
+  xcode-select --install
+  ```
+  - Fun fact: If you try running developer tools in the terminal with them
+    uninstalled, macOS will ask to install the developer tools. You can just
+    install the tools by running `gcc` in the terminal.
+- Install [Homebrew](https://brew.sh/).
+- Download and install CMake. If you downloaded it from cmake.org, make sure to
+  add the executable path to the environment variable `PATH`:
+  ```shell
+  export PATH=$PATH:/Applications/CMake/Contents/bin
+  ```
+- Download Ninja. If you downloaded it from ninja-build.org, make sure to add
+  the executable path to the environment variable `PATH`:
+  ```shell
+  export PATH=$PATH:/<executable path, e.g. /Users/xris1658/apps/ninja-build>
+  ```
+- Download and install Qt (see steps described in Build With MSVC). Once
+  installed, add the directory containing the Qt executable (<Qt install
+  directory>\<version>\macos\bin) to the environment variable PATH.
+- Download VST3 SDK, and remember the path to it. Comment the following lines in
+  cmake/modules/SMTG_DetectPlatform.cmake so that we can configure the project:
+- ```cmake
+  if(XCODE_VERSION VERSION_LESS "9")
+      message(FATAL_ERROR "[SMTG] XCode 9 or newer is required")
+  endif()
+  ```
+- Download CLAP, and remember the path to it.
+- Download and install vcpkg:
+  ```shell
+  git clone https://github.com/microsoft/vcpkg
+  ./vcpkg/bootstrap-vcpkg.sh
+  ```
+- Install some prerequisites with vcpkg:
+  ```shell
+  vcpkg install ade sqlite3 sqlite-modern-cpp yaml-cpp
+  ```
+  We need to have `pkg-config` installed before installing packages with vcpkg,
+  which is why we install Homebrew previously. While Homebrew is more commonly
+  used on macOS, I use vcpkg because it has the library `ade`, which is a little
+  part of OpenCV. With only Homebrew, I might have to install the whole OpenCV.
+- Download source of YADAW, configure and build the project:
+  ```shell
+  git clone https://github.com/xris1658/yadaw
+  cd ./yadaw
+  mkdir build
+  cd build
+  cmake -S .. -B . \
+  -DCMAKE_TOOLCHAIN_FILE=<path to vcpkg directory>/vcpkg/scripts/buildsystems/vcpkg.cmake \
+  -DVST3SDK_SOURCE_DIR=<path to directory of VST3 SDK>/vst3sdk \
+  -DCLAP_SOURCE_DIR=<path to directory of CLAP>/clap
+  cmake --build . --target YADAW -j 16
   ```

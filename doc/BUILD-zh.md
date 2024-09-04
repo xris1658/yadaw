@@ -3,8 +3,8 @@
 
 # 构建 YADAW
 
-可以在 Windows x64 和 Linux x64 上构建并使用 YADAW。如果未来有条件，笔者会考虑
-添加 ARM 平台以及 macOS 的支持。
+可以在 Windows x64，Linux x64 和 macOS x64 上构建并使用 YADAW。如果未来有条件，笔者会考
+虑 添加 ARM 平台的支持。
 
 ## 在 Windows 上构建
 
@@ -58,7 +58,7 @@
   cmake -S .. -B . \
     -DCMAKE_TOOLCHAIN_FILE=<vcpkg 所在目录的路径>/vcpkg/scripts/buildsystems/vcpkg.cmake \
     -DVST3SDK_SOURCE_DIR=<VST3 SDK 所在目录的路径>/vst3sdk \
-    -DCLAP_SOURCE_DIR=<CLAP 所在目录的路径>/clap \
+    -DCLAP_SOURCE_DIR=<CLAP 所在目录的路径>/clap
   cmake --build . --target YADAW -j 16
   ```
 ### 使用 MSYS2 构建
@@ -168,4 +168,57 @@ Qt 6 中内置了 IBus 输入法支持。如果使用 Fcitx，则需要构建并
   ```shell
   cp ./qt6/platforminputcontext/libfcitx5platforminputcontextplugin.so \
     <Qt 所在路径 e.g. /home/xris1658/apps/Qt/6.7.0/gcc_64>/plugins/platforminputcontexts
+  ```
+  
+## 在 macOS 上构建
+
+下面的步骤在安装了 macOS SDK 13.1 且未安装 Xcode 的 macOS Monterey 12 上经过了测试。
+
+- 安装 macOS 命令行开发者工具：
+  ```shell
+  xcode-select --install
+  ```
+  - 有趣小知识：未安装开发者工具时，在终端中运行开发者工具时，macOS 会自行安装开发者工具。
+    只要在终端中运行 `gcc` 就能够安装工具了。
+- 安装 [Homebrew](https://brew.sh/)。
+- 下载并安装 CMake。如果是从 cmake.org 上下载的，确保将可执行文件路径添加到环境变量 `PATH` 中：
+  ```shell
+  export PATH=$PATH:/Applications/CMake/Contents/bin
+  ```
+- 下载 Ninja。如果是从 ninja-build.org 上下载的，确保将可执行文件路径添加到环境变量 `PATH` 中：
+  ```shell
+  export PATH=$PATH:/<executable path, e.g. /Users/xris1658/apps/ninja-build>
+  ```
+- 下载并安装 Qt（参见“使用 MSVC 构建”中描述的版本要求）。安装完成后，将 Qt 可执行文件所在的目录
+  （<Qt 安装目录>\<版本>\macos\bin）添加到环境变量 `PATH` 中。
+- 下载 VST3 SDK，并记住路径。为构建项目，需要注释  cmake/modules/SMTG_DetectPlatform.cmake 的以下几行：
+- ```cmake
+  if(XCODE_VERSION VERSION_LESS "9")
+      message(FATAL_ERROR "[SMTG] XCode 9 or newer is required")
+  endif()
+  ```
+- 下载 CLAP，并记住路径。
+- 下载并安装 vcpkg：
+  ```shell
+  git clone https://github.com/microsoft/vcpkg
+  ./vcpkg/bootstrap-vcpkg.sh
+  ```
+- 用 vcpkg 安装一些依赖项：
+  ```shell
+  vcpkg install ade sqlite3 sqlite-modern-cpp yaml-cpp
+  ```
+  在用 vcpkg 安装程序包之前，需要安装 pkg-config，因此我们之前安装了 Homebrew。尽管
+  Homebrew 在 macOS 上比较常用，笔者还是选用了 vcpkg，因为其中有 `ade` 库，OpenCV 中的一
+  小部分。如果只使用 Homebrew，大概需要安装一整个 OpenCV 库。
+- 下载 YADAW 的源码，配置并构建项目：
+  ```shell
+  git clone https://github.com/xris1658/yadaw
+  cd ./yadaw
+  mkdir build
+  cd build
+  cmake -S .. -B . \
+    -DCMAKE_TOOLCHAIN_FILE=<vcpkg 所在目录的路径>/vcpkg/scripts/buildsystems/vcpkg.cmake \
+    -DVST3SDK_SOURCE_DIR=<VST3 SDK 所在目录的路径>/vst3sdk \
+    -DCLAP_SOURCE_DIR=<CLAP 所在目录的路径>/clap
+  cmake --build . --target YADAW -j 16
   ```
