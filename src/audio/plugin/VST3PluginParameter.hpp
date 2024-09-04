@@ -7,6 +7,7 @@
 #include <pluginterfaces/vst/ivsteditcontroller.h>
 
 #include <optional>
+#include <vector>
 
 namespace YADAW::Audio::Plugin
 {
