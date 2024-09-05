@@ -3,6 +3,7 @@
 #include "native/Native.hpp"
 
 #include <QCoreApplication>
+#include <QString>
 
 #include <cpuid.h>
 
@@ -23,10 +24,6 @@ const QString& programFilesFolder()
 }
 
 void openSpecialCharacterInput()
-{
-}
-
-void showFileInExplorer(const QString& path)
 {
 }
 
@@ -94,7 +91,10 @@ const std::vector<QString>& defaultPluginDirectoryList()
 }
 
 void locateFileInExplorer(const QString& path)
-{}
+{
+    auto command = QString("open -R %1").arg(path).toLocal8Bit();
+    std::system(command.constData());
+}
 
 bool setBadMemoryAccessHandler()
 {
