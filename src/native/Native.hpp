@@ -44,8 +44,6 @@ const QString& programFilesFolder();
 
 void openSpecialCharacterInput();
 
-void showFileInExplorer(const QString& path);
-
 int getProcessCPUCoreCount();
 
 void setThreadPriorityToTimeCritical();
