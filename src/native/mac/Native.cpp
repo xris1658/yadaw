@@ -2,6 +2,12 @@
 
 #include "native/Native.hpp"
 
+#include "native/Library.hpp"
+
+#include <../../System/Library/Frameworks/CoreFoundation.framework/Headers/CFBase.h>
+#include <../../System/Library/Frameworks/CoreFoundation.framework/Headers/CFBundle.h>
+#include <../../System/Library/Frameworks/CoreFoundation.framework/Headers/CFString.h>
+
 #include <QCoreApplication>
 #include <QString>
 
@@ -87,6 +93,30 @@ const std::vector<QString>& defaultPluginDirectoryList()
             }
         }
     );
+    return ret;
+}
+
+QString getFileBrowserName()
+{
+    YADAW::Native::Library finderLib("/System/Library/CoreServices/Finder.app");
+    if(!finderLib.loaded())
+    {
+        return "Finder";
+    }
+    auto handle = reinterpret_cast<CFBundleRef>(finderLib.handle());
+    auto defaultName = CFSTR("Finder");
+    auto infoPlist = CFSTR("InfoPlist");
+    auto key = CFSTR("CFBundleDisplayName");
+    auto name = CFBundleCopyLocalizedString(
+        handle, key,
+        defaultName,
+        infoPlist
+    );
+    CFRelease(infoPlist);
+    CFRelease(defaultName);
+    CFRelease(key);
+    auto ret = QString::fromCFString(name);
+    CFRelease(name);
     return ret;
 }
 

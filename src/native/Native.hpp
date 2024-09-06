@@ -70,6 +70,8 @@ void sleepFor(std::chrono::steady_clock::duration duration);
 
 const std::vector<QString>& defaultPluginDirectoryList();
 
+QString getFileBrowserName();
+
 void locateFileInExplorer(const QString& path);
 
 bool setBadMemoryAccessHandler();
