@@ -547,7 +547,11 @@ void EventHandler::onOpenMainWindow()
     auto version = QLibraryInfo::version();
     setQtVersion(version.majorVersion(), version.minorVersion(), version.microVersion());
     setQtCopyrightYear(QT_COPYRIGHT_YEAR);
-    setFileBrowserName(YADAW::Native::getFileBrowserName());
+    if(const auto& fileBrowserName = YADAW::Native::getFileBrowserName();
+        !fileBrowserName.isEmpty())
+    {
+        setFileBrowserName(fileBrowserName);
+    }
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
     auto& timer = YADAW::UI::idleProcessTimer();
     timer.callOnTimeout(

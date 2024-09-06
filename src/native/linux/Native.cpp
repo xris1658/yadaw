@@ -3,6 +3,7 @@
 #include "native/Native.hpp"
 #include "util/Base.hpp"
 
+#include <QProcess>
 #include <QStringList>
 
 #include <cpuid.h>
@@ -10,6 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <cstring>
 #include <ctime>
 #include <fstream>
 #include <iterator>
@@ -91,8 +93,53 @@ const std::vector<QString>& defaultPluginDirectoryList()
     return ret;
 }
 
+constexpr char gnome[] = "GNOME";
+constexpr char kde[] = "KDE";
+
+QString getFileBrowserName()
+{
+    auto desktop = std::getenv("XDG_SESSION_DESKTOP");
+    if(std::strstr(desktop, "KDE"))
+    {
+        return "Plasma";
+    }
+    if(std::strstr(desktop, "GNOME"))
+    {
+        return "Nautilus";
+    }
+    if(std::strstr(desktop, "XFCE"))
+    {
+        return "Thunar";
+    }
+    return "";
+}
+
 void locateFileInExplorer(const QString& path)
 {
+    auto desktop = std::getenv("XDG_SESSION_DESKTOP");
+    QProcess process;
+    QStringList args;
+    if(std::strstr(desktop, "KDE"))
+    {
+        process.setProgram("dolphin");
+        args << path << "--new-window" << "--select";
+    }
+    else if(std::strstr(desktop, "GNOME"))
+    {
+        process.setProgram("nautilus");
+        args << "-s" << path;
+    }
+    // If the path is a directory, then open it (which is not what we want);
+    // If the path is a file, then locate it.
+    else if(std::strstr(desktop, "XFCE"))
+    {
+        process.setProgram("thunar");
+        args << path;
+    }
+    if(!args.empty())
+    {
+        process.startDetached();
+    }
     // GNOME:      nautilus -s [URI]
     // Xfce:       thunar [URI]
     // KDE Plasma: dolphin [URI] --new-window --select
