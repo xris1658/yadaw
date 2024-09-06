@@ -19,7 +19,6 @@ using YADAW::Audio::Device::AudioProcessData;
 class AudioDeviceProcess
 {
 #if __cplusplus < 202002L
-#endif
 private: // Expression SFINAE
     template<typename T, typename U = void>
     struct HasProcessMethodHelper: std::false_type {};
@@ -29,6 +28,7 @@ private: // Expression SFINAE
     >: std::true_type {};
     template<typename T>
     static constexpr bool hasProcess = HasProcessMethodHelper<T>::value;
+#endif
 public:
 #if __cplusplus >= 202002L
     template<DerivedTo<YADAW::Audio::Device::IAudioDevice> Device>

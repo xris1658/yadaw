@@ -3,6 +3,8 @@
 
 #include "concurrent/DoubleBufferSwitch.hpp"
 
+#include <cstdint>
+
 namespace YADAW::Audio::Host
 {
 struct HostContext
