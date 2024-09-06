@@ -1,3 +1,4 @@
+#include "native/Library.hpp"
 #if _WIN32
 
 #include "native/Native.hpp"
@@ -272,6 +273,33 @@ void locateFileInExplorer(const QString& path)
     std::wstring arg(L"/select,");
     arg.append(path.toStdWString());
     ShellExecuteW(NULL, L"open", L"explorer.exe", arg.data(), NULL, SW_SHOWNORMAL);
+}
+
+QString fileBrowserName;
+
+std::once_flag getFileBrowserNameFlag;
+
+QString getFileBrowserName()
+{
+    std::call_once(getFileBrowserNameFlag,
+        []()
+        {
+            const WCHAR defaultName[] = L"File Explorer";
+            YADAW::Native::Library explorerLib("explorer.exe");
+            if(explorerLib.loaded())
+            {
+                auto explorerHandle = reinterpret_cast<HMODULE>(explorerLib.handle());
+                LONG_PTR lParam = 0;
+                WCHAR* namePtr = nullptr;
+                auto loadStringRet = LoadStringW(explorerHandle, 6020, reinterpret_cast<WCHAR*>(&namePtr), 0);
+                if(loadStringRet)
+                {
+                    fileBrowserName = QString::fromWCharArray(namePtr, loadStringRet);
+                }
+            }
+        }
+    );
+    return fileBrowserName;
 }
 
 void mySegFaultHandler()
