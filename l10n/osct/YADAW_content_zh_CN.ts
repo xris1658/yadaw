@@ -293,8 +293,8 @@
     </message>
     <message>
         <location filename="../../content/Assets.qml" line="66"/>
-        <source>&amp;Locate in Explorer</source>
-        <translation>在文件管理器中显示</translation>
+        <source>&amp;Locate in %1</source>
+        <translation>在 %1 中显示</translation>
     </message>
     <message>
         <location filename="../../content/Assets.qml" line="72"/>

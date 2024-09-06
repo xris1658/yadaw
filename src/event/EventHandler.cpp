@@ -113,6 +113,8 @@ void EventHandler::connectToEventReceiver(QObject* receiver)
         receiver, SIGNAL(setQtVersion(int, int, int)));
     QObject::connect(this, SIGNAL(setQtCopyrightYear(QString)),
         receiver, SIGNAL(setQtCopyrightYear(QString)));
+    QObject::connect(this, SIGNAL(setFileBrowserName(QString)),
+        receiver, SIGNAL(setFileBrowserName(QString)));
     QObject::connect(this, SIGNAL(setSplashScreenText(QString)),
         receiver, SIGNAL(setSplashScreenText(QString)));
     QObject::connect(this, SIGNAL(pluginScanComplete()),
@@ -545,6 +547,7 @@ void EventHandler::onOpenMainWindow()
     auto version = QLibraryInfo::version();
     setQtVersion(version.majorVersion(), version.minorVersion(), version.microVersion());
     setQtCopyrightYear(QT_COPYRIGHT_YEAR);
+    setFileBrowserName(YADAW::Native::getFileBrowserName());
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
     auto& timer = YADAW::UI::idleProcessTimer();
     timer.callOnTimeout(

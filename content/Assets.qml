@@ -63,7 +63,7 @@ Rectangle {
         id: assetDirectoryOptions
         title: qsTr("Asset directory options")
         Action {
-            text: qsTr("&Locate in Explorer")
+            text: qsTr("&Locate in %1").arg(Global.fileBrowserName)
             onTriggered: {
                 EventSender.locatePathInExplorer(assetDirectoryOptions.parent.pathPath);
             }

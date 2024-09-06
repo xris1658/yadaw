@@ -23,6 +23,10 @@ QtObject {
     onSetQtCopyrightYear: (copyrightYear) => {
         Global.qtCopyrightYear = copyrightYear;
     }
+    signal setFileBrowserName(name: string)
+    onSetFileBrowserName: (name) => {
+        Global.fileBrowserName = name;
+    }
     signal setSplashScreenText(text: string)
     onSetSplashScreenText: (text) => {
         splashScreen.text = text;
