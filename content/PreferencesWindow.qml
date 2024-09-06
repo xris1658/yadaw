@@ -9,8 +9,11 @@ Window {
     flags: Qt.Dialog
     modality: Qt.NonModal
 
-    property int firstColumnWidth: 125
-    property int secondColumnWidth: 275
+    QtObject {
+        id: impl
+        property int firstColumnWidth: 125
+        property int secondColumnWidth: stackLayout.width - firstColumnWidth - stackLayout.anchors.rightMargin
+    }
 
     property alias systemFontRendering: generalSettings.systemFontRendering
     property alias systemFontRenderingWhileDebugging: generalSettings.systemFontRenderingWhileDebugging
@@ -46,25 +49,44 @@ Window {
         id: content
         anchors.fill: parent
         orientation: Qt.Horizontal
-        z: 2
+        handle: Item {
+            implicitWidth: 5
+            implicitHeight: 5
+            Rectangle {
+                width: 1
+                height: parent.height
+                anchors.right: parent.right
+                color: Colors.controlBorder
+            }
+        }
         ListView {
+            topMargin: 5
+            bottomMargin: 5
+            leftMargin: 5
             id: listView
-            SplitView.minimumWidth: contentWidth
-            SplitView.maximumWidth: contentWidth
+            SplitView.preferredWidth: 110
             model: [qsTr("General"), qsTr("Audio Hardware"), qsTr("Plugins")]
             boundsBehavior: ListView.StopAtBounds
             delegate: ItemDelegate {
                 id: itemDelegate
+                width: parent.width
+                // height: implicitHeight
                 text: modelData
-                highlighted: listView.currentIndex == index
-                Component.onCompleted: {
-                    listView.contentWidth = Math.max(listView.contentWidth, itemDelegate.implicitWidth);
-                    if(index === listView.model.length - 1) {
-                        for(let i = 0; i < listView.model.length - 1; ++i) {
-                            listView.itemAtIndex(i).width = listView.contentWidth;
-                        }
-                        width = listView.contentWidth;
-                    }
+                leftPadding: 2
+                rightPadding: 2
+                topPadding: 2
+                bottomPadding: 2
+                highlighted: index == listView.currentIndex
+                background: Rectangle {
+                    width: itemDelegate.width
+                    height: itemDelegate.height
+                    anchors.topMargin: root.topInset
+                    anchors.bottomMargin: root.bottomInset
+                    anchors.leftMargin: root.leftInset
+                    anchors.rightMargin: root.rightInset
+                    color: (!itemDelegate.enabled)? Colors.background:
+                        itemDelegate.highlighted? Colors.highlightControlBackground:
+                            itemDelegate.hovered? Colors.mouseOverControlBackground: Colors.background
                 }
                 onClicked: {
                     listView.currentIndex = index;
@@ -73,23 +95,24 @@ Window {
         }
         Item {
             StackLayout {
+                id: stackLayout
                 anchors.fill: parent
                 anchors.margins: 10
                 currentIndex: listView.currentIndex
                 GeneralSettings {
                     id: generalSettings
-                    firstColumnWidth: root.firstColumnWidth
-                    secondColumnWidth: root.secondColumnWidth
+                    firstColumnWidth: impl.firstColumnWidth
+                    secondColumnWidth: impl.secondColumnWidth
                 }
                 AudioHardwareSettings {
                     id: audioHardwareSettings
-                    firstColumnWidth: root.firstColumnWidth
-                    secondColumnWidth: root.secondColumnWidth
+                    firstColumnWidth: impl.firstColumnWidth
+                    secondColumnWidth: impl.secondColumnWidth
                 }
                 PluginSettings {
                     id: pluginSettings
-                    firstColumnWidth: root.firstColumnWidth
-                    secondColumnWidth: root.secondColumnWidth
+                    firstColumnWidth: impl.firstColumnWidth
+                    secondColumnWidth: impl.secondColumnWidth
                     onStartPluginScan: {
                         root.startPluginScan();
                     }
@@ -99,12 +122,6 @@ Window {
         Keys.onEscapePressed: {
             close();
         }
-    }
-    Rectangle {
-        width: listView.width
-        height: listView.height
-        z: 1
-        color: Colors.controlBackground
     }
     Component.onCompleted: {
         content.forceActiveFocus();
