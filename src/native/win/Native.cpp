@@ -268,10 +268,15 @@ const std::vector<QString>& defaultPluginDirectoryList()
     return ret;
 }
 
+constexpr wchar_t prefix[] = L"/select,";
+
 void locateFileInExplorer(const QString& path)
 {
-    std::wstring arg(L"/select,");
-    arg.append(path.toStdWString());
+    auto prefixLength = std::size(prefix) - 1;
+    std::wstring arg(prefixLength + path.size(), L'\0');
+    std::wcscpy(arg.data(), prefix);
+    path.toWCharArray(arg.data() + prefixLength);
+    std::replace(arg.begin() + prefixLength, arg.end(), L'/', L'\\');
     ShellExecuteW(NULL, L"open", L"explorer.exe", arg.data(), NULL, SW_SHOWNORMAL);
 }
 
