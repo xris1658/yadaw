@@ -96,6 +96,10 @@ const std::vector<QString>& defaultPluginDirectoryList()
     return ret;
 }
 
+QString fileBrowserName;
+
+std::once_flag getFileBrowserNameFlag;
+
 QString getFileBrowserName()
 {
     std::call_once(getFileBrowserNameFlag,
