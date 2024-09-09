@@ -98,26 +98,37 @@ const std::vector<QString>& defaultPluginDirectoryList()
 
 QString getFileBrowserName()
 {
-    YADAW::Native::Library finderLib("/System/Library/CoreServices/Finder.app");
-    if(!finderLib.loaded())
-    {
-        return "Finder";
-    }
-    auto handle = reinterpret_cast<CFBundleRef>(finderLib.handle());
-    auto defaultName = CFSTR("Finder");
-    auto infoPlist = CFSTR("InfoPlist");
-    auto key = CFSTR("CFBundleDisplayName");
-    auto name = CFBundleCopyLocalizedString(
-        handle, key,
-        defaultName,
-        infoPlist
+    std::call_once(getFileBrowserNameFlag,
+        []()
+        {
+            auto finderAppPath = CFSTR("/System/Library/CoreServices/Finder.app");
+            auto finderAppUrl = CFURLCreateWithFileSystemPath(
+                kCFAllocatorDefault, finderAppPath, kCFURLPOSIXPathStyle, true
+            );
+            auto bundle = CFBundleCreate(kCFAllocatorDefault, finderAppUrl);
+            if(bundle)
+            {
+                auto defaultName = CFSTR("Finder");
+                auto infoPlist = CFSTR("InfoPlist");
+                auto key = CFSTR("CFBundleDisplayName");
+                auto name = CFBundleCopyLocalizedString(
+                    bundle, key,
+                    defaultName,
+                    infoPlist
+                );
+                CFRelease(infoPlist);
+                CFRelease(defaultName);
+                CFRelease(key);
+                fileBrowserName = QString::fromCFString(name);
+                CFRelease(bundle);
+            }
+            else
+            {
+                fileBrowserName = "Finder";
+            }
+        }
     );
-    CFRelease(infoPlist);
-    CFRelease(defaultName);
-    CFRelease(key);
-    auto ret = QString::fromCFString(name);
-    CFRelease(name);
-    return ret;
+    return fileBrowserName;
 }
 
 void locateFileInExplorer(const QString& path)
