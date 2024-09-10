@@ -374,9 +374,9 @@ bool VST3Plugin::stopProcessing()
     return false;
 }
 
-IAudioPlugin::Format VST3Plugin::format()
+PluginFormat VST3Plugin::format()
 {
-    return IAudioPlugin::Format::VST3;
+    return PluginFormat::VST3;
 }
 
 IAudioPlugin::Status VST3Plugin::status()

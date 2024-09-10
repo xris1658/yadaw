@@ -89,14 +89,14 @@ void EventFileDescriptorSupport::notify(int fd, Info& info)
     auto& [format, data] = info;
     switch(format)
     {
-    case YADAW::Audio::Plugin::IAudioPlugin::Format::VST3:
+    case YADAW::Audio::Plugin::PluginFormat::VST3:
     {
         auto eventHandler = std::get<Info::VST3Info>(data).eventHandler;
         // Call the following on the main thread
         eventHandler->onFDIsSet(fd);
         break;
     }
-    case YADAW::Audio::Plugin::IAudioPlugin::Format::CLAP:
+    case YADAW::Audio::Plugin::PluginFormat::CLAP:
     {
         auto& clapInfo = std::get<Info::CLAPInfo>(data);
         // Call the following on the main thread
@@ -119,7 +119,7 @@ bool EventFileDescriptorSupport::add(int fd, const Info& info)
     auto ret = false;
     switch(info.format)
     {
-    case YADAW::Audio::Plugin::IAudioPlugin::Format::VST3:
+    case YADAW::Audio::Plugin::PluginFormat::VST3:
     {
         if(eventFDs_.find(fd) == eventFDs_.end())
         {
@@ -134,7 +134,7 @@ bool EventFileDescriptorSupport::add(int fd, const Info& info)
         }
         break;
     }
-    case YADAW::Audio::Plugin::IAudioPlugin::Format::CLAP:
+    case YADAW::Audio::Plugin::PluginFormat::CLAP:
     {
         if(eventFDs_.find(fd) == eventFDs_.end())
         {
@@ -182,7 +182,7 @@ bool EventFileDescriptorSupport::modifyCLAP(int fd, clap_posix_fd_flags_t flags)
     if(it != eventFDs_.end())
     {
         auto& info = it->second.data;
-        if(it->second.format == YADAW::Audio::Plugin::IAudioPlugin::Format::CLAP)
+        if(it->second.format == YADAW::Audio::Plugin::PluginFormat::CLAP)
         {
             auto& clapInfo = std::get<Info::CLAPInfo>(info);
             clapInfo.flags = flags;

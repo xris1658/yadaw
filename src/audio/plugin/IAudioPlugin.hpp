@@ -2,7 +2,9 @@
 #define YADAW_SRC_AUDIO_PLUGIN_IAUDIOPLUGIN
 
 #include "audio/device/IAudioDevice.hpp"
+#include "audio/plugin/AudioPluginBase.hpp"
 #include "audio/plugin/IPluginGUI.hpp"
+#include "native/PluginFormatSupport.hpp"
 
 #include <limits>
 
@@ -20,12 +22,6 @@ public:
         Activated,
         Processing
     };
-    enum class Format
-    {
-        VST3,
-        CLAP,
-        Vestifal
-    };
 public:
     static constexpr std::uint32_t InfiniteTailSize = std::numeric_limits<std::uint32_t>::max();
 public:
@@ -35,7 +31,7 @@ public:
     virtual bool deactivate() = 0;
     virtual bool startProcessing() = 0;
     virtual bool stopProcessing() = 0;
-    virtual Format format() = 0;
+    virtual PluginFormat format() = 0;
     virtual Status status() = 0;
     virtual std::uint32_t tailSizeInSamples() = 0;
 public:
@@ -43,6 +39,9 @@ public:
     virtual IPluginGUI* gui() = 0;
     virtual const IPluginGUI* gui() const = 0;
 };
+
+template<PluginFormat F>
+constexpr bool isFormatSupported = YADAW::Native::isPluginFormatSupported<F>;
 }
 
 #endif // YADAW_SRC_AUDIO_PLUGIN_IAUDIOPLUGIN

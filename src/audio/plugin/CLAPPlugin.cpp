@@ -156,9 +156,9 @@ bool CLAPPlugin::stopProcessing()
     return true;
 }
 
-IAudioPlugin::Format CLAPPlugin::format()
+PluginFormat CLAPPlugin::format()
 {
-    return IAudioPlugin::Format::CLAP;
+    return PluginFormat::CLAP;
 }
 
 IAudioPlugin::Status CLAPPlugin::status()

@@ -100,9 +100,9 @@ bool VestifalPlugin::stopProcessing()
     return true;
 }
 
-IAudioPlugin::Format VestifalPlugin::format()
+PluginFormat VestifalPlugin::format()
 {
-    return IAudioPlugin::Format::Vestifal;
+    return PluginFormat::Vestifal;
 }
 
 IAudioPlugin::Status VestifalPlugin::status()

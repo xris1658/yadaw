@@ -468,7 +468,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             }
             switch(pluginToRemove->format())
             {
-            case IAudioPlugin::Format::VST3:
+            case YADAW::Audio::Plugin::PluginFormat::VST3:
             {
                 auto vst3Plugin = static_cast<YADAW::Audio::Plugin::VST3Plugin*>(pluginToRemove.get());
                 auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
@@ -487,7 +487,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 delete componentHandler;
                 break;
             }
-            case IAudioPlugin::Format::CLAP:
+            case YADAW::Audio::Plugin::PluginFormat::CLAP:
             {
                 auto clapPlugin = static_cast<YADAW::Audio::Plugin::CLAPPlugin*>(pluginToRemove.get());
                 auto& clapPluginPool = YADAW::Controller::appCLAPPluginPool();
@@ -519,7 +519,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 delete eventList;
                 break;
             }
-            case IAudioPlugin::Format::Vestifal:
+            case YADAW::Audio::Plugin::PluginFormat::Vestifal:
             {
                 break;
             }

@@ -30,7 +30,7 @@ public:
     bool deactivate() override;
     bool startProcessing() override;
     bool stopProcessing() override;
-    Format format() override;
+    PluginFormat format() override;
     Status status() override;
     std::uint32_t tailSizeInSamples() override;
     IPluginGUI* gui() override;

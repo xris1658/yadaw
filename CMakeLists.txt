@@ -267,6 +267,7 @@ set(YADAW_COMMON_SOURCES
     src/audio/mixer/PolarityInverter.hpp
     src/audio/mixer/VolumeFader.cpp
     src/audio/mixer/VolumeFader.hpp
+    src/audio/plugin/AudioPluginBase.hpp
     src/audio/plugin/CLAPAudioChannelGroup.cpp
     src/audio/plugin/CLAPAudioChannelGroup.hpp
     src/audio/plugin/CLAPEventBusInfo.cpp
@@ -473,6 +474,7 @@ set(YADAW_COMMON_SOURCES
     src/native/MIDIInputDeviceImpl.hpp
     src/native/MIDIOutputDeviceImpl.hpp
     src/native/Native.hpp
+    src/native/PluginFormatSupport.hpp
     src/native/VST3Native.hpp
     src/native/VestifalNative.hpp
     src/ui/MessageDialog.cpp

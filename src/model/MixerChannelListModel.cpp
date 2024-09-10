@@ -1349,7 +1349,7 @@ bool MixerChannelListModel::removeInstrument(int position)
         // TODO: Move those codes to dedicated functions
         switch(plugin->format())
         {
-        case IAudioPlugin::Format::VST3:
+        case YADAW::Audio::Plugin::PluginFormat::VST3:
         {
             auto vst3Plugin = static_cast<YADAW::Audio::Plugin::VST3Plugin*>(plugin);
             auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
@@ -1368,7 +1368,7 @@ bool MixerChannelListModel::removeInstrument(int position)
             delete componentHandler;
             break;
         }
-        case IAudioPlugin::Format::CLAP:
+        case YADAW::Audio::Plugin::PluginFormat::CLAP:
         {
             auto clapPlugin = static_cast<YADAW::Audio::Plugin::CLAPPlugin*>(plugin);
             auto& clapPluginPool = YADAW::Controller::appCLAPPluginPool();
