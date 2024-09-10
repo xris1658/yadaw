@@ -4,7 +4,6 @@
 #include "audio/device/IAudioDevice.hpp"
 #include "audio/plugin/AudioPluginBase.hpp"
 #include "audio/plugin/IPluginGUI.hpp"
-#include "native/PluginFormatSupport.hpp"
 
 #include <limits>
 
@@ -39,9 +38,6 @@ public:
     virtual IPluginGUI* gui() = 0;
     virtual const IPluginGUI* gui() const = 0;
 };
-
-template<PluginFormat F>
-constexpr bool isFormatSupported = YADAW::Native::isPluginFormatSupported<F>;
 }
 
 #endif // YADAW_SRC_AUDIO_PLUGIN_IAUDIOPLUGIN
