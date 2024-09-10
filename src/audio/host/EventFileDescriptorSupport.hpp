@@ -25,7 +25,7 @@ class EventFileDescriptorSupport: public QObject
 public:
     struct Info
     {
-        YADAW::Audio::Plugin::IAudioPlugin::Format format;
+        YADAW::Audio::Plugin::PluginFormat format;
         struct VST3Info
         {
             Steinberg::Linux::IEventHandler* eventHandler;

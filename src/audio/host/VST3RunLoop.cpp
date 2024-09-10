@@ -63,7 +63,7 @@ Steinberg::tresult VST3RunLoop::registerEventHandler(
         auto addFDResult = eventFDSupport.add(
             fd,
             EventFileDescriptorSupport::Info {
-                YADAW::Audio::Plugin::IAudioPlugin::Format::VST3,
+                YADAW::Audio::Plugin::PluginFormat::VST3,
                 EventFileDescriptorSupport::Info::VST3Info {
                     handler
                 }
