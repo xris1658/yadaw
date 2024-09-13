@@ -55,6 +55,15 @@ ApplicationWindow {
     property PluginScanProgressWindow pluginScanProgressWindow: pluginScanProgressWindow
     property INativePopupEventFilterModel nativePopupEventFilterModel: null
 
+    property bool previouslyMaximized: false
+
+    onVisibilityChanged: {
+        if(root.visibility != Window.FullScreen) {
+            previouslyMaximized = root.visibility == Window.Maximized;
+        }
+        actionFullScreen.checked = root.visibility == Window.FullScreen;
+    }
+
     KeyEventForwarder {
         id: keyEventForwarder
     }
@@ -331,23 +340,7 @@ ApplicationWindow {
                 shortcut: "F11"
                 checkable: true
                 onTriggered: {
-                    if(checked) {
-                        previouslyMaximized = (root.visibility === 4);
-                        if(previouslyMaximized) {
-                            EventSender.setMainWindowFromMaximizedToFullScreen();
-                        }
-                        else {
-                            showFullScreen();
-                        }
-                    }
-                    else {
-                        if(previouslyMaximized) {
-                            EventSender.setMainWindowFromFullScreenToMaximized();
-                        }
-                        else {
-                            showNormal();
-                        }
-                    }
+                    EventSender.toggleMainWindowFullscreen();
                 }
             }
             MenuSeparator {}

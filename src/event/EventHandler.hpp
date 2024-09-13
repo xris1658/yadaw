@@ -35,8 +35,7 @@ public slots:
     void onSetTranslationIndex(int index);
     void onCurrentAudioBackendChanged();
     void onAudioGraphOutputDeviceIndexChanged(int index);
-    void onSetMainWindowFromMaximizedToFullScreen();
-    void onSetMainWindowFromFullScreenToMaximized();
+    void onToggleMainWindowFullscreen();
 private:
     QObject* eventSender_;
     QObject* eventReceiver_;

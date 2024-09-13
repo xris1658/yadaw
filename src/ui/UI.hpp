@@ -10,17 +10,19 @@ const QString& defaultFontDir();
 
 void showWindowWithoutActivating(WId winId);
 
-// Try setting window state from maximized to fullscreen without showing the
-// intermediate normal visibility.
+// Enters fullscreen. If the window was maximized, this function tries setting
+// window state from maximized to fullscreen without showing the intermediate
+// normal visibility.
 // Since it relies on private `QPlatformWindow` implementations, this function
 // might not work correctly on several Qt versions.
-void setMaximizedWindowToFullScreen(QWindow& window);
+void enterFullscreen(QWindow& window);
 
-// Try setting window state from fullscreen to maximized without showing the
-// intermediate normal visibility.
+// Exits fullscreen. If the window was maximized before full screen, this
+// function tries setting window state from fullscreen to maximized without
+// showing the intermediate normal visibility.
 // Since it relies on private `QPlatformWindow` implementations, this function
 // might not work correctly on several Qt versions.
-void setFullScreenWindowToMaximized(QWindow& window);
+void exitFullscreen(QWindow& window, bool previouslyMaximized);
 
 bool isWindowResizable(QWindow& window);
 

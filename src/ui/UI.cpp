@@ -1,6 +1,9 @@
 #include "UI.hpp"
 
 #include "native/Native.hpp"
+#if __APPLE__
+#include "ui/mac/WindowFunctions.hpp"
+#endif
 
 #include <QCoreApplication>
 #include <QGuiApplication>
@@ -9,9 +12,7 @@
 #include "native/Library.hpp"
 
 #include <stdexcept>
-#endif
-
-#if __linux__
+#elif __linux__
 #include <X11/Xutil.h>
 
 #include <xcb/xcb.h>
@@ -132,47 +133,6 @@ void setNetWmState(xcb_window_t window, xcb_connection_t* connection,
 }
 #endif
 
-void setMaximizedWindowToFullScreen(QWindow& window)
-{
-    auto fallback = true;
-#if _WIN32
-    auto hwnd = reinterpret_cast<HWND>(window.winId());
-    const UINT swpf = SWP_FRAMECHANGED | SWP_NOACTIVATE;
-    auto oldGeometry = window.geometry();
-    // We only pass the new sizing and positioning flags to the window, without
-    // actually setting the window geometry.
-    SetWindowPos(hwnd, HWND_TOP,
-        oldGeometry.left(), oldGeometry.top(),
-        oldGeometry.width(), oldGeometry.height(),
-        swpf
-    );
-    // This `setGeometry` is necessary to make `setFullScreenWindowToMaximized`
-    // work without the intermediate normal visibility.
-    window.setGeometry(oldGeometry);
-    window.showFullScreen();
-    fallback = false;
-#elif __linux__
-    auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
-    if(x11Interface)
-    {
-        auto windowHandle = static_cast<xcb_window_t>(window.winId());
-        auto connection = x11Interface->connection();
-        std::call_once(initializeAtomFlag, &initializeAtoms, connection);
-        auto windowScreen = getScreenOfWindow(windowHandle, connection);
-        if(windowScreen)
-        {
-            setNetWmState(windowHandle, connection, windowScreen, true,
-                fullscreenAtom);
-            fallback = false;
-        }
-    }
-#endif
-    if(fallback)
-    {
-        window.showFullScreen();
-    }
-}
-
 #if _WIN32
 bool isWindows11 = false;
 
@@ -189,52 +149,6 @@ void getWindowsVersion()
     }
 }
 #endif
-
-void setFullScreenWindowToMaximized(QWindow& window)
-{
-    auto fallback = true;
-#if _WIN32
-    try
-    {
-        std::call_once(getWindowsVersionFlag, &getWindowsVersion);
-    }
-    catch(std::runtime_error& runtimeError)
-    {
-        qDebug(runtimeError.what());
-    }
-    auto hwnd = reinterpret_cast<HWND>(window.winId());
-    ShowWindow(hwnd, SW_SHOWNOACTIVATE);
-    // We only pass the new sizing and positioning flags to the window, without
-    // actually setting the window geometry.
-    if(isWindows11)
-    {
-        window.showMinimized();
-    }
-    window.showMaximized();
-    fallback = false;
-#elif __linux__
-    auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
-    if(x11Interface)
-    {
-        auto windowHandle = static_cast<xcb_window_t>(window.winId());
-        auto connection = x11Interface->connection();
-        std::call_once(initializeAtomFlag, &initializeAtoms, connection);
-        auto windowScreen = getScreenOfWindow(windowHandle, connection);
-        if(windowScreen)
-        {
-            setNetWmState(windowHandle, connection, windowScreen, false,
-                fullscreenAtom);
-            setNetWmState(windowHandle, connection, windowScreen, true,
-                fillWidthAtom, fillHeightAtom);
-            fallback = false;
-        }
-    }
-#endif
-    if(fallback)
-    {
-        window.showMaximized();
-    }
-}
 
 #if _WIN32
 bool isWindowResizable(QWindow& window)
@@ -298,4 +212,111 @@ void setWindowResizable(QWindow& window, bool resizable)
     }
 }
 #endif
+
+void enterFullscreen(QWindow& window)
+{
+    if(window.visibility() == QWindow::Visibility::Maximized)
+    {
+        auto fallback = true;
+#if _WIN32
+        auto hwnd = reinterpret_cast<HWND>(window.winId());
+        const UINT swpf = SWP_FRAMECHANGED | SWP_NOACTIVATE;
+        auto oldGeometry = window.geometry();
+        // We only pass the new sizing and positioning flags to the window, without
+        // actually setting the window geometry.
+        SetWindowPos(hwnd, HWND_TOP,
+            oldGeometry.left(), oldGeometry.top(),
+            oldGeometry.width(), oldGeometry.height(),
+            swpf
+        );
+        // This `setGeometry` is necessary to make `setFullScreenWindowToMaximized`
+        // work without the intermediate normal visibility.
+        window.setGeometry(oldGeometry);
+        window.showFullScreen();
+        fallback = false;
+#elif __APPLE__
+        toggleNSWindowFullscreen(window.winId());
+        fallback = false;
+#elif __linux__
+        auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
+        if(x11Interface)
+        {
+            auto windowHandle = static_cast<xcb_window_t>(window.winId());
+            auto connection = x11Interface->connection();
+            std::call_once(initializeAtomFlag, &initializeAtoms, connection);
+            auto windowScreen = getScreenOfWindow(windowHandle, connection);
+            if(windowScreen)
+            {
+                setNetWmState(windowHandle, connection, windowScreen, true,
+                    fullscreenAtom);
+                fallback = false;
+            }
+        }
+#endif
+        if(fallback)
+        {
+            window.showFullScreen();
+        }
+    }
+    else
+    {
+        window.showFullScreen();
+    }
+}
+
+void exitFullscreen(QWindow& window, bool previouslyMaximized)
+{
+    if(previouslyMaximized)
+    {
+        auto fallback = true;
+#if _WIN32
+        try
+        {
+            std::call_once(getWindowsVersionFlag, &getWindowsVersion);
+        }
+        catch(std::runtime_error& runtimeError)
+        {
+            qDebug(runtimeError.what());
+        }
+        auto hwnd = reinterpret_cast<HWND>(window.winId());
+        ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+        // We only pass the new sizing and positioning flags to the window, without
+        // actually setting the window geometry.
+        if(isWindows11)
+        {
+            window.showMinimized();
+        }
+        window.showMaximized();
+        fallback = false;
+#elif __APPLE__
+        toggleNSWindowFullscreen(window.winId());
+        fallback = false;
+#elif __linux__
+        auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
+        if(x11Interface)
+        {
+            auto windowHandle = static_cast<xcb_window_t>(window.winId());
+            auto connection = x11Interface->connection();
+            std::call_once(initializeAtomFlag, &initializeAtoms, connection);
+            auto windowScreen = getScreenOfWindow(windowHandle, connection);
+            if(windowScreen)
+            {
+                setNetWmState(windowHandle, connection, windowScreen, false,
+                    fullscreenAtom);
+                setNetWmState(windowHandle, connection, windowScreen, true,
+                    fillWidthAtom, fillHeightAtom);
+                fallback = false;
+            }
+        }
+#endif
+        if(fallback)
+        {
+            window.showMaximized();
+        }
+    }
+    else
+    {
+        window.showNormal();
+    }
+}
 }

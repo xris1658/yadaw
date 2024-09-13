@@ -144,6 +144,8 @@ set(MAC_NATIVE_SOURCES
     src/audio/plugin/AudioUnitV3Plugin.cpp
     src/audio/plugin/AudioUnitV3Plugin.hpp
     src/ui/mac/NativeEventFilterImpl.mm
+    src/ui/mac/WindowFunctions.hpp
+    src/ui/mac/WindowFunctions.mm
 )
 
 set(LINUX_NATIVE_SOURCES

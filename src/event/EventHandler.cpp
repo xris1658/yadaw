@@ -97,10 +97,8 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onLocateFileInExplorer(QString)));
     QObject::connect(sender, SIGNAL(startPluginScan()),
         this, SLOT(onStartPluginScan()));
-    QObject::connect(sender, SIGNAL(setMainWindowFromMaximizedToFullScreen()),
-        this, SLOT(onSetMainWindowFromMaximizedToFullScreen()));
-    QObject::connect(sender, SIGNAL(setMainWindowFromFullScreenToMaximized()),
-        this, SLOT(onSetMainWindowFromFullScreenToMaximized()));
+    QObject::connect(sender, SIGNAL(toggleMainWindowFullscreen()),
+        this, SLOT(onToggleMainWindowFullscreen()));
 }
 
 void EventHandler::connectToEventReceiver(QObject* receiver)
@@ -709,13 +707,22 @@ void EventHandler::onAudioGraphOutputDeviceIndexChanged(int index)
 #endif
 }
 
-void EventHandler::onSetMainWindowFromMaximizedToFullScreen()
+void EventHandler::onToggleMainWindowFullscreen()
 {
-    YADAW::UI::setMaximizedWindowToFullScreen(*YADAW::UI::mainWindow);
-}
-
-void EventHandler::onSetMainWindowFromFullScreenToMaximized()
-{
-    YADAW::UI::setFullScreenWindowToMaximized(*YADAW::UI::mainWindow);
+    auto visibility = YADAW::UI::mainWindow->visibility();
+    if(visibility != QWindow::Visibility::FullScreen)
+    {
+        YADAW::UI::mainWindow->setProperty("previouslyMaximized",
+            QVariant::fromValue<bool>(visibility == QWindow::Visibility::Maximized)
+        );
+        YADAW::UI::enterFullscreen(*YADAW::UI::mainWindow);
+    }
+    else
+    {
+        YADAW::UI::exitFullscreen(
+            *YADAW::UI::mainWindow,
+            YADAW::UI::mainWindow->property("previouslyMaximized").value<bool>()
+        );
+    }
 }
 }
