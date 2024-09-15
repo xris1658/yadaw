@@ -64,8 +64,8 @@ using DeviceFactoryType = std::unique_ptr<Device>(
 //            1. Contents of the audio track. Not connected for now,
 //               reserved for future use.
 //            2. A not-owned mute/solo of the The external audio in.
-// - `Instrument`: A not-owned `IAudioDevice` which is the instrument, or
-//                 an owned `BlankGenerator` if there is no instrument.
+// - `Instrument`: A not-owned `IAudioDevice` which is the instrument, or null
+//                 if there is no instrument.
 // - `AudioFX`: An owned `YADAW::Audio::Util::Summing`.
 // - `AudioBus`: An owned `YADAW::Audio::Util::Summing`.
 // - `AudioHardwareOutput`: An owned `YADAW::Audio::Util::Summing`.

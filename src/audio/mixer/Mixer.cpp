@@ -1418,25 +1418,17 @@ bool Mixer::insertChannels(
         }
         case ChannelType::Instrument:
         {
-            std::vector<std::unique_ptr<YADAW::Audio::Mixer::BlankGenerator>> blankGenerators;
-            blankGenerators.reserve(count);
-            FOR_RANGE0(i, count)
-            {
-                blankGenerators.emplace_back(
-                    std::make_unique<YADAW::Audio::Mixer::BlankGenerator>(
-                        channelGroupType, channelCountInGroup
-                    )
-                );
-            }
-            FOR_RANGE0(i, count)
-            {
-                auto node = graph_.addNode(
-                    YADAW::Audio::Engine::AudioDeviceProcess(
-                        *blankGenerators[i]
-                    )
-                );
-                inputDevicesAndNode.emplace_back(blankGenerators[i].release(), node);
-            }
+            std::generate_n(
+                std::back_inserter(inputDevicesAndNode),
+                count,
+                []()
+                {
+                    return DeviceAndNode{
+                        std::unique_ptr<YADAW::Audio::Device::IAudioDevice>(),
+                        ade::NodeHandle()
+                    };
+                }
+            );
             ret = true;
             break;
         }
@@ -1487,11 +1479,17 @@ bool Mixer::insertChannels(
             );
         }
         // connect and move-------------------------------------------------
+        if(channelType != ChannelType::Instrument)
+        {
+            FOR_RANGE0(i, count)
+            {
+                graph_.connect(
+                    inputDevicesAndNode[i].second, polarityInvertersAndNode[i].second, 0, 0
+                );
+            }
+        }
         FOR_RANGE0(i, count)
         {
-            graph_.connect(
-                inputDevicesAndNode[i].second, polarityInvertersAndNode[i].second, 0, 0
-            );
             graph_.connect(
                 mutesAndNode[i].second, fadersAndNode[i].second, 0, 0
             );
@@ -1610,9 +1608,12 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         );
         std::vector<ade::NodeHandle> nodesToRemove;
         nodesToRemove.reserve(removeCount * 5);
-        FOR_RANGE(i, first,last)
+        FOR_RANGE(i, first, last)
         {
-            nodesToRemove.emplace_back(inputDevices_[i].second);
+            if(channelInfo_[i].channelType != ChannelType::Instrument)
+            {
+                nodesToRemove.emplace_back(inputDevices_[i].second);
+            }
             nodesToRemove.emplace_back(polarityInverters_[i].second);
             nodesToRemove.emplace_back(mutes_[i].second);
             nodesToRemove.emplace_back(faders_[i].second);
