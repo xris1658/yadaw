@@ -8,6 +8,7 @@
 #include "audio/engine/extension/UpstreamLatency.hpp"
 #include "audio/mixer/Inserts.hpp"
 #include "audio/mixer/Meter.hpp"
+#include "audio/mixer/PolarityInverter.hpp"
 #include "audio/mixer/VolumeFader.hpp"
 #include "audio/util/Mute.hpp"
 #include "audio/util/Summing.hpp"
@@ -52,9 +53,9 @@ using DeviceFactoryType = std::unique_ptr<Device>(
 );
 
 // Struct of a channel:
-// +------------+   +-------------------+   +------+   +-------+   +--------------------+   +-------+   +-------------+
-// | Input Node |-->| Pre-Fader Inserts |-->| Mute |-->| Fader |-->| Post-Fader Inserts |-->| Meter |-->| Output Node |
-// +------------+   +-------------------+   +------+   +-------+   +--------------------+   +-------+   +-------------+
+// +------------+   +-------------------+   +-------------------+   +------+   +-------+   +--------------------+   +-------+   +-------------+
+// | Input Node |-->| Polarity Inverter |-->| Pre-Fader Inserts |-->| Mute |-->| Fader |-->| Post-Fader Inserts |-->| Meter |-->| Output Node |
+// +------------+   +-------------------+   +-------------------+   +------+   +-------+   +--------------------+   +-------+   +-------------+
 //
 // `Mixer` owns faders, meters and input/output devices of regular channels.
 // Input devices:
@@ -194,6 +195,12 @@ public:
     std::uint32_t audioInputChannelCount() const;
     std::uint32_t channelCount() const;
     std::uint32_t audioOutputChannelCount() const;
+    OptionalRef<const YADAW::Audio::Mixer::PolarityInverter> audioInputChannelPolarityInverterAt(std::uint32_t index) const;
+    OptionalRef<const YADAW::Audio::Mixer::PolarityInverter> audioOutputChannelPolarityInverterAt(std::uint32_t index) const;
+    OptionalRef<const YADAW::Audio::Mixer::PolarityInverter> channelPolarityInverterAt(std::uint32_t index) const;
+    OptionalRef<YADAW::Audio::Mixer::PolarityInverter> audioInputChannelPolarityInverterAt(std::uint32_t index);
+    OptionalRef<YADAW::Audio::Mixer::PolarityInverter> audioOutputChannelPolarityInverterAt(std::uint32_t index);
+    OptionalRef<YADAW::Audio::Mixer::PolarityInverter> channelPolarityInverterAt(std::uint32_t index);
     OptionalRef<const YADAW::Audio::Mixer::Inserts> audioInputChannelPreFaderInsertsAt(std::uint32_t index) const;
     OptionalRef<const YADAW::Audio::Mixer::Inserts> audioInputChannelPostFaderInsertsAt(std::uint32_t index) const;
     OptionalRef<const YADAW::Audio::Mixer::Inserts> channelPreFaderInsertsAt(std::uint32_t index) const;
@@ -299,6 +306,10 @@ public:
     );
     void clearConnections();
 private:
+    using PolarityInverterAndNode = std::pair<
+        std::unique_ptr<YADAW::Audio::Mixer::PolarityInverter>,
+        ade::NodeHandle
+    >;
     using MeterAndNode = std::pair<
         std::unique_ptr<YADAW::Audio::Mixer::Meter>,
         ade::NodeHandle
@@ -343,6 +354,7 @@ private:
     IDGen audioInputChannelIdGen_;
     std::vector<IDGen::ID> audioInputChannelId_;
     std::vector<IDAndIndex> audioInputChannelIdAndIndex_;
+    std::vector<PolarityInverterAndNode> audioInputPolarityInverters_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioInputPreFaderInserts_;
     std::vector<MuteAndNode> audioInputMutes_;
     std::vector<FaderAndNode> audioInputFaders_;
@@ -354,6 +366,7 @@ private:
     std::vector<IDGen::ID> channelId_;
     std::vector<IDAndIndex> channelIdAndIndex_;
     std::vector<DeviceAndNode> inputDevices_;
+    std::vector<PolarityInverterAndNode> polarityInverters_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts_;
     std::vector<MuteAndNode> mutes_;
     std::vector<FaderAndNode> faders_;
@@ -367,6 +380,7 @@ private:
     std::vector<IDGen::ID> audioOutputChannelId_;
     std::vector<IDAndIndex> audioOutputChannelIdAndIndex_;
     std::vector<SummingAndNode> audioOutputSummings_;
+    std::vector<PolarityInverterAndNode> audioOutputPolarityInverters_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPreFaderInserts_;
     std::vector<MuteAndNode> audioOutputMutes_;
     std::vector<FaderAndNode> audioOutputFaders_;

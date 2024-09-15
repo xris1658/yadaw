@@ -2,6 +2,7 @@
 
 #include "audio/mixer/BlankGenerator.hpp"
 #include "audio/util/InputSwitcher.hpp"
+#include "util/Base.hpp"
 
 namespace YADAW::Audio::Mixer
 {
@@ -45,6 +46,62 @@ std::uint32_t Mixer::channelCount() const
 std::uint32_t Mixer::audioOutputChannelCount() const
 {
     return audioOutputFaders_.size();
+}
+
+OptionalRef<const YADAW::Audio::Mixer::PolarityInverter> Mixer::audioInputChannelPolarityInverterAt(
+    std::uint32_t index) const
+{
+    if(index < audioInputChannelCount())
+    {
+        return {std::ref(*audioInputPolarityInverters_[index].first)};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const YADAW::Audio::Mixer::PolarityInverter> Mixer::audioOutputChannelPolarityInverterAt(
+    std::uint32_t index) const
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {std::ref(*audioOutputPolarityInverters_[index].first)};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const YADAW::Audio::Mixer::PolarityInverter> Mixer::channelPolarityInverterAt(std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        return {std::ref(*polarityInverters_[index].first)};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<YADAW::Audio::Mixer::PolarityInverter> Mixer::audioInputChannelPolarityInverterAt(std::uint32_t index)
+{
+    if(index < audioInputChannelCount())
+    {
+        return {std::ref(*audioInputPolarityInverters_[index].first)};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<YADAW::Audio::Mixer::PolarityInverter> Mixer::audioOutputChannelPolarityInverterAt(std::uint32_t index)
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {std::ref(*audioOutputPolarityInverters_[index].first)};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<YADAW::Audio::Mixer::PolarityInverter> Mixer::channelPolarityInverterAt(std::uint32_t index)
+{
+    if(index < channelCount())
+    {
+        return {std::ref(*polarityInverters_[index].first)};
+    }
+    return std::nullopt;
 }
 
 OptionalRef<const YADAW::Audio::Mixer::Inserts>
@@ -919,10 +976,17 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
         auto muteNode = graph_.addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(*mute)
         );
+        auto polarityInverter = std::make_unique<YADAW::Audio::Mixer::PolarityInverter>(
+            channelGroup.type(), channelGroup.channelCount()
+        );
+        auto polarityInverterNode = graph_.addNode(
+            YADAW::Audio::Engine::AudioDeviceProcess(*polarityInverter)
+        );
+        graph_.connect(inNode, polarityInverterNode, 0, 0);
         audioInputPreFaderInserts_.emplace(
             audioInputPreFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, inNode, muteNode, channelGroupIndex, 0
+                graph_, polarityInverterNode, muteNode, channelGroupIndex, 0
             )
         );
         audioInputMutes_.emplace(
@@ -935,6 +999,10 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, faderNode, meterNode, 0, 0
             )
+        );
+        audioInputPolarityInverters_.emplace(
+            audioInputPolarityInverters_.begin() + position,
+            std::move(polarityInverter), polarityInverterNode
         );
         audioInputFaders_.emplace(
             audioInputFaders_.begin() + position,
@@ -960,26 +1028,30 @@ bool Mixer::removeAudioInputChannel(
             && last <= audioInputChannelCount()
     )
     {
-        std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 4);
-        FOR_RANGE(i, first, last)
         {
-            nodesToRemove.emplace_back(audioInputPreFaderInserts_[i]->inNode());
-            nodesToRemove.emplace_back(audioInputMutes_[i].second);
-            nodesToRemove.emplace_back(audioInputFaders_[i].second);
-            nodesToRemove.emplace_back(audioInputMeters_[i].second);
-        }
-        audioInputPreFaderInserts_.erase(
-            audioInputPreFaderInserts_.begin() + first,
-            audioInputPreFaderInserts_.begin() + last
-        );
-        audioInputPostFaderInserts_.erase(
-            audioInputPostFaderInserts_.begin() + first,
-            audioInputPostFaderInserts_.begin() + last
-        );
-        FOR_RANGE0(i, nodesToRemove.size())
-        {
-            graphWithPDC_.removeNode(nodesToRemove[i]);
+            std::vector<ade::NodeHandle> nodesToRemove;
+            nodesToRemove.reserve(removeCount * 5);
+            FOR_RANGE(i, first, last)
+            {
+                auto polarityInverterNode = audioInputPolarityInverters_[i].second;
+                nodesToRemove.emplace_back(polarityInverterNode);
+                nodesToRemove.emplace_back(polarityInverterNode->inNodes().front());
+                nodesToRemove.emplace_back(audioInputMutes_[i].second);
+                nodesToRemove.emplace_back(audioInputFaders_[i].second);
+                nodesToRemove.emplace_back(audioInputMeters_[i].second);
+            }
+            audioInputPreFaderInserts_.erase(
+                audioInputPreFaderInserts_.begin() + first,
+                audioInputPreFaderInserts_.begin() + last
+            );
+            audioInputPostFaderInserts_.erase(
+                audioInputPostFaderInserts_.begin() + first,
+                audioInputPostFaderInserts_.begin() + last
+            );
+            FOR_RANGE0(i, nodesToRemove.size())
+            {
+                graphWithPDC_.removeNode(nodesToRemove[i]);
+            }
         }
         nodeRemovedCallback_(*this);
         audioInputMutes_.erase(
@@ -997,6 +1069,10 @@ bool Mixer::removeAudioInputChannel(
         audioInputChannelInfo_.erase(
             audioInputChannelInfo_.begin() + first,
             audioInputChannelInfo_.begin() + last
+        );
+        audioInputPolarityInverters_.erase(
+            audioInputPolarityInverters_.begin() + first,
+            audioInputPolarityInverters_.begin() + last
         );
         std::sort(
             audioInputChannelId_.begin() + first,
@@ -1084,12 +1160,19 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
         auto muteNode = graph_.addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(*mute)
         );
+        auto polarityInverter = std::make_unique<YADAW::Audio::Mixer::PolarityInverter>(
+            channelGroup.type(), channelGroup.channelCount()
+        );
+        auto polarityInverterNode = graph_.addNode(
+            YADAW::Audio::Engine::AudioDeviceProcess(*polarityInverter)
+        );
         audioOutputPreFaderInserts_.emplace(
             audioOutputPreFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, summingNode, muteNode, 0, 0
+                graph_, polarityInverterNode, muteNode, 0, 0
             )
         );
+        graph_.connect(summingNode, polarityInverterNode, 0, 0);
         audioOutputMutes_.emplace(
             audioOutputMutes_.begin() + position,
             std::move(mute), muteNode
@@ -1114,6 +1197,10 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
             audioOutputMeters_.begin() + position,
             std::move(meter), meterNode
         );
+        audioOutputPolarityInverters_.emplace(
+            audioOutputPolarityInverters_.begin() + position,
+            std::move(polarityInverter), polarityInverterNode
+        );
         nodeAddedCallback_(*this);
         auto& info = *audioOutputChannelInfo_.emplace(audioOutputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
@@ -1130,29 +1217,34 @@ bool Mixer::removeAudioOutputChannel(
             && last <= audioOutputChannelCount()
     )
     {
-        std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 5);
-        FOR_RANGE(i, first, last)
         {
-            nodesToRemove.emplace_back(audioOutputSummings_[i].second);
-            nodesToRemove.emplace_back(audioOutputMutes_[i].second);
-            nodesToRemove.emplace_back(audioOutputFaders_[i].second);
-            nodesToRemove.emplace_back(audioOutputMeters_[i].second);
-            nodesToRemove.emplace_back(
-                *(audioOutputMeters_[i].second->outNodes().begin())
+            std::vector<ade::NodeHandle> nodesToRemove;
+            nodesToRemove.reserve(removeCount * 6);
+            FOR_RANGE(i, first, last)
+            {
+                nodesToRemove.emplace_back(audioOutputSummings_[i].second);
+                nodesToRemove.emplace_back(audioOutputMutes_[i].second);
+                nodesToRemove.emplace_back(audioOutputFaders_[i].second);
+                nodesToRemove.emplace_back(audioOutputMeters_[i].second);
+                nodesToRemove.emplace_back(
+                    *(audioOutputMeters_[i].second->outNodes().begin())
+                );
+                nodesToRemove.emplace_back(
+                    audioOutputPolarityInverters_[i].second
+                );
+            }
+            audioOutputPreFaderInserts_.erase(
+                audioOutputPreFaderInserts_.begin() + first,
+                audioOutputPreFaderInserts_.begin() + last
             );
-        }
-        audioOutputPreFaderInserts_.erase(
-            audioOutputPreFaderInserts_.begin() + first,
-            audioOutputPreFaderInserts_.begin() + last
-        );
-        audioOutputPostFaderInserts_.erase(
-            audioOutputPostFaderInserts_.begin() + first,
-            audioOutputPostFaderInserts_.begin() + last
-        );
-        FOR_RANGE0(i, nodesToRemove.size())
-        {
-            graphWithPDC_.removeNode(nodesToRemove[i]);
+            audioOutputPostFaderInserts_.erase(
+                audioOutputPostFaderInserts_.begin() + first,
+                audioOutputPostFaderInserts_.begin() + last
+            );
+            FOR_RANGE0(i, nodesToRemove.size())
+            {
+                graphWithPDC_.removeNode(nodesToRemove[i]);
+            }
         }
         nodeRemovedCallback_(*this);
         audioOutputMutes_.erase(
@@ -1220,6 +1312,7 @@ bool Mixer::insertChannels(
     std::vector<FaderAndNode> fadersAndNode;
     std::vector<MeterAndNode> metersAndNode;
     std::vector<MuteAndNode> mutesAndNode;
+    std::vector<PolarityInverterAndNode> polarityInvertersAndNode;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> postFaderInserts;
     auto ret = false;
@@ -1227,6 +1320,20 @@ bool Mixer::insertChannels(
     {
         // inputs ----------------------------------------------------------
         inputDevicesAndNode.reserve(count);
+        // polarity inverters -----------------------------------------------
+        polarityInvertersAndNode.reserve(count);
+        FOR_RANGE0(i, count)
+        {
+            auto& [device, node] = polarityInvertersAndNode.emplace_back(
+                std::make_unique<YADAW::Audio::Mixer::PolarityInverter>(
+                    channelGroupType, channelCountInGroup
+                ),
+                ade::NodeHandle()
+            );
+            node = graph_.addNode(
+                YADAW::Audio::Engine::AudioDeviceProcess(*device)
+            );
+        }
         // faders ----------------------------------------------------------
         fadersAndNode.reserve(count);
         FOR_RANGE0(i, count)
@@ -1374,7 +1481,7 @@ bool Mixer::insertChannels(
             preFaderInserts.emplace_back(
                 std::make_unique<YADAW::Audio::Mixer::Inserts>(
                     graph_,
-                    inputDevicesAndNode[i].second, mutesAndNode[i].second,
+                    polarityInvertersAndNode[i].second, mutesAndNode[i].second,
                     0, 0
                 )
             );
@@ -1383,6 +1490,9 @@ bool Mixer::insertChannels(
         FOR_RANGE0(i, count)
         {
             graph_.connect(
+                inputDevicesAndNode[i].second, polarityInvertersAndNode[i].second, 0, 0
+            );
+            graph_.connect(
                 mutesAndNode[i].second, fadersAndNode[i].second, 0, 0
             );
         }
@@ -1390,6 +1500,12 @@ bool Mixer::insertChannels(
             inputDevicesAndNode.begin(), inputDevicesAndNode.end(),
             std::inserter(
                 inputDevices_, inputDevices_.begin() + position
+            )
+        );
+        std::move(
+            polarityInvertersAndNode.begin(), polarityInvertersAndNode.end(),
+            std::inserter(
+                polarityInverters_, polarityInverters_.begin() + position
             )
         );
         std::move(
@@ -1493,10 +1609,11 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             postFaderInserts_.begin() + last
         );
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 4);
+        nodesToRemove.reserve(removeCount * 5);
         FOR_RANGE(i, first,last)
         {
             nodesToRemove.emplace_back(inputDevices_[i].second);
+            nodesToRemove.emplace_back(polarityInverters_[i].second);
             nodesToRemove.emplace_back(mutes_[i].second);
             nodesToRemove.emplace_back(faders_[i].second);
             nodesToRemove.emplace_back(meters_[i].second);
@@ -1517,6 +1634,10 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         inputDevices_.erase(
             inputDevices_.begin() + first,
             inputDevices_.begin() + last
+        );
+        polarityInverters_.erase(
+            polarityInverters_.begin() + first,
+            polarityInverters_.begin() + last
         );
         mutes_.erase(
             mutes_.begin() + first,
