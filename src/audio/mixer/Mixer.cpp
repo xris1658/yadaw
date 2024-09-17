@@ -525,7 +525,7 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
         && channelInfo_[index].channelType == ChannelType::Audio)
     {
         // Disconnect
-        auto toNode = preFaderInserts_[index]->inNode();
+        auto toNode = inputDevices_[index].second;
         auto inEdges = toNode->inEdges();
         if(!inEdges.empty())
         {
@@ -716,6 +716,11 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     auto newSummingNode = graphWithPDC_.addNode(
                         YADAW::Audio::Engine::AudioDeviceProcess(*newSumming)
                     );
+                    FOR_RANGE0(i, oldSummingNode->outEdges().size())
+                    {
+                        graph_.disconnect(oldSummingNode->outEdges().front());
+                    }
+                    graph_.connect(newSummingNode, audioOutputPolarityInverters_[outputChannelIndex].second, 0, 0);
                     auto newSummingNodeInIndex = 0U;
                     for(const auto& edgeHandle: oldSummingNode->inEdges())
                     {
@@ -728,7 +733,6 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     graph_.connect(
                         fromNode, newSummingNode, 0, newSummingNodeInIndex
                     );
-                    audioOutputPreFaderInserts_[it->index]->setInNode(newSummingNode, 0);
                     disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
                     disconnectingNewSumming = std::move(oldSumming);
                     connectionUpdatedCallback_(*this);
@@ -775,6 +779,11 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         auto newSummingNode = graphWithPDC_.addNode(
                             YADAW::Audio::Engine::AudioDeviceProcess(*newSumming)
                         );
+                        FOR_RANGE0(i, oldSummingNode->outEdges().size())
+                        {
+                            graph_.disconnect(oldSummingNode->outEdges().front());
+                        }
+                        graph_.connect(newSummingNode, audioOutputPolarityInverters_[outputChannelIndex].second, 0, 0);
                         auto newSummingNodeInIndex = 0U;
                         for(const auto& edgeHandle: oldSummingNode->inEdges())
                         {
@@ -787,7 +796,6 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         graph_.connect(
                             fromNode, newSummingNode, 0, newSummingNodeInIndex
                         );
-                        preFaderInserts_[it->index]->setInNode(newSummingNode, 0);
                         {
                             disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
                             disconnectingNewSumming = std::move(oldSummingAsDevice);
