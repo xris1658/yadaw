@@ -6,6 +6,7 @@
 #include "audio/mixer/Mixer.hpp"
 #include "entity/IAudioIOPosition.hpp"
 #include "model/AudioDeviceIOGroupListModel.hpp"
+#include "model/PolarityInverterModel.hpp"
 
 #include <memory>
 #include <vector>
@@ -82,6 +83,7 @@ private:
     std::vector<bool> instrumentBypassed_;
     // }
     std::vector<bool> editingVolume_;
+    mutable std::vector<std::unique_ptr<YADAW::Model::PolarityInverterModel>> polarityInverterModels_;
     ListType listType_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToInputPositions_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToOutputPositions_;

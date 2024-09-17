@@ -214,6 +214,24 @@ UnmuteAll unmuteAllFunc[3] = {
     &YADAW::Audio::Mixer::Mixer::unmuteAudioOutputChannels
 };
 
+using GetConstPolarityInverterFunc =
+    OptionalRef<const YADAW::Audio::Mixer::PolarityInverter>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t index) const;
+
+GetConstPolarityInverterFunc getConstPolarityInverters[3] = {
+    static_cast<GetConstPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::audioInputChannelPolarityInverterAt),
+    static_cast<GetConstPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::channelPolarityInverterAt),
+    static_cast<GetConstPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelPolarityInverterAt)
+};
+
+using GetPolarityInverterFunc =
+    OptionalRef<YADAW::Audio::Mixer::PolarityInverter>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t index);
+
+GetPolarityInverterFunc getPolarityInverters[3] = {
+    static_cast<GetPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::audioInputChannelPolarityInverterAt),
+    static_cast<GetPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::channelPolarityInverterAt),
+    static_cast<GetPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelPolarityInverterAt)
+};
+
 IMixerChannelListModel::ChannelTypes getChannelType(YADAW::Audio::Mixer::Mixer::ChannelType type)
 {
     return static_cast<IMixerChannelListModel::ChannelTypes>(YADAW::Util::underlyingValue(type));
@@ -227,6 +245,7 @@ MixerChannelListModel::MixerChannelListModel(
 {
     auto count = itemCount();
     insertModels_.reserve(count);
+    polarityInverterModels_.reserve(count);
     editingVolume_.resize(count, false);
     auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
     std::generate_n(
@@ -237,6 +256,16 @@ MixerChannelListModel::MixerChannelListModel(
             return std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
                 (mixer_.*getPreFaderInserts[YADAW::Util::underlyingValue(listType_)])(index)->get(),
                 listType_, true, index, 0
+            );
+        }
+    );
+    std::generate_n(
+        std::back_inserter(polarityInverterModels_), count,
+        [this, i = 0U]() mutable
+        {
+            auto index = i++;
+            return std::make_unique<PolarityInverterModel>(
+                (mixer_.*getPolarityInverters[YADAW::Util::underlyingValue(listType_)])(index)->get()
             );
         }
     );
@@ -451,6 +480,12 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
                 mute.getMute()
             );
         }
+        case Role::PolarityInverter:
+        {
+            return QVariant::fromValue<QObject*>(
+                polarityInverterModels_[row].get()
+            );
+        }
         case Role::MonitorExist:
         {
             if(listType_ == ListType::Regular)
@@ -468,7 +503,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
             {
                 auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
                     mixer_.graph().graph().getNodeData(
-                        mixer_.channelPreFaderInsertsAt(row)->get().inNode()
+                        mixer_.channelPreFaderInsertsAt(row)->get().inNode()->inNodes().front()
                     ).process.device()
                 );
                 return QVariant::fromValue<bool>(inputSwitcher->getInputIndex());
@@ -713,7 +748,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                 auto bypassed = value.value<bool>();
                 if(bypassed ^ instrumentBypassed_[row])
                 {
-                    auto inNode = mixer_.channelPreFaderInsertsAt(row)->get().inNode();
+                    auto inNode = mixer_.channelPreFaderInsertsAt(row)->get().inNode()->inNodes().front();
                     if(bypassed)
                     {
                         for(const auto& inEdge: inNode->inEdges())
@@ -786,7 +821,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
             {
                 auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
                     mixer_.graph().graph().getNodeData(
-                        mixer_.channelPreFaderInsertsAt(row)->get().inNode()
+                        mixer_.channelPreFaderInsertsAt(row)->get().inNode()->inNodes().front()
                     ).process.device()
                 );
                 auto inputIndex = static_cast<std::uint32_t>(value.value<bool>());
@@ -982,6 +1017,16 @@ bool MixerChannelListModel::insert(int position, int count,
     }
     if(ret)
     {
+        std::generate_n(
+            std::inserter(polarityInverterModels_, polarityInverterModels_.begin() + position), count,
+            [this, position, offset = 0]() mutable
+            {
+                auto index = position + (offset++);
+                return std::make_unique<YADAW::Model::PolarityInverterModel>(
+                    (mixer_.*getPolarityInverters[YADAW::Util::underlyingValue(listType_)])(index)->get()
+                );
+            }
+        );
         std::fill_n(
             std::inserter(editingVolume_, editingVolume_.begin() + position),
             count, false
@@ -1048,6 +1093,10 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         insertModels_.erase(
             insertModels_.begin() + position,
             insertModels_.begin() + position + removeCount
+        );
+        polarityInverterModels_.erase(
+            polarityInverterModels_.begin() + position,
+            polarityInverterModels_.begin() + position + removeCount
         );
         FOR_RANGE(i, position, insertModels_.size())
         {

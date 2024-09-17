@@ -739,23 +739,35 @@ Rectangle {
                             MenuItem {
                                 text: qsTr("Invert all")
                                 minimumSpaceBetweenTextAndShortcut: 0
+                                onClicked: {
+                                    mclm_polarity_inverter.invertAll();
+                                }
                             }
                             MenuItem {
                                 text: qsTr("Invert none")
                                 minimumSpaceBetweenTextAndShortcut: 0
+                                onClicked: {
+                                    mclm_polarity_inverter.revertAll();
+                                }
                             }
                             MenuItem {
                                 text: qsTr("Toggle all")
                                 minimumSpaceBetweenTextAndShortcut: 0
+                                onClicked: {
+                                    mclm_polarity_inverter.toggleAll();
+                                }
                             }
                             MenuSeparator {}
                             Repeater {
-                                model: mclm_channel_count
+                                model: mclm_polarity_inverter
                                 MenuItem {
                                     checkable: true
-                                    checked: false
-                                    text: "\u2205" + (index + 1)
+                                    checked: pim_inverted
+                                    text: pim_channel_name
                                     minimumSpaceBetweenTextAndShortcut: 0
+                                    onCheckedChanged: {
+                                        pim_inverted = checked;
+                                    }
                                 }
                             }
                         }
