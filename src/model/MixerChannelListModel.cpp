@@ -229,17 +229,26 @@ MixerChannelListModel::MixerChannelListModel(
     insertModels_.reserve(count);
     editingVolume_.resize(count, false);
     auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
-    FOR_RANGE0(i, count)
+    std::generate_n(
+        std::back_inserter(insertModels_), count,
+        [this, i = 0U]() mutable
+        {
+            auto index = i++;
+            return std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
+                (mixer_.*getPreFaderInserts[YADAW::Util::underlyingValue(listType_)])(index)->get(),
+                listType_, true, index, 0
+            );
+        }
+    );
+    if(listType_ == ListType::Regular)
     {
-        insertModels_.emplace_back(
-            std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
-                (mixer_.*getPreFaderInserts[YADAW::Util::underlyingValue(listType_)])(i)->get(),
-                listType_,
-                i,
-                true,
-                0
-            )
-        );
+        instruments_.reserve(count);
+        std::fill_n(std::back_inserter(instruments_), count, nullptr);
+        std::fill_n(std::back_inserter(instrumentAudioInputs_), count, nullptr);
+        std::fill_n(std::back_inserter(instrumentAudioOutputs_), count, nullptr);
+        std::fill_n(std::back_inserter(instrumentBypassed_), count, false);
+        std::fill_n(std::back_inserter(mainInput_), count, nullptr);
+        std::fill_n(std::back_inserter(mainOutput_), count, nullptr);
     }
 }
 
@@ -919,7 +928,7 @@ bool MixerChannelListModel::insert(int position, int count,
             endInsertRows();
             dataChanged(index(position + count), index(itemCount() - 1), {Role::NameWithIndex});
         }
-        }
+    }
     else if(listType_ == ListType::AudioHardwareInput || listType_ == ListType::AudioHardwareOutput)
     {
         auto& audioBusConfiguration = YADAW::Controller::appAudioBusConfiguration();
@@ -1488,8 +1497,7 @@ bool MixerChannelListModel::isFilterable(int roleIndex) const
         Role::InstrumentExist,
         Role::Mute,
         Role::Solo,
-        Role::InvertPolarityExist,
-        Role::InvertPolarity,
+        Role::PolarityInverter,
         Role::ArmRecordingExist,
         Role::ArmRecording
     };
@@ -1559,9 +1567,7 @@ bool MixerChannelListModel::isPassed(const QModelIndex& modelIndex,
             return sourceData.value<bool>() == variant.value<bool>();
         case Role::Solo:
             return sourceData.value<bool>() == variant.value<bool>();
-        case Role::InvertPolarityExist:
-            return sourceData.value<bool>() == variant.value<bool>();
-        case Role::InvertPolarity:
+        case Role::PolarityInverter:
             return sourceData.value<bool>() == variant.value<bool>();
         case Role::ArmRecordingExist:
             return sourceData.value<bool>() == variant.value<bool>();

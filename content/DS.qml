@@ -240,7 +240,7 @@ MainWindow {
             mclm_height: 50
             mclm_mute: false
             mclm_solo: false
-            mclm_invert_polarity: false
+            mclm_polarity_inverter: false
             mclm_arm_recording: false
             mclm_volume: 1.0
             mclm_panning: 0.0

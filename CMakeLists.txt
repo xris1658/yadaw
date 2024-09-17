@@ -463,6 +463,8 @@ set(YADAW_COMMON_SOURCES
     src/model/PluginListModel.hpp
     src/model/PluginParameterListModel.cpp
     src/model/PluginParameterListModel.hpp
+    src/model/PolarityInverterModel.cpp
+    src/model/PolarityInverterModel.hpp
     src/model/RegularAudioIOPositionModel.cpp
     src/model/RegularAudioIOPositionModel.hpp
     src/model/SortOrderModel.cpp

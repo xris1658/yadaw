@@ -18,6 +18,7 @@
 #include "model/IPluginDirectoryListModel.hpp"
 #include "model/IPluginListModel.hpp"
 #include "model/IPluginParameterListModel.hpp"
+#include "model/IPolarityInverterModel.hpp"
 #include "model/ISortFilterListModel.hpp"
 #include "model/ISpeakerListModel.hpp"
 #include "model/ITrackListModel.hpp"
@@ -50,6 +51,7 @@ void initializeModel()
     QML_REGISTER_UNCREATABLE_TYPE(IPluginDirectoryListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IPluginListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IPluginParameterListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
+    QML_REGISTER_UNCREATABLE_TYPE(IPolarityInverterModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(ISortFilterListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(ISpeakerListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(ITrackListModel, YADAW.Models, 1, 0, modelIsInterfaceText);

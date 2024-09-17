@@ -73,12 +73,14 @@ private:
 private:
     YADAW::Audio::Mixer::Mixer& mixer_;
     std::vector<std::unique_ptr<YADAW::Model::MixerChannelInsertListModel>> insertModels_;
+    // Only used if listType_ == ListType::Regular: {
     std::vector<std::unique_ptr<InstrumentInstance>> instruments_;
     mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> instrumentAudioInputs_;
     mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> instrumentAudioOutputs_;
     std::vector<YADAW::Entity::IAudioIOPosition*> mainInput_;
     std::vector<YADAW::Entity::IAudioIOPosition*> mainOutput_;
     std::vector<bool> instrumentBypassed_;
+    // }
     std::vector<bool> editingVolume_;
     ListType listType_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToInputPositions_;
