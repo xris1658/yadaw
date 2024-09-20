@@ -30,7 +30,6 @@ public:
     Q_INVOKABLE virtual bool append(QWindow* nativePopup) = 0;
     Q_INVOKABLE virtual bool remove(QWindow* nativePopup) = 0;
     Q_INVOKABLE virtual void clear() = 0;
-    Q_INVOKABLE virtual void showNativePopup(QWindow* nativePopup) = 0;
 protected:
     RoleNames roleNames() const override
     {

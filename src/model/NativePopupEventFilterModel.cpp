@@ -98,9 +98,4 @@ void NativePopupEventFilterModel::clear()
         endRemoveRows();
     }
 }
-
-void NativePopupEventFilterModel::showNativePopup(QWindow* nativePopup)
-{
-    YADAW::UI::showWindowWithoutActivating(nativePopup->winId());
-}
 }

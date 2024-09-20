@@ -9,7 +9,7 @@
 
 namespace YADAW::UI
 {
-class NativePopupEventFilter: public QObject, public QAbstractNativeEventFilter
+class NativePopupEventFilter: public QObject
 {
     Q_OBJECT
 public:
@@ -33,7 +33,6 @@ signals:
     void mousePressedOutside();
 public:
     bool eventFilter(QObject* watched, QEvent* event) override;
-    bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
 private:
     WindowAndId parentWindow_;
     std::vector<WindowAndId> nativePopups_;
