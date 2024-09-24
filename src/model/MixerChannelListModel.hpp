@@ -80,7 +80,6 @@ private:
     mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> instrumentAudioOutputs_;
     std::vector<YADAW::Entity::IAudioIOPosition*> mainInput_;
     std::vector<YADAW::Entity::IAudioIOPosition*> mainOutput_;
-    std::vector<bool> instrumentBypassed_;
     // }
     std::vector<bool> editingVolume_;
     mutable std::vector<std::unique_ptr<YADAW::Model::PolarityInverterModel>> polarityInverterModels_;

@@ -291,6 +291,13 @@ public:
     );
     void clearChannels();
 public:
+    ade::NodeHandle getInstrument(std::uint32_t index) const;
+    bool setInstrument(std::uint32_t index,
+        ade::NodeHandle nodeHandle, std::uint32_t outputChannelIndex);
+    ade::NodeHandle removeInstrument(std::uint32_t index);
+    bool isInstrumentBypassed(std::uint32_t index) const;
+    void setInstrumentBypass(std::uint32_t index, bool bypass);
+public:
     void setNodeAddedCallback(NodeAddedCallback* callback);
     void setNodeRemovedCallback(NodeRemovedCallback* callback);
     void setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback);
@@ -366,6 +373,8 @@ private:
     std::vector<IDGen::ID> channelId_;
     std::vector<IDAndIndex> channelIdAndIndex_;
     std::vector<DeviceAndNode> inputDevices_;
+    std::vector<std::uint32_t> instrumentOutputChannelIndex_;
+    std::vector<bool> instrumentBypassed_;
     std::vector<PolarityInverterAndNode> polarityInverters_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts_;
     std::vector<MuteAndNode> mutes_;

@@ -1,5 +1,7 @@
 #include "Mixer.hpp"
 
+#include <complex>
+
 #include "audio/mixer/BlankGenerator.hpp"
 #include "audio/util/InputSwitcher.hpp"
 #include "util/Base.hpp"
@@ -1500,6 +1502,21 @@ bool Mixer::insertChannels(
     }
     if(ret)
     {
+        // instruments -----------------------------------------------------
+        std::fill_n(
+            std::inserter(
+                instrumentBypassed_,
+                instrumentBypassed_.begin() + position
+            ),
+            count, false
+        );
+        std::fill_n(
+            std::inserter(
+                instrumentOutputChannelIndex_,
+                instrumentOutputChannelIndex_.begin() + position
+            ),
+            count, 0U
+        );
         // pre-fader inserts -----------------------------------------------
         std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts;
         preFaderInserts.reserve(count);
@@ -1633,6 +1650,14 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
     if(auto last = first + removeCount;
         first < channelCount() && last <= channelCount())
     {
+        instrumentBypassed_.erase(
+            instrumentBypassed_.begin() + first,
+            instrumentBypassed_.begin() + last
+        );
+        instrumentOutputChannelIndex_.erase(
+            instrumentOutputChannelIndex_.begin() + first,
+            instrumentOutputChannelIndex_.begin() + last
+        );
         preFaderInserts_.erase(
             preFaderInserts_.begin() + first,
             preFaderInserts_.begin() + last
@@ -1645,9 +1670,10 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         nodesToRemove.reserve(removeCount * 5);
         FOR_RANGE(i, first, last)
         {
-            if(channelInfo_[i].channelType != ChannelType::Instrument)
+            auto nodeToRemove = inputDevices_[i].second;
+            if(nodeToRemove != nullptr)
             {
-                nodesToRemove.emplace_back(inputDevices_[i].second);
+                nodesToRemove.emplace_back(nodeToRemove);
             }
             nodesToRemove.emplace_back(polarityInverters_[i].second);
             nodesToRemove.emplace_back(mutes_[i].second);
@@ -1732,6 +1758,103 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
 void Mixer::clearChannels()
 {
     removeChannel(0, channelCount());
+}
+
+ade::NodeHandle Mixer::getInstrument(std::uint32_t index) const
+{
+    if(index < channelCount()
+        && channelInfo_[index].channelType == ChannelType::Instrument)
+    {
+        return inputDevices_[index].second;
+    }
+    return {};
+}
+
+bool Mixer::setInstrument(
+    std::uint32_t index, ade::NodeHandle nodeHandle,
+    std::uint32_t outputChannelIndex)
+{
+    auto ret = false;
+    if(index < channelCount()
+        && channelInfo_[index].channelType == ChannelType::Instrument
+        && nodeHandle != nullptr
+        && inputDevices_[index].second == nullptr)
+    {
+        auto device = graph_.getNodeData(nodeHandle).process.device();
+        auto polarityInverterNode = polarityInverters_[index].second;
+        if(outputChannelIndex < device->audioOutputGroupCount())
+        {
+            ret = graph_.connect(nodeHandle, polarityInverterNode, outputChannelIndex, 0).has_value();
+            if(ret)
+            {
+                inputDevices_[index].second = nodeHandle;
+                instrumentBypassed_[index] = false;
+                instrumentOutputChannelIndex_[index] = outputChannelIndex;
+            }
+        }
+    }
+    return ret;
+}
+
+ade::NodeHandle Mixer::removeInstrument(std::uint32_t index)
+{
+    auto ret = ade::NodeHandle();
+    if(index < channelCount()
+        && channelInfo_[index].channelType == ChannelType::Instrument)
+    {
+        ret = inputDevices_[index].second;
+        auto polarityInverterNode = polarityInverters_[index].second;
+        for(const auto& edge: ret->outEdges())
+        {
+            if(edge->dstNode() == polarityInverterNode)
+            {
+                graph_.disconnect(edge);
+                inputDevices_[index].second = nullptr;
+                break;
+            }
+        }
+    }
+    return ret;
+}
+
+bool Mixer::isInstrumentBypassed(std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        return instrumentBypassed_[index];
+    }
+    return false;
+}
+
+void Mixer::setInstrumentBypass(std::uint32_t index, bool bypass)
+{
+    if(index < channelCount()
+        && channelInfo_[index].channelType == ChannelType::Instrument
+        && inputDevices_[index].second != nullptr)
+    {
+        if(instrumentBypassed_[index] != bypass)
+        {
+            if(bypass)
+            {
+                for(const auto& edge: inputDevices_[index].second->outEdges())
+                {
+                    if(edge->dstNode() == polarityInverters_[index].second)
+                    {
+                        graph_.disconnect(edge);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                graph_.connect(
+                    inputDevices_[index].second, polarityInverters_[index].second,
+                    instrumentOutputChannelIndex_[index], 0
+                );
+            }
+            instrumentBypassed_[index] = bypass;
+        }
+    }
 }
 
 void Mixer::setNodeAddedCallback(

@@ -275,7 +275,6 @@ MixerChannelListModel::MixerChannelListModel(
         std::fill_n(std::back_inserter(instruments_), count, nullptr);
         std::fill_n(std::back_inserter(instrumentAudioInputs_), count, nullptr);
         std::fill_n(std::back_inserter(instrumentAudioOutputs_), count, nullptr);
-        std::fill_n(std::back_inserter(instrumentBypassed_), count, false);
         std::fill_n(std::back_inserter(mainInput_), count, nullptr);
         std::fill_n(std::back_inserter(mainOutput_), count, nullptr);
     }
@@ -407,11 +406,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::InstrumentBypassed:
         {
-            if(instruments_[row])
-            {
-                return QVariant::fromValue(instrumentBypassed_[row]);
-            }
-            return {};
+            return mixer_.isInstrumentBypassed(row);
         }
         case Role::InstrumentName:
         {
@@ -742,43 +737,11 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         }
         case Role::InstrumentBypassed:
         {
-            // TODO
-            if(auto& instrument = instruments_[row])
+            if(mixer_.getInstrument(row) != nullptr)
             {
-                auto bypassed = value.value<bool>();
-                if(bypassed ^ instrumentBypassed_[row])
-                {
-                    auto inNode = mixer_.channelPreFaderInsertsAt(row)->get().inNode()->inNodes().front();
-                    if(bypassed)
-                    {
-                        for(const auto& inEdge: inNode->inEdges())
-                        {
-                            if(inEdge->srcNode() == instrument->instrumentNode)
-                            {
-                                mixer_.graph().graph().disconnect(inEdge);
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        std::uint32_t firstOutput = 0;
-                        FOR_RANGE0(i, instrument->plugin->audioOutputGroupCount())
-                        {
-                            auto& group = instrument->plugin->audioOutputGroupAt(i)->get();
-                            if(group.isMain() && group.type() == mixer_.channelGroupTypeAt(row))
-                            {
-                                firstOutput = i;
-                                break;
-                            }
-                        }
-                        mixer_.graph().graph().connect(
-                            instrument->instrumentNode, inNode, firstOutput, 0
-                        );
-                    }
-                    dataChanged(index, index, {Role::InstrumentBypassed});
-                    return true;
-                }
+                mixer_.setInstrumentBypass(row, value.value<bool>());
+                dataChanged(index, index, {Role::InstrumentBypassed});
+                return true;
             }
             return false;
         }
@@ -941,12 +904,6 @@ bool MixerChannelListModel::insert(int position, int count,
                     instrumentAudioOutputs_.begin() + position
                 ), count, nullptr
             );
-            std::fill_n(
-                std::inserter(
-                    instrumentBypassed_,
-                    instrumentBypassed_.begin() + position
-                ), count, false
-            );
             updateInstrumentConnections(position + count);
             std::fill_n(
                 std::inserter(
@@ -1056,7 +1013,7 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         FOR_RANGE(i, position, position + removeCount)
         {
             insertModels_[i]->clear();
-            removeInstrument(i);
+            removeInstrument(i); // TODO
         }
         if(listType_ == ListType::Regular)
         {
@@ -1115,10 +1072,6 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             instruments_.erase(
                 instruments_.begin() + position,
                 instruments_.begin() + position + removeCount
-            );
-            instrumentBypassed_.erase(
-                instrumentBypassed_.begin() + position,
-                instrumentBypassed_.begin() + position + removeCount
             );
             mainInput_.erase(
                 mainInput_.begin() + position,
@@ -1332,9 +1285,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                     break;
                 }
             }
-            auto inNode = mixer_.channelPreFaderInsertsAt(position)->get().inNode();
-            auto& graph = graphWithPDC.graph();
-            graph.connect(instrument->instrumentNode, inNode, firstOutput, 0);
+            mixer_.setInstrument(position, instrument->instrumentNode, firstOutput);
             engine.mixerNodeAddedCallback(mixer_);
             auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
             const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
@@ -1379,8 +1330,6 @@ bool MixerChannelListModel::removeInstrument(int position)
        && mixer_.channelInfoAt(position)->get().channelType == Mixer::ChannelType::Instrument
     )
     {
-        auto& graphWithPDC = mixer_.graph();
-        auto& graph = graphWithPDC.graph();
         auto& instrumentInstance = instruments_[position];
         if(!instrumentInstance)
         {
@@ -1388,9 +1337,11 @@ bool MixerChannelListModel::removeInstrument(int position)
         }
         instrumentAudioInputs_[position].reset();
         instrumentAudioOutputs_[position].reset();
+        auto& graphWithPDC = mixer_.graph();
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         {
-            auto deviceWithPDC = graphWithPDC.removeNode(instrumentInstance->instrumentNode);
+        auto instrumentNode = mixer_.removeInstrument(position);
+            auto deviceWithPDC = graphWithPDC.removeNode(instrumentNode);
             engine.processSequence().updateAndDispose(
                 std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
                     YADAW::Audio::Engine::getProcessSequence(graphWithPDC.graph(), mixer_.bufferExtension())
@@ -1694,7 +1645,7 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
                 }
             );
         }
-        auto instrumentIsBypassed = instrumentBypassed_[index];
+        auto instrumentIsBypassed = mixer_.isInstrumentBypassed(index);
         setData(this->index(index), QVariant::fromValue<bool>(true),
             IMixerChannelListModel::Role::InstrumentBypassed
         );
