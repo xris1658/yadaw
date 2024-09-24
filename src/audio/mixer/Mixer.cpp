@@ -413,6 +413,33 @@ OptionalRef<const Meter> Mixer::meterAt(std::uint32_t index) const
     return std::nullopt;
 }
 
+OptionalRef<Meter> Mixer::audioInputMeterAt(std::uint32_t index)
+{
+    if(index < audioInputChannelCount())
+    {
+        return {std::ref(*(audioInputMeters_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<Meter> Mixer::audioOutputMeterAt(std::uint32_t index)
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {std::ref(*(audioOutputMeters_[index].first))};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<Meter> Mixer::meterAt(std::uint32_t index)
+{
+    if(index < channelCount())
+    {
+        return {std::ref(*(meters_[index].first))};
+    }
+    return std::nullopt;
+}
+
 std::optional<YADAW::Audio::Base::ChannelGroupType>
 Mixer::audioInputChannelGroupTypeAt(std::uint32_t index) const
 {
