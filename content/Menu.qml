@@ -5,6 +5,8 @@ import QtQuick.Layouts
 
 T.Menu {
     id: root
+
+    property NativePopup nativePopup: nativePopup
     padding: 1
     overlap: 5
 
@@ -36,6 +38,9 @@ T.Menu {
     }
     delegate: MenuItem {
         z: 1
+    }
+    NativePopup {
+        id: nativePopup
     }
     Component.onCompleted: {
         for(let i = 0; i < root.count; ++i) {

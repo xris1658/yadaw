@@ -184,6 +184,31 @@ ApplicationWindow {
                     root.close();
                 }
             }
+            onOpened: {
+                let point = root.menuBar.mapToGlobal(0, root.menuBar.height);
+                point.x = Math.min(point.x, root.screen.desktopAvailableWidth - width);
+                if(point.y + height >= root.screen.desktopAvailableHeight) {
+                    point.y = Math.max(root.menuBar.mapToGlobal(0, -1 * height).y, 0);
+                }
+                nativePopup.x = point.x;
+                nativePopup.y = point.y;
+                nativePopup.width = width;
+                let fullHeight = root.screen.desktopAvailableHeight;
+                if(implicitHeight >= fullHeight) {
+                    nativePopup.height = root.screen.desktopAvailableHeight;
+                }
+                else {
+                    nativePopup.height = implicitHeight;
+                }
+
+                nativePopup.showNormal();
+                parent = nativePopup.contentItem;
+                x = 0;
+                y = 0;
+            }
+            onClosed: {
+                nativePopup.close();
+            }
         }
         Menu {
             title: qsTr("&File")
