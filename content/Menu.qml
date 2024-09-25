@@ -6,9 +6,10 @@ import QtQuick.Layouts
 T.Menu {
     id: root
     padding: 1
+    overlap: 5
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-        contentWidth + leftPadding + rightPadding)
+        contentWidth + leftPadding + rightPadding) + (contentHeight < implicitContentHeight? scrollBar.width: 0)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
         contentHeight + topPadding + bottomPadding)
 
