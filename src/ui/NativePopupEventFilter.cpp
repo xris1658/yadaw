@@ -6,19 +6,26 @@
 
 #include "util/IntegerRange.hpp"
 
+#if _WIN32
+#include <Windows.h>
+#endif
+
 #include <cinttypes>
 
 namespace YADAW::UI
 {
 NativePopupEventFilter::NativePopupEventFilter(QWindow& parentWindow):
     QObject(nullptr),
+    QAbstractNativeEventFilter(),
     parentWindow_(parentWindow)
 {
     parentWindow.installEventFilter(this);
+    QCoreApplication::instance()->installNativeEventFilter(this);
 }
 
 NativePopupEventFilter::~NativePopupEventFilter()
 {
+    QCoreApplication::instance()->removeNativeEventFilter(this);
     parentWindow_.window->removeEventFilter(this);
 }
 
@@ -167,7 +174,37 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
     return false;
 }
 
-#if 0
-#define PRINT_NATIVE_EVENTS
+bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result)
+{
+#if _WIN32
+    if(eventType == "windows_generic_MSG")
+    {
+        auto msg = static_cast<MSG*>(message);
+        // Mouse click in the parent window's non-client area, e.g. title bar
+        // `WM_NCLBUTTONDOWN` starts dragging and moving the window;
+        // `WM_NCRBUTTONUP` after `WM_NCRBUTTONDOWN` shows the control menu
+        if(
+            (msg->message == WM_NCLBUTTONDOWN || msg->message == WM_NCRBUTTONDOWN)
+            && msg->hwnd == reinterpret_cast<HWND>(parentWindow_.winId)
+        )
+        {
+            for(auto& [nativePopup, winId]: nativePopups_)
+            {
+                auto metaObject = nativePopup->metaObject();
+                auto signalIndex = metaObject->indexOfSignal("mousePressedOutside()");
+                if(signalIndex != -1)
+                {
+                    metaObject->method(signalIndex).invoke(nativePopup);
+                }
+                else
+                {
+                    qDebug("Cannot find `mousePressedOutside()`");
+                }
+            }
+            return false;
+        }
+    }
 #endif
+    return false;
+}
 }
