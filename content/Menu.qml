@@ -41,6 +41,9 @@ T.Menu {
     }
     NativePopup {
         id: nativePopup
+        onMousePressedOutside: {
+            root.close();
+        }
     }
     Component.onCompleted: {
         for(let i = 0; i < root.count; ++i) {

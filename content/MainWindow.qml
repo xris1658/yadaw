@@ -207,12 +207,14 @@ ApplicationWindow {
                 }
 
                 nativePopup.showNormal();
+                nativePopupEventFilterModel.append(nativePopup);
                 parent = nativePopup.contentItem;
                 x = 0;
                 y = 0;
             }
             onClosed: {
                 nativePopup.close();
+                nativePopupEventFilterModel.remove(nativePopup);
             }
         }
         Menu {
