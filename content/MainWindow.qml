@@ -108,6 +108,11 @@ ApplicationWindow {
         visible = true;
         // Qt 6.7.0+ workaround
         if(Global.qtMajorVersion == 6 && Global.qtMinorVersion >= 7) {
+            let menus = root.menuBar.menus;
+            for(let i = 0; i < menus.length; ++i) {
+                menus[i].nativePopup.showNormal();
+                menus[i].nativePopup.hide();
+            }
             pluginSelectorWindow.showMinimized();
             pluginSelectorWindow.hide();
             audioIOSelectorWindow.showMinimized();
