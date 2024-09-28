@@ -135,13 +135,14 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
             || type == QEvent::Type::MouseButtonDblClick)
         {
             auto* mouseEvent = static_cast<QMouseEvent*>(event);
-            auto ret = false;
+            auto globalPosition = mouseEvent->globalPosition();
             for(auto& [nativePopup, winId]: nativePopups_)
             {
-                auto shouldSendMousePressed = mouseEvent->globalX() < nativePopup->x()
-                    || mouseEvent->globalX() > nativePopup->x() + nativePopup->width()
-                    || mouseEvent->globalY() < nativePopup->y()
-                    || mouseEvent->globalY() > nativePopup->y() + nativePopup->height();
+                auto shouldSendMousePressed =
+                       globalPosition.x() <  nativePopup->x()
+                    || globalPosition.x() >= nativePopup->x() + nativePopup->width()
+                    || globalPosition.y() <  nativePopup->y()
+                    || globalPosition.y() >= nativePopup->y() + nativePopup->height();
                 if(shouldSendMousePressed)
                 {
                     auto metaObject = nativePopup->metaObject();
@@ -152,7 +153,7 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
                     }
                 }
             }
-            return ret || watched->event(event);
+            return watched->event(event);
         }
         else if(type == QEvent::Type::Gesture
             || type == QEvent::Type::GestureOverride

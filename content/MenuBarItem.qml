@@ -36,4 +36,28 @@ T.MenuBarItem {
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
     }
+    Connections {
+        target: menu
+        function onOpened() {
+            let nativePopup = menu.nativePopup;
+            if(nativePopup) {
+                let globalPoint = root.mapToGlobal(0, 0);
+                nativePopup.locate(
+                    Qt.rect(
+                        globalPoint.x, globalPoint.y, root.width, root.height
+                    ),
+                    Qt.Vertical
+                );
+                nativePopup.showNormal();
+                nativePopup.width = menu.implicitWidth;
+                nativePopup.height = Math.min(
+                    nativePopup.screen.desktopAvailableHeight,
+                    menu.implicitHeight
+                );
+                menu.parent = nativePopup.contentItem;
+                menu.x = 0;
+                menu.y = 0;
+            }
+        }
+    }
 }

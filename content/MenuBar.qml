@@ -35,4 +35,10 @@ T.MenuBar {
     }
 
     delegate: MenuBarItem {}
+
+    function closeAllMenus() {
+        for(let i = 0; i < menus.length; ++i) {
+            menus[i].dismiss();
+        }
+    }
 }

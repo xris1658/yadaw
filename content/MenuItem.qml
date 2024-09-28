@@ -124,4 +124,31 @@ T.MenuItem {
             }
         }
     }
+    Connections {
+        target: subMenu
+        function onOpened() {
+            let subMenuPopup = subMenu.nativePopup;
+            if(subMenuPopup) {
+                let globalPoint = root.mapToGlobal(subMenu.overlap, 0);
+                subMenuPopup.locate(
+                    Qt.rect(
+                        globalPoint.x, globalPoint.y,
+                        root.width - subMenu.overlap * 2, root.height
+                    ),
+                    Qt.Horizontal
+                );
+                subMenuPopup.showNormal();
+                subMenuPopup.width = subMenu.implicitWidth;
+                subMenuPopup.height = Math.min(
+                    subMenuPopup.screen.desktopAvailableHeight,
+                    subMenu.implicitHeight
+                );
+                subMenu.parent = subMenuPopup.contentItem;
+                subMenu.width = subMenuPopup.width;
+                subMenu.height = subMenuPopup.height;
+                subMenu.x = 0;
+                subMenu.y = 0;
+            }
+        }
+    }
 }

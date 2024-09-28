@@ -54,4 +54,7 @@ T.Menu {
             bg.implicitWidth += scrollBar.width;
         }
     }
+    onClosed: {
+        nativePopup.close();
+    }
 }
