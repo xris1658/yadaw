@@ -129,11 +129,11 @@ T.MenuItem {
         function onOpened() {
             let subMenuPopup = subMenu.nativePopup;
             if(subMenuPopup) {
-                let globalPoint = root.mapToGlobal(subMenu.overlap, 0);
+                let globalPoint = root.mapToGlobal(subMenu.overlap, -1 * subMenu.topPadding);
                 subMenuPopup.locate(
                     Qt.rect(
                         globalPoint.x, globalPoint.y,
-                        root.width - subMenu.overlap * 2, root.height
+                        root.width - subMenu.overlap * 2, root.height + 2 * subMenu.bottomPadding
                     ),
                     Qt.Horizontal
                 );
