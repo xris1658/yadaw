@@ -45,12 +45,12 @@ QVariant NativePopupEventFilterModel::data(const QModelIndex& index, int role) c
     return {};
 }
 
-bool NativePopupEventFilterModel::insert(QWindow* nativePopup, int index)
+bool NativePopupEventFilterModel::insert(QWindow* nativePopup, int index, bool shouldReceiveKeyEvents)
 {
     auto ret = false;
     if(nativePopup && index >= 0)
     {
-        ret = nativePopupEventFilter_.insert(*nativePopup, index);
+        ret = nativePopupEventFilter_.insert(*nativePopup, index, shouldReceiveKeyEvents);
         if(ret)
         {
             beginInsertRows(QModelIndex(), index, index);
@@ -60,17 +60,34 @@ bool NativePopupEventFilterModel::insert(QWindow* nativePopup, int index)
     return ret;
 }
 
-bool NativePopupEventFilterModel::append(QWindow* nativePopup)
+bool NativePopupEventFilterModel::append(QWindow* nativePopup, bool shouldReceiveKeyEvents)
 {
     auto ret = false;
     if(nativePopup)
     {
         beginInsertRows(QModelIndex(), itemCount(), itemCount());
-        nativePopupEventFilter_.append(*nativePopup);
+        nativePopupEventFilter_.append(*nativePopup, shouldReceiveKeyEvents);
         endInsertRows();
         ret = true;
     }
     return ret;
+}
+
+void NativePopupEventFilterModel::popupShouldReceiveKeyEvents(
+    QWindow* nativePopup, bool shouldReceiveKeyEvents)
+{
+    auto ret = false;
+    if(nativePopup)
+    {
+        FOR_RANGE0(i, nativePopupEventFilter_.count())
+        {
+            if(&nativePopupEventFilter_[i] == nativePopup)
+            {
+                nativePopupEventFilter_.popupShouldReceiveKeyEvents(i, shouldReceiveKeyEvents);
+                dataChanged(this->index(i), this->index(i), {Role::ShouldReceiveKeyEvents});
+            }
+        }
+    }
 }
 
 bool NativePopupEventFilterModel::remove(QWindow* nativePopup)

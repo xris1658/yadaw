@@ -126,6 +126,7 @@ T.MenuItem {
     }
     Connections {
         target: subMenu
+        enabled: Global.enableMenuPopup
         function onOpened() {
             let subMenuPopup = subMenu.nativePopup;
             if(subMenuPopup) {
@@ -148,6 +149,25 @@ T.MenuItem {
                 subMenu.height = subMenuPopup.height;
                 subMenu.x = 0;
                 subMenu.y = 0;
+                let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
+                if(nativePopupEventFilterModel) {
+                    let menuPopup = root.menu.nativePopup;
+                    if(menuPopup) {
+                        nativePopupEventFilterModel.popupShouldReceiveKeyEvents(
+                            menuPopup, false
+                        );
+                    }
+                    nativePopupEventFilterModel.append(subMenuPopup, true);
+                }
+                subMenuPopup.activeFocusObject = subMenu;
+            }
+        }
+        function onClosed() {
+            let menuPopup = root.menu.nativePopup;
+            if(menuPopup) {
+                nativePopupEventFilterModel.popupShouldReceiveKeyEvents(
+                    menuPopup, true
+                );
             }
         }
     }

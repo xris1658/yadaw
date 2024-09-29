@@ -54,6 +54,9 @@ ApplicationWindow {
 
     property PluginScanProgressWindow pluginScanProgressWindow: pluginScanProgressWindow
     property INativePopupEventFilterModel nativePopupEventFilterModel: null
+    onNativePopupEventFilterModelChanged: {
+        Global.nativePopupEventFilterModel = nativePopupEventFilterModel;
+    }
 
     property bool previouslyMaximized: false
 

@@ -2,12 +2,16 @@ pragma Singleton
 
 import QtQuick
 
+import YADAW.Models
+
 QtObject {
     property int qtMajorVersion: 0
     property int qtMinorVersion: 0
     property int qtMicroVersion: 0
     property string qtCopyrightYear: "Unknown"
     property string fileBrowserName: qsTr("File Browser")
+    property INativePopupEventFilterModel nativePopupEventFilterModel: null
+    property bool enableMenuPopup: true
     function messageDialog(message: string, title: string, icon: int, modal: bool) {
         let component = Qt.createComponent("./MessageDialog.qml");
         if(component.status === Component.Ready) {

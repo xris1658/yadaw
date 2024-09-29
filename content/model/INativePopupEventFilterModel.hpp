@@ -16,6 +16,7 @@ public:
     enum Role
     {
         NativePopup = Qt::UserRole,
+        ShouldReceiveKeyEvents,
         RoleCount
     };
 public:
@@ -26,8 +27,9 @@ public:
     static constexpr int columnCount() { return 1; }
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:
-    Q_INVOKABLE virtual bool insert(QWindow* nativePopup, int index) = 0;
-    Q_INVOKABLE virtual bool append(QWindow* nativePopup) = 0;
+    Q_INVOKABLE virtual bool insert(QWindow* nativePopup, int index, bool shouldReceiveKeyEvents) = 0;
+    Q_INVOKABLE virtual bool append(QWindow* nativePopup, bool shouldReceiveKeyEvents) = 0;
+    Q_INVOKABLE virtual void popupShouldReceiveKeyEvents(QWindow* nativePopup, bool shouldReceiveKeyEvents) = 0;
     Q_INVOKABLE virtual bool remove(QWindow* nativePopup) = 0;
     Q_INVOKABLE virtual void clear() = 0;
 protected:
@@ -35,7 +37,8 @@ protected:
     {
         static RoleNames ret
         {
-            std::make_pair(Role::NativePopup, "npefm_native_popup")
+            std::make_pair(Role::NativePopup, "npefm_native_popup"),
+            std::make_pair(Role::ShouldReceiveKeyEvents, "npefm_should_receive_key_events")
         };
         return ret;
     }

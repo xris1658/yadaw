@@ -38,6 +38,7 @@ T.MenuBarItem {
     }
     Connections {
         target: menu
+        enabled: Global.enableMenuPopup
         function onOpened() {
             let nativePopup = menu.nativePopup;
             if(nativePopup) {
@@ -57,6 +58,11 @@ T.MenuBarItem {
                 menu.parent = nativePopup.contentItem;
                 menu.x = 0;
                 menu.y = 0;
+                let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
+                if(nativePopupEventFilterModel) {
+                    nativePopupEventFilterModel.append(nativePopup, true);
+                }
+                nativePopup.activeFocusObject = menu;
             }
         }
     }

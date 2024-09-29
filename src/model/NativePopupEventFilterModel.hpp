@@ -22,8 +22,9 @@ public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
     public:
-    bool insert(QWindow* nativePopup, int index) override;
-    bool append(QWindow* nativePopup) override;
+    bool insert(QWindow* nativePopup, int index, bool shouldReceiveKeyEvents) override;
+    bool append(QWindow* nativePopup, bool shouldReceiveKeyEvents) override;
+    void popupShouldReceiveKeyEvents(QWindow* nativePopup, bool shouldReceiveKeyEvents) override;
     bool remove(QWindow* nativePopup) override;
     void clear() override;
 private:

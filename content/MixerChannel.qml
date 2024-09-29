@@ -811,7 +811,7 @@ Rectangle {
                         }
                         onVisibleChanged: {
                             if(!visible) {
-                                let nativePopupEventFilterModel = EventReceiver.mainWindow.nativePopupEventFilterModel;
+                                let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
                                 if(nativePopupEventFilterModel) {
                                     nativePopupEventFilterModel.remove(invertPolarityNativePopup);
                                 }
@@ -825,7 +825,7 @@ Rectangle {
                     onCheckedChanged: {
                         if(checked) {
                             locatePopupWindow(invertPolarityNativePopup, height, 0);
-                            let nativePopupEventFilterModel = EventReceiver.mainWindow.nativePopupEventFilterModel;
+                            let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
                             nativePopupEventFilterModel.append(invertPolarityNativePopup);
                             EventReceiver.mainWindow.keyEventForwarder.startForwarding(invertPolarityButton);
                             invertPolarityNativePopup.visible = true;
