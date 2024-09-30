@@ -39,6 +39,7 @@ T.MenuBarItem {
     Connections {
         target: menu
         enabled: Global.enableMenuPopup
+        property bool opened: false
         function onOpened() {
             let nativePopup = menu.nativePopup;
             if(nativePopup) {
@@ -59,11 +60,21 @@ T.MenuBarItem {
                 menu.x = 0;
                 menu.y = 0;
                 let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
-                if(nativePopupEventFilterModel) {
+                if(nativePopupEventFilterModel && !opened) {
                     nativePopupEventFilterModel.append(nativePopup, true);
+                    opened = true;
                 }
-                nativePopup.activeFocusObject = menu;
             }
+        }
+        function onAboutToHide() {
+            let nativePopup = menu.nativePopup;
+            if(nativePopup) {
+                let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
+                if(nativePopupEventFilterModel) {
+                    nativePopupEventFilterModel.remove(nativePopup);
+                }
+            }
+            opened = false;
         }
     }
 }

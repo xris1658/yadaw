@@ -5,7 +5,6 @@ Window {
     flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowDoesNotAcceptFocus
     visible: false
     signal mousePressedOutside()
-    property QtObject activeFocusObject: null
     // Locates a popup according to size of it, an adjacent rectangle that the
     // popup locates next to and the relative position between the menu and the
     // adjacent rectangle.

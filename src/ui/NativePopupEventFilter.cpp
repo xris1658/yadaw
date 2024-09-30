@@ -209,11 +209,11 @@ void dumpObjectNames(QObject* object, std::uint32_t indent = 0)
         metaObject = metaObject->superClass();
     }
     std::fprintf(stderr, "\n");
-    auto children = object->children();
-    for(auto child: children)
-    {
-        dumpObjectNames(child, indent + 1);
-    }
+    // auto children = object->children();
+    // for(auto child: children)
+    // {
+    //     dumpObjectNames(child, indent + 1);
+    // }
 }
 
 bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
@@ -279,14 +279,15 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
                     {
                         if(shouldSendKeyPressed)
                         {
-                            ret = true;
-                            // See qtdeclarative/src/quick/utils/qquickdevlieryagent.cpp
-                            // QQuickDeliveryAgentPrivate::deliverKeyEvent(QKeyEvent *e)
-                            auto activeFocusObject = quickWindow->property("activeFocusObject").value<QObject*>();
-                            if(activeFocusObject)
+                            auto receiveKeyEventItem = quickWindow->contentItem()->childItems().front()->childItems().front();
+                            do
                             {
-                                QCoreApplication::sendEvent(activeFocusObject, event);
+                                qDebug("QCoreApplication::sendEvent(%p, %p)", receiveKeyEventItem, event);
+                                QCoreApplication::sendEvent(receiveKeyEventItem, event);
+                                receiveKeyEventItem = receiveKeyEventItem->parentItem();
                             }
+                            while(receiveKeyEventItem && !event->isAccepted());
+                            ret = event->isAccepted();
                         }
                     }
                 }

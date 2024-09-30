@@ -127,6 +127,7 @@ T.MenuItem {
     Connections {
         target: subMenu
         enabled: Global.enableMenuPopup
+        property bool opened: false
         function onOpened() {
             let subMenuPopup = subMenu.nativePopup;
             if(subMenuPopup) {
@@ -150,7 +151,7 @@ T.MenuItem {
                 subMenu.x = 0;
                 subMenu.y = 0;
                 let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
-                if(nativePopupEventFilterModel) {
+                if(nativePopupEventFilterModel && !opened) {
                     let menuPopup = root.menu.nativePopup;
                     if(menuPopup) {
                         nativePopupEventFilterModel.popupShouldReceiveKeyEvents(
@@ -158,17 +159,25 @@ T.MenuItem {
                         );
                     }
                     nativePopupEventFilterModel.append(subMenuPopup, true);
+                    opened = true;
                 }
-                subMenuPopup.activeFocusObject = subMenu;
             }
         }
-        function onClosed() {
+        function onAboutToHide() {
             let menuPopup = root.menu.nativePopup;
             if(menuPopup) {
-                nativePopupEventFilterModel.popupShouldReceiveKeyEvents(
-                    menuPopup, true
-                );
+                let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
+                if(nativePopupEventFilterModel) {
+                    nativePopupEventFilterModel.popupShouldReceiveKeyEvents(
+                        menuPopup, true
+                    );
+                    let subMenuPopup = subMenu.nativePopup;
+                    if(subMenuPopup) {
+                        nativePopupEventFilterModel.remove(subMenuPopup);
+                    }
+                }
             }
+            opened = false;
         }
     }
 }
