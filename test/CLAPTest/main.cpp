@@ -9,6 +9,7 @@
 #include "native/CLAPNative.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/Native.hpp"
+#include "ui/Runtime.hpp"
 #include "ui/UI.hpp"
 #include "util/Constants.hpp"
 #include "util/Util.hpp"
@@ -273,7 +274,7 @@ int main(int argc, char* argv[])
     int argIndex = 1;
 #if __linux__
     auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
-    eventFDSupport.start();
+    eventFDSupport.start(YADAW::UI::idleProcessTimer());
 #endif
     while(argIndex != argc)
     {

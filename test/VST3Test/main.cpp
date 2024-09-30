@@ -14,6 +14,7 @@
 #include "midi/MessageToVST3Event.hpp"
 #include "native/Native.hpp"
 #include "native/VST3Native.hpp"
+#include "ui/Runtime.hpp"
 #include "ui/UI.hpp"
 #include "concurrent/AtomicMutex.hpp"
 #include "util/Constants.hpp"
@@ -427,7 +428,7 @@ int main(int argc, char* argv[])
     int argIndex = 1;
 #if __linux__
     auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
-    eventFDSupport.start();
+    eventFDSupport.start(YADAW::UI::idleProcessTimer());
 #endif
     while(argIndex != argc)
     {

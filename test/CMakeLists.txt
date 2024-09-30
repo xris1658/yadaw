@@ -25,6 +25,8 @@ if(WIN32)
                    ../src/native/win/AudioGraphBackend.cpp
                    ../src/native/win/AudioGraphBackendImpl.cpp
                    ../src/native/win/AudioGraphBackendImpl.hpp
+                   ../src/native/Library.hpp
+                   ../src/native/win/Library.cpp
                    ../src/native/win/Native.cpp
                    ../src/native/Native.hpp
                    ../src/native/win/winrt/Forward.hpp
@@ -167,6 +169,8 @@ add_executable(AudioProcessDataBufferContainerTest
                AudioProcessDataBufferContainerTest/main.cpp)
 
 add_executable(BadMemoryAccessHandlerTest
+               ../src/native/Library.hpp
+               ../src/native/win/Library.cpp
                ../src/native/Native.hpp
                ../src/native/linux/Native.cpp
                ../src/native/win/Native.cpp

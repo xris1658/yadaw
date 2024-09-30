@@ -628,6 +628,8 @@ add_executable(PluginDirectoryScanTest
                src/audio/host/CLAPHost.hpp
                src/audio/host/CLAPTimerSupport.cpp
                src/audio/host/CLAPTimerSupport.hpp
+               src/audio/host/EventFileDescriptorSupport.cpp
+               src/audio/host/EventFileDescriptorSupport.hpp
                src/audio/host/HostContext.cpp
                src/audio/host/HostContext.hpp
                src/audio/host/VST3AttributeList.cpp
@@ -644,6 +646,8 @@ add_executable(PluginDirectoryScanTest
                src/audio/host/VST3ParameterValueQueue.hpp
                src/audio/host/VST3PlugFrame.cpp
                src/audio/host/VST3PlugFrame.hpp
+               src/audio/host/VST3RunLoop.cpp
+               src/audio/host/VST3RunLoop.hpp
                src/audio/host/VestifalCallback.cpp
                src/audio/host/VestifalCallback.hpp
                src/audio/plugin/CLAPAudioChannelGroup.cpp
@@ -730,6 +734,8 @@ add_executable(PluginScanTest
                src/audio/host/CLAPHost.hpp
                src/audio/host/CLAPTimerSupport.cpp
                src/audio/host/CLAPTimerSupport.hpp
+               src/audio/host/EventFileDescriptorSupport.cpp
+               src/audio/host/EventFileDescriptorSupport.hpp
                src/audio/host/HostContext.cpp
                src/audio/host/HostContext.hpp
                src/audio/host/VST3AttributeList.cpp
@@ -746,6 +752,8 @@ add_executable(PluginScanTest
                src/audio/host/VST3ParameterValueQueue.hpp
                src/audio/host/VST3PlugFrame.cpp
                src/audio/host/VST3PlugFrame.hpp
+               src/audio/host/VST3RunLoop.cpp
+               src/audio/host/VST3RunLoop.hpp
                src/audio/host/VestifalCallback.cpp
                src/audio/host/VestifalCallback.hpp
                src/audio/plugin/CLAPAudioChannelGroup.cpp

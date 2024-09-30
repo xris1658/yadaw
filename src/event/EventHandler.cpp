@@ -540,7 +540,7 @@ void EventHandler::onOpenMainWindow()
         this, SLOT(onSetTranslationIndex(int)));
 #if __linux__
     auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
-    eventFDSupport.start();
+    eventFDSupport.start(YADAW::UI::idleProcessTimer());
 #endif
     auto version = QLibraryInfo::version();
     setQtVersion(version.majorVersion(), version.minorVersion(), version.microVersion());

@@ -50,9 +50,8 @@ EventFileDescriptorSupport::~EventFileDescriptorSupport()
     close(epollFD_);
 }
 
-void EventFileDescriptorSupport::start()
+void EventFileDescriptorSupport::start(QTimer& timer)
 {
-    auto& timer = YADAW::UI::idleProcessTimer();
     connectToTimer_ = timer.callOnTimeout(
         QCoreApplication::instance(),
         [this]()

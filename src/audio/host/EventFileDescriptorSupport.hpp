@@ -44,7 +44,7 @@ public:
     static EventFileDescriptorSupport& instance();
     ~EventFileDescriptorSupport();
 public:
-    void start();
+    void start(QTimer& timer);
     void stop();
 private:
     void notify(int fd, Info& info);
