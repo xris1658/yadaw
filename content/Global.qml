@@ -11,6 +11,7 @@ QtObject {
     property string qtCopyrightYear: "Unknown"
     property string fileBrowserName: qsTr("File Browser")
     property INativePopupEventFilterModel nativePopupEventFilterModel: null
+    property INativePopupEventFilterModel quickMenuBarEventFilterModel: null
     property bool enableMenuPopup: true
     function messageDialog(message: string, title: string, icon: int, modal: bool) {
         let component = Qt.createComponent("./MessageDialog.qml");

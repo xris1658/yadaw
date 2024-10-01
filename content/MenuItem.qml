@@ -150,15 +150,15 @@ T.MenuItem {
                 subMenu.height = subMenuPopup.height;
                 subMenu.x = 0;
                 subMenu.y = 0;
-                let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
-                if(nativePopupEventFilterModel && !opened) {
+                let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
+                if(quickMenuBarEventFilterModel && !opened) {
                     let menuPopup = root.menu.nativePopup;
                     if(menuPopup) {
-                        nativePopupEventFilterModel.popupShouldReceiveKeyEvents(
+                        quickMenuBarEventFilterModel.popupShouldReceiveKeyEvents(
                             menuPopup, false
                         );
                     }
-                    nativePopupEventFilterModel.append(subMenuPopup, true);
+                    quickMenuBarEventFilterModel.append(subMenuPopup, true);
                     opened = true;
                 }
             }
@@ -166,14 +166,14 @@ T.MenuItem {
         function onAboutToHide() {
             let menuPopup = root.menu.nativePopup;
             if(menuPopup) {
-                let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
-                if(nativePopupEventFilterModel) {
-                    nativePopupEventFilterModel.popupShouldReceiveKeyEvents(
+                let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
+                if(quickMenuBarEventFilterModel) {
+                    quickMenuBarEventFilterModel.popupShouldReceiveKeyEvents(
                         menuPopup, true
                     );
                     let subMenuPopup = subMenu.nativePopup;
                     if(subMenuPopup) {
-                        nativePopupEventFilterModel.remove(subMenuPopup);
+                        quickMenuBarEventFilterModel.remove(subMenuPopup);
                     }
                 }
             }

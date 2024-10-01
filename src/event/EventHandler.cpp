@@ -20,6 +20,7 @@
 #include "model/MixerChannelListModel.hpp"
 #include "model/NativePopupEventFilterModel.hpp"
 #include "model/RegularAudioIOPositionModel.hpp"
+#include "model/QuickMenuBarEventFilterModel.hpp"
 #include "native/Native.hpp"
 #include "ui/MessageDialog.hpp"
 #include "ui/Runtime.hpp"
@@ -568,6 +569,14 @@ void EventHandler::onOpenMainWindow()
         "nativePopupEventFilterModel",
         QVariant::fromValue<QObject*>(
             YADAW::Model::NativePopupEventFilterModel::create(*YADAW::UI::mainWindow)
+        )
+    );
+    YADAW::UI::mainWindow->setProperty(
+        "quickMenuBarEventFilterModel",
+        QVariant::fromValue<QObject*>(
+            YADAW::Model::QuickMenuBarEventFilterModel::create(
+                *YADAW::UI::mainWindow,
+                *(YADAW::UI::mainWindow->property("menuBar").value<QObject*>()))
         )
     );
     mainWindowReady();

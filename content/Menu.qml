@@ -7,6 +7,7 @@ T.Menu {
     id: root
 
     property NativePopup nativePopup: nativePopup
+    property bool customPressedOutsideEvent: false
     padding: 1
     overlap: 5
 
@@ -42,7 +43,9 @@ T.Menu {
     NativePopup {
         id: nativePopup
         onMousePressedOutside: {
-            root.close();
+            if(!root.customPressedOutsideEvent) {
+                root.close();
+            }
         }
     }
     Component.onCompleted: {

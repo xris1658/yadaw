@@ -1,12 +1,9 @@
-#include "NativePopupEventFilter.hpp"
-
-#include <QCoreApplication>
-#include <QMouseEvent>
-#include <QQuickItem>
-#include <QQuickWindow>
+#include "QuickMenuBarEventFilter.hpp"
 
 #include "util/IntegerRange.hpp"
-#include "ui/Runtime.hpp"
+
+#include <QQuickItem>
+#include <QQuickWindow>
 
 #if _WIN32
 #include <Windows.h>
@@ -58,63 +55,64 @@ std::map<int, const char*> events = {
 
 namespace YADAW::UI
 {
-NativePopupEventFilter::NativePopupEventFilter(QWindow& parentWindow):
+QuickMenuBarEventFilter::QuickMenuBarEventFilter(
+    QWindow& parentWindow, QObject& menuBar):
     QObject(nullptr),
     QAbstractNativeEventFilter(),
-    parentWindow_(parentWindow)
+    parentWindow_(parentWindow),
+    menuBar_(&menuBar)
 {
-    parentWindow.installEventFilter(this);
+    parentWindow_.window->installEventFilter(this);
     QCoreApplication::instance()->installNativeEventFilter(this);
 }
 
-NativePopupEventFilter::~NativePopupEventFilter()
+QuickMenuBarEventFilter::~QuickMenuBarEventFilter()
 {
     QCoreApplication::instance()->removeNativeEventFilter(this);
     parentWindow_.window->removeEventFilter(this);
 }
 
-const QWindow& NativePopupEventFilter::parentWindow() const
+const QWindow& QuickMenuBarEventFilter::parentWindow() const
 {
     return *parentWindow_.window;
 }
 
-QWindow& NativePopupEventFilter::parentWindow()
+QWindow& QuickMenuBarEventFilter::parentWindow()
 {
     return *parentWindow_.window;
 }
 
-bool NativePopupEventFilter::empty() const
+bool QuickMenuBarEventFilter::empty() const
 {
     return nativePopups_.empty();
 }
 
-std::uint32_t NativePopupEventFilter::count() const
+std::uint32_t QuickMenuBarEventFilter::count() const
 {
     return nativePopups_.size();
 }
 
-const QWindow& NativePopupEventFilter::operator[](std::uint32_t index) const
+const QWindow& QuickMenuBarEventFilter::operator[](std::uint32_t index) const
 {
     return *nativePopups_[index].window;
 }
 
-QWindow& NativePopupEventFilter::operator[](std::uint32_t index)
+QWindow& QuickMenuBarEventFilter::operator[](std::uint32_t index)
 {
     return *nativePopups_[index].window;
 }
 
-const QWindow& NativePopupEventFilter::at(std::uint32_t index) const
+const QWindow& QuickMenuBarEventFilter::at(std::uint32_t index) const
 {
     return *nativePopups_.at(index).window;
 }
 
-QWindow& NativePopupEventFilter::at(std::uint32_t index)
+QWindow& QuickMenuBarEventFilter::at(std::uint32_t index)
 {
     return *nativePopups_.at(index).window;
 }
 
-bool NativePopupEventFilter::insert(QWindow& nativePopup, std::uint32_t index,
-    bool shouldReceiveKeyEvents)
+bool QuickMenuBarEventFilter::insert(QWindow& nativePopup, std::uint32_t index, bool shouldReceiveKeyEvents)
 {
     if(index < count())
     {
@@ -127,13 +125,13 @@ bool NativePopupEventFilter::insert(QWindow& nativePopup, std::uint32_t index,
     return false;
 }
 
-void NativePopupEventFilter::append(QWindow& nativePopup, bool shouldReceiveKeyEvents)
+void QuickMenuBarEventFilter::append(QWindow& nativePopup, bool shouldReceiveKeyEvents)
 {
     nativePopups_.emplace_back(nativePopup);
     shouldReceiveKeyEvents_.emplace_back(shouldReceiveKeyEvents);
 }
 
-void NativePopupEventFilter::popupShouldReceiveKeyEvents(std::uint32_t index, bool shouldReceiveKeyEvents)
+void QuickMenuBarEventFilter::popupShouldReceiveKeyEvents(std::uint32_t index, bool shouldReceiveKeyEvents)
 {
     if(index < count())
     {
@@ -141,7 +139,7 @@ void NativePopupEventFilter::popupShouldReceiveKeyEvents(std::uint32_t index, bo
     }
 }
 
-bool NativePopupEventFilter::remove(std::uint32_t index, std::uint32_t removeCount)
+bool QuickMenuBarEventFilter::remove(std::uint32_t index, std::uint32_t removeCount)
 {
     auto count = this->count();
     if(index < count && index + removeCount <= count)
@@ -163,7 +161,7 @@ bool NativePopupEventFilter::remove(std::uint32_t index, std::uint32_t removeCou
     return false;
 }
 
-void NativePopupEventFilter::clear()
+void QuickMenuBarEventFilter::clear()
 {
     for(auto& [window, winId]: nativePopups_)
     {
@@ -173,9 +171,8 @@ void NativePopupEventFilter::clear()
     nativePopups_.clear();
 }
 
-bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
-{
-    if(watched == parentWindow_.window)
+bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
+{if(watched == parentWindow_.window)
     {
         auto type = event->type();
         // We don't need to handle mouse move events manually.
@@ -219,11 +216,45 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
             }
             return ret | watched->event(event);
         }
+        if(type == QEvent::Type::KeyPress
+            || type == QEvent::Type::KeyRelease)
+        {
+            if(!nativePopups_.empty())
+            {
+                auto ret = false;
+                FOR_RANGE0(i, nativePopups_.size())
+                {
+                    auto& nativePopup = nativePopups_[i].window;
+                    auto shouldSendKeyPressed = shouldReceiveKeyEvents_[i];
+                    auto quickWindow = qobject_cast<QQuickWindow*>(nativePopup);
+                    if(quickWindow)
+                    {
+                        if(shouldSendKeyPressed)
+                        {
+                            auto receiveKeyEventItem = quickWindow->contentItem()->childItems().front()->childItems().front();
+                            QCoreApplication::sendEvent(receiveKeyEventItem, event);
+                            ret = event->isAccepted();
+                            if(!ret)
+                            {
+                                auto key = static_cast<QKeyEvent*>(event)->key();
+                                if(key == Qt::Key_Left || key == Qt::Key_Right)
+                                {
+                                    event->accept();
+                                    QCoreApplication::sendEvent(menuBar_, event);
+                                }
+                            }
+                        }
+                    }
+                }
+                return ret;
+            }
+        }
     }
     return false;
 }
 
-bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result)
+bool QuickMenuBarEventFilter::nativeEventFilter(
+    const QByteArray& eventType, void* message, qintptr* result)
 {
 #if _WIN32
     if(eventType == "windows_generic_MSG")
@@ -244,10 +275,6 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
                 if(signalIndex != -1)
                 {
                     metaObject->method(signalIndex).invoke(nativePopup);
-                }
-                else
-                {
-                    qDebug("Cannot find `mousePressedOutside()`");
                 }
             }
             return false;

@@ -25,7 +25,7 @@ std::uint32_t NativePopupEventFilterModel::itemCount() const
 
 int NativePopupEventFilterModel::rowCount(const QModelIndex&) const
 {
-    return nativePopupEventFilter_.count();
+    return itemCount();
 }
 
 QVariant NativePopupEventFilterModel::data(const QModelIndex& index, int role) const

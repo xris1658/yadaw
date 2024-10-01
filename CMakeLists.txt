@@ -464,6 +464,8 @@ set(YADAW_COMMON_SOURCES
     src/model/PluginParameterListModel.hpp
     src/model/PolarityInverterModel.cpp
     src/model/PolarityInverterModel.hpp
+    src/model/QuickMenuBarEventFilterModel.cpp
+    src/model/QuickMenuBarEventFilterModel.hpp
     src/model/RegularAudioIOPositionModel.cpp
     src/model/RegularAudioIOPositionModel.hpp
     src/model/SortOrderModel.cpp
@@ -485,6 +487,8 @@ set(YADAW_COMMON_SOURCES
     src/ui/MessageDialog.hpp
     src/ui/NativePopupEventFilter.cpp
     src/ui/NativePopupEventFilter.hpp
+    src/ui/QuickMenuBarEventFilter.cpp
+    src/ui/QuickMenuBarEventFilter.hpp
     src/ui/RawMouseEventFilter.cpp
     src/ui/RawMouseEventFilter.hpp
     src/ui/Runtime.cpp

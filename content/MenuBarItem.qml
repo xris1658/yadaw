@@ -36,10 +36,16 @@ T.MenuBarItem {
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
     }
+    QtObject {
+        id: impl
+        property bool menuOpenedWithClick: false
+    }
     Connections {
+        id: connectToMenu
         target: menu
         enabled: Global.enableMenuPopup
         property bool opened: false
+        property bool menuOpenedWithClick: false
         function onOpened() {
             let nativePopup = menu.nativePopup;
             if(nativePopup) {
@@ -59,22 +65,40 @@ T.MenuBarItem {
                 menu.parent = nativePopup.contentItem;
                 menu.x = 0;
                 menu.y = 0;
-                let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
-                if(nativePopupEventFilterModel && !opened) {
-                    nativePopupEventFilterModel.append(nativePopup, true);
+                let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
+                if(quickMenuBarEventFilterModel && !opened) {
+                    quickMenuBarEventFilterModel.append(nativePopup, true);
                     opened = true;
                 }
             }
         }
-        function onAboutToHide() {
+        function onClosed() {
             let nativePopup = menu.nativePopup;
             if(nativePopup) {
-                let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
-                if(nativePopupEventFilterModel) {
-                    nativePopupEventFilterModel.remove(nativePopup);
+                let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
+                if(quickMenuBarEventFilterModel) {
+                    quickMenuBarEventFilterModel.remove(nativePopup);
                 }
             }
+            impl.menuOpenedWithClick = false;
             opened = false;
         }
+    }
+    Connections {
+        target: menu.nativePopup
+        enabled: menu.nativePopup != null
+        function onMousePressedOutside() {
+            if(impl.menuOpenedWithClick) {
+                impl.menuOpenedWithClick = false;
+            }
+            else {
+                menu.customPressedOutsideEvent = false;
+                menu.close();
+            }
+        }
+    }
+    onPressed: {
+        menu.customPressedOutsideEvent = true;
+        impl.menuOpenedWithClick = true;
     }
 }

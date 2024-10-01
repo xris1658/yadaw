@@ -54,8 +54,12 @@ ApplicationWindow {
 
     property PluginScanProgressWindow pluginScanProgressWindow: pluginScanProgressWindow
     property INativePopupEventFilterModel nativePopupEventFilterModel: null
+    property INativePopupEventFilterModel quickMenuBarEventFilterModel: null
     onNativePopupEventFilterModelChanged: {
         Global.nativePopupEventFilterModel = nativePopupEventFilterModel;
+    }
+    onQuickMenuBarEventFilterModelChanged: {
+        Global.quickMenuBarEventFilterModel = quickMenuBarEventFilterModel;
     }
 
     property bool previouslyMaximized: false
