@@ -18,7 +18,7 @@
 #include <cinttypes>
 
 #if __linux__
-std::map<int, const char*> events = {
+static std::map<int, const char*> events = {
     {2, "KeyPress"},
     {3, "KeyRelease"},
     {4, "ButtonPress"},
