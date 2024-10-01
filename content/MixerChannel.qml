@@ -826,7 +826,7 @@ Rectangle {
                         if(checked) {
                             locatePopupWindow(invertPolarityNativePopup, height, 0);
                             let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
-                            nativePopupEventFilterModel.append(invertPolarityNativePopup);
+                            nativePopupEventFilterModel.append(invertPolarityNativePopup, false);
                             EventReceiver.mainWindow.keyEventForwarder.startForwarding(invertPolarityButton);
                             invertPolarityNativePopup.visible = true;
                         }
