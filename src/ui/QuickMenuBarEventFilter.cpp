@@ -172,7 +172,8 @@ void QuickMenuBarEventFilter::clear()
 }
 
 bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
-{if(watched == parentWindow_.window)
+{
+    if(watched == parentWindow_.window)
     {
         auto type = event->type();
         // We don't need to handle mouse move events manually.
@@ -226,22 +227,25 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                 {
                     auto& nativePopup = nativePopups_[i].window;
                     auto shouldSendKeyPressed = shouldReceiveKeyEvents_[i];
-                    auto quickWindow = qobject_cast<QQuickWindow*>(nativePopup);
-                    if(quickWindow)
+                    auto nativePopupAsQuickWindow = qobject_cast<QQuickWindow*>(nativePopup);
+                    if(nativePopupAsQuickWindow && shouldSendKeyPressed)
                     {
-                        if(shouldSendKeyPressed)
+                        // We reparented `Menu`s to a native popup in
+                        // `MenuBarItem` and `MenuItem`:
+                        // menu.parent = nativePopup.contentItem;
+                        auto receiveKeyEventItem =
+                            nativePopupAsQuickWindow->contentItem() // nativePopup.contentItem
+                            ->childItems().front() // QQuickOverlay
+                            ->childItems().front(); // QQuickPopupItem
+                        QCoreApplication::sendEvent(receiveKeyEventItem, event);
+                        ret = event->isAccepted();
+                        if(!ret)
                         {
-                            auto receiveKeyEventItem = quickWindow->contentItem()->childItems().front()->childItems().front();
-                            QCoreApplication::sendEvent(receiveKeyEventItem, event);
-                            ret = event->isAccepted();
-                            if(!ret)
+                            auto key = static_cast<QKeyEvent*>(event)->key();
+                            if(key == Qt::Key_Left || key == Qt::Key_Right)
                             {
-                                auto key = static_cast<QKeyEvent*>(event)->key();
-                                if(key == Qt::Key_Left || key == Qt::Key_Right)
-                                {
-                                    event->accept();
-                                    QCoreApplication::sendEvent(menuBar_, event);
-                                }
+                                event->accept();
+                                QCoreApplication::sendEvent(menuBar_, event);
                             }
                         }
                     }
@@ -268,13 +272,13 @@ bool QuickMenuBarEventFilter::nativeEventFilter(
             && msg->hwnd == reinterpret_cast<HWND>(parentWindow_.winId)
         )
         {
-            for(auto& [nativePopup, winId]: nativePopups_)
+            if(!nativePopups_.empty())
             {
-                auto metaObject = nativePopup->metaObject();
-                auto signalIndex = metaObject->indexOfSignal("mousePressedOutside()");
+                auto metaObject = menuBar_->metaObject();
+                auto signalIndex = metaObject->indexOfMethod("closeAllMenus()");
                 if(signalIndex != -1)
                 {
-                    metaObject->method(signalIndex).invoke(nativePopup);
+                    metaObject->method(signalIndex).invoke(menuBar_);
                 }
             }
             return false;

@@ -11,6 +11,11 @@
 
 namespace YADAW::UI
 {
+// I previously tried putting `Menu`s in `NativePopup`s. This class is used to
+// handle events related to Qt Quick `MenuBar` correctly.
+// Note that I used private implementations (see related sources in
+// qtdeclarative/src/quicktemplates) instead of manually making one. It might
+// not work on several versions of Qt.
 class QuickMenuBarEventFilter: public QObject, public QAbstractNativeEventFilter
 {
 public:
