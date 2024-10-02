@@ -8,6 +8,7 @@ T.Menu {
 
     property NativePopup nativePopup: nativePopup
     property bool customPressedOutsideEvent: false
+    property bool isSubMenu: false
     padding: 1
     overlap: 5
 
@@ -40,9 +41,22 @@ T.Menu {
     delegate: MenuItem {
         z: 1
     }
+    exit: Transition {
+        id: menuTransition
+        enabled: root.isSubMenu
+        NumberAnimation {
+            properties: "opacity"
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: [0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1]
+            duration: root.isSubMenu? 250: 0
+            from: 1.0
+            to: 0.0
+        }
+    }
     NativePopup {
         id: nativePopup
         onMousePressedOutside: {
+            root.isSubMenu = false;
             if(!root.customPressedOutsideEvent) {
                 root.close();
             }

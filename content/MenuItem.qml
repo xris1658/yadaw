@@ -129,6 +129,7 @@ T.MenuItem {
         enabled: Global.enableMenuPopup
         property bool opened: false
         function onOpened() {
+            subMenu.isSubMenu = true;
             let subMenuPopup = subMenu.nativePopup;
             if(subMenuPopup) {
                 let globalPoint = root.mapToGlobal(subMenu.overlap, -1 * subMenu.topPadding);
@@ -163,7 +164,7 @@ T.MenuItem {
                 }
             }
         }
-        function onAboutToHide() {
+        function onClosed() {
             let menuPopup = root.menu.nativePopup;
             if(menuPopup) {
                 let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
@@ -178,6 +179,20 @@ T.MenuItem {
                 }
             }
             opened = false;
+        }
+    }
+    Connections {
+        target: subMenu.nativePopup
+        function onMousePressedOutside() {
+            subMenu.nativePopup.close();
+        }
+    }
+    Connections {
+        target: menu
+        function onAboutToHide() {
+            if(subMenu) {
+                subMenu.isSubMenu = false;
+            }
         }
     }
 }
