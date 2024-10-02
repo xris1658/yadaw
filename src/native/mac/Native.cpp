@@ -19,7 +19,7 @@ namespace YADAW::Native
 {
 const QString& appDataFolder()
 {
-    static QString ret = QCoreApplication::applicationDirPath() + "/AppData";
+    static QString ret = QString(std::getenv("HOME")) + "/Library";
     return ret;
 }
 
@@ -69,28 +69,23 @@ const std::vector<QString>& defaultPluginDirectoryList()
     std::call_once(
         defaultPluginListFlag, [&list = ret]() mutable
         {
-            list.reserve(6);
+            list.reserve(7);
             auto systemPluginPath = QString("/Library/Audio/Plug-Ins");
             // AudioUnit
-            list.emplace_back(QString(systemPluginPath).append("Components"));
+            list.emplace_back(QString(systemPluginPath).append("/Components"));
             // Vestifal
             list.emplace_back(QString(systemPluginPath).append("/VST"));
             // VST3
             list.emplace_back(QString(systemPluginPath).append("/VST3"));
             // CLAP
             list.emplace_back(QString(systemPluginPath).append("/CLAP"));
-            auto userName = std::getenv("USERNAME");
-            if(userName)
-            {
-                auto userPluginPath = QString("/Users/%1/Library/Audio/Plug-Ins").arg(userName);
-                // Vestifal
-                list.emplace_back(QString(userPluginPath).append("/VST"));
-                // VST3
-                list.emplace_back(QString(userPluginPath).append("/VST3"));
-                // CLAP
-                list.emplace_back(QString(userPluginPath).append("/CLAP"));
-
-            }
+            auto userPluginPath = QString(std::getenv("HOME")) + "/Library/Audio/Plug-Ins";
+            // Vestifal
+            list.emplace_back(QString(userPluginPath).append("/VST"));
+            // VST3
+            list.emplace_back(QString(userPluginPath).append("/VST3"));
+            // CLAP
+            list.emplace_back(QString(userPluginPath).append("/CLAP"));
         }
     );
     return ret;
