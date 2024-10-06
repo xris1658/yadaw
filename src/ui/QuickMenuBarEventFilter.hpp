@@ -18,6 +18,7 @@ namespace YADAW::UI
 // not work on several versions of Qt.
 class QuickMenuBarEventFilter: public QObject, public QAbstractNativeEventFilter
 {
+    Q_OBJECT
 public:
     QuickMenuBarEventFilter(QWindow& parentWindow, QObject& menuBar);
     ~QuickMenuBarEventFilter();
@@ -36,6 +37,10 @@ public:
     void popupShouldReceiveKeyEvents(std::uint32_t index, bool shouldReceiveKeyEvents);
     bool remove(std::uint32_t index, std::uint32_t removeCount);
     void clear();
+private slots:
+    void menuBarCountChanged();
+private:
+    void installMenuBarItemEventFilter();
 public:
     bool eventFilter(QObject* watched, QEvent* event) override;
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
@@ -44,6 +49,8 @@ private:
     QObject* menuBar_;
     std::vector<WindowAndId> nativePopups_;
     std::vector<bool> shouldReceiveKeyEvents_;
+    std::set<QQuickItem*> menuBarItems_;
+    bool filteringMenuBarEvents_ = false;
 };
 }
 

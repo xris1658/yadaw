@@ -67,6 +67,17 @@ QuickMenuBarEventFilter::QuickMenuBarEventFilter(
 {
     parentWindow_.window->installEventFilter(this);
     QCoreApplication::instance()->installNativeEventFilter(this);
+    // auto metaObject = menuBar_->metaObject();
+    // FOR_RANGE0(i, metaObject->methodCount())
+    // {
+    //     auto method = metaObject->method(i);
+    //     std::fprintf(stderr, "%s\n", method.methodSignature().data());
+    // }
+    QObject::connect(
+        menuBar_, SIGNAL(countChanged()),
+        this, SLOT(menuBarCountChanged())
+    );
+    installMenuBarItemEventFilter();
 }
 
 QuickMenuBarEventFilter::~QuickMenuBarEventFilter()
@@ -174,7 +185,106 @@ void QuickMenuBarEventFilter::clear()
     nativePopups_.clear();
 }
 
+static const char menuBarItemClassPrefix[] = "MenuBarItem_QMLTYPE_";
+
+void QuickMenuBarEventFilter::menuBarCountChanged()
+{
+    auto itemCount = menuBar_->property("count").value<int>();
+    if(itemCount > menuBarItems_.size())
+    {
+        if(auto menuBarAsQuickItem = qobject_cast<QQuickItem*>(menuBar_))
+        {
+            std::string_view menuBarItemNameView(
+                menuBarItemClassPrefix,
+                YADAW::Util::stringLength(menuBarItemClassPrefix)
+            );
+            auto childItems = menuBarAsQuickItem
+                ->childItems().front() // QQuickRow
+                ->childItems(); // `MenuBarItem`s
+            for(auto childItem: childItems)
+            {
+                auto metaObject = childItem->metaObject();
+                auto className = metaObject->className();
+                std::string_view classNameView(className);
+                if(
+                    classNameView.size() >= menuBarItemNameView.size() &&
+                    std::equal(
+                        menuBarItemNameView.begin(), menuBarItemNameView.end(),
+                        classNameView.begin()
+                    )
+                    &&
+#if __cplusplus >= 202002L
+                    !menuBarItems_.contains(childItem)
+#else
+                    menuBarItems_.find(childItem) == menuBarItems_.end()
+#endif
+                )
+                {
+                    childItem->installEventFilter(this);
+                    menuBarItems_.emplace(childItem);
+                    QObject::connect(
+                        childItem, &QObject::destroyed,
+                        [childItem, this]
+                        {
+                            childItem->removeEventFilter(this);
+                            menuBarItems_.erase(childItem);
+                        }
+                    );
+                }
+            }
+        }
+    }
+}
+
+void QuickMenuBarEventFilter::installMenuBarItemEventFilter()
+{
+    if(auto menuBarAsQuickItem = qobject_cast<QQuickItem*>(menuBar_))
+    {
+        std::string_view menuBarItemNameView(
+            menuBarItemClassPrefix,
+            YADAW::Util::stringLength(menuBarItemClassPrefix)
+        );
+        auto childItems = menuBarAsQuickItem
+            ->childItems().front() // QQuickRow
+            ->childItems(); // `MenuBarItem`s
+        for(auto childItem: childItems)
+        {
+            auto metaObject = childItem->metaObject();
+            auto className = metaObject->className();
+            std::string_view classNameView(className);
+            if(
+                classNameView.size() >= menuBarItemNameView.size() &&
+                std::equal(
+                    menuBarItemNameView.begin(), menuBarItemNameView.end(),
+                    classNameView.begin()
+                )
+            )
+            {
+                childItem->installEventFilter(this);
+                menuBarItems_.emplace(childItem);
+                QObject::connect(
+                    childItem, &QObject::destroyed,
+                    [childItem, this]
+                    {
+                        childItem->removeEventFilter(this);
+                        menuBarItems_.erase(childItem);
+                    }
+                );
+            }
+        }
+    }
+}
+
 static const char menuItemClassPrefix[] = "MenuItem_QMLTYPE_";
+
+class BoolFlag
+{
+public:
+    BoolFlag(bool& flag): flag_(flag) { flag_ = true; }
+    ~BoolFlag() { flag_ = false; }
+private:
+    bool& flag_;
+};
 
 bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
 {
@@ -276,6 +386,7 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                                     {
                                         if(
                                             std::string_view stringViewClassName(item->metaObject()->className());
+                                            stringViewClassName.size() >= stringViewMenuItemClassPrefix.size() &&
                                             std::equal(
                                                 stringViewMenuItemClassPrefix.begin(), stringViewMenuItemClassPrefix.end(),
                                                 stringViewClassName.begin()
@@ -351,6 +462,30 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                     }
                 }
                 return ret;
+            }
+        }
+    }
+    else
+    {
+        if(auto quickItem = qobject_cast<QQuickItem*>(watched);
+            quickItem &&
+#if __cplusplus >= 202002L
+            menuBarItems_.contains(quickItem)
+#else
+            menuBarItems_.find(quickItem) != menuBarItems_.end()
+#endif
+            && event->type() == QEvent::Shortcut
+            && !filteringMenuBarEvents_
+        )
+        {
+            BoolFlag flag(filteringMenuBarEvents_);
+            if(QCoreApplication::sendEvent(watched, event))
+            {
+                if(auto menu = quickItem->property("menu").value<QObject*>())
+                {
+                    menu->setProperty("currentIndex", QVariant::fromValue<int>(0));
+                }
+                return true;
             }
         }
     }
