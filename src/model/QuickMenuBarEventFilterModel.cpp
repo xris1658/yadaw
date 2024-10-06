@@ -92,7 +92,7 @@ void QuickMenuBarEventFilterModel::popupShouldReceiveKeyEvents(QWindow* nativePo
 bool QuickMenuBarEventFilterModel::remove(QWindow* nativePopup)
 {
     auto ret = false;
-    FOR_RANGE0(i, itemCount())
+    for(auto i = 0U; i < itemCount(); ++i)
     {
         if(&quickMenuBarEventFilter_[i] == nativePopup)
         {
