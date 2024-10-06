@@ -67,12 +67,6 @@ QuickMenuBarEventFilter::QuickMenuBarEventFilter(
 {
     parentWindow_.window->installEventFilter(this);
     QCoreApplication::instance()->installNativeEventFilter(this);
-    // auto metaObject = menuBar_->metaObject();
-    // FOR_RANGE0(i, metaObject->methodCount())
-    // {
-    //     auto method = metaObject->method(i);
-    //     std::fprintf(stderr, "%s\n", method.methodSignature().data());
-    // }
     QObject::connect(
         menuBar_, SIGNAL(countChanged()),
         this, SLOT(menuBarCountChanged())
@@ -407,32 +401,7 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                                     }
                                 }
                                 auto size = matchedItemIndices.size();
-                                if(size == 1)
-                                {
-                                    if(auto selectedItem = itemAtIndex(matchedItemIndices.front()))
-                                    {
-                                        auto metaObject = selectedItem->metaObject();
-                                        auto triggeredIndex = metaObject->indexOfMethod("triggered()");
-                                        if(triggeredIndex != -1)
-                                        {
-                                            auto invoked = metaObject->method(triggeredIndex).invoke(selectedItem);
-                                            if(invoked)
-                                            {
-                                                auto menuBarMetaObject = menuBar_->metaObject();
-                                                auto signalIndex = menuBarMetaObject->indexOfMethod("closeAllMenus()");
-                                                if(signalIndex != -1)
-                                                {
-                                                    menuBarMetaObject->method(signalIndex).invoke(menuBar_);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                std::fprintf(stderr, "Failed to invoke MenuItem.triggered()\n");
-                                            }
-                                        }
-                                    }
-                                }
-                                else if(size > 1)
+                                if(size >= 1)
                                 {
                                     auto currentIndex = listView->property("currentIndex").value<int>();
                                     auto it = std::lower_bound(matchedItemIndices.begin(), matchedItemIndices.end(), currentIndex);
@@ -441,6 +410,37 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                                         it = matchedItemIndices.begin();
                                     }
                                     listView->setProperty("currentIndex", QVariant::fromValue<int>(*it));
+                                }
+                                if(size == 1)
+                                {
+                                    if(auto selectedItem = itemAtIndex(matchedItemIndices.front()))
+                                    {
+                                        QShortcutEvent shortcutEvent(
+                                            QKeySequence(
+                                                QKeyCombination(
+                                                    Qt::Modifier::ALT,
+                                                    static_cast<Qt::Key>(keyEvent->key())
+                                                )
+                                            )
+                                            );
+                                        auto metaObject = selectedItem->metaObject();
+                                        auto triggeredIndex = metaObject->indexOfMethod("clicked()");
+                                        if(triggeredIndex != -1)
+                                        {
+                                            metaObject->method(triggeredIndex).invoke(selectedItem);
+                                        }
+                                        if(auto action = selectedItem->property("action").value<QObject*>())
+                                        {
+                                            auto metaObject = action->metaObject();
+                                            if(
+                                                auto triggeredIndex = metaObject->indexOfMethod("triggered()");
+                                                triggeredIndex != -1
+                                            )
+                                            {
+                                                metaObject->method(triggeredIndex).invoke(action);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             ret = true;
