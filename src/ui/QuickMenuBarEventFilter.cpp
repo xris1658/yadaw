@@ -419,14 +419,6 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                                 {
                                     if(auto selectedItem = itemAtIndex(matchedItemIndices.front()))
                                     {
-                                        QShortcutEvent shortcutEvent(
-                                            QKeySequence(
-                                                QKeyCombination(
-                                                    Qt::Modifier::ALT,
-                                                    static_cast<Qt::Key>(keyEvent->key())
-                                                )
-                                            )
-                                            );
                                         auto metaObject = selectedItem->metaObject();
                                         auto triggeredIndex = metaObject->indexOfMethod("clicked()");
                                         if(triggeredIndex != -1)
