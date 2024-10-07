@@ -409,7 +409,11 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                                     {
                                         it = matchedItemIndices.begin();
                                     }
-                                    listView->setProperty("currentIndex", QVariant::fromValue<int>(*it));
+                                    // Parent object of `NativePopup` (see Menu.qml)
+                                    if(auto menu = static_cast<QObject*>(nativePopup)->parent())
+                                    {
+                                        menu->setProperty("currentIndex", QVariant::fromValue<int>(*it));
+                                    }
                                 }
                                 if(size == 1)
                                 {
