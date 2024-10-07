@@ -5,8 +5,9 @@
 
 #include <QAbstractNativeEventFilter>
 #include <QObject>
-#include <QWindow>
+#include <QQuickItem>
 
+#include <set>
 #include <vector>
 
 namespace YADAW::UI
