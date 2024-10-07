@@ -143,6 +143,7 @@ might be usable on Debian and its forks.
   mkdir build
   cd build
   cmake -S .. -B . \
+    -DCMAKE_PREFIX_PATH=<Qt install path, e.g. /home/xris1658/apps/Qt/6.5.3/gcc_64> \
     -DVST3SDK_SOURCE_DIR=<path to directory of VST3 SDK>/vst3sdk \
     -DCLAP_SOURCE_DIR=<path to directory of CLAP>/clap \
     -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<path to directory of sqlite_modern_cpp>/sqlite_modern_cpp/hdr
@@ -178,8 +179,8 @@ install the platform integration plugin of Fcitx. The steps are as follows:
 
 ## Build on macOS
 
-The following process is tested on macOS Monterey 12 with macOS SDK 13.1 and 
-**without Xcode**.
+The following process DOES NOT need Xcode to installed, and is tested on macOS
+Monterey 12.
 
 - Install macOS Command-Line developer tools:
   ```shell
@@ -194,8 +195,8 @@ The following process is tested on macOS Monterey 12 with macOS SDK 13.1 and
   ```shell
   export PATH=$PATH:/Applications/CMake/Contents/bin
   ```
-- Download Ninja. If you downloaded it from ninja-build.org, make sure to add
-  the executable path to the environment variable `PATH`:
+- Download and install Ninja. If you downloaded it from ninja-build.org, make
+- sure to add the executable path to the environment variable `PATH`:
   ```shell
   export PATH=$PATH:/<executable path, e.g. /Users/xris1658/apps/ninja-build>
   ```
@@ -222,7 +223,7 @@ The following process is tested on macOS Monterey 12 with macOS SDK 13.1 and
   We need to have `pkg-config` installed before installing packages with vcpkg,
   which is why we install Homebrew previously. While Homebrew is more commonly
   used on macOS, I use vcpkg because it has the library `ade`, which is a little
-  part of OpenCV. With only Homebrew, I might have to install the whole OpenCV.
+  part of OpenCV. With only Homebrew, I might have to install OpenCV as a whole.
 - Download source of YADAW, configure and build the project:
   ```shell
   git clone https://github.com/xris1658/yadaw

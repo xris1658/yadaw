@@ -43,7 +43,7 @@ include_directories(${PROJECT_SOURCE_DIR}/content
                     ${SQLITE_MODERN_CPP_INCLUDE_DIRS}) # sqlite-modern-cpp
 
 ## VST3
-# If you're building with only command-line tools, comment the following lines
+# If you're building on macOS with only command-line tools, comment these lines
 # of ${VST3SDK_SOURCE_DIR}/cmake/modules/SMTG_DetectPlatform.cmake:
 # ```cmake
 # if(XCODE_VERSION VERSION_LESS "9")
