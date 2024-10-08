@@ -8,7 +8,7 @@ namespace YADAW::UI
 {
 const QString& defaultFontDir();
 
-void showWindowWithoutActivating(WId winId);
+void showWindowWithoutActivating(QWindow& window);
 
 // Enters fullscreen. If the window was maximized, this function tries setting
 // window state from maximized to fullscreen without showing the intermediate

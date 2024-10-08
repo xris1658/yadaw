@@ -2,7 +2,7 @@ import QtQuick
 
 Window {
     id: root
-    flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowDoesNotAcceptFocus
+    flags: Qt.Tool | Qt.FramelessWindowHint
     visible: false
     signal mousePressedOutside()
     // Locates a popup according to size of it, an adjacent rectangle that the
@@ -52,5 +52,10 @@ Window {
             x = posX;
             y = posY;
         }
+    }
+    // See YADAW::UI::showWindowWithoutActivating()
+    function showWithoutActivating() {
+        EventReceiver.mainWindow.nativePopupToShow = root;
+        EventSender.showNativePopup();
     }
 }

@@ -36,6 +36,7 @@ public slots:
     void onCurrentAudioBackendChanged();
     void onAudioGraphOutputDeviceIndexChanged(int index);
     void onToggleMainWindowFullscreen();
+    void onShowNativePopup();
 private:
     QObject* eventSender_;
     QObject* eventReceiver_;

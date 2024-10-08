@@ -100,6 +100,8 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onStartPluginScan()));
     QObject::connect(sender, SIGNAL(toggleMainWindowFullscreen()),
         this, SLOT(onToggleMainWindowFullscreen()));
+    QObject::connect(sender, SIGNAL(showNativePopup()),
+        this, SLOT(onShowNativePopup()));
 }
 
 void EventHandler::connectToEventReceiver(QObject* receiver)
@@ -732,6 +734,17 @@ void EventHandler::onToggleMainWindowFullscreen()
             *YADAW::UI::mainWindow,
             YADAW::UI::mainWindow->property("previouslyMaximized").value<bool>()
         );
+    }
+}
+
+void EventHandler::onShowNativePopup()
+{
+    auto nativePopup = qobject_cast<QWindow*>(
+        YADAW::UI::mainWindow->property("nativePopupToShow").value<QObject*>()
+    );
+    if(nativePopup)
+    {
+        YADAW::UI::showWindowWithoutActivating(*nativePopup);
     }
 }
 }

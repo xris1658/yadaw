@@ -7,6 +7,7 @@
 
 #include <QCoreApplication>
 #include <QGuiApplication>
+#include <QWindow>
 
 #if _WIN32
 #include "native/Library.hpp"
@@ -33,12 +34,16 @@ const QString& defaultFontDir()
     return ret;
 }
 
-void showWindowWithoutActivating(WId winId)
+// This function exists even though there is a flag called
+// `Qt::WindowDoesNotAcceptFocus`.
+// On X11 with only flags set, if a native popup is shown by clicking
+// outside the mouse (e.g. clicking a menu bar item that shows a menu in its
+// native popup), then clicking inside the popup generates a `WM_TAKE_FOCUS`
+// event, which closes the popup and leaves the click event not handled.
+void showWindowWithoutActivating(QWindow& window)
 {
-#if _WIN32
-    auto hwnd = reinterpret_cast<HWND>(winId);
-    ShowWindow(hwnd, SW_SHOWNOACTIVATE);
-#elif __linux__
+#if __linux__
+    auto winId = window.winId();
     auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
     if(x11Interface)
     {
@@ -49,7 +54,11 @@ void showWindowWithoutActivating(WId winId)
         xcb_map_window(connection, windowHandle);
         xcb_flush(connection);
     }
+#else
+    window.setFlag(Qt::WindowType::WindowDoesNotAcceptFocus, true);
+    window.showNormal();
 #endif
+    window.setVisible(true);
 }
 
 #if __linux__

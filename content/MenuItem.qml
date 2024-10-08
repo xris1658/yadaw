@@ -140,7 +140,7 @@ T.MenuItem {
                     ),
                     Qt.Horizontal
                 );
-                subMenuPopup.showNormal();
+                subMenuPopup.showWithoutActivating();
                 subMenuPopup.width = subMenu.implicitWidth;
                 subMenuPopup.height = Math.min(
                     subMenuPopup.screen.desktopAvailableHeight,

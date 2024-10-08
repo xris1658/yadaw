@@ -56,7 +56,7 @@ T.MenuBarItem {
                     ),
                     Qt.Vertical
                 );
-                nativePopup.showNormal();
+                nativePopup.showWithoutActivating();
                 nativePopup.width = menu.implicitWidth;
                 nativePopup.height = Math.min(
                     nativePopup.screen.desktopAvailableHeight,

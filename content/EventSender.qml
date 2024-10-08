@@ -12,4 +12,5 @@ QtObject {
     signal setSystemFontRenderingWhileDebugging(enabled: bool)
     signal setTranslationIndex(index: int)
     signal toggleMainWindowFullscreen()
+    signal showNativePopup()
 }

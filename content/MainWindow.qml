@@ -109,6 +109,7 @@ ApplicationWindow {
         preferencesWindow.pluginScanComplete();
     }
 
+    property NativePopup nativePopupToShow: null
     signal mainWindowReady()
     onMainWindowReady: {
         opened = true;
@@ -117,8 +118,9 @@ ApplicationWindow {
         if(Global.qtMajorVersion == 6 && Global.qtMinorVersion >= 7) {
             let menus = root.menuBar.menus;
             for(let i = 0; i < menus.length; ++i) {
-                menus[i].nativePopup.showNormal();
-                menus[i].nativePopup.hide();
+                root.nativePopupToShow = menus[i].nativePopup;
+                EventSender.showNativePopup();
+                root.nativePopupToShow.hide();
             }
             pluginSelectorWindow.showMinimized();
             pluginSelectorWindow.hide();
