@@ -65,10 +65,18 @@ NativePopupEventFilter::NativePopupEventFilter(QWindow& parentWindow):
 {
     parentWindow.installEventFilter(this);
     QCoreApplication::instance()->installNativeEventFilter(this);
+    QObject::connect(
+        parentWindow_.window, &QWindow::activeChanged,
+        this, &NativePopupEventFilter::parentWindowActiveChanged
+    );
 }
 
 NativePopupEventFilter::~NativePopupEventFilter()
 {
+    QObject::disconnect(
+        parentWindow_.window, &QWindow::activeChanged,
+        this, nullptr
+    );
     QCoreApplication::instance()->removeNativeEventFilter(this);
     parentWindow_.window->removeEventFilter(this);
 }
@@ -185,6 +193,11 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
         {
             auto* mouseEvent = static_cast<QMouseEvent*>(event);
             auto globalPosition = mouseEvent->globalPosition();
+            if(nativePopups_.empty())
+            {
+                return false;
+            }
+            auto onNativePopups = false;
             for(auto& [nativePopup, winId]: nativePopups_)
             {
                 auto shouldSendMousePressed =
@@ -201,23 +214,9 @@ bool NativePopupEventFilter::eventFilter(QObject* watched, QEvent* event)
                         metaObject->method(signalIndex).invoke(nativePopup);
                     }
                 }
+                onNativePopups |= (!shouldSendMousePressed);
             }
-            return watched->event(event);
-        }
-        else if(type == QEvent::Type::Gesture
-            || type == QEvent::Type::GestureOverride
-            || type == QEvent::Type::NativeGesture
-            || type == QEvent::Type::TouchBegin
-            || type == QEvent::Type::TouchCancel
-            || type == QEvent::Type::TouchEnd
-            || type == QEvent::Type::TouchUpdate)
-        {
-            auto ret = false;
-            for(auto& [nativePopup, winId]: nativePopups_)
-            {
-                ret |= static_cast<QObject*>(nativePopup)->event(event);
-            }
-            return ret | watched->event(event);
+            return onNativePopups;
         }
     }
     return false;
@@ -369,5 +368,25 @@ bool NativePopupEventFilter::nativeEventFilter(const QByteArray& eventType, void
     }
 #endif
     return false;
+}
+
+void NativePopupEventFilter::parentWindowActiveChanged()
+{
+    if(!parentWindow_.window->isActive())
+    {
+        for(auto& [nativePopup, winId]: nativePopups_)
+        {
+            auto metaObject = nativePopup->metaObject();
+            auto signalIndex = metaObject->indexOfSignal("mousePressedOutside()");
+            if(signalIndex != -1)
+            {
+                metaObject->method(signalIndex).invoke(nativePopup);
+            }
+            else
+            {
+                qDebug("Cannot find `mousePressedOutside()`");
+            }
+        }
+    }
 }
 }
