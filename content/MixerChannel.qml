@@ -824,11 +824,17 @@ Rectangle {
                     }
                     onCheckedChanged: {
                         if(checked) {
-                            locatePopupWindow(invertPolarityNativePopup, height, 0);
+                            let globalPoint = mapToGlobal(0, 0);
+                            invertPolarityNativePopup.locate(
+                                Qt.rect(
+                                    globalPoint.x, globalPoint.y, width, height
+                                ),
+                                Qt.Vertical
+                            );
+                            invertPolarityNativePopup.showWithoutActivating();
                             let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
                             nativePopupEventFilterModel.append(invertPolarityNativePopup, false);
                             EventReceiver.mainWindow.keyEventForwarder.startForwarding(invertPolarityButton);
-                            invertPolarityNativePopup.visible = true;
                         }
                         else {
                             EventReceiver.mainWindow.keyEventForwarder.endForwarding();
