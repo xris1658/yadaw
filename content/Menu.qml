@@ -53,6 +53,13 @@ T.Menu {
             to: 0.0
         }
     }
+    // A workaround to show `Menu`s out of its main window for versions prior to
+    // Qt 6.8.
+    // Qt 6.8 added `Popup.popupType` to show `Popup`s on a separate window, or
+    // even better, show `Menu`s as native ones. Check out the documentation:
+    // https://doc.qt.io/qt-6/qml-qtquick-controls-popup.html#popup-type
+    // Will check if its implementations do everything right, before using it in
+    // this project.
     NativePopup {
         id: nativePopup
         onMousePressedOutside: {
