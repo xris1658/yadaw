@@ -1300,6 +1300,10 @@ bool Mixer::removeAudioOutputChannel(
             audioOutputMeters_.begin() + first,
             audioOutputMeters_.begin() + last
         );
+        audioOutputPolarityInverters_.erase(
+            audioOutputPolarityInverters_.begin() + first,
+            audioOutputPolarityInverters_.begin() + last
+        );
         audioOutputChannelInfo_.erase(
             audioOutputChannelInfo_.begin() + first,
             audioOutputChannelInfo_.begin() + last
