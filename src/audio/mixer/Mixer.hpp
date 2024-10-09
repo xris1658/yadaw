@@ -53,9 +53,17 @@ using DeviceFactoryType = std::unique_ptr<Device>(
 );
 
 // Struct of a channel:
-// +------------+   +-------------------+   +-------------------+   +------+   +-------+   +--------------------+   +-------+   +-------------+
-// | Input Node |-->| Polarity Inverter |-->| Pre-Fader Inserts |-->| Mute |-->| Fader |-->| Post-Fader Inserts |-->| Meter |-->| Output Node |
-// +------------+   +-------------------+   +-------------------+   +------+   +-------+   +--------------------+   +-------+   +-------------+
+// +------------+   +-------------------+   +-------------------+   +------+     +-------+     +--------------------+   +-------+   +-------------+
+// | Input Node |-->| Polarity Inverter |-->| Pre-Fader Inserts |-->| Mute |--+->| Fader |--+->| Post-Fader Inserts |-->| Meter |-->| Output Node |
+// +------------+   +-------------------+   +-------------------+   +------+  |  +-------+  |  +--------------------+   +-------+   +-------------+
+//                                                                            |             |
+//                                                                            |             |  +------+   +------------------+
+//                                                                            |             +->| Send |-->| Destination Node |
+//                                                                            |                +------+   +------------------+
+//                                                                            |
+//                                                                            |  +------+   +------------------+
+//                                                                            +->| Send |-->| Destination Node |
+//                                                                               +------+   +------------------+
 //
 // `Mixer` owns faders, meters and input/output devices of regular channels.
 // Input devices:
@@ -69,6 +77,15 @@ using DeviceFactoryType = std::unique_ptr<Device>(
 // - `AudioFX`: An owned `YADAW::Audio::Util::Summing`.
 // - `AudioBus`: An owned `YADAW::Audio::Util::Summing`.
 // - `AudioHardwareOutput`: An owned `YADAW::Audio::Util::Summing`.
+//
+// Struct of a send:
+// +-------------------+   +------+   +-------+
+// | Polarity Inverter |-->| Mute |-->| Fader |
+// +-------------------+   +------+   +-------+
+// There's a few DAW mixer which has polarity inverters in send controls.
+// Polarity inverters in sends are useful in some scenarios, so I ended up
+// adding one.
+
 class Mixer
 {
 public:
@@ -213,6 +230,33 @@ public:
     OptionalRef<YADAW::Audio::Mixer::Inserts> channelPostFaderInsertsAt(std::uint32_t index);
     OptionalRef<YADAW::Audio::Mixer::Inserts> audioOutputChannelPreFaderInsertsAt(std::uint32_t index);
     OptionalRef<YADAW::Audio::Mixer::Inserts> audioOutputChannelPostFaderInsertsAt(std::uint32_t index);
+    std::optional<const std::uint32_t> audioInputChannelSendCount(std::uint32_t index) const;
+    std::optional<const std::uint32_t> channelSendCount(std::uint32_t index) const;
+    std::optional<const std::uint32_t> audioOutputChannelSendCount(std::uint32_t index) const;
+    std::optional<const bool> audioInputChannelSendIsPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    std::optional<const bool> channelSendIsPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    std::optional<const bool> audioOutputChannelSendIsPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    std::optional<const Position> audioInputChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    std::optional<const Position> channelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    std::optional<const Position> audioOutputChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<const VolumeFader> audioInputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<const VolumeFader> ChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<const VolumeFader> audioOutputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<VolumeFader> audioInputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
+    OptionalRef<VolumeFader> channelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
+    OptionalRef<VolumeFader> audioOutputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
+    OptionalRef<const YADAW::Audio::Util::Mute> audioInputChannelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<const YADAW::Audio::Util::Mute> channelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<const YADAW::Audio::Util::Mute> audioOutputChannelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<YADAW::Audio::Util::Mute> audioInputChannelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
+    OptionalRef<YADAW::Audio::Util::Mute> channelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
+    OptionalRef<YADAW::Audio::Util::Mute> audioOutputChannelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
+    OptionalRef<const PolarityInverter> audioInputChannelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<const PolarityInverter> channelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<const PolarityInverter> audioOutputChannelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<PolarityInverter> audioInputChannelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
+    OptionalRef<PolarityInverter> channelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
+    OptionalRef<PolarityInverter> audioOutputChannelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
     OptionalRef<const ChannelInfo> audioInputChannelInfoAt(std::uint32_t index) const;
     OptionalRef<const ChannelInfo> audioOutputChannelInfoAt(std::uint32_t index) const;
     OptionalRef<const ChannelInfo> channelInfoAt(std::uint32_t index) const;
@@ -291,6 +335,25 @@ public:
     );
     void clearChannels();
 public:
+    std::optional<bool> appendAudioInputChannelSend(std::uint32_t channelIndex, bool isPreFader, Position destination);
+    std::optional<bool> insertAudioInputChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, bool isPreFader, Position destination);
+    std::optional<bool> setAudioInputChannelSendPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex, bool preFader);
+    std::optional<bool> setAudioInputChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex, Position destination);
+    std::optional<bool> removeAudioInputChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
+    std::optional<bool> clearAudioInputChannelSends(std::uint32_t channelIndex, std::uint32_t sendPosition);
+    std::optional<bool> appendChannelSend(std::uint32_t channelIndex, bool isPreFader, Position destination);
+    std::optional<bool> insertChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, bool isPreFader, Position destination);
+    std::optional<bool> setChannelSendPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex, bool preFader);
+    std::optional<bool> setChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex, Position destination);
+    std::optional<bool> removeChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
+    std::optional<bool> clearChannelSends(std::uint32_t channelIndex, std::uint32_t sendPosition);
+    std::optional<bool> appendAudioOutputChannelSend(std::uint32_t channelIndex, bool isPreFader, Position destination);
+    std::optional<bool> insertAudioOutputChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, bool isPreFader, Position destination);
+    std::optional<bool> setAudioOutputChannelSendPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex, bool preFader);
+    std::optional<bool> setAudioOutputChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex, Position destination);
+    std::optional<bool> removeAudioOutputChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
+    std::optional<bool> clearAudioOutputChannelSends(std::uint32_t channelIndex, std::uint32_t sendPosition);
+public:
     ade::NodeHandle getInstrument(std::uint32_t index) const;
     bool setInstrument(std::uint32_t index,
         ade::NodeHandle nodeHandle, std::uint32_t outputChannelIndex);
@@ -368,6 +431,10 @@ private:
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioInputPostFaderInserts_;
     std::vector<MeterAndNode> audioInputMeters_;
     std::vector<ChannelInfo> audioInputChannelInfo_;
+    std::vector<std::vector<MuteAndNode>> audioInputSendMutes_;
+    std::vector<std::vector<FaderAndNode>> audioInputSendFaders_;
+    std::vector<std::vector<PolarityInverterAndNode>> audioInputSendPolarityInverters_;
+    std::vector<std::vector<Position>> audioInputSendDestinations_;
 
     IDGen channelIdGen_;
     std::vector<IDGen::ID> channelId_;
@@ -384,6 +451,10 @@ private:
     std::vector<ChannelInfo> channelInfo_;
     std::vector<Position> mainInput_;
     std::vector<Position> mainOutput_;
+    std::vector<std::vector<MuteAndNode>> sendMutes_;
+    std::vector<std::vector<FaderAndNode>> sendFaders_;
+    std::vector<std::vector<PolarityInverterAndNode>> sendPolarityInverters_;
+    std::vector<std::vector<Position>> sendDestinations_;
 
     IDGen audioOutputChannelIdGen_;
     std::vector<IDGen::ID> audioOutputChannelId_;
@@ -396,6 +467,10 @@ private:
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPostFaderInserts_;
     std::vector<MeterAndNode> audioOutputMeters_;
     std::vector<ChannelInfo> audioOutputChannelInfo_;
+    std::vector<std::vector<MuteAndNode>> audioOutputSendMutes_;
+    std::vector<std::vector<FaderAndNode>> audioOutputSendFaders_;
+    std::vector<std::vector<PolarityInverterAndNode>> audioOutputSendPolarityInverters_;
+    std::vector<std::vector<Position>> audioOutputSendDestinations_;
 
     std::unordered_set<ade::EdgeHandle, ade::HandleHasher<ade::Edge>> connections_;
 

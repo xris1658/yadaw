@@ -226,6 +226,33 @@ OptionalRef<YADAW::Audio::Mixer::Inserts>
     return std::nullopt;
 }
 
+std::optional<const std::uint32_t> Mixer::audioInputChannelSendCount(std::uint32_t index) const
+{
+    if(index < audioInputChannelCount())
+    {
+        return {static_cast<std::uint32_t>(audioInputSendDestinations_[index].size())};
+    }
+    return std::nullopt;
+}
+
+std::optional<const std::uint32_t> Mixer::channelSendCount(std::uint32_t index) const
+{
+    if(index < channelCount())
+    {
+        return {static_cast<std::uint32_t>(sendDestinations_[index].size())};
+    }
+    return std::nullopt;
+}
+
+std::optional<const std::uint32_t> Mixer::audioOutputChannelSendCount(std::uint32_t index) const
+{
+    if(index < audioOutputChannelCount())
+    {
+        return {static_cast<std::uint32_t>(audioOutputSendDestinations_[index].size())};
+    }
+    return std::nullopt;
+}
+
 OptionalRef<const Mixer::ChannelInfo> Mixer::audioInputChannelInfoAt(std::uint32_t index) const
 {
     if(index < audioInputChannelCount())
@@ -1052,6 +1079,10 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
         nodeRemovedCallback_(*this);
         auto& info = *audioInputChannelInfo_.emplace(audioInputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
+        audioInputSendMutes_.emplace(audioInputSendMutes_.begin() + position);
+        audioInputSendFaders_.emplace(audioInputSendFaders_.begin() + position);
+        audioInputSendPolarityInverters_.emplace(audioInputSendPolarityInverters_.begin() + position);
+        audioInputSendDestinations_.emplace(audioInputSendDestinations_.begin() + position);
         return true;
     }
     return false;
@@ -1067,7 +1098,16 @@ bool Mixer::removeAudioInputChannel(
     {
         {
             std::vector<ade::NodeHandle> nodesToRemove;
-            nodesToRemove.reserve(removeCount * 5);
+            nodesToRemove.reserve(
+                removeCount * 5 + 3 * std::accumulate(
+                    audioInputSendDestinations_.begin() + first,
+                    audioInputSendDestinations_.begin() + last,
+                    0, [](const auto lhs, const auto& rhs)
+                    {
+                        return lhs + rhs.size();
+                    }
+                )
+            );
             FOR_RANGE(i, first, last)
             {
                 auto polarityInverterNode = audioInputPolarityInverters_[i].second;
@@ -1076,6 +1116,12 @@ bool Mixer::removeAudioInputChannel(
                 nodesToRemove.emplace_back(audioInputMutes_[i].second);
                 nodesToRemove.emplace_back(audioInputFaders_[i].second);
                 nodesToRemove.emplace_back(audioInputMeters_[i].second);
+                FOR_RANGE0(j, audioInputSendDestinations_[i].size())
+                {
+                    nodesToRemove.emplace_back(audioInputSendPolarityInverters_[i][j].second);
+                    nodesToRemove.emplace_back(audioInputSendMutes_[i][j].second);
+                    nodesToRemove.emplace_back(audioInputSendFaders_[i][j].second);
+                }
             }
             audioInputPreFaderInserts_.erase(
                 audioInputPreFaderInserts_.begin() + first,
@@ -1110,6 +1156,22 @@ bool Mixer::removeAudioInputChannel(
         audioInputPolarityInverters_.erase(
             audioInputPolarityInverters_.begin() + first,
             audioInputPolarityInverters_.begin() + last
+        );
+        audioInputSendPolarityInverters_.erase(
+            audioInputSendPolarityInverters_.begin() + first,
+            audioInputSendPolarityInverters_.begin() + last
+        );
+        audioInputSendMutes_.erase(
+            audioInputSendMutes_.begin() + first,
+            audioInputSendMutes_.begin() + last
+        );
+        audioInputSendFaders_.erase(
+            audioInputSendFaders_.begin() + first,
+            audioInputSendFaders_.begin() + last
+        );
+        audioInputSendDestinations_.erase(
+            audioInputSendDestinations_.begin() + first,
+            audioInputSendDestinations_.begin() + last
         );
         std::sort(
             audioInputChannelId_.begin() + first,
@@ -1241,6 +1303,10 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
         nodeAddedCallback_(*this);
         auto& info = *audioOutputChannelInfo_.emplace(audioOutputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
+        audioOutputSendMutes_.emplace(audioOutputSendMutes_.begin() + position);
+        audioOutputSendFaders_.emplace(audioOutputSendFaders_.begin() + position);
+        audioOutputSendPolarityInverters_.emplace(audioOutputSendPolarityInverters_.begin() + position);
+        audioOutputSendDestinations_.emplace(audioOutputSendDestinations_.begin() + position);
         return true;
     }
     return false;
@@ -1256,7 +1322,16 @@ bool Mixer::removeAudioOutputChannel(
     {
         {
             std::vector<ade::NodeHandle> nodesToRemove;
-            nodesToRemove.reserve(removeCount * 6);
+            nodesToRemove.reserve(
+                removeCount * 6 + 3 * std::accumulate(
+                    audioOutputSendDestinations_.begin() + first,
+                    audioOutputSendDestinations_.begin() + last,
+                    0, [](const auto lhs, const auto& rhs)
+                    {
+                        return lhs + rhs.size();
+                    }
+                )
+            );
             FOR_RANGE(i, first, last)
             {
                 nodesToRemove.emplace_back(audioOutputSummings_[i].second);
@@ -1269,6 +1344,12 @@ bool Mixer::removeAudioOutputChannel(
                 nodesToRemove.emplace_back(
                     audioOutputPolarityInverters_[i].second
                 );
+                FOR_RANGE0(j, audioOutputSendDestinations_[i].size())
+                {
+                    nodesToRemove.emplace_back(audioOutputSendPolarityInverters_[i][j].second);
+                    nodesToRemove.emplace_back(audioOutputSendMutes_[i][j].second);
+                    nodesToRemove.emplace_back(audioOutputSendFaders_[i][j].second);
+                }
             }
             audioOutputPreFaderInserts_.erase(
                 audioOutputPreFaderInserts_.begin() + first,
@@ -1303,6 +1384,22 @@ bool Mixer::removeAudioOutputChannel(
         audioOutputPolarityInverters_.erase(
             audioOutputPolarityInverters_.begin() + first,
             audioOutputPolarityInverters_.begin() + last
+        );
+        audioOutputSendPolarityInverters_.erase(
+            audioOutputSendPolarityInverters_.begin() + first,
+            audioOutputSendPolarityInverters_.begin() + last
+        );
+        audioOutputSendMutes_.erase(
+            audioOutputSendMutes_.begin() + first,
+            audioOutputSendMutes_.begin() + last
+        );
+        audioOutputSendFaders_.erase(
+            audioOutputSendFaders_.begin() + first,
+            audioOutputSendFaders_.begin() + last
+        );
+        audioOutputSendDestinations_.erase(
+            audioOutputSendDestinations_.begin() + first,
+            audioOutputSendDestinations_.begin() + last
         );
         audioOutputChannelInfo_.erase(
             audioOutputChannelInfo_.begin() + first,
@@ -1592,6 +1689,40 @@ bool Mixer::insertChannels(
                 mutes_, mutes_.begin() + position
             )
         );
+        // send
+        std::generate_n(
+            std::inserter(
+                sendPolarityInverters_,
+                sendPolarityInverters_.begin() + position), count,
+            []() -> decltype(sendPolarityInverters_)::value_type
+            {
+                return {};
+            }
+        );
+        std::generate_n(
+            std::inserter(
+                sendMutes_,
+                sendMutes_.begin() + position), count,
+            []() -> decltype(sendMutes_)::value_type
+            {
+                return {};
+            }
+        );
+        std::generate_n(
+            std::inserter(
+                sendFaders_,
+                sendFaders_.begin() + position), count,
+            []() -> decltype(sendFaders_)::value_type
+            {
+                return {};
+            }
+        );
+        std::fill_n(
+            std::inserter(
+                sendDestinations_,
+                sendDestinations_.begin() + position), count,
+                decltype(sendDestinations_)::value_type()
+        );
         // info, etc.
         std::fill_n(
             std::inserter(channelInfo_, channelInfo_.begin() + position), count,
@@ -1671,7 +1802,16 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             postFaderInserts_.begin() + last
         );
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 5);
+        nodesToRemove.reserve(
+            removeCount * 5 + 3 * std::accumulate(
+                sendDestinations_.begin() + first,
+                sendDestinations_.begin() + last,
+                0, [](const auto lhs, const auto& rhs)
+                {
+                    return lhs + rhs.size();
+                }
+            )
+        );
         FOR_RANGE(i, first, last)
         {
             auto nodeToRemove = inputDevices_[i].second;
@@ -1683,6 +1823,12 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             nodesToRemove.emplace_back(mutes_[i].second);
             nodesToRemove.emplace_back(faders_[i].second);
             nodesToRemove.emplace_back(meters_[i].second);
+            FOR_RANGE0(j, sendDestinations_[i].size())
+            {
+                nodesToRemove.emplace_back(sendPolarityInverters_[i][j].second);
+                nodesToRemove.emplace_back(sendMutes_[i][j].second);
+                nodesToRemove.emplace_back(sendFaders_[i][j].second);
+            }
         }
         FOR_RANGE0(i, nodesToRemove.size())
         {
@@ -1716,6 +1862,22 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         faders_.erase(
             faders_.begin() + first,
             faders_.begin() + last
+        );
+        sendPolarityInverters_.erase(
+            sendPolarityInverters_.begin() + first,
+            sendPolarityInverters_.begin() + last
+        );
+        sendMutes_.erase(
+            sendMutes_.begin() + first,
+            sendMutes_.begin() + last
+        );
+        sendFaders_.erase(
+            sendFaders_.begin() + first,
+            sendFaders_.begin() + last
+        );
+        sendDestinations_.erase(
+            sendDestinations_.begin() + first,
+            sendDestinations_.begin() + last
         );
         channelInfo_.erase(
             channelInfo_.begin() + first,
