@@ -72,18 +72,10 @@ QuickMenuBarEventFilter::QuickMenuBarEventFilter(
         this, SLOT(menuBarCountChanged())
     );
     installMenuBarItemEventFilter();
-    QObject::connect(
-        parentWindow_.window, &QWindow::activeChanged,
-        this, &QuickMenuBarEventFilter::parentWindowActiveChanged
-    );
 }
 
 QuickMenuBarEventFilter::~QuickMenuBarEventFilter()
 {
-    QObject::disconnect(
-        parentWindow_.window, &QWindow::activeChanged,
-        this, nullptr
-    );
     QCoreApplication::instance()->removeNativeEventFilter(this);
     parentWindow_.window->removeEventFilter(this);
 }
@@ -459,6 +451,26 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                 return ret;
             }
         }
+        else if(type == QEvent::Type::FocusOut)
+        {
+            auto focusEvent = static_cast<QFocusEvent*>(event);
+            if(focusEvent->reason() != Qt::FocusReason::PopupFocusReason)
+            {
+                for(auto& [nativePopup, winId]: nativePopups_)
+                {
+                    auto metaObject = nativePopup->metaObject();
+                    auto signalIndex = metaObject->indexOfSignal("mousePressedOutside()");
+                    if(signalIndex != -1)
+                    {
+                        metaObject->method(signalIndex).invoke(nativePopup);
+                    }
+                    else
+                    {
+                        qDebug("Cannot find `mousePressedOutside()`");
+                    }
+                }
+            }
+        }
     }
     else
     {
@@ -630,25 +642,5 @@ bool QuickMenuBarEventFilter::nativeEventFilter(
     }
 #endif
     return false;
-}
-
-void QuickMenuBarEventFilter::parentWindowActiveChanged()
-{
-    if(!parentWindow_.window->isActive())
-    {
-        for(auto& [nativePopup, winId]: nativePopups_)
-        {
-            auto metaObject = nativePopup->metaObject();
-            auto signalIndex = metaObject->indexOfSignal("mousePressedOutside()");
-            if(signalIndex != -1)
-            {
-                metaObject->method(signalIndex).invoke(nativePopup);
-            }
-            else
-            {
-                qDebug("Cannot find `mousePressedOutside()`");
-            }
-        }
-    }
 }
 }
