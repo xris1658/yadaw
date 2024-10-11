@@ -33,15 +33,19 @@ int main(int argc, char *argv[])
 // "Quit". Seems like there is no way in Qt to add your own menu items other
 // than those listed above.
 // If there are multiple menu items that begin with "about" (case-insensitive)
-// in any menu, then only the last item will be present in the App menu, with
-// its text fixed as the localized string of "About <app name>". The text is
-// affected only by your system language and localized app name. Seems like Qt
-// determines the menu item shown as "About" by pattern-matching all of them.
+// in any menu, then:
+// - Only the last item will be present in the App menu, with
+//   its text fixed as the localized string of "About <app name>". The text is
+//   affected only by your system language and localized app name. Seems like Qt
+//   determines the menu item shown as "About" by pattern-matching all of them.
+// - The other items that begin with "about" disappeared. There's no way to find
+//   these vanished items, even searching for it in "Help" results in nothing.
 // This behavior allows some very surprising things to happen:
-// - If I have two menu items named "About YADAW..." and "About Qt...", then
-//   "About Qt..." is shown in App menu with its text changed to localized
-//   "About YADAW". Could you imagine triggering the menu item called "About
-//   YADAW", only to see a "About Qt" window?
+// - If I have two menu items named "About YADAW..." and "About Qt..." (see
+//   MainWindow.qml), then "About Qt..." is shown in App menu with its text
+//   changed to localized "About YADAW". Could you imagine triggering the menu
+//   item called "About YADAW", only to find out an "About Qt" window appeared
+//   for no reason?
 // What's worse, you find this weird behavior ONLY by testing it on macOS.
 //
 // There are some applications that adds other menu items in the App menu, like
