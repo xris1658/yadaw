@@ -25,6 +25,31 @@ int main(int argc, char *argv[])
     qputenv("QSG_NO_VSYNC", "1");
     YADAW::Native::fillCPUIDInfo();
     QGuiApplication app(argc, argv);
+// In Qt 6.8, menu bars are shown as native ones by default, which is in good
+// intent. But since it's limited by macOS, we do NOT use that feature on
+// macOS for now.
+// On macOS, contents in App menu (the one between Apple system menu and File
+// menu) are fixed as "About", "Preferences", "Services", "Show/Hide" and
+// "Quit". Seems like there is no way in Qt to add your own menu items other
+// than those listed above.
+// If there are multiple menu items that begin with "about" (case-insensitive)
+// in any menu, then only the last item will be present in the App menu, with
+// its text fixed as the localized string of "About <app name>". The text is
+// affected only by your system language and localized app name. Seems like Qt
+// determines the menu item shown as "About" by pattern-matching all of them.
+// This behavior allows some very surprising things to happen:
+// - If I have two menu items named "About YADAW..." and "About Qt...", then
+//   "About Qt..." is shown in App menu with its text changed to localized
+//   "About YADAW". Could you imagine triggering the menu item called "About
+//   YADAW", only to see a "About Qt" window?
+// What's worse, you find this weird behavior ONLY by testing it on macOS.
+//
+// There are some applications that adds other menu items in the App menu, like
+// "Secure keyboard entry" of Terminal, which shows below "Preferences". For now
+// I'm not sure how it is implemented.
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 8, 0) && __APPLE__)
+    QCoreApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
+#endif
     QQmlApplicationEngine engine;
     YADAW::UI::qmlApplicationEngine = &engine;
     YADAW::Entity::initializeEntity();
