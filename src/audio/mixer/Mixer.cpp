@@ -253,6 +253,338 @@ std::optional<const std::uint32_t> Mixer::audioOutputChannelSendCount(std::uint3
     return std::nullopt;
 }
 
+std::optional<const bool> Mixer::audioInputChannelSendIsPreFader(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        const auto& audioInputSendPolarityInverters = audioInputSendPolarityInverters_[channelIndex];
+        if(sendIndex < audioInputSendPolarityInverters.size())
+        {
+            auto inNode = audioInputSendPolarityInverters[sendIndex].second->inNodes().front();
+            return {inNode == audioInputMutes_[channelIndex].second};
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<const bool> Mixer::channelSendIsPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < channelCount())
+    {
+        const auto& sendPolarityInverters = sendPolarityInverters_[channelIndex];
+        if(sendIndex < sendPolarityInverters.size())
+        {
+            auto inNode = sendPolarityInverters[sendIndex].second->inNodes().front();
+            return {inNode == mutes_[channelIndex].second};
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<const bool> Mixer::audioOutputChannelSendIsPreFader(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < audioOutputChannelCount())
+    {
+        const auto& audioOutputSendPolarityInverters = audioOutputSendPolarityInverters_[channelIndex];
+        if(sendIndex < audioOutputSendPolarityInverters.size())
+        {
+            auto inNode = audioOutputSendPolarityInverters[sendIndex].second->inNodes().front();
+            return {inNode == audioOutputMutes_[channelIndex].second};
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<const Mixer::Position> Mixer::audioInputChannelSendDestination(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        const auto& audioInputSendDestinations = audioInputSendDestinations_[channelIndex];
+        if(sendIndex < audioInputSendDestinations.size())
+        {
+            return {audioInputSendDestinations[sendIndex]};
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<const Mixer::Position> Mixer::channelSendDestination(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < channelCount())
+    {
+        const auto& sendDestinations = sendDestinations_[channelIndex];
+        if(sendIndex < sendDestinations.size())
+        {
+            return {sendDestinations[sendIndex]};
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<const Mixer::Position> Mixer::audioOutputChannelSendDestination(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < audioOutputChannelCount())
+    {
+        const auto& audioOutputSendDestinations = audioOutputSendDestinations_[channelIndex];
+        if(sendIndex < audioOutputSendDestinations.size())
+        {
+            return {audioOutputSendDestinations[sendIndex]};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const VolumeFader> Mixer::audioInputChannelSendFaderAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        const auto& audioInputSendFaders = audioInputSendFaders_[channelIndex];
+        if(sendIndex < audioInputSendFaders.size())
+        {
+            return {*audioInputSendFaders[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const VolumeFader> Mixer::ChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < channelCount())
+    {
+        const auto& sendFaders = sendFaders_[channelIndex];
+        if(sendIndex < sendFaders.size())
+        {
+            return {*sendFaders[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const VolumeFader> Mixer::audioOutputChannelSendFaderAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < audioOutputChannelCount())
+    {
+        const auto& audioOutputSendFaders = audioOutputSendFaders_[channelIndex];
+        if(sendIndex < audioOutputSendFaders.size())
+        {
+            return {*audioOutputSendFaders[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<VolumeFader> Mixer::audioInputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex)
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        auto& audioInputSendFaders = audioInputSendFaders_[channelIndex];
+        if(sendIndex < audioInputSendFaders.size())
+        {
+            return {*audioInputSendFaders[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<VolumeFader> Mixer::channelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex)
+{
+    if(channelIndex < channelCount())
+    {
+        auto& sendFaders = sendFaders_[channelIndex];
+        if(sendIndex < sendFaders.size())
+        {
+            return {*sendFaders[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<VolumeFader> Mixer::audioOutputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex)
+{
+    if(channelIndex < audioOutputChannelCount())
+    {
+        auto& audioOutputSendFaders = audioOutputSendFaders_[channelIndex];
+        if(sendIndex < audioOutputSendFaders.size())
+        {
+            return {*audioOutputSendFaders[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const YADAW::Audio::Util::Mute> Mixer::audioInputChannelSendMuteAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        const auto& audioInputSendMutes = audioInputSendMutes_[channelIndex];
+        if(sendIndex < audioInputSendMutes.size())
+        {
+            return {*audioInputSendMutes[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const YADAW::Audio::Util::Mute> Mixer::channelSendMuteAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < channelCount())
+    {
+        const auto& sendMutes = sendMutes_[channelIndex];
+        if(sendIndex < sendMutes.size())
+        {
+            return {*sendMutes[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const YADAW::Audio::Util::Mute> Mixer::audioOutputChannelSendMuteAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < audioOutputChannelCount())
+    {
+        const auto& audioOutputSendMutes = audioOutputSendMutes_[channelIndex];
+        if(sendIndex < audioOutputSendMutes.size())
+        {
+            return {*audioOutputSendMutes[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<YADAW::Audio::Util::Mute> Mixer::audioInputChannelSendMuteAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex)
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        auto& audioInputSendMutes = audioInputSendMutes_[channelIndex];
+        if(sendIndex < audioInputSendMutes.size())
+        {
+            return {*audioInputSendMutes[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<YADAW::Audio::Util::Mute> Mixer::channelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex)
+{
+    if(channelIndex < channelCount())
+    {
+        auto& sendMutes = sendMutes_[channelIndex];
+        if(sendIndex < sendMutes.size())
+        {
+            return {*sendMutes[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<YADAW::Audio::Util::Mute> Mixer::audioOutputChannelSendMuteAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex)
+{
+    if(channelIndex < audioOutputChannelCount())
+    {
+        auto& audioOutputSendMutes = audioOutputSendMutes_[channelIndex];
+        if(sendIndex < audioOutputSendMutes.size())
+        {
+            return {*audioOutputSendMutes[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const PolarityInverter> Mixer::audioInputChannelSendPolarityInverterAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        const auto& audioInputSendPolarityInverters = audioInputSendPolarityInverters_[channelIndex];
+        if(sendIndex < audioInputSendPolarityInverters.size())
+        {
+            return {*audioInputSendPolarityInverters[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const PolarityInverter> Mixer::channelSendPolarityInverterAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < channelCount())
+    {
+        const auto& sendPolarityInverters = sendPolarityInverters_[channelIndex];
+        if(sendIndex < sendPolarityInverters.size())
+        {
+            return {*sendPolarityInverters[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const PolarityInverter> Mixer::audioOutputChannelSendPolarityInverterAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex) const
+{
+    if(channelIndex < audioOutputChannelCount())
+    {
+        const auto& audioOutputSendPolarityInverters = audioOutputSendPolarityInverters_[channelIndex];
+        if(sendIndex < audioOutputSendPolarityInverters.size())
+        {
+            return {*audioOutputSendPolarityInverters[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<PolarityInverter> Mixer::audioInputChannelSendPolarityInverterAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex)
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        auto& audioInputSendPolarityInverters = audioInputSendPolarityInverters_[channelIndex];
+        if(sendIndex < audioInputSendPolarityInverters.size())
+        {
+            return {*audioInputSendPolarityInverters[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<PolarityInverter> Mixer::channelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex)
+{
+    if(channelIndex < channelCount())
+    {
+        auto& sendPolarityInverters = sendPolarityInverters_[channelIndex];
+        if(sendIndex < sendPolarityInverters.size())
+        {
+            return {*sendPolarityInverters[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
+OptionalRef<PolarityInverter> Mixer::audioOutputChannelSendPolarityInverterAt(
+    std::uint32_t channelIndex, std::uint32_t sendIndex)
+{
+    if(channelIndex < audioOutputChannelCount())
+    {
+        auto& audioOutputSendPolarityInverters = audioOutputSendPolarityInverters_[channelIndex];
+        if(sendIndex < audioOutputSendPolarityInverters.size())
+        {
+            return {*audioOutputSendPolarityInverters[sendIndex].first};
+        }
+    }
+    return std::nullopt;
+}
+
 OptionalRef<const Mixer::ChannelInfo> Mixer::audioInputChannelInfoAt(std::uint32_t index) const
 {
     if(index < audioInputChannelCount())
