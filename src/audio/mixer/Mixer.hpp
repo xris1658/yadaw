@@ -340,19 +340,19 @@ public:
     std::optional<bool> setAudioInputChannelSendPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex, bool preFader);
     std::optional<bool> setAudioInputChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex, Position destination);
     std::optional<bool> removeAudioInputChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
-    std::optional<bool> clearAudioInputChannelSends(std::uint32_t channelIndex, std::uint32_t sendPosition);
+    std::optional<bool> clearAudioInputChannelSends(std::uint32_t channelIndex);
     std::optional<bool> appendChannelSend(std::uint32_t channelIndex, bool isPreFader, Position destination);
     std::optional<bool> insertChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, bool isPreFader, Position destination);
     std::optional<bool> setChannelSendPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex, bool preFader);
     std::optional<bool> setChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex, Position destination);
     std::optional<bool> removeChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
-    std::optional<bool> clearChannelSends(std::uint32_t channelIndex, std::uint32_t sendPosition);
+    std::optional<bool> clearChannelSends(std::uint32_t channelIndex);
     std::optional<bool> appendAudioOutputChannelSend(std::uint32_t channelIndex, bool isPreFader, Position destination);
     std::optional<bool> insertAudioOutputChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, bool isPreFader, Position destination);
     std::optional<bool> setAudioOutputChannelSendPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex, bool preFader);
     std::optional<bool> setAudioOutputChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex, Position destination);
     std::optional<bool> removeAudioOutputChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
-    std::optional<bool> clearAudioOutputChannelSends(std::uint32_t channelIndex, std::uint32_t sendPosition);
+    std::optional<bool> clearAudioOutputChannelSends(std::uint32_t channelIndex);
 public:
     ade::NodeHandle getInstrument(std::uint32_t index) const;
     bool setInstrument(std::uint32_t index,
