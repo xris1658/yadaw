@@ -2258,6 +2258,169 @@ void Mixer::clearChannels()
     removeChannel(0, channelCount());
 }
 
+std::optional<bool> Mixer::appendAudioInputChannelSend(
+    std::uint32_t channelIndex, bool isPreFader, Position destination)
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        return insertAudioInputChannelSend(channelIndex, audioInputSendDestinations_[channelIndex].size(), isPreFader, destination);
+    }
+    return std::nullopt;
+}
+
+std::optional<bool> Mixer::insertAudioInputChannelSend(
+    std::uint32_t channelIndex, std::uint32_t sendPosition, bool isPreFader, Position destination)
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        if(sendPosition <= audioInputSendPolarityInverters_[channelIndex].size())
+        {
+            ade::NodeHandle toNode;
+            const auto& [audioInputChannelGroupType, audioInputChannelCountInGroup] = *audioInputChannelGroupTypeAndChannelCountAt(channelIndex);
+            switch(destination.type)
+            {
+            case Position::Type::Invalid:
+            {
+                break;
+            }
+            case Position::Type::AudioHardwareIOChannel:
+            {
+                auto it = std::lower_bound(
+                    audioOutputChannelIdAndIndex_.begin(), audioOutputChannelIdAndIndex_.end(),
+                    destination.id,
+                    [](IDAndIndex lhs, IDGen::ID rhs)
+                    {
+                        return lhs.id < rhs;
+                    }
+                );
+                if(it != audioOutputChannelIdAndIndex_.end() && it->id == destination.id)
+                {
+                    const auto& [channelGroupType, channelCountInGroup] =
+                        *audioOutputChannelGroupTypeAndChannelCountAt(it->index);
+                    if(channelGroupType == audioInputChannelGroupType
+                        && channelCountInGroup == audioInputChannelCountInGroup)
+                    {
+                        toNode = audioOutputSummings_[it->index].second;
+                    }
+                }
+                break;
+            }
+            case Position::Type::BusAndFXChannel:
+            {
+                auto it = std::lower_bound(
+                    channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
+                    destination.id,
+                    [](IDAndIndex lhs, IDGen::ID rhs)
+                    {
+                        return lhs.id < rhs;
+                    }
+                );
+                if(it != channelIdAndIndex_.end()
+                    && it->id == destination.id)
+                {
+                    auto type = channelInfo_[it->index].channelType;
+                    if(type == ChannelType::AudioBus || type == ChannelType::AudioFX)
+                    {
+                        const auto& [channelGroupType, channelCountInGroup] =
+                            *channelGroupTypeAndChannelCountAt(it->index);
+                        if(channelGroupType == audioInputChannelGroupType
+                            && channelCountInGroup == audioInputChannelCountInGroup)
+                        {
+                            toNode = inputDevices_[it->index].second;
+                        }
+                    }
+                }
+                break;
+            }
+            case Position::Type::PluginAuxIO:
+            {
+                // not implemented
+                break;
+            }
+            }
+            if(toNode != nullptr)
+            {
+                auto polarityInverter = std::make_unique<PolarityInverter>(audioInputChannelGroupType, audioInputChannelCountInGroup);
+                auto polarityInverterNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*polarityInverter));
+                auto mute = std::make_unique<YADAW::Audio::Util::Mute>(audioInputChannelGroupType, audioInputChannelCountInGroup);
+                auto muteNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*mute));
+                auto volumeFader = volumeFaderFactory_(audioInputChannelGroupType, audioInputChannelCountInGroup);
+                auto volumeFaderNode = graph_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*volumeFader));
+                auto fromNode = isPreFader? audioInputMutes_[channelIndex].second: audioInputFaders_[channelIndex].second;
+                graph_.connect(fromNode, polarityInverterNode, 0, 0);
+                graph_.connect(polarityInverterNode, muteNode, 0, 0);
+                graph_.connect(muteNode, volumeFaderNode, 0, 0);
+                auto outEdge = toNode->outEdges().front();
+                auto newSummingDestNode = outEdge->dstNode();
+                auto newSummingDestChannel = graph_.getEdgeData(outEdge).toChannel;
+                std::vector<std::pair<ade::NodeHandle, std::uint32_t>> inputs;
+                {
+                    auto inEdges = toNode->inEdges();
+                    inputs.reserve(inEdges.size());
+                    for(const auto& inEdge: inEdges)
+                    {
+                        inputs.emplace_back(inEdge->srcNode(), graph_.getEdgeData(inEdge).fromChannel);
+                    }
+                }
+                {
+                    auto deviceWithPDC = graphWithPDC_.removeNode(toNode);
+                    auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(inputs.size() + 1, audioInputChannelGroupType, audioInputChannelCountInGroup);
+                    auto newSummingNode = graphWithPDC_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*newSumming));
+                    FOR_RANGE0(i, inputs.size())
+                    {
+                        graph_.connect(inputs[i].first, newSummingNode, inputs[i].second, i);
+                    }
+                    graph_.connect(volumeFaderNode, newSummingNode, 0, inputs.size());
+                    graph_.connect(newSummingNode, newSummingDestNode, 0, newSummingDestChannel);
+                    nodeAddedCallback_(*this);
+                }
+                audioInputSendPolarityInverters_[channelIndex].emplace(
+                    audioInputSendPolarityInverters_[channelIndex].begin() + sendPosition,
+                    std::move(polarityInverter), polarityInverterNode
+                );
+                audioInputSendMutes_[channelIndex].emplace(
+                    audioInputSendMutes_[channelIndex].begin() + sendPosition,
+                    std::move(mute), muteNode
+                );
+                audioInputSendFaders_[channelIndex].emplace(
+                    audioInputSendFaders_[channelIndex].begin() + sendPosition,
+                    std::move(volumeFader), volumeFaderNode
+                );
+                audioInputSendDestinations_[channelIndex].emplace(
+                    audioInputSendDestinations_[channelIndex].begin() + sendPosition,
+                    destination
+                );
+                return {true};
+            }
+        }
+        return {false};
+    }
+    return std::nullopt;
+}
+
+std::optional<bool> Mixer::setAudioInputChannelSendPreFader(
+    std::uint32_t channelIndex, std::uint32_t sendIndex, bool preFader)
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        const auto& audioInputSendPolarityInverters = audioInputSendPolarityInverters_[channelIndex];
+        if(sendIndex < audioInputSendPolarityInverters.size())
+        {
+            auto inNode = audioInputSendPolarityInverters[sendIndex].second->inNodes().front();
+            auto prevIsPreFader = inNode == audioInputMutes_[channelIndex].second;
+            if(prevIsPreFader != preFader)
+            {
+                auto newInNode = preFader? audioInputMutes_[channelIndex].second: audioInputFaders_[channelIndex].second;
+                graph_.disconnect(audioInputSendPolarityInverters[sendIndex].second->inEdges().front());
+                graph_.connect(newInNode, audioInputSendPolarityInverters[channelIndex].second, 0, 0);
+                return {true};
+            }
+            return {false};
+        }
+    }
+    return std::nullopt;
+}
+
 ade::NodeHandle Mixer::getInstrument(std::uint32_t index) const
 {
     if(index < channelCount()
