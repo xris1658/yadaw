@@ -22,8 +22,8 @@ T.Button {
     leftInset: 0
     rightInset: 0
 
-    implicitWidth: label.contentWidth + leftPadding + rightPadding
-    implicitHeight: label.contentHeight + topPadding + bottomPadding
+    implicitWidth: implicitContentWidth + leftPadding + rightPadding
+    implicitHeight: implicitContentHeight + topPadding + bottomPadding
 
     background: Rectangle {
         id: background

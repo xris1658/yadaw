@@ -546,27 +546,18 @@ Rectangle {
                     anchors.top: sendHeader.bottom
                     anchors.topMargin: impl.padding
                     anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: impl.padding
                     width: sendPlaceholder.width - impl.padding * 2
                     spacing: impl.padding
                     Layout.fillHeight: true
                     Layout.verticalStretchFactor: 1
-                    delegate: Button {
+                    delegate: SendButton {
                         width: sendList.width
                     }
                     footer: Button {
+                        topInset: sendList.count !== 0? impl.padding: 0
                         width: sendList.width
-                    }
-                }
-                Column {
-                    anchors.top: sendHeader.bottom
-                    anchors.topMargin: impl.padding
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: impl.padding
-                    Repeater {
-                        model: 1
-                        Button {
-                            width: sendPlaceholder.width - impl.padding * 2
-                        }
                     }
                 }
             }

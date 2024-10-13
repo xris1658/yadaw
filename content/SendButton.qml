@@ -5,11 +5,10 @@ Button {
     property bool bypassed: false
     leftPadding: bypassedButton.width
     rightPadding: indicator.width
-    bottomPadding: controlRow.height
     text: "Send"
 
     implicitWidth: label.contentWidth + leftPadding + rightPadding
-    implicitHeight: label.contentHeight + topPadding + bottomPadding + controlRow.height
+    implicitHeight: implicitContentHeight + topPadding + bottomPadding + controlRow.height
 
     contentItem: Label {
         id: label
@@ -17,12 +16,11 @@ Button {
         color: root.checked?
             Colors.checkedButtonContent:
             Colors.content
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
+        anchors.fill: parent
         anchors.leftMargin: root.leftPadding
         anchors.rightMargin: root.rightPadding
         anchors.topMargin: root.topPadding
+        anchors.bottomMargin: root.bottomPadding + controlRow.height
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
@@ -30,7 +28,7 @@ Button {
     Button {
         id: bypassedButton
         width: height
-        height: root.height - root.bottomPadding
+        height: root.height - controlRow.height
         z: 2
         property int contentDiameter: height * 0.625
         leftInset: (width - contentDiameter) / 2
@@ -50,7 +48,7 @@ Button {
     }
     Label {
         id: indicator
-        height: root.height - root.bottomPadding
+        height: root.height - controlRow.height
         width: height
         anchors.right: parent.right
         anchors.top: parent.top
@@ -68,8 +66,8 @@ Button {
         anchors.bottomMargin: root.maxBorderWidth
         anchors.leftMargin: root.maxBorderWidth
         Button {
+            id: sendFromButton
             border.width: 0
-            implicitWidth: implicitContentWidth + leftPadding + rightPadding
             topPadding: 1
             bottomPadding: 1
             contentItem: Label {
@@ -78,29 +76,35 @@ Button {
             }
         }
         Button {
+            id: sendFaderButton
             border.width: 0
-            implicitWidth: implicitContentWidth + leftPadding + rightPadding
             topPadding: 1
             bottomPadding: 1
+            width: (root.width - root.maxBorderWidth * 2 - sendFromButton.width - sendPolarityInverterButton.width) * 0.6
             contentItem: Label {
-                text: "-12.0 dB"
+                text: "-12.0"
+                verticalAlignment: Label.AlignVCenter
+                horizontalAlignment: Label.AlignHCenter
                 font.pointSize: Qt.application.font.pointSize * 0.9
             }
         }
         Button {
+            id: sendPanningButton
             border.width: 0
-            implicitWidth: implicitContentWidth + leftPadding + rightPadding
             topPadding: 1
             bottomPadding: 1
+            width: root.width - root.maxBorderWidth * 2 - sendFromButton.width - sendFaderButton.width - sendPolarityInverterButton.width
             contentItem: Label {
                 text: "25L"
+                verticalAlignment: Label.AlignVCenter
+                horizontalAlignment: Label.AlignHCenter
                 font.pointSize: Qt.application.font.pointSize * 0.9
             }
         }
         Button {
+            id: sendPolarityInverterButton
             border.width: 0
             checkable: true
-            implicitWidth: implicitContentWidth + leftPadding + rightPadding
             topPadding: 1
             bottomPadding: 1
             contentItem: Label {
