@@ -996,29 +996,21 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
             if(it != audioOutputChannelIdAndIndex_.end() && it->id == oldPosition.id)
             {
                 auto fromNode = postFaderInserts_[index]->outNode();
-                auto& [oldSumming, oldSummingNode] = audioOutputSummings_[it->index];
-                auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
-                    oldSumming->audioInputGroupCount() - 1,
-                    oldSumming->audioOutputGroupAt(0)->get().type(),
-                    oldSumming->audioOutputGroupAt(0)->get().channelCount()
-                );
-                auto newSummingNode = graphWithPDC_.addNode(
-                    YADAW::Audio::Engine::AudioDeviceProcess(*newSumming)
-                );
-                auto newSummingNodeInIndex = 0U;
-                for(const auto& edgeHandle: oldSummingNode->inEdges())
-                {
-                    if(const auto& srcNode = edgeHandle->srcNode(); srcNode != fromNode)
-                    {
-                        graph_.connect(
-                            srcNode, newSummingNode,
-                            graph_.getEdgeData(edgeHandle).fromChannel,
-                            newSummingNodeInIndex++
-                        );
-                    }
-                }
+                auto& oldSummingAndNode = audioOutputSummings_[it->index];
+                auto& [oldSumming, oldSummingNode] = oldSummingAndNode;
+                auto inEdges = oldSummingNode->inEdges();
+                auto toChannel = graph_.getEdgeData(
+                    *std::find_if(
+                        inEdges.begin(), inEdges.end(),
+                        [&fromNode](const ade::EdgeHandle& inEdge)
+                        {
+                            return inEdge->srcNode() == fromNode;
+                        }
+                    )
+                ).toChannel;
+                auto [newSumming, newSummingNode] = removeInputGroup(oldSummingAndNode, toChannel).value();
                 graph_.disconnect(
-                    audioOutputPolarityInverters_[it->index].second->inEdges().front()
+                        oldSummingNode->outEdges().front()
                 );
                 graph_.connect(
                     newSummingNode,
@@ -1045,32 +1037,21 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 if(oldType == ChannelType::AudioBus || oldType == ChannelType::AudioFX)
                 {
                     auto fromNode = postFaderInserts_[index]->outNode();
-                    auto& [oldSummingAsDevice, oldSummingNode] = inputDevices_[it->index];
-                    auto oldSumming = static_cast<YADAW::Audio::Util::Summing*>(
-                        oldSummingAsDevice.get()
-                    );
-                    auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
-                        oldSumming->audioInputGroupCount() - 1,
-                        oldSumming->audioOutputGroupAt(0)->get().type(),
-                        oldSumming->audioOutputGroupAt(0)->get().channelCount()
-                    );
-                    auto newSummingNode = graphWithPDC_.addNode(
-                        YADAW::Audio::Engine::AudioDeviceProcess(*newSumming)
-                    );
-                    auto newSummingNodeInIndex = 0U;
-                    for(const auto& edgeHandle: oldSummingNode->inEdges())
-                    {
-                        if(const auto& srcNode = edgeHandle->srcNode(); srcNode != fromNode)
-                        {
-                            graph_.connect(
-                                srcNode, newSummingNode,
-                                graph_.getEdgeData(edgeHandle).fromChannel,
-                                newSummingNodeInIndex++
-                            );
-                        }
-                    }
+                    auto& oldSummingAndNode = inputDevices_[it->index];
+                    auto& [oldSumming, oldSummingNode] = oldSummingAndNode;
+                    auto inEdges = oldSummingNode->inEdges();
+                    auto toChannel = graph_.getEdgeData(
+                        *std::find_if(
+                            inEdges.begin(), inEdges.end(),
+                            [&fromNode](const ade::EdgeHandle& inEdge)
+                            {
+                                return inEdge->srcNode() == fromNode;
+                            }
+                        )
+                    ).toChannel;
+                    auto [newSumming, newSummingNode] = removeInputGroup(oldSummingAndNode, toChannel).value();
                     graph_.disconnect(
-                        polarityInverters_[it->index].second->inEdges().front()
+                        oldSummingNode->outEdges().front()
                     );
                     graph_.connect(
                         newSummingNode,
@@ -1078,8 +1059,8 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         0, 0
                     );
                     disconnectingOldMultiInput = graphWithPDC_.removeNode(oldSummingNode);
-                    disconnectingOldSumming = std::move(oldSummingAsDevice);
-                    oldSummingAsDevice = std::move(newSumming);
+                    disconnectingOldSumming = std::move(oldSumming);
+                    oldSumming = std::move(newSumming);
                     oldSummingNode = newSummingNode;
                 }
             }
@@ -1109,32 +1090,16 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 if(srcPair == destPair)
                 {
                     auto fromNode = postFaderInserts_[index]->outNode();
-                    auto& [oldSumming, oldSummingNode] = audioOutputSummings_[outputChannelIndex];
-                    auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
-                        oldSumming->audioInputGroupCount() + 1,
-                        oldSumming->audioOutputGroupAt(0)->get().type(),
-                        oldSumming->audioOutputGroupAt(0)->get().channelCount()
+                    auto& oldSummingAndNode = audioOutputSummings_[outputChannelIndex];
+                    auto& [oldSumming, oldSummingNode] = oldSummingAndNode;
+                    auto [newSumming, newSummingNode] = appendInputGroup(
+                        oldSummingAndNode
                     );
-                    auto newSummingNode = graphWithPDC_.addNode(
-                        YADAW::Audio::Engine::AudioDeviceProcess(*newSumming)
-                    );
-                    FOR_RANGE0(i, oldSummingNode->outEdges().size())
-                    {
-                        graph_.disconnect(oldSummingNode->outEdges().front());
-                    }
-                    graph_.connect(newSummingNode, audioOutputPolarityInverters_[outputChannelIndex].second, 0, 0);
-                    auto newSummingNodeInIndex = 0U;
-                    for(const auto& edgeHandle: oldSummingNode->inEdges())
-                    {
-                        graph_.connect(
-                            edgeHandle->srcNode(), newSummingNode,
-                            graph_.getEdgeData(edgeHandle).fromChannel,
-                            newSummingNodeInIndex++
-                        );
-                    }
                     graph_.connect(
-                        fromNode, newSummingNode, 0, newSummingNodeInIndex
+                        fromNode, newSummingNode, 0, newSumming->audioInputGroupCount() - 1
                     );
+                    graph_.disconnect(audioOutputPolarityInverters_[it->index].second->inEdges().front());
+                    graph_.connect(newSummingNode, audioOutputPolarityInverters_[it->index].second, 0, 0);
                     disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
                     disconnectingNewSumming = std::move(oldSumming);
                     connectionUpdatedCallback_(*this);
@@ -1169,39 +1134,20 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     if(srcPair == destPair)
                     {
                         auto fromNode = postFaderInserts_[index]->outNode();
-                        auto& [oldSummingAsDevice, oldSummingNode] = inputDevices_[outputChannelIndex];
-                        auto oldSumming = static_cast<YADAW::Audio::Util::Summing*>(
-                            oldSummingAsDevice.get()
+                        auto& oldSummingAndNode = inputDevices_[outputChannelIndex];
+                        auto& [oldSumming, oldSummingNode] = oldSummingAndNode;
+                        auto [newSumming, newSummingNode] = appendInputGroup(
+                            oldSummingAndNode
                         );
-                        auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
-                            oldSumming->audioInputGroupCount() + 1,
-                            oldSumming->audioOutputGroupAt(0)->get().type(),
-                            oldSumming->audioOutputGroupAt(0)->get().channelCount()
-                        );
-                        auto newSummingNode = graphWithPDC_.addNode(
-                            YADAW::Audio::Engine::AudioDeviceProcess(*newSumming)
-                        );
-                        FOR_RANGE0(i, oldSummingNode->outEdges().size())
-                        {
-                            graph_.disconnect(oldSummingNode->outEdges().front());
-                        }
-                        graph_.connect(newSummingNode, polarityInverters_[outputChannelIndex].second, 0, 0);
-                        auto newSummingNodeInIndex = 0U;
-                        for(const auto& edgeHandle: oldSummingNode->inEdges())
-                        {
-                            graph_.connect(
-                                edgeHandle->srcNode(), newSummingNode,
-                                graph_.getEdgeData(edgeHandle).fromChannel,
-                                newSummingNodeInIndex++
-                            );
-                        }
                         graph_.connect(
-                            fromNode, newSummingNode, 0, newSummingNodeInIndex
+                            fromNode, newSummingNode, 0, newSumming->audioInputGroupCount() - 1
                         );
+                        graph_.disconnect(polarityInverters_[it->index].second->inEdges().front());
+                        graph_.connect(newSummingNode, polarityInverters_[it->index].second, 0, 0);
                         {
                             disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
-                            disconnectingNewSumming = std::move(oldSummingAsDevice);
-                            oldSummingAsDevice = std::move(newSumming);
+                            disconnectingNewSumming = std::move(oldSumming);
+                            oldSumming = std::move(newSumming);
                             oldSummingNode = newSummingNode;
                             connectionUpdatedCallback_(*this);
                         }
