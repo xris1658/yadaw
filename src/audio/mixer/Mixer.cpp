@@ -1017,7 +1017,14 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         );
                     }
                 }
-                audioOutputPreFaderInserts_[it->index]->setInNode(newSummingNode, 0);
+                graph_.disconnect(
+                    audioOutputPolarityInverters_[it->index].second->inEdges().front()
+                );
+                graph_.connect(
+                    newSummingNode,
+                    audioOutputPolarityInverters_[it->index].second,
+                    0, 0
+                );
                 disconnectingOldMultiInput = graphWithPDC_.removeNode(oldSummingNode);
                 disconnectingOldSumming = std::move(oldSumming);
                 oldSumming = std::move(newSumming);
@@ -1062,7 +1069,14 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                             );
                         }
                     }
-                    preFaderInserts_[it->index]->setInNode(newSummingNode, 0);
+                    graph_.disconnect(
+                        polarityInverters_[it->index].second->inEdges().front()
+                    );
+                    graph_.connect(
+                        newSummingNode,
+                        polarityInverters_[it->index].second,
+                        0, 0
+                    );
                     disconnectingOldMultiInput = graphWithPDC_.removeNode(oldSummingNode);
                     disconnectingOldSumming = std::move(oldSummingAsDevice);
                     oldSummingAsDevice = std::move(newSumming);
