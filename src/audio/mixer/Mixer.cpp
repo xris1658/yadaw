@@ -1185,7 +1185,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         {
                             graph_.disconnect(oldSummingNode->outEdges().front());
                         }
-                        graph_.connect(newSummingNode, audioOutputPolarityInverters_[outputChannelIndex].second, 0, 0);
+                        graph_.connect(newSummingNode, polarityInverters_[outputChannelIndex].second, 0, 0);
                         auto newSummingNodeInIndex = 0U;
                         for(const auto& edgeHandle: oldSummingNode->inEdges())
                         {
