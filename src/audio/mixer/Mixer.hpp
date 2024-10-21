@@ -402,7 +402,7 @@ private:
     >;
 private:
     template<typename T>
-    std::optional<SummingAndNode> appendInputGroup(
+    SummingAndNode appendInputGroup(
         std::pair<std::unique_ptr<T>, ade::NodeHandle>& oldSummingAndNode,
         std::uint32_t appendCount = 1)
     {
@@ -421,7 +421,7 @@ private:
         {
             graph_.connect(inEdge->srcNode(), newSummingNode, graph_.getEdgeData(inEdge).fromChannel, i++);
         }
-        return {{std::move(newSumming), std::move(newSummingNode)}};
+        return {std::move(newSumming), std::move(newSummingNode)};
     }
     template<typename T>
     std::optional<SummingAndNode> removeInputGroup(
