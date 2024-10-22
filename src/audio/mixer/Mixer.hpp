@@ -459,6 +459,10 @@ private:
         }
         return std::nullopt;
     }
+    std::tuple<PolarityInverterAndNode, MuteAndNode, FaderAndNode> createSend(
+        ade::NodeHandle fromNode, ade::NodeHandle toNode,
+        std::uint32_t fromChannel, std::uint32_t toChannel
+    );
 public:
     struct IDAndIndex
     {
