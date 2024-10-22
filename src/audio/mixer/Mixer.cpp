@@ -975,8 +975,6 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
     auto ret = false;
     const auto& mute = *(mutes_[index].first);
     const auto& channelGroup = mute.audioOutputGroupAt(0)->get();
-    auto channelGroupType = channelGroup.type();
-    auto channelGroupChannelCount = channelGroup.channelCount();
     // Check if channel config of the destination position matches the source
     // Reconnect the graph
     auto& oldPosition = mainOutput_[index];
