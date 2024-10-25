@@ -2246,61 +2246,14 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
                 if(it != audioOutputChannelIdAndIndex_.end() && it->id == destination.id)
                 {
                     auto& oldSummingAndNode = audioOutputSummings_[it->index];
-                    auto newSummingAndNode = appendInputGroup(audioOutputSummings_[it->index]);
-                    graph_.disconnect(oldSummingAndNode.second->outEdges().front());
-                    graph_.connect(
-                        newSummingAndNode.second, audioOutputPolarityInverters_[it->index].second, 0, 0
-                    );
                     auto fromNode = isPreFader? audioInputMutes_[channelIndex].second: audioInputFaders_[channelIndex].second;
-                    auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
-                        fromNode, newSummingAndNode.second, 0, newSummingAndNode.first->audioInputGroupCount() - 1
-                    );
-                    audioInputSendPolarityInverters_[channelIndex].emplace(
-                        audioInputSendPolarityInverters_[channelIndex].begin() + sendPosition,
-                        std::move(polarityInverterAndNode)
-                    );
-                    audioInputSendMutes_[channelIndex].emplace(
-                        audioInputSendMutes_[channelIndex].begin() + sendPosition,
-                        std::move(muteAndNode)
-                    );
-                    audioInputSendFaders_[channelIndex].emplace(
-                        audioInputSendFaders_[channelIndex].begin() + sendPosition,
-                        std::move(faderAndNode)
-                    );
-                    audioInputSendDestinations_[channelIndex].emplace(
-                        audioInputSendDestinations_[channelIndex].begin() + sendPosition,
-                        destination
-                    );
-                    graphWithPDC_.removeNode(oldSummingAndNode.second);
-                    std::swap(newSummingAndNode.first, oldSummingAndNode.first);
-                    std::swap(newSummingAndNode.second, oldSummingAndNode.second);
-                    connectionUpdatedCallback_(*this);
-                    return {true};
-                }
-            }
-            else if(destination.type == Position::Type::BusAndFXChannel)
-            {
-                auto it = std::lower_bound(
-                    channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
-                    destination.id,
-                    [](IDAndIndex lhs, IDGen::ID rhs)
+                    if(!YADAW::Util::pathExists(oldSummingAndNode.second, fromNode))
                     {
-                        return lhs.id < rhs;
-                    }
-                );
-                if(it != channelIdAndIndex_.end()
-                    && it->id == destination.id)
-                {
-                    auto type = channelInfo_[it->index].channelType;
-                    if(type == ChannelType::AudioBus || type == ChannelType::AudioFX)
-                    {
-                        auto& oldSummingAndNode = inputDevices_[it->index];
-                        auto newSummingAndNode = appendInputGroup(inputDevices_[it->index]);
+                        auto newSummingAndNode = appendInputGroup(audioOutputSummings_[it->index]);
                         graph_.disconnect(oldSummingAndNode.second->outEdges().front());
                         graph_.connect(
                             newSummingAndNode.second, audioOutputPolarityInverters_[it->index].second, 0, 0
                         );
-                        auto fromNode = isPreFader? audioInputMutes_[channelIndex].second: audioInputFaders_[channelIndex].second;
                         auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
                             fromNode, newSummingAndNode.second, 0, newSummingAndNode.first->audioInputGroupCount() - 1
                         );
@@ -2321,13 +2274,66 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
                             destination
                         );
                         graphWithPDC_.removeNode(oldSummingAndNode.second);
-                        std::unique_ptr<YADAW::Audio::Util::Summing> oldSumming(
-                            static_cast<YADAW::Audio::Util::Summing*>(oldSummingAndNode.first.release())
-                        );
-                        oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                        std::swap(newSummingAndNode.first, oldSummingAndNode.first);
                         std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                         connectionUpdatedCallback_(*this);
                         return {true};
+                    }
+                }
+            }
+            else if(destination.type == Position::Type::BusAndFXChannel)
+            {
+                auto it = std::lower_bound(
+                    channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
+                    destination.id,
+                    [](IDAndIndex lhs, IDGen::ID rhs)
+                    {
+                        return lhs.id < rhs;
+                    }
+                );
+                if(it != channelIdAndIndex_.end()
+                    && it->id == destination.id)
+                {
+                    auto type = channelInfo_[it->index].channelType;
+                    if(type == ChannelType::AudioBus || type == ChannelType::AudioFX)
+                    {
+                        auto& oldSummingAndNode = inputDevices_[it->index];
+                        auto fromNode = isPreFader? audioInputMutes_[channelIndex].second: audioInputFaders_[channelIndex].second;
+                        if(!YADAW::Util::pathExists(oldSummingAndNode.second, fromNode))
+                        {
+                            auto newSummingAndNode = appendInputGroup(inputDevices_[it->index]);
+                            graph_.disconnect(oldSummingAndNode.second->outEdges().front());
+                            graph_.connect(
+                                newSummingAndNode.second, audioOutputPolarityInverters_[it->index].second, 0, 0
+                            );
+                            auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
+                                fromNode, newSummingAndNode.second, 0, newSummingAndNode.first->audioInputGroupCount() - 1
+                            );
+                            audioInputSendPolarityInverters_[channelIndex].emplace(
+                                audioInputSendPolarityInverters_[channelIndex].begin() + sendPosition,
+                                std::move(polarityInverterAndNode)
+                            );
+                            audioInputSendMutes_[channelIndex].emplace(
+                                audioInputSendMutes_[channelIndex].begin() + sendPosition,
+                                std::move(muteAndNode)
+                            );
+                            audioInputSendFaders_[channelIndex].emplace(
+                                audioInputSendFaders_[channelIndex].begin() + sendPosition,
+                                std::move(faderAndNode)
+                            );
+                            audioInputSendDestinations_[channelIndex].emplace(
+                                audioInputSendDestinations_[channelIndex].begin() + sendPosition,
+                                destination
+                            );
+                            graphWithPDC_.removeNode(oldSummingAndNode.second);
+                            std::unique_ptr<YADAW::Audio::Util::Summing> oldSumming(
+                                static_cast<YADAW::Audio::Util::Summing*>(oldSummingAndNode.first.release())
+                            );
+                            oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                            std::swap(newSummingAndNode.second, oldSummingAndNode.second);
+                            connectionUpdatedCallback_(*this);
+                            return {true};
+                        }
                     }
                 }
             }
