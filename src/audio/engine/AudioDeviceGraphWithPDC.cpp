@@ -70,7 +70,7 @@ void AudioDeviceGraphWithPDC::clearMultiInputNodes()
     auto count = multiInputNodes_.size();
     FOR_RANGE0(i, count)
     {
-        removeNode(multiInputNodes_.begin()->first);
+        auto multiInputNode = removeNode(multiInputNodes_.begin()->first);
     }
 }
 

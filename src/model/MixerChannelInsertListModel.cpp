@@ -675,8 +675,10 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
         }
         inserts_->remove(index);
         auto name = *inserts_->insertNameAt(index);
-        graphWithPDC.removeNode(node);
-        YADAW::Controller::AudioEngine::insertsNodeRemovedCallback(*inserts_);
+        {
+            auto disposingDevice = graphWithPDC.removeNode(node);
+            YADAW::Controller::AudioEngine::insertsNodeRemovedCallback(*inserts_);
+        }
         auto plugin = static_cast<YADAW::Audio::Plugin::IAudioPlugin*>(device);
         auto status = plugin->status();
         plugin->stopProcessing();

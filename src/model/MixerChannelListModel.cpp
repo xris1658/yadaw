@@ -1657,8 +1657,10 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
             process = multiInput->process();
             device = process.device();
         }
-        graphWithPDC.removeNode(instrumentNode);
-        YADAW::Controller::AudioEngine::mixerNodeRemovedCallback(mixer_);
+        {
+            auto disposingDevice = graphWithPDC.removeNode(instrumentNode);
+            YADAW::Controller::AudioEngine::mixerNodeRemovedCallback(mixer_);
+        }
         auto plugin = static_cast<YADAW::Audio::Plugin::IAudioPlugin*>(device);
         auto status = plugin->status();
         plugin->stopProcessing();

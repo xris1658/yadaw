@@ -1423,7 +1423,7 @@ bool Mixer::removeAudioInputChannel(
             );
             FOR_RANGE0(i, nodesToRemove.size())
             {
-                graphWithPDC_.removeNode(nodesToRemove[i]);
+                auto device = graphWithPDC_.removeNode(nodesToRemove[i]);
             }
         }
         nodeRemovedCallback_(*this);
@@ -1651,7 +1651,7 @@ bool Mixer::removeAudioOutputChannel(
             );
             FOR_RANGE0(i, nodesToRemove.size())
             {
-                graphWithPDC_.removeNode(nodesToRemove[i]);
+                auto device = graphWithPDC_.removeNode(nodesToRemove[i]);
             }
         }
         nodeRemovedCallback_(*this);
@@ -2122,7 +2122,7 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         }
         FOR_RANGE0(i, nodesToRemove.size())
         {
-            graphWithPDC_.removeNode(nodesToRemove[i]);
+            auto device = graphWithPDC_.removeNode(nodesToRemove[i]);
         }
         nodeRemovedCallback_(*this);
         mainOutput_.erase(
@@ -2273,10 +2273,12 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
                             audioInputSendDestinations_[channelIndex].begin() + sendPosition,
                             destination
                         );
-                        graphWithPDC_.removeNode(oldSummingAndNode.second);
-                        std::swap(newSummingAndNode.first, oldSummingAndNode.first);
-                        std::swap(newSummingAndNode.second, oldSummingAndNode.second);
-                        connectionUpdatedCallback_(*this);
+                        {
+                            auto disposingOldSumming = graphWithPDC_.removeNode(oldSummingAndNode.second);
+                            std::swap(newSummingAndNode.first, oldSummingAndNode.first);
+                            std::swap(newSummingAndNode.second, oldSummingAndNode.second);
+                            connectionUpdatedCallback_(*this);
+                        }
                         return {true};
                     }
                 }
@@ -2325,13 +2327,15 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
                                 audioInputSendDestinations_[channelIndex].begin() + sendPosition,
                                 destination
                             );
-                            graphWithPDC_.removeNode(oldSummingAndNode.second);
-                            std::unique_ptr<YADAW::Audio::Util::Summing> oldSumming(
-                                static_cast<YADAW::Audio::Util::Summing*>(oldSummingAndNode.first.release())
-                            );
-                            oldSummingAndNode.first.reset(newSummingAndNode.first.release());
-                            std::swap(newSummingAndNode.second, oldSummingAndNode.second);
-                            connectionUpdatedCallback_(*this);
+                            {
+                                auto disposingOldSumming = graphWithPDC_.removeNode(oldSummingAndNode.second);
+                                std::unique_ptr<YADAW::Audio::Util::Summing> oldSumming(
+                                    static_cast<YADAW::Audio::Util::Summing*>(oldSummingAndNode.first.release())
+                                );
+                                oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                                std::swap(newSummingAndNode.second, oldSummingAndNode.second);
+                                connectionUpdatedCallback_(*this);
+                            }
                             return {true};
                         }
                     }
@@ -2480,7 +2484,7 @@ std::optional<bool> Mixer::setAudioInputChannelSendDestination(
         }
         if(connected)
         {
-            graphWithPDC_.removeNode(oldSummingNode);
+            auto disposingOldSumming = graphWithPDC_.removeNode(oldSummingNode);
             connectionUpdatedCallback_(*this);
         }
         else if(oldSummingNode != nullptr)
