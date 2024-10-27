@@ -1,6 +1,7 @@
 #include "Mixer.hpp"
 
 #include <complex>
+#include <unordered_map>
 
 #include "audio/mixer/BlankGenerator.hpp"
 #include "audio/util/InputSwitcher.hpp"
@@ -2492,6 +2493,100 @@ std::optional<bool> Mixer::setAudioInputChannelSendDestination(
             graph_.connect(inNode, oldSummingNode, 0, prevChannelIndex);
         }
         return {connected};
+    }
+    return std::nullopt;
+}
+
+std::optional<bool> Mixer::removeAudioInputChannelSend(
+    std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount)
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        auto& sendDestinations = audioInputSendDestinations_[channelIndex];
+        auto& sendFaders = audioInputSendFaders_[channelIndex];
+        auto& sendPolarityInverters = audioInputSendPolarityInverters_[channelIndex];
+        auto& sendMutes = audioInputSendMutes_[channelIndex];
+        auto sendCount = sendDestinations.size();
+        if(sendPosition < sendCount && sendPosition + removeCount <= sendCount)
+        {
+            std::vector<Position> destinations;
+            destinations.reserve(removeCount);
+            FOR_RANGE(i, sendPosition, sendPosition + removeCount)
+            {
+                if(std::find(destinations.begin(), destinations.end(), sendDestinations[i]) != destinations.end())
+                {
+                    destinations.emplace_back(sendDestinations[i]);
+                }
+                graph_.removeNode(sendFaders[i].second);
+                graph_.removeNode(sendMutes[i].second);
+                graph_.removeNode(sendPolarityInverters[i].second);
+            }
+            std::vector<SummingAndNode> removingSummings;
+            removingSummings.reserve(destinations.size());
+            FOR_RANGE0(i, destinations.size())
+            {
+                auto destination = destinations[i];
+                if(destination.type == Position::Type::AudioHardwareIOChannel)
+                {
+                    auto it = std::lower_bound(
+                        audioOutputChannelIdAndIndex_.begin(),
+                        audioOutputChannelIdAndIndex_.end(),
+                        destination.id,
+                        [](IDAndIndex lhs, IDGen::ID rhs)
+                        {
+                            return lhs.id < rhs;
+                        }
+                    );
+                    auto& oldSummingAndNode = audioOutputSummings_[it->index];
+                    removingSummings.emplace_back(
+                        shrinkInputGroups(oldSummingAndNode)
+                    ).swap(oldSummingAndNode);
+                }
+                else if(destination.type == Position::Type::PluginAuxIO)
+                {
+                    auto it = std::lower_bound(
+                        channelIdAndIndex_.begin(),
+                        channelIdAndIndex_.end(),
+                        destination.id,
+                        [](IDAndIndex lhs, IDGen::ID rhs)
+                        {
+                            return lhs.id < rhs;
+                        }
+                        );
+                    auto& oldSummingAndNode = inputDevices_[it->index];
+                    auto& newSummingAndNode = removingSummings.emplace_back(shrinkInputGroups(oldSummingAndNode));
+                    std::swap(oldSummingAndNode.second, newSummingAndNode.second);
+                    auto ptr = oldSummingAndNode.first.release();
+                    oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                }
+            }
+            nodeRemovedCallback_(*this);
+            sendDestinations.erase(
+                sendDestinations.begin() + sendPosition,
+                sendDestinations.begin() + sendPosition + removeCount
+            );
+            sendFaders.erase(
+                sendFaders.begin() + sendPosition,
+                sendFaders.begin() + sendPosition + removeCount
+            );
+            sendMutes.erase(
+                sendMutes.begin() + sendPosition,
+                sendMutes.begin() + sendPosition + removeCount
+            );
+            sendPolarityInverters.erase(
+                sendPolarityInverters.begin() + sendPosition,
+                sendPolarityInverters.begin() + sendPosition + removeCount
+            );
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<bool> Mixer::clearAudioInputChannelSends(std::uint32_t channelIndex)
+{
+    if(channelIndex < audioInputChannelCount())
+    {
+        return removeAudioInputChannelSend(channelIndex, 0, audioInputSendDestinations_[channelIndex].size());
     }
     return std::nullopt;
 }

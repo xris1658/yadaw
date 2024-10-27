@@ -439,7 +439,7 @@ private:
             auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
                 oldSumming->audioInputGroupCount() - removeCount,
                 channelGroupType, channelCountInGroup
-                );
+            );
             auto newSummingNode = graphWithPDC_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*newSumming));
             auto inEdges = oldSummingNode->inEdges();
             for(const auto& inEdge: inEdges)
@@ -463,6 +463,31 @@ private:
         ade::NodeHandle fromNode, ade::NodeHandle toNode,
         std::uint32_t fromChannel, std::uint32_t toChannel
     );
+    template<typename T>
+    SummingAndNode shrinkInputGroups(
+        std::pair<std::unique_ptr<T>, ade::NodeHandle>& oldSummingAndNode)
+    {
+        YADAW::Audio::Device::IAudioDevice* oldSumming = oldSummingAndNode.first.get();
+        ade::NodeHandle oldSummingNode = oldSummingAndNode.second;
+        auto inEdges = oldSummingNode->inEdges();
+        auto inputChannelCount = inEdges.size();
+        auto& channelGroup = oldSumming->audioOutputGroupAt(0)->get();
+        auto channelGroupType = channelGroup.type();
+        auto channelCountInGroup = channelGroup.channelCount();
+        auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
+            inputChannelCount, channelGroupType, channelCountInGroup
+        );
+        auto newSummingNode = graphWithPDC_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*newSumming));
+        std::uint32_t toChannel = 0;
+        for(const auto& inEdge: oldSummingNode->inEdges())
+        {
+            graph_.connect(
+                inEdge->srcNode(), newSummingNode,
+                graph_.getEdgeData(inEdge).fromChannel, toChannel++
+            );
+        }
+        return {std::move(newSumming), std::move(newSummingNode)};
+    }
 public:
     struct IDAndIndex
     {
