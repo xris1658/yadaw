@@ -158,6 +158,44 @@ add_executable(AudioDeviceGraphTest
                common/SineWaveGenerator.hpp
                AudioDeviceGraphTest/main.cpp)
 
+add_executable(AudioDeviceGraphWithPDCTest
+               ../src/audio/device/IAudioChannelGroup.cpp
+               ../src/audio/device/IAudioChannelGroup.hpp
+               ../src/audio/engine/AudioDeviceGraph.hpp
+               ../src/audio/engine/AudioDeviceGraphBase.cpp
+               ../src/audio/engine/AudioDeviceGraphBase.hpp
+               ../src/audio/engine/AudioDeviceGraphWithPDC.cpp
+               ../src/audio/engine/AudioDeviceGraphWithPDC.hpp
+               ../src/audio/engine/AudioProcessDataBufferContainer.hpp
+               ../src/audio/engine/MultiInputDeviceWithPDC.cpp
+               ../src/audio/engine/MultiInputDeviceWithPDC.hpp
+               ../src/audio/engine/extension/Buffer.cpp
+               ../src/audio/engine/extension/Buffer.hpp
+               ../src/audio/engine/extension/UpstreamLatency.cpp
+               ../src/audio/engine/extension/UpstreamLatency.hpp
+               ../src/audio/mixer/PolarityInverter.cpp
+               ../src/audio/mixer/PolarityInverter.hpp
+               ../src/audio/util/AudioBufferPool.cpp
+               ../src/audio/util/AudioBufferPool.hpp
+               ../src/audio/util/AudioChannelGroup.cpp
+               ../src/audio/util/AudioChannelGroup.hpp
+               ../src/audio/util/AudioProcessDataPointerContainer.hpp
+               ../src/audio/util/SampleDelay.cpp
+               ../src/audio/util/SampleDelay.hpp
+               ../src/audio/util/Summing.cpp
+               ../src/audio/util/Summing.hpp
+               ../src/util/ADEUtil.cpp
+               ../src/util/ADEUtil.hpp
+               ../src/util/IntrusivePointer.hpp
+               ../src/util/IntrusivePointer.hpp
+               ../src/util/IntrusiveRefCounter.cpp
+               ../src/util/IntrusiveRefCounter.hpp
+               ../src/util/Util.cpp
+               ../src/util/Util.hpp
+               common/SineWaveGenerator.cpp
+               common/SineWaveGenerator.hpp
+               AudioDeviceGraphWithPDCTest/main.cpp)
+
 add_executable(AudioProcessDataBufferContainerTest
                ../src/audio/engine/AudioProcessDataBufferContainer.hpp
                ../src/audio/util/AudioBufferPool.cpp
@@ -212,6 +250,8 @@ add_executable(SampleDelayTest
 add_executable(ZeckendorfLogarithmTest ZeckendorfLogarithmTest/main.cpp)
 
 target_link_libraries(AudioDeviceGraphTest PRIVATE ade Qt6::Core)
+
+target_link_libraries(AudioDeviceGraphWithPDCTest PRIVATE ade Qt6::Core)
 
 target_link_libraries(ADEUtilsTest PRIVATE ade)
 
