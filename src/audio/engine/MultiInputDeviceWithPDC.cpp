@@ -61,6 +61,12 @@ void MultiInputDeviceWithPDC::process(const AudioProcessData<float>& audioProces
 {
     FOR_RANGE0(i, pdcs_.size())
     {
+        FOR_RANGE0(j, intermediateContainers_[i].audioProcessData().inputCounts[0])
+        {
+            intermediateContainers_[i].setInput(
+                0, j, audioProcessData.inputs[i][j]
+            );
+        }
         pdcs_[i].process(intermediateContainers_[i].audioProcessData());
     }
     auto data = deviceProcessDataContainer_.audioProcessData();
@@ -85,21 +91,25 @@ void MultiInputDeviceWithPDC::setBufferSize(std::uint32_t newBufferSize)
 {
     auto pool = YADAW::Audio::Util::AudioBufferPool::createPool<float>(newBufferSize);
     decltype(intermediateBuffers_) intermediateBuffers;
+    intermediateBuffers.reserve(intermediateContainers_.size());
     FOR_RANGE0(i, intermediateContainers_.size())
     {
         auto& buffers = intermediateBuffers.emplace_back();
+        buffers.reserve(intermediateContainers_[i].audioProcessData().inputCounts[0]);
         const auto& processData = intermediateContainers_[i].audioProcessData();
-        FOR_RANGE0(j, processData.outputCounts[0])
+        FOR_RANGE0(j, processData.inputCounts[0])
         {
             auto& buffer = buffers.emplace_back(pool->lend());
             intermediateContainers_[i].setOutput(
                 0, j, reinterpret_cast<float*>(buffer.pointer())
             );
+            intermediateContainers_[i].setSingleBufferSize(newBufferSize);
             deviceProcessDataContainer_.setInput(
-                0, j, reinterpret_cast<float*>(buffer.pointer())
+                i, j, reinterpret_cast<float*>(buffer.pointer())
             );
         }
     }
+    deviceProcessDataContainer_.setSingleBufferSize(newBufferSize);
     pool_ = std::move(pool);
     intermediateBuffers_ = std::move(intermediateBuffers);
 }
