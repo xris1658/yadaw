@@ -11,11 +11,11 @@ namespace YADAW::Audio::Engine::Extension
 class Buffer
 {
 public:
-    using BufferSizeChangedCalback = void(std::uint32_t newBufferSize);
+    using BufferSizeChangedCallback = void(std::uint32_t newBufferSize);
     struct DataType
     {
         YADAW::Audio::Engine::AudioProcessDataBufferContainer<float> container;
-        std::function<BufferSizeChangedCalback> bufferSizeChangedCallback;
+        std::function<BufferSizeChangedCallback> bufferSizeChangedCallback;
     };
 public:
     Buffer(AudioDeviceGraphBase& graph,
