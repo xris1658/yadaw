@@ -410,11 +410,18 @@ private:
         auto& channelGroup = oldSumming->audioOutputGroupAt(0)->get();
         auto channelGroupType = channelGroup.type();
         auto channelCountInGroup = channelGroup.channelCount();
+        auto newInputGroupCount = oldSumming->audioInputGroupCount() + appendCount;
         auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
-            oldSumming->audioInputGroupCount() + appendCount,
-            channelGroupType, channelCountInGroup
+            newInputGroupCount, channelGroupType, channelCountInGroup
         );
         auto newSummingNode = graphWithPDC_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*newSumming));
+        if(newInputGroupCount > 1)
+        {
+            auto multiInput = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
+                graph_.getNodeData(newSummingNode).process.device()
+            );
+            multiInput->setBufferSize(bufferExtension().bufferSize());
+        }
         auto inEdges = oldSummingNode->inEdges();
         std::uint32_t i = 0;
         for(auto inEdge: inEdges)
@@ -436,11 +443,18 @@ private:
             auto& channelGroup = oldSumming->audioOutputGroupAt(0)->get();
             auto channelGroupType = channelGroup.type();
             auto channelCountInGroup = channelGroup.channelCount();
+            auto newInputGroupCount = oldSumming->audioInputGroupCount() - removeCount;
             auto newSumming = std::make_unique<YADAW::Audio::Util::Summing>(
-                oldSumming->audioInputGroupCount() - removeCount,
-                channelGroupType, channelCountInGroup
+                newInputGroupCount, channelGroupType, channelCountInGroup
             );
             auto newSummingNode = graphWithPDC_.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*newSumming));
+            if(newInputGroupCount > 1)
+            {
+                auto multiInput = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
+                    graph_.getNodeData(newSummingNode).process.device()
+                );
+                multiInput->setBufferSize(bufferExtension().bufferSize());
+            }
             auto inEdges = oldSummingNode->inEdges();
             for(const auto& inEdge: inEdges)
             {
