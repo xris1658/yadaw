@@ -1171,6 +1171,13 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                     YADAW::Controller::VST3PluginContext{vst3ComponentHandler}
                 );
                 nodeHandle = graphWithPDC.addNode(std::move(process));
+                if(pluginPtr->audioInputGroupCount() > 1)
+                {
+                    auto deviceWithPDC = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
+                        graphWithPDC.graph().getNodeData(nodeHandle).process.device()
+                    );
+                    deviceWithPDC->setBufferSize(engine.bufferSize());
+                }
                 engine.vst3PluginPool().updateAndDispose(
                     std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
                         createPoolVector(vst3PluginPool)
@@ -1201,6 +1208,13 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 YADAW::Controller::CLAPPluginContext{clapEventList}
             );
             nodeHandle = graphWithPDC.addNode(std::move(process));
+            if(pluginPtr->audioInputGroupCount() > 1)
+            {
+                auto deviceWithPDC = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
+                    graphWithPDC.graph().getNodeData(nodeHandle).process.device()
+                );
+                deviceWithPDC->setBufferSize(engine.bufferSize());
+            }
             engine.clapPluginToSetProcess().update(
                 std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
                     1, std::make_pair(pluginPtr, true)
