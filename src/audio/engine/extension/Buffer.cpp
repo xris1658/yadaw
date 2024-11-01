@@ -133,8 +133,17 @@ void Buffer::setBufferSize(std::uint32_t bufferSize)
     for(const auto& nodeHandle: graph_.nodes())
     {
         getData_(graph_, nodeHandle).container.setSingleBufferSize(bufferSize);
+        if(auto& callback = getData_(graph_, nodeHandle).bufferSizeChangedCallback)
+        {
+            callback(bufferSize);
+        }
     }
     bufferSize_ = bufferSize;
+}
+
+void Buffer::resetBufferSizeChangedCallback(const ade::NodeHandle& nodeHandle)
+{
+    getData(nodeHandle).bufferSizeChangedCallback = nullptr;
 }
 
 const Buffer::DataType& Buffer::getData(const ade::NodeHandle& nodeHandle) const

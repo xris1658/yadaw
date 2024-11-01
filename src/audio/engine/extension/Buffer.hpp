@@ -4,14 +4,18 @@
 #include "audio/engine/AudioDeviceGraph.hpp"
 #include "audio/engine/AudioProcessDataBufferContainer.hpp"
 
+#include <functional>
+
 namespace YADAW::Audio::Engine::Extension
 {
 class Buffer
 {
 public:
+    using BufferSizeChangedCalback = void(std::uint32_t newBufferSize);
     struct DataType
     {
         YADAW::Audio::Engine::AudioProcessDataBufferContainer<float> container;
+        std::function<BufferSizeChangedCalback> bufferSizeChangedCallback;
     };
 public:
     Buffer(AudioDeviceGraphBase& graph,
@@ -24,6 +28,12 @@ public:
 public:
     std::uint32_t bufferSize() const;
     void setBufferSize(std::uint32_t bufferSize);
+    template<typename Func>
+    void setBufferSizeChangedCallback(const ade::NodeHandle& nodeHandle, Func&& callback)
+    {
+        getData(nodeHandle).bufferSizeChangedCallback = std::forward<Func>(callback);
+    }
+    void resetBufferSizeChangedCallback(const ade::NodeHandle& nodeHandle);
 public:
     const DataType& getData(const ade::NodeHandle& nodeHandle) const;
     DataType& getData(const ade::NodeHandle& nodeHandle);
