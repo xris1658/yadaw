@@ -32,10 +32,10 @@ public:
     void process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData) override;
 
 private:
-    bool processing_;
+    bool processing_ = false;
     double frequency_;
     double sampleRate_;
-    std::uint64_t frameCount_;
+    std::uint64_t frameCount_ = 0;
     YADAW::Audio::Util::AudioChannelGroup channelGroup_;
 };
 
