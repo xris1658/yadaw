@@ -1835,11 +1835,15 @@ bool Mixer::insertChannels(
             }
             FOR_RANGE0(i, count)
             {
-                auto node = graph_.addNode(
+                auto node = graphWithPDC_.addNode(
                     YADAW::Audio::Engine::AudioDeviceProcess(
                         *inputSwitchers[i]
                     )
                 );
+                auto multiInput = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
+                    graph_.getNodeData(node).process.device()
+                );
+                multiInput->setBufferSize(bufferExtension().bufferSize());
                 inputDevicesAndNode.emplace_back(std::move(inputSwitchers[i]), node);
             }
             ret = true;
