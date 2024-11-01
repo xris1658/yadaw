@@ -496,10 +496,13 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         {
             if(data(index, Role::MonitorExist).value<bool>())
             {
-                auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
+                auto multiInput = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
                     mixer_.graph().graph().getNodeData(
                         mixer_.channelPreFaderInsertsAt(row)->get().inNode()->inNodes().front()
                     ).process.device()
+                );
+                auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
+                    multiInput->process().device()
                 );
                 return QVariant::fromValue<bool>(inputSwitcher->getInputIndex());
             }
@@ -782,10 +785,13 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
             auto ret = false;
             if(data(index, Role::MonitorExist).value<bool>())
             {
-                auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
+                auto multiInput = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
                     mixer_.graph().graph().getNodeData(
                         mixer_.channelPreFaderInsertsAt(row)->get().inNode()->inNodes().front()
                     ).process.device()
+                );
+                auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
+                    multiInput->process().device()
                 );
                 auto inputIndex = static_cast<std::uint32_t>(value.value<bool>());
                 if(static_cast<bool>(inputSwitcher->getInputIndex()) != inputIndex)
