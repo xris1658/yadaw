@@ -3,6 +3,8 @@
 
 #include "audio/device/IAudioDevice.hpp"
 #include "audio/engine/AudioDeviceProcess.hpp"
+#include "audio/util/AudioBufferPool.hpp"
+#include "audio/util/AudioProcessDataPointerContainer.hpp"
 #include "audio/util/SampleDelay.hpp"
 
 namespace YADAW::Audio::Engine
@@ -28,8 +30,8 @@ public:
     // latency compensation is certainly a terrible idea.
     std::uint32_t latencyInSamples() const override;
     void process(const AudioProcessData<float> &audioProcessData) override;
-
 public:
+    void setBufferSize(std::uint32_t newBufferSize);
     const YADAW::Audio::Engine::AudioDeviceProcess process() const;
     YADAW::Audio::Engine::AudioDeviceProcess process();
     std::optional<std::uint32_t> getDelayOfPDC(std::uint32_t audioInputGroupIndex) const;
@@ -38,7 +40,10 @@ public:
 private:
     YADAW::Audio::Engine::AudioDeviceProcess process_;
     std::vector<YADAW::Audio::Util::SampleDelay> pdcs_;
-    std::vector<YADAW::Audio::Device::AudioProcessData<float>> pdcAudioProcessData_;
+    std::vector<YADAW::Audio::Util::AudioProcessDataPointerContainer<float>> intermediateContainers_;
+    YADAW::Util::IntrusivePointer<YADAW::Audio::Util::AudioBufferPool> pool_;
+    std::vector<std::vector<YADAW::Audio::Util::Buffer>> intermediateBuffers_;
+    YADAW::Audio::Util::AudioProcessDataPointerContainer<float> deviceProcessDataContainer_;
 };
 }
 

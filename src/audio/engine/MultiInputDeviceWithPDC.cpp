@@ -7,16 +7,23 @@ MultiInputDeviceWithPDC::MultiInputDeviceWithPDC(AudioDeviceProcess&& process):
 {
     auto device = process_.device();
     auto inputCount = device->audioInputGroupCount();
+    auto outputCount = device->audioOutputGroupCount();
     pdcs_.reserve(inputCount);
-    pdcAudioProcessData_.reserve(inputCount);
+    intermediateContainers_.reserve(inputCount);
+    deviceProcessDataContainer_.setInputGroupCount(inputCount);
+    deviceProcessDataContainer_.setOutputGroupCount(outputCount);
     FOR_RANGE0(i, inputCount)
     {
         auto& inputGroup = device->audioInputGroupAt(i)->get();
         auto& pdc = pdcs_.emplace_back(0U, inputGroup);
         pdc.startProcessing();
-        auto& audioProcessData = pdcAudioProcessData_.emplace_back();
-        audioProcessData.inputGroupCount = 1;
-        audioProcessData.outputGroupCount = 1;
+        auto& container = intermediateContainers_.emplace_back();
+        container.setInputGroupCount(1);
+        container.setOutputGroupCount(1);
+        auto channelCount = inputGroup.channelCount();
+        container.setInputCount(0, channelCount);
+        container.setOutputCount(0, channelCount);
+        deviceProcessDataContainer_.setInputCount(i, channelCount);
     }
 }
 
@@ -54,17 +61,13 @@ void MultiInputDeviceWithPDC::process(const AudioProcessData<float>& audioProces
 {
     FOR_RANGE0(i, pdcs_.size())
     {
-        pdcAudioProcessData_[i].singleBufferSize = audioProcessData.singleBufferSize;
-        pdcAudioProcessData_[i].inputCounts = audioProcessData.inputCounts + i;
-        pdcAudioProcessData_[i].outputCounts = audioProcessData.inputCounts + i;
-        pdcAudioProcessData_[i].inputs = audioProcessData.inputs + i;
-        pdcAudioProcessData_[i].outputs = audioProcessData.inputs + i;
+        pdcs_[i].process(intermediateContainers_[i].audioProcessData());
     }
-    FOR_RANGE0(i, pdcs_.size())
-    {
-        pdcs_[i].process(pdcAudioProcessData_[i]);
-    }
-    process_.process(audioProcessData);
+    auto data = deviceProcessDataContainer_.audioProcessData();
+    data.outputGroupCount = audioProcessData.outputGroupCount;
+    data.outputCounts = audioProcessData.outputCounts;
+    data.outputs = audioProcessData.outputs;
+    process_.process(data);
 }
 
 void MultiInputDeviceWithPDC::setDelayOfPDC(std::uint32_t audioInputGroupIndex, std::uint32_t delay)
@@ -76,6 +79,29 @@ void MultiInputDeviceWithPDC::setDelayOfPDC(std::uint32_t audioInputGroupIndex, 
         pdcs_[audioInputGroupIndex].setDelay(delay);
         pdc.startProcessing();
     }
+}
+
+void MultiInputDeviceWithPDC::setBufferSize(std::uint32_t newBufferSize)
+{
+    auto pool = YADAW::Audio::Util::AudioBufferPool::createPool<float>(newBufferSize);
+    decltype(intermediateBuffers_) intermediateBuffers;
+    FOR_RANGE0(i, intermediateContainers_.size())
+    {
+        auto& buffers = intermediateBuffers.emplace_back();
+        const auto& processData = intermediateContainers_[i].audioProcessData();
+        FOR_RANGE0(j, processData.outputCounts[0])
+        {
+            auto& buffer = buffers.emplace_back(pool->lend());
+            intermediateContainers_[i].setOutput(
+                0, j, reinterpret_cast<float*>(buffer.pointer())
+            );
+            deviceProcessDataContainer_.setInput(
+                0, j, reinterpret_cast<float*>(buffer.pointer())
+            );
+        }
+    }
+    pool_ = std::move(pool);
+    intermediateBuffers_ = std::move(intermediateBuffers);
 }
 
 const YADAW::Audio::Engine::AudioDeviceProcess MultiInputDeviceWithPDC::process() const
