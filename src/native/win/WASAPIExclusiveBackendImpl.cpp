@@ -19,7 +19,6 @@
 
 #include <Functiondiscoverykeys_devpkey.h>
 
-#include <map>
 #include <random>
 
 void fillFormat(WAVEFORMATEXTENSIBLE& outFormat,
@@ -537,59 +536,9 @@ WASAPIExclusiveBackend::ErrorCode WASAPIExclusiveBackend::Impl::activateOutputDe
 
 void WASAPIExclusiveBackend::Impl::audioThread()
 {
-    HANDLE mmcssHandle = NULL;
-    DWORD mmcssTaskIndex = 0;
-    HKEY hKey;
-    auto findKeyResult = RegOpenKeyExW(HKEY_LOCAL_MACHINE,
-        L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks",
-        0, KEY_READ, &hKey
-    );
-    if(findKeyResult == ERROR_SUCCESS)
-    {
-        DWORD subKeyCount = 0;
-        DWORD maxKeyLength = 0;
-        if(RegQueryInfoKeyW(hKey, NULL, NULL, NULL, &subKeyCount, NULL, NULL, NULL, &maxKeyLength, NULL, NULL, NULL) == ERROR_SUCCESS)
-        {
-            auto name = std::make_unique<wchar_t[]>(maxKeyLength + 1);
-            auto nameSize = maxKeyLength + 1;
-            std::map<DWORD, std::wstring> tasks;
-            FOR_RANGE0(i, subKeyCount)
-            {
-                DWORD nameLength = nameSize;
-                HKEY hkey;
-                auto enumKeyResult = RegEnumKeyExW(hKey, i, name.get(), &nameLength, NULL, NULL, NULL, NULL);
-                if(enumKeyResult == ERROR_MORE_DATA)
-                {
-                    name = std::make_unique<wchar_t[]>(nameLength);
-                    nameSize = nameLength;
-                    --nameLength;
-                    enumKeyResult = RegEnumKeyExW(hKey, i, name.get(), &nameLength, NULL, NULL, NULL, NULL);
-                }
-                if(enumKeyResult == ERROR_SUCCESS)
-                {
-                    HKEY subKey;
-                    auto openKeyResult = RegOpenKeyExW(hKey, name.get(), 0, KEY_READ | KEY_QUERY_VALUE, &subKey);
-                    if(openKeyResult == ERROR_SUCCESS)
-                    {
-                        DWORD priority = 0;
-                        DWORD prioritySize = sizeof(priority);
-                        auto getValueResult = RegGetValueW(subKey, NULL, L"Priority", RRF_RT_REG_DWORD, NULL, &priority, &prioritySize);
-                        if(getValueResult == ERROR_SUCCESS)
-                        {
-                            tasks.emplace(
-                                priority, std::wstring(name.get(), nameLength)
-                            );
-                        }
-                    }
-                }
-            }
-            mmcssHandle = AvSetMmThreadCharacteristics(
-                tasks.begin()->second.c_str(), &mmcssTaskIndex
-            );
-        }
-    }
     audioThreadRunning_.store(true, std::memory_order_release);
-    mmcssHandle = AvSetMmThreadCharacteristics(
+    DWORD mmcssTaskIndex;
+    auto mmcssHandle = AvSetMmThreadCharacteristics(
         L"Pro Audio", &mmcssTaskIndex
     );
     while(audioThreadRunning_.load(std::memory_order_acquire))
