@@ -9,6 +9,23 @@
 
 namespace YADAW::Audio::Engine
 {
+// Internal structure:
+//   +---------------------------------------------------------------------------------------+
+//   |  +---------------+   +----------------------+   +-----------------------------------+ |
+// ---->| `SampleDelay` +-->| Intermediate Buffers +-->|                                   | |
+//   |  +---------------+   +----------------------+   |                                   | |
+//   |                                                 |                                   | |
+//   |  +---------------+   +----------------------+   |                                   | |
+// ---->| `SampleDelay` +-->| Intermediate Buffers +-->| Device with multiple audio inputs | |
+//   |  +---------------+   +----------------------+   |                                   | |
+//   |                                                 |                                   | |
+//   |  +---------------+   +----------------------+   |                                   | |
+// ---->| `SampleDelay` +-->| Intermediate Buffers +-->|                                   | |
+//   |  +---------------+   +----------------------+   +-----------------------------------+ |
+//   +---------------------------------------------------------------------------------------+
+// Since PDC stores compensated samples in those intermediate buffers, you have
+// to call `setBufferSize` to allocate those buffers BEFORE calling `process`.
+//
 class MultiInputDeviceWithPDC:
     public YADAW::Audio::Device::IAudioDevice
 {
@@ -23,11 +40,13 @@ public:
     std::uint32_t audioOutputGroupCount() const override;
     OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const override;
     OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
-    // The maximum latency introduced by PDCs is not included. If you need the latency info of PDCs,
-    // use `getDelayOfPDC` and `getPDCIndexOfMaximumDelay` instead.
-    // Ideally, this class is used for compensating the upstream latencies, in which case it does
-    // not introduce extra latencies. Use cases of this class without any other facilities that does
-    // latency compensation is certainly a terrible idea.
+    // The maximum latency introduced by PDCs is not included. If you need the
+    // latency info of PDCs, use `getDelayOfPDC` and `getPDCIndexOfMaximumDelay`
+    // instead.
+    // Ideally, this class is used for compensating the upstream latencies, in
+    // which case it does not introduce extra latencies. Use cases of this class
+    // without any other facilities that does latency compensation is certainly
+    // a terrible idea.
     std::uint32_t latencyInSamples() const override;
     void process(const AudioProcessData<float> &audioProcessData) override;
 public:
