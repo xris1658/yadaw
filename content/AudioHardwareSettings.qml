@@ -24,9 +24,13 @@ Item {
     property alias audioGraphInputDeviceList: audioGraphSettings.inputDeviceList
     property alias audioGraphOutputDeviceList: audioGraphSettings.outputDeviceList
     property alias audioGraphOutputDeviceIndex: audioGraphSettings.outputDeviceIndex
+    property alias audioGraphBufferSize: audioGraphSettings.bufferSize
+    property alias audioGraphLatency: audioGraphSettings.latency
 
     property alias alsaInputDeviceList: alsaSettings.inputDeviceList
     property alias alsaOutputDeviceList: alsaSettings.outputDeviceList
+    property alias alsaBufferSize: alsaSettings.bufferSize
+    property alias alsaLatency: alsaSettings.latency
 
     property alias audioInputBusConfigurationModel: audioBusConfigurationWindow.inputConfigModel
     property alias audioOutputBusConfigurationModel: audioBusConfigurationWindow.outputConfigModel

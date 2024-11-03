@@ -359,6 +359,12 @@ void EventHandler::onOpenMainWindow()
         YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceIndex",
             QVariant::fromValue<int>(currentOutputDeviceIndex));
     }
+    YADAW::UI::mainWindow->setProperty("audioGraphBufferSize",
+        QVariant::fromValue<int>(backend.bufferSizeInFrames())
+    );
+    YADAW::UI::mainWindow->setProperty("audioGraphLatency",
+        QVariant::fromValue<int>(backend.latencyInSamples())
+    );
 #elif __linux__
     YADAW::UI::mainWindow->setProperty("alsaInputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAInputDeviceListModel()));

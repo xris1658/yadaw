@@ -30,6 +30,8 @@ Window {
     property alias audioGraphInputDeviceList: audioHardwareSettings.audioGraphInputDeviceList
     property alias audioGraphOutputDeviceList: audioHardwareSettings.audioGraphOutputDeviceList
     property alias audioGraphOutputDeviceIndex: audioHardwareSettings.audioGraphOutputDeviceIndex
+    property alias audioGraphBufferSize: audioHardwareSettings.audioGraphBufferSize
+    property alias audioGraphLatency: audioHardwareSettings.audioGraphLatency
     property alias alsaInputDeviceList: audioHardwareSettings.alsaInputDeviceList
     property alias alsaOutputDeviceList: audioHardwareSettings.alsaOutputDeviceList
 
