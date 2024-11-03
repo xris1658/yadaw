@@ -205,7 +205,7 @@ void EventHandler::onOpenMainWindow()
             FOR_RANGE0(j, channelsNode.size())
             {
                 auto indexNode = channelsNode[j]["device-index"];
-                auto oldIndex = indexNode.as<int>();
+                auto oldIndex = indexNode.as<std::uint32_t>();
                 auto newIndex = oldIndex > changes.size()?
                     YADAW::Audio::Device::InvalidIndex:
                     changes[oldIndex].value_or(YADAW::Audio::Device::InvalidIndex);
