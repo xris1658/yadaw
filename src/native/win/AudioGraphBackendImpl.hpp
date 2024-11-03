@@ -65,6 +65,7 @@ public:
     winrt::hstring defaultAudioOutputDeviceId() const;
     AudioGraphBackend::ErrorCode createAudioGraph(std::uint32_t sampleRate = 0);
     AudioGraphBackend::ErrorCode createAudioGraph(const DeviceInformation& audioOutputDevice, std::uint32_t sampleRate = 0);
+    std::optional<std::uint32_t> findAudioInputDeviceById(const winrt::hstring& id);
     bool isDeviceInputActivated(std::uint32_t deviceInputIndex) const;
     AudioGraphBackend::ErrorCode activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
     // This function might fail, in which case returns an invalid DeviceInformation

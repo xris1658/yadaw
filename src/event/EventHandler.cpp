@@ -144,6 +144,14 @@ void EventHandler::onOpenMainWindow()
     auto appConfig = YADAW::Controller::loadConfig();
     auto currentBackend = YADAW::Controller::backendFromConfig(appConfig["audio-hardware"]);
     // -------------------------------------------------------------------------
+    // prepare audio bus configuration -----------------------------------------
+    // -------------------------------------------------------------------------
+    auto& audioBusConfiguration = YADAW::Controller::appAudioBusConfiguration();
+    static YADAW::Model::AudioBusConfigurationModel appAudioBusInputConfigurationModel(
+        audioBusConfiguration, true);
+    static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
+        audioBusConfiguration, false);
+    // -------------------------------------------------------------------------
     // initialize audio backend ------------------------------------------------
     // -------------------------------------------------------------------------
 #if _WIN32
@@ -184,6 +192,31 @@ void EventHandler::onOpenMainWindow()
             YADAW::UI::getMessageDialogResult();
         }
     }
+    // -------------------------------------------------------------------------
+    // initialize audio bus configuration --------------------------------------
+    // -------------------------------------------------------------------------
+    auto changes = YADAW::Controller::getAudioInputDeviceIndexChanges(audioGraphNode);
+    if(auto audioBusConfigNode = appConfig["audio-bus"];
+        audioBusConfigNode.IsDefined())
+    {
+        FOR_RANGE0(i, audioBusConfigNode.size())
+        {
+            auto channelsNode = audioBusConfigNode["input-buses"][i]["channels"];
+            FOR_RANGE0(j, channelsNode.size())
+            {
+                auto indexNode = channelsNode[j]["device-index"];
+                auto oldIndex = indexNode.as<int>();
+                auto newIndex = oldIndex > changes.size()?
+                    YADAW::Audio::Device::InvalidIndex:
+                    changes[oldIndex].value_or(YADAW::Audio::Device::InvalidIndex);
+                indexNode = newIndex;
+            }
+        }
+        YADAW::Controller::loadAudioBusConfiguration(audioBusConfigNode,
+            appAudioBusInputConfigurationModel, appAudioBusOutputConfigurationModel
+        );
+        audioGraphNode = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
+    }
     const auto& currentOutputDeviceId = backend.currentOutputDevice().id;
     int currentOutputDeviceIndex = -1;
     FOR_RANGE0(i, backend.audioOutputDeviceCount())
@@ -210,20 +243,6 @@ void EventHandler::onOpenMainWindow()
         &QAbstractItemModel::dataChanged, &saveAudioBackendState);
     auto errors = YADAW::Controller::initializeALSAFromConfig(appConfig["audio-hardware"]["alsa"]);
 #endif
-    // -------------------------------------------------------------------------
-    // initialize audio bus configuration --------------------------------------
-    // -------------------------------------------------------------------------
-    auto& audioBusConfiguration = YADAW::Controller::appAudioBusConfiguration();
-    static YADAW::Model::AudioBusConfigurationModel appAudioBusInputConfigurationModel(
-        audioBusConfiguration, true);
-    static YADAW::Model::AudioBusConfigurationModel appAudioBusOutputConfigurationModel(
-        audioBusConfiguration, false);
-    if(auto audioBusConfigNode = appConfig["audio-bus"];
-        audioBusConfigNode.IsDefined())
-    {
-        YADAW::Controller::loadAudioBusConfiguration(audioBusConfigNode,
-            appAudioBusInputConfigurationModel, appAudioBusOutputConfigurationModel);
-    }
     // -------------------------------------------------------------------------
     // initialize device graph and mixer----------------------------------------
     // -------------------------------------------------------------------------
@@ -340,6 +359,12 @@ void EventHandler::onOpenMainWindow()
         YADAW::UI::mainWindow->setProperty("audioGraphOutputDeviceIndex",
             QVariant::fromValue<int>(currentOutputDeviceIndex));
     }
+    YADAW::UI::mainWindow->setProperty("audioGraphBufferSize",
+        QVariant::fromValue<int>(backend.bufferSizeInFrames())
+    );
+    YADAW::UI::mainWindow->setProperty("audioGraphLatency",
+        QVariant::fromValue<int>(backend.latencyInSamples())
+    );
 #elif __linux__
     YADAW::UI::mainWindow->setProperty("alsaInputDeviceList",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAInputDeviceListModel()));

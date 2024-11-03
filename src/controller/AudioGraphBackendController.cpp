@@ -95,6 +95,25 @@ YADAW::Native::ErrorCodeType createAudioGraphFromConfig(const YAML::Node& node)
     return ret;
 }
 
+std::vector<std::optional<std::uint32_t>> getAudioInputDeviceIndexChanges(
+    const YAML::Node& node)
+{
+    const auto& inputsNode = node["inputs"];
+    std::vector<std::optional<std::uint32_t>> ret;
+    if(inputsNode.IsDefined() && inputsNode.IsSequence())
+    {
+        auto& backend = appAudioGraphBackend();
+        auto configInputCount = inputsNode.size();
+        ret.reserve(configInputCount);
+        FOR_RANGE0(i, configInputCount)
+        {
+            const auto& id = inputsNode[i]["id"].as<std::string>(std::string{});
+            ret.emplace_back(backend.findAudioInputDeviceById(QString::fromStdString(id)));
+        }
+    }
+    return ret;
+}
+
 YAML::Node deviceConfigFromCurrentAudioGraph()
 {
     using namespace YADAW::Util;

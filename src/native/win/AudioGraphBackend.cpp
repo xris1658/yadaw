@@ -143,6 +143,12 @@ AudioGraphBackend::ErrorCode AudioGraphBackend::createAudioGraph(const QString& 
     return ret;
 }
 
+std::optional<std::uint32_t> AudioGraphBackend::findAudioInputDeviceById(const QString& id) const
+{
+    winrt::hstring idAsHString(reinterpret_cast<const wchar_t*>(id.data()));
+    return pImpl_->findAudioInputDeviceById(idAsHString);
+}
+
 bool AudioGraphBackend::isDeviceInputActivated(std::uint32_t deviceInputIndex) const
 {
     return pImpl_->isDeviceInputActivated(deviceInputIndex);

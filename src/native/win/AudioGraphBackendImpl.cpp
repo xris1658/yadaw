@@ -169,6 +169,27 @@ AudioGraphBackend::ErrorCode AudioGraphBackend::Impl::createAudioGraph(
     return ERROR_SUCCESS;
 }
 
+std::optional<std::uint32_t> AudioGraphBackend::Impl::findAudioInputDeviceById(const winrt::hstring& id)
+{
+    auto it = std::find_if(
+        audioInputDeviceInformationCollection_.begin(),
+        audioInputDeviceInformationCollection_.end(),
+        [&id](const DeviceInformation& deviceInformation)
+        {
+            return deviceInformation.Id() == id;
+        }
+    );
+    if(it != audioInputDeviceInformationCollection_.end())
+    {
+        return {
+            static_cast<std::uint32_t>(
+                it - audioInputDeviceInformationCollection_.begin()
+            )
+        };
+    }
+    return std::nullopt;
+}
+
 bool AudioGraphBackend::Impl::isDeviceInputActivated(std::uint32_t deviceInputIndex) const
 {
     if(deviceInputIndex < audioInputDeviceCount())

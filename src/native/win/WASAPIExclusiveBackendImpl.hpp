@@ -66,6 +66,7 @@ private:
     std::vector<IAudioClock*> outputClocks_;
     std::thread audioThread_;
     std::atomic_bool audioThreadRunning_;
+    std::vector<HANDLE> events_;
 };
 }
 

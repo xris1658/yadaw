@@ -11,6 +11,9 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <cstdint>
+#include <vector>
+
 namespace YADAW::Controller
 {
 constexpr double defaultSampleRate = 44100.0;
@@ -24,6 +27,12 @@ YADAW::Model::AudioGraphOutputDeviceListModel& appAudioGraphOutputDeviceListMode
 YADAW::Native::ErrorCodeType activateDefaultDevice(YADAW::Audio::Backend::AudioGraphBackend& backend);
 
 YADAW::Native::ErrorCodeType createAudioGraphFromConfig(const YAML::Node& node);
+
+// Since audio input device list might change between sessions, we have to get
+// the change list before initializing audio input buses.
+std::vector<std::optional<std::uint32_t>> getAudioInputDeviceIndexChanges(
+    const YAML::Node& node
+);
 
 YAML::Node deviceConfigFromCurrentAudioGraph();
 

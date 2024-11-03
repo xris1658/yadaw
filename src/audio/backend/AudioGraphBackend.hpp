@@ -63,6 +63,7 @@ public:
     DeviceInfo audioOutputDeviceAt(std::uint32_t index) const;
     ErrorCode createAudioGraph(std::uint32_t sampleRate = 0);
     ErrorCode createAudioGraph(const QString& id, std::uint32_t sampleRate = 0);
+    std::optional<std::uint32_t> findAudioInputDeviceById(const QString& id) const;
     bool isDeviceInputActivated(std::uint32_t deviceInputIndex) const;
     ErrorCode activateDeviceInput(std::uint32_t deviceInputIndex, bool enabled);
     DeviceInfo currentOutputDevice() const;
