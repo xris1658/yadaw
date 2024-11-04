@@ -95,6 +95,11 @@ QC.Popup {
                 ListView.view.currentIndex = index;
                 root.currentPosition = aiopm_position;
             }
+            onDoubleClicked: {
+                ListView.view.currentIndex = index;
+                root.currentPosition = aiopm_position;
+                root.accepted();
+            }
         }
     }
 
