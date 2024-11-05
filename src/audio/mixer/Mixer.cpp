@@ -1387,47 +1387,52 @@ bool Mixer::removeAudioInputChannel(
             && last <= audioInputChannelCount()
     )
     {
-        {
-            std::vector<ade::NodeHandle> nodesToRemove;
-            nodesToRemove.reserve(
-                removeCount * 5 + 3 * std::accumulate(
-                    audioInputSendDestinations_.begin() + first,
-                    audioInputSendDestinations_.begin() + last,
-                    0, [](const auto lhs, const auto& rhs)
-                    {
-                        return lhs + rhs.size();
-                    }
-                )
-            );
-            FOR_RANGE(i, first, last)
-            {
-                auto polarityInverterNode = audioInputPolarityInverters_[i].second;
-                nodesToRemove.emplace_back(polarityInverterNode);
-                nodesToRemove.emplace_back(polarityInverterNode->inNodes().front());
-                nodesToRemove.emplace_back(audioInputMutes_[i].second);
-                nodesToRemove.emplace_back(audioInputFaders_[i].second);
-                nodesToRemove.emplace_back(audioInputMeters_[i].second);
-                FOR_RANGE0(j, audioInputSendDestinations_[i].size())
+        std::vector<ade::NodeHandle> nodesToRemove;
+        nodesToRemove.reserve(
+            removeCount * 5 + 3 * std::accumulate(
+                audioInputSendDestinations_.begin() + first,
+                audioInputSendDestinations_.begin() + last,
+                0, [](const auto lhs, const auto& rhs)
                 {
-                    nodesToRemove.emplace_back(audioInputSendPolarityInverters_[i][j].second);
-                    nodesToRemove.emplace_back(audioInputSendMutes_[i][j].second);
-                    nodesToRemove.emplace_back(audioInputSendFaders_[i][j].second);
+                    return lhs + rhs.size();
                 }
-            }
-            audioInputPreFaderInserts_.erase(
-                audioInputPreFaderInserts_.begin() + first,
-                audioInputPreFaderInserts_.begin() + last
-            );
-            audioInputPostFaderInserts_.erase(
-                audioInputPostFaderInserts_.begin() + first,
-                audioInputPostFaderInserts_.begin() + last
-            );
-            FOR_RANGE0(i, nodesToRemove.size())
+            )
+        );
+        FOR_RANGE(i, first, last)
+        {
+            auto polarityInverterNode = audioInputPolarityInverters_[i].second;
+            nodesToRemove.emplace_back(polarityInverterNode);
+            nodesToRemove.emplace_back(polarityInverterNode->inNodes().front());
+            nodesToRemove.emplace_back(audioInputMutes_[i].second);
+            nodesToRemove.emplace_back(audioInputFaders_[i].second);
+            nodesToRemove.emplace_back(audioInputMeters_[i].second);
+            FOR_RANGE0(j, audioInputSendDestinations_[i].size())
             {
-                auto device = graphWithPDC_.removeNode(nodesToRemove[i]);
+                nodesToRemove.emplace_back(audioInputSendPolarityInverters_[i][j].second);
+                nodesToRemove.emplace_back(audioInputSendMutes_[i][j].second);
+                nodesToRemove.emplace_back(audioInputSendFaders_[i][j].second);
             }
         }
-        nodeRemovedCallback_(*this);
+        audioInputPreFaderInserts_.erase(
+            audioInputPreFaderInserts_.begin() + first,
+            audioInputPreFaderInserts_.begin() + last
+        );
+        audioInputPostFaderInserts_.erase(
+            audioInputPostFaderInserts_.begin() + first,
+            audioInputPostFaderInserts_.begin() + last
+        );
+        {
+            std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> devicesToRemove;
+            devicesToRemove.reserve(nodesToRemove.size());
+            FOR_RANGE0(i, nodesToRemove.size())
+            {
+                if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
+                {
+                    devicesToRemove.emplace_back(std::move(device));
+                }
+            }
+            nodeRemovedCallback_(*this);
+        }
         audioInputMutes_.erase(
             audioInputMutes_.begin() + first,
             audioInputMutes_.begin() + last
@@ -1611,51 +1616,53 @@ bool Mixer::removeAudioOutputChannel(
             && last <= audioOutputChannelCount()
     )
     {
-        {
-            std::vector<ade::NodeHandle> nodesToRemove;
-            nodesToRemove.reserve(
-                removeCount * 6 + 3 * std::accumulate(
-                    audioOutputSendDestinations_.begin() + first,
-                    audioOutputSendDestinations_.begin() + last,
-                    0, [](const auto lhs, const auto& rhs)
-                    {
-                        return lhs + rhs.size();
-                    }
-                )
-            );
-            FOR_RANGE(i, first, last)
-            {
-                nodesToRemove.emplace_back(audioOutputSummings_[i].second);
-                nodesToRemove.emplace_back(audioOutputMutes_[i].second);
-                nodesToRemove.emplace_back(audioOutputFaders_[i].second);
-                nodesToRemove.emplace_back(audioOutputMeters_[i].second);
-                nodesToRemove.emplace_back(
-                    *(audioOutputMeters_[i].second->outNodes().begin())
-                );
-                nodesToRemove.emplace_back(
-                    audioOutputPolarityInverters_[i].second
-                );
-                FOR_RANGE0(j, audioOutputSendDestinations_[i].size())
+        std::vector<ade::NodeHandle> nodesToRemove;
+        nodesToRemove.reserve(
+            removeCount * 6 + 3 * std::accumulate(
+                audioOutputSendDestinations_.begin() + first,
+                audioOutputSendDestinations_.begin() + last,
+                0, [](const auto lhs, const auto& rhs)
                 {
-                    nodesToRemove.emplace_back(audioOutputSendPolarityInverters_[i][j].second);
-                    nodesToRemove.emplace_back(audioOutputSendMutes_[i][j].second);
-                    nodesToRemove.emplace_back(audioOutputSendFaders_[i][j].second);
+                    return lhs + rhs.size();
                 }
+            )
+        );
+        FOR_RANGE(i, first, last)
+        {
+            nodesToRemove.emplace_back(audioOutputSummings_[i].second);
+            nodesToRemove.emplace_back(audioOutputMutes_[i].second);
+            nodesToRemove.emplace_back(audioOutputFaders_[i].second);
+            nodesToRemove.emplace_back(audioOutputMeters_[i].second);
+            nodesToRemove.emplace_back(
+                *(audioOutputMeters_[i].second->outNodes().begin())
+            );
+            nodesToRemove.emplace_back(
+                audioOutputPolarityInverters_[i].second
+            );
+            FOR_RANGE0(j, audioOutputSendDestinations_[i].size())
+            {
+                nodesToRemove.emplace_back(audioOutputSendPolarityInverters_[i][j].second);
+                nodesToRemove.emplace_back(audioOutputSendMutes_[i][j].second);
+                nodesToRemove.emplace_back(audioOutputSendFaders_[i][j].second);
             }
-            audioOutputPreFaderInserts_.erase(
-                audioOutputPreFaderInserts_.begin() + first,
-                audioOutputPreFaderInserts_.begin() + last
-            );
-            audioOutputPostFaderInserts_.erase(
-                audioOutputPostFaderInserts_.begin() + first,
-                audioOutputPostFaderInserts_.begin() + last
-            );
+        }
+        audioOutputPreFaderInserts_.erase(
+            audioOutputPreFaderInserts_.begin() + first,
+            audioOutputPreFaderInserts_.begin() + last
+        );
+        audioOutputPostFaderInserts_.erase(
+            audioOutputPostFaderInserts_.begin() + first,
+            audioOutputPostFaderInserts_.begin() + last
+        );
+        {
+            std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> devicesToRemove;
+            devicesToRemove.reserve(nodesToRemove.size());
             FOR_RANGE0(i, nodesToRemove.size())
             {
                 auto device = graphWithPDC_.removeNode(nodesToRemove[i]);
             }
+            nodeRemovedCallback_(*this);
         }
-        nodeRemovedCallback_(*this);
         audioOutputMutes_.erase(
             audioOutputMutes_.begin() + first,
             audioOutputMutes_.begin() + last
@@ -2125,11 +2132,15 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
                 nodesToRemove.emplace_back(sendFaders_[i][j].second);
             }
         }
-        FOR_RANGE0(i, nodesToRemove.size())
         {
-            auto device = graphWithPDC_.removeNode(nodesToRemove[i]);
+            std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> devicesToRemove;
+            devicesToRemove.reserve(nodesToRemove.size());
+            FOR_RANGE0(i, nodesToRemove.size())
+            {
+                auto device = graphWithPDC_.removeNode(nodesToRemove[i]);
+            }
+            nodeRemovedCallback_(*this);
         }
-        nodeRemovedCallback_(*this);
         mainOutput_.erase(
             mainOutput_.begin() + first,
             mainOutput_.begin() + last
