@@ -29,7 +29,7 @@ public:
     IMixerChannelInsertListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
     virtual ~IMixerChannelInsertListModel() {}
 public:
-    static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
+    static constexpr int roleCount() { return YADAW::Util::underlyingValue(RoleCount) - YADAW::Util::underlyingValue(Qt::UserRole); }
     static constexpr int columnCount() { return 1; }
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:

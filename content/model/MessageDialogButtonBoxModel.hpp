@@ -39,7 +39,7 @@ public:
 public:
     int itemCount() const;
 public:
-    static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
+    static constexpr int roleCount() { return YADAW::Util::underlyingValue(RoleCount) - YADAW::Util::underlyingValue(Qt::UserRole); }
     static constexpr int columnCount() { return 1; }
     int rowCount(const QModelIndex&) const override;
     int columnCount(const QModelIndex&) const override final;

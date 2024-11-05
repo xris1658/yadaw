@@ -38,7 +38,7 @@ public:
     const std::pair<int, Qt::CaseSensitivity> operator[](std::size_t index) const;
     std::pair<int, Qt::CaseSensitivity> operator[](std::size_t index);
 public:
-    static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
+    static constexpr int roleCount() { return YADAW::Util::underlyingValue(RoleCount) - YADAW::Util::underlyingValue(Qt::UserRole); }
     static constexpr int columnCount() { return 1; }
 public:
     int rowCount(const QModelIndex&) const override;

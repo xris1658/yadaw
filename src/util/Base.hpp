@@ -23,7 +23,7 @@ void memoryReset(T* const address)
 }
 
 template<typename T>
-auto underlyingValue(T enumerate)
+constexpr auto underlyingValue(T enumerate)
 {
     static_assert(std::is_enum_v<T>);
     return static_cast<std::underlying_type_t<T>>(enumerate);

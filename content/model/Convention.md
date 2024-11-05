@@ -31,7 +31,7 @@ For example, class `IAssetDirectoryListModel` has its roles and role names as:
   - With roles defined as such, add a member function
     ```cpp
     public:
-        static constexpr int roleCount() { return RoleCount - Qt::UserRole; }
+        static constexpr int roleCount() { return YADAW::Util::underlyingValue(RoleCount) - YADAW::Util::underlyingValue(Qt::UserRole); }
     ```
 
 ## Some member functions
