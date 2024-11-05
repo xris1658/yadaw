@@ -2620,7 +2620,7 @@ std::optional<bool> Mixer::appendChannelSend(std::uint32_t channelIndex, bool is
 {
     if(channelIndex < channelCount())
     {
-        return insertChannelSend(channelIndex, channelSendCount(), isPreFader, destination);
+        return insertChannelSend(channelIndex, *channelSendCount(channelIndex), isPreFader, destination);
     }
     return std::nullopt;
 }
@@ -2658,7 +2658,7 @@ std::optional<bool> Mixer::insertChannelSend(
                             fromNode, newSummingAndNode.second, 0, newSummingAndNode.first->audioInputGroupCount() - 1
                         );
                         sendPolarityInverters_[channelIndex].emplace(
-                            sendPolarityInverters_.[channelIndex].begin() + sendPosition,
+                            sendPolarityInverters_[channelIndex].begin() + sendPosition,
                             std::move(polarityInverterAndNode)
                         );
                         sendMutes_[channelIndex].emplace(
@@ -2732,7 +2732,7 @@ std::optional<bool> Mixer::insertChannelSend(
                                 std::unique_ptr<YADAW::Audio::Util::Summing> oldSumming(
                                     static_cast<YADAW::Audio::Util::Summing*>(oldSummingAndNode.first.release())
                                 );
-                                oldSummingAndNode.first.release(newSummingAndNode.first.release);
+                                oldSummingAndNode.first.reset(newSummingAndNode.first.release());
                                 std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                                 connectionUpdatedCallback_(*this);
                             }
