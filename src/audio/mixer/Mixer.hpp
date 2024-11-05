@@ -17,9 +17,11 @@
 
 #include <QColor>
 
+#include <cstdint>
+#if __cplusplus >= 202002L
 #include <concepts>
-
-#include "Mixer.hpp"
+#endif
+#include <optional>
 
 namespace YADAW::Audio::Mixer
 {
