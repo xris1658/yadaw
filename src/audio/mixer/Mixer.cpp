@@ -2311,7 +2311,7 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
                             auto newSummingAndNode = appendInputGroup(inputDevices_[it->index]);
                             graph_.disconnect(oldSummingAndNode.second->outEdges().front());
                             graph_.connect(
-                                newSummingAndNode.second, audioOutputPolarityInverters_[it->index].second, 0, 0
+                                newSummingAndNode.second, polarityInverters_[it->index].second, 0, 0
                             );
                             auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
                                 fromNode, newSummingAndNode.second, 0, newSummingAndNode.first->audioInputGroupCount() - 1
