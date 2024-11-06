@@ -2263,11 +2263,7 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
             {
                 auto it = std::lower_bound(
                     audioOutputChannelIdAndIndex_.begin(), audioOutputChannelIdAndIndex_.end(),
-                    destination.id,
-                    [](IDAndIndex lhs, IDGen::ID rhs)
-                    {
-                        return lhs.id < rhs;
-                    }
+                    destination.id
                 );
                 if(it != audioOutputChannelIdAndIndex_.end() && it->id == destination.id)
                 {
@@ -2313,11 +2309,7 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
             {
                 auto it = std::lower_bound(
                     channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
-                    destination.id,
-                    [](IDAndIndex lhs, IDGen::ID rhs)
-                    {
-                        return lhs.id < rhs;
-                    }
+                    destination.id
                 );
                 if(it != channelIdAndIndex_.end()
                     && it->id == destination.id)
@@ -2411,11 +2403,7 @@ std::optional<bool> Mixer::setAudioInputChannelSendDestination(
             auto it = std::lower_bound(
                 audioOutputChannelIdAndIndex_.begin(),
                 audioOutputChannelIdAndIndex_.end(),
-                oldDestination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                oldDestination.id
             );
             oldSummingNode = audioOutputSummings_[it->index].second;
         }
@@ -2424,11 +2412,7 @@ std::optional<bool> Mixer::setAudioInputChannelSendDestination(
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
                 channelIdAndIndex_.end(),
-                oldDestination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                oldDestination.id
             );
             oldSummingNode = inputDevices_[it->index].second;
         }
@@ -2454,11 +2438,7 @@ std::optional<bool> Mixer::setAudioInputChannelSendDestination(
             auto it = std::lower_bound(
                 audioOutputChannelIdAndIndex_.begin(),
                 audioOutputChannelIdAndIndex_.end(),
-                destination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                destination.id
             );
             if(it != audioOutputChannelIdAndIndex_.end() && it->id == destination.id)
             {
@@ -2479,11 +2459,7 @@ std::optional<bool> Mixer::setAudioInputChannelSendDestination(
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
                 channelIdAndIndex_.end(),
-                destination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                destination.id
             );
             if(it != channelIdAndIndex_.end() && it->id == destination.id)
             {
@@ -2556,11 +2532,7 @@ std::optional<bool> Mixer::removeAudioInputChannelSend(
                     auto it = std::lower_bound(
                         audioOutputChannelIdAndIndex_.begin(),
                         audioOutputChannelIdAndIndex_.end(),
-                        destination.id,
-                        [](IDAndIndex lhs, IDGen::ID rhs)
-                        {
-                            return lhs.id < rhs;
-                        }
+                        destination.id
                     );
                     auto& oldSummingAndNode = audioOutputSummings_[it->index];
                     removingSummings.emplace_back(
@@ -2572,12 +2544,8 @@ std::optional<bool> Mixer::removeAudioInputChannelSend(
                     auto it = std::lower_bound(
                         channelIdAndIndex_.begin(),
                         channelIdAndIndex_.end(),
-                        destination.id,
-                        [](IDAndIndex lhs, IDGen::ID rhs)
-                        {
-                            return lhs.id < rhs;
-                        }
-                        );
+                        destination.id
+                    );
                     auto& oldSummingAndNode = inputDevices_[it->index];
                     auto& newSummingAndNode = removingSummings.emplace_back(shrinkInputGroups(oldSummingAndNode));
                     std::swap(oldSummingAndNode.second, newSummingAndNode.second);
@@ -2637,11 +2605,7 @@ std::optional<bool> Mixer::insertChannelSend(
                 auto it = std::lower_bound(
                     audioOutputChannelIdAndIndex_.begin(),
                     audioOutputChannelIdAndIndex_.end(),
-                    destination.id,
-                    [](IDAndIndex lhs, IDGen::ID rhs)
-                    {
-                        return lhs.id < rhs;
-                    }
+                    destination.id
                 );
                 if(it != audioOutputChannelIdAndIndex_.end() && it->id == destination.id)
                 {
@@ -2688,11 +2652,7 @@ std::optional<bool> Mixer::insertChannelSend(
                 auto it = std::lower_bound(
                     channelIdAndIndex_.begin(),
                     channelIdAndIndex_.end(),
-                    destination.id,
-                    [](IDAndIndex lhs, IDGen::ID rhs)
-                    {
-                        return lhs.id < rhs;
-                    }
+                    destination.id
                 );
                 if(it != channelIdAndIndex_.end() && it->id == destination.id)
                 {
@@ -2785,11 +2745,7 @@ std::optional<bool> Mixer::setChannelSendDestination(
             auto it = std::lower_bound(
                 audioOutputChannelIdAndIndex_.begin(),
                 audioOutputChannelIdAndIndex_.end(),
-                oldDestination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                oldDestination.id
             );
             oldSummingNode = audioOutputSummings_[it->index].second;
         }
@@ -2797,11 +2753,7 @@ std::optional<bool> Mixer::setChannelSendDestination(
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
-                oldDestination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                oldDestination.id
             );
             oldSummingNode = inputDevices_[it->index].second;
         }
@@ -2823,11 +2775,7 @@ std::optional<bool> Mixer::setChannelSendDestination(
             auto it = std::lower_bound(
                 audioOutputChannelIdAndIndex_.begin(),
                 audioOutputChannelIdAndIndex_.end(),
-                destination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                destination.id
             );
             if(it != audioOutputChannelIdAndIndex_.end() && it->id == destination.id)
             {
@@ -2848,11 +2796,7 @@ std::optional<bool> Mixer::setChannelSendDestination(
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
                 channelIdAndIndex_.end(),
-                destination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                destination.id
             );
             if(it != channelIdAndIndex_.end() && it->id == destination.id)
             {
@@ -2925,11 +2869,7 @@ std::optional<bool> Mixer::removeChannelSend(
                     auto it = std::lower_bound(
                         audioOutputChannelIdAndIndex_.begin(),
                         audioOutputChannelIdAndIndex_.end(),
-                        destination.id,
-                        [](IDAndIndex lhs, IDGen::ID rhs)
-                        {
-                            return lhs.id < rhs;
-                        }
+                        destination.id
                     );
                     auto& oldSummingAndNode = audioOutputSummings_[it->index];
                     removingSummings.emplace_back(
@@ -2941,11 +2881,7 @@ std::optional<bool> Mixer::removeChannelSend(
                     auto it = std::lower_bound(
                         channelIdAndIndex_.begin(),
                         channelIdAndIndex_.end(),
-                        destination.id,
-                        [](IDAndIndex lhs, IDGen::ID rhs)
-                        {
-                            return lhs.id < rhs;
-                        }
+                        destination.id
                     );
                     auto& oldSummingAndNode = inputDevices_[it->index];
                     auto& newSummingAndNode = removingSummings.emplace_back(shrinkInputGroups(oldSummingAndNode));
@@ -3006,11 +2942,7 @@ std::optional<bool> Mixer::insertAudioOutputChannelSend(
             {
                 auto it = std::lower_bound(
                     audioOutputChannelIdAndIndex_.begin(), audioOutputChannelIdAndIndex_.end(),
-                    destination.id,
-                    [](IDAndIndex lhs, IDGen::ID rhs)
-                    {
-                        return lhs.id < rhs;
-                    }
+                    destination.id
                 );
                 if(it != audioOutputChannelIdAndIndex_.end() && it->id == destination.id)
                 {
@@ -3056,11 +2988,7 @@ std::optional<bool> Mixer::insertAudioOutputChannelSend(
             {
                 auto it = std::lower_bound(
                     channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
-                    destination.id,
-                    [](IDAndIndex lhs, IDGen::ID rhs)
-                    {
-                        return lhs.id < rhs;
-                    }
+                    destination.id
                 );
                 if(it != channelIdAndIndex_.end()
                     && it->id == destination.id)
@@ -3154,11 +3082,7 @@ std::optional<bool> Mixer::setAudioOutputChannelSendDestination(
             auto it = std::lower_bound(
                 audioOutputChannelIdAndIndex_.begin(),
                 audioOutputChannelIdAndIndex_.end(),
-                oldDestination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                oldDestination.id
             );
             oldSummingNode = audioOutputSummings_[it->index].second;
         }
@@ -3167,11 +3091,7 @@ std::optional<bool> Mixer::setAudioOutputChannelSendDestination(
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
                 channelIdAndIndex_.end(),
-                oldDestination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                oldDestination.id
             );
             oldSummingNode = inputDevices_[it->index].second;
         }
@@ -3197,11 +3117,7 @@ std::optional<bool> Mixer::setAudioOutputChannelSendDestination(
             auto it = std::lower_bound(
                 audioOutputChannelIdAndIndex_.begin(),
                 audioOutputChannelIdAndIndex_.end(),
-                destination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                destination.id
             );
             if(it != audioOutputChannelIdAndIndex_.end() && it->id == destination.id)
             {
@@ -3222,11 +3138,7 @@ std::optional<bool> Mixer::setAudioOutputChannelSendDestination(
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
                 channelIdAndIndex_.end(),
-                destination.id,
-                [](const IDAndIndex& lhs, IDGen::ID rhs)
-                {
-                    return lhs.id < rhs;
-                }
+                destination.id
             );
             if(it != channelIdAndIndex_.end() && it->id == destination.id)
             {
@@ -3299,11 +3211,7 @@ std::optional<bool> Mixer::removeAudioOutputChannelSend(
                     auto it = std::lower_bound(
                         audioOutputChannelIdAndIndex_.begin(),
                         audioOutputChannelIdAndIndex_.end(),
-                        destination.id,
-                        [](IDAndIndex lhs, IDGen::ID rhs)
-                        {
-                            return lhs.id < rhs;
-                        }
+                        destination.id
                     );
                     auto& oldSummingAndNode = audioOutputSummings_[it->index];
                     removingSummings.emplace_back(
@@ -3315,12 +3223,8 @@ std::optional<bool> Mixer::removeAudioOutputChannelSend(
                     auto it = std::lower_bound(
                         channelIdAndIndex_.begin(),
                         channelIdAndIndex_.end(),
-                        destination.id,
-                        [](IDAndIndex lhs, IDGen::ID rhs)
-                        {
-                            return lhs.id < rhs;
-                        }
-                        );
+                        destination.id
+                    );
                     auto& oldSummingAndNode = inputDevices_[it->index];
                     auto& newSummingAndNode = removingSummings.emplace_back(shrinkInputGroups(oldSummingAndNode));
                     std::swap(oldSummingAndNode.second, newSummingAndNode.second);

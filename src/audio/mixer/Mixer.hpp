@@ -518,6 +518,10 @@ public:
         ~IDAndIndex() noexcept = default;
         IDGen::ID id;
         std::uint32_t index;
+        friend bool operator<(const IDAndIndex& lhs, IDGen::ID rhs)
+        {
+            return lhs.id < rhs;
+        }
     };
 private:
     YADAW::Audio::Engine::AudioDeviceGraph<
