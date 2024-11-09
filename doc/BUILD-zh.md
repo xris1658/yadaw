@@ -128,7 +128,7 @@ Debian 及其分支发行版。
   cd build
   cmake -S .. -B .
   cmake --build .
-  cmake --install .
+  sudo cmake --install .
   ```
 - 下载 YADAW 的源码，配置并构建项目：
   ```shell

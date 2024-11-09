@@ -134,7 +134,7 @@ might be usable on Debian and its forks.
   cd build
   cmake -S .. -B .
   cmake --build .
-  cmake --install .
+  sudo cmake --install .
   ```
 - Download source of YADAW, configure and build the project:
   ```shell
