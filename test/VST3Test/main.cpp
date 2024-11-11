@@ -5,11 +5,13 @@
 #include "audio/util/VST3Helper.hpp"
 #include "dao/PluginTable.hpp"
 #include "ui/Runtime.hpp"
+#include "ui/UI.hpp"
 
 #include "test/common/DisableStreamBuffer.hpp"
 #include "test/VST3Test/CloseWindowEventFilter.hpp"
 
 #include <QGuiApplication>
+#include <QScreen>
 
 #include <atomic>
 #include <cinttypes>
@@ -134,6 +136,24 @@ void testPlugin(QWindow& pluginWindow)
                 if(gui)
                 {
                     gui->attachToWindow(&pluginWindow);
+                    pluginWindow.show();
+                    pluginWindow.setFlags(
+                        Qt::WindowType::Dialog |
+                        Qt::WindowType::CustomizeWindowHint |
+                        Qt::WindowType::WindowTitleHint |
+                        Qt::WindowType::WindowCloseButtonHint
+                    );
+                    if(auto* screen = pluginWindow.screen())
+                    {
+                        auto rect = screen->availableVirtualGeometry();
+                        pluginWindow.setGeometry(
+                            (rect.width() - pluginWindow.width()) / 2,
+                            (rect.height() - pluginWindow.height()) / 2,
+                            pluginWindow.width(),
+                            pluginWindow.height()
+                        );
+                    }
+                    YADAW::UI::setWindowResizable(pluginWindow, gui->resizableByUser());
                 }
                 runtime.audioThread = std::thread([&plugin, sampleRate, bufferSize]()
                 {
@@ -170,7 +190,12 @@ void testPlugin(QWindow& pluginWindow)
                     }
                     while(runtime.runAudioThread.test_and_set(std::memory_order_acquire))
                     {
+                        auto due = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000 * bufferSize / sampleRate);
                         plugin.process(container.audioProcessData());
+                        while(std::chrono::steady_clock::now() < due)
+                        {
+                            std::this_thread::yield();
+                        }
                     }
                     plugin.stopProcessing();
                     runtime.runAudioThread.clear();
