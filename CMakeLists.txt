@@ -594,8 +594,8 @@ add_executable(CLAPTest
                src/ui/Runtime.hpp
                src/util/Util.cpp
                src/util/Util.hpp
-               test/common/PluginWindowThread.hpp
-               test/common/PluginWindowThread.cpp
+               test/common/CloseWindowEventFilter.cpp
+               test/common/CloseWindowEventFilter.hpp
                test/CLAPTest/main.cpp
 )
 
@@ -957,8 +957,8 @@ add_executable(VST3Test
                src/util/QuadraticFunction.hpp
                src/util/Util.cpp
                src/util/Util.hpp
-               test/VST3Test/CloseWindowEventFilter.cpp
-               test/VST3Test/CloseWindowEventFilter.hpp
+               test/common/CloseWindowEventFilter.cpp
+               test/common/CloseWindowEventFilter.hpp
                test/VST3Test/main.cpp
 )
 

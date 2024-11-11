@@ -1,313 +1,264 @@
-#include "test/common/PluginWindowThread.hpp"
-
-#include "audio/host/CLAPEventList.hpp"
-#include "audio/host/CLAPHost.hpp"
 #include "audio/host/EventFileDescriptorSupport.hpp"
-#include "audio/host/HostContext.hpp"
+#include "audio/host/CLAPHost.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
-#include "audio/util/CLAPHelper.hpp"
-#include "native/CLAPNative.hpp"
+#include "audio/util/AudioProcessDataPointerContainer.hpp"
 #include "dao/PluginTable.hpp"
-#include "native/Native.hpp"
+#include "native/Library.hpp"
+#include "util/AlignHelper.hpp"
 #include "ui/Runtime.hpp"
 #include "ui/UI.hpp"
-#include "util/Constants.hpp"
-#include "util/Util.hpp"
+
+#include "test/common/DisableStreamBuffer.hpp"
+#include "test/common/CloseWindowEventFilter.hpp"
 
 #include <QGuiApplication>
 #include <QScreen>
-#include <QString>
-#include <QWindow>
 
 #include <atomic>
-#include <chrono>
-#include <cmath>
-#include <clocale>
-#include <cstdio>
+#include <cinttypes>
+#include <memory>
 #include <thread>
-#include <vector>
+
+#include "audio/host/CLAPEventList.hpp"
 
 
-int inputIndex = -1;
-
-int samplePosition = 0;
-
-double pi = YADAW::Util::pi<float>();
-
-double sampleRate = 0;
-
-YADAW::Audio::Device::AudioProcessData<float> audioProcessData;
-
-bool initializePlugin = true;
-bool activatePlugin = true;
-bool processPlugin = true;
-
-void latencyUpdated(YADAW::Audio::Plugin::CLAPPlugin& plugin)
+struct PluginRuntime
 {
-    std::printf("New latency: %u\n", plugin.latencyInSamples());
+    YADAW::Util::AlignedStorage<YADAW::Audio::Host::CLAPHost> host;
+    std::unique_ptr<YADAW::Audio::Plugin::CLAPPlugin> plugin;
+    std::atomic_flag runAudioThread;
+    std::thread audioThread;
+    YADAW::Audio::Host::CLAPHost& createHost()
+    {
+        auto ptr = new(&host) YADAW::Audio::Host::CLAPHost(*plugin);
+        return *ptr;
+    }
+    void finish()
+    {
+        if(auto gui = plugin->pluginGUI())
+        {
+            gui->detachWithWindow();
+        }
+        runAudioThread.clear();
+        audioThread.join();
+        plugin->deactivate();
+        plugin->uninitialize();
+        plugin.reset();
+        using YADAW::Audio::Host::CLAPHost;
+        auto ptr = reinterpret_cast<YADAW::Audio::Host::CLAPHost*>(&host);
+        ptr->~CLAPHost();
+    }
+};
+
+PluginRuntime runtime;
+
+std::unique_ptr<YADAW::Audio::Plugin::CLAPPlugin> createPlugin(YADAW::Native::Library& library)
+{
+    if(auto entry = library.getExport<const clap_plugin_entry*>("clap_entry"))
+    {
+        return std::make_unique<YADAW::Audio::Plugin::CLAPPlugin>(entry, library.path());
+    }
+    return nullptr;
 }
 
-void testPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, bool initializePlugin, bool activatePlugin, bool processPlugin)
+YADAW::Native::Library createPluginFromArgs(int& argIndex, char* argv[], QWindow& pluginWindow)
 {
-    YADAW::Audio::Host::CLAPEventList inputEventList;
-    plugin.host().setMainThreadId(std::this_thread::get_id());
-    if(initializePlugin)
+    const char* uid = nullptr;
+    YADAW::Native::Library library;
+    int id = -1;
+    std::string uidAsString;
+    std::sscanf(argv[argIndex], "%d", &id);
+    if(id == -1)
     {
-        auto bufferSize = 512;
-        plugin.initialize(44100, bufferSize);
-        auto audioInputGroupCount = plugin.audioInputGroupCount();
-        std::printf("%d audio input(s)", audioInputGroupCount);
-        if(audioInputGroupCount != 0)
+        std::printf("\nTesting plugin: %s...\n", argv[argIndex]);
+        library = YADAW::Native::Library(argv[argIndex]);
+        ++argIndex;
+        uid = argv[argIndex];
+        ++argIndex;
+    }
+    else
+    {
+        const auto& record = YADAW::DAO::selectPluginById(id);
+        std::printf("\nTesting plugin: %ls...\n", record.path.toStdWString().data());
+        library = YADAW::Native::Library(record.path);
+        uidAsString = record.uid.data();
+    }
+    runtime.plugin = createPlugin(library);
+    if(!runtime.plugin)
+    {
+        throw std::runtime_error("Error: Init plugin library failed");
+    }
+    if(!runtime.plugin->createPlugin(uid? uid: uidAsString.data()))
+    {
+        runtime.plugin.reset();
+        throw std::runtime_error("Error: Create plugin failed!");
+    }
+    auto factory = runtime.plugin->factory();
+    FOR_RANGE0(i, factory->get_plugin_count(factory))
+    {
+        auto desc = factory->get_plugin_descriptor(factory, i);
+        if(std::strcmp(desc->id, uid? uid: uidAsString.data()))
         {
-            std::printf(":");
-            for(int i = 0; i < audioInputGroupCount; ++i)
-            {
-                const auto& group = plugin.audioInputGroupAt(i)->get();
-                if(group.isMain())
-                {
-                    std::printf("\n> ");
-                }
-                else
-                {
-                    std::printf("\n  ");
-                }
-                std::printf(
-                    "%d: %s (%d channels)", i + 1, group.name().toLocal8Bit().data(),
-                    static_cast<int>(group.channelCount()));
-            }
+            pluginWindow.setTitle(QString::fromUtf8(desc->name));
+            break;
         }
-        auto audioOutputGroupCount = plugin.audioOutputGroupCount();
-        std::printf("\n%d audio output(s)", audioOutputGroupCount);
-        if(audioOutputGroupCount != 0)
+    }
+    ++argIndex;
+    return library;
+}
+
+void latencyChanged(YADAW::Audio::Plugin::CLAPPlugin& plugin)
+{
+    std::printf("New latency: %" PRIu32 "\n", plugin.latencyInSamples());
+}
+
+void testPlugin(QWindow& pluginWindow)
+{
+    auto& plugin = *runtime.plugin;
+    auto sampleRate = 48000;
+    auto bufferSize = 480;
+    auto& host = runtime.createHost();
+    host.setMainThreadId(std::this_thread::get_id());
+    if(plugin.initialize(sampleRate, bufferSize))
+    {
+        if(plugin.activate())
         {
-            std::printf(":");
-            for(int i = 0; i < audioOutputGroupCount; ++i)
+            pluginWindow.show();
+            auto gui = plugin.pluginGUI();
+            if(gui)
             {
-                const auto& group = plugin.audioOutputGroupAt(i)->get();
-                if(group.isMain())
-                {
-                    std::printf("\n> ");
-                }
-                else
-                {
-                    std::printf("\n  ");
-                }
-                std::printf(
-                    "%d: %s (%d channels)", i + 1, group.name().toLocal8Bit().data(),
-                    static_cast<int>(group.channelCount()));
-            }
-        }
-        std::printf("\n");
-        auto eventProcessor = plugin.eventProcessor();
-        if(eventProcessor)
-        {
-            auto eventInputCount = eventProcessor->eventInputBusCount();
-            std::printf("%u event input(s)", eventInputCount);
-            if(eventInputCount != 0)
-            {
-                std::printf(":");
-                for(std::uint32_t i = 0; i < eventInputCount; ++i)
-                {
-                    const auto& busInfo = eventProcessor->eventInputBusAt(i)->get();
-                    if(busInfo.isMain())
-                    {
-                        std::printf("\n> ");
-                    }
-                    else
-                    {
-                        std::printf("\n  ");
-                    }
-                    std::printf("%u: %s (%u channels)", i + 1, busInfo.name().toLocal8Bit().data(),
-                        busInfo.channelCount());
-                }
-            }
-            auto eventOutputCount = eventProcessor->eventOutputBusCount();
-            std::printf("\n%u event output(s)", eventOutputCount);
-            if(eventOutputCount != 0)
-            {
-                std::printf(":");
-                for(std::uint32_t i = 0; i < eventOutputCount; ++i)
-                {
-                    const auto& busInfo = eventProcessor->eventOutputBusAt(i)->get();
-                    if(busInfo.isMain())
-                    {
-                        std::printf("\n> ");
-                    }
-                    else
-                    {
-                        std::printf("\n  ");
-                    }
-                    std::printf("%u: %s (%u channels)", i + 1, busInfo.name().toLocal8Bit().data(),
-                        busInfo.channelCount());
-                }
-            }
-            std::printf("\n");
-        }
-        if(activatePlugin)
-        {
-            plugin.host().setLatencyChangedCallback(&latencyUpdated);
-            plugin.activate();
-            if(processPlugin)
-            {
-                PluginWindowThread pluginWindowThread(nullptr);
-                inputEventList.attachToProcessData(plugin.processData());
-                // Prepare audio process data {
-                audioProcessData.singleBufferSize = bufferSize;
-                // Inputs
-                std::vector<std::vector<std::vector<float>>> idc1;
-                std::vector<std::vector<float*>> idc2;
-                std::vector<float**> idc3;
-                std::vector<std::uint32_t> ic;
-                idc1.resize(plugin.audioInputGroupCount());
-                idc2.resize(idc1.size());
-                idc3.resize(idc1.size(), nullptr);
-                ic.resize(idc1.size(), -1);
-                audioProcessData.inputGroupCount = idc1.size();
-                for(int i = 0; i < idc1.size(); ++i)
-                {
-                    idc1[i].resize(plugin.audioInputGroupAt(i)->get().channelCount());
-                    idc2[i].resize(idc1[i].size());
-                    ic[i] = idc1[i].size();
-                    for(int j = 0; j < idc1[i].size(); ++j)
-                    {
-                        idc1[i][j].resize(audioProcessData.singleBufferSize, 0.0f);
-                        idc2[i][j] = idc1[i][j].data();
-                        for(int k = 0; k < audioProcessData.singleBufferSize; ++k)
-                        {
-#if(__GNUC__)
-                            idc1[i][j][k] = 0.25 * std::sin((i + 1) * k * 2 * pi / audioProcessData.singleBufferSize);
-#else
-                            idc1[i][j][k] = 0.25 * std::sinf((i + 1) * k * 2 * pi / audioProcessData.singleBufferSize);
-#endif
-                        }
-                    }
-                    idc3[i] = idc2[i].data();
-                }
-                audioProcessData.inputs = idc3.data();
-                audioProcessData.inputCounts = ic.data();
-                // Outputs
-                std::vector<std::vector<std::vector<float>>> odc1;
-                std::vector<std::vector<float*>> odc2;
-                std::vector<float**> odc3;
-                std::vector<std::uint32_t> oc;
-                odc1.resize(plugin.audioOutputGroupCount());
-                odc2.resize(odc1.size());
-                odc3.resize(odc1.size(), nullptr);
-                oc.resize(odc1.size(), -1);
-                audioProcessData.outputGroupCount = odc1.size();
-                for(int i = 0; i < odc1.size(); ++i)
-                {
-                    odc1[i].resize(plugin.audioOutputGroupAt(i)->get().channelCount());
-                    odc2[i].resize(odc1[i].size());
-                    oc[i] = odc1[i].size();
-                    for(int j = 0; j < odc1[i].size(); ++j)
-                    {
-                        odc1[i][j].resize(audioProcessData.singleBufferSize, 0.0f);
-                        odc2[i][j] = odc1[i][j].data();
-                    }
-                    odc3[i] = odc2[i].data();
-                }
-                audioProcessData.outputs = odc3.data();
-                audioProcessData.outputCounts = oc.data();
-                // } prepare audio process data
-                std::atomic_bool stop;
-                stop.store(false);
-                std::thread audioThread(
-                    [bufferSize, &stop, &plugin]()
-                    {
-                        plugin.host().setAudioThreadId(std::this_thread::get_id());
-                        plugin.startProcessing();
-                        // Audio callback goes here...
-                        while(!stop.load(std::memory_order_acquire))
-                        {
-                            YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.flip();
-                            auto sleepTo =
-                                std::chrono::steady_clock::now() + std::chrono::microseconds(
-                                    bufferSize * 10000 / 441);
-                            plugin.process(audioProcessData);
-                            while(std::chrono::steady_clock::now() < sleepTo)
-                            {
-                                std::this_thread::yield();
-                            }
-                        }
-                        plugin.stopProcessing();
-                    }
+                gui->attachToWindow(&pluginWindow);
+                pluginWindow.show();
+                pluginWindow.setFlags(
+                    Qt::WindowType::Dialog |
+                    Qt::WindowType::CustomizeWindowHint |
+                    Qt::WindowType::WindowTitleHint |
+                    Qt::WindowType::WindowCloseButtonHint
                 );
-                YADAW::Audio::Plugin::CLAPPluginGUI* gui = plugin.pluginGUI();
-                // YADAW::Audio::Plugin::CLAPPluginGUI* gui = nullptr;
-                if(gui)
+                if(auto* screen = pluginWindow.screen())
                 {
-                    pluginWindowThread.start();
-                    auto window = pluginWindowThread.window();
-                    window->showNormal();
-                    gui->attachToWindow(window);
-                    window->setFlags(Qt::WindowType::Dialog | Qt::WindowType::CustomizeWindowHint | Qt::WindowType::WindowTitleHint | Qt::WindowType::WindowCloseButtonHint);
-                    if(!gui->resizableByUser())
-                    {
-                        YADAW::UI::setWindowResizable(*window, false);
-                    }
-                    QGuiApplication::exec();
+                    auto rect = screen->availableVirtualGeometry();
+                    pluginWindow.setGeometry(
+                        (rect.width() - pluginWindow.width()) / 2,
+                        (rect.height() - pluginWindow.height()) / 2,
+                        pluginWindow.width(),
+                        pluginWindow.height()
+                    );
                 }
-                else
-                {
-                    std::wprintf(L"No GUI available!");
-                    getchar();
-                }
-                stop.store(true, std::memory_order_release);
-                audioThread.join();
-                plugin.deactivate();
+                YADAW::UI::setWindowResizable(pluginWindow, gui->resizableByUser());
             }
+            std::vector<std::uint32_t> inputCounts;
+            auto inputGroupCount = plugin.audioInputGroupCount();
+            inputCounts.reserve(inputGroupCount);
+            FOR_RANGE0(i, inputGroupCount)
+            {
+                inputCounts.emplace_back(plugin.audioInputGroupAt(i)->get().channelCount());
+            }
+            std::vector<std::uint32_t> outputCounts;
+            auto outputGroupCount = plugin.audioOutputGroupCount();
+            outputCounts.reserve(outputGroupCount);
+            FOR_RANGE0(i, outputGroupCount)
+            {
+                outputCounts.emplace_back(plugin.audioOutputGroupAt(i)->get().channelCount());
+            }
+            runtime.audioThread = std::thread([&plugin, &host, sampleRate, bufferSize, inputCounts = std::move(inputCounts), outputCounts = std::move(outputCounts)
+                ]()
+            {
+                host.setAudioThreadId(std::this_thread::get_id());
+                YADAW::Audio::Host::CLAPEventList events;
+                events.attachToProcessData(plugin.processData());
+                plugin.startProcessing();
+                runtime.runAudioThread.test_and_set(std::memory_order_acq_rel);
+                YADAW::Audio::Util::AudioProcessDataPointerContainer<float> container;
+                container.setSingleBufferSize(bufferSize);
+                std::vector<std::vector<std::vector<float>>> input;
+                input.reserve(inputCounts.size());
+                std::vector<std::vector<std::vector<float>>> output;
+                output.reserve(outputCounts.size());
+                container.setInputGroupCount(inputCounts.size());
+                FOR_RANGE0(i, inputCounts.size())
+                {
+                    auto& input2 = input.emplace_back();
+                    auto inputCount = inputCounts[i];
+                    container.setInputCount(i, inputCount);
+                    input2.resize(inputCount, std::vector<float>(bufferSize, 0.0f));
+                    FOR_RANGE0(j, inputCount)
+                    {
+                        container.setInput(i, j, input2[j].data());
+                    }
+                }
+                container.setOutputGroupCount(outputCounts.size());
+                FOR_RANGE0(i, outputCounts.size())
+                {
+                    auto& output2 = output.emplace_back();
+                    auto outputCount = outputCounts[i];
+                    container.setOutputCount(i, outputCount);
+                    output2.resize(outputCount, std::vector<float>(bufferSize, 0.0f));
+                    FOR_RANGE0(j, outputCount)
+                    {
+                        container.setOutput(i, j, output2[j].data());
+                    }
+                }
+                while(runtime.runAudioThread.test_and_set(std::memory_order_acquire))
+                {
+                    auto due = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000 * bufferSize / sampleRate);
+                    plugin.process(container.audioProcessData());
+                    while(std::chrono::steady_clock::now() < due)
+                    {
+                        std::this_thread::yield();
+                    }
+                }
+                plugin.stopProcessing();
+                runtime.runAudioThread.clear();
+            });
         }
-        plugin.uninitialize();
     }
 }
 
 int main(int argc, char* argv[])
 {
+    disableStdOutBuffer();
     if(argc < 2)
     {
-        std::printf("Usage: CLAPTest [<plugin path> <plugin UID>] or [<record id in database>]\nPress any key to continue...");
+        std::printf("Usage: VST3Test [<plugin path> <plugin UID>] or [<record id in database>]\nPress any key to continue...");
         getchar();
         return 0;
     }
+    QGuiApplication application(argc, argv);
+#if __linux__
+    auto& efds = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
+    auto& timer = YADAW::UI::idleProcessTimer();
+    efds.start(timer);
+#endif
+    QWindow pluginWindow;
     std::setlocale(LC_ALL, "en_US.UTF-8");
     int argIndex = 1;
-#if __linux__
-    auto& eventFDSupport = YADAW::Audio::Host::EventFileDescriptorSupport::instance();
-    eventFDSupport.start(YADAW::UI::idleProcessTimer());
-#endif
-    while(argIndex != argc)
-    {
-        YADAW::Native::Library library;
-        int id = -1;
-        std::sscanf(argv[argIndex], "%d", &id);
-        if(id == -1)
+    YADAW::Native::Library library;
+    CloseWindowEventFilter closeWindowEventFilter;
+    QObject::connect(
+        &closeWindowEventFilter, &CloseWindowEventFilter::aboutToClose,
+        [&]() mutable
         {
-            std::printf("\nTesting plugin: %s...\n", argv[argIndex]);
-            QGuiApplication application(argc, argv);
-            library = YADAW::Native::Library(argv[argIndex]);
-            ++argIndex;
-            auto plugin = YADAW::Audio::Util::createCLAPFromLibrary(library);
-            plugin.createPlugin(argv[argIndex]);
-            testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);
-            ++argIndex;
+            runtime.finish();
+            if(argIndex == argc)
+            {
+                closeWindowEventFilter.setClose(true);
+            }
+            else
+            {
+                closeWindowEventFilter.setClose(false);
+                pluginWindow.hide();
+                library = createPluginFromArgs(argIndex, argv, pluginWindow);
+                testPlugin(pluginWindow);
+            }
         }
-        else
-        {
-            QGuiApplication application(argc, argv);
-            const auto& record = YADAW::DAO::selectPluginById(id);
-            std::printf("\nTesting plugin: %s...\n", record.path.toLocal8Bit().data());
-            library = YADAW::Native::Library(record.path);
-            auto plugin = YADAW::Audio::Util::createCLAPFromLibrary(library);
-            plugin.createPlugin(record.uid.data());
-            testPlugin(plugin, initializePlugin, activatePlugin, processPlugin);
-            ++argIndex;
-        }
-    }
+    );
+    library = createPluginFromArgs(argIndex, argv, pluginWindow);
+    testPlugin(pluginWindow);
+    closeWindowEventFilter.setWindow(pluginWindow);
+    auto ret = application.exec();
 #if __linux__
-    eventFDSupport.stop();
+    efds.stop();
 #endif
-    std::printf("Press any key to continue...");
-    getchar();
-    return 0;
+    return ret;
 }

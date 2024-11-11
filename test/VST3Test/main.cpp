@@ -8,7 +8,7 @@
 #include "ui/UI.hpp"
 
 #include "test/common/DisableStreamBuffer.hpp"
-#include "test/VST3Test/CloseWindowEventFilter.hpp"
+#include "test/common/CloseWindowEventFilter.hpp"
 
 #include <QGuiApplication>
 #include <QScreen>
