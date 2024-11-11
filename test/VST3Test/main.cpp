@@ -146,11 +146,9 @@ void testPlugin(QWindow& pluginWindow)
                     if(auto* screen = pluginWindow.screen())
                     {
                         auto rect = screen->availableVirtualGeometry();
-                        pluginWindow.setGeometry(
+                        pluginWindow.setPosition(
                             (rect.width() - pluginWindow.width()) / 2,
-                            (rect.height() - pluginWindow.height()) / 2,
-                            pluginWindow.width(),
-                            pluginWindow.height()
+                            (rect.height() - pluginWindow.height()) / 2
                         );
                     }
                     YADAW::UI::setWindowResizable(pluginWindow, gui->resizableByUser());
