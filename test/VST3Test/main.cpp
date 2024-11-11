@@ -1,4 +1,5 @@
 #include "audio/host/EventFileDescriptorSupport.hpp"
+#include "audio/host/VST3ComponentHandler.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "audio/util/AudioProcessDataPointerContainer.hpp"
 #include "audio/util/VST3Helper.hpp"
@@ -11,6 +12,7 @@
 #include <QGuiApplication>
 
 #include <atomic>
+#include <cinttypes>
 #include <memory>
 #include <thread>
 
@@ -109,6 +111,11 @@ YADAW::Native::Library createPluginFromArgs(int& argIndex, char* argv[], QWindow
     return library;
 }
 
+void latencyChanged(YADAW::Audio::Plugin::VST3Plugin& plugin)
+{
+    std::printf("New latency: %" PRIu32 "\n", plugin.latencyInSamples());
+}
+
 void testPlugin(QWindow& pluginWindow)
 {
     auto& plugin = *runtime.plugin;
@@ -116,6 +123,8 @@ void testPlugin(QWindow& pluginWindow)
     auto bufferSize = 480;
     if(plugin.initialize(sampleRate, bufferSize))
     {
+        YADAW::Audio::Host::VST3ComponentHandler componentHandler(plugin);
+        componentHandler.setLatencyChangedCallback(&latencyChanged);
         if(plugin.activate())
         {
             if(plugin.startProcessing())
