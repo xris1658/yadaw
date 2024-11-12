@@ -410,10 +410,8 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         std::vector<YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>> processDataToRemove;
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
         std::vector<ade::NodeHandle> removingNodes;
-        std::vector<YADAW::Controller::LibraryPluginMap::iterator> removingIterators;
         std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> removingMultiInputs;
         removingNodes.reserve(removeCount);
-        removingIterators.reserve(removeCount);
         FOR_RANGE(i, position, position + removeCount)
         {
             removingNodes.emplace_back(*(inserts_->insertAt(i)));
@@ -459,10 +457,6 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             if(it != plugins.end())
             {
                 pluginsToRemove.insert(plugins.extract(it));
-            }
-            if(plugins.empty())
-            {
-                removingIterators.emplace_back(libraryIt);
             }
             auto removingMultiInput = graphWithPDC.removeNode(removingNodes[i]);
             if(removingMultiInput)
@@ -541,11 +535,6 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         }
         pluginsToRemove.clear();
         processDataToRemove.clear();
-        auto& pluginPool = YADAW::Controller::appLibraryPluginMap();
-        for(auto it: removingIterators)
-        {
-            pluginPool.erase(it);
-        }
         paramListModel_.erase(
             paramListModel_.begin() + position,
             paramListModel_.begin() + position + removeCount

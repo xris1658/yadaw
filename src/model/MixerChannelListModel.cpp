@@ -1442,10 +1442,6 @@ bool MixerChannelListModel::removeInstrument(int position)
         if(it != pluginPool.end())
         {
             pluginPool.erase(it);
-            if(pluginPool.empty())
-            {
-                YADAW::Controller::appLibraryPluginMap().erase(instrumentInstance->libraryPluginIterator);
-            }
         }
         auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
         pluginContextMap.erase(instrumentInstance->pluginContextIterator);
