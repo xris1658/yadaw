@@ -1,3 +1,4 @@
+#include "audio/plugin/PluginText.hpp"
 #include "base/Constants.hpp"
 #include "controller/ConfigController.hpp"
 #include "controller/LocalizationController.hpp"
@@ -19,6 +20,7 @@
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
 #include <QTranslator>
+
 
 int main(int argc, char *argv[])
 {
@@ -204,6 +206,33 @@ int main(int argc, char *argv[])
             YADAW::UI::getMessageDialogResult();
         }
         YADAW::Controller::currentTranslationIndex = 0;
+    }
+    if(YADAW::Native::isDebuggerPresent())
+    {
+        YADAW::UI::createMessageDialog();
+        YADAW::UI::setHideCloseButton(true);
+        if(auto messageDialog = YADAW::UI::messageDialog)
+        {
+            messageDialog->setProperty(
+                "icon",
+                QVariant::fromValue<int>(YADAW::UI::IconType::Warning)
+            );
+            messageDialog->setProperty(
+                "message",
+                QVariant::fromValue<QString>(
+                    YADAW::Audio::Plugin::getDebugModeWarningText()
+                )
+            );
+            messageDialog->setTitle(
+                YADAW::Audio::Plugin::getDebugModeWarningTitle()
+            );
+            messageDialog->setModality(Qt::WindowModality::ApplicationModal);
+            messageDialog->setVisible(true);
+            qDebug("focusMessageDialogButton");
+            YADAW::UI::focusMessageDialogButton(0);
+            messageDialog->showNormal();
+            YADAW::UI::getMessageDialogResult();
+        }
     }
     auto& timer = YADAW::UI::idleProcessTimer();
     engine.loadFromModule("Main", "Events");

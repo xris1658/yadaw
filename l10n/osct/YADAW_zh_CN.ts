@@ -117,4 +117,17 @@
         <translation>&lt;p&gt;拒绝访问音频设备。&lt;/p&gt;&lt;p&gt;如果在启用音频输入设备时遇到此错误，打开 &lt;a href=&quot;ms-settings:privacy-microphone&quot;&gt;&lt;b&gt;设置 &gt; 隐私 &gt; 麦克风&lt;/b&gt;&lt;/a&gt;。&lt;br/&gt;在 &lt;b&gt;允许访问此设备上的麦克风&lt;/b&gt;中，点击 &lt;b&gt;更改&lt;/b&gt; 后打开 &lt;b&gt;此设备的麦克风访问权限&lt;/b&gt;。&lt;/p&gt;&lt;p&gt;之后，打开 &lt;b&gt;允许应用访问你的麦克风&lt;/b&gt; 以及 &lt;b&gt;允许桌面应用访问你的麦克风&lt;/b&gt;。&lt;/p&gt;</translation>
     </message>
 </context>
+<context>
+    <name>PluginText</name>
+    <message>
+        <location filename="../../src/audio/plugin/PluginText.cpp" line="9"/>
+        <source>Warning: YADAW is in Debug Mode</source>
+        <translation>警告：YADAW 处于调试模式</translation>
+    </message>
+    <message>
+        <location filename="../../src/audio/plugin/PluginText.cpp" line="17"/>
+        <source>&lt;p&gt;YADAW is being debugged. Some plugins with anti-piracy mechanism will refuse to work.&lt;/p&gt;&lt;p&gt;Please try detaching this process with the debugger before loading plugins.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;YADAW 正被调试。有些带有反盗版机制的插件不会工作。&lt;/p&gt;&lt;p&gt;在加载插件前，请尝试将此进程与调试器分离。&lt;/p&gt;</translation>
+    </message>
+</context>
 </TS>

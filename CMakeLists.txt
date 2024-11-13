@@ -286,6 +286,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/IPluginGUI.hpp
     src/audio/device/IAudioDeviceParameter.hpp
     src/audio/plugin/PluginFormatSupport.hpp
+    src/audio/plugin/PluginText.cpp
+    src/audio/plugin/PluginText.hpp
     src/audio/plugin/VST3AudioChannelGroup.cpp
     src/audio/plugin/VST3AudioChannelGroup.hpp
     src/audio/plugin/VST3EventBusInfo.cpp
