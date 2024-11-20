@@ -514,14 +514,11 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                     ),
                     audioEngine.running()
                 );
-                // Completion of the `update` above does NOT mean that the
-                // plugin has stopped processing. It is indicated by completion
-                // of the following `updateAndDispose` because the last audio
-                // callback is finished by then.
-                audioEngine.clapPluginToSetProcess().updateAndGetOld(
-                    std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(),
-                    audioEngine.running()
-                );
+                // Completion of the `update` above does NOT mean that the plugin
+                // has stopped processing. It is indicated by completion of the
+                // following `getOld` because the last audio callback (in which
+                // the plugin has stopped processing) is finished by then.
+                audioEngine.clapPluginToSetProcess().getOld(audioEngine.running());
                 clapPlugin->deactivate();
                 clapPlugin->uninitialize();
                 delete eventList;
