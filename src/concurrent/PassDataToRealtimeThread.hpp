@@ -37,7 +37,11 @@ public:
     {
         if(realtimeThreadRunning)
         {
+#if __cplusplus >= 202002L
+            updated_.wait(true, std::memory_order_acquire);
+#else
             while(updated_.load(std::memory_order_acquire)) {}
+#endif
         }
         data_[1] = data;
         updated_.store(true, std::memory_order_release);
@@ -52,7 +56,11 @@ public:
     {
         if(realtimeThreadRunning)
         {
+#if __cplusplus >= 202002L
+            updated_.wait(true, std::memory_order_acquire);
+#else
             while(updated_.load(std::memory_order_acquire)) {}
+#endif
         }
         data_[1] = std::move(data);
         updated_.store(true, std::memory_order_release);
@@ -68,7 +76,11 @@ public:
     {
         if(realtimeThreadRunning)
         {
+#if __cplusplus >= 202002L
+            updated_.wait(true, std::memory_order_acquire);
+#else
             while(updated_.load(std::memory_order_acquire)) {}
+#endif
         }
         data_[1] = T(std::forward<Args>(args)...);
         updated_.store(true, std::memory_order_release);
@@ -79,13 +91,20 @@ public:
         {
             std::swap(data_[0], data_[1]);
             updated_.store(false, std::memory_order_release);
+#if __cplusplus >= 202002L
+            updated_.notify_one();
+#endif
         }
     }
     void disposeOld(bool realtimeThreadRunning = true)
     {
         if(realtimeThreadRunning)
         {
+#if __cplusplus >= 202002L
+            updated_.wait(true, std::memory_order_acquire);
+#else
             while(updated_.load(std::memory_order_acquire)) {}
+#endif
         }
     }
     void updateAndDispose(const T& data, bool realtimeThreadRunning =
@@ -99,7 +118,11 @@ public:
         if(realtimeThreadRunning)
         {
             update(data, realtimeThreadRunning);
+#if __cplusplus >= 202002L
+            updated_.wait(true, std::memory_order_acquire);
+#else
             while(updated_.load(std::memory_order_acquire)) {}
+#endif
         }
         else
         {
@@ -117,7 +140,11 @@ public:
         if(realtimeThreadRunning)
         {
             update(std::move(data), realtimeThreadRunning);
+#if __cplusplus >= 202002L
+            updated_.wait(true, std::memory_order_acquire);
+#else
             while(updated_.load(std::memory_order_acquire)) {}
+#endif
         }
         else
         {
@@ -136,7 +163,11 @@ public:
         if(realtimeThreadRunning)
         {
             update(std::forward<Args>(args)..., realtimeThreadRunning);
+#if __cplusplus >= 202002L
+            updated_.wait(true, std::memory_order_acquire);
+#else
             while(updated_.load(std::memory_order_acquire)) {}
+#endif
         }
         else
         {
