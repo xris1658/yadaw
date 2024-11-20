@@ -29,7 +29,6 @@ int main()
         int newData;
         std::scanf("%d", &newData);
         passDataToRealtimeThread.update(newData);
-        passDataToRealtimeThread.disposeOld();
         if(newData == -1)
         {
             break;

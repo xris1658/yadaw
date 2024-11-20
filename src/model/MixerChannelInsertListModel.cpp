@@ -225,12 +225,12 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                     );
                     deviceWithPDC->setBufferSize(engine.bufferSize());
                 }
-                engine.vst3PluginPool().updateAndDispose(
+                engine.vst3PluginPool().updateAndGetOld(
                     std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
                         createPoolVector(vst3PluginPool)
                     ),
                     engine.running()
-                );
+                ).reset();
                 inserts_->insert(nodeHandle, position, pluginInfo.name);
                 ret = true;
             }
@@ -275,8 +275,8 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 ),
                 engine.running()
             );
-            engine.clapPluginPool().disposeOld(engine.running());
-            engine.clapPluginToSetProcess().disposeOld(engine.running());
+            engine.clapPluginPool().getOld(engine.running()).reset();
+            engine.clapPluginToSetProcess().getOld(engine.running()).reset();
             inserts_->insert(nodeHandle, position, pluginInfo.name);
             ret = true;
             break;
@@ -483,12 +483,12 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 auto it = vst3PluginPool.find(vst3Plugin);
                 auto componentHandler = it->second.componentHandler;
                 vst3PluginPool.erase(it);
-                audioEngine.vst3PluginPool().updateAndDispose(
+                audioEngine.vst3PluginPool().updateAndGetOld(
                     std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
                         createPoolVector(vst3PluginPool)
                     ),
                     audioEngine.running()
-                );
+                ).reset();
                 vst3Plugin->stopProcessing();
                 vst3Plugin->deactivate();
                 vst3Plugin->uninitialize();
@@ -502,12 +502,12 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 auto it = clapPluginPool.find(clapPlugin);
                 auto eventList = it->second.eventList;
                 clapPluginPool.erase(it);
-                audioEngine.clapPluginPool().updateAndDispose(
+                audioEngine.clapPluginPool().updateAndGetOld(
                     std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
                         createPoolVector(clapPluginPool)
                     ),
                     audioEngine.running()
-                );
+                ).reset();
                 audioEngine.clapPluginToSetProcess().update(
                     std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
                         1, std::make_pair(clapPlugin, false)
@@ -518,7 +518,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 // plugin has stopped processing. It is indicated by completion
                 // of the following `updateAndDispose` because the last audio
                 // callback is finished by then.
-                audioEngine.clapPluginToSetProcess().updateAndDispose(
+                audioEngine.clapPluginToSetProcess().updateAndGetOld(
                     std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(),
                     audioEngine.running()
                 );

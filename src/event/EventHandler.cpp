@@ -306,12 +306,9 @@ void EventHandler::onOpenMainWindow()
     processSequence.update(
         std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
             YADAW::Audio::Engine::getProcessSequence(appGraph, bufferExt)
-        )
+        ),
+        false
     );
-    // The following statement can be omitted since `AudioEngine::process`
-    // already does that. But it's not a bad idea to do this in order to lessen
-    // the work of the first callback.
-    processSequence.swapIfNeeded();
     auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
     YADAW::Audio::Host::CLAPHost::setMainThreadId(std::this_thread::get_id());
     // Start the audio backend

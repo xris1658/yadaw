@@ -96,11 +96,7 @@ void AudioEngine::uninitialize()
     mixer_.clearChannels();
     mixer_.clearAudioInputChannels();
     mixer_.clearAudioOutputChannels();
-    processSequence_.update(
-        std::make_unique<YADAW::Audio::Engine::ProcessSequence>()
-    );
-    processSequence_.swapIfNeeded();
-    processSequence_.disposeOld();
+    processSequence_.updateAndGetOld(nullptr).reset();
     mixer_.graph().clearMultiInputNodes();
     mixer_.graph().graph().clear();
 }
@@ -178,7 +174,7 @@ void AudioEngine::process()
 
 void AudioEngine::updateProcessSequence()
 {
-    processSequence_.updateAndDispose(
+    processSequence_.updateAndGetOld(
         std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
             YADAW::Audio::Engine::getProcessSequence(
                 mixer_.graph().graph(),
@@ -186,7 +182,7 @@ void AudioEngine::updateProcessSequence()
             )
         ),
         running()
-    );
+    ).reset();
 }
 
 void AudioEngine::mixerNodeAddedCallback(const Audio::Mixer::Mixer& mixer)

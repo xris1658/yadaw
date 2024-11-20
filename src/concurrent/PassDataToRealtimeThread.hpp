@@ -72,7 +72,7 @@ public:
 #else
         true
 #endif
-        )
+    )
     {
         if(realtimeThreadRunning)
         {
@@ -96,7 +96,7 @@ public:
 #endif
         }
     }
-    void disposeOld(bool realtimeThreadRunning = true)
+    T& getOld(bool realtimeThreadRunning = true)
     {
         if(realtimeThreadRunning)
         {
@@ -106,8 +106,9 @@ public:
             while(updated_.load(std::memory_order_acquire)) {}
 #endif
         }
+        return data_[1];
     }
-    void updateAndDispose(const T& data, bool realtimeThreadRunning =
+    T& updateAndGetOld(const T& data, bool realtimeThreadRunning =
 #if __APPLE__
         false
 #else
@@ -128,8 +129,9 @@ public:
         {
             data_[0] = data; // ABA happens here, but maybe it's okay?
         }
+        return data_[1];
     }
-    void updateAndDispose(T&& data, bool realtimeThreadRunning =
+    T& updateAndGetOld(T&& data, bool realtimeThreadRunning =
 #if __APPLE__
         false
 #else
@@ -150,9 +152,10 @@ public:
         {
             data_[0] = std::move(data); // ABA happens here, but maybe it's okay?
         }
+        return data_[1];
     }
     template<typename... Args>
-    void emplaceAndDispose(Args&&... args, bool realtimeThreadRunning =
+    T& emplaceAndGetOld(Args&&... args, bool realtimeThreadRunning =
 #if __APPLE__
         false
 #else
@@ -162,7 +165,7 @@ public:
     {
         if(realtimeThreadRunning)
         {
-            update(std::forward<Args>(args)..., realtimeThreadRunning);
+            emplace<Args&&...>(std::forward<Args>(args)..., realtimeThreadRunning);
 #if __cplusplus >= 202002L
             updated_.wait(true, std::memory_order_acquire);
 #else
@@ -173,6 +176,7 @@ public:
         {
             data_[0] = T(std::forward<Args>(args)...); // ABA happens here, but maybe it's okay?
         }
+        return data_[1];
     }
 private:
     std::array<T, 2> data_;
