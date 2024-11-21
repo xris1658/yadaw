@@ -1409,23 +1409,18 @@ bool MixerChannelListModel::removeInstrument(int position)
             auto it = clapPluginPool.find(clapPlugin);
             auto eventList = it->second.eventList;
             clapPluginPool.erase(it);
-            engine.clapPluginPool().updateAndGetOld(
+            engine.clapPluginPool().update(
                 std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
                     createPoolVector(clapPluginPool)
                 ),
                 engine.running()
             );
-            engine.clapPluginToSetProcess().update(
+            engine.clapPluginToSetProcess().updateAndGetOld(
                 std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
                     1, std::make_pair(clapPlugin, false)
                 ),
                 engine.running()
             );
-            // Completion of the `update` above does NOT mean that the plugin
-            // has stopped processing. It is indicated by completion of the
-            // following `getOld` because the last audio callback (in which
-            // the plugin has stopped processing) is finished by then.
-            engine.clapPluginToSetProcess().getOld(engine.running());
             clapPlugin->deactivate();
             clapPlugin->uninitialize();
             delete eventList;

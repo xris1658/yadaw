@@ -263,7 +263,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 );
                 deviceWithPDC->setBufferSize(engine.bufferSize());
             }
-            engine.clapPluginToSetProcess().update(
+            engine.clapPluginToSetProcess().updateAndGetOld(
                 std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
                     1, std::make_pair(pluginPtr, true)
                 ),
@@ -276,7 +276,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 engine.running()
             );
             engine.clapPluginPool().getOld(engine.running()).reset();
-            engine.clapPluginToSetProcess().getOld(engine.running()).reset();
             inserts_->insert(nodeHandle, position, pluginInfo.name);
             ret = true;
             break;
@@ -502,23 +501,18 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 auto it = clapPluginPool.find(clapPlugin);
                 auto eventList = it->second.eventList;
                 clapPluginPool.erase(it);
-                audioEngine.clapPluginPool().updateAndGetOld(
+                audioEngine.clapPluginPool().update(
                     std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
                         createPoolVector(clapPluginPool)
                     ),
                     audioEngine.running()
-                ).reset();
-                audioEngine.clapPluginToSetProcess().update(
+                );
+                audioEngine.clapPluginToSetProcess().updateAndGetOld(
                     std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
                         1, std::make_pair(clapPlugin, false)
                     ),
                     audioEngine.running()
                 );
-                // Completion of the `update` above does NOT mean that the plugin
-                // has stopped processing. It is indicated by completion of the
-                // following `getOld` because the last audio callback (in which
-                // the plugin has stopped processing) is finished by then.
-                audioEngine.clapPluginToSetProcess().getOld(audioEngine.running());
                 clapPlugin->deactivate();
                 clapPlugin->uninitialize();
                 delete eventList;

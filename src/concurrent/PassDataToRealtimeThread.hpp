@@ -96,6 +96,19 @@ public:
 #endif
         }
     }
+    template<typename Func>
+    void swapAndUseIfNeeded(Func&& func)
+    {
+        if(updated_.load(std::memory_order_acquire))
+        {
+            std::swap(data_[0], data_[1]);
+            std::forward<Func>(func)(data_[0]);
+            updated_.store(false, std::memory_order_release);
+#if __cplusplus >= 202002L
+            updated_.notify_one();
+#endif
+        }
+    }
     T& getOld(bool realtimeThreadRunning = true)
     {
         if(realtimeThreadRunning)

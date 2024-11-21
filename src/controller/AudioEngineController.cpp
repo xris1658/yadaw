@@ -115,7 +115,25 @@ void AudioEngine::process()
     YADAW::Audio::Host::CLAPHost::setAudioThreadId(std::this_thread::get_id());
     processSequence_.swapIfNeeded();
     vst3PluginPool_.swapIfNeeded();
-    clapPluginToSetProcess_.swapIfNeeded();
+    clapPluginToSetProcess_.swapAndUseIfNeeded(
+        [this](decltype(clapPluginToSetProcess_.get())& ptr)
+        {
+            for(const auto& [plugin, process]: *ptr)
+            {
+                (plugin->*setProcessing[process])();
+            }
+            static_assert(
+                std::is_trivially_destructible_v<
+                    YADAW::Controller::CLAPPluginToSetProcess
+                >
+            );
+            // The assertion above passed.
+            // Sadly, we do NOT know if `std::vector<T>::clear()` is O(1) even
+            // if `T` is trivially destructible on unknown STL implementations.
+            // On MSVC STL, it is O(1). On libstdc++ and libcxx, it seems not.
+            ptr->clear();
+        }
+    );
     clapPluginPool_.swapIfNeeded();
     YADAW::Controller::fillVST3InputParameterChanges(
         *(vst3PluginPool_.get()),
@@ -123,17 +141,6 @@ void AudioEngine::process()
     );
     YADAW::Controller::fillCLAPInputParameterChanges(*(clapPluginPool_.get()),
         YADAW::Util::currentTimeValueInNanosecond());
-    auto& clapPluginToSetProcess = *clapPluginToSetProcess_.get();
-    for(const auto& [plugin, process]: clapPluginToSetProcess)
-    {
-        (plugin->*setProcessing[process])();
-    }
-    static_assert(std::is_trivially_destructible_v<YADAW::Controller::CLAPPluginToSetProcess>);
-    // The assertion above passed.
-    // Sadly, we do NOT know if `std::vector<T>::clear()` is O(1) if `T` is
-    // trivially destructible on unknown STL implementations.
-    // On MSVC STL, it is O(1). On libstdc++ and libcxx, it seems not.
-    clapPluginToSetProcess.clear();
     FOR_RANGE0(i, mixer_.audioInputChannelCount())
     {
         mixer_.audioInputVolumeFaderAt(i)->get().onBufferSwitched(now);
