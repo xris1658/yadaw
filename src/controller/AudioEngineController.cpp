@@ -96,7 +96,7 @@ void AudioEngine::uninitialize()
     mixer_.clearChannels();
     mixer_.clearAudioInputChannels();
     mixer_.clearAudioOutputChannels();
-    processSequence_.updateAndGetOld(nullptr).reset();
+    processSequence_.updateAndGetOld(nullptr, false).reset();
     mixer_.graph().clearMultiInputNodes();
     mixer_.graph().graph().clear();
 }
