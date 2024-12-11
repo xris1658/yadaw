@@ -526,7 +526,6 @@ set(YADAW_COMMON_SOURCES
     src/util/IntrusiveRefCounter.hpp
     src/util/Literal.hpp
     src/util/LockFreeQueue.hpp
-    src/util/MDVector.hpp
     src/util/OptionalUtil.hpp
     src/util/QStringUtil.hpp
     src/util/QmlUtil.hpp
@@ -538,6 +537,7 @@ set(YADAW_COMMON_SOURCES
     src/util/Stopwatch.hpp
     src/util/Util.cpp
     src/util/Util.hpp
+    src/util/VectorTypes.hpp
     src/util/VectorUtil.hpp
     src/util/YAMLCppUtil.hpp
     src/util/ZeckendorfLogarithm.hpp

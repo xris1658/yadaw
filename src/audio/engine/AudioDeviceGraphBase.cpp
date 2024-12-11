@@ -207,4 +207,52 @@ std::vector<std::vector<std::vector<ade::NodeHandle>>> AudioDeviceGraphBase::top
     }
     return ret;
 }
+
+Vec<Vec<Vec<ade::NodeHandle>, Vec<std::uint32_t, std::uint32_t>>>
+    AudioDeviceGraphBase::topologicalSortWithPrev() const
+{
+    Vec<Vec<Vec<ade::NodeHandle>, Vec<std::uint32_t, std::uint32_t>>> ret;
+    auto topo = YADAW::Util::topologicalSort(graph_, YADAW::Util::squashGraph(graph_));
+    if(topo.has_value())
+    {
+        auto& topoSortResult = *topo;
+        ret.reserve(topoSortResult.size());
+        FOR_RANGE0(i, topoSortResult.size())
+        {
+            auto& row = topoSortResult[i];
+            auto& retRow = ret.emplace_back();
+            retRow.reserve(row.size());
+            for(auto& [from, to]: row)
+            {
+                auto fromInEdges = from->inEdges();
+                auto& [retCell, retPrev] = retRow.emplace_back();
+                for(auto i = from; ; i = i->outNodes().front())
+                {
+                    retCell.emplace_back(i);
+                    if(i == to)
+                    {
+                        break;
+                    }
+                }
+                auto inEdgeCount = fromInEdges.size();
+                retPrev.reserve(inEdgeCount);
+                FOR_RANGE0(j, inEdgeCount)
+                {
+                    FOR_RANGE0(k, topoSortResult.size())
+                    {
+                        auto& topoRow = topoSortResult[k];
+                        FOR_RANGE0(l, topoRow.size())
+                        {
+                            if(std::find(fromInEdges.begin(), fromInEdges.end(), from) != fromInEdges.end())
+                            {
+                                retPrev.emplace_back(k, l);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return ret;
+}
 }
