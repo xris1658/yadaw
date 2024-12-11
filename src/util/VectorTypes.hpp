@@ -11,13 +11,11 @@ template<typename T>
 using Vector3D = std::vector<std::vector<std::vector<T>>>;
 
 template<typename... Args>
-using Vec = std::vector<
-    std::conditional_t<
-        sizeof...(Args) == 1,
-        std::vector<Args>,
-        std::vector<
-            std::tuple<Args...>
-        >
+using Vec = std::conditional_t<
+    sizeof...(Args) == 1,
+    std::vector<Args...>,
+    std::vector<
+        std::tuple<Args...>
     >
 >;
 

@@ -4,7 +4,7 @@
 #include "audio/engine/extension/Buffer.hpp"
 #include "audio/engine/AudioProcessDataBufferContainer.hpp"
 #include "util/IntegerRange.hpp"
-#include "util/MDVector.hpp"
+#include "util/VectorTypes.hpp"
 
 #include <vector>
 
