@@ -52,6 +52,8 @@ public:
     YADAW::Audio::Mixer::Mixer& mixer();
     const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>& processSequence() const;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>& processSequence();
+    const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequenceWithPrev>>& processSequenceWithPrev() const;
+    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequenceWithPrev>>& processSequenceWithPrev();
     const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>>& vst3PluginPool() const;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>>& vst3PluginPool();
     const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginPoolVector>>& clapPluginPool() const;
@@ -69,6 +71,7 @@ public:
     }
 private:
     void updateProcessSequence();
+    void updateProcessSequenceWithPrev();
 public:
     static void mixerNodeAddedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
     static void mixerNodeRemovedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
@@ -92,6 +95,7 @@ private:
     std::atomic<std::int64_t> processTime_;
     YADAW::Audio::Mixer::Mixer mixer_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>> processSequence_;
+    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequenceWithPrev>> processSequenceWithPrev_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>> vst3PluginPool_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginPoolVector>> clapPluginPool_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginToSetProcessVector>> clapPluginToSetProcess_;

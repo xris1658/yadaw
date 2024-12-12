@@ -25,6 +25,7 @@ AudioEngine::AudioEngine():
         }
     ),
     processSequence_(std::make_unique<YADAW::Audio::Engine::ProcessSequence>()),
+    processSequenceWithPrev_(std::make_unique<YADAW::Audio::Engine::ProcessSequenceWithPrev>()),
     vst3PluginPool_(std::make_unique<YADAW::Controller::VST3PluginPoolVector>()),
     clapPluginPool_(std::make_unique<YADAW::Controller::CLAPPluginPoolVector>()),
     clapPluginToSetProcess_(std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>())
@@ -81,14 +82,27 @@ YADAW::Audio::Mixer::Mixer& AudioEngine::mixer()
 }
 
 const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>&
-AudioEngine::processSequence() const
+    AudioEngine::processSequence() const
 {
     return processSequence_;
 }
 
-YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>& AudioEngine::processSequence()
+YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>&
+    AudioEngine::processSequence()
 {
     return processSequence_;
+}
+
+const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequenceWithPrev>>&
+    AudioEngine::processSequenceWithPrev() const
+{
+    return processSequenceWithPrev_;
+}
+
+YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequenceWithPrev>>&
+    AudioEngine::processSequenceWithPrev()
+{
+    return processSequenceWithPrev_;
 }
 
 void AudioEngine::uninitialize()
@@ -97,6 +111,7 @@ void AudioEngine::uninitialize()
     mixer_.clearAudioInputChannels();
     mixer_.clearAudioOutputChannels();
     processSequence_.updateAndGetOld(nullptr, false).reset();
+    processSequenceWithPrev_.updateAndGetOld(nullptr, false).reset();
     mixer_.graph().clearMultiInputNodes();
     mixer_.graph().graph().clear();
 }
@@ -114,6 +129,7 @@ void AudioEngine::process()
     YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.flip();
     YADAW::Audio::Host::CLAPHost::setAudioThreadId(std::this_thread::get_id());
     processSequence_.swapIfNeeded();
+    processSequenceWithPrev_.swapIfNeeded();
     vst3PluginPool_.swapIfNeeded();
     clapPluginToSetProcess_.swapAndUseIfNeeded(
         [this](decltype(clapPluginToSetProcess_.get())& ptr)
@@ -184,6 +200,19 @@ void AudioEngine::updateProcessSequence()
     processSequence_.updateAndGetOld(
         std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
             YADAW::Audio::Engine::getProcessSequence(
+                mixer_.graph().graph(),
+                mixer_.bufferExtension()
+            )
+        ),
+        running()
+    ).reset();
+}
+
+void AudioEngine::updateProcessSequenceWithPrev()
+{
+    processSequenceWithPrev_.updateAndGetOld(
+        std::make_unique<YADAW::Audio::Engine::ProcessSequenceWithPrev>(
+            YADAW::Audio::Engine::getProcessSequenceWithPrev(
                 mixer_.graph().graph(),
                 mixer_.bufferExtension()
             )
