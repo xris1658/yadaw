@@ -15,6 +15,9 @@
 #include <type_traits>
 #endif
 
+#include <atomic>
+#include <vector>
+
 namespace YADAW::Controller
 {
 namespace Impl
@@ -40,6 +43,49 @@ void process(YADAW::Audio::Device::IAudioDevice* device,
 
 class AudioEngine
 {
+public:
+    struct ProcessSequenceWithPrevAndCompletionMarks
+    {
+        YADAW::Audio::Engine::ProcessSequenceWithPrev processSequenceWithPrev;
+        std::vector<std::vector<std::uint8_t>> completionMarks;
+        std::vector<std::vector<std::atomic_ref<std::uint8_t>>> atomicCompletionMarks;
+        ProcessSequenceWithPrevAndCompletionMarks() = default;
+        ProcessSequenceWithPrevAndCompletionMarks(
+            const YADAW::Audio::Engine::ProcessSequenceWithPrev& processSequenceWithPrev
+        ):
+        processSequenceWithPrev(processSequenceWithPrev)
+        {
+            completionMarks.resize(processSequenceWithPrev.size());
+            atomicCompletionMarks.resize(processSequenceWithPrev.size());
+            FOR_RANGE0(i, completionMarks.size())
+            {
+                auto size = processSequenceWithPrev[i].size();
+                completionMarks[i].resize(size, 0);
+                atomicCompletionMarks[i].resize(processSequenceWithPrev[i].size());
+                FOR_RANGE0(j, size)
+                {
+                    atomicCompletionMarks[i][j] = {completionMarks[i][j]};
+                }
+            }
+        }
+        ProcessSequenceWithPrevAndCompletionMarks(
+            YADAW::Audio::Engine::ProcessSequenceWithPrev&& processSequenceWithPrev
+        ):
+            processSequenceWithPrev(processSequenceWithPrev)
+        {
+            completionMarks.resize(processSequenceWithPrev.size());
+            FOR_RANGE0(i, completionMarks.size())
+            {
+                auto size = processSequenceWithPrev[i].size();
+                completionMarks[i].resize(size, 0);
+                atomicCompletionMarks[i].resize(processSequenceWithPrev[i].size());
+                FOR_RANGE0(j, size)
+                {
+                    atomicCompletionMarks[i][j] = {completionMarks[i][j]};
+                }
+            }
+        }
+    };
 private:
     AudioEngine();
 public:
@@ -72,6 +118,10 @@ public:
 private:
     void updateProcessSequence();
     void updateProcessSequenceWithPrev();
+    void workerThreadProcessFunc(
+        ProcessSequenceWithPrevAndCompletionMarks& seq,
+        const YADAW::Audio::Engine::AudioThreadWorkload& workload
+    );
 public:
     static void mixerNodeAddedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
     static void mixerNodeRemovedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
@@ -95,7 +145,7 @@ private:
     std::atomic<std::int64_t> processTime_;
     YADAW::Audio::Mixer::Mixer mixer_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>> processSequence_;
-    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequenceWithPrev>> processSequenceWithPrev_;
+    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<ProcessSequenceWithPrevAndCompletionMarks>> processSequenceWithPrevAndCompletionMarks_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>> vst3PluginPool_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginPoolVector>> clapPluginPool_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginToSetProcessVector>> clapPluginToSetProcess_;

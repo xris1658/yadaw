@@ -25,7 +25,9 @@ AudioEngine::AudioEngine():
         }
     ),
     processSequence_(std::make_unique<YADAW::Audio::Engine::ProcessSequence>()),
-    processSequenceWithPrev_(std::make_unique<YADAW::Audio::Engine::ProcessSequenceWithPrev>()),
+    processSequenceWithPrevAndCompletionMarks_(
+        std::make_unique<ProcessSequenceWithPrevAndCompletionMarks>()
+    ),
     vst3PluginPool_(std::make_unique<YADAW::Controller::VST3PluginPoolVector>()),
     clapPluginPool_(std::make_unique<YADAW::Controller::CLAPPluginPoolVector>()),
     clapPluginToSetProcess_(std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>())
@@ -93,25 +95,13 @@ YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine
     return processSequence_;
 }
 
-const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequenceWithPrev>>&
-    AudioEngine::processSequenceWithPrev() const
-{
-    return processSequenceWithPrev_;
-}
-
-YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequenceWithPrev>>&
-    AudioEngine::processSequenceWithPrev()
-{
-    return processSequenceWithPrev_;
-}
-
 void AudioEngine::uninitialize()
 {
     mixer_.clearChannels();
     mixer_.clearAudioInputChannels();
     mixer_.clearAudioOutputChannels();
     processSequence_.updateAndGetOld(nullptr, false).reset();
-    processSequenceWithPrev_.updateAndGetOld(nullptr, false).reset();
+    processSequenceWithPrevAndCompletionMarks_.updateAndGetOld(nullptr, false).reset();
     mixer_.graph().clearMultiInputNodes();
     mixer_.graph().graph().clear();
 }
@@ -129,7 +119,7 @@ void AudioEngine::process()
     YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.flip();
     YADAW::Audio::Host::CLAPHost::setAudioThreadId(std::this_thread::get_id());
     processSequence_.swapIfNeeded();
-    processSequenceWithPrev_.swapIfNeeded();
+    processSequenceWithPrevAndCompletionMarks_.swapIfNeeded();
     vst3PluginPool_.swapIfNeeded();
     clapPluginToSetProcess_.swapAndUseIfNeeded(
         [this](decltype(clapPluginToSetProcess_.get())& ptr)
@@ -210,8 +200,8 @@ void AudioEngine::updateProcessSequence()
 
 void AudioEngine::updateProcessSequenceWithPrev()
 {
-    processSequenceWithPrev_.updateAndGetOld(
-        std::make_unique<YADAW::Audio::Engine::ProcessSequenceWithPrev>(
+    processSequenceWithPrevAndCompletionMarks_.updateAndGetOld(
+        std::make_unique<ProcessSequenceWithPrevAndCompletionMarks>(
             YADAW::Audio::Engine::getProcessSequenceWithPrev(
                 mixer_.graph().graph(),
                 mixer_.bufferExtension()
@@ -219,6 +209,26 @@ void AudioEngine::updateProcessSequenceWithPrev()
         ),
         running()
     ).reset();
+}
+
+void AudioEngine::workerThreadProcessFunc(
+    ProcessSequenceWithPrevAndCompletionMarks& sequence,
+    const YADAW::Audio::Engine::AudioThreadWorkload& workload)
+{
+    for(const auto& [row, col]: workload)
+    {
+        auto& [seq, prev] = sequence.processSequenceWithPrev[row][col];
+        for(const auto& [prevRow, prevCol]: prev)
+        {
+            sequence.atomicCompletionMarks[prevRow][prevCol].wait(1, std::memory_order_acquire);
+        }
+        for(auto& [process, buffer]: seq)
+        {
+            process.process(buffer.audioProcessData());
+        }
+        sequence.atomicCompletionMarks[row][col].store(1, std::memory_order_release);
+        sequence.atomicCompletionMarks[row][col].notify_all();
+    }
 }
 
 void AudioEngine::mixerNodeAddedCallback(const Audio::Mixer::Mixer& mixer)

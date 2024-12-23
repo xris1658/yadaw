@@ -20,6 +20,8 @@ using ProcessSequence = Vector3D<
 
 using ProcessSequenceWithPrev = Vec<Vec<Vec<ProcessPair>, Vec<std::uint32_t, std::uint32_t>>>;
 
+using AudioThreadWorkload = Vec<std::uint32_t, std::uint32_t>;
+
 template<typename... Extensions>
 ProcessSequence getProcessSequence(const YADAW::Audio::Engine::AudioDeviceGraph<Extensions...>& graph)
 {
@@ -36,13 +38,22 @@ ProcessSequenceWithPrev getProcessSequenceWithPrev(const YADAW::Audio::Engine::A
     );
 }
 
-
 ProcessSequence getProcessSequence(const YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     YADAW::Audio::Engine::Extension::Buffer& bufferExt);
 
 ProcessSequenceWithPrev getProcessSequenceWithPrev(
     const YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     YADAW::Audio::Engine::Extension::Buffer& bufferExt);
+
+enum CreateWorkloadFlags
+{
+    UseAllThreads = 1 << 0
+};
+
+Vec<AudioThreadWorkload> createWorkload(
+    const ProcessSequenceWithPrev& processSequenceWithPrev,
+    std::uint32_t threadCount,
+    CreateWorkloadFlags flags);
 }
 
 

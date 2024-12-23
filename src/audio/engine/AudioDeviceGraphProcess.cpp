@@ -1,5 +1,7 @@
 #include "AudioDeviceGraphProcess.hpp"
 
+#include <numeric>
+
 namespace YADAW::Audio::Engine
 {
 using ProcessSequence = Vector3D<
@@ -67,6 +69,69 @@ ProcessSequenceWithPrev getProcessSequenceWithPrev(
             FOR_RANGE0(k, prev.size())
             {
                 retPrev.emplace_back(prev[k]);
+            }
+        }
+    }
+    return ret;
+}
+
+Vec<AudioThreadWorkload> createWorkload(
+    const ProcessSequenceWithPrev& processSequenceWithPrev,
+    std::uint32_t threadCount,
+    CreateWorkloadFlags flags)
+{
+    if(processSequenceWithPrev.empty())
+    {
+        return {};
+    }
+    using Row = ProcessSequenceWithPrev::value_type;
+    Vec<AudioThreadWorkload> ret;
+    std::uint32_t parallelCount =
+        (flags & CreateWorkloadFlags::UseAllThreads)?
+            threadCount:
+            std::max_element(
+                processSequenceWithPrev.begin(),
+                processSequenceWithPrev.end(),
+                [](const Row& lhs, const Row& rhs)
+                {
+                    return lhs.size() < rhs.size();
+                }
+            )->size();
+    ret.resize(parallelCount);
+    {
+        std::uint32_t cellCount = std::accumulate(
+            processSequenceWithPrev.begin(), processSequenceWithPrev.end(),
+            0,
+            [](std::uint32_t lhs, const Row& rhs)
+            {
+                return lhs + rhs.size();
+            }
+        );
+        auto [vecSize, rem] = std::div(
+            static_cast<long long>(cellCount),
+            static_cast<long long>(parallelCount)
+        );
+        FOR_RANGE0(i, ret.size())
+        {
+            ret[i].reserve(vecSize + (i < rem));
+        }
+    }
+    std::uint32_t vecIndex = 0;
+    FOR_RANGE0(i, processSequenceWithPrev.size())
+    {
+        const auto& row = processSequenceWithPrev[i];
+        FOR_RANGE0(j, row.size())
+        {
+            ret[vecIndex++].emplace_back();
+        }
+    }
+    for(const auto& row: processSequenceWithPrev)
+    {
+        for(const auto& cell: row)
+        {
+            if(vecIndex == ret.size())
+            {
+                vecIndex = 0;
             }
         }
     }
