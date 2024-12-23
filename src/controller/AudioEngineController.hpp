@@ -61,10 +61,10 @@ public:
             {
                 auto size = processSequenceWithPrev[i].size();
                 completionMarks[i].resize(size, 0);
-                atomicCompletionMarks[i].resize(processSequenceWithPrev[i].size());
+                atomicCompletionMarks[i].reserve(processSequenceWithPrev[i].size());
                 FOR_RANGE0(j, size)
                 {
-                    atomicCompletionMarks[i][j] = {completionMarks[i][j]};
+                    atomicCompletionMarks[i].emplace_back(completionMarks[i][j]);
                 }
             }
         }
@@ -78,10 +78,10 @@ public:
             {
                 auto size = processSequenceWithPrev[i].size();
                 completionMarks[i].resize(size, 0);
-                atomicCompletionMarks[i].resize(processSequenceWithPrev[i].size());
+                atomicCompletionMarks[i].reserve(processSequenceWithPrev[i].size());
                 FOR_RANGE0(j, size)
                 {
-                    atomicCompletionMarks[i][j] = {completionMarks[i][j]};
+                    atomicCompletionMarks[i].emplace_back(completionMarks[i][j]);
                 }
             }
         }
