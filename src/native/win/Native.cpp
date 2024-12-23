@@ -335,6 +335,11 @@ void fillCPUIDInfo()
     __cpuid(reinterpret_cast<int(&)[4]>(cpuidInfo), 1);
 }
 
+void setAffinityOfThread(std::thread::native_handle_type thread, std::uint64_t affinity)
+{
+    SetThreadAffinityMask(reinterpret_cast<HANDLE>(thread), affinity);
+}
+
 WindowsVersion getWindowsVersion()
 {
     // https://learn.microsoft.com/windows/win32/sysinfo/targeting-your-application-at-windows-8-1
