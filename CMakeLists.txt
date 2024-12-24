@@ -111,6 +111,7 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/MIDIOutputDeviceImpl.cpp
     src/native/win/MIDIOutputDeviceImpl.hpp
     src/native/win/Native.cpp
+    src/native/win/Thread.cpp
     src/native/win/VST3Native.cpp
     src/native/win/VestifalNative.cpp
     src/native/win/WASAPIExclusiveBackend.cpp

@@ -250,6 +250,7 @@ add_executable(SampleDelayTest
 add_executable(ThreadAffinityTest
                ../src/native/Thread.hpp
                ../src/native/linux/Thread.cpp
+               ../src/native/win/Thread.cpp
                ThreadAffinityTest/main.cpp
 )
 
