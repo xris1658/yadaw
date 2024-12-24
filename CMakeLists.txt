@@ -169,6 +169,7 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/Native.cpp
     src/native/linux/Sequencer.cpp
     src/native/linux/Sequencer.hpp
+    src/native/linux/Thread.cpp
     src/native/linux/VST3Native.cpp
     src/native/linux/VestifalNative.cpp
 )
@@ -479,6 +480,7 @@ set(YADAW_COMMON_SOURCES
     src/native/MIDIOutputDeviceImpl.hpp
     src/native/Native.hpp
     src/native/PluginFormatSupport.hpp
+    src/native/Thread.hpp
     src/native/VST3Native.hpp
     src/native/VestifalNative.hpp
     src/ui/MessageDialog.cpp

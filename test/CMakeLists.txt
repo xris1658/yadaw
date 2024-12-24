@@ -247,6 +247,12 @@ add_executable(SampleDelayTest
                ../src/audio/device/IAudioChannelGroup.hpp
                SampleDelayTest/main.cpp)
 
+add_executable(ThreadAffinityTest
+               ../src/native/Thread.hpp
+               ../src/native/linux/Thread.cpp
+               ThreadAffinityTest/main.cpp
+)
+
 add_executable(ZeckendorfLogarithmTest ZeckendorfLogarithmTest/main.cpp)
 
 target_link_libraries(AudioDeviceGraphTest PRIVATE ade Qt6::Core)
