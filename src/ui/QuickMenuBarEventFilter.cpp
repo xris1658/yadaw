@@ -207,11 +207,7 @@ void QuickMenuBarEventFilter::menuBarCountChanged()
                         classNameView.begin()
                     )
                     &&
-#if __cplusplus >= 202002L
-                    !menuBarItems_.contains(childItem)
-#else
-                    menuBarItems_.find(childItem) == menuBarItems_.end()
-#endif
+                    (!menuBarItems_.contains(childItem))
                 )
                 {
                     childItem->installEventFilter(this);
@@ -476,11 +472,7 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
     {
         if(auto quickItem = qobject_cast<QQuickItem*>(watched);
             quickItem &&
-#if __cplusplus >= 202002L
             menuBarItems_.contains(quickItem)
-#else
-            menuBarItems_.find(quickItem) != menuBarItems_.end()
-#endif
             && event->type() == QEvent::Shortcut
             && !filteringMenuBarEvents_
         )

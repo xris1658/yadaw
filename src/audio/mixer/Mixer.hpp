@@ -18,9 +18,7 @@
 #include <QColor>
 
 #include <cstdint>
-#if __cplusplus >= 202002L
 #include <concepts>
-#endif
 #include <optional>
 
 namespace YADAW::Audio::Mixer
@@ -34,7 +32,6 @@ void blankNodeRemovedCallback(const Mixer&);
 void blankConnectionUpdatedCallback(const Mixer&);
 }
 
-#if __cplusplus >= 202002L
 template<typename Factory, typename Device>
 concept DeviceFactory = requires
 (
@@ -46,7 +43,6 @@ concept DeviceFactory = requires
     -> std::same_as<std::unique_ptr<Device>>;
 }
 && std::derived_from<Device, YADAW::Audio::Device::IAudioDevice>;
-#endif
 
 template<typename Device>
 using DeviceFactoryType = std::unique_ptr<Device>(
@@ -141,7 +137,6 @@ public:
     //     std::uint32_t channelCountInGroup
     // );
 public:
-#if __cplusplus >= 202002L
     template<
         DeviceFactory<VolumeFader> VolumeFaderFactory,
         DeviceFactory<Meter> MeterFactory
@@ -158,53 +153,6 @@ public:
         meterFactory_(std::move(meterFactory))
     {
     }
-#else
-    template<typename VolumeFaderFactory, typename MeterFactory>
-    Mixer(
-        VolumeFaderFactory&& volumeFaderFactory,
-        MeterFactory&& meterFactory):
-        graph_(),
-        graphWithPDC_(graph_),
-        nodeAddedCallback_(&Impl::blankNodeAddedCallback),
-        nodeRemovedCallback_(&Impl::blankNodeRemovedCallback),
-        connectionUpdatedCallback_(&Impl::blankConnectionUpdatedCallback),
-        volumeFaderFactory_(std::move(volumeFaderFactory)),
-        meterFactory_(std::move(meterFactory))
-    {
-        static_assert(
-            std::is_invocable_v<
-                VolumeFaderFactory,
-                YADAW::Audio::Base::ChannelGroupType,
-                std::uint32_t
-            > &&
-            std::is_same_v<
-                std::invoke_result_t<
-                    VolumeFaderFactory,
-                    YADAW::Audio::Base::ChannelGroupType,
-                    std::uint32_t
-                >,
-                std::unique_ptr<VolumeFader>
-            >,
-            "Cannot initialize volume fader factory"
-        );
-        static_assert(
-            std::is_invocable_v<
-                MeterFactory,
-                YADAW::Audio::Base::ChannelGroupType,
-                std::uint32_t
-            > &&
-            std::is_same_v<
-                std::invoke_result_t<
-                    MeterFactory,
-                    YADAW::Audio::Base::ChannelGroupType,
-                    std::uint32_t
-                >,
-                std::unique_ptr<Meter>
-            >,
-            "Cannot initialize meter factory"
-        );
-    }
-#endif
 public:
     const YADAW::Audio::Engine::AudioDeviceGraphWithPDC& graph() const;
     YADAW::Audio::Engine::AudioDeviceGraphWithPDC& graph();

@@ -172,7 +172,7 @@ Qt 6 中内置了 IBus 输入法支持。如果使用 Fcitx，则需要构建并
   
 ## 在 macOS 上构建
 
-下面的步骤不需要安装 Xcode，在 macOS Monterey 12 上经过了测试。
+下面的步骤不需要安装 Xcode。由于此项目使用 C++20，因此无法使用一些旧版的 macOS 工具链构建。
 
 - 安装 macOS 命令行开发者工具：
   ```shell

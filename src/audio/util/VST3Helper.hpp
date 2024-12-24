@@ -5,16 +5,11 @@
 #include "audio/host/VST3ParameterValueQueue.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "native/Library.hpp"
-#if __cplusplus >= 202002L
 #include "util/Concepts.hpp"
-#else
-#include <type_traits>
-#endif
 
 #include <pluginterfaces/base/funknown.h>
 #include <pluginterfaces/base/ipluginbase.h>
 
-#if __cplusplus >= 202002L
 template<DerivedTo<Steinberg::FUnknown> To>
 inline Steinberg::tresult queryInterface(Steinberg::FUnknown* from, To** to)
 {
@@ -30,25 +25,6 @@ inline void releasePointer(T*& pointer)
         pointer = nullptr;
     }
 }
-#else
-template<typename To>
-inline Steinberg::tresult queryInterface(Steinberg::FUnknown* from, To** to)
-{
-    static_assert(std::is_base_of_v<Steinberg::FUnknown, To>);
-    return from->queryInterface(To::iid, reinterpret_cast<void**>(to));
-}
-
-template<typename T>
-inline void releasePointer(T*& pointer)
-{
-    static_assert(std::is_base_of_v<Steinberg::FUnknown, T>);
-    if(pointer)
-    {
-        pointer->release();
-        pointer = nullptr;
-    }
-}
-#endif
 
 namespace YADAW::Audio::Util
 {

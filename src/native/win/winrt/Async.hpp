@@ -10,9 +10,6 @@
 template<typename T>
 inline T asyncResult(winrt::Windows::Foundation::IAsyncOperation<T> asyncOperation)
 {
-// #if __cplusplus > 201703L
-//     co_return asyncOperation; // C2039
-// #else
 #ifdef NDEBUG
     return asyncOperation.get();
 #else
@@ -23,7 +20,6 @@ inline T asyncResult(winrt::Windows::Foundation::IAsyncOperation<T> asyncOperati
     ).get();
     return ret;
 #endif
-// #endif
 }
 
 #endif

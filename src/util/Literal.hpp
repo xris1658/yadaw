@@ -42,12 +42,10 @@ template<> inline const char16_t* noteNameArray<char16_t, MIDINoteNameKeyShift::
 template<> inline const char16_t* noteNameArray<char16_t, MIDINoteNameKeyShift::kFlat>() { return u16CharNoteNameWithFlat; }
 template<> inline const char32_t* noteNameArray<char32_t, MIDINoteNameKeyShift::kSharp>() { return u32CharNoteNameWithSharp; }
 template<> inline const char32_t* noteNameArray<char32_t, MIDINoteNameKeyShift::kFlat>() { return u32CharNoteNameWithFlat; }
-#if __cplusplus >= 202002L
 const char8_t  u8CharNoteNameWithSharp[] = u8"C\0\0C\u266f\0D\0\0D\u266f\0E\0\0F\0\0F\u266f\0G\0\0G\u266f\0A\0\0A\u266f\0B\0";
 const char8_t  u8CharNoteNameWithFlat[] = u8"C\0\0D\u266d\0D\0\0E\u266d\0E\0\0F\0\0G\u266d\0G\0\0A\u266d\0A\0\0B\u266d\0B\0";
 template<> inline const char8_t* noteNameArray<char8_t, MIDINoteNameKeyShift::kSharp>() { return u8CharNoteNameWithSharp; }
 template<> inline const char8_t* noteNameArray<char8_t, MIDINoteNameKeyShift::kFlat>() { return u8CharNoteNameWithFlat; }
-#endif
 }
 template<typename CharType>
 using NoteName = std::array<CharType, 5>;

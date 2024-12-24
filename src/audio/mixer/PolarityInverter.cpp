@@ -71,13 +71,8 @@ void process<false>(
 
 #ifdef _MSC_VER
 __m128 mul[2] = {
-#if __cplusplus >= 202002L
     __m128 {.m128_f32 = {1.0f, 1.0f, 1.0f, 1.0f}},
     __m128 {.m128_f32 = {-1.0f, -1.0f, -1.0f, -1.0f}},
-#else
-    __m128 {1.0f, 1.0f, 1.0f, 1.0f},
-    __m128 {-1.0f, -1.0f, -1.0f, -1.0f},
-#endif
 };
 #else
 #ifdef __GNUC__

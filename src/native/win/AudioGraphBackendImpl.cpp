@@ -20,10 +20,6 @@
 #include <../include/winrt/Windows.Media.MediaProperties.h>
 #include <../include/winrt/Windows.Media.Render.h>
 
-#if __cplusplus <= 201703L
-#include <future>
-#endif
-
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Foundation::Collections;

@@ -9,11 +9,7 @@
 #include "concurrent/PassDataToRealtimeThread.hpp"
 #include "controller/CLAPPluginPool.hpp"
 #include "controller/VST3PluginPool.hpp"
-#if __cplusplus >= 202002L
 #include "util/Concepts.hpp"
-#else
-#include <type_traits>
-#endif
 
 #include <atomic>
 #include <vector>
@@ -22,23 +18,12 @@ namespace YADAW::Controller
 {
 namespace Impl
 {
-#if __cplusplus >= 202002L
 template<DerivedTo<YADAW::Audio::Device::IAudioDevice> T>
 void process(YADAW::Audio::Device::IAudioDevice* device,
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
     static_cast<T*>(device)->process(audioProcessData);
 }
-#else
-template<typename T>
-void process(YADAW::Audio::Device::IAudioDevice* device,
-    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
-{
-    static_assert(std::is_base_of_v<YADAW::Audio::Device::IAudioDevice, T>
-        && (!std::is_same_v<YADAW::Audio::Device::IAudioDevice, T>));
-    static_cast<T*>(device)->process(audioProcessData);
-}
-#endif
 }
 
 class AudioEngine

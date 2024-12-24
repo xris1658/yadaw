@@ -179,8 +179,8 @@ install the platform integration plugin of Fcitx. The steps are as follows:
 
 ## Build on macOS
 
-The following process DOES NOT need Xcode to installed, and is tested on macOS
-Monterey 12.
+The following process DOES NOT need Xcode. Since the project uses C++20, this
+project cannot be built with older macOS toolchains.
 
 - Install macOS Command-Line developer tools:
   ```shell

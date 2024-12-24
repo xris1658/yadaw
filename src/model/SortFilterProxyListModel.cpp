@@ -508,13 +508,9 @@ void SortFilterProxyListModel::doSort()
                 QModelIndex(), i, i,
                 QModelIndex(), upperBound - dstToSrc_.begin()
             );
-#if __cplusplus >= 202002L
             auto temp = dstToSrc_[i];
             std::shift_right(upperBound, dstToSrc_.begin() + i + 1, 1);
             *upperBound = temp;
-#else
-            std::rotate(upperBound, dstToSrc_.begin() + i, dstToSrc_.begin() + i + 1);
-#endif
             updateSrcToDst(upperBound - dstToSrc_.begin(), i + 1);
             endMoveRows();
         }
@@ -576,15 +572,11 @@ void SortFilterProxyListModel::mergeNewAcceptedItems(
         );
         auto row = it - dstToSrc_.begin();
         beginInsertRows(QModelIndex(), row, row);
-#if __cplusplus >= 202002L
         auto temp = dstToSrc_[acceptedItemCount_];
         std::shift_right(
             it, dstToSrc_.begin() + acceptedItemCount_ + 1, 1
         );
         *it = temp;
-#else
-        std::rotate(it, dstToSrc_.begin() + acceptedItemCount_, dstToSrc_.begin() + acceptedItemCount_ + 1);
-#endif
         ++acceptedItemCount_;
         FOR_RANGE(j, it - dstToSrc_.begin(), acceptedItemCount_)
         {
