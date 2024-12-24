@@ -101,6 +101,7 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/AudioGraphBackendImpl.cpp
     src/native/win/AudioGraphBackendImpl.hpp
     src/native/win/CLAPNative.cpp
+    src/native/win/CPU.cpp
     src/native/win/InterProcessMutexImpl.cpp
     src/native/win/InterProcessMutexImpl.hpp
     src/native/win/InterProcessMutex.cpp
@@ -475,6 +476,7 @@ set(YADAW_COMMON_SOURCES
     src/model/impl/TreeNode.hpp
     src/native/AudioBackendSupport.hpp
     src/native/CLAPNative.hpp
+    src/native/CPU.hpp
     src/native/Library.hpp
     src/native/MIDIDeviceID.hpp
     src/native/MIDIInputDeviceImpl.hpp

@@ -214,6 +214,11 @@ add_executable(BadMemoryAccessHandlerTest
                ../src/native/win/Native.cpp
                BadMemoryAccessHandlerTest/main.cpp)
 
+add_executable(CPUFunctionsTest
+               ../src/native/CPU.hpp
+               ../src/native/win/CPU.cpp
+               CPUFunctionsTest/main.cpp)
+
 add_executable(IntrusivePointerTest
                ../src/util/IntrusivePointer.hpp
                ../src/util/IntrusiveRefCounter.cpp
