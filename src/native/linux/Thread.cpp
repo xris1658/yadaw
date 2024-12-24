@@ -1,3 +1,5 @@
+#if __linux__
+
 #include "native/Thread.hpp"
 
 #include "util/IntegerRange.hpp"
@@ -23,3 +25,5 @@ bool setThreadAffinity(std::thread::native_handle_type handle, std::uint64_t aff
     return pthread_setaffinity_np(handle, sizeof(cpuset), &cpuset) == 0;
 }
 }
+
+#endif
