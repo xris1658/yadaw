@@ -81,8 +81,6 @@ extern std::uint32_t cpuidInfo[4];
 
 void fillCPUIDInfo();
 
-void setAffinityOfThread(std::thread::native_handle_type thread, std::uint64_t affinity);
-
 #if _WIN32
 struct WindowsVersion
 {
