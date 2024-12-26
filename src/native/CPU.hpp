@@ -7,7 +7,7 @@
 
 namespace YADAW::Native
 {
-using CPUHierarchy = Vec<Vec<Vec<std::uint8_t>>>;
+using CPUHierarchy = Vec<Vec<Vec<Vec<std::uint8_t>>>>;
 
 CPUHierarchy getCPUHierarchy();
 

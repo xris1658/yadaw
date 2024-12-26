@@ -16,13 +16,28 @@ int main()
         const auto& processors = numaNodes[i];
         FOR_RANGE0(j, processors.size())
         {
-            std::printf(" +--[-] Processor Package #%" PRIu64 "\n", j + 1);
+            std::printf(" %c--[-] Processor Package #%" PRIu64 "\n",
+                j == processors.size() - 1? '\'': '|',
+                j + 1);
             const auto& physicalCores = processors[j];
             FOR_RANGE0(k, physicalCores.size())
             {
                 ++coreCount;
-                threadCount += physicalCores[k];
-                std::printf(" |   +---Physical Core #%" PRIu64 ": %" PRIu8 " cores\n", k + 1, physicalCores[k]);
+                auto& logicalProcessors = physicalCores[k];
+                threadCount += logicalProcessors.size();
+                std::printf(" %c   %c--[-] Physical Core #%" PRIu64 ":\n",
+                    j == processors.size() - 1? ' ': '|',
+                    k == physicalCores.size() - 1? '\'' : '|',
+                    k + 1);
+                FOR_RANGE0(l, physicalCores[k].size())
+                {
+                    auto logicalProcessor = logicalProcessors[l];
+                    std::printf(" %c   %c   %c---Logical Processor %" PRIu8 "\n",
+                        j == processors.size() - 1? ' ': '|',
+                        k == physicalCores.size() - 1? ' ' : '|',
+                        l == logicalProcessors.size() - 1? '\'': '|',
+                        logicalProcessor + 1);
+                }
             }
         }
     }

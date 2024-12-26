@@ -40,21 +40,35 @@ CPUHierarchy getCPUHierarchy()
         }
     }
     auto count = length / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
-    Vec<std::uint8_t> logicalProcessorCounts;
-    Vec<decltype(logicalProcessorCounts)> packages;
+    Vec<Vec<std::uint8_t>> physicalCores;
+    Vec<decltype(physicalCores)> packages;
     for(auto ptr = buffer; ptr < buffer + count; ++ptr)
     {
         if(ptr->Relationship == RelationProcessorCore)
         {
             std::bitset<CHAR_BIT * sizeof(ptr->ProcessorMask)> bitset(ptr->ProcessorMask);
-            logicalProcessorCounts.emplace_back(bitset.count());
+            auto& logicalProcessors = physicalCores.emplace_back();
+            FOR_RANGE0(i, bitset.size())
+            {
+                if(bitset.test(i))
+                {
+                    logicalProcessors.emplace_back(i);
+                }
+            }
         }
         else if(ptr->Relationship == RelationProcessorPackage)
         {
             ++ptr;
             std::bitset<CHAR_BIT * sizeof(ptr->ProcessorMask)> bitset(ptr->ProcessorMask);
-            logicalProcessorCounts.emplace_back(bitset.count());
-            packages.emplace_back(std::move(logicalProcessorCounts));
+            auto& logicalProcessors = physicalCores.emplace_back();
+            FOR_RANGE0(i, bitset.size())
+            {
+                if(bitset.test(i))
+                {
+                    logicalProcessors.emplace_back(i);
+                }
+            }
+            packages.emplace_back(std::move(physicalCores));
         }
         else if(ptr->Relationship == RelationNumaNode)
         {
