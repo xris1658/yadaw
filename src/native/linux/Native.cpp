@@ -6,7 +6,6 @@
 #include <QProcess>
 #include <QStringList>
 
-#include <cpuid.h>
 #include <signal.h>
 #include <time.h>
 #include <unistd.h>
@@ -169,13 +168,6 @@ bool setBadMemoryAccessHandler()
     sigemptyset(&sigAction.sa_mask);
     sigAction.sa_sigaction = &segFaultHandler;
     return sigaction(SIGSEGV, &sigAction, NULL) == 0;
-}
-
-std::uint32_t cpuidInfo[4];
-
-void fillCPUIDInfo()
-{
-    __get_cpuid(1, cpuidInfo, cpuidInfo + 1, cpuidInfo + 2, cpuidInfo + 3);
 }
 }
 

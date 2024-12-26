@@ -17,8 +17,6 @@
 
 #include <KnownFolders.h>
 
-#include <intrin.h>
-
 #include <array>
 #include <bitset>
 #include <charconv>
@@ -119,13 +117,6 @@ const QString& localAppDataFolder()
 void openSpecialCharacterInput()
 {
     ShellExecuteW(nullptr, L"open", L"charmap.exe", nullptr, nullptr, SW_NORMAL);
-}
-
-int getProcessCPUCoreCount()
-{
-    auto procMask = Impl::procMask();
-    auto bitset = reinterpret_cast<std::bitset<sizeof(procMask) * CHAR_BIT>*>(&procMask);
-    return bitset->count();
 }
 
 void setThreadPriorityToTimeCritical()
@@ -326,13 +317,6 @@ LONG WINAPI accessViolationHandler(PEXCEPTION_POINTERS ptr) noexcept
 bool setBadMemoryAccessHandler()
 {
     return AddVectoredExceptionHandler(1, &accessViolationHandler) != NULL;
-}
-
-std::uint32_t cpuidInfo[4];
-
-void fillCPUIDInfo()
-{
-    __cpuid(reinterpret_cast<int(&)[4]>(cpuidInfo), 1);
 }
 
 WindowsVersion getWindowsVersion()

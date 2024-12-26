@@ -45,8 +45,6 @@ const QString& programFilesFolder();
 
 void openSpecialCharacterInput();
 
-int getProcessCPUCoreCount();
-
 void setThreadPriorityToTimeCritical();
 
 constexpr YADAW::Util::Endian SystemEndian =
@@ -59,8 +57,6 @@ constexpr YADAW::Util::Endian ReverseSystemEndian =
         YADAW::Util::Endian::BigEndian:
         YADAW::Util::Endian::LittleEndian;
 
-// Check if the application is being debugged. Currently only used to decide whether system
-// rendering should be enabled.
 bool isDebuggerPresent();
 
 QString errorMessageFromErrorCode(ErrorCodeType errorCode);
@@ -76,10 +72,6 @@ QString getFileBrowserName();
 void locateFileInExplorer(const QString& path);
 
 bool setBadMemoryAccessHandler();
-
-extern std::uint32_t cpuidInfo[4];
-
-void fillCPUIDInfo();
 
 #if _WIN32
 struct WindowsVersion

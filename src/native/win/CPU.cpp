@@ -3,6 +3,8 @@
 #include "native/CPU.hpp"
 #include "util/IntegerRange.hpp"
 
+#include <intrin.h>
+
 #include <windows.h>
 #include <sysinfoapi.h>
 
@@ -62,6 +64,26 @@ CPUHierarchy getCPUHierarchy()
     }
     std::free(buffer);
     return ret;
+}
+
+std::uint64_t getProcessAffinity()
+{
+    DWORD_PTR processAffinity = 0;
+    DWORD_PTR systemAffinity = 0;
+    if(!GetProcessAffinityMask(
+        GetCurrentProcess(), &processAffinity, &systemAffinity)
+    )
+    {
+        processAffinity = 0;
+    }
+    return processAffinity;
+}
+
+std::uint32_t cpuidInfo[4];
+
+void fillCPUIDInfo()
+{
+    __cpuid(reinterpret_cast<int(&)[4]>(cpuidInfo), 1);
 }
 }
 

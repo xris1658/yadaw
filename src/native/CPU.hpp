@@ -10,6 +10,12 @@ namespace YADAW::Native
 using CPUHierarchy = Vec<Vec<Vec<std::uint8_t>>>;
 
 CPUHierarchy getCPUHierarchy();
+
+std::uint64_t getProcessAffinity();
+
+extern std::uint32_t cpuidInfo[4];
+
+void fillCPUIDInfo();
 }
 
 #endif // YADAW_SRC_NATIVE_CPU

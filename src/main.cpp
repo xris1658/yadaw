@@ -8,6 +8,7 @@
 #include "event/SplashScreenWorkerThread.hpp"
 #include "entity/EntityInitializer.hpp"
 #include "model/ModelInitializer.hpp"
+#include "native/CPU.hpp"
 #include "native/Native.hpp"
 #include "ui/MessageDialog.hpp"
 #include "ui/Runtime.hpp"
@@ -20,7 +21,6 @@
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
 #include <QTranslator>
-
 
 int main(int argc, char *argv[])
 {

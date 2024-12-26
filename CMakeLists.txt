@@ -163,6 +163,7 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/ALSADeviceEnumerator.hpp
     src/native/linux/ALSAHelper.hpp
     src/native/linux/CLAPNative.cpp
+    src/native/linux/CPU.cpp
     src/native/linux/Library.cpp
     src/native/linux/MIDIInputDeviceImpl.cpp
     src/native/linux/MIDIInputDeviceImpl.hpp
