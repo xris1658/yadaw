@@ -216,6 +216,7 @@ add_executable(BadMemoryAccessHandlerTest
 
 add_executable(CPUFunctionsTest
                ../src/native/CPU.hpp
+               ../src/native/linux/CPU.cpp
                ../src/native/win/CPU.cpp
                CPUFunctionsTest/main.cpp
                ../rc/YADAW.exe.manifest)
