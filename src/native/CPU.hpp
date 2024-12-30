@@ -4,12 +4,26 @@
 #include "util/VectorTypes.hpp"
 
 #include <cstdint>
+#include <map>
+#include <set>
+
+#if _WIN32
+#include <windows.h>
+#endif
 
 namespace YADAW::Native
 {
-using CPUHierarchy = Vec<Vec<Vec<Vec<std::uint8_t>>>>;
+using CPUTopology = std::map<
+    std::uint8_t, std::map< // NUMA nodes
+        std::uint8_t, std::map< // CPU package
+            std::uint8_t, std::set< // physical core
+                std::uint16_t // logical processor
+            >
+        >
+    >
+>;
 
-CPUHierarchy getCPUHierarchy();
+CPUTopology getCPUTopology();
 
 std::uint64_t getProcessAffinity();
 

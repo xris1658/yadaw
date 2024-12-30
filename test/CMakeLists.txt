@@ -217,7 +217,8 @@ add_executable(BadMemoryAccessHandlerTest
 add_executable(CPUFunctionsTest
                ../src/native/CPU.hpp
                ../src/native/win/CPU.cpp
-               CPUFunctionsTest/main.cpp)
+               CPUFunctionsTest/main.cpp
+               ../rc/YADAW.exe.manifest)
 
 add_executable(IntrusivePointerTest
                ../src/util/IntrusivePointer.hpp
