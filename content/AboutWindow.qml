@@ -42,7 +42,7 @@ Window {
                 color: Colors.secondaryContent
             }
             Label {
-                text: "Copyright (c) 2023-2024 xris1658"
+                text: "Copyright (c) 2023-2025 xris1658"
                 color: Colors.content
             }
         }
