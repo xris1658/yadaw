@@ -47,13 +47,13 @@ ProcessSequenceWithPrev getProcessSequenceWithPrev(
 
 enum CreateWorkloadFlags
 {
-    UseAllThreads = 1 << 0
+    NotUsed = 0
 };
 
 Vec<AudioThreadWorkload> createWorkload(
     const ProcessSequenceWithPrev& processSequenceWithPrev,
     std::uint32_t threadCount,
-    CreateWorkloadFlags flags);
+    CreateWorkloadFlags flags = NotUsed);
 }
 
 

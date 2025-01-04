@@ -10,6 +10,11 @@ bool setThreadAffinity(std::thread::native_handle_type handle, std::uint64_t aff
 {
     return SetThreadAffinityMask(handle, affinity);
 }
+
+std::thread::native_handle_type getCurrentThreadHandle()
+{
+    return GetCurrentThread();
+}
 }
 
 #endif

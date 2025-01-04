@@ -78,7 +78,7 @@ ProcessSequenceWithPrev getProcessSequenceWithPrev(
 Vec<AudioThreadWorkload> createWorkload(
     const ProcessSequenceWithPrev& processSequenceWithPrev,
     std::uint32_t threadCount,
-    CreateWorkloadFlags flags)
+    CreateWorkloadFlags)
 {
     if(processSequenceWithPrev.empty())
     {
@@ -86,30 +86,19 @@ Vec<AudioThreadWorkload> createWorkload(
     }
     using Row = ProcessSequenceWithPrev::value_type;
     Vec<AudioThreadWorkload> ret;
-    std::uint32_t parallelCount =
-        (flags & CreateWorkloadFlags::UseAllThreads)?
-            threadCount:
-            std::max_element(
-                processSequenceWithPrev.begin(),
-                processSequenceWithPrev.end(),
-                [](const Row& lhs, const Row& rhs)
-                {
-                    return lhs.size() < rhs.size();
-                }
-            )->size();
-    ret.resize(parallelCount);
+    ret.resize(threadCount);
     {
-        std::uint32_t cellCount = std::accumulate(
-            processSequenceWithPrev.begin(), processSequenceWithPrev.end(),
-            0,
-            [](std::uint32_t lhs, const Row& rhs)
+        auto maxCellCount = std::max_element(
+            processSequenceWithPrev.begin(),
+            processSequenceWithPrev.end(),
+            [](const Row& lhs, const Row& rhs)
             {
-                return lhs + rhs.size();
+                return lhs.size() < rhs.size();
             }
-        );
+        )->size();
         auto [vecSize, rem] = std::div(
-            static_cast<long long>(cellCount),
-            static_cast<long long>(parallelCount)
+            static_cast<long long>(maxCellCount),
+            static_cast<long long>(threadCount)
         );
         FOR_RANGE0(i, ret.size())
         {
