@@ -25,17 +25,17 @@ public:
         Vec<Vec<std::atomic_ref<std::uint8_t>>> atomicCompletionMarks;
     };
 public:
-    AudioEngineWorkerThreadPool(std::unique_ptr<ProcessSequenceWithPrev>&& processSequenceWithPrev);
+    AudioEngineWorkerThreadPool(std::unique_ptr<ProcessSequenceWithPrev>&&);
     ~AudioEngineWorkerThreadPool();
 public:
     bool running() const;
-    // TODO: Not all tasks of processing are done in the worker threads. We need
-    //       to assign some tasks to the "main" audio thread, which is the one
-    //       running the audio callback. For now I'm looking for a way to
-    //       decouple this with the audio callback.
-    void setThreadAffinities(const std::vector<std::uint16_t>& threadAffinities);
-    void start();
+    bool setAffinities(const std::vector<std::uint16_t>& affinities);
+    std::uint32_t getMainAffinity() const;
+    bool start();
     void stop();
+    void mainFunc();
+    void updateProcessSequence(
+        std::unique_ptr<ProcessSequenceWithPrev>&& processSequenceWithPrev);
 private:
     void workerThreadFunc(std::uint32_t processorIndex, std::uint32_t workloadIndex);
     void workerFunc(std::uint32_t workloadIndex);
@@ -43,8 +43,12 @@ private:
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<ProcessSequenceWithPrev>> processSequenceWithPrev_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<Workload>> workload_;
     std::vector<std::thread> workerThreads_;
+    std::vector<std::uint16_t> affinities_;
     std::atomic_uint16_t updateCounter_;
+    std::atomic_uint16_t workerThreadDoneCounter_;
+    std::atomic_flag firstCallback_;
     std::atomic_flag running_;
+    mutable bool mainAffinityIsSet_ = false;
 };
 }
 
