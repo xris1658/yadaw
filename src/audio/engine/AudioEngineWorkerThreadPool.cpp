@@ -72,8 +72,16 @@ bool AudioEngineWorkerThreadPool::start()
     }
     if(!running())
     {
+        workerThreadTaskStatus_.resize(
+            affinities_.size() - 1, WorkerThreadTaskStatus::NoWorker
+        );
+        atomicWorkerThreadTaskStatus_.clear();
+        atomicWorkerThreadTaskStatus_.reserve(affinities_.size() - 1);
         FOR_RANGE0(i, affinities_.size() - 1)
         {
+            atomicWorkerThreadTaskStatus_.emplace_back(
+                workerThreadTaskStatus_[i]
+            );
             workerThreads_.emplace_back(
                 [this, i]()
                 {
@@ -92,9 +100,14 @@ void AudioEngineWorkerThreadPool::stop()
         running_.clear(std::memory_order_release);
         for(auto& thread: workerThreads_)
         {
-            thread.join();
+            if(thread.joinable())
+            {
+                thread.join();
+            }
         }
         firstCallback_.clear(std::memory_order_release);
+        atomicWorkerThreadTaskStatus_.clear();
+        workerThreadTaskStatus_.clear();
     }
     mainAffinityIsSet_ = false;
     firstCallback_.test_and_set(std::memory_order_release);
@@ -117,12 +130,39 @@ void AudioEngineWorkerThreadPool::mainFunc()
         }
     }
     workerThreadDoneCounter_.store(0, std::memory_order_release);
+    // FIXME: The audio callback thread waits for worker threads that might be
+    //        not awaken. See the following comment.
+    //        It might be a good idea to split tasks into smaller ones and do
+    //        those in the audio callback thread.
     workerFunc(affinities_.back());
     FOR_RANGE0(i, workerThreads_.size())
     {
-        while(workerThreadDoneCounter_.load(std::memory_order_acquire) == i)
+        // Since `atomic<T>::wait` calls system APIs that work in kernel mode,
+        // worker threads might wake up later than we'd expect. To handle this,
+        // the audio callback thread do the tasks that should have been done in
+        // worker threads, until the worker threads are ready for doing tasks.
+        // Since we use `workerFunc` directly, some unnecessary spin lock loops
+        if(auto& status = atomicWorkerThreadTaskStatus_[i];
+            status.load(std::memory_order_acquire)
+            != WorkerThreadTaskStatus::ProcessedByWorkerThread)
         {
-            YADAW::Native::inSpinLockLoop();
+            status.store(
+                WorkerThreadTaskStatus::ProcessedByAudioCallbackThread,
+                std::memory_order_release
+            );
+            workerFunc(i);
+            status.store(
+                WorkerThreadTaskStatus::NoWorker,
+                std::memory_order_release
+            );
+            workerThreadDoneCounter_.fetch_add(1, std::memory_order_release);
+        }
+        else
+        {
+            while(workerThreadDoneCounter_.load(std::memory_order_acquire) == i)
+            {
+                YADAW::Native::inSpinLockLoop();
+            }
         }
     }
 }
@@ -131,6 +171,7 @@ void AudioEngineWorkerThreadPool::updateProcessSequence(
     std::unique_ptr<ProcessSequenceWithPrev>&& processSequenceWithPrev)
 {
     processSequenceWithPrev_.update(std::move(processSequenceWithPrev));
+    // TODO
 }
 
 void AudioEngineWorkerThreadPool::workerThreadFunc(
@@ -141,8 +182,22 @@ void AudioEngineWorkerThreadPool::workerThreadFunc(
         static_cast<std::uint64_t>(1) << processorIndex
     );
     running_.wait(false, std::memory_order_acquire);
+    // See comments in `AudioEngineWorkerThreadPool::mainFunc`
+    auto& status = atomicWorkerThreadTaskStatus_[workloadIndex];
+    while(status.load(std::memory_order_acquire)
+        == WorkerThreadTaskStatus::ProcessedByAudioCallbackThread)
+    {
+        YADAW::Native::inSpinLockLoop();
+    }
+    status.store(WorkerThreadTaskStatus::ProcessedByWorkerThread,
+        std::memory_order_release
+    );
     while(running_.test(std::memory_order_acquire))
     {
+        while(workerThreadDoneCounter_.load(std::memory_order_acquire) != 0)
+        {
+            YADAW::Native::inSpinLockLoop();
+        }
         workerFunc(workloadIndex);
         auto counter = workerThreadDoneCounter_.fetch_add(1, std::memory_order_relaxed) + 1;
         workerThreadDoneCounter_.notify_all();
@@ -163,12 +218,21 @@ void AudioEngineWorkerThreadPool::workerFunc(std::uint32_t workloadIndex)
     auto& processSeq = *(workload->processSequenceWithPrev);
     for(const auto& [row, col]: tasks)
     {
-        workload->atomicCompletionMarks[row][col].wait(false, std::memory_order_acquire);
         auto& [processPairs, prev] = processSeq[row][col];
+        for(const auto& [prevRow, prevCol]: prev)
+        {
+            while(workload->atomicCompletionMarks[prevRow][prevCol].load(
+                std::memory_order_acquire) == false
+            )
+            {
+                YADAW::Native::inSpinLockLoop();
+            }
+        }
         for(auto& [process, buffer]: processPairs)
         {
             process.process(buffer.audioProcessData());
         }
+        workload->atomicCompletionMarks[row][col].store(true, std::memory_order_release);
     }
 }
 }

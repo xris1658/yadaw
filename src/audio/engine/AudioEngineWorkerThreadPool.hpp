@@ -24,6 +24,12 @@ public:
         Vec<Vec<std::uint8_t>> completionMarks;
         Vec<Vec<std::atomic_ref<std::uint8_t>>> atomicCompletionMarks;
     };
+    enum WorkerThreadTaskStatus: std::uint8_t
+    {
+        NoWorker,
+        ProcessedByAudioCallbackThread,
+        ProcessedByWorkerThread
+    };
 public:
     AudioEngineWorkerThreadPool(std::unique_ptr<ProcessSequenceWithPrev>&&);
     ~AudioEngineWorkerThreadPool();
@@ -49,6 +55,8 @@ private:
     std::atomic_flag firstCallback_;
     std::atomic_flag running_;
     mutable bool mainAffinityIsSet_ = false;
+    std::vector<std::uint8_t> workerThreadTaskStatus_;
+    std::vector<std::atomic_ref<std::uint8_t>> atomicWorkerThreadTaskStatus_;
 };
 }
 
