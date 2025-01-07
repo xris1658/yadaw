@@ -5,6 +5,7 @@
 #include "audio/engine/AudioDeviceGraph.hpp"
 #include "audio/engine/AudioDeviceGraphProcess.hpp"
 #include "audio/engine/AudioDeviceGraphWithPDC.hpp"
+#include "audio/engine/AudioEngineWorkerThreadPool.hpp"
 #include "audio/mixer/Mixer.hpp"
 #include "concurrent/PassDataToRealtimeThread.hpp"
 #include "controller/CLAPPluginPool.hpp"
@@ -81,10 +82,8 @@ public:
     void initialize(double sampleRate, std::uint32_t bufferSize);
     const YADAW::Audio::Mixer::Mixer& mixer() const;
     YADAW::Audio::Mixer::Mixer& mixer();
-    const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>& processSequence() const;
-    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>& processSequence();
-    const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequenceWithPrev>>& processSequenceWithPrev() const;
-    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequenceWithPrev>>& processSequenceWithPrev();
+    const YADAW::Audio::Engine::AudioEngineWorkerThreadPool& workerThreadPool() const;
+    YADAW::Audio::Engine::AudioEngineWorkerThreadPool& workerThreadPool();
     const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>>& vst3PluginPool() const;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>>& vst3PluginPool();
     const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginPoolVector>>& clapPluginPool() const;
@@ -100,13 +99,7 @@ public:
     {
         return processTime_.load(std::memory_order_acquire);
     }
-private:
     void updateProcessSequence();
-    void updateProcessSequenceWithPrev();
-    void workerThreadProcessFunc(
-        ProcessSequenceWithPrevAndCompletionMarks& seq,
-        const YADAW::Audio::Engine::AudioThreadWorkload& workload
-    );
 public:
     static void mixerNodeAddedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
     static void mixerNodeRemovedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
@@ -129,8 +122,7 @@ private:
     bool running_ = false;
     std::atomic<std::int64_t> processTime_;
     YADAW::Audio::Mixer::Mixer mixer_;
-    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>> processSequence_;
-    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<ProcessSequenceWithPrevAndCompletionMarks>> processSequenceWithPrevAndCompletionMarks_;
+    YADAW::Audio::Engine::AudioEngineWorkerThreadPool workerThreadPool_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>> vst3PluginPool_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginPoolVector>> clapPluginPool_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginToSetProcessVector>> clapPluginToSetProcess_;

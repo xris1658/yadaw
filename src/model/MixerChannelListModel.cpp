@@ -1360,14 +1360,9 @@ bool MixerChannelListModel::removeInstrument(int position)
         auto& graphWithPDC = mixer_.graph();
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         {
-        auto instrumentNode = mixer_.removeInstrument(position);
+            auto instrumentNode = mixer_.removeInstrument(position);
             auto deviceWithPDC = graphWithPDC.removeNode(instrumentNode);
-            engine.processSequence().updateAndGetOld(
-                std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
-                    YADAW::Audio::Engine::getProcessSequence(graphWithPDC.graph(), mixer_.bufferExtension())
-                ),
-                engine.running()
-            );
+            // TODO
         }
         if(auto window = instrumentInstance->pluginWindowConnection.window; window)
         {

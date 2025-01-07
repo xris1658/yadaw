@@ -80,9 +80,13 @@ Vec<AudioThreadWorkload> createWorkload(
     std::uint32_t threadCount,
     CreateWorkloadFlags)
 {
+    if(threadCount == 0)
+    {
+        threadCount = 1;
+    }
     if(processSequenceWithPrev.empty())
     {
-        return {};
+        return Vec<AudioThreadWorkload>(threadCount);
     }
     using Row = ProcessSequenceWithPrev::value_type;
     Vec<AudioThreadWorkload> ret;
@@ -112,18 +116,13 @@ Vec<AudioThreadWorkload> createWorkload(
         FOR_RANGE0(j, row.size())
         {
             ret[vecIndex++].emplace_back();
-        }
-    }
-    for(const auto& row: processSequenceWithPrev)
-    {
-        for(const auto& cell: row)
-        {
             if(vecIndex == ret.size())
             {
                 vecIndex = 0;
             }
         }
     }
+    assert(ret.size() == threadCount);
     return ret;
 }
 }

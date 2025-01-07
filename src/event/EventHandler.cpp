@@ -301,14 +301,8 @@ void EventHandler::onOpenMainWindow()
     auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
     auto& mixerChannels = YADAW::Controller::appMixerChannels();
     auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
-    // Pass the process sequence into the audio callback
-    auto& processSequence = engine.processSequence();
-    processSequence.update(
-        std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
-            YADAW::Audio::Engine::getProcessSequence(appGraph, bufferExt)
-        ),
-        false
-    );
+    // TODO: Pass the process sequence into the audio callback
+    engine.updateProcessSequence();
     auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
     YADAW::Audio::Host::CLAPHost::setMainThreadId(std::this_thread::get_id());
     // Start the audio backend

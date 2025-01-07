@@ -3,12 +3,17 @@
 #include "audio/host/CLAPHost.hpp"
 #include "audio/host/HostContext.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
+#include "native/CPU.hpp"
 #include "util/Util.hpp"
-
-#include <execution>
 
 namespace YADAW::Controller
 {
+YADAW::Native::CPUTopology& getCPUTopology()
+{
+    static YADAW::Native::CPUTopology ret = YADAW::Native::getCPUTopology();
+    return ret;
+}
+
 AudioEngine::AudioEngine():
     mixer_(
         [this](
@@ -24,9 +29,13 @@ AudioEngine::AudioEngine():
             return createMeter(channelGroupType, channelCountInGroup);
         }
     ),
-    processSequence_(std::make_unique<YADAW::Audio::Engine::ProcessSequence>()),
-    processSequenceWithPrevAndCompletionMarks_(
-        std::make_unique<ProcessSequenceWithPrevAndCompletionMarks>()
+    workerThreadPool_(
+        std::make_unique<YADAW::Audio::Engine::ProcessSequenceWithPrev>(
+            YADAW::Audio::Engine::getProcessSequenceWithPrev(
+                mixer_.graph().graph(),
+                mixer_.bufferExtension()
+            )
+        )
     ),
     vst3PluginPool_(std::make_unique<YADAW::Controller::VST3PluginPoolVector>()),
     clapPluginPool_(std::make_unique<YADAW::Controller::CLAPPluginPoolVector>()),
@@ -83,16 +92,14 @@ YADAW::Audio::Mixer::Mixer& AudioEngine::mixer()
     return mixer_;
 }
 
-const YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>&
-    AudioEngine::processSequence() const
+const YADAW::Audio::Engine::AudioEngineWorkerThreadPool& AudioEngine::workerThreadPool() const
 {
-    return processSequence_;
+    return workerThreadPool_;
 }
 
-YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Audio::Engine::ProcessSequence>>&
-    AudioEngine::processSequence()
+YADAW::Audio::Engine::AudioEngineWorkerThreadPool& AudioEngine::workerThreadPool()
 {
-    return processSequence_;
+    return workerThreadPool_;
 }
 
 void AudioEngine::uninitialize()
@@ -100,8 +107,6 @@ void AudioEngine::uninitialize()
     mixer_.clearChannels();
     mixer_.clearAudioInputChannels();
     mixer_.clearAudioOutputChannels();
-    processSequence_.updateAndGetOld(nullptr, false).reset();
-    processSequenceWithPrevAndCompletionMarks_.updateAndGetOld(nullptr, false).reset();
     mixer_.graph().clearMultiInputNodes();
     mixer_.graph().graph().clear();
 }
@@ -118,8 +123,6 @@ void AudioEngine::process()
     auto now = YADAW::Util::currentTimeValueInNanosecond();
     YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.flip();
     YADAW::Audio::Host::CLAPHost::setAudioThreadId(std::this_thread::get_id());
-    processSequence_.swapIfNeeded();
-    processSequenceWithPrevAndCompletionMarks_.swapIfNeeded();
     vst3PluginPool_.swapIfNeeded();
     clapPluginToSetProcess_.swapAndUseIfNeeded(
         [this](decltype(clapPluginToSetProcess_.get())& ptr)
@@ -159,26 +162,7 @@ void AudioEngine::process()
     {
         mixer_.audioOutputVolumeFaderAt(i)->get().onBufferSwitched(now);
     }
-    auto& processSequence = *(processSequence_.get());
-    std::for_each(processSequence.begin(), processSequence.end(),
-        [](Vector2D<YADAW::Audio::Engine::ProcessPair>& row)
-        {
-        // TODO: Replace this with implementation based on thread pool
-            std::for_each(
-                // std::execution::par_unseq,
-                row.begin(), row.end(),
-                [](std::vector<YADAW::Audio::Engine::ProcessPair>& cell)
-                {
-                    std::for_each(cell.begin(), cell.end(),
-                        [](YADAW::Audio::Engine::ProcessPair& pair)
-                        {
-                            pair.first.process(pair.second.audioProcessData());
-                        }
-                    );
-                }
-            );
-        }
-    );
+    workerThreadPool_.mainFunc();
     processTime_.store(
         YADAW::Util::currentTimeValueInNanosecond() - now,
         std::memory_order_release
@@ -187,48 +171,13 @@ void AudioEngine::process()
 
 void AudioEngine::updateProcessSequence()
 {
-    processSequence_.updateAndGetOld(
-        std::make_unique<YADAW::Audio::Engine::ProcessSequence>(
-            YADAW::Audio::Engine::getProcessSequence(
-                mixer_.graph().graph(),
-                mixer_.bufferExtension()
-            )
-        ),
-        running()
-    ).reset();
-}
-
-void AudioEngine::updateProcessSequenceWithPrev()
-{
-    processSequenceWithPrevAndCompletionMarks_.updateAndGetOld(
-        std::make_unique<ProcessSequenceWithPrevAndCompletionMarks>(
+    workerThreadPool_.updateProcessSequence(
+        std::make_unique<YADAW::Audio::Engine::ProcessSequenceWithPrev>(
             YADAW::Audio::Engine::getProcessSequenceWithPrev(
-                mixer_.graph().graph(),
-                mixer_.bufferExtension()
+                mixer_.graph().graph(), mixer_.bufferExtension()
             )
-        ),
-        running()
-    ).reset();
-}
-
-void AudioEngine::workerThreadProcessFunc(
-    ProcessSequenceWithPrevAndCompletionMarks& sequence,
-    const YADAW::Audio::Engine::AudioThreadWorkload& workload)
-{
-    for(const auto& [row, col]: workload)
-    {
-        auto& [seq, prev] = sequence.processSequenceWithPrev[row][col];
-        for(const auto& [prevRow, prevCol]: prev)
-        {
-            sequence.atomicCompletionMarks[prevRow][prevCol].wait(1, std::memory_order_acquire);
-        }
-        for(auto& [process, buffer]: seq)
-        {
-            process.process(buffer.audioProcessData());
-        }
-        sequence.atomicCompletionMarks[row][col].store(1, std::memory_order_release);
-        sequence.atomicCompletionMarks[row][col].notify_all();
-    }
+        )
+    );
 }
 
 void AudioEngine::mixerNodeAddedCallback(const Audio::Mixer::Mixer& mixer)
@@ -310,6 +259,59 @@ bool AudioEngine::running() const
 
 void AudioEngine::setRunning(bool running)
 {
+    if((!running_) && running)
+    {
+        const auto& cores = getCPUTopology()[0][0];
+        std::vector<std::uint16_t> affinities;
+        Vec<Vec<std::uint16_t>> coresVec;
+        std::uint16_t logicalProcessorCount = 0;
+        for(const auto& [core, logicalProcessors]: cores)
+        {
+            logicalProcessorCount += logicalProcessors.size();
+            auto& processors = coresVec.emplace_back();
+            processors.reserve(logicalProcessors.size());
+            std::copy_n(logicalProcessors.rbegin(), logicalProcessors.size(), std::back_inserter(processors));
+        }
+        auto efficiencyCoreBegin = std::stable_partition(
+            coresVec.begin(), coresVec.end(),
+            [](Vec<std::uint16_t>& vec)
+            {
+                return vec.size() > 1;
+            }
+        );
+        auto performanceCoreProcessorCount = 0;
+        for(auto it = coresVec.begin(); it != efficiencyCoreBegin; ++it)
+        {
+            performanceCoreProcessorCount += it->size();
+        }
+        auto it = coresVec.begin();
+        FOR_RANGE0(i, performanceCoreProcessorCount)
+        {
+            while(it->empty())
+            {
+                if(++it == efficiencyCoreBegin)
+                {
+                    it = coresVec.begin();
+                }
+            }
+            affinities.emplace_back(it->back());
+            it->pop_back();
+            if(++it == efficiencyCoreBegin)
+            {
+                it = coresVec.begin();
+            }
+        }
+        for(auto it = efficiencyCoreBegin; it != coresVec.end(); ++it)
+        {
+            affinities.emplace_back(it->front());
+        }
+        workerThreadPool_.setAffinities(affinities);
+        workerThreadPool_.start();
+    }
+    else if(running_ && (!running_))
+    {
+        workerThreadPool_.stop();
+    }
     running_ = running;
 }
 

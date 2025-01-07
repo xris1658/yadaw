@@ -6,8 +6,6 @@
 #include "util/VectorTypes.hpp"
 
 #include <atomic>
-#include <type_traits>
-#include <iterator>
 
 namespace YADAW::Audio::Engine
 {
@@ -17,7 +15,10 @@ class AudioEngineWorkerThreadPool
 public:
     struct Workload
     {
-        Workload(std::unique_ptr<ProcessSequenceWithPrev>&& processSequenceWithPrev);
+        Workload(
+            std::unique_ptr<ProcessSequenceWithPrev>&& processSequenceWithPrev,
+            std::uint32_t threadCount
+        );
         ~Workload();
         std::unique_ptr<ProcessSequenceWithPrev> processSequenceWithPrev;
         std::vector<AudioThreadWorkload> audioThreadWorkload;
@@ -46,7 +47,6 @@ private:
     void workerThreadFunc(std::uint32_t processorIndex, std::uint32_t workloadIndex);
     void workerFunc(std::uint32_t workloadIndex);
 private:
-    YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<ProcessSequenceWithPrev>> processSequenceWithPrev_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<Workload>> workload_;
     std::vector<std::thread> workerThreads_;
     std::vector<std::uint16_t> affinities_;
@@ -55,8 +55,6 @@ private:
     std::atomic_flag firstCallback_;
     std::atomic_flag running_;
     mutable bool mainAffinityIsSet_ = false;
-    std::vector<std::uint8_t> workerThreadTaskStatus_;
-    std::vector<std::atomic_ref<std::uint8_t>> atomicWorkerThreadTaskStatus_;
 };
 }
 
