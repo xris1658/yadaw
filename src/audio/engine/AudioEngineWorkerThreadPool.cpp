@@ -125,7 +125,7 @@ void AudioEngineWorkerThreadPool::mainFunc()
         {
             YADAW::Native::setThreadAffinity(
                 YADAW::Native::getCurrentThreadHandle(),
-                static_cast<std::uint64_t>(1) << affinities_[0]
+                static_cast<std::uint64_t>(1) << affinities_.back()
             );
         }
     }
