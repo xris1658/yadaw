@@ -196,6 +196,31 @@ add_executable(AudioDeviceGraphWithPDCTest
                common/SineWaveGenerator.hpp
                AudioDeviceGraphWithPDCTest/main.cpp)
 
+add_executable(AudioEngineWorkerThreadPoolTest
+               ../src/audio/engine/AudioDeviceGraphBase.cpp
+               ../src/audio/engine/AudioDeviceGraphBase.hpp
+               ../src/audio/engine/AudioDeviceGraph.hpp
+               ../src/audio/engine/extension/Buffer.cpp
+               ../src/audio/engine/extension/Buffer.hpp
+               ../src/audio/engine/AudioDeviceGraphProcess.cpp
+               ../src/audio/engine/AudioDeviceGraphProcess.hpp
+               ../src/audio/engine/AudioEngineWorkerThreadPool.cpp
+               ../src/audio/engine/AudioEngineWorkerThreadPool.hpp
+               ../src/audio/util/AudioBufferPool.cpp
+               ../src/audio/util/AudioBufferPool.hpp
+               ../src/native/CPU.hpp
+               ../src/native/Thread.hpp
+               ../src/native/linux/CPU.cpp
+               ../src/native/win/Thread.cpp
+               ../src/native/linux/CPU.cpp
+               ../src/native/win/Thread.cpp
+               ../src/util/ADEUtil.cpp
+               ../src/util/ADEUtil.hpp
+               ../src/util/IntrusivePointer.hpp
+               ../src/util/IntrusiveRefCounter.cpp
+               ../src/util/IntrusiveRefCounter.hpp
+               AudioEngineWorkerThreadPoolTest/main.cpp)
+
 add_executable(AudioProcessDataBufferContainerTest
                ../src/audio/engine/AudioProcessDataBufferContainer.hpp
                ../src/audio/util/AudioBufferPool.cpp
@@ -266,6 +291,8 @@ add_executable(ZeckendorfLogarithmTest ZeckendorfLogarithmTest/main.cpp)
 target_link_libraries(AudioDeviceGraphTest PRIVATE ade Qt6::Core)
 
 target_link_libraries(AudioDeviceGraphWithPDCTest PRIVATE ade Qt6::Core)
+
+target_link_libraries(AudioEngineWorkerThreadPoolTest PRIVATE ade Qt6::Core)
 
 target_link_libraries(ADEUtilsTest PRIVATE ade)
 
