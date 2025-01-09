@@ -60,6 +60,12 @@ bool AudioEngineWorkerThreadPool::setAffinities(
             ),
             false
         );
+        workerThreadDone_.resize(affinities.size() - 1, false);
+        atomicWorkerThreadDone_.reserve(affinities.size() - 1);
+        FOR_RANGE0(i, affinities.size() - 1)
+        {
+            atomicWorkerThreadDone_.emplace_back(workerThreadDone_[i]);
+        }
         return true;
     }
     return false;
@@ -80,9 +86,6 @@ bool AudioEngineWorkerThreadPool::start()
     }
     if(!running())
     {
-        workerThreadDoneCounter_.store(
-            workerThreads_.size(), std::memory_order_release
-        );
         firstCallback_.test_and_set(std::memory_order_release);
         FOR_RANGE0(i, affinities_.size() - 1)
         {
@@ -93,7 +96,6 @@ bool AudioEngineWorkerThreadPool::start()
                 }
             );
         }
-        running_.test_and_set(std::memory_order_release);
     }
     return true;
 }
@@ -102,9 +104,12 @@ void AudioEngineWorkerThreadPool::stop()
 {
     if(running())
     {
+        for(auto& done: atomicWorkerThreadDone_)
+        {
+            done.store(false, std::memory_order_release);
+            done.notify_one();
+        }
         running_.clear(std::memory_order_release);
-        workerThreadDoneCounter_.store(UINT16_MAX, std::memory_order_release);
-        workerThreadDoneCounter_.notify_all();
         for(auto& thread: workerThreads_)
         {
             if(thread.joinable())
@@ -112,7 +117,6 @@ void AudioEngineWorkerThreadPool::stop()
                 thread.join();
             }
         }
-        firstCallback_.clear(std::memory_order_release);
     }
     mainAffinityIsSet_ = false;
     firstCallback_.test_and_set(std::memory_order_release);
@@ -136,12 +140,15 @@ void AudioEngineWorkerThreadPool::mainFunc()
         firstCallback_.clear(std::memory_order_release);
     }
     workload_.swapIfNeeded();
-    workerThreadDoneCounter_.store(0, std::memory_order_release);
-    workerThreadDoneCounter_.notify_all();
+    for(auto& done: atomicWorkerThreadDone_)
+    {
+        done.store(false, std::memory_order_release);
+        done.notify_one();
+    }
     workerFunc(affinities_.size() - 1);
     FOR_RANGE0(i, workerThreads_.size())
     {
-        workerThreadDoneCounter_.wait(i, std::memory_order_acquire);
+        atomicWorkerThreadDone_[i].wait(false, std::memory_order_acquire);
     }
 }
 
@@ -167,18 +174,10 @@ void AudioEngineWorkerThreadPool::workerThreadFunc(
     running_.wait(false, std::memory_order_acquire);
     do
     {
-        workerThreadDoneCounter_.wait(workerThreads_.size(), std::memory_order_acquire);
-        if(workerThreadDoneCounter_.load(std::memory_order_acquire) == UINT16_MAX)
-        {
-            break;
-        }
         workerFunc(workloadIndex);
-        auto counter = workerThreadDoneCounter_.fetch_add(1, std::memory_order_relaxed);
-        workerThreadDoneCounter_.notify_all();
-        FOR_RANGE(i, counter + 1, workerThreads_.size())
-        {
-            workerThreadDoneCounter_.wait(i, std::memory_order_acquire);
-        }
+        atomicWorkerThreadDone_[workloadIndex].store(true, std::memory_order_release);
+        atomicWorkerThreadDone_[workloadIndex].notify_one();
+        atomicWorkerThreadDone_[workloadIndex].wait(true, std::memory_order_acquire);
     }
     while(running_.test(std::memory_order_acquire));
 }

@@ -51,7 +51,8 @@ private:
     std::vector<std::thread> workerThreads_;
     std::vector<std::uint16_t> affinities_;
     std::atomic_uint16_t updateCounter_;
-    std::atomic_uint16_t workerThreadDoneCounter_;
+    std::vector<std::uint8_t> workerThreadDone_;
+    std::vector<std::atomic_ref<std::uint8_t>> atomicWorkerThreadDone_;
     std::atomic_flag firstCallback_;
     std::atomic_flag running_;
     mutable bool mainAffinityIsSet_ = false;
