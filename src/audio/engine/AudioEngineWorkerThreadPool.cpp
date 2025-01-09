@@ -104,12 +104,12 @@ void AudioEngineWorkerThreadPool::stop()
 {
     if(running())
     {
+        running_.clear(std::memory_order_release);
         for(auto& done: atomicWorkerThreadDone_)
         {
             done.store(false, std::memory_order_release);
             done.notify_one();
         }
-        running_.clear(std::memory_order_release);
         for(auto& thread: workerThreads_)
         {
             if(thread.joinable())
