@@ -308,7 +308,7 @@ void AudioEngine::setRunning(bool running)
         workerThreadPool_.setAffinities(affinities);
         workerThreadPool_.start();
     }
-    else if(running_ && (!running_))
+    else if(running_ && (!running))
     {
         workerThreadPool_.stop();
     }
