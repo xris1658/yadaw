@@ -610,13 +610,13 @@ void EventHandler::onMainWindowClosing()
     auto& timer = YADAW::UI::idleProcessTimer();
     QObject::disconnect(&timer, &QTimer::timeout, this, nullptr);
     timer.stop();
+    auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
+    audioEngine.setRunning(false);
 #if _WIN32
     YADAW::Controller::appAudioGraphBackend().uninitialize();
 #elif __linux__
     YADAW::Controller::appALSABackend().uninitialize();
 #endif
-    auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
-    audioEngine.setRunning(false);
     YADAW::Controller::appAudioInputMixerChannels().clear();
     YADAW::Controller::appMixerChannels().clear();
     YADAW::Controller::appAudioOutputMixerChannels().clear();
