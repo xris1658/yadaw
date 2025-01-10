@@ -4,7 +4,7 @@
 #if _WIN32
 #include <windows.h>
 #elif __linux__
-
+#include <xmmintrin.h>
 #endif
 
 #include <cstdint>
@@ -21,8 +21,9 @@ inline void inSpinLockLoop()
 #if _WIN32
     YieldProcessor();
 #elif __linux__
-    // x86: __builtin_ia32_pause();
-    // ARM: __yield();
+#if __x86_64__
+    _mm_pause();
+#endif
 #endif
 }
 }
