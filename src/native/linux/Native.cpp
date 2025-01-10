@@ -94,7 +94,7 @@ const std::vector<QString>& defaultPluginDirectoryList()
 
 QString getFileBrowserName()
 {
-    auto desktop = std::getenv("XDG_SESSION_DESKTOP");
+    auto desktop = std::getenv("XDG_CURRENT_DESKTOP");
     if(std::strstr(desktop, "KDE"))
     {
         return "Plasma";
