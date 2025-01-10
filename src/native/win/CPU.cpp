@@ -14,8 +14,8 @@
 inline WORD getNUMANodeGroupCount(const NUMA_NODE_RELATIONSHIP& numaNodeRelationship)
 {
     // NUMA node group count is introduced in Windows 10 20H2 (build 19042).
-    // This field does not exist in Windows SDK 10.0.19041.0 (but it exists in
-    // newer SDKs):
+    // This field does not exist in Windows SDK 10.0.19041.0, which is the
+    // latest Windows 10 SDK:
     //
     //   File: winnt.h (older SDK)
     //   BYTE  Reserved[20];
