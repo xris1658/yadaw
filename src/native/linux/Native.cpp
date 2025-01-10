@@ -24,6 +24,30 @@ const QString& appDataFolder()
     return ret;
 }
 
+void openSpecialCharacterInput()
+{
+    std::vector<QString> listOfCharMap;
+    auto desktop = std::getenv("XDG_CURRENT_DESKTOP");
+    if(std::strstr(desktop, "KDE"))
+    {
+        listOfCharMap.emplace_back("kcharselect");
+        listOfCharMap.emplace_back("gucharmap");
+    }
+    else
+    {
+        listOfCharMap.emplace_back("gucharmap");
+        listOfCharMap.emplace_back("kcharselect");
+    }
+    QProcess process;
+    for(const auto& charmap: listOfCharMap)
+    {
+        if(QProcess::startDetached(charmap))
+        {
+            break;
+        }
+    }
+}
+
 bool isDebuggerPresent()
 {
     const auto pid = getpid();
