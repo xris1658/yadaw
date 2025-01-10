@@ -92,9 +92,6 @@ const std::vector<QString>& defaultPluginDirectoryList()
     return ret;
 }
 
-constexpr char gnome[] = "GNOME";
-constexpr char kde[] = "KDE";
-
 QString getFileBrowserName()
 {
     auto desktop = std::getenv("XDG_SESSION_DESKTOP");
@@ -116,28 +113,30 @@ QString getFileBrowserName()
 void locateFileInExplorer(const QString& path)
 {
     auto desktop = std::getenv("XDG_SESSION_DESKTOP");
-    QProcess process;
+    QString program; program.reserve(std::size("nautilus"));
     QStringList args;
     if(std::strstr(desktop, "KDE"))
     {
-        process.setProgram("dolphin");
+        program = "dolphin";
         args << path << "--new-window" << "--select";
     }
     else if(std::strstr(desktop, "GNOME"))
     {
-        process.setProgram("nautilus");
+        program = "nautilus";
         args << "-s" << path;
     }
     // If the path is a directory, then open it (which is not what we want);
     // If the path is a file, then locate it.
     else if(std::strstr(desktop, "XFCE"))
     {
-        process.setProgram("thunar");
+        program = "thunar";
         args << path;
     }
+    // TODO: Add COSMIC Files (https://github.com/pop-os/cosmic-files) once a
+    //       stable version release comes out, as well as other DEs
     if(!args.empty())
     {
-        process.startDetached();
+        QProcess::startDetached(program, args);
     }
     // GNOME:      nautilus -s [URI]
     // Xfce:       thunar [URI]
