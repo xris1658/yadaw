@@ -112,6 +112,7 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/MIDIOutputDeviceImpl.cpp
     src/native/win/MIDIOutputDeviceImpl.hpp
     src/native/win/Native.cpp
+    src/native/win/Shell.cpp
     src/native/win/Thread.cpp
     src/native/win/VST3Native.cpp
     src/native/win/VestifalNative.cpp
@@ -129,6 +130,7 @@ set(MAC_NATIVE_SOURCES
     src/native/mac/VST3Native.cpp
     src/native/mac/CLAPNative.cpp
     src/native/mac/Library.cpp
+    src/native/mac/Shell.cpp
     src/native/mac/VestifalNative.cpp
     src/native/mac/MIDIInputDeviceImpl.cpp
     src/native/mac/MIDIInputDeviceImpl.hpp
@@ -172,6 +174,7 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/Native.cpp
     src/native/linux/Sequencer.cpp
     src/native/linux/Sequencer.hpp
+    src/native/linux/Shell.cpp
     src/native/linux/Thread.cpp
     src/native/linux/VST3Native.cpp
     src/native/linux/VestifalNative.cpp
@@ -486,6 +489,7 @@ set(YADAW_COMMON_SOURCES
     src/native/MIDIOutputDeviceImpl.hpp
     src/native/Native.hpp
     src/native/PluginFormatSupport.hpp
+    src/native/Shell.hpp
     src/native/Thread.hpp
     src/native/VST3Native.hpp
     src/native/VestifalNative.hpp

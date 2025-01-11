@@ -22,6 +22,7 @@
 #include "model/RegularAudioIOPositionModel.hpp"
 #include "model/QuickMenuBarEventFilterModel.hpp"
 #include "native/Native.hpp"
+#include "native/Shell.hpp"
 #include "ui/MessageDialog.hpp"
 #include "ui/Runtime.hpp"
 #include "ui/UI.hpp"
