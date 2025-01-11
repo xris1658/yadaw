@@ -480,7 +480,7 @@ bool ALSABackend::Impl::start(const ALSABackend::Callback* callback)
         &readInterleavedEnd,
         &readNonInterleavedEnd
     };
-    if(!runFlag_.test_and_set(std::memory_order_acquire))
+    if(!runFlag_.test(std::memory_order_acquire))
     {
         std::vector<ALSABackend::AudioBuffer> inputBuffers;
         std::vector<ALSABackend::AudioBuffer> outputBuffers;
@@ -520,7 +520,7 @@ bool ALSABackend::Impl::start(const ALSABackend::Callback* callback)
                         frameCount_ * 1000 / static_cast<float>(sampleRate_)
                     )
                 );
-                while(runFlag_.test_and_set(std::memory_order_acquire))
+                while(runFlag_.test(std::memory_order_acquire))
                 {
                     FOR_RANGE0(i, inputs_.size())
                     {
@@ -600,7 +600,6 @@ bool ALSABackend::Impl::start(const ALSABackend::Callback* callback)
                         }
                     }
                 }
-                runFlag_.clear(std::memory_order_release);
             }
         );
         auto nativeHandle = audioThread_.native_handle();
@@ -612,13 +611,12 @@ bool ALSABackend::Impl::start(const ALSABackend::Callback* callback)
 
 bool ALSABackend::Impl::stop()
 {
-    if(runFlag_.test_and_set(std::memory_order_acquire))
+    if(runFlag_.test(std::memory_order_acquire))
     {
         runFlag_.clear(std::memory_order_release);
         audioThread_.join();
         return true;
     }
-    runFlag_.clear(std::memory_order_release);
     return false;
 }
 

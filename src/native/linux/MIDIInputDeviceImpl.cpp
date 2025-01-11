@@ -99,7 +99,7 @@ void MIDIInputDevice::Impl::start(MIDIInputDevice::ReceiveInputFunc* const func)
                 snd_midi_event_t* midiEvent;
                 snd_midi_event_new(0, &midiEvent);
                 snd_midi_event_no_status(midiEvent, 1);
-                while(run_.test_and_set(std::memory_order_acquire))
+                while(run_.test(std::memory_order_acquire))
                 {
                     if(auto eventCount = snd_seq_event_input_pending(seq, 1);
                         eventCount == 0)

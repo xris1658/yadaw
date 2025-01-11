@@ -186,7 +186,7 @@ void testPlugin(QWindow& pluginWindow)
                             container.setOutput(i, j, output[i][j].data());
                         }
                     }
-                    while(runtime.runAudioThread.test_and_set(std::memory_order_acquire))
+                    while(runtime.runAudioThread.test(std::memory_order_acquire))
                     {
                         auto due = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000 * bufferSize / sampleRate);
                         plugin.process(container.audioProcessData());

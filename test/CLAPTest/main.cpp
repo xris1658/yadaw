@@ -166,7 +166,7 @@ void testPlugin(QWindow& pluginWindow)
                 YADAW::Audio::Host::CLAPEventList events;
                 events.attachToProcessData(plugin.processData());
                 plugin.startProcessing();
-                runtime.runAudioThread.test_and_set(std::memory_order_acq_rel);
+                runtime.runAudioThread.test_and_set(std::memory_order_release);
                 YADAW::Audio::Util::AudioProcessDataPointerContainer<float> container;
                 container.setSingleBufferSize(bufferSize);
                 std::vector<std::vector<std::vector<float>>> input;
@@ -197,7 +197,7 @@ void testPlugin(QWindow& pluginWindow)
                         container.setOutput(i, j, output2[j].data());
                     }
                 }
-                while(runtime.runAudioThread.test_and_set(std::memory_order_acquire))
+                while(runtime.runAudioThread.test(std::memory_order_acquire))
                 {
                     auto due = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000 * bufferSize / sampleRate);
                     plugin.process(container.audioProcessData());
@@ -207,7 +207,6 @@ void testPlugin(QWindow& pluginWindow)
                     }
                 }
                 plugin.stopProcessing();
-                runtime.runAudioThread.clear();
             });
         }
     }
