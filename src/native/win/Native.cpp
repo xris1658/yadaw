@@ -119,11 +119,6 @@ void openSpecialCharacterInput()
     ShellExecuteW(nullptr, L"open", L"charmap.exe", nullptr, nullptr, SW_NORMAL);
 }
 
-void setThreadPriorityToTimeCritical()
-{
-    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
-}
-
 bool isDebuggerPresent()
 {
     return IsDebuggerPresent();

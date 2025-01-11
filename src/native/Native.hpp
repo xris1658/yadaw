@@ -45,8 +45,6 @@ const QString& programFilesFolder();
 
 void openSpecialCharacterInput();
 
-void setThreadPriorityToTimeCritical();
-
 constexpr YADAW::Util::Endian SystemEndian =
     Q_BYTE_ORDER == Q_LITTLE_ENDIAN?
         YADAW::Util::Endian::LittleEndian:

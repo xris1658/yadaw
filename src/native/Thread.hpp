@@ -16,6 +16,8 @@ bool setThreadAffinity(std::thread::native_handle_type handle, std::uint64_t aff
 
 std::thread::native_handle_type getCurrentThreadHandle();
 
+void setThreadPriorityToTimecritical(std::thread::native_handle_type handle);
+
 inline void inSpinLockLoop()
 {
 #if _WIN32

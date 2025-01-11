@@ -15,6 +15,11 @@ std::thread::native_handle_type getCurrentThreadHandle()
 {
     return GetCurrentThread();
 }
+
+void setThreadPriorityToTimecritical(std::thread::native_handle_type handle)
+{
+    SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL);
+}
 }
 
 #endif
