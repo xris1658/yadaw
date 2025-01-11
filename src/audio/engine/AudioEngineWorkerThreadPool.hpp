@@ -39,6 +39,11 @@ public:
     bool setAffinities(const std::vector<std::uint16_t>& affinities);
     std::uint32_t getMainAffinity() const;
     bool start();
+    // This timing of this call depends on how your audio backend works. Calling
+    // `stop` in an inappropriate time point will cause a deadlock.
+    // Some audio backends holds the audio thread and only give you functions to
+    // customize the audio callback, while some backends do not create audio
+    // threads, letting users manage audio threads.
     void stop();
     void mainFunc();
     void updateProcessSequence(

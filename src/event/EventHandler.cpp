@@ -615,6 +615,8 @@ void EventHandler::onMainWindowClosing()
     audioEngine.setRunning(false);
     YADAW::Controller::appAudioGraphBackend().uninitialize();
 #elif __linux__
+    // See comments of `stop` to unerstand the reason why this is called before
+    // actually stopping the backend.
     YADAW::Controller::appALSABackend().stop();
     audioEngine.setRunning(false);
     YADAW::Controller::appALSABackend().uninitialize();
