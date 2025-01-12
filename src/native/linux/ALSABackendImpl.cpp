@@ -520,7 +520,8 @@ bool ALSABackend::Impl::start(const ALSABackend::Callback* callback)
                         frameCount_ * 1000 / static_cast<float>(sampleRate_)
                     )
                 );
-                while(runFlag_.test(std::memory_order_acquire))
+                runFlag_.test_and_set(std::memory_order_release);
+                do
                 {
                     FOR_RANGE0(i, inputs_.size())
                     {
@@ -600,6 +601,7 @@ bool ALSABackend::Impl::start(const ALSABackend::Callback* callback)
                         }
                     }
                 }
+                while(runFlag_.test(std::memory_order_acquire));
             }
         );
         auto nativeHandle = audioThread_.native_handle();
