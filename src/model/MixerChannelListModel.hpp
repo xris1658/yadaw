@@ -15,6 +15,8 @@ namespace YADAW::Model
 {
 class MixerChannelInsertListModel;
 
+class MixerChannelSendListModel;
+
 struct InstrumentInstance;
 
 class MixerChannelListModel: public IMixerChannelListModel
@@ -74,6 +76,7 @@ private:
 private:
     YADAW::Audio::Mixer::Mixer& mixer_;
     std::vector<std::unique_ptr<YADAW::Model::MixerChannelInsertListModel>> insertModels_;
+    std::vector<std::unique_ptr<YADAW::Model::MixerChannelSendListModel>> sendModels_;
     // Only used if listType_ == ListType::Regular: {
     std::vector<std::unique_ptr<InstrumentInstance>> instruments_;
     mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> instrumentAudioInputs_;

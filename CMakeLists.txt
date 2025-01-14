@@ -455,6 +455,8 @@ set(YADAW_COMMON_SOURCES
     src/model/MixerChannelInsertListModel.hpp
     src/model/MixerChannelListModel.cpp
     src/model/MixerChannelListModel.hpp
+    src/model/MixerChannelSendListModel.cpp
+    src/model/MixerChannelSendListModel.hpp
     src/model/ModelInitializer.cpp
     src/model/ModelInitializer.hpp
     src/model/NativePopupEventFilterModel.cpp

@@ -18,6 +18,7 @@
 #include "entity/RegularAudioIOPosition.hpp"
 #include "event/EventBase.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
+#include "model/MixerChannelSendListModel.hpp"
 #include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
 
