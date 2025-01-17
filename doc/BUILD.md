@@ -179,6 +179,60 @@ install the platform integration plugin of Fcitx. The steps are as follows:
 
 ## Build on macOS
 
-C++20 support on the Apple Clang toolchain is poor, and VST3 SDK does not
-support GCC toolchain on macOS. Therefore, there's no way to build YADAW on
-macOS.
+The following process DOES NOT need Xcode. Since the project uses C++20, this
+project cannot be built with older macOS toolchains.
+
+- Install macOS Command-Line developer tools:
+  ```shell
+  xcode-select --install
+  ```
+  - Fun fact: If you try running developer tools in the terminal with them
+    uninstalled, macOS will ask to install the developer tools. You can just
+    install the tools by running `gcc` in the terminal.
+- Install [Homebrew](https://brew.sh/).
+- Download and install CMake. If you downloaded it from cmake.org, make sure to
+  add the executable path to the environment variable `PATH`:
+  ```shell
+  export PATH=$PATH:/Applications/CMake/Contents/bin
+  ```
+- Download and install Ninja. If you downloaded it from ninja-build.org, make
+- sure to add the executable path to the environment variable `PATH`:
+  ```shell
+  export PATH=$PATH:/<executable path, e.g. /Users/xris1658/apps/ninja-build>
+  ```
+- Download and install Qt (see steps described in Build With MSVC). Once
+  installed, add the directory containing the Qt executable (<Qt install
+  directory>\<version>\macos\bin) to the environment variable PATH.
+- Download VST3 SDK, and remember the path to it. Comment the following lines in
+  cmake/modules/SMTG_DetectPlatform.cmake so that we can configure the project:
+- ```cmake
+  if(XCODE_VERSION VERSION_LESS "9")
+      message(FATAL_ERROR "[SMTG] XCode 9 or newer is required")
+  endif()
+  ```
+- Download CLAP, and remember the path to it.
+- Download and install vcpkg:
+  ```shell
+  git clone https://github.com/microsoft/vcpkg
+  ./vcpkg/bootstrap-vcpkg.sh
+  ```
+- Install some prerequisites with vcpkg:
+  ```shell
+  vcpkg install ade sqlite3 sqlite-modern-cpp yaml-cpp
+  ```
+  We need to have `pkg-config` installed before installing packages with vcpkg,
+  which is why we install Homebrew previously. While Homebrew is more commonly
+  used on macOS, I use vcpkg because it has the library `ade`, which is a little
+  part of OpenCV. With only Homebrew, I might have to install OpenCV as a whole.
+- Download source of YADAW, configure and build the project:
+  ```shell
+  git clone https://github.com/xris1658/yadaw
+  cd ./yadaw
+  mkdir build
+  cd build
+  cmake -S .. -B . \
+  -DCMAKE_TOOLCHAIN_FILE=<path to vcpkg directory>/vcpkg/scripts/buildsystems/vcpkg.cmake \
+  -DVST3SDK_SOURCE_DIR=<path to directory of VST3 SDK>/vst3sdk \
+  -DCLAP_SOURCE_DIR=<path to directory of CLAP>/clap
+  cmake --build . --target YADAW -j 16
+  ```
