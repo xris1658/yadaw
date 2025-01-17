@@ -3,8 +3,8 @@
 
 # 构建 YADAW
 
-可以在 Windows x64，Linux x64 和 macOS x64 上构建并使用 YADAW。如果未来有条件，笔者会考
-虑 添加 ARM 平台的支持。
+可以在 Windows x64，Linux x64 和 macOS x64 上构建并使用 YADAW。如果未来有条件，
+笔者会考虑添加 ARM 平台的支持。
 
 ## 在 Windows 上构建
 
@@ -112,7 +112,9 @@ Debian 及其分支发行版。
   ```shell
   sudo apt install git gcc g++ libasound2-dev libsqlite3-dev libxcb-icccm4-dev libyaml-cpp-dev
   # VST3 SDK 的依赖项
-  sudo apt-get install libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
+  sudo apt-get install libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev \
+  libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev \
+  libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
   ```
 - 下载并安装 CMake 3.25 或更高版本。此版本添加了 `LINUX` 字段，此项目用于检测
   目标操作系统。要使用旧版的 CMake 构建 YADAW，请调整
@@ -146,7 +148,8 @@ Debian 及其分支发行版。
   
 ### 输入法支持
 
-Qt 6 中内置了 IBus 输入法支持。如果使用 Fcitx，则需要构建并安装 Fcitx 的平台集成插件。步骤如下：
+Qt 6 中内置了 IBus 输入法支持。如果使用 Fcitx，则需要构建并安装 Fcitx 的平台集成
+插件。步骤如下：
 - 安装所需的依赖项：
   ```shell
   sudo apt install extra-cmake-modules
@@ -172,25 +175,35 @@ Qt 6 中内置了 IBus 输入法支持。如果使用 Fcitx，则需要构建并
   
 ## 在 macOS 上构建
 
-下面的步骤不需要安装 Xcode。由于此项目使用 C++20，因此无法使用一些旧版的 macOS 工具链构建。
+下面的步骤不需要安装 Xcode。此项目使用 C++20，因此无法使用版本较低的 macOS 工具
+链构建。
 
 - 安装 macOS 命令行开发者工具：
   ```shell
   xcode-select --install
   ```
-  - 有趣小知识：如果未安装开发者工具，则在终端中运行开发者工具时，macOS 会询问用户，是否需要安装开发者工具。
-    例如，只要在终端中运行 `gcc` 就能够安装工具了。
+  - 有趣小知识：如果未安装开发者工具，则在终端中运行开发者工具时，macOS 会询问用
+  户，是否需要安装开发者工具。例如，只要在终端中运行 `gcc` 就能够安装工具了。
 - 安装 [Homebrew](https://brew.sh/)。
-- 下载并安装 CMake。如果是从 cmake.org 上下载的，确保将可执行文件路径添加到环境变量 `PATH` 中：
+- 安装 pkg-config：
   ```shell
-  export PATH=$PATH:/Applications/CMake/Contents/bin
+  brew install pkg-config
   ```
-- 下载并安装 Ninja。如果是从 ninja-build.org 上下载的，确保将可执行文件路径添加到环境变量 `PATH` 中：
+- 下载并安装 CMake。可以从 cmake.org 上下载，也可以使用 Homebrew 安装：
+  ```shell
+  brew install cmake
+  ```
+  - 如果是从 cmake.org 上下载的，确保将可执行文件路径添加到环境变量 `PATH` 中：
+    ```shell
+    export PATH=$PATH:/Applications/CMake/Contents/bin
+    ```
+- 下载并安装 Ninja。如果是从 ninja-build.org 上下载的，确保将可执行文件路径添加
+  到环境变量 `PATH` 中：
   ```shell
   export PATH=$PATH:<可执行文件路径, e.g. /Users/xris1658/apps/ninja-build>
   ```
-- 下载并安装 Qt（参见“使用 MSVC 构建”中描述的版本要求）。安装完成后，将 Qt 可执行文件所在的目录
-  （<Qt 安装目录>\<版本>\macos\bin）添加到环境变量 `PATH` 中。
+- 下载并安装 Qt（参见“使用 MSVC 构建”中描述的版本要求）。安装完成后，将 Qt 可执
+  行文件所在的目录（<Qt 安装目录>\<版本>\macos\bin）添加到环境变量 `PATH` 中。
 - 下载 VST3 SDK，并记住路径。为配置项目，需要注释 cmake/modules/SMTG_DetectPlatform.cmake 的以下几行：
 - ```cmake
   if(XCODE_VERSION VERSION_LESS "9")
@@ -208,8 +221,8 @@ Qt 6 中内置了 IBus 输入法支持。如果使用 Fcitx，则需要构建并
   vcpkg install ade sqlite3 sqlite-modern-cpp yaml-cpp
   ```
   在用 vcpkg 安装程序包之前，需要安装 pkg-config，因此先前安装了 Homebrew。尽管
-  Homebrew 在 macOS 上比较常用，笔者还是选用了 vcpkg，因为其中有 `ade` 库，OpenCV 中的一
-  小部分。如果只使用 Homebrew，大概需要安装一整个 OpenCV 库。
+  Homebrew 是个在 macOS 上比较常用的包管理器，笔者还是选用了 vcpkg，因为其中有
+  `ade` 库，OpenCV 中的一小部分。如果只使用 Homebrew，大概需要安装整个 OpenCV 库。
 - 下载 YADAW 的源码，配置并构建项目：
   ```shell
   git clone https://github.com/xris1658/yadaw

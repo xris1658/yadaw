@@ -116,7 +116,9 @@ might be usable on Debian and its forks.
   ```shell
   sudo apt install git gcc g++ libasound2-dev libsqlite3-dev libxcb-icccm4-dev libyaml-cpp-dev
   # Dependencies of VST3 SDK
-  sudo apt-get install libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
+  sudo apt-get install libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev \
+  libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev \
+  libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
   ```
 - Download and install CMake 3.25 or higher. The field `LINUX` which is used to
   check target OS is added in this version. To build YADAW with older CMake,
@@ -190,21 +192,30 @@ project cannot be built with older macOS toolchains.
     uninstalled, macOS will ask to install the developer tools. You can just
     install the tools by running `gcc` in the terminal.
 - Install [Homebrew](https://brew.sh/).
-- Download and install CMake. If you downloaded it from cmake.org, make sure to
-  add the executable path to the environment variable `PATH`:
+- Install pkg-config:
   ```shell
-  export PATH=$PATH:/Applications/CMake/Contents/bin
+  brew install pkg-config
   ```
-- Download and install Ninja. If you downloaded it from ninja-build.org, make
-- sure to add the executable path to the environment variable `PATH`:
+- Download and install CMake. You can do this by downloading from cmake.org
+  or installing it in Homebrew:
+  ```shell
+  brew install cmake
+  ```
+  - If you downloaded it from cmake.org, make sure to
+    add the executable path to the environment variable `PATH`:
+    ```shell
+    export PATH=$PATH:/Applications/CMake/Contents/bin
+    ```
+- Download and install Ninja. If you downloaded it from ninja-build.org, make sure to add the executable path to the environment variable `PATH`:
   ```shell
   export PATH=$PATH:/<executable path, e.g. /Users/xris1658/apps/ninja-build>
   ```
 - Download and install Qt (see steps described in Build With MSVC). Once
   installed, add the directory containing the Qt executable (<Qt install
-  directory>\<version>\macos\bin) to the environment variable PATH.
+  directory>\<version>\macos\bin) to the environment variable `PATH`.
 - Download VST3 SDK, and remember the path to it. Comment the following lines in
-  cmake/modules/SMTG_DetectPlatform.cmake so that we can configure the project:
+  cmake/modules/SMTG_DetectPlatform.cmake so that we can configure the project
+  without Xcode:
 - ```cmake
   if(XCODE_VERSION VERSION_LESS "9")
       message(FATAL_ERROR "[SMTG] XCode 9 or newer is required")
@@ -221,9 +232,10 @@ project cannot be built with older macOS toolchains.
   vcpkg install ade sqlite3 sqlite-modern-cpp yaml-cpp
   ```
   We need to have `pkg-config` installed before installing packages with vcpkg,
-  which is why we install Homebrew previously. While Homebrew is more commonly
-  used on macOS, I use vcpkg because it has the library `ade`, which is a little
-  part of OpenCV. With only Homebrew, I might have to install OpenCV as a whole.
+  which is why we install Homebrew previously. While Homebrew is a package
+  manager more commonly used on macOS, I use vcpkg because it has the library
+  `ade`, which is a little part of OpenCV. With only Homebrew, I might have to
+  install the entire OpenCV.
 - Download source of YADAW, configure and build the project:
   ```shell
   git clone https://github.com/xris1658/yadaw
