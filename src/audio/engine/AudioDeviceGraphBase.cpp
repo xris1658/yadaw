@@ -244,12 +244,13 @@ Vec<Vec<Vec<ade::NodeHandle>, Vec<std::uint32_t, std::uint32_t>>>
                         FOR_RANGE0(l, topoRow.size())
                         {
                             topoRow[l].second;
+                            auto& fromLink = from;
                             if(
                                 std::find_if(
                                     fromInEdges.begin(), fromInEdges.end(),
-                                    [&from](const ade::EdgeHandle& edgeHandle)
+                                    [&fromLink](const ade::EdgeHandle& edgeHandle)
                                     {
-                                        return edgeHandle->dstNode() == from;
+                                        return edgeHandle->dstNode() == fromLink;
                                     }
                                 ) != fromInEdges.end())
                             {

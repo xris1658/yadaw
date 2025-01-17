@@ -3,6 +3,12 @@
 #include "native/CPU.hpp"
 #include "native/Thread.hpp"
 
+template<typename T>
+T* getType(std::vector<YADAW::Util::AlignedStorage<T>>& vec, typename std::vector<YADAW::Util::AlignedStorage<T>>::size_type index)
+{
+    return YADAW::Util::AlignHelper<T>::fromAligned(vec.data() + index);
+}
+
 namespace YADAW::Audio::Engine
 {
 AudioEngineWorkerThreadPool::Workload::Workload(
@@ -12,15 +18,14 @@ AudioEngineWorkerThreadPool::Workload::Workload(
     processSequenceWithPrev(std::move(processSequenceWithPrev)),
     audioThreadWorkload(YADAW::Audio::Engine::createWorkload(*(this->processSequenceWithPrev), threadCount))
 {
-    completionMarks.resize(this->processSequenceWithPrev->size());
-    atomicCompletionMarks.resize(this->processSequenceWithPrev->size());
-    FOR_RANGE0(i, completionMarks.size())
+    completionMarksStorage.resize(this->processSequenceWithPrev->size());
+    FOR_RANGE0(i, completionMarksStorage.size())
     {
-        completionMarks[i].resize((*(this->processSequenceWithPrev))[i].size());
-        atomicCompletionMarks[i].reserve(completionMarks[i].size());
-        FOR_RANGE0(j, completionMarks[i].size())
+        completionMarksStorage[i].resize((*(this->processSequenceWithPrev))[i].size());
+        for(auto& storage: completionMarksStorage[i])
         {
-            atomicCompletionMarks[i].emplace_back(completionMarks[i][j]);
+            auto* pDone = YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(&storage);
+            new(pDone) std::atomic_flag();
         }
     }
 }
@@ -60,11 +65,20 @@ bool AudioEngineWorkerThreadPool::setAffinities(
             ),
             false
         );
-        workerThreadDone_.resize(affinities.size() - 1, false);
-        atomicWorkerThreadDone_.reserve(affinities.size() - 1);
-        FOR_RANGE0(i, affinities.size() - 1)
+        if constexpr(!std::is_trivially_destructible_v<std::atomic_flag>)
         {
-            atomicWorkerThreadDone_.emplace_back(workerThreadDone_[i]);
+            for(auto& storage: workerThreadDoneStorage_)
+            {
+                using std::atomic_flag;
+                // is std::atomic_flag trivially destructible?
+                YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(&storage)->~atomic_flag();
+            }
+        }
+        workerThreadDoneStorage_.resize(affinities.size() - 1);
+        for(auto& storage: workerThreadDoneStorage_)
+        {
+            auto* pDone = YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(&storage);
+            new(pDone) std::atomic_flag();
         }
         return true;
     }
@@ -105,9 +119,10 @@ void AudioEngineWorkerThreadPool::stop()
     if(running())
     {
         running_.clear(std::memory_order_release);
-        for(auto& done: atomicWorkerThreadDone_)
+        for(auto& storage: workerThreadDoneStorage_)
         {
-            done.store(false, std::memory_order_release);
+            auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(&storage);
+            done.clear(std::memory_order_release);
             done.notify_one();
         }
         for(auto& thread: workerThreads_)
@@ -140,15 +155,17 @@ void AudioEngineWorkerThreadPool::mainFunc()
         firstCallback_.clear(std::memory_order_release);
     }
     workload_.swapIfNeeded();
-    for(auto& done: atomicWorkerThreadDone_)
+    for(auto& storage: workerThreadDoneStorage_)
     {
-        done.store(false, std::memory_order_release);
+        auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(&storage);
+        done.clear(std::memory_order_release);
         done.notify_one();
     }
     workerFunc(affinities_.size() - 1);
     FOR_RANGE0(i, workerThreads_.size())
     {
-        atomicWorkerThreadDone_[i].wait(false, std::memory_order_acquire);
+        auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(workerThreadDoneStorage_.data() + i);
+        done.wait(false, std::memory_order_acquire);
     }
 }
 
@@ -175,9 +192,10 @@ void AudioEngineWorkerThreadPool::workerThreadFunc(
     do
     {
         workerFunc(workloadIndex);
-        atomicWorkerThreadDone_[workloadIndex].store(true, std::memory_order_release);
-        atomicWorkerThreadDone_[workloadIndex].notify_one();
-        atomicWorkerThreadDone_[workloadIndex].wait(true, std::memory_order_acquire);
+        auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(workerThreadDoneStorage_.data() + workloadIndex);
+        done.test_and_set(std::memory_order_release);
+        done.notify_one();
+        done.wait(true, std::memory_order_acquire);
     }
     while(running_.test(std::memory_order_acquire));
 }
@@ -192,9 +210,8 @@ void AudioEngineWorkerThreadPool::workerFunc(std::uint32_t workloadIndex)
         auto& [processPairs, prev] = processSeq[row][col];
         for(const auto& [prevRow, prevCol]: prev)
         {
-            while(workload->atomicCompletionMarks[prevRow][prevCol].load(
-                std::memory_order_acquire) == false
-            )
+            auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(workload->completionMarksStorage[prevRow].data() + prevCol);
+            while(done.test(std::memory_order_acquire) == false)
             {
                 YADAW::Native::inSpinLockLoop();
             }
@@ -203,7 +220,8 @@ void AudioEngineWorkerThreadPool::workerFunc(std::uint32_t workloadIndex)
         {
             process.process(buffer.audioProcessData());
         }
-        workload->atomicCompletionMarks[row][col].store(true, std::memory_order_release);
+        auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(workload->completionMarksStorage[row].data() + col);
+        done.test_and_set(std::memory_order_release);
     }
 }
 }

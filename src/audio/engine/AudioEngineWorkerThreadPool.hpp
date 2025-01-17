@@ -3,6 +3,7 @@
 
 #include "audio/engine/AudioDeviceGraphProcess.hpp"
 #include "concurrent/PassDataToRealtimeThread.hpp"
+#include "util/AlignHelper.hpp"
 #include "util/VectorTypes.hpp"
 
 #include <atomic>
@@ -22,8 +23,7 @@ public:
         ~Workload();
         std::unique_ptr<ProcessSequenceWithPrev> processSequenceWithPrev;
         std::vector<AudioThreadWorkload> audioThreadWorkload;
-        Vec<Vec<std::uint8_t>> completionMarks;
-        Vec<Vec<std::atomic_ref<std::uint8_t>>> atomicCompletionMarks;
+        Vec<Vec<YADAW::Util::AlignedStorage<std::atomic_flag>>> completionMarksStorage;
     };
     enum WorkerThreadTaskStatus: std::uint8_t
     {
@@ -58,8 +58,7 @@ private:
     std::vector<std::thread> workerThreads_;
     std::vector<std::uint16_t> affinities_;
     std::atomic_uint16_t updateCounter_;
-    std::vector<std::uint8_t> workerThreadDone_;
-    std::vector<std::atomic_ref<std::uint8_t>> atomicWorkerThreadDone_;
+    std::vector<YADAW::Util::AlignedStorage<std::atomic_flag>> workerThreadDoneStorage_;
     std::atomic_flag firstCallback_;
     std::atomic_flag running_;
     mutable bool mainAffinityIsSet_ = false;
