@@ -29,49 +29,6 @@ void process(YADAW::Audio::Device::IAudioDevice* device,
 
 class AudioEngine
 {
-public:
-    struct ProcessSequenceWithPrevAndCompletionMarks
-    {
-        YADAW::Audio::Engine::ProcessSequenceWithPrev processSequenceWithPrev;
-        std::vector<std::vector<std::uint8_t>> completionMarks;
-        std::vector<std::vector<std::atomic_ref<std::uint8_t>>> atomicCompletionMarks;
-        ProcessSequenceWithPrevAndCompletionMarks() = default;
-        ProcessSequenceWithPrevAndCompletionMarks(
-            const YADAW::Audio::Engine::ProcessSequenceWithPrev& processSequenceWithPrev
-        ):
-        processSequenceWithPrev(processSequenceWithPrev)
-        {
-            completionMarks.resize(processSequenceWithPrev.size());
-            atomicCompletionMarks.resize(processSequenceWithPrev.size());
-            FOR_RANGE0(i, completionMarks.size())
-            {
-                auto size = processSequenceWithPrev[i].size();
-                completionMarks[i].resize(size, 0);
-                atomicCompletionMarks[i].reserve(processSequenceWithPrev[i].size());
-                FOR_RANGE0(j, size)
-                {
-                    atomicCompletionMarks[i].emplace_back(completionMarks[i][j]);
-                }
-            }
-        }
-        ProcessSequenceWithPrevAndCompletionMarks(
-            YADAW::Audio::Engine::ProcessSequenceWithPrev&& processSequenceWithPrev
-        ):
-            processSequenceWithPrev(processSequenceWithPrev)
-        {
-            completionMarks.resize(processSequenceWithPrev.size());
-            FOR_RANGE0(i, completionMarks.size())
-            {
-                auto size = processSequenceWithPrev[i].size();
-                completionMarks[i].resize(size, 0);
-                atomicCompletionMarks[i].reserve(processSequenceWithPrev[i].size());
-                FOR_RANGE0(j, size)
-                {
-                    atomicCompletionMarks[i].emplace_back(completionMarks[i][j]);
-                }
-            }
-        }
-    };
 private:
     AudioEngine();
 public:
