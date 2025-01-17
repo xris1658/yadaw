@@ -129,8 +129,10 @@ set(MAC_NATIVE_SOURCES
     src/native/mac/Native.cpp
     src/native/mac/VST3Native.cpp
     src/native/mac/CLAPNative.cpp
+    src/native/mac/CPU.cpp
     src/native/mac/Library.cpp
     src/native/mac/Shell.cpp
+    src/native/mac/Thread.cpp
     src/native/mac/VestifalNative.cpp
     src/native/mac/MIDIInputDeviceImpl.cpp
     src/native/mac/MIDIInputDeviceImpl.hpp
