@@ -6,6 +6,8 @@
 #include <../../System/Library/Frameworks/CoreFoundation.framework/Headers/CFBundle.h>
 #include <../../System/Library/Frameworks/CoreFoundation.framework/Headers/CFString.h>
 
+#include <mutex>
+
 namespace YADAW::Native
 {
 QString fileBrowserName;
