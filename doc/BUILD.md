@@ -247,4 +247,7 @@ project cannot be built with older macOS toolchains.
   -DVST3SDK_SOURCE_DIR=<path to directory of VST3 SDK>/vst3sdk \
   -DCLAP_SOURCE_DIR=<path to directory of CLAP>/clap
   cmake --build . --target YADAW -j 16
+  macqtdeploy ./YADAW.app -qmldir=./content
+  cp -r ./content ./YADAW.app/Contents/Resources/qml
+  cp -r ./Main ./YADAW.app/Contents/Resources/qml
   ```

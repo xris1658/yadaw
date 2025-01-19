@@ -234,4 +234,7 @@ Qt 6 中内置了 IBus 输入法支持。如果使用 Fcitx，则需要构建并
     -DVST3SDK_SOURCE_DIR=<VST3 SDK 所在目录的路径>/vst3sdk \
     -DCLAP_SOURCE_DIR=<CLAP 所在目录的路径>/clap
   cmake --build . --target YADAW -j 16
+  macqtdeploy ./YADAW.app -qmldir=./content
+  cp -r ./content ./YADAW.app/Contents/Resources/qml
+  cp -r ./Main ./YADAW.app/Contents/Resources/qml
   ```

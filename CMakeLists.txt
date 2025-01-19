@@ -1030,6 +1030,15 @@ target_link_libraries(YADAW PRIVATE
                       ${SQLITE_LIBRARY}
                       yaml-cpp)
 
+set_target_properties(YADAW PROPERTIES
+                      MACOSX_BUNDLE TRUE
+                      MACOSX_BUNDLE_BUNDLE_NAME "YADAW"
+                      MACOSX_BUNDLE_BUNDLE_COPYRIGHT "Copyright (c) 2023-2025 xris1658"
+                      MACOSX_BUNDLE_GUI_IDENTIFIER "xris1658.yadaw"
+                      MACOSX_BUNDLE_ICON_FILE "Main-icon.icns"
+                      MACOSX_BUNDLE_INFO_STRING "Yet Another Digital Audio Workstation"
+                      )
+
 target_link_libraries(CLAPTest PRIVATE
                       Qt6::Core Qt6::Gui
                       ${NATIVE_LIBRARY}
@@ -1072,10 +1081,16 @@ target_link_libraries(MIDIInputDeviceTest PRIVATE
                       asound)
 endif()
 
+if(APPLE)
+    set(RESOURCE_PATH ${CMAKE_CURRENT_BINARY_DIR}/YADAW.app/Contents/Resources)
+else()
+    set(RESOURCE_PATH ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
 set_source_files_properties(l10n/osct/YADAW_zh_CN.ts
                             PROPERTIES
                             OUTPUT_LOCATION
-                            ${CMAKE_CURRENT_BINARY_DIR}/l10n/osct)
+                            ${RESOURCE_PATH}/l10n/osct)
 
 qt_add_translations(YADAW TS_FILES l10n/osct/YADAW_zh_CN.ts
                     INCLUDE_DIRECTORIES ./src
@@ -1084,6 +1099,9 @@ qt_add_translations(YADAW TS_FILES l10n/osct/YADAW_zh_CN.ts
 file(COPY
      ./l10n/osct/YADAW_zh_CN.yml
      ./l10n/osct/wqy-microhei.ttc
-     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/l10n/osct)
+     DESTINATION ${RESOURCE_PATH}/l10n/osct)
+
+file(COPY
+     ./rc/Main-icon.icns DESTINATION ${RESOURCE_PATH})
 
 add_subdirectory(test)

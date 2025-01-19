@@ -192,18 +192,26 @@ qt_add_qml_module(content
                     images/Main-icon.ico
                     images/qtlogo-64.png)
 
+
+
+if(APPLE)
+    set(RESOURCE_PATH ${CMAKE_CURRENT_BINARY_DIR}/../YADAW.app/Contents/Resources)
+else()
+    set(RESOURCE_PATH ${CMAKE_CURRENT_BINARY_DIR}/..)
+endif()
+
 # Set the same property on different directories so that QM files are generated
 # in the correct location with different CMake versions
 set_source_files_properties(../l10n/osct/YADAW_content_zh_CN.ts
                             PROPERTIES
                             OUTPUT_LOCATION
-                            ${CMAKE_CURRENT_BINARY_DIR}/../l10n/osct)
+                            ${RESOURCE_PATH}/l10n/osct)
 
 set_source_files_properties(../l10n/osct/YADAW_content_zh_CN.ts
                             DIRECTORY ..
                             PROPERTIES
                             OUTPUT_LOCATION
-                            ${CMAKE_CURRENT_BINARY_DIR}/../l10n/osct)
+                            ${RESOURCE_PATH}/l10n/osct)
 
 qt_add_translations(content TS_FILES ../l10n/osct/YADAW_content_zh_CN.ts
                     INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}
