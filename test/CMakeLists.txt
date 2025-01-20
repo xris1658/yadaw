@@ -62,7 +62,15 @@ if(WIN32)
                           Qt6::Core avrt
     )
 endif()
-
+if(APPLE)
+    add_executable(CoreAudioTest
+                   ../src/audio/backend/CoreAudioBackend.hpp
+                   ../src/native/mac/CoreAudioBackend.cpp
+                   ../src/native/mac/CoreAudioBackendImpl.cpp
+                   ../src/native/mac/CoreAudioBackendImpl.hpp
+                   CoreAudioTest/main.cpp)
+    target_link_options(CoreAudioTest PRIVATE -framework CoreAudio)
+endif()
 if(LINUX)
     add_executable(ALSATest
                    ../src/audio/backend/ALSADeviceSelector.hpp

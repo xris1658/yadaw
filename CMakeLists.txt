@@ -126,25 +126,28 @@ set(WIN32_NATIVE_SOURCES
 )
 
 set(MAC_NATIVE_SOURCES
-    src/native/mac/Native.cpp
-    src/native/mac/VST3Native.cpp
-    src/native/mac/CLAPNative.cpp
-    src/native/mac/CPU.cpp
-    src/native/mac/Library.cpp
-    src/native/mac/Shell.cpp
-    src/native/mac/Thread.cpp
-    src/native/mac/VestifalNative.cpp
-    src/native/mac/MIDIInputDeviceImpl.cpp
-    src/native/mac/MIDIInputDeviceImpl.hpp
-    src/native/mac/MIDIOutputDeviceImpl.cpp
-    src/native/mac/MIDIOutputDeviceImpl.hpp
     src/audio/backend/CoreAudioBackend.hpp
-    src/controller/CoreAudioBackendController.cpp
-    src/controller/CoreAudioBackendController.hpp
     src/audio/backend/CoreAudioBusConfiguration.cpp
     src/audio/backend/CoreAudioBusConfiguration.hpp
     src/audio/plugin/AudioUnitV3Plugin.cpp
     src/audio/plugin/AudioUnitV3Plugin.hpp
+    src/controller/CoreAudioBackendController.cpp
+    src/controller/CoreAudioBackendController.hpp
+    src/native/mac/CLAPNative.cpp
+    src/native/mac/CPU.cpp
+    src/native/mac/CoreAudioBackend.cpp
+    src/native/mac/CoreAudioBackendImpl.cpp
+    src/native/mac/CoreAudioBackendImpl.hpp
+    src/native/mac/Library.cpp
+    src/native/mac/MIDIInputDeviceImpl.cpp
+    src/native/mac/MIDIInputDeviceImpl.hpp
+    src/native/mac/MIDIOutputDeviceImpl.cpp
+    src/native/mac/MIDIOutputDeviceImpl.hpp
+    src/native/mac/Native.cpp
+    src/native/mac/Shell.cpp
+    src/native/mac/Thread.cpp
+    src/native/mac/VST3Native.cpp
+    src/native/mac/VestifalNative.cpp
     src/ui/mac/WindowFunctions.hpp
     src/ui/mac/WindowFunctions.mm
 )

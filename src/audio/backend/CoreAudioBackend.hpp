@@ -3,7 +3,7 @@
 
 #if __APPLE__
 
-#include <../../System/Library/Frameworks/CoreAudio.framework/Headers/CoreAudio.h>
+#include <cstdint>
 
 namespace YADAW::Audio::Backend
 {
@@ -11,6 +11,9 @@ class CoreAudioBackend
 {
 private:
     class Impl;
+public:
+    static std::uint32_t audioInputDeviceCount();
+    static std::uint32_t audioOutputDeviceCount();
 };
 }
 
