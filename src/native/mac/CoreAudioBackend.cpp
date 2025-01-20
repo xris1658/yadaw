@@ -14,6 +14,16 @@ std::uint32_t CoreAudioBackend::audioOutputDeviceCount()
 {
     return Impl::audioOutputDeviceCount();
 }
+
+std::optional<CoreAudioBackend::DeviceInfo> CoreAudioBackend::audioInputDeviceAt(std::uint32_t index)
+{
+    return Impl::audioInputDeviceAt(index);
+}
+
+std::optional<CoreAudioBackend::DeviceInfo> CoreAudioBackend::audioOutputDeviceAt(std::uint32_t index)
+{
+    return Impl::audioOutputDeviceAt(index);
+}
 }
 
 #endif

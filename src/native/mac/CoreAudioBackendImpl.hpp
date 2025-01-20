@@ -14,6 +14,8 @@ class CoreAudioBackend::Impl
 public:
     static std::uint32_t audioInputDeviceCount();
     static std::uint32_t audioOutputDeviceCount();
+    static std::optional<DeviceInfo> audioInputDeviceAt(std::uint32_t index);
+    static std::optional<DeviceInfo> audioOutputDeviceAt(std::uint32_t index);
 };
 }
 

@@ -69,7 +69,11 @@ if(APPLE)
                    ../src/native/mac/CoreAudioBackendImpl.cpp
                    ../src/native/mac/CoreAudioBackendImpl.hpp
                    CoreAudioTest/main.cpp)
-    target_link_options(CoreAudioTest PRIVATE -framework CoreAudio)
+    target_link_libraries(CoreAudioTest
+            PRIVATE Qt6::Core
+            "-framework CoreAudio"
+            "-framework CoreFoundation"
+    )
 endif()
 if(LINUX)
     add_executable(ALSATest
