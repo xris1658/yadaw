@@ -41,18 +41,6 @@ T.Menu {
     delegate: MenuItem {
         z: 1
     }
-    exit: Transition {
-        id: menuTransition
-        enabled: root.isSubMenu
-        NumberAnimation {
-            properties: "opacity"
-            easing.type: Easing.BezierSpline
-            easing.bezierCurve: [0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1]
-            duration: root.isSubMenu? 250: 0
-            from: 1.0
-            to: 0.0
-        }
-    }
     // A workaround to show `Menu`s out of its main window.
     // Qt 6.8 added `Popup.popupType` to show `Popup`s on a separate window, or
     // even better, show `Menu`s as native ones. Check out the documentation:
