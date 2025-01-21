@@ -991,6 +991,16 @@ bool MixerChannelListModel::insert(int position, int count,
                 );
             }
         );
+        std::generate_n(
+            std::inserter(sendModels_, sendModels_.begin() + position), count,
+            [this, position, offset = 0]() mutable
+            {
+                auto index = position + (offset++);
+                return std::make_unique<MixerChannelSendListModel>(
+                    mixer_, listType_, index
+                );
+            }
+        );
         std::fill_n(
             std::inserter(editingVolume_, editingVolume_.begin() + position),
             count, false
@@ -1087,6 +1097,10 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             mainOutput_.erase(
                 mainOutput_.begin() + position,
                 mainOutput_.begin() + position + removeCount
+            );
+            sendModels_.erase(
+                sendModels_.begin() + position,
+                sendModels_.begin() + position + removeCount
             );
             updateInstrumentConnections(position);
         }
