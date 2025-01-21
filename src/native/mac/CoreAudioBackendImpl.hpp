@@ -16,6 +16,8 @@ public:
     static std::uint32_t audioOutputDeviceCount();
     static std::optional<DeviceInfo> audioInputDeviceAt(std::uint32_t index);
     static std::optional<DeviceInfo> audioOutputDeviceAt(std::uint32_t index);
+    static AudioDeviceID defaultInputDevice();
+    static AudioDeviceID defaultOutputDevice();
 };
 }
 

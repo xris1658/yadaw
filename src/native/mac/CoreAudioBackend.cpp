@@ -24,6 +24,16 @@ std::optional<CoreAudioBackend::DeviceInfo> CoreAudioBackend::audioOutputDeviceA
 {
     return Impl::audioOutputDeviceAt(index);
 }
+
+AudioDeviceID CoreAudioBackend::defaultInputDevice()
+{
+    return Impl::defaultInputDevice();
+}
+
+AudioDeviceID CoreAudioBackend::defaultOutputDevice()
+{
+    return Impl::defaultOutputDevice();
+}
 }
 
 #endif

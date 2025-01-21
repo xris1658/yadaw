@@ -84,6 +84,25 @@ void enumerateAudioDevices()
     doEnumerateAudioDevices(false, outputDevices);
 }
 
+AudioDeviceID defaultDevice(bool isInput)
+{
+    AudioObjectPropertySelector selector[2] = {kAudioHardwarePropertyDefaultOutputDevice, kAudioHardwarePropertyDefaultInputDevice};
+    AudioObjectPropertyScope scope[2] = {kAudioObjectPropertyScopeOutput, kAudioObjectPropertyScopeInput};
+    AudioObjectPropertyAddress address {
+        .mSelector = selector[isInput],
+        .mScope = scope[isInput],
+        .mElement = kAudioObjectPropertyElementMain
+    };
+    AudioDeviceID ret;
+    std::uint32_t propertySize = sizeof(AudioDeviceID);
+    AudioObjectGetPropertyData(
+        static_cast<AudioObjectID>(kAudioObjectSystemObject),
+        &address,
+        0, nullptr, &propertySize, &ret
+    );
+    return ret;
+}
+
 std::uint32_t CoreAudioBackend::Impl::audioInputDeviceCount()
 {
     std::call_once(enumerateAudioDevicesFlag, &enumerateAudioDevices);
@@ -114,6 +133,16 @@ std::optional<CoreAudioBackend::DeviceInfo> CoreAudioBackend::Impl::audioOutputD
         return outputDevices[index];
     }
     return std::nullopt;
+}
+
+AudioDeviceID CoreAudioBackend::Impl::defaultInputDevice()
+{
+    return defaultDevice(true);
+}
+
+AudioDeviceID CoreAudioBackend::Impl::defaultOutputDevice()
+{
+    return defaultDevice(false);
 }
 }
 
