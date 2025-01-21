@@ -1363,7 +1363,7 @@ bool MixerChannelListModel::removeInstrument(int position)
         {
             auto instrumentNode = mixer_.removeInstrument(position);
             auto deviceWithPDC = graphWithPDC.removeNode(instrumentNode);
-            // TODO
+            engine.mixerNodeRemovedCallback(mixer_);
         }
         if(auto window = instrumentInstance->pluginWindowConnection.window; window)
         {
