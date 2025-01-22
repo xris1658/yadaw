@@ -23,6 +23,7 @@ Rectangle {
     property var instrumentAudioInputs: null
     property var instrumentAudioOutputs: null
     property alias insertModel: insertList.model
+    property alias sendModel: sendList.model
     property alias name: nameLabel.text
     property bool showIO: true
     property bool showInstrumentSlot: true
@@ -57,6 +58,8 @@ Rectangle {
         property bool usingAudioIOSelector: false
         property alias selectingInput: inputButton.checked
         property alias selectingOutput: outputButton.checked
+        property bool appendingSend: false
+        property int settingSendIndex: -1
     }
     Connections {
         id: connectToPluginSelector
@@ -95,6 +98,10 @@ Rectangle {
             if(impl.selectingOutput) {
                 mclm_output = audioIOSelectorWindow.audioIOSelector.currentPosition;
                 impl.selectingOutput = false;
+            }
+            if(impl.appendingSend) {
+                // TODO
+                impl.appendingSend = false;
             }
         }
         function onResetted() {
@@ -558,6 +565,18 @@ Rectangle {
                     footer: Button {
                         topInset: sendList.count !== 0? impl.padding: 0
                         width: sendList.width
+                        onClicked: {
+                            locatePopupWindow(audioIOSelectorWindow, height + impl.padding, 0 - impl.padding);
+                            audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = false;
+                            audioIOSelectorWindow.audioIOSelector.showAudioHardwareOutput = true;
+                            audioIOSelectorWindow.audioIOSelector.showAudioGroupChannel = true;
+                            audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = true;
+                            audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = true;
+                            audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = false;
+                            audioIOSelectorWindow.showNormal();
+                            impl.usingAudioIOSelector = true;
+                            impl.appendingSend = true;
+                        }
                     }
                 }
             }

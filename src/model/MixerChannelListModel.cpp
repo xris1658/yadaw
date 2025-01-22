@@ -469,6 +469,10 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         {
             return QVariant::fromValue<QObject*>(insertModels_[row].get());
         }
+        case Role::Sends:
+        {
+            return QVariant::fromValue<QObject*>(sendModels_[row].get());
+        }
         case Role::Mute:
         {
             const auto& mute = (mixer_.*getConstMuteAt[listType_])(row)->get();

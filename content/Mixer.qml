@@ -224,6 +224,7 @@ Rectangle {
                 id: mixerChannel
                 height: root.height
                 insertModel: mclm_inserts
+                sendModel: mclm_sends
                 inputAvailable:
                     mclm_channel_type == IMixerChannelListModel.ChannelTypeAudio
                     || mclm_channel_type == IMixerChannelListModel.ChannelTypeInstrument
