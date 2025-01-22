@@ -182,7 +182,7 @@ T.MenuItem {
         }
     }
     Connections {
-        target: subMenu.nativePopup
+        target: subMenu && subMenu.nativePopup? subMenu.nativePopup: null
         function onMousePressedOutside() {
             subMenu.nativePopup.close();
         }

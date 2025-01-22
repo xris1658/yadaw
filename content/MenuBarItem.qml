@@ -85,8 +85,8 @@ T.MenuBarItem {
         }
     }
     Connections {
-        target: menu.nativePopup
-        enabled: menu.nativePopup != null
+        target: menu && menu.nativePopup? menu.nativePopup: null
+        enabled: target != null
         function onMousePressedOutside() {
             if(impl.menuOpenedWithClick) {
                 impl.menuOpenedWithClick = false;
