@@ -1,5 +1,6 @@
 #include "MixerChannelSendListModel.hpp"
 
+#include "entity/HardwareAudioIOPosition.hpp"
 #include "entity/RegularAudioIOPosition.hpp"
 #include "util/Base.hpp"
 
@@ -194,11 +195,77 @@ bool MixerChannelSendListModel::setData(
 
 bool MixerChannelSendListModel::append(bool isPreFader, YADAW::Entity::IAudioIOPosition* position)
 {
-    return false;
+    auto ret = false;
+    if(listType_ == MixerChannelListModel::ListType::Regular)
+    {
+        if(position)
+        {
+            switch(position->getType())
+            {
+            case YADAW::Entity::IAudioIOPosition::Type::AudioHardwareIOChannel:
+            {
+                const auto& hardwareAudioIOPosition = static_cast<const YADAW::Entity::HardwareAudioIOPosition&>(*position);
+                ret = *mixer_->appendChannelSend(
+                    channelIndex_, isPreFader, hardwareAudioIOPosition
+                );
+                break;
+            }
+            case YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel:
+            {
+                const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioIOPosition&>(*position);
+                ret = *mixer_->appendChannelSend(
+                    channelIndex_, isPreFader, regularAudioIOPosition
+                );
+                break;
+            }
+            case YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO:
+            {
+                // not implemented
+                break;
+            }
+        }
+        }
+    }
+    if(ret)
+    {
+        auto oldItemCount = itemCount() - 1;
+        beginInsertRows(QModelIndex(), oldItemCount, oldItemCount);
+        editingVolume_.emplace_back(false);
+        destinations_.emplace_back(position);
+        polarityInverterModels_.emplace_back(
+            std::make_unique<YADAW::Model::PolarityInverterModel>(
+                (mixer_->*getSendPolarityInverter[YADAW::Util::underlyingValue(listType_)])(
+                    channelIndex_, oldItemCount
+                )->get()
+            )
+        );
+        endInsertRows();
+    }
+    return ret;
 }
 
 bool MixerChannelSendListModel::remove(int position, int removeCount)
 {
+    if(listType_ == MixerChannelListModel::ListType::Regular
+        && position >= 0 && removeCount > 0 && position + removeCount <= itemCount()
+        && mixer_->removeChannelSend(channelIndex_, position, removeCount).value_or(false))
+    {
+        beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
+        editingVolume_.erase(
+            editingVolume_.begin() + position,
+            editingVolume_.begin() + position + removeCount
+        );
+        destinations_.erase(
+            destinations_.begin() + position,
+            destinations_.begin() + position + removeCount
+        );
+        polarityInverterModels_.erase(
+            polarityInverterModels_.begin() + position,
+            polarityInverterModels_.begin() + position + removeCount
+        );
+        endRemoveRows();
+        return true;
+    }
     return false;
 }
 
