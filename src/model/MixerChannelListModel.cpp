@@ -896,6 +896,7 @@ bool MixerChannelListModel::insert(int position, int count,
             FOR_RANGE(i, position + count, insertModels_.size())
             {
                 insertModels_[i]->setChannelIndex(i);
+                sendModels_[i]->setChannelIndex(i);
             }
             std::fill_n(
                 std::inserter(
@@ -978,6 +979,7 @@ bool MixerChannelListModel::insert(int position, int count,
         FOR_RANGE(i, position + 1, insertModels_.size())
         {
             insertModels_[i]->setChannelIndex(i);
+            sendModels_[i]->setChannelIndex(i);
         }
         endInsertRows();
         dataChanged(index(position + count), index(itemCount() - 1), {Role::NameWithIndex});
@@ -1079,6 +1081,7 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         FOR_RANGE(i, position, insertModels_.size())
         {
             insertModels_[i]->setChannelIndex(i);
+            sendModels_[i]->setChannelIndex(i);
         }
         if(listType_ == ListType::Regular)
         {
