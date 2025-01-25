@@ -161,6 +161,8 @@ std::optional<std::vector<std::vector<Link>>> topologicalSort(
                 [&graph, &visitedLinks, &predicate](const Link& link)
                 {
                     auto inEdges = link.first->inEdges();
+                    // `std::any_of` returns `false` if the input range is
+                    // empty, which means that the node has no in edges.
                     return std::any_of(inEdges.begin(), inEdges.end(),
                         [&graph, &visitedLinks, &predicate](const ade::EdgeHandle& inEdge)
                         {
@@ -170,7 +172,7 @@ std::optional<std::vector<std::vector<Link>>> topologicalSort(
                                 {
                                     return visitedLink.second == inNode;
                                 }
-                            ) != visitedLinks.end();
+                            ) == visitedLinks.end();
                         }
                     );
                 }
