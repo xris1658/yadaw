@@ -1002,6 +1002,10 @@ if(WIN32)
             ksguid # KSDATAFORMAT_xxx
         )
     endif()
+elseif(APPLE)
+    set(NATIVE_LIBRARY
+        "-framework CoreAudio"
+        "-framework CoreFoundation")
 elseif(LINUX)
     set(NATIVE_LIBRARY asound dl xcb xcb-icccm)
 endif()
