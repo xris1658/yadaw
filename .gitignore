@@ -39,8 +39,12 @@ Makefile.*
 # Visual Studio Code
 /.vscode
 /settings.json
+/vscode-build
+*.code-workspace
 # Windows
 desktop.ini
 Thumbs.db
+# macOS
+.DS_Store
 # Qt 6 NatVis
 qt6.natvis
