@@ -100,7 +100,7 @@ Rectangle {
                 impl.selectingOutput = false;
             }
             if(impl.appendingSend) {
-                // TODO
+                mclm_sends.append(true, audioIOSelectorWindow.audioIOSelector.currentPosition);
                 impl.appendingSend = false;
             }
         }
@@ -561,6 +561,7 @@ Rectangle {
                     Layout.verticalStretchFactor: 1
                     delegate: SendButton {
                         width: sendList.width
+                        text: mcsm_destination.completeName
                     }
                     footer: Button {
                         topInset: sendList.count !== 0? impl.padding: 0
