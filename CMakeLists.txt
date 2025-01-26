@@ -111,6 +111,8 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/MIDIInputDeviceImpl.hpp
     src/native/win/MIDIOutputDeviceImpl.cpp
     src/native/win/MIDIOutputDeviceImpl.hpp
+    src/native/win/MMCSSThreadTaskAssociator.cpp
+    src/native/win/MMCSSThreadTaskAssociator.hpp
     src/native/win/Native.cpp
     src/native/win/Shell.cpp
     src/native/win/Thread.cpp
