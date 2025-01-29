@@ -73,14 +73,16 @@ public:
         data_[1] = T(std::forward<Args>(args)...);
         updated_.store(true, std::memory_order_release);
     }
-    void swapIfNeeded()
+    bool swapIfNeeded()
     {
         if(updated_.load(std::memory_order_acquire))
         {
             std::swap(data_[0], data_[1]);
             updated_.store(false, std::memory_order_release);
             updated_.notify_one();
+            return true;
         }
+        return false;
     }
     template<typename Func>
     void swapAndUseIfNeeded(Func&& func)
