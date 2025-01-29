@@ -230,6 +230,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/engine/MultiInputDeviceWithPDC.hpp
     src/audio/engine/extension/Buffer.cpp
     src/audio/engine/extension/Buffer.hpp
+    src/audio/engine/extension/NameTag.cpp
+    src/audio/engine/extension/NameTag.hpp
     src/audio/engine/extension/UpstreamLatency.cpp
     src/audio/engine/extension/UpstreamLatency.hpp
     src/audio/event/IEventBusInfo.hpp
