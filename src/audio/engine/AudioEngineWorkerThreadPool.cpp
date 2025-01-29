@@ -154,7 +154,10 @@ void AudioEngineWorkerThreadPool::mainFunc()
         }
         firstCallback_.clear(std::memory_order_release);
     }
-    workload_.swapIfNeeded();
+    if(workload_.swapIfNeeded())
+    {
+        std::fprintf(stderr, "{");
+    }
     for(auto& storage: workerThreadDoneStorage_)
     {
         auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(&storage);
@@ -179,6 +182,7 @@ void AudioEngineWorkerThreadPool::updateProcessSequence(
         ),
         running()
     );
+    std::fprintf(stderr, "}\n");
 }
 
 void AudioEngineWorkerThreadPool::workerThreadFunc(
