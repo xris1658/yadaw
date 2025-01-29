@@ -91,38 +91,28 @@ Vec<AudioThreadWorkload> createWorkload(
     using Row = ProcessSequenceWithPrev::value_type;
     Vec<AudioThreadWorkload> ret;
     ret.resize(threadCount);
-    {
-        auto maxCellCount = std::max_element(
-            processSequenceWithPrev.begin(),
-            processSequenceWithPrev.end(),
-            [](const Row& lhs, const Row& rhs)
-            {
-                return lhs.size() < rhs.size();
-            }
-        )->size();
-        auto [vecSize, rem] = std::div(
-            static_cast<long long>(maxCellCount),
-            static_cast<long long>(threadCount)
-        );
-        FOR_RANGE0(i, ret.size())
-        {
-            ret[i].reserve(vecSize + (i < rem));
-        }
-    }
-    std::uint32_t vecIndex = 0;
+    decltype(threadCount) remOffset = 0;
     FOR_RANGE0(i, processSequenceWithPrev.size())
     {
         const auto& row = processSequenceWithPrev[i];
-        FOR_RANGE0(j, row.size())
+        auto [quot, rem] = std::ldiv(row.size(), threadCount);
+        FOR_RANGE0(j, threadCount)
         {
-            ret[vecIndex++].emplace_back();
-            if(vecIndex == ret.size())
+            FOR_RANGE0(k, quot)
             {
-                vecIndex = 0;
+                ret[j].emplace_back(
+                    i, k * threadCount + j
+                );
             }
         }
+        FOR_RANGE(j, quot * threadCount, row.size())
+        {
+            ret[remOffset++].emplace_back(
+                i, j
+            );
+            remOffset -= threadCount * (remOffset == threadCount);
+        }
     }
-    assert(ret.size() == threadCount);
     return ret;
 }
 }
