@@ -36,6 +36,16 @@ YADAW::Audio::Engine::Extension::Buffer& Mixer::bufferExtension()
     return graph_.getExtension<YADAW::Audio::Engine::Extension::Buffer>();
 }
 
+const YADAW::Audio::Engine::Extension::NameTag& Mixer::nameTagExtension() const
+{
+    return graph_.getExtension<YADAW::Audio::Engine::Extension::NameTag>();
+}
+
+YADAW::Audio::Engine::Extension::NameTag& Mixer::nameTag()
+{
+    return graph_.getExtension<YADAW::Audio::Engine::Extension::NameTag>();
+}
+
 std::uint32_t Mixer::audioInputChannelCount() const
 {
     return audioInputFaders_.size();

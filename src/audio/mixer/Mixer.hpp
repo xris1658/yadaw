@@ -5,6 +5,7 @@
 #include "audio/engine/AudioDeviceGraph.hpp"
 #include "audio/engine/AudioDeviceGraphWithPDC.hpp"
 #include "audio/engine/extension/Buffer.hpp"
+#include "audio/engine/extension/NameTag.hpp"
 #include "audio/engine/extension/UpstreamLatency.hpp"
 #include "audio/mixer/Inserts.hpp"
 #include "audio/mixer/Meter.hpp"
@@ -158,6 +159,8 @@ public:
     YADAW::Audio::Engine::AudioDeviceGraphWithPDC& graph();
     const YADAW::Audio::Engine::Extension::Buffer& bufferExtension() const;
     YADAW::Audio::Engine::Extension::Buffer& bufferExtension();
+    const YADAW::Audio::Engine::Extension::NameTag& nameTagExtension() const;
+    YADAW::Audio::Engine::Extension::NameTag& nameTag();
 public:
     std::uint32_t audioInputChannelCount() const;
     std::uint32_t channelCount() const;
