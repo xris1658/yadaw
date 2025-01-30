@@ -331,7 +331,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             {
                 pluginWindow->setTitle(pluginInfo.name);
                 auto& [window, connection] = *pluginEditors_.emplace(pluginEditors_.begin() + position, pluginWindow);
-                pluginWindow->show();
                 connection = QObject::connect(
                     window, &QWindow::visibleChanged,
                     [this, position](bool visible)
@@ -343,7 +342,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             else
             {
                 pluginEditors_.emplace(pluginEditors_.begin() + position, nullptr);
-                genericEditor->show();
             }
             auto& genericEditorConnection = genericEditors_.emplace(
                 genericEditors_.begin() + position, genericEditor

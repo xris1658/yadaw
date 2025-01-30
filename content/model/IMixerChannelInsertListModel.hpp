@@ -25,6 +25,7 @@ public:
         Latency,
         RoleCount
     };
+    Q_ENUM(Role)
 public:
     IMixerChannelInsertListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
     virtual ~IMixerChannelInsertListModel() {}

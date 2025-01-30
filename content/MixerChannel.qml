@@ -68,18 +68,43 @@ Rectangle {
             if(impl.replaceInstrument) {
                 impl.usingPluginSelector = false;
                 let pluginId = pluginSelectorWindow.pluginSelector.currentPluginId();
-                root.setInstrument(pluginId);
+                if(root.setInstrument(pluginId)) {
+                    if(root.instrumentHasUI) {
+                        setInstrumentWindowVisible(true);
+                    }
+                    else {
+                        setInstrumentGenericEditorVisible(true);
+                    }
+                }
             }
             else {
                 if(!pluginSelectorWindow.pluginSelector.replacing) {
                     impl.usingPluginSelector = false;
                     let pluginId = pluginSelectorWindow.pluginSelector.currentPluginId();
-                    insertModel.insert(impl.insertPosition, pluginId);
+                    if(insertModel.insert(impl.insertPosition, pluginId)) {
+                        let index = insertModel.index(impl.insertPosition, 0);
+                        insertModel.setData(
+                            index,
+                            true,
+                            insertModel.data(index, IMixerChannelInsertListModel.HasUI) == true?
+                                IMixerChannelInsertListModel.WindowVisible:
+                                IMixerChannelInsertListModel.GenericEditorVisible
+                        );
+                    }
                 }
                 else {
                     impl.usingPluginSelector = false;
                     let pluginId = pluginSelectorWindow.pluginSelector.currentPluginId();
-                    insertModel.replace(impl.insertPosition, pluginId);
+                    if(insertModel.replace(impl.insertPosition, pluginId)) {
+                        let index = insertModel.index(impl.insertPosition, 0);
+                        insertModel.setData(
+                            index,
+                            true,
+                            insertModel.data(index, IMixerChannelInsertListModel.HasUI) == true?
+                                IMixerChannelInsertListModel.WindowVisible:
+                                IMixerChannelInsertListModel.GenericEditorVisible
+                        );
+                    }
                 }
             }
         }
