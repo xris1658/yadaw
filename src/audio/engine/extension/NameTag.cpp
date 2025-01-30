@@ -3,7 +3,8 @@
 namespace YADAW::Audio::Engine::Extension
 {
 NameTag::NameTag(AudioDeviceGraphBase& graph,
-    DataType&(*getData)(AudioDeviceGraphBase&, const ade::NodeHandle&))
+    DataType&(*getData)(AudioDeviceGraphBase&, const ade::NodeHandle&)):
+    graph_(graph)
 {}
 
 void NameTag::onNodeAdded(const ade::NodeHandle& nodeHandle)
