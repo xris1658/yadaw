@@ -1012,6 +1012,14 @@ ApplicationWindow {
                     mixerChannelModel.setInstrument(position + i, instrument);
                 }
             }
+            else if(trackType === AddTrackWindow.AudioEffect && audioEffectEnabled) {
+                for(let i = 0; i < count; ++i) {
+                    let index = mixerChannelModel.index(position + i, 0);
+                    mixerChannelModel.data(
+                        index, IMixerChannelListModel.Inserts
+                    ).append(audioEffect);
+                }
+            }
         }
     }
     Window {
