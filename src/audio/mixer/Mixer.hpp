@@ -477,6 +477,7 @@ public:
 private:
     YADAW::Audio::Engine::AudioDeviceGraph<
         YADAW::Audio::Engine::Extension::Buffer,
+        YADAW::Audio::Engine::Extension::NameTag,
         YADAW::Audio::Engine::Extension::UpstreamLatency> graph_;
     YADAW::Audio::Engine::AudioDeviceGraphWithPDC graphWithPDC_;
 
