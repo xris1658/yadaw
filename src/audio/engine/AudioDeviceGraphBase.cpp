@@ -236,26 +236,23 @@ Vec<Vec<Vec<ade::NodeHandle>, Vec<std::uint32_t, std::uint32_t>>>
                 }
                 auto inEdgeCount = fromInEdges.size();
                 retPrev.reserve(inEdgeCount);
-                FOR_RANGE0(j, inEdgeCount)
+                FOR_RANGE0(k, i)
                 {
-                    FOR_RANGE0(k, topoSortResult.size())
+                    auto& topoRow = topoSortResult[k];
+                    FOR_RANGE0(l, topoRow.size())
                     {
-                        auto& topoRow = topoSortResult[k];
-                        FOR_RANGE0(l, topoRow.size())
+                        topoRow[l].second;
+                        auto& fromLink = from;
+                        if(
+                            std::find_if(
+                                fromInEdges.begin(), fromInEdges.end(),
+                                [&fromLink](const ade::EdgeHandle& edgeHandle)
+                                {
+                                    return edgeHandle->dstNode() == fromLink;
+                                }
+                            ) != fromInEdges.end())
                         {
-                            topoRow[l].second;
-                            auto& fromLink = from;
-                            if(
-                                std::find_if(
-                                    fromInEdges.begin(), fromInEdges.end(),
-                                    [&fromLink](const ade::EdgeHandle& edgeHandle)
-                                    {
-                                        return edgeHandle->dstNode() == fromLink;
-                                    }
-                                ) != fromInEdges.end())
-                            {
-                                retPrev.emplace_back(k, l);
-                            }
+                            retPrev.emplace_back(k, l);
                         }
                     }
                 }
