@@ -526,6 +526,8 @@ set(YADAW_COMMON_SOURCES
     src/util/AutoIncrementID.cpp
     src/util/AutoIncrementID.hpp
     src/util/Base.hpp
+    src/util/BatchDisposer.cpp
+    src/util/BatchDisposer.hpp
     src/util/ButlerThread.cpp
     src/util/ButlerThread.hpp
     src/util/CircularDeque.hpp
@@ -546,6 +548,7 @@ set(YADAW_COMMON_SOURCES
     src/util/Literal.hpp
     src/util/LockFreeQueue.hpp
     src/util/OptionalUtil.hpp
+    src/util/PolymorphicDeleter.hpp
     src/util/QStringUtil.hpp
     src/util/QmlUtil.hpp
     src/util/QuadraticFunction.cpp
