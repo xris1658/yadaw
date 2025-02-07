@@ -14,17 +14,23 @@ private:
     template<typename T>
     static void deleterFunc(void* ptr)
     {
-        delete static_cast<T*>(ptr);
+        delete reinterpret_cast<T*>(ptr);
     }
+private:
+    PolymorphicDeleter(DeleterFunction* deleter) noexcept: deleter_(deleter) {}
 public:
     template<typename D>
-    PolymorphicDeleter() noexcept: deleter_(&deleterFunc<D>) {}
+    static PolymorphicDeleter create()
+    {
+        return PolymorphicDeleter(&deleterFunc<D>);
+    }
     PolymorphicDeleter(const PolymorphicDeleter&) noexcept = default;
     PolymorphicDeleter& operator=(const PolymorphicDeleter&) noexcept = default;
     ~PolymorphicDeleter() noexcept = default;
-    void operator()(void* pointer) const
+    template<typename T>
+    void operator()(T* pointer) const
     {
-        deleter_(pointer);
+        deleter_(reinterpret_cast<void*>(pointer));
     }
     DeleterFunction* getDeleter() const
     {
@@ -40,14 +46,14 @@ using PMRUniquePtr = std::unique_ptr<T, PolymorphicDeleter>;
 template<typename T>
 PMRUniquePtr<T> createUniquePtr(T* ptr)
 {
-    return PMRUniquePtr<T>(ptr, PolymorphicDeleter<T>());
+    return PMRUniquePtr<T>(ptr, PolymorphicDeleter::create<T>());
 }
 
 
 template<typename T>
 PMRUniquePtr<T> createUniquePtr(std::nullptr_t)
 {
-    return PMRUniquePtr<T>(nullptr, PolymorphicDeleter<T>());
+    return PMRUniquePtr<T>(nullptr, PolymorphicDeleter::create<T>());
 }
 }
 
