@@ -11,8 +11,6 @@ namespace YADAW::Audio::Mixer
 {
 namespace Impl
 {
-void blankNodeAddedCallback(const Mixer&) {}
-void blankNodeRemovedCallback(const Mixer&) {}
 void blankConnectionUpdatedCallback(const Mixer&) {}
 }
 
@@ -1377,7 +1375,7 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
             audioInputMeters_.begin() + position,
             std::move(meter), meterNode
         );
-        nodeRemovedCallback_(*this);
+        connectionUpdatedCallback_(*this);
         auto& info = *audioInputChannelInfo_.emplace(audioInputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
         audioInputSendMutes_.emplace(audioInputSendMutes_.begin() + position);
@@ -1441,7 +1439,7 @@ bool Mixer::removeAudioInputChannel(
                     devicesToRemove.emplace_back(std::move(device));
                 }
             }
-            nodeRemovedCallback_(*this);
+            connectionUpdatedCallback_(*this);
         }
         audioInputMutes_.erase(
             audioInputMutes_.begin() + first,
@@ -1606,7 +1604,7 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
             audioOutputPolarityInverters_.begin() + position,
             std::move(polarityInverter), polarityInverterNode
         );
-        nodeAddedCallback_(*this);
+        connectionUpdatedCallback_(*this);
         auto& info = *audioOutputChannelInfo_.emplace(audioOutputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
         audioOutputSendMutes_.emplace(audioOutputSendMutes_.begin() + position);
@@ -1676,7 +1674,7 @@ bool Mixer::removeAudioOutputChannel(
             {
                 auto device = graphWithPDC_.removeNode(nodesToRemove[i]);
             }
-            nodeRemovedCallback_(*this);
+            connectionUpdatedCallback_(*this);
         }
         audioOutputMutes_.erase(
             audioOutputMutes_.begin() + first,
@@ -2083,7 +2081,7 @@ bool Mixer::insertChannels(
             std::inserter(mainOutput_, mainOutput_.begin() + position), count,
             Position {Position::Invalid, 0, IDGen::InvalidId}
         );
-        nodeAddedCallback_(*this);
+        connectionUpdatedCallback_(*this);
     }
     return ret;
 }
@@ -2159,7 +2157,7 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             {
                 auto device = graphWithPDC_.removeNode(nodesToRemove[i]);
             }
-            nodeRemovedCallback_(*this);
+            connectionUpdatedCallback_(*this);
         }
         mainOutput_.erase(
             mainOutput_.begin() + first,
@@ -2563,7 +2561,7 @@ std::optional<bool> Mixer::removeAudioInputChannelSend(
                     oldSummingAndNode.first.reset(newSummingAndNode.first.release());
                 }
             }
-            nodeRemovedCallback_(*this);
+            connectionUpdatedCallback_(*this);
             sendDestinations.erase(
                 sendDestinations.begin() + sendPosition,
                 sendDestinations.begin() + sendPosition + removeCount
@@ -2900,7 +2898,7 @@ std::optional<bool> Mixer::removeChannelSend(
                     oldSummingAndNode.first.reset(newSummingAndNode.first.release());
                 }
             }
-            nodeRemovedCallback_(*this);
+            connectionUpdatedCallback_(*this);
             sendDestinations.erase(
                 sendDestinations.begin() + sendPosition,
                 sendDestinations.begin() + sendPosition + removeCount
@@ -3242,7 +3240,7 @@ std::optional<bool> Mixer::removeAudioOutputChannelSend(
                     oldSummingAndNode.first.reset(newSummingAndNode.first.release());
                 }
             }
-            nodeRemovedCallback_(*this);
+            connectionUpdatedCallback_(*this);
             sendDestinations.erase(
                 sendDestinations.begin() + sendPosition,
                 sendDestinations.begin() + sendPosition + removeCount
@@ -3370,32 +3368,10 @@ void Mixer::setInstrumentBypass(std::uint32_t index, bool bypass)
     }
 }
 
-void Mixer::setNodeAddedCallback(
-    NodeAddedCallback* callback)
-{
-    nodeAddedCallback_ = callback;
-}
-
-void Mixer::setNodeRemovedCallback(
-    NodeRemovedCallback* callback)
-{
-    nodeRemovedCallback_ = callback;
-}
-
 void Mixer::setConnectionUpdatedCallback(
     ConnectionUpdatedCallback* callback)
 {
     connectionUpdatedCallback_ = callback;
-}
-
-void Mixer::resetNodeAddedCallback()
-{
-    nodeAddedCallback_ = &Impl::blankNodeAddedCallback;
-}
-
-void Mixer::resetNodeRemovedCallback()
-{
-    nodeRemovedCallback_ = &Impl::blankNodeRemovedCallback;
 }
 
 void Mixer::resetConnectionUpdatedCallback()

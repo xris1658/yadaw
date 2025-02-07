@@ -183,8 +183,6 @@ public:
         MeterFactory&& meterFactory):
         graph_(),
         graphWithPDC_(graph_),
-        nodeAddedCallback_(&Impl::blankNodeAddedCallback),
-        nodeRemovedCallback_(&Impl::blankNodeRemovedCallback),
         connectionUpdatedCallback_(&Impl::blankConnectionUpdatedCallback),
         volumeFaderFactory_(std::move(volumeFaderFactory)),
         meterFactory_(std::move(meterFactory))
@@ -570,8 +568,6 @@ private:
 
     std::unordered_set<ade::EdgeHandle, ade::HandleHasher<ade::Edge>> connections_;
 
-    NodeAddedCallback* nodeAddedCallback_;
-    NodeRemovedCallback* nodeRemovedCallback_;
     ConnectionUpdatedCallback* connectionUpdatedCallback_;
     std::function<DeviceFactoryType<VolumeFader>> volumeFaderFactory_;
     std::function<DeviceFactoryType<Meter>> meterFactory_;
