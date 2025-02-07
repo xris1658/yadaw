@@ -58,8 +58,6 @@ public:
     }
     void updateProcessSequence();
 public:
-    static void mixerNodeAddedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
-    static void mixerNodeRemovedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
     static void mixerConnectionUpdatedCallback(const YADAW::Audio::Mixer::Mixer& mixer);
     static void insertsNodeAddedCallback(const YADAW::Audio::Mixer::Inserts& inserts);
     static void insertsNodeRemovedCallback(const YADAW::Audio::Mixer::Inserts& inserts);

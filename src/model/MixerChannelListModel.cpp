@@ -1328,7 +1328,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 }
             }
             mixer_.setInstrument(position, instrument->instrumentNode, firstOutput);
-            engine.mixerNodeAddedCallback(mixer_);
+            engine.mixerConnectionUpdatedCallback(mixer_);
             auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
             const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
                 plugin,
@@ -1384,7 +1384,7 @@ bool MixerChannelListModel::removeInstrument(int position)
         {
             auto instrumentNode = mixer_.removeInstrument(position);
             auto deviceWithPDC = graphWithPDC.removeNode(instrumentNode);
-            engine.mixerNodeRemovedCallback(mixer_);
+            engine.mixerConnectionUpdatedCallback(mixer_);
         }
         if(auto window = instrumentInstance->pluginWindowConnection.window; window)
         {
@@ -1684,7 +1684,7 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
         }
         {
             auto disposingDevice = graphWithPDC.removeNode(instrumentNode);
-            YADAW::Controller::AudioEngine::mixerNodeRemovedCallback(mixer_);
+            YADAW::Controller::AudioEngine::mixerConnectionUpdatedCallback(mixer_);
         }
         auto plugin = static_cast<YADAW::Audio::Plugin::IAudioPlugin*>(device);
         auto status = plugin->status();

@@ -178,18 +178,6 @@ void AudioEngine::updateProcessSequence()
     );
 }
 
-void AudioEngine::mixerNodeAddedCallback(const Audio::Mixer::Mixer& mixer)
-{
-    auto& instance = AudioEngine::appAudioEngine();
-    instance.updateProcessSequence();
-}
-
-void AudioEngine::mixerNodeRemovedCallback(const Audio::Mixer::Mixer& mixer)
-{
-    auto& instance = AudioEngine::appAudioEngine();
-    instance.updateProcessSequence();
-}
-
 void AudioEngine::mixerConnectionUpdatedCallback(const Audio::Mixer::Mixer& mixer)
 {
     auto& instance = AudioEngine::appAudioEngine();
