@@ -8,17 +8,17 @@ namespace YADAW::Native
 {
 bool setThreadAffinity(std::thread::native_handle_type handle, std::uint64_t affinity)
 {
-    return SetThreadAffinityMask(handle, affinity);
+    return SetThreadAffinityMask(reinterpret_cast<HANDLE>(handle), affinity);
 }
 
 std::thread::native_handle_type getCurrentThreadHandle()
 {
-    return GetCurrentThread();
+    return reinterpret_cast<std::thread::native_handle_type>(GetCurrentThread());
 }
 
 void setThreadPriorityToTimecritical(std::thread::native_handle_type handle)
 {
-    SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL);
+    SetThreadPriority(reinterpret_cast<HANDLE>(handle), THREAD_PRIORITY_TIME_CRITICAL);
 }
 }
 

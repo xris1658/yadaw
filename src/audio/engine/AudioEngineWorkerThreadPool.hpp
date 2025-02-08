@@ -7,6 +7,7 @@
 #include "util/VectorTypes.hpp"
 
 #include <atomic>
+#include <thread>
 
 namespace YADAW::Audio::Engine
 {
