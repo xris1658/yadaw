@@ -100,6 +100,11 @@
     -DVST3SDK_SOURCE_DIR=<VST3 SDK 所在目录的路径>/vst3sdk \
     -DCLAP_SOURCE_DIR=<CLAP 所在目录的路径>/clap \
     -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<sqlite_modern_cpp 所在目录的路径>/sqlite_modern_cpp/hdr
+  # 确保 vst3sdk/pluginterfaces/base/ustring.cpp 能够编译
+  export PREV_PWD=$PWD
+  cd <VST3 SDK 所在目录的路径>/vst3sdk/pluginterfaces
+  git apply $PREV_PWD/../tools/vst3-patches/ustring.cpp
+  cd $PREV_PWD
   cmake --build . --target YADAW -j 16
   ```
 
@@ -204,12 +209,7 @@ Qt 6 中内置了 IBus 输入法支持。如果使用 Fcitx，则需要构建并
   ```
 - 下载并安装 Qt（参见“使用 MSVC 构建”中描述的版本要求）。安装完成后，将 Qt 可执
   行文件所在的目录（<Qt 安装目录>\<版本>\macos\bin）添加到环境变量 `PATH` 中。
-- 下载 VST3 SDK，并记住路径。为配置项目，需要注释 cmake/modules/SMTG_DetectPlatform.cmake 的以下几行：
-- ```cmake
-  if(XCODE_VERSION VERSION_LESS "9")
-      message(FATAL_ERROR "[SMTG] XCode 9 or newer is required")
-  endif()
-  ```
+- 下载 VST3 SDK，并记住路径。
 - 下载 CLAP，并记住路径。
 - 下载并安装 vcpkg：
   ```shell
@@ -229,6 +229,11 @@ Qt 6 中内置了 IBus 输入法支持。如果使用 Fcitx，则需要构建并
   cd ./yadaw
   mkdir build
   cd build
+  # 确保 VST3 SDK 能够无 XCode 配置
+  export $PREV_PWD=$PWD
+  cd <VST3 SDK 所在目录的路径>/vst3sdk/cmake
+  git apply $PREV_PWD/../tools/vst3-patches/detect-platform-mac.diff
+  cd $PREV_PWD
   cmake -S .. -B . \
     -DCMAKE_TOOLCHAIN_FILE=<vcpkg 所在目录的路径>/vcpkg/scripts/buildsystems/vcpkg.cmake \
     -DVST3SDK_SOURCE_DIR=<VST3 SDK 所在目录的路径>/vst3sdk \

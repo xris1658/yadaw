@@ -1,0 +1,14 @@
+diff --git "a/modules/SMTG_DetectPlatform.cmake" "b/modules/SMTG_DetectPlatform.cmake"
+index 80983e3..52b0b7f 100644
+--- "a/modules/SMTG_DetectPlatform.cmake"
++++ "b/modules/SMTG_DetectPlatform.cmake"
+@@ -51,9 +51,6 @@ macro(smtg_detect_xcode_version)
+             string(REGEX MATCH "Xcode [0-9\\.]+" XCODE_VERSION "${XCODE_VERSION}")
+             string(REGEX REPLACE "Xcode ([0-9\\.]+)" "\\1" XCODE_VERSION "${XCODE_VERSION}")
+         endif()
+-        if(XCODE_VERSION VERSION_LESS "9")
+-            message(FATAL_ERROR "[SMTG] XCode 9 or newer is required")
+-        endif()
+         message(STATUS "[SMTG] Building with Xcode version: ${XCODE_VERSION}")
+         if(NOT DEFINED ENV{SDKROOT})
+             execute_process(COMMAND xcrun --sdk macosx --show-sdk-path OUTPUT_VARIABLE CMAKE_OSX_SYSROOT OUTPUT_STRIP_TRAILING_WHITESPACE)

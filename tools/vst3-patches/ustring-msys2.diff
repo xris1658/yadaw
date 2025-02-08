@@ -1,0 +1,31 @@
+diff --git "a/base/ustring.cpp" "b/base/ustring.cpp"
+index 24a412f..ff22934 100644
+--- "a/base/ustring.cpp"
++++ "b/base/ustring.cpp"
+@@ -173,7 +173,11 @@ bool UString::scanFloat (double& value) const
+ bool UString::printFloat (double value, int32 precision)
+ {
+ #if SMTG_OS_WINDOWS
+-	return swprintf ((wchar_t*)thisBuffer, L"%.*lf", precision, value) != -1;
++#if defined(_MSC_VER)
++	return _swprintf ((wchar_t*)thisBuffer, L"%.*lf", precision, value) != -1;
++#else
++	return swprintf ((wchar_t*)thisBuffer, thisSize, L"%.*lf", precision, value) != -1;
++#endif
+ #elif SMTG_OS_MACOS
+ 	bool result = false;
+ 	CFStringRef cfStr = CFStringCreateWithFormat (0, 0, CFSTR("%.*lf"), precision, value);
+@@ -238,8 +242,11 @@ bool UString::scanInt (int64& value) const
+ bool UString::printInt (int64 value)
+ {
+ #if SMTG_OS_WINDOWS
+-	return swprintf ((wchar_t*)thisBuffer, L"%I64d", value) != -1;
+-
++#if defined(_MSC_VER)
++	return _swprintf ((wchar_t*)thisBuffer, L"%I64d", value) != -1;
++#else
++	return swprintf ((wchar_t*)thisBuffer, thisSize, L"%I64d", value) != -1;
++#endif
+ #elif SMTG_OS_MACOS
+ 	CFStringRef cfStr = CFStringCreateWithFormat (0, 0, CFSTR("%lld"), value);
+ 	if (cfStr)

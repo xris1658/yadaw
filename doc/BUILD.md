@@ -149,6 +149,11 @@ might be usable on Debian and its forks.
     -DVST3SDK_SOURCE_DIR=<path to directory of VST3 SDK>/vst3sdk \
     -DCLAP_SOURCE_DIR=<path to directory of CLAP>/clap \
     -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<path to directory of sqlite_modern_cpp>/sqlite_modern_cpp/hdr
+  # Make sure vst3sdk/pluginterfaces/base/ustring.cpp compiles
+  export PREV_PWD=$PWD
+  cd <path to directory of VST3 SDK>/vst3sdk/pluginterfaces
+  git apply $PREV_PWD/../tools/vst3-patches/ustring.cpp
+  cd $PREV_PWD
   cmake --build . --target YADAW -j 16
   ```
 
@@ -213,9 +218,7 @@ project cannot be built with older macOS toolchains.
 - Download and install Qt (see steps described in Build With MSVC). Once
   installed, add the directory containing the Qt executable (<Qt install
   directory>\<version>\macos\bin) to the environment variable `PATH`.
-- Download VST3 SDK, and remember the path to it. Comment the following lines in
-  cmake/modules/SMTG_DetectPlatform.cmake so that we can configure the project
-  without Xcode:
+- Download VST3 SDK, and remember the path to it.
 - ```cmake
   if(XCODE_VERSION VERSION_LESS "9")
       message(FATAL_ERROR "[SMTG] XCode 9 or newer is required")
@@ -242,6 +245,11 @@ project cannot be built with older macOS toolchains.
   cd ./yadaw
   mkdir build
   cd build
+  # Make sure VST3 SDK can be configured without XCode
+  export $PREV_PWD=$PWD
+  cd <path to directory of VST3 SDK>/vst3sdk/cmake
+  git apply $PREV_PWD/../tools/vst3-patches/detect-platform-mac.diff
+  cd $PREV_PWD
   cmake -S .. -B . \
   -DCMAKE_TOOLCHAIN_FILE=<path to vcpkg directory>/vcpkg/scripts/buildsystems/vcpkg.cmake \
   -DVST3SDK_SOURCE_DIR=<path to directory of VST3 SDK>/vst3sdk \
