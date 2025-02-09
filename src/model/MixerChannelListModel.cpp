@@ -870,11 +870,7 @@ bool MixerChannelListModel::insert(int position, int count,
         {
             FOR_RANGE(i, position, position + count)
             {
-                mixer_.channelPreFaderInsertsAt(i)->get().setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
-                mixer_.channelPreFaderInsertsAt(i)->get().setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
                 mixer_.channelPreFaderInsertsAt(i)->get().setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
-                mixer_.channelPostFaderInsertsAt(i)->get().setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
-                mixer_.channelPostFaderInsertsAt(i)->get().setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
                 mixer_.channelPostFaderInsertsAt(i)->get().setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
             }
             beginInsertRows(QModelIndex(), position, position + count - 1);
@@ -956,11 +952,7 @@ bool MixerChannelListModel::insert(int position, int count,
                 mixer_.audioInputChannelPostFaderInsertsAt(position):
                 mixer_.audioOutputChannelPostFaderInsertsAt(position)
         )->get();
-        preFaderInserts.setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
-        preFaderInserts.setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
         preFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
-        postFaderInserts.setNodeAddedCallback(&YADAW::Controller::AudioEngine::insertsNodeAddedCallback);
-        postFaderInserts.setNodeRemovedCallback(&YADAW::Controller::AudioEngine::insertsNodeRemovedCallback);
         postFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
         insertModels_.emplace(
             insertModels_.begin() + position,

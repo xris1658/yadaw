@@ -5,8 +5,6 @@
 
 namespace YADAW::Audio::Mixer
 {
-void blankNodeAddedCallback(const Inserts&) {}
-void blankNodeRemovedCallback(const Inserts&) {}
 void blankConnectionUpdatedCallback(const Inserts&) {}
 
 Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
@@ -15,8 +13,6 @@ Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     graph_(graph),
     inNode_(std::move(inNode)), outNode_(std::move(outNode)),
     inChannelGroupIndex_(inChannelGroupIndex), outChannelGroupIndex_(outChannelGroupIndex),
-    nodeAddedCallback_(blankNodeAddedCallback),
-    nodeRemovedCallback_(blankNodeRemovedCallback),
     connectionUpdatedCallback_(blankConnectionUpdatedCallback)
 {
     auto inDevice = graph_.getNodeData(inNode_).process.device();
@@ -240,7 +236,7 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
             std::make_pair(inChannel, outChannel)
         );
         setBypassed(position, false);
-        nodeAddedCallback_(*this);
+        connectionUpdatedCallback_(*this);
         return true;
     }
     return false;
@@ -421,16 +417,6 @@ bool Inserts::move(std::uint32_t position, std::uint32_t count,
         }
     }
     return false;
-}
-
-void Inserts::setNodeAddedCallback(NodeAddedCallback* callback)
-{
-    nodeAddedCallback_ = callback;
-}
-
-void Inserts::setNodeRemovedCallback(NodeRemovedCallback* callback)
-{
-    nodeRemovedCallback_ = callback;
 }
 
 void Inserts::setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback)

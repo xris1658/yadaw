@@ -39,8 +39,6 @@ public:
     void setBypassed(std::uint32_t position, bool bypassed);
     bool move(std::uint32_t position, std::uint32_t count, Inserts& rhs, std::uint32_t destPosition);
 public:
-    void setNodeAddedCallback(NodeAddedCallback* callback);
-    void setNodeRemovedCallback(NodeRemovedCallback* callback);
     void setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback);
 private:
     YADAW::Audio::Engine::AudioDeviceGraphBase& graph_;
