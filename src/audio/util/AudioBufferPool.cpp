@@ -2,6 +2,8 @@
 
 #include "util/IntegerRange.hpp"
 
+#include <cstring>
+
 namespace YADAW::Audio::Util
 {
 constexpr std::size_t bufferCount = 64;
