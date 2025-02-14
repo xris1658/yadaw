@@ -81,7 +81,9 @@ Buffer::Buffer(
     ),
     row_(row),
     column_(column)
-{}
+{
+    std::memset(pointer_, 0, pool_->singleBufferByteSize());
+}
 
 Buffer::Buffer(Buffer&& rhs) noexcept:
     pool_(std::move(rhs.pool_)),
