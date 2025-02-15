@@ -41,7 +41,7 @@ private:
 private:
     std::uint32_t singleBufferByteSize_;
     std::uint32_t alignTypeCount_;
-    std::vector<AlignType*> alignedPool_;
+    std::vector<std::unique_ptr<AlignType[]>> alignedPool_;
     std::vector<std::vector<bool>> vacant_;
     std::mutex mutex_;
 };
