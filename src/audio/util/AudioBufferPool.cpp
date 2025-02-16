@@ -14,7 +14,7 @@ AudioBufferPool::AudioBufferPool(std::uint32_t singleBufferByteSize):
     alignedPool_(),
     vacant_()
 {
-    alignedPool_.emplace_back(std::make_unique<AlignType[]>(alignTypeCount_));
+    alignedPool_.emplace_back(std::make_unique<AlignType[]>(alignTypeCount_ * bufferCount));
     std::memset(alignedPool_.back().get(), 0, alignTypeCount_ * sizeof(AlignType) * bufferCount);
     vacant_.emplace_back(bufferCount, true);
 }
@@ -51,7 +51,7 @@ Buffer AudioBufferPool::lend()
         }
         if(row == alignedPool_.size())
         {
-            alignedPool_.emplace_back(std::make_unique<AlignType[]>(alignTypeCount_));
+            alignedPool_.emplace_back(std::make_unique<AlignType[]>(alignTypeCount_ * bufferCount));
             std::memset(alignedPool_.back().get(), 0, alignTypeCount_ * sizeof(AlignType) * bufferCount);
             vacant_.emplace_back(bufferCount, true);
         }
