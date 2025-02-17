@@ -248,7 +248,6 @@ void AudioEngine::setRunning(bool running)
     if((!running_) && running)
     {
         const auto& cores = getCPUTopology()[0][0];
-        std::vector<std::uint16_t> affinities;
         Vec<Vec<std::uint16_t>> coresVec;
         std::uint16_t logicalProcessorCount = 0;
         for(const auto& [core, logicalProcessors]: cores)
@@ -270,27 +269,29 @@ void AudioEngine::setRunning(bool running)
         {
             performanceCoreProcessorCount += it->size();
         }
-        auto it = coresVec.begin();
-        FOR_RANGE0(i, performanceCoreProcessorCount)
-        {
-            while(it->empty())
-            {
-                if(++it == efficiencyCoreBegin)
-                {
-                    it = coresVec.begin();
-                }
-            }
-            affinities.emplace_back(it->back());
-            it->pop_back();
-            if(++it == efficiencyCoreBegin)
-            {
-                it = coresVec.begin();
-            }
-        }
-        for(auto it = efficiencyCoreBegin; it != coresVec.end(); ++it)
-        {
-            affinities.emplace_back(it->front());
-        }
+        std::vector<std::uint16_t> affinities;
+        // auto it = coresVec.begin();
+        // FOR_RANGE0(i, performanceCoreProcessorCount)
+        // {
+        //     while(it->empty())
+        //     {
+        //         if(++it == efficiencyCoreBegin)
+        //         {
+        //             it = coresVec.begin();
+        //         }
+        //     }
+        //     affinities.emplace_back(it->back());
+        //     it->pop_back();
+        //     if(++it == efficiencyCoreBegin)
+        //     {
+        //         it = coresVec.begin();
+        //     }
+        // }
+        // for(auto it = efficiencyCoreBegin; it != coresVec.end(); ++it)
+        // {
+        //     affinities.emplace_back(it->front());
+        // }
+        affinities.emplace_back(0);
         workerThreadPool_.setAffinities(affinities);
         workerThreadPool_.start();
     }
