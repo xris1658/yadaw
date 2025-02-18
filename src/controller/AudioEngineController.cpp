@@ -270,28 +270,27 @@ void AudioEngine::setRunning(bool running)
             performanceCoreProcessorCount += it->size();
         }
         std::vector<std::uint16_t> affinities;
-        // auto it = coresVec.begin();
-        // FOR_RANGE0(i, performanceCoreProcessorCount)
-        // {
-        //     while(it->empty())
-        //     {
-        //         if(++it == efficiencyCoreBegin)
-        //         {
-        //             it = coresVec.begin();
-        //         }
-        //     }
-        //     affinities.emplace_back(it->back());
-        //     it->pop_back();
-        //     if(++it == efficiencyCoreBegin)
-        //     {
-        //         it = coresVec.begin();
-        //     }
-        // }
-        // for(auto it = efficiencyCoreBegin; it != coresVec.end(); ++it)
-        // {
-        //     affinities.emplace_back(it->front());
-        // }
-        affinities.emplace_back(0);
+        auto it = coresVec.begin();
+        FOR_RANGE0(i, performanceCoreProcessorCount)
+        {
+            while(it->empty())
+            {
+                if(++it == efficiencyCoreBegin)
+                {
+                    it = coresVec.begin();
+                }
+            }
+            affinities.emplace_back(it->back());
+            it->pop_back();
+            if(++it == efficiencyCoreBegin)
+            {
+                it = coresVec.begin();
+            }
+        }
+        for(auto it = efficiencyCoreBegin; it != coresVec.end(); ++it)
+        {
+            affinities.emplace_back(it->front());
+        }
         workerThreadPool_.setAffinities(affinities);
         workerThreadPool_.start();
     }
