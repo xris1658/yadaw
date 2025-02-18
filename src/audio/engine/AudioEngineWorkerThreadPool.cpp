@@ -158,6 +158,15 @@ void AudioEngineWorkerThreadPool::mainFunc()
     {
         std::fprintf(stderr, "{");
     }
+    auto& completionMarks = workload_.get()->completionMarksStorage;
+    for(auto& row: completionMarks)
+    {
+        for(auto& cell: row)
+        {
+            auto& completionMark = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(&cell);
+            completionMark.clear(std::memory_order_relaxed);
+        }
+    }
     for(auto& storage: workerThreadDoneStorage_)
     {
         auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(&storage);
