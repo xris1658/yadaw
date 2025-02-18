@@ -56,7 +56,7 @@ ProcessSequenceWithPrev getProcessSequenceWithPrev(
         {
             auto& [link, prev] = ti[j];
             auto& [retLink, retPrev] = ri[j];
-            retLink.reserve(link.size());;
+            retLink.reserve(link.size());
             retPrev.reserve(prev.size());
             FOR_RANGE0(k, link.size())
             {
