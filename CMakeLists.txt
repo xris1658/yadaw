@@ -265,6 +265,7 @@ set(YADAW_COMMON_SOURCES
     src/audio/mixer/BlankGenerator.hpp
     src/audio/mixer/BlankReceiver.cpp
     src/audio/mixer/BlankReceiver.hpp
+    src/audio/mixer/Common.hpp
     src/audio/mixer/Inserts.cpp
     src/audio/mixer/Inserts.hpp
     src/audio/mixer/Meter.cpp

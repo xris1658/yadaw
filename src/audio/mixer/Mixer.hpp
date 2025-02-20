@@ -7,6 +7,7 @@
 #include "audio/engine/extension/Buffer.hpp"
 #include "audio/engine/extension/NameTag.hpp"
 #include "audio/engine/extension/UpstreamLatency.hpp"
+#include "audio/mixer/Common.hpp"
 #include "audio/mixer/Inserts.hpp"
 #include "audio/mixer/Meter.hpp"
 #include "audio/mixer/PolarityInverter.hpp"
@@ -139,7 +140,6 @@ public:
         QColor color;
         ChannelType channelType;
     };
-    using IDGen = YADAW::Util::AutoIncrementID;
     struct Position
     {
         enum Type: std::uint32_t

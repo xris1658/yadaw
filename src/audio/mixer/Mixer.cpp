@@ -901,7 +901,7 @@ std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::channelIDAt(
     return std::nullopt;
 }
 
-bool compareIdAndIndexWithId(const Mixer::IDAndIndex& idAndIndex, Mixer::IDGen::ID id)
+bool compareIdAndIndexWithId(const Mixer::IDAndIndex& idAndIndex, IDGen::ID id)
 {
     return idAndIndex.id < id;
 }
