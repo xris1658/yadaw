@@ -1,13 +1,12 @@
 #ifndef YADAW_CONTENT_MODEL_IFILETREEMODEL
 #define YADAW_CONTENT_MODEL_IFILETREEMODEL
 
+#include "ISortFilterItemModel.hpp"
 #include "ModelBase.hpp"
-
-#include <QAbstractItemModel>
 
 namespace YADAW::Model
 {
-class IFileTreeModel: public QAbstractItemModel
+class IFileTreeModel: public ISortFilterItemModel
 {
     Q_OBJECT
 public:
@@ -19,7 +18,7 @@ public:
         RoleCount
     };
 public:
-    IFileTreeModel(QObject* parent = nullptr): QAbstractItemModel(parent) {}
+    IFileTreeModel(QObject* parent = nullptr): ISortFilterItemModel(parent) {}
     virtual ~IFileTreeModel() {}
 public:
     static constexpr int roleCount() { return YADAW::Util::underlyingValue(RoleCount) - YADAW::Util::underlyingValue(Qt::UserRole); }

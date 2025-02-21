@@ -43,6 +43,7 @@ set(CONTENT_CPP_FILES
     model/IPluginParameterListModel.hpp
     model/IPolarityInverterModel.hpp
     model/ISendListModel.hpp
+    model/ISortFilterItemModel.hpp
     model/ISortFilterListModel.hpp
     model/ISpeakerListModel.hpp
     model/ITrackListModel.hpp

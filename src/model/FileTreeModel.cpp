@@ -142,4 +142,67 @@ QModelIndex FileTreeModel::parent(const QModelIndex& child) const
     }
     return QModelIndex();
 }
+
+bool FileTreeModel::isComparable(int roleIndex) const
+{
+    return roleIndex == Role::Name
+        || roleIndex == Role::Path
+        || roleIndex == Role::IsDirectory;
+}
+
+bool FileTreeModel::isFilterable(int roleIndex) const
+{
+    return false;
+}
+
+bool FileTreeModel::isSearchable(int roleIndex) const
+{
+    return roleIndex == Role::Name
+        || roleIndex == Role::Path;
+}
+
+QList<int> FileTreeModel::treeNodeRoles() const
+{
+    return {Role::Name, Role::Path, Role::IsDirectory};
+}
+
+QList<int> FileTreeModel::leafNodeRoles() const
+{
+    return {Role::Name, Role::Path, Role::IsDirectory};
+}
+
+bool FileTreeModel::isTreeNode(const QModelIndex& index) const
+{
+    return data(index, Role::IsDirectory).value<bool>();
+}
+
+bool FileTreeModel::isLess(
+    int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const
+{
+    if(roleIndex == Role::Name || roleIndex == Role::Path)
+    {
+        return data(lhs, roleIndex).value<QString>() < data(rhs, roleIndex).value<QString>();
+    }
+    if(roleIndex == Role::IsDirectory)
+    {
+        return (!data(lhs, roleIndex).value<bool>())
+            && ( data(rhs, roleIndex).value<bool>());
+    }
+    return false;
+}
+
+bool FileTreeModel::isSearchPassed(
+    int roleIndex, const QModelIndex& modelIndex, const QString& string, Qt::CaseSensitivity caseSensitivity) const
+{
+    if(roleIndex == Role::Name || roleIndex == Role::Path)
+    {
+        return data(modelIndex, roleIndex).value<QString>().contains(string, caseSensitivity);
+    }
+    return false;
+}
+
+bool FileTreeModel::isPassed(const QModelIndex& modelIndex, int role, const QVariant& variant) const
+{
+    return false;
+}
 }
