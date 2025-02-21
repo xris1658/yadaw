@@ -3,6 +3,8 @@
 
 #include "audio/engine/AudioDeviceGraphBase.hpp"
 
+#include "audio/mixer/Common.hpp"
+
 namespace YADAW::Audio::Mixer
 {
 class Inserts
@@ -13,6 +15,7 @@ public:
     using ConnectionUpdatedCallback = void(const Inserts&);
 public:
     Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
+        IDGen& auxInputIDGen, IDGen& auxOutputIDGen,
         ade::NodeHandle inNode, ade::NodeHandle outNode,
         std::uint32_t inChannelGroupIndex, std::uint32_t outChannelGroupIndex);
     ~Inserts();
@@ -50,6 +53,10 @@ private:
     std::vector<QString> names_;
     std::vector<bool> bypassed_;
     std::vector<std::pair<std::uint32_t, std::uint32_t>> channelGroupIndices_;
+    std::vector<std::vector<IDGen::ID>> auxInputIDs_;
+    std::vector<std::vector<IDGen::ID>> auxOutputIDs_;
+    IDGen* auxInputIDGen_ = nullptr;
+    IDGen* auxOutputIDGen_ = nullptr;
     NodeAddedCallback* nodeAddedCallback_;
     NodeRemovedCallback* nodeRemovedCallback_;
     ConnectionUpdatedCallback* connectionUpdatedCallback_;

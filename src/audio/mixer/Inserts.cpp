@@ -8,11 +8,13 @@ namespace YADAW::Audio::Mixer
 void blankConnectionUpdatedCallback(const Inserts&) {}
 
 Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
+    IDGen& auxInputIDGen, IDGen& auxOutputIDGen,
     ade::NodeHandle inNode, ade::NodeHandle outNode,
     std::uint32_t inChannelGroupIndex, std::uint32_t outChannelGroupIndex):
     graph_(graph),
     inNode_(std::move(inNode)), outNode_(std::move(outNode)),
     inChannelGroupIndex_(inChannelGroupIndex), outChannelGroupIndex_(outChannelGroupIndex),
+    auxInputIDGen_(&auxInputIDGen), auxOutputIDGen_(&auxOutputIDGen),
     connectionUpdatedCallback_(blankConnectionUpdatedCallback)
 {
     auto inDevice = graph_.getNodeData(inNode_).process.device();
@@ -236,6 +238,28 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
             std::make_pair(inChannel, outChannel)
         );
         setBypassed(position, false);
+        auto& inputIDs = *auxInputIDs_.emplace(
+            auxInputIDs_.begin() + position
+        );
+        auto& outputIDs = *auxOutputIDs_.emplace(
+            auxOutputIDs_.begin() + position
+        );
+        inputIDs.reserve(device->audioInputGroupCount() - 1);
+        inputIDs.reserve(device->audioOutputGroupCount() - 1);
+        std::generate_n(
+            std::back_inserter(inputIDs), device->audioInputGroupCount() - 1,
+            [this]()
+            {
+                return (*auxInputIDGen_)();
+            }
+        );
+        std::generate_n(
+            std::back_inserter(outputIDs), device->audioOutputGroupCount() - 1,
+            [this]()
+            {
+                return (*auxOutputIDGen_)();
+            }
+        );
         connectionUpdatedCallback_(*this);
         return true;
     }
@@ -256,6 +280,14 @@ bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
         {
             setBypassed(i, true);
         }
+        auxInputIDs_.erase(
+            auxInputIDs_.begin() + position,
+            auxInputIDs_.begin() + position + removeCount
+        );
+        auxOutputIDs_.erase(
+            auxOutputIDs_.begin() + position,
+            auxOutputIDs_.begin() + position + removeCount
+        );
         nodes_.erase(nodes_.begin() + position,
             nodes_.begin() + position + removeCount);
         names_.erase(names_.begin() + position,
@@ -378,6 +410,14 @@ bool Inserts::move(std::uint32_t position, std::uint32_t count,
                         std::make_tuple(destPosition, position, position + count):
                         std::make_tuple(position, position + count, destPosition);
                 const auto& [first, middle, last] = rotate;
+                std::rotate(
+                    auxInputIDs_.begin() + first,
+                    auxInputIDs_.begin() + middle,
+                    auxInputIDs_.begin() + last);
+                std::rotate(
+                    auxOutputIDs_.begin() + first,
+                    auxOutputIDs_.begin() + middle,
+                    auxOutputIDs_.begin() + last);
                 std::rotate(
                     nodes_.begin() + first,
                     nodes_.begin() + middle,

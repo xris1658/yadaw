@@ -1349,7 +1349,8 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
         audioInputPreFaderInserts_.emplace(
             audioInputPreFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, polarityInverterNode, muteNode, channelGroupIndex, 0
+                graph_, auxInputIdGen_, auxOutputIdGen_,
+                polarityInverterNode, muteNode, channelGroupIndex, 0
             )
         );
         audioInputMutes_.emplace(
@@ -1360,7 +1361,8 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
         audioInputPostFaderInserts_.emplace(
             audioInputPostFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, faderNode, meterNode, 0, 0
+                graph_, auxInputIdGen_, auxOutputIdGen_,
+                faderNode, meterNode, 0, 0
             )
         );
         audioInputPolarityInverters_.emplace(
@@ -1572,7 +1574,8 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
         audioOutputPreFaderInserts_.emplace(
             audioOutputPreFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, polarityInverterNode, muteNode, 0, 0
+                graph_, auxInputIdGen_, auxOutputIdGen_,
+                polarityInverterNode, muteNode, 0, 0
             )
         );
         graph_.connect(summingNode, polarityInverterNode, 0, 0);
@@ -1584,7 +1587,8 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
         audioOutputPostFaderInserts_.emplace(
             audioOutputPostFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                graph_, faderNode, meterNode, 0, 0
+                graph_, auxInputIdGen_, auxOutputIdGen_,
+                faderNode, meterNode, 0, 0
             )
         );
         graph_.connect(meterNode, outNode, 0, channel);
@@ -1833,7 +1837,7 @@ bool Mixer::insertChannels(
         {
             postFaderInserts.emplace_back(
                 std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                    graph_,
+                    graph_, auxInputIdGen_, auxOutputIdGen_,
                     fadersAndNode[i].second, metersAndNode[i].second, 0, 0
                 )
             );
@@ -1933,6 +1937,12 @@ bool Mixer::insertChannels(
             ),
             count, 0U
         );
+        instrumentAuxInputIDs_.emplace(
+            instrumentAuxInputIDs_.begin() + position
+        );
+        instrumentAuxOutputIDs_.emplace(
+            instrumentAuxOutputIDs_.begin() + position
+        );
         // pre-fader inserts -----------------------------------------------
         std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts;
         preFaderInserts.reserve(count);
@@ -1940,7 +1950,7 @@ bool Mixer::insertChannels(
         {
             preFaderInserts.emplace_back(
                 std::make_unique<YADAW::Audio::Mixer::Inserts>(
-                    graph_,
+                    graph_, auxInputIdGen_, auxOutputIdGen_,
                     polarityInvertersAndNode[i].second, mutesAndNode[i].second,
                     0, 0
                 )
@@ -2107,6 +2117,14 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         instrumentOutputChannelIndex_.erase(
             instrumentOutputChannelIndex_.begin() + first,
             instrumentOutputChannelIndex_.begin() + last
+        );
+        instrumentAuxInputIDs_.erase(
+            instrumentAuxInputIDs_.begin() + first,
+            instrumentAuxInputIDs_.begin() + last
+        );
+        instrumentAuxOutputIDs_.erase(
+            instrumentAuxOutputIDs_.begin() + first,
+            instrumentAuxOutputIDs_.begin() + last
         );
         preFaderInserts_.erase(
             preFaderInserts_.begin() + first,
@@ -3301,6 +3319,29 @@ bool Mixer::setInstrument(
                 inputDevices_[index].second = nodeHandle;
                 instrumentBypassed_[index] = false;
                 instrumentOutputChannelIndex_[index] = outputChannelIndex;
+                instrumentAuxInputIDs_.clear();
+                instrumentAuxInputIDs_.reserve(
+                    device->audioInputGroupCount()
+                );
+                std::generate_n(
+                    std::back_inserter(instrumentAuxInputIDs_),
+                    device->audioInputGroupCount(),
+                    [this]()
+                    {
+                        return auxInputIdGen_();
+                    }
+                );
+                instrumentAuxOutputIDs_.reserve(
+                    device->audioOutputGroupCount()
+                );
+                std::generate_n(
+                    std::back_inserter(instrumentAuxOutputIDs_),
+                    device->audioOutputGroupCount() - 1,
+                    [this]()
+                    {
+                        return auxOutputIdGen_();
+                    }
+                );
             }
         }
     }

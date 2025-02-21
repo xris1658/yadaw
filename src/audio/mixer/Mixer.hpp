@@ -549,6 +549,8 @@ private:
     std::vector<std::vector<FaderAndNode>> sendFaders_;
     std::vector<std::vector<PolarityInverterAndNode>> sendPolarityInverters_;
     std::vector<std::vector<Position>> sendDestinations_;
+    std::vector<IDGen::ID> instrumentAuxInputIDs_;
+    std::vector<IDGen::ID> instrumentAuxOutputIDs_;
 
     IDGen audioOutputChannelIdGen_;
     std::vector<IDGen::ID> audioOutputChannelId_;
@@ -565,6 +567,9 @@ private:
     std::vector<std::vector<FaderAndNode>> audioOutputSendFaders_;
     std::vector<std::vector<PolarityInverterAndNode>> audioOutputSendPolarityInverters_;
     std::vector<std::vector<Position>> audioOutputSendDestinations_;
+
+    IDGen auxInputIdGen_;
+    IDGen auxOutputIdGen_;
 
     std::unordered_set<ade::EdgeHandle, ade::HandleHasher<ade::Edge>> connections_;
 
