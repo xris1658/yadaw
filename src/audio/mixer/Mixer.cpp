@@ -3319,23 +3319,26 @@ bool Mixer::setInstrument(
                 inputDevices_[index].second = nodeHandle;
                 instrumentBypassed_[index] = false;
                 instrumentOutputChannelIndex_[index] = outputChannelIndex;
-                instrumentAuxInputIDs_.clear();
-                instrumentAuxInputIDs_.reserve(
+                auto& auxInputIDs  = instrumentAuxInputIDs_ [index];
+                auto& auxOutputIDs = instrumentAuxOutputIDs_[index];
+                auxInputIDs.clear();
+                auxInputIDs.reserve(
                     device->audioInputGroupCount()
                 );
                 std::generate_n(
-                    std::back_inserter(instrumentAuxInputIDs_),
+                    std::back_inserter(auxInputIDs),
                     device->audioInputGroupCount(),
                     [this]()
                     {
                         return auxInputIdGen_();
                     }
                 );
-                instrumentAuxOutputIDs_.reserve(
+                auxOutputIDs.clear();
+                auxOutputIDs.reserve(
                     device->audioOutputGroupCount()
                 );
                 std::generate_n(
-                    std::back_inserter(instrumentAuxOutputIDs_),
+                    std::back_inserter(auxOutputIDs),
                     device->audioOutputGroupCount() - 1,
                     [this]()
                     {

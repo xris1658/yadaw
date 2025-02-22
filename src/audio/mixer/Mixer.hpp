@@ -549,8 +549,8 @@ private:
     std::vector<std::vector<FaderAndNode>> sendFaders_;
     std::vector<std::vector<PolarityInverterAndNode>> sendPolarityInverters_;
     std::vector<std::vector<Position>> sendDestinations_;
-    std::vector<IDGen::ID> instrumentAuxInputIDs_;
-    std::vector<IDGen::ID> instrumentAuxOutputIDs_;
+    std::vector<std::vector<IDGen::ID>> instrumentAuxInputIDs_;
+    std::vector<std::vector<IDGen::ID>> instrumentAuxOutputIDs_;
 
     IDGen audioOutputChannelIdGen_;
     std::vector<IDGen::ID> audioOutputChannelId_;
