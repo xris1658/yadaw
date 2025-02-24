@@ -334,85 +334,143 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                             ->childItems().front() // QQuickOverlay
                             ->childItems().front(); // QQuickPopupItem
                         auto keyEvent = static_cast<QKeyEvent*>(event);
-                        // Menu mnemonic keys
-                        if((type == QEvent::Type::KeyPress) &&
-                            (keyEvent->key() >= Qt::Key_A && keyEvent->key() <= Qt::Key_Z)
-                            || (keyEvent->key() >= Qt::Key_0 && keyEvent->key() <= Qt::Key_9))
+                        auto key = keyEvent->key();
+                        if(type == QEvent::Type::KeyPress)
                         {
-                            event->accept();
-                            auto listView = receiveKeyEventItem // QQuickPopupItem
-                                ->childItems().front(); // QQuickListView (Menu.contentItem)
-                            auto count = listView->property("count").value<int>();
-                            auto listViewMetaObject = listView->metaObject();
-                            auto methodIndex = listViewMetaObject->indexOfMethod("itemAtIndex(int)");
-                            if(methodIndex != -1)
+                            // Menu mnemonic keys
+                            if(
+                                (key >= Qt::Key_A && key <= Qt::Key_Z)
+                                || (key >= Qt::Key_0 && key <= Qt::Key_9))
                             {
-                                auto itemAtIndex = [
-                                    listView,
-                                    method = listViewMetaObject->method(methodIndex)
-                                ](int index) -> QQuickItem*
+                                event->accept();
+                                auto listView = receiveKeyEventItem // QQuickPopupItem
+                                    ->childItems().front(); // QQuickListView (Menu.contentItem)
+                                auto count = listView->property("count").value<int>();
+                                auto listViewMetaObject = listView->metaObject();
+                                auto methodIndex = listViewMetaObject->indexOfMethod("itemAtIndex(int)");
+                                if(methodIndex != -1)
                                 {
-                                    QQuickItem* ret = nullptr;
-                                    method.invoke(listView, qReturnArg(ret), index);
-                                    return ret;
-                                };
-                                std::string_view stringViewMenuItemClassPrefix(
-                                    menuItemClassPrefix,
-                                    YADAW::Util::stringLength(menuItemClassPrefix)
-                                );
-                                std::vector<std::uint32_t> matchedItemIndices;
-                                FOR_RANGE0(j, count)
-                                {
-                                    if(auto item = itemAtIndex(j))
+                                    auto itemAtIndex = [
+                                        listView,
+                                        method = listViewMetaObject->method(methodIndex)
+                                    ](int index) -> QQuickItem*
                                     {
-                                        if(
-                                            std::string_view stringViewClassName(item->metaObject()->className());
-                                            stringViewClassName.size() >= stringViewMenuItemClassPrefix.size() &&
-                                            std::equal(
-                                                stringViewMenuItemClassPrefix.begin(), stringViewMenuItemClassPrefix.end(),
-                                                stringViewClassName.begin()
-                                            )
-                                        )
+                                        QQuickItem* ret = nullptr;
+                                        method.invoke(listView, qReturnArg(ret), index);
+                                        return ret;
+                                    };
+                                    std::string_view stringViewMenuItemClassPrefix(
+                                        menuItemClassPrefix,
+                                        YADAW::Util::stringLength(menuItemClassPrefix)
+                                    );
+                                    std::vector<std::uint32_t> matchedItemIndices;
+                                    FOR_RANGE0(j, count)
+                                    {
+                                        if(auto item = itemAtIndex(j))
                                         {
-                                            auto text = item->property("text").value<QString>();
-                                            auto keySeq = QKeySequence::mnemonic(text);
-                                            if(!keySeq.isEmpty())
+                                            if(
+                                                std::string_view stringViewClassName(item->metaObject()->className());
+                                                stringViewClassName.size() >= stringViewMenuItemClassPrefix.size() &&
+                                                std::equal(
+                                                    stringViewMenuItemClassPrefix.begin(), stringViewMenuItemClassPrefix.end(),
+                                                    stringViewClassName.begin()
+                                                )
+                                            )
                                             {
-                                                auto key = YADAW::Util::underlyingValue(keySeq[0].key());
-                                                if(key == keyEvent->key())
+                                                auto text = item->property("text").value<QString>();
+                                                auto keySeq = QKeySequence::mnemonic(text);
+                                                if(!keySeq.isEmpty())
                                                 {
-                                                    matchedItemIndices.emplace_back(j);
+                                                    if(YADAW::Util::underlyingValue(keySeq[0].key()) == key)
+                                                    {
+                                                        matchedItemIndices.emplace_back(j);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    auto size = matchedItemIndices.size();
+                                    if(size > 1)
+                                    {
+                                        auto currentIndex = listView->property("currentIndex").value<int>();
+                                        auto it = std::lower_bound(matchedItemIndices.begin(), matchedItemIndices.end(), currentIndex);
+                                        if(it == matchedItemIndices.end())
+                                        {
+                                            it = matchedItemIndices.begin();
+                                        }
+                                        // Parent object of `NativePopup` (see Menu.qml)
+                                        if(auto menu = static_cast<QObject*>(nativePopup)->parent())
+                                        {
+                                            menu->setProperty("currentIndex", QVariant::fromValue<int>(*it));
+                                        }
+                                    }
+                                    if(size == 1)
+                                    {
+                                        if(auto selectedItem = itemAtIndex(matchedItemIndices.front()))
+                                        {
+                                            auto metaObject = selectedItem->metaObject();
+                                            auto triggeredIndex = metaObject->indexOfMethod("clicked()");
+                                            if(triggeredIndex != -1)
+                                            {
+                                                metaObject->method(triggeredIndex).invoke(selectedItem);
+                                            }
+                                            if(auto action = selectedItem->property("action").value<QObject*>())
+                                            {
+                                                auto metaObject = action->metaObject();
+                                                if(
+                                                    auto triggeredIndex = metaObject->indexOfMethod("triggered()");
+                                                    triggeredIndex != -1
+                                                )
+                                                {
+                                                    metaObject->method(triggeredIndex).invoke(action);
                                                 }
                                             }
                                         }
                                     }
                                 }
-                                auto size = matchedItemIndices.size();
-                                if(size >= 1)
+                                ret = true;
+                            }
+                            // Enter and NumEnter
+                            else if(key == Qt::Key_Return || key == Qt::Key_Enter)
+                            {
+                                event->accept();
+                                auto listView = receiveKeyEventItem // QQuickPopupItem
+                                    ->childItems().front(); // QQuickListView (Menu.contentItem)
+                                auto currentIndex = listView->property("currentIndex").value<int>();
+                                auto listViewMetaObject = listView->metaObject();
+                                auto methodIndex = listViewMetaObject->indexOfMethod("itemAtIndex(int)");
+                                if(methodIndex != -1)
                                 {
-                                    auto currentIndex = listView->property("currentIndex").value<int>();
-                                    auto it = std::lower_bound(matchedItemIndices.begin(), matchedItemIndices.end(), currentIndex);
-                                    if(it == matchedItemIndices.end())
+                                    auto itemAtIndex = [
+                                        listView,
+                                        method = listViewMetaObject->method(methodIndex)
+                                    ](int index) -> QQuickItem*
                                     {
-                                        it = matchedItemIndices.begin();
-                                    }
-                                    // Parent object of `NativePopup` (see Menu.qml)
-                                    if(auto menu = static_cast<QObject*>(nativePopup)->parent())
+                                        QQuickItem* ret = nullptr;
+                                        method.invoke(listView, qReturnArg(ret), index);
+                                        return ret;
+                                    };
+                                    std::string_view stringViewMenuItemClassPrefix(
+                                        menuItemClassPrefix,
+                                        YADAW::Util::stringLength(menuItemClassPrefix)
+                                    );
+                                    auto currentItem = itemAtIndex(currentIndex);
+                                    auto metaObject = currentItem->metaObject();
+                                    if(
+                                        std::string_view stringViewClassName(metaObject->className());
+                                        stringViewClassName.size() >= stringViewMenuItemClassPrefix.size() &&
+                                        std::equal(
+                                            stringViewMenuItemClassPrefix.begin(), stringViewMenuItemClassPrefix.end(),
+                                            stringViewClassName.begin()
+                                        )
+                                    )
                                     {
-                                        menu->setProperty("currentIndex", QVariant::fromValue<int>(*it));
-                                    }
-                                }
-                                if(size == 1)
-                                {
-                                    if(auto selectedItem = itemAtIndex(matchedItemIndices.front()))
-                                    {
-                                        auto metaObject = selectedItem->metaObject();
                                         auto triggeredIndex = metaObject->indexOfMethod("clicked()");
                                         if(triggeredIndex != -1)
                                         {
-                                            metaObject->method(triggeredIndex).invoke(selectedItem);
+                                            metaObject->method(triggeredIndex).invoke(currentItem);
                                         }
-                                        if(auto action = selectedItem->property("action").value<QObject*>())
+                                        if(auto action = currentItem->property("action").value<QObject*>())
                                         {
                                             auto metaObject = action->metaObject();
                                             if(
@@ -425,17 +483,16 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                                         }
                                     }
                                 }
+                                ret = true;
                             }
-                            ret = true;
-                        }
-                        else
-                        {
-                            QCoreApplication::sendEvent(receiveKeyEventItem, event);
-                            ret = event->isAccepted();
+                            else
+                            {
+                                QCoreApplication::sendEvent(receiveKeyEventItem, event);
+                                ret = event->isAccepted();
+                            }
                         }
                         if(!ret)
                         {
-                            auto key = keyEvent->key();
                             if(key == Qt::Key_Left || key == Qt::Key_Right)
                             {
                                 event->accept();
