@@ -125,7 +125,7 @@ GetConstChannelInfo getConstChannelInfo[3] = {
 };
 
 using GetConstID =
-    std::optional<YADAW::Audio::Mixer::Mixer::IDGen::ID>(YADAW::Audio::Mixer::Mixer::*)(
+    std::optional<YADAW::Audio::Mixer::IDGen::ID>(YADAW::Audio::Mixer::Mixer::*)(
         std::uint32_t) const;
 
 GetConstID getConstID[3] = {
