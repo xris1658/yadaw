@@ -868,6 +868,16 @@ Proceed?</source>
         <source>7.1</source>
         <translation>7.1</translation>
     </message>
+    <message>
+        <location filename="../../content/Constants.qml" line="192"/>
+        <source>&amp;</source>
+        <translation>\(&amp;([0-9A-Za-z])\)</translation>
+    </message>
+    <message>
+        <location filename="../../content/Constants.qml" line="193"/>
+        <source></source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>GeneralSettings</name>

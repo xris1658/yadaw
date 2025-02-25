@@ -8,6 +8,8 @@ T.MenuItem {
     id: root
 
     property int mnemonicTextLook: Mnemonic.MnemonicEnabled
+    property string mnemonicRegex: Constants.mnemonicRegex
+    property string mnemonicRegexReplaceWith: Constants.mnemonicRegexReplaceWith
 
     property int minimumSpaceBetweenTextAndShortcut: 30
 
@@ -29,9 +31,11 @@ T.MenuItem {
         anchors.verticalCenter: parent? parent.verticalCenter: undefined
         Label {
             id: contentText
-            text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? MnemonicFunctions.mnemonicText(root.text):
-                root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? MnemonicFunctions.mnemonicTextWithUnderline(root.text):
-                root.text
+            text: Constants.isMnemonicSupported?
+                    root.mnemonicTextLook === Mnemonic.MnemonicEnabled? MnemonicFunctions.mnemonicText(root.text):
+                        root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? MnemonicFunctions.mnemonicTextWithUnderline(root.text):
+                        root.text:
+                MnemonicFunctions.removeMnemonicFromText(root.text, root.mnemonicRegex, root.mnemonicRegexReplaceWith)
             anchors.left: parent.left
             color: root.enabled? Colors.content: Colors.disabledContent
             anchors.verticalCenter: parent.verticalCenter

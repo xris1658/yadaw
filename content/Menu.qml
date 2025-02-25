@@ -9,6 +9,8 @@ T.Menu {
     property NativePopup nativePopup: nativePopup
     property bool customPressedOutsideEvent: false
     property bool isSubMenu: false
+    property string mnemonicRegex
+    property string mnemonicRegexReplaceWith
     padding: 1
     overlap: 5
 

@@ -33,9 +33,11 @@ Button {
 
     contentItem: Label {
         id: label
-        text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? MnemonicFunctions.mnemonicText(root.text):
-                root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? MnemonicFunctions.mnemonicTextWithUnderline(root.text):
-                root.text
+        text: Constants.isMnemonicSupported?
+                root.mnemonicTextLook === Mnemonic.MnemonicEnabled? MnemonicFunctions.mnemonicText(root.text):
+                    root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? MnemonicFunctions.mnemonicTextWithUnderline(root.text):
+                    root.text:
+            MnemonicFunctions.removeMnemonicFromText(root.text, root.mnemonicRegex, root.mnemonicRegexReplaceWith)
         color: root.enabled? Colors.content: Colors.disabledContent
         anchors.fill: root
         anchors.leftMargin: root.leftPadding

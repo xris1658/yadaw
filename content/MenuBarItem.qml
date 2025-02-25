@@ -7,6 +7,8 @@ T.MenuBarItem {
     id: root
 
     property int mnemonicTextLook: Mnemonic.MnemonicEnabled
+    property string mnemonicRegex: menu.mnemonicRegex? menu.mnemonicRegex: Constants.mnemonicRegex
+    property string mnemonicRegexReplaceWith: menu.mnemonicRegexReplaceWith? menu.mnemonicRegexReplaceWith: Constants.mnemonicRegexReplaceWith
 
     leftPadding: 10
     rightPadding: 10
@@ -28,9 +30,11 @@ T.MenuBarItem {
     contentItem: Label {
         id: rootText
         anchors.centerIn: parent
-        text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? MnemonicFunctions.mnemonicText(root.text):
-            root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? MnemonicFunctions.mnemonicTextWithUnderline(root.text):
-            root.text
+        text: Constants.isMnemonicSupported?
+                root.mnemonicTextLook === Mnemonic.MnemonicEnabled? MnemonicFunctions.mnemonicText(root.text):
+                    root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? MnemonicFunctions.mnemonicTextWithUnderline(root.text):
+                    root.text:
+            MnemonicFunctions.removeMnemonicFromText(root.text, root.mnemonicRegex, root.mnemonicRegexReplaceWith)
         color: root.enabled? Colors.content: Colors.disabledContent
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter

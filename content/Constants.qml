@@ -1,5 +1,6 @@
 pragma Singleton
 
+import QtCore
 import QtQuick
 
 import YADAW.Entities
@@ -189,4 +190,9 @@ QtObject {
     readonly property int maxVelocity: midiValueRange - 1
     readonly property int minVelocity: 0
     property int titleTextPointSize: 8
+    property string mnemonicRegexInEnglish: "&"
+    property string mnemonicRegexReplaceWithInEnglish: ""
+    property string mnemonicRegex: qsTr("&")
+    property string mnemonicRegexReplaceWith: qsTr("")
+    property bool isMnemonicSupported: SystemInformation.productType != "macos"
 }

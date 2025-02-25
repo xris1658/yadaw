@@ -12,6 +12,8 @@ T.Button {
     property alias backgroundColor: background.color
     property alias contentColor: label.color
     readonly property int maxBorderWidth: 2
+    property string mnemonicRegex: Constants.mnemonicRegex
+    property string mnemonicRegexReplaceWith: Constants.mnemonicRegexReplaceWith
 
     topPadding: 3
     bottomPadding: 3
@@ -53,9 +55,11 @@ T.Button {
 
     contentItem: Label {
         id: label
-        text: root.mnemonicTextLook === Mnemonic.MnemonicEnabled? MnemonicFunctions.mnemonicText(root.text):
-            root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? MnemonicFunctions.mnemonicTextWithUnderline(root.text):
-            root.text
+        text: Constants.isMnemonicSupported?
+                root.mnemonicTextLook === Mnemonic.MnemonicEnabled? MnemonicFunctions.mnemonicText(root.text):
+                root.mnemonicTextLook === Mnemonic.MnemonicEnabledWithUnderline? MnemonicFunctions.mnemonicTextWithUnderline(root.text):
+                root.text:
+            MnemonicFunctions.removeMnemonicFromText(root.text, root.mnemonicRegex, root.mnemonicRegexReplaceWith)
         color: (!root.enabled)? Colors.disabledContent:
             root.checked?
                 Colors.checkedButtonContent:
