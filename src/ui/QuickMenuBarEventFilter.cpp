@@ -408,6 +408,13 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                                     {
                                         if(auto selectedItem = itemAtIndex(matchedItemIndices.front()))
                                         {
+                                            if(selectedItem->property("checkable").value<bool>())
+                                            {
+                                                selectedItem->setProperty(
+                                                    "checked",
+                                                    !selectedItem->property("checked").value<bool>()
+                                                );
+                                            }
                                             auto metaObject = selectedItem->metaObject();
                                             auto triggeredIndex = metaObject->indexOfMethod("clicked()");
                                             if(triggeredIndex != -1)
@@ -465,6 +472,13 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                                         )
                                     )
                                     {
+                                        if(currentItem->property("checkable").value<bool>())
+                                        {
+                                            currentItem->setProperty(
+                                                "checked",
+                                                !currentItem->property("checked").value<bool>()
+                                            );
+                                        }
                                         auto triggeredIndex = metaObject->indexOfMethod("clicked()");
                                         if(triggeredIndex != -1)
                                         {
