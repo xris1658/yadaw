@@ -246,6 +246,7 @@ MixerChannelListModel::MixerChannelListModel(
 {
     auto count = itemCount();
     insertModels_.reserve(count);
+    sendModels_.reserve(count);
     polarityInverterModels_.reserve(count);
     editingVolume_.resize(count, false);
     auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
@@ -257,6 +258,15 @@ MixerChannelListModel::MixerChannelListModel(
             return std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
                 (mixer_.*getPreFaderInserts[YADAW::Util::underlyingValue(listType_)])(index)->get(),
                 listType_, true, index, 0
+            );
+        }
+    );
+    std::generate_n(
+        std::back_inserter(sendModels_), count,
+        [this, i = 0U]() mutable
+        {
+            return std::make_unique<YADAW::Model::MixerChannelSendListModel>(
+                mixer_, listType_, i++
             );
         }
     );
@@ -966,6 +976,12 @@ bool MixerChannelListModel::insert(int position, int count,
                 position,
                 true,
                 0
+            )
+        );
+        sendModels_.emplace(
+            sendModels_.begin() + position,
+            std::make_unique<YADAW::Model::MixerChannelSendListModel>(
+                mixer_, listType_, position
             )
         );
         FOR_RANGE(i, position + 1, insertModels_.size())
