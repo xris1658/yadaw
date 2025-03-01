@@ -7,8 +7,8 @@ T.MenuBarItem {
     id: root
 
     property int mnemonicTextLook: Mnemonic.MnemonicEnabled
-    property string mnemonicRegex: menu.mnemonicRegex? menu.mnemonicRegex: Constants.mnemonicRegex
-    property string mnemonicRegexReplaceWith: menu.mnemonicRegexReplaceWith? menu.mnemonicRegexReplaceWith: Constants.mnemonicRegexReplaceWith
+    property string mnemonicRegex: (menu && menu.mnemonicRegex)? menu.mnemonicRegex: Constants.mnemonicRegex
+    property string mnemonicRegexReplaceWith: (menu && menu.mnemonicRegexReplaceWith)? menu.mnemonicRegexReplaceWith: Constants.mnemonicRegexReplaceWith
 
     leftPadding: 10
     rightPadding: 10
