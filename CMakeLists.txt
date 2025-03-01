@@ -454,6 +454,8 @@ set(YADAW_COMMON_SOURCES
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
     src/model/MessageDialogButtonBoxModel.cpp
+    src/model/MixerAudioIOPositionItemModel.cpp
+    src/model/MixerAudioIOPositionItemModel.hpp
     src/model/MixerChannelInsertListModel.cpp
     src/model/MixerChannelInsertListModel.hpp
     src/model/MixerChannelListModel.cpp
