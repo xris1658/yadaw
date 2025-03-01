@@ -26,6 +26,7 @@ set(CONTENT_CPP_FILES
     model/IAudioBusConfigurationModel.hpp
     model/IAudioDeviceIOGroupListModel.hpp
     model/IAudioDeviceListModel.hpp
+    model/IAudioIOPositionItemModel.hpp
     model/IAudioIOPositionModel.hpp
     model/IAutomationModel.hpp
     model/IFileTreeModel.hpp
