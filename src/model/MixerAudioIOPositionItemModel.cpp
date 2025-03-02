@@ -30,318 +30,90 @@
 namespace YADAW::Model
 {
 MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
-    MixerChannelListModel& mixerChannelListModel, bool isInput):
-    mixerChannelListModel_(&mixerChannelListModel),
+        MixerChannelListModel& mixerAudioInputChannelListModel,
+        MixerChannelListModel& mixerRegularChannelListModel,
+        MixerChannelListModel& mixerAudioOutputChannelListModel,
+        bool isInput):
+    mixerAudioInputChannelListModel_(&mixerAudioInputChannelListModel),
+    mixerRegularChannelListModel_(&mixerRegularChannelListModel),
+    mixerAudioOutputChannelListModel_(&mixerAudioOutputChannelListModel),
     isInput_(isInput)
-{
-    QObject::connect(
-        mixerChannelListModel_, &MixerChannelListModel::rowsInserted,
-        this, &MixerAudioIOPositionItemModel::onSourceModelRowsRemoved
-    );
-    QObject::connect(
-        mixerChannelListModel_, &MixerChannelListModel::rowsAboutToBeRemoved,
-        this, &MixerAudioIOPositionItemModel::onSourceModelRowsAboutToBeRemoved
-    );
-    QObject::connect(
-        mixerChannelListModel_, &MixerChannelListModel::rowsRemoved,
-        this, &MixerAudioIOPositionItemModel::onSourceModelRowsRemoved
-    );
-    QObject::connect(
-        mixerChannelListModel_, &MixerChannelListModel::dataChanged,
-        this, &MixerAudioIOPositionItemModel::onSourceModelDataChanged
-    );
-}
+{}
 
-// Check field from `parent`: `internalPointer()`
+// Check field from `parent`:     `internalPointer()`
+// Fill  field to   return value: `internalPointer()`, `row()`
 QModelIndex MixerAudioIOPositionItemModel::index(
     int row, int column, const QModelIndex& parent) const
-{
-    const auto& vec = parent == QModelIndex()?
-        nodeDataTree_:
-        static_cast<NodeData*>(parent.internalPointer())->children;
-    if(row >= 0 && row < nodeDataTree_.size())
-    {
-        return createIndex(row, column, nodeDataTree_[row].get());
-    }
-    return QModelIndex();
-}
+{}
 
-//  Check field from `child`: `internalPointer()`
+// Check field from `child`:      `internalPointer()`
+// Fill  field to   return value: `internalPointer()`, `row()`
 QModelIndex MixerAudioIOPositionItemModel::parent(const QModelIndex& child) const
-{
-    if(auto ptr = child.internalPointer())
-    {
-        return createIndex(
-            0, 0, static_cast<NodeData*>(ptr)->parent
-        );
-    }
-    return QModelIndex();
-}
+{}
 
 // Check child from `parent`: `internalPointer()`, `row()`
 bool MixerAudioIOPositionItemModel::hasChildren(const QModelIndex& parent) const
-{
-    auto nodeData = static_cast<NodeData*>(parent.internalPointer());
-    return nodeData == nullptr || nodeData->indent < 2;
-}
+{}
 
 // Check child from `parent`: `internalPointer()`, `row()`
 int MixerAudioIOPositionItemModel::rowCount(const QModelIndex& parent) const
-{
-    if(parent == QModelIndex())
-    {
-        return nodeDataTree_.size();
-    }
-    auto nodeData = static_cast<NodeData*>(parent.internalPointer());
-    return nodeData->children[parent.row()]->children.size();
-}
+{}
 
 QVariant MixerAudioIOPositionItemModel::data(const QModelIndex& index, int role) const
-{
-    if(index == QModelIndex())
-    {
-        if(auto row = index.row(); row >= 0 && row < nodeDataTree_.size())
-        {
-            switch(role)
-            {
-            case Role::IsTreeNode:
-                return QVariant::fromValue<bool>(true);
-            case Role::TreeName:
-                return QVariant::fromValue<QString>(
-                    mixerChannelListModel_->data(
-                        mixerChannelListModel_->index(row),
-                        MixerChannelListModel::Role::NameWithIndex
-                    ).value<QString>()
-                );
-            }
-        }
-    }
-    // auto nodeData = static_cast<NodeData*>(index.internalPointer());
-    // if(auto row = index.row(); row >= 0 && row < nodeData->children.size())
-    // {
-    //     switch(role)
-    //     {
-    //     case Role::IsTreeNode:
-    //     {
-    //         if(nodeData->parent)
-    //         {
-    //             if(row == 0 && mixerChannelListModel_->data(
-    //                 mixerChannelListModel_->index()))
-    //         }
-    //         if(nodeData->indent == 1 && row == 0 && )
-    //         {
-    //             //
-    //         }
-    //     }
-    //     case Role::TreeName:
-    //     {
-    //         //
-    //     }
-    //     case Role::Position:
-    //     {
-    //         //
-    //     }
-    //     case Role::ChannelConfig:
-    //     {
-    //         //
-    //     }
-    //     case Role::ChannelCount:
-    //     {
-    //         //
-    //     }
-    //     }
-    // }
-    return {};
-}
+{}
 
 bool MixerAudioIOPositionItemModel::isComparable(int roleIndex) const
-{
-    return roleIndex == Role::TreeName;
-}
+{}
 
 bool MixerAudioIOPositionItemModel::isFilterable(int roleIndex) const
-{
-    return roleIndex == Role::ChannelConfig
-        || roleIndex == Role::ChannelCount;
-}
+{}
 
 bool MixerAudioIOPositionItemModel::isSearchable(int roleIndex) const
-{
-    return roleIndex == Role::TreeName;
-}
+{}
 
 QList<int> MixerAudioIOPositionItemModel::treeNodeRoles() const
-{
-    return {Role::TreeName};
-}
+{}
 
 QList<int> MixerAudioIOPositionItemModel::leafNodeRoles() const
-{
-    return {Role::Position, Role::ChannelConfig, Role::ChannelCount};
-}
+{}
 
 bool MixerAudioIOPositionItemModel::isTreeNode(const QModelIndex& index) const
-{
-    return data(index, Role::IsTreeNode).value<bool>();
-}
+{}
 
 bool MixerAudioIOPositionItemModel::isLess(
     int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const
-{
-    if(roleIndex == Role::TreeName)
-    {
-        return data(lhs, roleIndex).value<QString>() < data(rhs, roleIndex).value<QString>();
-    }
-    return false;
-}
+{}
 
 bool MixerAudioIOPositionItemModel::isSearchPassed(
     int roleIndex, const QModelIndex& modelIndex, const QString& string,
     Qt::CaseSensitivity caseSensitivity) const
-{
-    if(roleIndex == Role::TreeName)
-    {
-        return data(modelIndex, roleIndex).value<QString>().contains(
-            string, caseSensitivity
-        );
-    }
-    return false;
-}
+{}
 
 bool MixerAudioIOPositionItemModel::isPassed(const QModelIndex& modelIndex,
     int role, const QVariant& variant) const
-{
-    if(role == Role::ChannelConfig)
-    {
-        return data(modelIndex, role).value<int>() == variant.value<int>();
-    }
-    else if(role == Role::ChannelCount)
-    {
-        return data(modelIndex, role).value<int>() == variant.value<int>();
-    }
-    return false;
-}
+{}
 
 QModelIndex MixerAudioIOPositionItemModel::findIndexByID(const QString& id) const
-{
-    return {};
-}
+{}
 
 std::unique_ptr<MixerAudioIOPositionItemModel::NodeData>
 MixerAudioIOPositionItemModel::createRootNodeData(
     std::uint32_t index)
-{
-    auto ret = std::make_unique<NodeData>(
-        NodeData {
-            .indent = NodeData::Indent::ChannelIndex,
-            .index = index,
-            .parent = nullptr
-        }
-    );
-    ret->children.reserve(3);
-    std::uint32_t i = 0;
-    // instrument
-    if(
-        mixerChannelListModel_->data(
-            mixerChannelListModel_->index(index),
-            MixerChannelListModel::Role::InstrumentExist
-        ).value<bool>()
-    )
-    {
-        ret->children.emplace_back(
-            std::make_unique<NodeData>(
-                NodeData {
-                    .indent = NodeData::Indent::InChannelPosition,
-                    .index = i++,
-                    .parent = ret.get()
-                }
-            )
-        );
-    }
-    auto& preFaderInsertNode = ret->children.emplace_back(
-        std::make_unique<NodeData>(
-            NodeData {
-                .indent = NodeData::Indent::InChannelPosition,
-                .index = i++,
-                .parent = ret.get()
-            }
-        )
-    );
-    auto preFaderInsertList = static_cast<MixerChannelInsertListModel*>(
-        mixerChannelListModel_->data(
-            mixerChannelListModel_->index(index),
-            MixerChannelListModel::Role::Inserts
-        ).value<QObject*>()
-    );
-    preFaderInsertNode->children.reserve(preFaderInsertList->itemCount());
-    std::generate_n(
-        std::back_inserter(preFaderInsertNode->children),
-        preFaderInsertList->itemCount(),
-        [parent = preFaderInsertNode.get(), index = 0U]() mutable
-        {
-            return std::make_unique<NodeData>(
-                NodeData {
-                    .indent = NodeData::Indent::InsertIndex,
-                    .index = index++,
-                    .parent = parent
-                }
-            );
-        }
-    );
-    auto& postFaderInserts = ret->children.emplace_back(
-        std::make_unique<NodeData>(
-            NodeData {
-                .indent = NodeData::Indent::InChannelPosition,
-                .index = i++,
-                .parent = ret.get()
-            }
-        )
-    );
-    // TODO: Not implemented
-    return ret;
-}
+{}
 
 void MixerAudioIOPositionItemModel::onSourceModelRowsInserted(
     const QModelIndex& parent, int first, int last)
-{
-    beginInsertRows(QModelIndex(), first, last);
-    std::generate_n(
-        std::inserter(nodeDataTree_, nodeDataTree_.begin() + first), last - first + 1,
-        [this, currentIndex = std::uint32_t(first)]() mutable
-        {
-            return createRootNodeData(currentIndex++);
-        }
-    );
-    FOR_RANGE(i, last + 1, nodeDataTree_.size())
-    {
-        nodeDataTree_[i]->index = i;
-    }
-    endInsertRows();
-}
+{}
 
 void MixerAudioIOPositionItemModel::onSourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last)
-{
-    beginRemoveRows(QModelIndex(), first, last);
-}
+{}
 
 void MixerAudioIOPositionItemModel::onSourceModelRowsRemoved(const QModelIndex& parent, int first, int last)
-{
-    nodeDataTree_.erase(
-        nodeDataTree_.begin() + first,
-        nodeDataTree_.begin() + last + 1
-    );
-    FOR_RANGE(i, first, nodeDataTree_.size())
-    {
-        nodeDataTree_[i]->index = i;
-    }
-    endRemoveRows();
-}
+{}
 
 void MixerAudioIOPositionItemModel::onSourceModelDataChanged(
     const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles)
-{
-    //
-}
+{}
 
 void MixerAudioIOPositionItemModel::onInsertModelRowsInserted(
     std::uint32_t index, const QModelIndex& parent, int first, int last)

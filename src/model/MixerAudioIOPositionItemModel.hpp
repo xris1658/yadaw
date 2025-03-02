@@ -15,6 +15,7 @@ private:
     {
         enum Indent: std::uint8_t
         {
+            ListType,
             ChannelIndex,
             InChannelPosition,
             InsertIndex
@@ -25,7 +26,11 @@ private:
         std::vector<std::unique_ptr<NodeData>> children;
     };
 public:
-    MixerAudioIOPositionItemModel(MixerChannelListModel& mixerChannelListModel, bool isInput);
+    MixerAudioIOPositionItemModel(
+        MixerChannelListModel& mixerAudioInputChannelListModel,
+        MixerChannelListModel& mixerRegularChannelListModel,
+        MixerChannelListModel& mixerAudioOutputChannelListModel,
+        bool isInput);
 public:
     int rowCount(const QModelIndex& parent) const override;
     QVariant data(const QModelIndex& index, int role) const override;
@@ -62,9 +67,11 @@ private slots:
         const QList<int>& roles
     );
 private:
-    MixerChannelListModel* mixerChannelListModel_;
+    MixerChannelListModel* mixerAudioInputChannelListModel_;
+    MixerChannelListModel* mixerRegularChannelListModel_;
+    MixerChannelListModel* mixerAudioOutputChannelListModel_;
     bool isInput_;
-    std::vector<std::unique_ptr<NodeData>> nodeDataTree_;
+    NodeData rootNode_;
 };
 }
 
