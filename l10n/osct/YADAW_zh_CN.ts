@@ -118,6 +118,45 @@
     </message>
 </context>
 <context>
+    <name>MixerAudioIOPositionItemModel</name>
+    <message>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="105"/>
+        <source>Audio Input Bus</source>
+        <translation>音频输入总线</translation>
+    </message>
+    <message>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="106"/>
+        <source>Regular Channel</source>
+        <translation>一般轨道</translation>
+    </message>
+    <message>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="107"/>
+        <source>Audio Output Bus</source>
+        <translation>音频输出总线</translation>
+    </message>
+    <message>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="145"/>
+        <source>Instrument: %1</source>
+        <translation>乐器：%1</translation>
+    </message>
+    <message>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="166"/>
+        <source>Pre-Fader Inserts</source>
+        <translation>推子前插入</translation>
+    </message>
+    <message>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="182"/>
+        <source>Post-Fader Inserts</source>
+        <translation>推子后插入</translation>
+    </message>
+    <message>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="212"/>
+        <source>%1: %2</source>
+        <comment>Insert Index: Insert Name</comment>
+        <translation>%1：%2</translation>
+    </message>
+</context>
+<context>
     <name>PluginText</name>
     <message>
         <location filename="../../src/audio/plugin/PluginText.cpp" line="9"/>
@@ -128,6 +167,14 @@
         <location filename="../../src/audio/plugin/PluginText.cpp" line="17"/>
         <source>&lt;p&gt;YADAW is being debugged. Some plugins with anti-piracy mechanism will refuse to work.&lt;/p&gt;&lt;p&gt;Please try detaching this process with the debugger before loading plugins.&lt;/p&gt;</source>
         <translation>&lt;p&gt;YADAW 正被调试。有些带有反盗版机制的插件不会工作。&lt;/p&gt;&lt;p&gt;在加载插件前，请尝试将此进程与调试器分离。&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>VolumeFader</name>
+    <message>
+        <location filename="../../src/audio/mixer/VolumeFader.cpp" line="35"/>
+        <source>Gain</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

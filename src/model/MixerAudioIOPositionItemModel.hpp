@@ -18,7 +18,14 @@ private:
             ListType,
             ChannelIndex,
             InChannelPosition,
-            InsertIndex
+            InsertIndex,
+            Count = InsertIndex + 1
+        };
+        enum NodeInChannelPosition: std::uint8_t
+        {
+            Instrument,
+            PreFaderInserts,
+            PostFaderInserts
         };
         std::uint8_t indent;
         std::uint32_t index;
@@ -50,7 +57,11 @@ public:
 public:
     QModelIndex findIndexByID(const QString& id) const override;
 private:
-    std::unique_ptr<NodeData> createRootNodeData(std::uint32_t index);
+    std::unique_ptr<NodeData> createNode(
+        MixerChannelListModel::ListType type
+    );
+    const NodeData* getNodeData(const QModelIndex& index) const;
+    NodeData* getNodeData(const QModelIndex& index);
 private slots:
     void onSourceModelRowsInserted(const QModelIndex& parent, int first, int last);
     void onSourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last);
@@ -67,9 +78,7 @@ private slots:
         const QList<int>& roles
     );
 private:
-    MixerChannelListModel* mixerAudioInputChannelListModel_;
-    MixerChannelListModel* mixerRegularChannelListModel_;
-    MixerChannelListModel* mixerAudioOutputChannelListModel_;
+    MixerChannelListModel* mixerChannelListModels_[3];
     bool isInput_;
     NodeData rootNode_;
 };
