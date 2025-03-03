@@ -19,6 +19,7 @@ private:
             ChannelIndex,
             InChannelPosition,
             InsertIndex,
+            ChannelGroupIndex,
             Count = InsertIndex + 1
         };
         enum NodeInChannelPosition: std::uint8_t
