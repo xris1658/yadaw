@@ -353,9 +353,11 @@ std::unique_ptr<MixerAudioIOPositionItemModel::NodeData> MixerAudioIOPositionIte
         {
             preFaderInsertNode->children.emplace_back(
                 std::make_unique<NodeData>(
-                    .indent = NodeData::Indent::InsertIndex,
-                    .index  = j,
-                    .parent = preFaderInsertNode.get()
+                    NodeData {
+                        .indent = NodeData::Indent::InsertIndex,
+                        .index  = j,
+                        .parent = preFaderInsertNode.get()
+                    }
                 )
             );
             // Need children?
