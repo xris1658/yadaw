@@ -63,21 +63,6 @@ private:
     );
     const NodeData* getNodeData(const QModelIndex& index) const;
     NodeData* getNodeData(const QModelIndex& index);
-private slots:
-    void onSourceModelRowsInserted(const QModelIndex& parent, int first, int last);
-    void onSourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last);
-    void onSourceModelRowsRemoved(const QModelIndex& parent, int first, int last);
-    void onSourceModelDataChanged(
-        const QModelIndex& topLeft, const QModelIndex& bottomRight,
-        const QList<int>& roles
-    );
-    void onInsertModelRowsInserted(std::uint32_t index, const QModelIndex& parent, int first, int last);
-    void onInsertModelRowsAboutToBeRemoved(std::uint32_t index, const QModelIndex& parent, int first, int last);
-    void onInsertModelRowsRemoved(std::uint32_t index, const QModelIndex& parent, int first, int last);
-    void onInsertModelDataChanged(std::uint32_t index,
-        const QModelIndex& topLeft, const QModelIndex& bottomRight,
-        const QList<int>& roles
-    );
 private:
     MixerChannelListModel* mixerChannelListModels_[3];
     bool isInput_;

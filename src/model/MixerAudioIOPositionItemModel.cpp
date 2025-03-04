@@ -487,39 +487,4 @@ MixerAudioIOPositionItemModel::getNodeData(const QModelIndex& index) const
 {
     return static_cast<const NodeData*>(index.internalPointer());
 }
-
-MixerAudioIOPositionItemModel::NodeData* MixerAudioIOPositionItemModel::getNodeData(const QModelIndex& index)
-{
-    return static_cast<NodeData*>(index.internalPointer());
-}
-
-void MixerAudioIOPositionItemModel::onSourceModelRowsInserted(
-    const QModelIndex& parent, int first, int last)
-{}
-
-void MixerAudioIOPositionItemModel::onSourceModelRowsAboutToBeRemoved(const QModelIndex& parent, int first, int last)
-{}
-
-void MixerAudioIOPositionItemModel::onSourceModelRowsRemoved(const QModelIndex& parent, int first, int last)
-{}
-
-void MixerAudioIOPositionItemModel::onSourceModelDataChanged(
-    const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles)
-{}
-
-void MixerAudioIOPositionItemModel::onInsertModelRowsInserted(
-    std::uint32_t index, const QModelIndex& parent, int first, int last)
-{}
-
-void MixerAudioIOPositionItemModel::onInsertModelRowsAboutToBeRemoved(
-    std::uint32_t index, const QModelIndex& parent, int first, int last)
-{}
-
-void MixerAudioIOPositionItemModel::onInsertModelRowsRemoved(
-    std::uint32_t index, const QModelIndex& parent, int first, int last)
-{}
-
-void MixerAudioIOPositionItemModel::onInsertModelDataChanged(
-    std::uint32_t index, const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles)
-{}
 }
