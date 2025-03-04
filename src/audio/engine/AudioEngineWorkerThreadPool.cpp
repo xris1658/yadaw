@@ -36,8 +36,7 @@ AudioEngineWorkerThreadPool::Workload::~Workload()
 AudioEngineWorkerThreadPool::AudioEngineWorkerThreadPool(
     std::unique_ptr<ProcessSequenceWithPrev>&& processSequenceWithPrev
 ):
-    workload_(std::make_unique<Workload>(std::move(processSequenceWithPrev), 1)),
-    updateCounter_(0)
+    workload_(std::make_unique<Workload>(std::move(processSequenceWithPrev), 1))
 {}
 
 AudioEngineWorkerThreadPool::~AudioEngineWorkerThreadPool()

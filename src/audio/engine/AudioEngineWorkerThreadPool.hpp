@@ -58,7 +58,6 @@ private:
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<Workload>> workload_;
     std::vector<std::thread> workerThreads_;
     std::vector<std::uint16_t> affinities_;
-    std::atomic_uint16_t updateCounter_;
     std::vector<YADAW::Util::AlignedStorage<std::atomic_flag>> workerThreadDoneStorage_;
     std::atomic_flag firstCallback_;
     std::atomic_flag running_;
