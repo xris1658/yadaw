@@ -298,12 +298,12 @@ std::unique_ptr<MixerAudioIOPositionItemModel::NodeData> MixerAudioIOPositionIte
     auto ret = std::make_unique<NodeData>(
         NodeData {
             .indent = NodeData::Indent::ListType,
-            .index  = type,
+            .index  = static_cast<std::uint32_t>(type),
             .parent = rootNode_.children[type].get()
         }
     );
     ret->children.reserve(mixerChannelListModels_[type]->itemCount());
-    FOR_RANGE0(i, mixerChannelListModels_[type]->itemCount())
+    FOR_RANGE0(i, static_cast<std::uint32_t>(mixerChannelListModels_[type]->itemCount()))
     {
         auto& channelNode = ret->children.emplace_back(
             std::make_unique<NodeData>(
@@ -340,7 +340,7 @@ std::unique_ptr<MixerAudioIOPositionItemModel::NodeData> MixerAudioIOPositionIte
                         MixerChannelListModel::Role::InstrumentAudioInputs
                     ).value<QObject*>()
                 );
-                auto count = instrumentAudioInputs->itemCount();
+                auto count = static_cast<std::uint32_t>(instrumentAudioInputs->itemCount());
                 instrumentNode->children.reserve(count);
                 FOR_RANGE0(j, count)
                 {
@@ -361,7 +361,7 @@ std::unique_ptr<MixerAudioIOPositionItemModel::NodeData> MixerAudioIOPositionIte
                     mixerChannelListModels_[type]->data(
                         mixerChannelListModels_[type]->index(i),
                         MixerChannelListModel::Role::InstrumentAudioOutputs
-                    )
+                    ).value<QObject*>()
                 );
                 auto count = instrumentAudioOutputs->itemCount();
                 instrumentNode->children.reserve(count - 1);
@@ -369,7 +369,7 @@ std::unique_ptr<MixerAudioIOPositionItemModel::NodeData> MixerAudioIOPositionIte
                     mixerChannelListModels_[type]->data(
                         mixerChannelListModels_[type]->index(i),
                         MixerChannelListModel::Role::Inserts
-                    )
+                    ).value<QObject*>()
                 );
                 auto mainOutput = insertModel->inserts().inChannelGroupIndex();
                 FOR_RANGE0(j, mainOutput)
@@ -413,7 +413,7 @@ std::unique_ptr<MixerAudioIOPositionItemModel::NodeData> MixerAudioIOPositionIte
                 MixerChannelListModel::Role::Inserts
             ).value<QObject*>()
         );
-        auto insertCount = insertListModel->itemCount();
+        auto insertCount = static_cast<std::uint32_t>(insertListModel->itemCount());
         preFaderInsertNode->children.reserve(insertCount);
         FOR_RANGE0(j, insertCount)
         {
