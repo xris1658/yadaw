@@ -54,6 +54,111 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
     rootNode_.children.emplace_back(
         createNode(MixerChannelListModel::ListType::AudioHardwareOutput)
     );
+    FOR_RANGE0(i, 3)
+    {
+        QObject::connect(
+            mixerChannelListModels_[i],
+            &MixerChannelListModel::rowsAboutToBeInserted,
+            [this, i](const QModelIndex& parent, int first, int last)
+            {
+                beginInsertRows(
+                    MixerAudioIOPositionItemModel::index(i, 0, QModelIndex()),
+                    first, last
+                );
+            }
+        );
+        QObject::connect(
+            mixerChannelListModels_[i],
+            &MixerChannelListModel::rowsInserted,
+            [this, i](const QModelIndex& parent, int first, int last)
+            {
+                endInsertRows();
+            }
+        );
+        QObject::connect(
+            mixerChannelListModels_[i],
+            &MixerChannelListModel::rowsAboutToBeRemoved,
+            [this, i](const QModelIndex& parent, int first, int last)
+            {
+                beginRemoveRows(
+                    MixerAudioIOPositionItemModel::index(i, 0, QModelIndex()),
+                    first, last
+                );
+            }
+        );
+        QObject::connect(
+            mixerChannelListModels_[i],
+            &MixerChannelListModel::rowsRemoved,
+            [this, i](const QModelIndex& parent, int first, int last)
+            {
+                endRemoveRows();
+            }
+        );
+        QObject::connect(
+            mixerChannelListModels_[i],
+            &MixerChannelListModel::dataChanged,
+            [this, i](const QModelIndex& topLeft,
+                const QModelIndex& bottomRight, const QList<int>& roles)
+            {
+                for(auto role: roles)
+                {
+                    if(role == MixerChannelListModel::Role::NameWithIndex)
+                    {
+                        FOR_RANGE(j, topLeft.row(), bottomRight.row() + 1)
+                        {
+                            auto index = MixerAudioIOPositionItemModel::index(
+                                j, 0,
+                                MixerAudioIOPositionItemModel::index(
+                                    i, 0, QModelIndex()
+                                )
+                            );
+                            dataChanged(
+                                index, index,
+                                {MixerAudioIOPositionItemModel::Role::TreeName}
+                            );
+                        }
+                    }
+                }
+            }
+        );
+    }
+    QObject::connect(
+        &mixerRegularChannelListModel,
+        &MixerChannelListModel::dataChanged,
+        [this, sender = &mixerRegularChannelListModel](
+            const QModelIndex& topLeft, const QModelIndex& bottomRight,
+            const QList<int>& roles)
+        {
+            for(auto role: roles)
+            {
+                if(role == MixerChannelListModel::Role::InstrumentExist)
+                {
+                    auto parentIndex = MixerAudioIOPositionItemModel::index(
+                        1, 0, QModelIndex()
+                    );
+                    FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
+                    {
+                        auto instrumentExists = sender->data(
+                            sender->index(i), MixerChannelListModel::Role::InstrumentExist
+                        ).value<bool>();
+                        auto rowCount = MixerAudioIOPositionItemModel::rowCount(
+                            MixerAudioIOPositionItemModel::index(i, 0, parentIndex)
+                        );
+                        if(instrumentExists && rowCount == 2)
+                        {
+                            beginInsertRows(parentIndex, 0, 0);
+                            endInsertRows();
+                        }
+                        else if(!instrumentExists && rowCount == 3)
+                        {
+                            beginRemoveRows(parentIndex, 0, 0);
+                            endInsertRows();
+                        }
+                    }
+                }
+            }
+        }
+    );
 }
 
 QModelIndex MixerAudioIOPositionItemModel::index(
