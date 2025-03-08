@@ -56,6 +56,34 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
     );
     FOR_RANGE0(i, 3)
     {
+        auto& vec = connectInsertToThis_[i];
+        auto count = mixerChannelListModels_[i]->itemCount();
+        vec.reserve(count);
+        auto parentIndex = index(i, 0, QModelIndex());
+        std::generate_n(
+            std::back_inserter(vec), count,
+            [this, parentIndex, channelList = mixerChannelListModels_[i], index = 0]() mutable
+            {
+                auto ret = std::make_unique<Impl::ConnectInsertToAudioIOPosition>(
+                    *static_cast<MixerChannelInsertListModel*>(
+                        channelList->data(
+                            channelList->index(index),
+                            MixerChannelListModel::Role::Inserts
+                        ).value<QObject*>()
+                    ),
+                    *this,
+                    this->index(
+                        channelList->data(
+                            channelList->index(index),
+                            MixerChannelListModel::Role::InstrumentExist
+                        ).value<bool>()? 1: 0, 0,
+                        this->index(index, 0, parentIndex)
+                    )
+                );
+                ++index;
+                return ret;
+            }
+        );
         QObject::connect(
             mixerChannelListModels_[i],
             &MixerChannelListModel::rowsAboutToBeInserted,
@@ -73,6 +101,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
             [this, i](const QModelIndex& parent, int first, int last)
             {
                 endInsertRows();
+                // TODO: Update index of `ConnectInsertToAudioIOPosition`
             }
         );
         QObject::connect(
@@ -92,6 +121,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
             [this, i](const QModelIndex& parent, int first, int last)
             {
                 endRemoveRows();
+                // TODO: Update index of `ConnectInsertToAudioIOPosition`
             }
         );
         QObject::connect(
@@ -155,6 +185,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                             endInsertRows();
                         }
                     }
+                    // TODO: Update index of `ConnectInsertToAudioIOPosition`
                 }
             }
         }
@@ -397,7 +428,8 @@ QModelIndex MixerAudioIOPositionItemModel::findIndexByID(const QString& id) cons
     return QModelIndex();
 }
 
-std::unique_ptr<MixerAudioIOPositionItemModel::NodeData> MixerAudioIOPositionItemModel::createNode(
+std::unique_ptr<MixerAudioIOPositionItemModel::NodeData>
+MixerAudioIOPositionItemModel::createNode(
     MixerChannelListModel::ListType type)
 {
     auto ret = std::make_unique<NodeData>(

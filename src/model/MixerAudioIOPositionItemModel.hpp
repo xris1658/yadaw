@@ -4,6 +4,7 @@
 #include "model/IAudioIOPositionItemModel.hpp"
 
 #include "model/MixerChannelListModel.hpp"
+#include "model/impl/ConnectInsertToAudioIOPosition.hpp"
 
 namespace YADAW::Model
 {
@@ -65,6 +66,7 @@ private:
     NodeData* getNodeData(const QModelIndex& index);
 private:
     MixerChannelListModel* mixerChannelListModels_[3];
+    std::vector<std::unique_ptr<Impl::ConnectInsertToAudioIOPosition>> connectInsertToThis_[3];
     bool isInput_;
     NodeData rootNode_;
 };

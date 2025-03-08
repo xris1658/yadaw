@@ -487,6 +487,8 @@ set(YADAW_COMMON_SOURCES
     src/model/SpeakerListModel.cpp
     src/model/SpeakerListModel.hpp
     src/model/impl/TreeNode.hpp
+    src/model/impl/ConnectInsertToAudioIOPosition.cpp
+    src/model/impl/ConnectInsertToAudioIOPosition.hpp
     src/native/AudioBackendSupport.hpp
     src/native/CLAPNative.hpp
     src/native/CPU.hpp
