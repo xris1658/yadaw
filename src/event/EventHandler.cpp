@@ -391,6 +391,12 @@ void EventHandler::onOpenMainWindow()
     YADAW::UI::mainWindow->setProperty("audioEffectChannelModel",
         QVariant::fromValue<QObject*>(&audioFXIOPositionModel)
     );
+    YADAW::UI::mainWindow->setProperty("pluginAuxInModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerAudioInputPositionModel())
+    );
+    YADAW::UI::mainWindow->setProperty("pluginAuxOutModel",
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerAudioOutputPositionModel())
+    );
     QObject::connect(
         &appAudioBusInputConfigurationModel,
         &YADAW::Model::AudioBusConfigurationModel::dataChanged,

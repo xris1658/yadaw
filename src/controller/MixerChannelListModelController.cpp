@@ -30,4 +30,26 @@ YADAW::Model::MixerChannelListModel& appAudioOutputMixerChannels()
     );
     return ret;
 }
+
+YADAW::Model::MixerAudioIOPositionItemModel& appMixerAudioInputPositionModel()
+{
+    static YADAW::Model::MixerAudioIOPositionItemModel ret(
+        appAudioInputMixerChannels(),
+        appMixerChannels(),
+        appAudioOutputMixerChannels(),
+        true
+    );
+    return ret;
+}
+
+YADAW::Model::MixerAudioIOPositionItemModel& appMixerAudioOutputPositionModel()
+{
+    static YADAW::Model::MixerAudioIOPositionItemModel ret(
+        appAudioInputMixerChannels(),
+        appMixerChannels(),
+        appAudioOutputMixerChannels(),
+        false
+    );
+    return ret;
+}
 }
