@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_MODEL_IMPL_CONNECTINSERTTOAUDIOIOPOSITION
 #define YADAW_SRC_MODEL_IMPL_CONNECTINSERTTOAUDIOIOPOSITION
 
+#include <QModelIndex>
 #include <QObject>
 
 #include <cstdint>
