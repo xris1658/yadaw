@@ -98,10 +98,46 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
         QObject::connect(
             mixerChannelListModels_[i],
             &MixerChannelListModel::rowsInserted,
-            [this, i](const QModelIndex& parent, int first, int last)
+            [this, parentIndex, channelList = mixerChannelListModels_[i], &vec]
+            (const QModelIndex& parent, int first, int last)
             {
+                std::generate_n(
+                    std::inserter(vec, vec.begin() + first), last - first + 1,
+                    [this, parentIndex, channelList, index = first]() mutable
+                    {
+                        auto ret = std::make_unique<Impl::ConnectInsertToAudioIOPosition>(
+                            *static_cast<MixerChannelInsertListModel*>(
+                                channelList->data(
+                                    channelList->index(index),
+                                    MixerChannelListModel::Role::Inserts
+                                ).value<QObject*>()
+                            ),
+                            *this,
+                            this->index(
+                                channelList->data(
+                                    channelList->index(index),
+                                    MixerChannelListModel::Role::InstrumentExist
+                                ).value<bool>()? 1: 0, 0,
+                                this->index(index, 0, parentIndex)
+                            )
+                        );
+                        ++index;
+                        return ret;
+                    }
+                );
+                FOR_RANGE(j, last + 1, vec.size())
+                {
+                    vec[j]->updateIndex(
+                        this->index(
+                            channelList->data(
+                                channelList->index(j),
+                                MixerChannelListModel::Role::InstrumentExist
+                            ).value<bool>()? 1: 0, 0,
+                            this->index(j, 0, parentIndex)
+                        )
+                    );
+                }
                 endInsertRows();
-                // TODO: Update index of `ConnectInsertToAudioIOPosition`
             }
         );
         QObject::connect(
@@ -118,10 +154,25 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
         QObject::connect(
             mixerChannelListModels_[i],
             &MixerChannelListModel::rowsRemoved,
-            [this, i](const QModelIndex& parent, int first, int last)
+            [this, parentIndex, channelList = mixerChannelListModels_[i], &vec](const QModelIndex& parent, int first, int last)
             {
+                vec.erase(
+                    vec.begin() + first,
+                    vec.begin() + last + 1
+                );
+                FOR_RANGE(j, first, vec.size())
+                {
+                    vec[j]->updateIndex(
+                        this->index(
+                            channelList->data(
+                                channelList->index(j),
+                                MixerChannelListModel::Role::InstrumentExist
+                            ).value<bool>()? 1: 0, 0,
+                            this->index(j, 0, parentIndex)
+                        )
+                    );
+                }
                 endRemoveRows();
-                // TODO: Update index of `ConnectInsertToAudioIOPosition`
             }
         );
         QObject::connect(
@@ -166,26 +217,42 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                     auto parentIndex = MixerAudioIOPositionItemModel::index(
                         1, 0, QModelIndex()
                     );
+                    auto& connectInsertToThis = connectInsertToThis_[1];
                     FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
                     {
                         auto instrumentExists = sender->data(
                             sender->index(i), MixerChannelListModel::Role::InstrumentExist
                         ).value<bool>();
-                        auto rowCount = MixerAudioIOPositionItemModel::rowCount(
+                        auto oldRowCount = MixerAudioIOPositionItemModel::rowCount(
                             MixerAudioIOPositionItemModel::index(i, 0, parentIndex)
                         );
-                        if(instrumentExists && rowCount == 2)
+                        if(instrumentExists && oldRowCount == 2)
                         {
                             beginInsertRows(parentIndex, 0, 0);
+                            connectInsertToThis[i]->updateIndex(
+                                MixerAudioIOPositionItemModel::index(
+                                    1, 0,
+                                    MixerAudioIOPositionItemModel::index(
+                                        i, 0, parentIndex
+                                    )
+                                )
+                            );
                             endInsertRows();
                         }
-                        else if(!instrumentExists && rowCount == 3)
+                        else if(!instrumentExists && oldRowCount == 3)
                         {
                             beginRemoveRows(parentIndex, 0, 0);
+                            connectInsertToThis[i]->updateIndex(
+                                MixerAudioIOPositionItemModel::index(
+                                    0, 0,
+                                    MixerAudioIOPositionItemModel::index(
+                                        i, 0, parentIndex
+                                    )
+                                )
+                            );
                             endInsertRows();
                         }
                     }
-                    // TODO: Update index of `ConnectInsertToAudioIOPosition`
                 }
             }
         }
