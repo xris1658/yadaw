@@ -503,7 +503,7 @@ MixerAudioIOPositionItemModel::createNode(
         NodeData {
             .indent = NodeData::Indent::ListType,
             .index  = static_cast<std::uint32_t>(type),
-            .parent = rootNode_.children[type].get()
+            .parent = &rootNode_
         }
     );
     ret->children.reserve(mixerChannelListModels_[type]->itemCount());
