@@ -413,15 +413,19 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::InstrumentExist:
         {
-            return QVariant::fromValue(static_cast<bool>(instruments_[row]));
+            return QVariant::fromValue(
+                listType_ == ListType::Regular
+                && static_cast<bool>(instruments_[row])
+            );
         }
         case Role::InstrumentBypassed:
         {
-            return mixer_.isInstrumentBypassed(row);
+            return listType_ == ListType::Regular
+                && mixer_.isInstrumentBypassed(row);
         }
         case Role::InstrumentName:
         {
-            if(instruments_[row])
+            if(listType_ == ListType::Regular && instruments_[row])
             {
                 return QVariant::fromValue(instruments_[row]->name);
             }
@@ -429,15 +433,23 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::InstrumentAudioInputs:
         {
-            return QVariant::fromValue<QObject*>(instrumentAudioInputs_[row].get());
+            return QVariant::fromValue<QObject*>(
+                listType_ == ListType::Regular?
+                    instrumentAudioInputs_[row].get():
+                    nullptr
+            );
         }
         case Role::InstrumentAudioOutputs:
         {
-            return QVariant::fromValue<QObject*>(instrumentAudioOutputs_[row].get());
+            return QVariant::fromValue<QObject*>(
+                listType_ == ListType::Regular?
+                    instrumentAudioOutputs_[row].get():
+                    nullptr
+            );
         }
         case Role::InstrumentHasUI:
         {
-            if(instruments_[row])
+            if(listType_ == ListType::Regular && instruments_[row])
             {
                 auto ret = static_cast<bool>(instruments_[row]->plugin->gui());
                 return QVariant::fromValue<bool>(ret);
@@ -446,7 +458,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::InstrumentWindowVisible:
         {
-            if(instruments_[row])
+            if(listType_ == ListType::Regular && instruments_[row])
             {
                 if(auto window = instruments_[row]->pluginWindowConnection.window; window)
                 {
@@ -458,7 +470,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::InstrumentGenericEditorVisible:
         {
-            if(instruments_[row])
+            if(listType_ == ListType::Regular && instruments_[row])
             {
                 auto window = instruments_[row]->genericEditorWindowConnection.window;
                 return QVariant::fromValue(window->isVisible());
@@ -467,7 +479,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::InstrumentLatency:
         {
-            if(instruments_[row])
+            if(listType_ == ListType::Regular && instruments_[row])
             {
                 return QVariant::fromValue(
                     instruments_[row]->plugin->latencyInSamples()
@@ -755,7 +767,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         }
         case Role::InstrumentBypassed:
         {
-            if(mixer_.getInstrument(row) != nullptr)
+            if(listType_ == ListType::Regular && mixer_.getInstrument(row) != nullptr)
             {
                 mixer_.setInstrumentBypass(row, value.value<bool>());
                 dataChanged(index, index, {Role::InstrumentBypassed});
@@ -765,7 +777,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         }
         case Role::InstrumentWindowVisible:
         {
-            if(instruments_[row])
+            if(listType_ == ListType::Regular && instruments_[row])
             {
                 if(auto window = instruments_[row]->pluginWindowConnection.window; window)
                 {
@@ -778,7 +790,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         }
         case Role::InstrumentGenericEditorVisible:
         {
-            if(instruments_[row])
+            if(listType_ == ListType::Regular && instruments_[row])
             {
                 auto window = instruments_[row]->genericEditorWindowConnection.window;
                 window->setVisible(value.value<bool>());
