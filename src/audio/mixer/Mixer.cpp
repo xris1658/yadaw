@@ -1938,11 +1938,11 @@ bool Mixer::insertChannels(
             count, 0U
         );
         instrumentAuxInputIDs_.insert(
-            instrumentAuxInputIDs_.begin() + position,
+            instrumentAuxInputIDs_.begin() + position, count,
             decltype(instrumentAuxInputIDs_)::value_type()
         );
         instrumentAuxOutputIDs_.insert(
-            instrumentAuxOutputIDs_.begin() + position,
+            instrumentAuxOutputIDs_.begin() + position, count,
             decltype(instrumentAuxOutputIDs_)::value_type()
         );
         // pre-fader inserts -----------------------------------------------
