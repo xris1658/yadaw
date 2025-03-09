@@ -1937,11 +1937,13 @@ bool Mixer::insertChannels(
             ),
             count, 0U
         );
-        instrumentAuxInputIDs_.emplace(
-            instrumentAuxInputIDs_.begin() + position
+        instrumentAuxInputIDs_.insert(
+            instrumentAuxInputIDs_.begin() + position,
+            decltype(instrumentAuxInputIDs_)::value_type()
         );
-        instrumentAuxOutputIDs_.emplace(
-            instrumentAuxOutputIDs_.begin() + position
+        instrumentAuxOutputIDs_.insert(
+            instrumentAuxOutputIDs_.begin() + position,
+            decltype(instrumentAuxOutputIDs_)::value_type()
         );
         // pre-fader inserts -----------------------------------------------
         std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts;
