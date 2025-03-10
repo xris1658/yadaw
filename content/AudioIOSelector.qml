@@ -12,15 +12,13 @@ QC.Popup {
     readonly property alias audioHardwareOutputPositionProxyModel: audioHardwareOutputPositionProxyModel
     readonly property alias audioGroupChannelProxyModel: audioGroupChannelProxyModel
     readonly property alias audioEffectChannelProxyModel: audioEffectChannelProxyModel
-    readonly property alias pluginAuxInProxyModel: pluginAuxInProxyModel
-    readonly property alias pluginAuxOutProxyModel: pluginAuxOutProxyModel
 
     property alias audioHardwareInputPositionModel: audioHardwareInputPositionProxyModel.sourceModel
     property alias audioHardwareOutputPositionModel: audioHardwareOutputPositionProxyModel.sourceModel
     property alias audioGroupChannelModel: audioGroupChannelProxyModel.sourceModel
     property alias audioEffectChannelModel: audioEffectChannelProxyModel.sourceModel
-    property alias pluginAuxInModel: pluginAuxInProxyModel.sourceModel
-    property alias pluginAuxOutModel: pluginAuxOutProxyModel.sourceModel
+    property alias pluginAuxInModel: pluginAuxInTreeView.model
+    property alias pluginAuxOutModel: pluginAuxOutTreeView.model
 
     property bool showAudioHardwareInput: true
     property bool showAudioHardwareOutput: true
@@ -76,14 +74,6 @@ QC.Popup {
         id: audioEffectChannelProxyModel
         filterString: searchTextField.text
     }
-    SortFilterProxyListModel {
-        id: pluginAuxInProxyModel
-        filterString: searchTextField.text
-    }
-    SortFilterProxyListModel {
-        id: pluginAuxOutProxyModel
-        filterString: searchTextField.text
-    }
 
     Component {
         id: audioIOPositionComponent
@@ -99,6 +89,46 @@ QC.Popup {
                 ListView.view.currentIndex = index;
                 root.currentPosition = aiopm_position;
                 root.accepted();
+            }
+        }
+    }
+    Component {
+        id: audioIOPositionTreeComponent
+        ItemDelegate {
+            required property TreeView treeView
+            required property bool isTreeNode
+            required property bool expanded
+            required property int hasChildren
+            required property int depth
+            width: parent.width
+            leftPadding: depth * height + indicator.width
+            text: aiopim_is_tree_node? aiopim_tree_name: aiopim_position.completeName
+            highlighted: treeView.currentRow == row && treeView.currentColumn == column
+            Label {
+                id: indicator
+                x: depth * parent.height
+                width: height
+                height: parent.height
+                verticalAlignment: Label.AlignVCenter
+                horizontalAlignment: Label.AlignHCenter
+                visible: parent.isTreeNode && parent.hasChildren
+                text: parent.expanded? "\u25bc": "\u25b6"
+            }
+            onClicked: {
+                if(hasChildren) {
+                    treeView.toggleExpanded(row);
+                }
+                else {
+                    ListView.view.currentIndex = index;
+                    root.currentPosition = aiopim_position;
+                }
+            }
+            onDoubleClicked: {
+                if(!hasChildren) {
+                    ListView.view.currentIndex = index;
+                    root.currentPosition = aiopm_position;
+                    root.accepted();
+                }
             }
         }
     }
@@ -226,8 +256,8 @@ QC.Popup {
                                 audioHardwareOutputListView.currentIndex = -1;
                                 audioGroupChannelListView.currentIndex = -1;
                                 audioEffectChannelListView.currentIndex = -1;
-                                pluginAuxInListView.currentIndex = -1;
-                                pluginAuxOutListView.currentIndex = -1;
+                                // pluginAuxInListView.currentIndex = -1;
+                                // pluginAuxOutListView.currentIndex = -1;
                                 root.currentPosition = null;
                             }
                         }
@@ -255,15 +285,17 @@ QC.Popup {
                         model: audioEffectChannelProxyModel
                         delegate: audioIOPositionComponent
                     }
-                    ListView {
-                        id: pluginAuxInListView
-                        model: pluginAuxInProxyModel
-                        delegate: audioIOPositionComponent
+                    TreeView {
+                        id: pluginAuxInTreeView
+                        delegate: audioIOPositionTreeComponent
+                        Layout.maximumWidth: stackLayout.width
+                        Layout.maximumHeight: stackLayout.height
                     }
-                    ListView {
-                        id: pluginAuxOutListView
-                        model: pluginAuxOutProxyModel
-                        delegate: audioIOPositionComponent
+                    TreeView {
+                        id: pluginAuxOutTreeView
+                        delegate: audioIOPositionTreeComponent
+                        Layout.maximumWidth: stackLayout.width
+                        Layout.maximumHeight: stackLayout.height
                     }
                     onCurrentIndexChanged: {
                         root.currentPosition = null;
@@ -324,15 +356,11 @@ QC.Popup {
         impl.initProxyModel(audioHardwareOutputPositionProxyModel);
         impl.initProxyModel(audioGroupChannelProxyModel);
         impl.initProxyModel(audioEffectChannelProxyModel);
-        impl.initProxyModel(pluginAuxInProxyModel);
-        impl.initProxyModel(pluginAuxOutProxyModel);
     }
     onAudioChannelConfigChanged: {
         audioHardwareInputPositionProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
         audioHardwareOutputPositionProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
         audioGroupChannelProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
         audioEffectChannelProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
-        pluginAuxInProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
-        pluginAuxOutProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
     }
 }
