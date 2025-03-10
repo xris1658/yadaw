@@ -948,7 +948,6 @@ bool MixerChannelListModel::insert(int position, int count,
                 count, nullptr
             );
             endInsertRows();
-            dataChanged(index(position + count), index(itemCount() - 1), {Role::NameWithIndex});
         }
     }
     else if(listType_ == ListType::AudioHardwareInput || listType_ == ListType::AudioHardwareOutput)
@@ -1031,6 +1030,14 @@ bool MixerChannelListModel::insert(int position, int count,
             std::inserter(editingVolume_, editingVolume_.begin() + position),
             count, false
         );
+        if(position + count < itemCount())
+        {
+            dataChanged(
+                index(position + count),
+                index(itemCount() - 1),
+                {Role::NameWithIndex}
+            );
+        }
         auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
     }
     return ret;
@@ -1132,7 +1139,7 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             updateInstrumentConnections(position);
         }
         endRemoveRows();
-        if(itemCount() != 0)
+        if(itemCount() != position)
         {
             dataChanged(index(position), index(itemCount() - 1), {Role::NameWithIndex});
         }
