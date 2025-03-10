@@ -14,8 +14,9 @@ class MixerAudioIOPositionItemModel: public IAudioIOPositionItemModel
 private:
     struct NodeData
     {
-        enum Indent: std::uint8_t
+        enum Indent: std::int8_t
         {
+            Root = -1,
             ListType,
             ChannelIndex,
             InChannelPosition,
@@ -29,7 +30,7 @@ private:
             PreFaderInserts,
             PostFaderInserts
         };
-        std::uint8_t indent;
+        std::int8_t indent;
         std::uint32_t index;
         NodeData* parent = nullptr;
         std::vector<std::unique_ptr<NodeData>> children;
@@ -62,13 +63,19 @@ private:
     std::unique_ptr<NodeData> createNode(
         MixerChannelListModel::ListType type
     );
+    const NodeData* getParentNodeData(const QModelIndex& index) const;
+    NodeData* getParentNodeData(const QModelIndex& index);
     const NodeData* getNodeData(const QModelIndex& index) const;
     NodeData* getNodeData(const QModelIndex& index);
 private:
     MixerChannelListModel* mixerChannelListModels_[3];
     std::vector<std::unique_ptr<Impl::ConnectInsertToAudioIOPosition>> connectInsertToThis_[3];
     bool isInput_;
-    NodeData rootNode_;
+    NodeData rootNode_ {
+        .indent = NodeData::Indent::Root,
+        .index = 0,
+        .parent = nullptr
+    };
 };
 }
 
