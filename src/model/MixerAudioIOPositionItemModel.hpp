@@ -63,6 +63,8 @@ private:
     std::unique_ptr<NodeData> createNode(
         MixerChannelListModel::ListType type
     );
+    using Indices = std::uint8_t[NodeData::Indent::Count];
+    void initChildren(NodeData& nodeData, Indices& indices);
     const NodeData* getParentNodeData(const QModelIndex& index) const;
     NodeData* getParentNodeData(const QModelIndex& index);
     const NodeData* getNodeData(const QModelIndex& index) const;
