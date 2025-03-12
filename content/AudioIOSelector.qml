@@ -100,7 +100,7 @@ QC.Popup {
             required property bool expanded
             required property int hasChildren
             required property int depth
-            width: parent.width
+            implicitWidth: stackLayout.width
             leftPadding: depth * height + indicator.width
             text: aiopim_is_tree_node? aiopim_tree_name: aiopim_position.completeName
             highlighted: treeView.currentRow == row && treeView.currentColumn == column
@@ -267,35 +267,37 @@ QC.Popup {
                     id: stackLayout
                     ListView {
                         id: audioHardwareInputListView
+                        clip: true
                         model: audioHardwareInputPositionProxyModel
                         delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: audioHardwareOutputListView
+                        clip: true
                         model: audioHardwareOutputPositionProxyModel
                         delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: audioGroupChannelListView
+                        clip: true
                         model: audioGroupChannelProxyModel
                         delegate: audioIOPositionComponent
                     }
                     ListView {
                         id: audioEffectChannelListView
+                        clip: true
                         model: audioEffectChannelProxyModel
                         delegate: audioIOPositionComponent
                     }
                     TreeView {
                         id: pluginAuxInTreeView
+                        clip: true
                         delegate: audioIOPositionTreeComponent
-                        Layout.maximumWidth: stackLayout.width
-                        Layout.maximumHeight: stackLayout.height
                     }
                     TreeView {
                         id: pluginAuxOutTreeView
+                        clip: true
                         delegate: audioIOPositionTreeComponent
-                        Layout.maximumWidth: stackLayout.width
-                        Layout.maximumHeight: stackLayout.height
                     }
                     onCurrentIndexChanged: {
                         root.currentPosition = null;
