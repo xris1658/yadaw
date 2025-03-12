@@ -22,7 +22,7 @@ private:
             InChannelPosition,
             InsertIndex,
             ChannelGroupIndex,
-            Count = InsertIndex + 1
+            Count
         };
         enum NodeInChannelPosition: std::uint8_t
         {
@@ -60,9 +60,6 @@ public:
 public:
     QModelIndex findIndexByID(const QString& id) const override;
 private:
-    std::unique_ptr<NodeData> createNode(
-        MixerChannelListModel::ListType type
-    );
     using Indices = std::uint8_t[NodeData::Indent::Count];
     void initChildren(NodeData& nodeData, Indices& indices);
     const NodeData* getParentNodeData(const QModelIndex& index) const;

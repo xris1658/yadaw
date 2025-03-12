@@ -78,6 +78,15 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                         );
                     }
                 );
+                Indices indices;
+                for(auto node = treeNode.get(); node != &rootNode_; node = node->parent)
+                {
+                    indices[node->indent] = node->index;
+                }
+                FOR_RANGE(j, first, last - first + 1)
+                {
+                    initChildren(*treeNode->children[j], indices);
+                }
                 std::generate_n(
                     std::inserter(vec, vec.begin() + first), last - first + 1,
                     [this, parentIndex, sender, channelIndex = first]() mutable
@@ -102,7 +111,6 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                         return ret;
                     }
                 );
-                Indices indices;
                 FOR_RANGE(j, first, last - first + 1)
                 {
                     for(auto node = treeNode->children[j].get(); node != &rootNode_; node = node->parent)
@@ -211,6 +219,9 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                     auto& connectInsertToThis = connectInsertToThis_[1];
                     FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
                     {
+                        auto& parentNode = rootNode_.children[
+                            MixerChannelListModel::ListType::Regular
+                        ]->children[i];
                         auto instrumentExists = sender->data(
                             sender->index(i), MixerChannelListModel::Role::InstrumentExist
                         ).value<bool>();
@@ -220,6 +231,19 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                         if(instrumentExists && oldRowCount == 2)
                         {
                             beginInsertRows(parentIndex, 0, 0);
+                            auto instrumentNode = std::make_unique<NodeData>(
+                                NodeData {
+                                    .indent = NodeData::Indent::InChannelPosition,
+                                    .index  = NodeData::NodeInChannelPosition::Instrument,
+                                    .parent = parentNode.get()
+                                }
+                            );
+                            Indices indices;
+                            for(auto node = instrumentNode.get(); node != &rootNode_; node = node->parent)
+                            {
+                                indices[node->indent] = node->index;
+                            }
+                            initChildren(*instrumentNode, indices);
                             connectInsertToThis[i]->updateIndex(
                                 MixerAudioIOPositionItemModel::index(
                                     1, 0,
@@ -228,11 +252,18 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                                     )
                                 )
                             );
+                            parentNode->children.emplace(
+                                parentNode->children.begin(),
+                                std::move(instrumentNode)
+                            );
                             endInsertRows();
                         }
                         else if(!instrumentExists && oldRowCount == 3)
                         {
                             beginRemoveRows(parentIndex, 0, 0);
+                            parentNode->children.erase(
+                                parentNode->children.begin()
+                            );
                             connectInsertToThis[i]->updateIndex(
                                 MixerAudioIOPositionItemModel::index(
                                     0, 0,
@@ -276,12 +307,8 @@ QModelIndex MixerAudioIOPositionItemModel::parent(const QModelIndex& child) cons
 
 bool MixerAudioIOPositionItemModel::hasChildren(const QModelIndex& parent) const
 {
-    auto parentNode = getNodeData(parent);
-    if(parentNode->indent == NodeData::Indent::InChannelPosition)
-    {
-        return parentNode->index != NodeData::NodeInChannelPosition::Instrument;
-    }
-    return parentNode->indent != NodeData::Indent::InsertIndex;
+    const auto node = getNodeData(parent);
+    return node->indent != NodeData::Indent::ChannelGroupIndex;
 }
 
 int MixerAudioIOPositionItemModel::rowCount(const QModelIndex& parent) const
@@ -425,9 +452,59 @@ QVariant MixerAudioIOPositionItemModel::data(const QModelIndex& index, int role)
                 }
             }
         }
-        case NodeData::Indent::Count:
+        case NodeData::Indent::ChannelGroupIndex:
         {
-            // TODO: Insert aux I/O
+            auto* model = mixerChannelListModels_[indices[NodeData::Indent::ListType]];
+            auto inChannelPosition = indices[NodeData::Indent::InChannelPosition];
+            AudioDeviceIOGroupListModel* ioList = nullptr;
+            if(inChannelPosition == NodeData::NodeInChannelPosition::Instrument)
+            {
+                ioList = static_cast<AudioDeviceIOGroupListModel*>(
+                    model->data(
+                        model->index(indices[NodeData::Indent::ChannelIndex]),
+                        isInput_?
+                            MixerChannelListModel::Role::InstrumentAudioInputs:
+                            MixerChannelListModel::Role::InstrumentAudioOutputs
+                    ).value<QObject*>()
+                );
+            }
+            else if(inChannelPosition == NodeData::NodeInChannelPosition::PreFaderInserts)
+            {
+                auto insertModel = static_cast<MixerChannelInsertListModel*>(
+                    model->data(
+                        model->index(indices[NodeData::Indent::ChannelIndex]),
+                        MixerChannelListModel::Role::Inserts
+                    ).value<QObject*>()
+                );
+                ioList = static_cast<AudioDeviceIOGroupListModel*>(
+                    insertModel->data(
+                        insertModel->index(indices[NodeData::Indent::InsertIndex]),
+                        isInput_?
+                            MixerChannelInsertListModel::Role::AudioInputs:
+                            MixerChannelInsertListModel::Role::AudioOutputs
+                    ).value<QObject*>()
+                );
+            }
+            switch(role)
+            {
+            case Role::IsTreeNode:
+                return false;
+            case Role::TreeName:
+                return ioList->data(
+                    ioList->index(indices[NodeData::Indent::ChannelGroupIndex]),
+                    AudioDeviceIOGroupListModel::Role::Name
+                );
+            case Role::ChannelConfig:
+                return ioList->data(
+                    ioList->index(indices[NodeData::Indent::ChannelGroupIndex]),
+                    AudioDeviceIOGroupListModel::Role::ChannelConfig
+                );
+            case Role::ChannelCount:
+                return ioList->data(
+                    ioList->index(indices[NodeData::Indent::ChannelGroupIndex]),
+                    AudioDeviceIOGroupListModel::Role::ChannelCount
+                );
+            }
         }
         }
     }
@@ -488,194 +565,6 @@ QModelIndex MixerAudioIOPositionItemModel::findIndexByID(const QString& id) cons
     return QModelIndex();
 }
 
-std::unique_ptr<MixerAudioIOPositionItemModel::NodeData>
-MixerAudioIOPositionItemModel::createNode(
-    MixerChannelListModel::ListType type)
-{
-    auto ret = std::make_unique<NodeData>(
-        NodeData {
-            .indent = NodeData::Indent::ListType,
-            .index  = static_cast<std::uint32_t>(type),
-            .parent = &rootNode_
-        }
-    );
-    ret->children.reserve(mixerChannelListModels_[type]->itemCount());
-    FOR_RANGE0(i, static_cast<std::uint32_t>(mixerChannelListModels_[type]->itemCount()))
-    {
-        auto& channelNode = ret->children.emplace_back(
-            std::make_unique<NodeData>(
-                NodeData {
-                    .indent = NodeData::Indent::ChannelIndex,
-                    .index  = i,
-                    .parent = ret.get()
-                }
-            )
-        );
-        bool hasInstrument = mixerChannelListModels_[type]->data(
-            mixerChannelListModels_[type]->index(i),
-            MixerChannelListModel::Role::InstrumentExist
-        ).value<bool>();
-        channelNode->children.reserve(
-            2 + hasInstrument
-        );
-        if(hasInstrument)
-        {
-            auto& instrumentNode = channelNode->children.emplace_back(
-                std::make_unique<NodeData>(
-                    NodeData {
-                        .indent = NodeData::Indent::InChannelPosition,
-                        .index  = NodeData::NodeInChannelPosition::Instrument,
-                        .parent = channelNode.get()
-                    }
-                )
-            );
-            if(isInput_)
-            {
-                auto instrumentAudioInputs = static_cast<AudioDeviceIOGroupListModel*>(
-                    mixerChannelListModels_[type]->data(
-                        mixerChannelListModels_[type]->index(i),
-                        MixerChannelListModel::Role::InstrumentAudioInputs
-                    ).value<QObject*>()
-                );
-                auto count = static_cast<std::uint32_t>(instrumentAudioInputs->itemCount());
-                instrumentNode->children.reserve(count);
-                FOR_RANGE0(j, count)
-                {
-                    instrumentNode->children.emplace_back(
-                        std::make_unique<NodeData>(
-                            NodeData {
-                                .indent = NodeData::Indent::ChannelGroupIndex,
-                                .index  = j,
-                                .parent = instrumentNode.get()
-                            }
-                        )
-                    );
-                }
-            }
-            else
-            {
-                auto instrumentAudioOutputs = static_cast<AudioDeviceIOGroupListModel*>(
-                    mixerChannelListModels_[type]->data(
-                        mixerChannelListModels_[type]->index(i),
-                        MixerChannelListModel::Role::InstrumentAudioOutputs
-                    ).value<QObject*>()
-                );
-                auto count = instrumentAudioOutputs->itemCount();
-                instrumentNode->children.reserve(count - 1);
-                auto insertModel = static_cast<MixerChannelInsertListModel*>(
-                    mixerChannelListModels_[type]->data(
-                        mixerChannelListModels_[type]->index(i),
-                        MixerChannelListModel::Role::Inserts
-                    ).value<QObject*>()
-                );
-                auto mainOutput = insertModel->inserts().inChannelGroupIndex();
-                FOR_RANGE0(j, mainOutput)
-                {
-                    instrumentNode->children.emplace_back(
-                        std::make_unique<NodeData>(
-                            NodeData {
-                                .indent = NodeData::Indent::ChannelGroupIndex,
-                                .index  = j,
-                                .parent = instrumentNode.get()
-                            }
-                        )
-                    );
-                }
-                FOR_RANGE(j, mainOutput + 1, count)
-                {
-                    instrumentNode->children.emplace_back(
-                        std::make_unique<NodeData>(
-                            NodeData {
-                                .indent = NodeData::Indent::ChannelGroupIndex,
-                                .index  = j,
-                                .parent = instrumentNode.get()
-                            }
-                        )
-                    );
-                }
-            }
-        }
-        auto& preFaderInsertNode = channelNode->children.emplace_back(
-            std::make_unique<NodeData>(
-                NodeData {
-                    .indent = NodeData::Indent::InChannelPosition,
-                    .index  = NodeData::NodeInChannelPosition::PreFaderInserts,
-                    .parent = channelNode.get()
-                }
-            )
-        );
-        const auto* insertListModel = static_cast<const MixerChannelInsertListModel*>(
-            mixerChannelListModels_[type]->data(
-                mixerChannelListModels_[type]->index(i),
-                MixerChannelListModel::Role::Inserts
-            ).value<QObject*>()
-        );
-        auto insertCount = static_cast<std::uint32_t>(insertListModel->itemCount());
-        preFaderInsertNode->children.reserve(insertCount);
-        FOR_RANGE0(j, insertCount)
-        {
-            preFaderInsertNode->children.emplace_back(
-                std::make_unique<NodeData>(
-                    NodeData {
-                        .indent = NodeData::Indent::InsertIndex,
-                        .index  = j,
-                        .parent = preFaderInsertNode.get()
-                    }
-                )
-            );
-            auto list = static_cast<AudioDeviceIOGroupListModel*>(
-                insertListModel->data(
-                    insertListModel->index(j),
-                    isInput_?
-                        MixerChannelInsertListModel::Role::AudioInputs:
-                        MixerChannelInsertListModel::Role::AudioOutputs
-                ).value<QObject*>()
-            );
-            std::uint32_t firstMain = list->itemCount();
-            FOR_RANGE0(k, list->itemCount())
-            {
-                if(
-                    list->data(
-                        list->index(k),
-                        AudioDeviceIOGroupListModel::Role::IsMain
-                    ).value<bool>()
-                )
-                {
-                    firstMain = k;
-                    break;
-                }
-            }
-            preFaderInsertNode->children.reserve(list->itemCount() - 1);
-            FOR_RANGE0(k, firstMain)
-            {
-                preFaderInsertNode->children.emplace_back(
-                    std::make_unique<NodeData>(
-                        NodeData {
-                            .indent = NodeData::Indent::ChannelGroupIndex,
-                            .index  = k,
-                            .parent = preFaderInsertNode.get()
-                        }
-                    )
-                );
-            }
-            FOR_RANGE(k, firstMain + 1, list->itemCount())
-            {
-                preFaderInsertNode->children.emplace_back(
-                    std::make_unique<NodeData>(
-                        NodeData {
-                            .indent = NodeData::Indent::ChannelGroupIndex,
-                            .index  = k,
-                            .parent = preFaderInsertNode.get()
-                        }
-                    )
-                );
-            }
-        }
-        // TODO: Implement post-fader inserts
-    }
-    return ret;
-}
-
 void MixerAudioIOPositionItemModel::initChildren(
     NodeData& nodeData, Indices& indices)
 {
@@ -683,7 +572,7 @@ void MixerAudioIOPositionItemModel::initChildren(
     if(nodeData.indent == NodeData::Indent::Root)
     {
         children.reserve(3);
-        FOR_RANGE0(i, 3)
+        FOR_RANGE0(i, 3U)
         {
             children.emplace_back(
                 std::make_unique<NodeData>(
