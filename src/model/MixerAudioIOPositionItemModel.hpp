@@ -68,7 +68,6 @@ private:
     NodeData* getNodeData(const QModelIndex& index);
 private:
     MixerChannelListModel* mixerChannelListModels_[3];
-    std::vector<std::unique_ptr<Impl::ConnectInsertToAudioIOPosition>> connectInsertToThis_[3];
     bool isInput_;
     NodeData rootNode_ {
         .indent = NodeData::Indent::Root,
