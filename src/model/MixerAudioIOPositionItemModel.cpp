@@ -747,12 +747,12 @@ void MixerAudioIOPositionItemModel::initChildren(
             auto count = static_cast<std::uint32_t>(insertModel->itemCount());
             FOR_RANGE0(j, count)
             {
-                auto list = static_cast<MixerChannelInsertListModel*>(
+                auto list = static_cast<AudioDeviceIOGroupListModel*>(
                     insertModel->data(
                         insertModel->index(j),
                         isInput_?
-                            MixerChannelListModel::Role::InstrumentAudioInputs:
-                            MixerChannelListModel::Role::InstrumentAudioOutputs
+                            MixerChannelInsertListModel::Role::AudioInputs:
+                            MixerChannelInsertListModel::Role::AudioOutputs
                         )
                     .value<QObject*>()
                 );
