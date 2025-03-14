@@ -228,7 +228,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                         auto oldRowCount = MixerAudioIOPositionItemModel::rowCount(
                             MixerAudioIOPositionItemModel::index(i, 0, parentIndex)
                         );
-                        if(instrumentExists && oldRowCount == 2)
+                        if(instrumentExists && oldRowCount == 1)
                         {
                             beginInsertRows(parentIndex, 0, 0);
                             auto instrumentNode = std::make_unique<NodeData>(
@@ -258,7 +258,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                             );
                             endInsertRows();
                         }
-                        else if(!instrumentExists && oldRowCount == 3)
+                        else if(!instrumentExists && oldRowCount == 2)
                         {
                             beginRemoveRows(parentIndex, 0, 0);
                             parentNode->children.erase(

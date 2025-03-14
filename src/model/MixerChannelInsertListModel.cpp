@@ -585,9 +585,18 @@ void MixerChannelInsertListModel::clear()
     remove(0, inserts_->insertCount());
 }
 
+std::uint32_t MixerChannelInsertListModel::channelIndex() const
+{
+    return channelIndex_;
+}
+
 void MixerChannelInsertListModel::setChannelIndex(std::uint32_t channelIndex)
 {
-    channelIndex_ = channelIndex;
+    if(channelIndex_ != channelIndex)
+    {
+        channelIndex_ = channelIndex;
+        channelIndexChanged();
+    }
 }
 
 void MixerChannelInsertListModel::setPreFaderInsert(bool isPreFaderInsert)

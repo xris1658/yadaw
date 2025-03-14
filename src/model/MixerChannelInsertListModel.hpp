@@ -11,10 +11,13 @@
 #include "model/PluginParameterListModel.hpp"
 #include "ui/WindowAndConnection.hpp"
 
+#include <QObject>
+
 namespace YADAW::Model
 {
 class MixerChannelInsertListModel: public IMixerChannelInsertListModel
 {
+    Q_OBJECT
 public:
     MixerChannelInsertListModel(YADAW::Audio::Mixer::Inserts& inserts,
         YADAW::Model::MixerChannelListModel::ListType type,
@@ -36,6 +39,7 @@ public:
     bool remove(int position, int removeCount) override;
     void clear() override;
 public:
+    std::uint32_t channelIndex() const;
     void setChannelIndex(std::uint32_t channelIndex);
     void setPreFaderInsert(bool isPreFaderInsert);
     void setInsertsIndex(std::uint32_t insertsIndex);
@@ -43,6 +47,8 @@ public:
     void updateIOConfig(std::uint32_t index);
     const YADAW::Audio::Mixer::Inserts& inserts() const;
     YADAW::Audio::Mixer::Inserts& inserts();
+signals:
+    void channelIndexChanged();
 private:
     void updateInsertConnections(std::uint32_t from);
 private:
