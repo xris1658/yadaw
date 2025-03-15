@@ -100,7 +100,7 @@ QC.Popup {
             required property bool expanded
             required property int hasChildren
             required property int depth
-            implicitWidth: stackLayout.width
+            width: treeView.columnWidthProvider(column)
             leftPadding: depth * height + indicator.width
             text: aiopim_is_tree_node? aiopim_tree_name: aiopim_position.completeName
             highlighted: treeView.currentRow == row && treeView.currentColumn == column
@@ -293,11 +293,17 @@ QC.Popup {
                         id: pluginAuxInTreeView
                         clip: true
                         delegate: audioIOPositionTreeComponent
+                        columnWidthProvider: (column) => {
+                            return stackLayout.width;
+                        }
                     }
                     TreeView {
                         id: pluginAuxOutTreeView
                         clip: true
                         delegate: audioIOPositionTreeComponent
+                        columnWidthProvider: (column) => {
+                            return stackLayout.width;
+                        }
                     }
                     onCurrentIndexChanged: {
                         root.currentPosition = null;
