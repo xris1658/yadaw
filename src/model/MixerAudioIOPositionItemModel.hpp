@@ -4,7 +4,6 @@
 #include "model/IAudioIOPositionItemModel.hpp"
 
 #include "model/MixerChannelListModel.hpp"
-#include "model/impl/ConnectInsertToAudioIOPosition.hpp"
 
 namespace YADAW::Model
 {
