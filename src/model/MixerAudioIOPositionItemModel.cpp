@@ -405,37 +405,31 @@ QVariant MixerAudioIOPositionItemModel::data(const QModelIndex& index, int role)
         case NodeData::Indent::InsertIndex:
         {
             auto* model = mixerChannelListModels_[indices[NodeData::Indent::ListType]];
-            if(nodeData->index == NodeData::NodeInChannelPosition::Instrument)
+            auto* insertModel = static_cast<MixerChannelInsertListModel*>(
+                model->data(
+                    model->index(indices[NodeData::Indent::ChannelIndex]),
+                    MixerChannelListModel::Role::Inserts
+                ).value<QObject*>()
+            );
+            if(row < insertModel->itemCount())
             {
-                // TODO: Instrument aux I/O
-            }
-            if(nodeData->index == NodeData::NodeInChannelPosition::PreFaderInserts)
-            {
-                auto insertModel = static_cast<MixerChannelInsertListModel*>(
-                    model->data(
-                        model->index(row), MixerChannelListModel::Role::Inserts
-                    ).value<QObject*>()
-                );
-                if(row < insertModel->itemCount())
+                if(role == Role::TreeName)
                 {
-                    if(role == Role::TreeName)
-                    {
-                        return QCoreApplication::translate(
-                            "MixerAudioIOPositionItemModel",
-                            "%1: %2",
-                            "Insert Index: Insert Name"
-                        ).arg(
-                            QString::number(row),
-                            insertModel->data(
-                                insertModel->index(row),
-                                MixerChannelInsertListModel::Role::Name
-                            ).value<QString>()
-                        );
-                    }
-                    else if(role == Role::IsTreeNode)
-                    {
-                        return true;
-                    }
+                    return QCoreApplication::translate(
+                        "MixerAudioIOPositionItemModel",
+                        "%1: %2",
+                        "Insert Index: Insert Name"
+                    ).arg(
+                        QString::number(row + 1),
+                        insertModel->data(
+                            insertModel->index(row),
+                            MixerChannelInsertListModel::Role::Name
+                        ).value<QString>()
+                    );
+                }
+                else if(role == Role::IsTreeNode)
+                {
+                    return true;
                 }
             }
         }
@@ -731,33 +725,57 @@ void MixerAudioIOPositionItemModel::initChildren(
                     MixerChannelListModel::Role::Inserts
                 ).value<QObject*>()
             );
-            auto count = static_cast<std::uint32_t>(insertModel->itemCount());
-            FOR_RANGE0(j, count)
-            {
-                auto list = static_cast<AudioDeviceIOGroupListModel*>(
-                    insertModel->data(
-                        insertModel->index(j),
-                        isInput_?
-                            MixerChannelInsertListModel::Role::AudioInputs:
-                            MixerChannelInsertListModel::Role::AudioOutputs
-                        )
-                    .value<QObject*>()
-                );
-                std::uint32_t firstMain = list->itemCount();
-                FOR_RANGE0(k, list->itemCount())
-                {
-                    if(
-                        list->data(
-                            list->index(k),
-                            AudioDeviceIOGroupListModel::Role::IsMain
-                        ).value<bool>()
+            auto list = static_cast<AudioDeviceIOGroupListModel*>(
+                insertModel->data(
+                    insertModel->index(indices[NodeData::Indent::InsertIndex]),
+                    isInput_?
+                        MixerChannelInsertListModel::Role::AudioInputs:
+                        MixerChannelInsertListModel::Role::AudioOutputs
                     )
-                    {
-                        firstMain = k;
-                        break;
-                    }
+                .value<QObject*>()
+            );
+            std::uint32_t firstMain = list->itemCount();
+            FOR_RANGE0(k, list->itemCount())
+            {
+                if(
+                    list->data(
+                        list->index(k),
+                        AudioDeviceIOGroupListModel::Role::IsMain
+                    ).value<bool>()
+                )
+                {
+                    firstMain = k;
+                    break;
                 }
             }
+            std::generate_n(
+                std::back_inserter(nodeData.children),
+                firstMain,
+                [&nodeData, channelGroupIndex = 0U]() mutable
+                {
+                    return std::make_unique<NodeData>(
+                        NodeData {
+                            .indent = NodeData::Indent::ChannelGroupIndex,
+                            .index  = channelGroupIndex++,
+                            .parent = &nodeData
+                        }
+                    );
+                }
+            );
+            std::generate_n(
+                std::back_inserter(nodeData.children),
+                list->itemCount() - firstMain - 1,
+                [&nodeData, channelGroupIndex = firstMain + 1]() mutable
+                {
+                    return std::make_unique<NodeData>(
+                        NodeData {
+                            .indent = NodeData::Indent::ChannelGroupIndex,
+                            .index  = channelGroupIndex++,
+                            .parent = &nodeData
+                        }
+                    );
+                }
+            );
         }
     }
     if(nodeData.indent != NodeData::Indent::Root)
