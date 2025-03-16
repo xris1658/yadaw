@@ -541,6 +541,12 @@ bool MixerAudioIOPositionItemModel::isPassed(const QModelIndex& modelIndex,
     return false;
 }
 
+std::optional<YADAW::Audio::Mixer::Mixer::Position>
+MixerAudioIOPositionItemModel::getPosition(const QModelIndex& index) const
+{
+    return std::nullopt; // TODO
+}
+
 QModelIndex MixerAudioIOPositionItemModel::findIndexByID(const QString& id) const
 {
     return QModelIndex();

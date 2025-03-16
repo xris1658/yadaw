@@ -57,6 +57,7 @@ public:
     bool isSearchPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string, Qt::CaseSensitivity caseSensitivity) const override;
     bool isPassed(const QModelIndex& modelIndex, int role, const QVariant& variant) const override;
 public:
+    std::optional<YADAW::Audio::Mixer::Mixer::Position> getPosition(const QModelIndex& index) const;
     QModelIndex findIndexByID(const QString& id) const override;
 private:
     using Indices = std::uint8_t[NodeData::Indent::Count];

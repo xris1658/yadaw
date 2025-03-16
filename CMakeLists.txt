@@ -415,6 +415,8 @@ set(YADAW_COMMON_SOURCES
     src/entity/EntityInitializer.hpp
     src/entity/HardwareAudioIOPosition.cpp
     src/entity/HardwareAudioIOPosition.hpp
+    src/entity/PluginAuxAudioIOPosition.cpp
+    src/entity/PluginAuxAudioIOPosition.hpp
     src/entity/PluginFormatSupport.cpp
     src/entity/RegularAudioIOPosition.cpp
     src/entity/RegularAudioIOPosition.hpp
