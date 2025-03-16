@@ -42,7 +42,7 @@ PluginAuxAudioIOPosition::operator YADAW::Audio::Mixer::Mixer::Position() const
 {
     return model_->getPosition(index_).value_or(
         YADAW::Audio::Mixer::Mixer::Position {
-            .id = Type::Invalid,
+            .type = YADAW::Audio::Mixer::Mixer::Position::Type::Invalid,
             .id = YADAW::Audio::Mixer::IDGen::InvalidId
         }
     );
