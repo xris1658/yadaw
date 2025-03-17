@@ -3374,6 +3374,35 @@ ade::NodeHandle Mixer::removeInstrument(std::uint32_t index)
     return ret;
 }
 
+std::optional<IDGen::ID> Mixer::instrumentAuxInputID(
+    std::uint32_t channelIndex, std::uint32_t channelGroupIndex) const
+{
+    if(channelIndex < channelCount()
+        && channelGroupIndex < instrumentAuxInputIDs_[channelIndex].size())
+    {
+        return {instrumentAuxInputIDs_[channelIndex][channelGroupIndex]};
+    }
+    return std::nullopt;
+}
+
+std::optional<IDGen::ID> Mixer::instrumentAuxOutputID(
+    std::uint32_t channelIndex, std::uint32_t channelGroupIndex) const
+{
+    if(channelIndex < channelCount()
+        && channelGroupIndex <= instrumentAuxOutputIDs_[channelIndex].size())
+    {
+        if(channelGroupIndex > preFaderInserts_[channelIndex]->inChannelGroupIndex())
+        {
+            return {instrumentAuxInputIDs_[channelIndex][channelGroupIndex - 1]};
+        }
+        if(channelGroupIndex <= preFaderInserts_[channelIndex]->inChannelGroupIndex())
+        {
+            return {instrumentAuxInputIDs_[channelIndex][channelGroupIndex]};
+        }
+    }
+    return std::nullopt;
+}
+
 bool Mixer::isInstrumentBypassed(std::uint32_t index) const
 {
     if(index < channelCount())

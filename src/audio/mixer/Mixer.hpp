@@ -345,6 +345,8 @@ public:
     bool setInstrument(std::uint32_t index,
         ade::NodeHandle nodeHandle, std::uint32_t outputChannelIndex);
     ade::NodeHandle removeInstrument(std::uint32_t index);
+    std::optional<IDGen::ID> instrumentAuxInputID(std::uint32_t channelIndex, std::uint32_t channelGroupIndex) const;
+    std::optional<IDGen::ID> instrumentAuxOutputID(std::uint32_t channelIndex, std::uint32_t channelGroupIndex) const;
     bool isInstrumentBypassed(std::uint32_t index) const;
     void setInstrumentBypass(std::uint32_t index, bool bypass);
 public:

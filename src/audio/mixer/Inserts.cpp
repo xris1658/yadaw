@@ -101,6 +101,42 @@ std::optional<bool> Inserts::insertBypassed(std::uint32_t index) const
     return std::nullopt;
 }
 
+std::optional<IDGen::ID> Inserts::insertAuxInputID(
+    std::uint32_t insertIndex, std::uint32_t channelGroupIndex) const
+{
+    if(insertIndex < insertCount()
+        && channelGroupIndex <= auxInputIDs_[insertIndex].size())
+    {
+        if(channelGroupIndex > channelGroupIndices_[insertIndex].first)
+        {
+            return {auxInputIDs_[insertIndex][channelGroupIndex - 1]};
+        }
+        else if(channelGroupIndex < channelGroupIndices_[insertIndex].first)
+        {
+            return {auxInputIDs_[insertIndex][channelGroupIndex]};
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<IDGen::ID> Inserts::insertAuxOutputID(
+    std::uint32_t insertIndex, std::uint32_t channelGroupIndex) const
+{
+    if(insertIndex < insertCount()
+        && channelGroupIndex <= auxInputIDs_[insertIndex].size())
+    {
+        if(channelGroupIndex > channelGroupIndices_[insertIndex].second)
+        {
+            return {auxInputIDs_[insertIndex][channelGroupIndex - 1]};
+        }
+        else if(channelGroupIndex < channelGroupIndices_[insertIndex].second)
+        {
+            return {auxInputIDs_[insertIndex][channelGroupIndex]};
+        }
+    }
+    return std::nullopt;
+}
+
 const ade::NodeHandle& Inserts::inNode() const
 {
     return inNode_;

@@ -27,6 +27,10 @@ public:
     std::optional<QString> insertNameAt(std::uint32_t index) const;
     std::optional<std::uint32_t> insertLatencyAt(std::uint32_t index) const;
     std::optional<bool> insertBypassed(std::uint32_t index) const;
+    std::optional<IDGen::ID> insertAuxInputID(
+        std::uint32_t insertIndex, std::uint32_t channelGroupIndex) const;
+    std::optional<IDGen::ID> insertAuxOutputID(
+        std::uint32_t insertIndex, std::uint32_t channelGroupIndex) const;
     const ade::NodeHandle& inNode() const;
     const ade::NodeHandle& outNode() const;
     std::uint32_t inChannelGroupIndex() const;
