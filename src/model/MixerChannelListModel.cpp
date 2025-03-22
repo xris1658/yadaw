@@ -1635,6 +1635,16 @@ MixerChannelListModel::ListType MixerChannelListModel::type() const
     return listType_;
 }
 
+YADAW::Audio::Mixer::Mixer& MixerChannelListModel::mixer()
+{
+    return mixer_;
+}
+
+const YADAW::Audio::Mixer::Mixer& MixerChannelListModel::mixer() const
+{
+    return mixer_;
+}
+
 void MixerChannelListModel::instrumentLatencyUpdated(std::uint32_t index) const
 {
     if(listType_ == ListType::Regular

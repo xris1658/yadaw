@@ -68,6 +68,8 @@ public:
     bool isPassed(const QModelIndex& modelIndex, int role,
         const QVariant& variant) const override;
     ListType type() const;
+    YADAW::Audio::Mixer::Mixer& mixer();
+    const YADAW::Audio::Mixer::Mixer& mixer() const;
 public:
     void instrumentLatencyUpdated(std::uint32_t index) const;
     void updateInstrumentIOConfig(std::uint32_t index);
