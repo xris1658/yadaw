@@ -544,7 +544,82 @@ bool MixerAudioIOPositionItemModel::isPassed(const QModelIndex& modelIndex,
 std::optional<YADAW::Audio::Mixer::Mixer::Position>
 MixerAudioIOPositionItemModel::getPosition(const QModelIndex& index) const
 {
-    return std::nullopt; // TODO
+    if(index.isValid())
+    {
+        auto nodeData = getNodeData(index);
+        if(nodeData->indent == NodeData::Indent::ChannelGroupIndex)
+        {
+            Indices indices;
+            for(auto node = nodeData; node != &rootNode_; node = node->parent)
+            {
+                indices[nodeData->indent] = nodeData->index;
+            }
+            if(auto position = indices[NodeData::Indent::InChannelPosition];
+                position == NodeData::NodeInChannelPosition::Instrument)
+            {
+                const auto& mixer = mixerChannelListModels_[MixerChannelListModel::ListType::Regular]->mixer();
+                if(isInput_)
+                {
+                    return {
+                        YADAW::Audio::Mixer::Mixer::Position {
+                            .type = YADAW::Audio::Mixer::Mixer::Position::Type::PluginAuxIO,
+                            .channelGroupIndex = 0U,
+                            .id = *mixer.instrumentAuxInputID(
+                                indices[NodeData::Indent::ChannelIndex],
+                                indices[NodeData::Indent::ChannelGroupIndex]
+                            )
+                        }
+                    };
+                }
+                else
+                {
+                    return {
+                        YADAW::Audio::Mixer::Mixer::Position {
+                            .type = YADAW::Audio::Mixer::Mixer::Position::Type::PluginAuxIO,
+                            .channelGroupIndex = 0U,
+                            .id = *mixer.instrumentAuxOutputID(
+                                indices[NodeData::Indent::ChannelIndex],
+                                indices[NodeData::Indent::ChannelGroupIndex]
+                            )
+                        }
+                    };
+                }
+            }
+            else if(position == NodeData::NodeInChannelPosition::PreFaderInserts)
+            {
+                auto mixerChannelListModel = mixerChannelListModels_[indices[NodeData::Indent::ListType]];
+                auto& inserts = static_cast<MixerChannelInsertListModel*>(
+                    mixerChannelListModel->data(
+                        mixerChannelListModel->index(indices[NodeData::Indent::ChannelIndex]),
+                        MixerChannelListModel::Role::Inserts
+                    ).value<QObject*>()
+                )->inserts();
+                if(isInput_)
+                {
+                    return YADAW::Audio::Mixer::Mixer::Position {
+                        .type = YADAW::Audio::Mixer::Mixer::Position::Type::PluginAuxIO,
+                        .channelGroupIndex = 0U,
+                        .id = *inserts.insertAuxInputID(
+                            indices[NodeData::Indent::InsertIndex],
+                            indices[NodeData::Indent::ChannelGroupIndex]
+                        )
+                    };
+                }
+                else
+                {
+                    return YADAW::Audio::Mixer::Mixer::Position {
+                        .type = YADAW::Audio::Mixer::Mixer::Position::Type::PluginAuxIO,
+                        .channelGroupIndex = 0U,
+                        .id = *inserts.insertAuxOutputID(
+                            indices[NodeData::Indent::InsertIndex],
+                            indices[NodeData::Indent::ChannelGroupIndex]
+                        )
+                    };
+                }
+            }
+        }
+    }
+    return std::nullopt;
 }
 
 QModelIndex MixerAudioIOPositionItemModel::findIndexByID(const QString& id) const
