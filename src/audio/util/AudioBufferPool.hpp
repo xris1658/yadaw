@@ -25,7 +25,7 @@ class AudioBufferPool:
 #if YADAW_CPUARCH_X64
     using AlignType = __m128;
 #else
-    using AlignType =
+    using AlignType = float32x4_t;
 #endif
 public:
     using Buffer = YADAW::Audio::Util::Buffer;
