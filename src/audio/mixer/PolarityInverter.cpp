@@ -1,8 +1,11 @@
 #include "PolarityInverter.hpp"
 
+#include "native/CPU.hpp"
 #include "util/IntegerRange.hpp"
 
+#if YADAW_CPUARCH_X64
 #include <immintrin.h>
+#endif
 
 namespace YADAW::Audio::Mixer
 {
@@ -69,6 +72,7 @@ void process<false>(
     }
 }
 
+#if YADAW_CPUARCH_X64
 #ifdef _MSC_VER
 __m128 mul[2] = {
     __m128 {.m128_f32 = {1.0f, 1.0f, 1.0f, 1.0f}},
@@ -82,6 +86,7 @@ __m128 mul[2] = {
 };
 #endif
 #endif
+#endif
 
 
 template<>
@@ -89,6 +94,7 @@ void process<true>(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
     std::uint64_t invert)
 {
+#if YADAW_CPUARCH_X64
     constexpr auto floatCount = sizeof(__m128) / sizeof(float);
     auto alignCount = audioProcessData.singleBufferSize / floatCount;
     FOR_RANGE0(i, audioProcessData.outputCounts[0])
@@ -112,6 +118,9 @@ void process<true>(
             output[j] = input[j] * sign[inv];
         }
     }
+#else
+    process<false>(audioProcessData, invert);
+#endif
 }
 
 using ProcessFunc = void(

@@ -2,12 +2,15 @@
 
 #include "audio/base/Gain.hpp"
 #include "audio/host/HostContext.hpp"
+#include "native/CPU.hpp"
 #include "util/IntegerRange.hpp"
 
 #include <cstdint>
 #include <QCoreApplication>
 
-#include <xmmintrin.h>
+#if YADAW_CPUARCH_X64
+#include <immintrin.h>
+#endif
 
 #include "util/Util.hpp"
 
@@ -178,6 +181,7 @@ void process<true>(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
     double* valueSequence)
 {
+#if YADAW_CPUARCH_X64
     auto alignedValueSeq = reinterpret_cast<__m128d*>(valueSequence);
     constexpr auto floatCount = sizeof(__m128) / sizeof(float);
     auto alignCount = audioProcessData.singleBufferSize / floatCount;
@@ -211,6 +215,9 @@ void process<true>(
             [](float lhs, double rhs) { return lhs * rhs; }
         );
     }
+#else
+    process<false>(audioProcessData, valueSequence);
+#endif
 }
 
 using ProcessFunc = void(

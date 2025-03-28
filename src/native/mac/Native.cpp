@@ -5,7 +5,9 @@
 #include <QCoreApplication>
 #include <QString>
 
+#if TARGET_CPU_X86
 #include <cpuid.h>
+#endif
 
 #include <mutex>
 
@@ -94,7 +96,9 @@ std::uint32_t cpuidInfo[4];
 
 void fillCPUIDInfo()
 {
+#if TARGET_CPU_X86
     __get_cpuid(1, cpuidInfo, cpuidInfo + 1, cpuidInfo + 2, cpuidInfo + 3);
+#endif
 }
 }
 

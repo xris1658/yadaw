@@ -1,9 +1,14 @@
 #ifndef YADAW_SRC_AUDIO_UTIL_AUDIOBUFFERPOOL
 #define YADAW_SRC_AUDIO_UTIL_AUDIOBUFFERPOOL
 
+#include "native/CPU.hpp"
 #include "util/IntrusivePointer.hpp"
 
+#if YADAW_CPUARCH_X64
 #include <xmmintrin.h>
+#else
+#include <arm64_>
+#endif
 
 #include <memory>
 #include <mutex>
@@ -17,7 +22,11 @@ class AudioBufferPool:
     public YADAW::Util::IntrusiveRefCounter
 {
     friend class Buffer;
+#if YADAW_CPUARCH_X64
     using AlignType = __m128;
+#else
+    using AlignType =
+#endif
 public:
     using Buffer = YADAW::Audio::Util::Buffer;
 private:

@@ -1,10 +1,13 @@
 #include "InputSwitcher.hpp"
 
+#include "native/CPU.hpp"
 #include "util/IntegerRange.hpp"
 
 #include <stdexcept>
 
+#if YADAW_CPUARCH_X64
 #include <xmmintrin.h>
+#endif
 
 namespace YADAW::Audio::Util
 {
@@ -83,6 +86,7 @@ void doProcess<true>(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData,
     std::uint32_t inputIndex)
 {
+#if YADAW_CPUARCH_X64
     FOR_RANGE0(i, audioProcessData.outputCounts[0])
     {
         constexpr auto floatCount = sizeof(__m128) / sizeof(float);
@@ -102,6 +106,9 @@ void doProcess<true>(
             audioProcessData.singleBufferSize - alignCount * floatCount
         );
     }
+#else
+    doProcess<false>(audioProcessData, inputIndex);
+#endif
 }
 
 ProcessFunc* const processFuncs[2] = {
