@@ -15,6 +15,8 @@
 #define YADAW_CPUARCH_X64    (_M_AMD64 || _M_X64)
 #define YADAW_CPUARCH_ARM64  _M_ARM64
 #elif __linux__
+#define YADAW_CPUARCH_X64    __x86_64__
+#define YADAW_CPUARCH_ARM64  __arm64__
 #elif __APPLE__
 #define YADAW_CPUARCH_X64    TARGET_CPU_X86_64
 #define YADAW_CPUARCH_ARM64  TARGET_CPU_ARM64
