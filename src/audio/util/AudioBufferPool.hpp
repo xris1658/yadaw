@@ -7,7 +7,7 @@
 #if YADAW_CPUARCH_X64
 #include <xmmintrin.h>
 #else
-#include <arm64_>
+#include <arm_neon.h>
 #endif
 
 #include <memory>
