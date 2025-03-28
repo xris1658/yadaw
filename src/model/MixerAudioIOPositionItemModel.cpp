@@ -145,7 +145,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                             auto destParentNode = getNodeData(destParentIndex);
                             destParentNode->children.erase(
                                 destParentNode->children.begin() + first,
-                                destParentNode->children.begin() + last - 1
+                                destParentNode->children.begin() + last + 1
                             );
                             endRemoveRows();
                         }
