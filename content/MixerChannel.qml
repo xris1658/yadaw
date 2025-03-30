@@ -585,8 +585,51 @@ Rectangle {
                     Layout.fillHeight: true
                     Layout.verticalStretchFactor: 1
                     delegate: SendButton {
+                        id: sendButton
                         width: sendList.width
                         text: mcsm_destination.completeName
+                        MouseArea {
+                            anchors.fill: parent
+                            anchors.leftMargin: root.leftInset
+                            anchors.rightMargin: root.rightInset
+                            anchors.topMargin: root.topInset
+                            anchors.bottomMargin: parent.height - implicitContentHeight
+                            acceptedButtons: Qt.RightButton
+                            Menu {
+                                id: sendButtonOptions
+                                title: qsTr("Send Options")
+                                MenuItem {
+                                    text: qsTr("&Delete")
+                                    onClicked: {
+                                        sendButton.removeThis();
+                                    }
+                                }
+                            }
+                            onClicked: (mouse) => {
+                                if(mouse.button === Qt.RightButton) {
+                                    let mainWindowItem = EventReceiver.mainWindow.background;
+                                    let initialCoordinate = sendButton.mapFromItem(mainWindowItem, 0, 0);
+                                    sendButtonOptions.x = initialCoordinate.x;
+                                    sendButtonOptions.y = initialCoordinate.y;
+                                    sendButtonOptions.open();
+                                    let coor = sendButton.mapToItem(mainWindowItem, 0, sendButton.implicitContentHeight);
+                                    if (coor.y >= mainWindowItem.height) {
+                                        sendButtonOptions.y = 0 - sendButtonOptions.height;
+                                    } else {
+                                        sendButtonOptions.y = sendButton.implicitContentHeight;
+                                    }
+                                    if (coor.x + sendButtonOptions.width >= mainWindowItem.width) {
+                                        sendButtonOptions.x = sendButton.width - sendButtonOptions.width;
+                                    } else {
+                                        sendButtonOptions.x = 0;
+                                    }
+                                }
+                            }
+                        }
+                        property int itemIndex: index
+                        function removeThis() {
+                            sendModel.remove(itemIndex, 1);
+                        }
                     }
                     footer: Button {
                         topInset: sendList.count !== 0? impl.padding: 0
