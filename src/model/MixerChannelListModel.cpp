@@ -914,7 +914,6 @@ bool MixerChannelListModel::insert(int position, int count,
             FOR_RANGE(i, position + count, insertModels_.size())
             {
                 insertModels_[i]->setChannelIndex(i);
-                sendModels_[i]->setChannelIndex(i);
             }
             std::fill_n(
                 std::inserter(
@@ -1026,6 +1025,10 @@ bool MixerChannelListModel::insert(int position, int count,
                 );
             }
         );
+        FOR_RANGE(i, position + count, insertModels_.size())
+        {
+            sendModels_[i]->setChannelIndex(i);
+        }
         std::fill_n(
             std::inserter(editingVolume_, editingVolume_.begin() + position),
             count, false
