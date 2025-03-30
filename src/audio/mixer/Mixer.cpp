@@ -2598,7 +2598,9 @@ std::optional<bool> Mixer::removeAudioInputChannelSend(
                 sendPolarityInverters.begin() + sendPosition,
                 sendPolarityInverters.begin() + sendPosition + removeCount
             );
+            return {true};
         }
+        return {false};
     }
     return std::nullopt;
 }
@@ -2935,7 +2937,9 @@ std::optional<bool> Mixer::removeChannelSend(
                 sendPolarityInverters.begin() + sendPosition,
                 sendPolarityInverters.begin() + sendPosition + removeCount
             );
+            return {true};
         }
+        return {false};
     }
     return std::nullopt;
 }
@@ -3277,7 +3281,9 @@ std::optional<bool> Mixer::removeAudioOutputChannelSend(
                 sendPolarityInverters.begin() + sendPosition,
                 sendPolarityInverters.begin() + sendPosition + removeCount
             );
+            return {true};
         }
+        return {false};
     }
     return std::nullopt;
 }
