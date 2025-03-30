@@ -247,10 +247,10 @@ bool MixerChannelSendListModel::append(bool isPreFader, YADAW::Entity::IAudioIOP
 bool MixerChannelSendListModel::remove(int position, int removeCount)
 {
     if(listType_ == MixerChannelListModel::ListType::Regular
-        && position >= 0 && removeCount > 0 && position + removeCount <= itemCount()
-        && mixer_->removeChannelSend(channelIndex_, position, removeCount).value_or(false))
+        && position >= 0 && removeCount > 0 && position + removeCount <= itemCount())
     {
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
+        mixer_->removeChannelSend(channelIndex_, position, removeCount);
         editingVolume_.erase(
             editingVolume_.begin() + position,
             editingVolume_.begin() + position + removeCount
