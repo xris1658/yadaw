@@ -144,6 +144,80 @@ AudioDeviceID CoreAudioBackend::Impl::defaultOutputDevice()
 {
     return defaultDevice(false);
 }
+
+std::optional<double> CoreAudioBackend::Impl::deviceNominalSampleRate(
+    bool isInput, AudioDeviceID deviceID)
+{
+    AudioObjectPropertyScope scope[2] = {
+        kAudioObjectPropertyScopeOutput,
+        kAudioObjectPropertyScopeInput
+    };
+    double ret;
+    std::uint32_t size = sizeof(ret);
+    AudioObjectPropertyAddress address {
+        .mSelector = kAudioDevicePropertyNominalSampleRate,
+        .mScope = scope[isInput],
+        .mElement = kAudioObjectPropertyElementMain
+    };
+    auto status = AudioObjectGetPropertyData(
+        deviceID,
+        &address,
+        0,
+        nullptr,
+        &size,
+        &ret
+    );
+    if (status == 0)
+    {
+        return {ret};
+    }
+    return std::nullopt;
+}
+
+std::optional<std::vector<CoreAudioBackend::SampleRateRange>>
+CoreAudioBackend::Impl::deviceAvailableNominalSampleRates(
+    bool isInput, AudioDeviceID deviceID)
+{
+    AudioObjectPropertyScope scope[2] = {
+        kAudioObjectPropertyScopeOutput,
+        kAudioObjectPropertyScopeInput
+    };
+    AudioObjectPropertyAddress address {
+        .mSelector = kAudioDevicePropertyAvailableNominalSampleRates,
+        .mScope = scope[isInput],
+        .mElement = kAudioObjectPropertyElementMain
+    };
+    std::uint32_t size = 0;
+    auto status = AudioObjectGetPropertyDataSize(
+        deviceID,
+        &address,
+        0, nullptr,
+        &size
+    );
+    if(status == 0)
+    {
+        std::vector<AudioValueRange> ranges;
+        std::uint32_t size2 = size;
+        ranges.resize(size2 / sizeof(AudioValueRange));
+        status = AudioObjectGetPropertyData(
+            deviceID,
+            &address,
+            0, nullptr,
+            &size2, ranges.data()
+        );
+        std::vector<SampleRateRange> ret;
+        ret.reserve(ranges.size());
+        for(std::uint32_t i = 0; i < ranges.size(); ++i)
+        {
+            ret.emplace_back(
+                ranges[i].mMinimum,
+                ranges[i].mMaximum
+            );
+        }
+        return {ret};
+    }
+    return std::nullopt;
+}
 }
 
 #endif

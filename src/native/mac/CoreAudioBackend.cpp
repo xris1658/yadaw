@@ -34,6 +34,17 @@ AudioDeviceID CoreAudioBackend::defaultOutputDevice()
 {
     return Impl::defaultOutputDevice();
 }
+
+std::optional<double> CoreAudioBackend::deviceNominalSampleRate(bool isInput, AudioDeviceID id)
+{
+    return Impl::deviceNominalSampleRate(isInput, id);
+}
+
+std::optional<std::vector<CoreAudioBackend::SampleRateRange>> CoreAudioBackend::deviceAvailableNominalSampleRates(bool isInput,
+    AudioDeviceID id)
+{
+    return Impl::deviceAvailableNominalSampleRates(isInput, id);
+}
 }
 
 #endif

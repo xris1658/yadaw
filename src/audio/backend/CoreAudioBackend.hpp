@@ -8,12 +8,15 @@
 #include <QString>
 
 #include <cstdint>
+#include <optional>
+#include <vector>
 
 namespace YADAW::Audio::Backend
 {
 class CoreAudioBackend
 {
 public:
+    using SampleRateRange = std::pair<double, double>;
     struct DeviceInfo
     {
         AudioDeviceID id;
@@ -31,6 +34,9 @@ public:
     static std::optional<DeviceInfo> audioOutputDeviceAt(std::uint32_t index);
     static AudioDeviceID defaultInputDevice();
     static AudioDeviceID defaultOutputDevice();
+    static std::optional<double> deviceNominalSampleRate(bool isInput, AudioDeviceID id);
+    static std::optional<std::vector<SampleRateRange>> deviceAvailableNominalSampleRates(
+        bool isInput, AudioDeviceID id);
 };
 }
 

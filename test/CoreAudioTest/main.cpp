@@ -8,6 +8,23 @@
 #include <cstdint>
 #include <cstdio>
 
+void printSampleRateRanges(
+    const std::vector<YADAW::Audio::Backend::CoreAudioBackend::SampleRateRange>& ranges,
+    FILE* stream = stdout)
+{
+    for(const auto& range: ranges)
+    {
+        if (range.first == range.second)
+        {
+            std::fprintf(stream, "%lf, ", range.first);;
+        }
+        else
+        {
+            std::fprintf(stream, "%lf - %lf, ", range.first, range.second);
+        }
+    }
+}
+
 int main()
 {
     using YADAW::Audio::Backend::CoreAudioBackend;
@@ -24,6 +41,12 @@ int main()
         auto [id, name] = *CoreAudioBackend::audioInputDeviceAt(i);
         auto localName = name.toLocal8Bit();
         std::printf("  %c #%" PRIu32": %s\n", defaultIndicators[id == defaultInput], i + 1, localName.data());
+        std::printf("        Sample Rate: %lf\n", CoreAudioBackend::deviceNominalSampleRate(true, id).value_or(0.00));
+        auto sampleRateRanges = CoreAudioBackend::deviceAvailableNominalSampleRates(true, id)
+        .value_or(std::vector<CoreAudioBackend::SampleRateRange>());
+        std::printf("        Sample Rate Range: ");
+        printSampleRateRanges(sampleRateRanges, stdout);
+        std::printf("\n");
     }
     std::printf("Output Devices:\n");
     FOR_RANGE0(i, outputCount)
@@ -31,5 +54,11 @@ int main()
         auto [id, name] = *CoreAudioBackend::audioOutputDeviceAt(i);
         auto localName = name.toLocal8Bit();
         std::printf("  %c #%" PRIu32": %s\n", defaultIndicators[id == defaultOutput], i + 1, localName.data());
+        std::printf("        Sample Rate: %lf\n", CoreAudioBackend::deviceNominalSampleRate(false, id).value_or(0.00));
+        auto sampleRateRanges = CoreAudioBackend::deviceAvailableNominalSampleRates(false, id)
+        .value_or(std::vector<CoreAudioBackend::SampleRateRange>());
+        std::printf("        Sample Rate Range: ");
+        printSampleRateRanges(sampleRateRanges, stdout);
+        std::printf("\n");
     }
 }

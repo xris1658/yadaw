@@ -18,6 +18,10 @@ public:
     static std::optional<DeviceInfo> audioOutputDeviceAt(std::uint32_t index);
     static AudioDeviceID defaultInputDevice();
     static AudioDeviceID defaultOutputDevice();
+    static std::optional<double> deviceNominalSampleRate(
+        bool isInput, AudioDeviceID deviceID);
+    static std::optional<std::vector<SampleRateRange>> deviceAvailableNominalSampleRates(
+        bool isInput, AudioDeviceID deviceID);
 };
 }
 
