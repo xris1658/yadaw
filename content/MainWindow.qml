@@ -154,7 +154,7 @@ ApplicationWindow {
             title: "&YADAW"
             mnemonicRegex: Constants.mnemonicRegexInEnglish
             Action {
-                text: qsTr("&About YADAW...")
+                text: qsTr("&About YADAW")
                 onTriggered: {
                     let component = Qt.createComponent("AboutWindow.qml");
                     if(component.status == Component.Ready) {
@@ -164,7 +164,7 @@ ApplicationWindow {
                 }
             }
             Action {
-                text: qsTr("About &Qt...")
+                text: qsTr("About &Qt")
                 onTriggered: {
                     let component = Qt.createComponent("AboutQtWindow.qml");
                     if(component.status == Component.Ready) {
@@ -178,7 +178,7 @@ ApplicationWindow {
                 text: qsTr("&Keyboard Shortcuts...")
             }
             Action {
-                text: qsTr("Check for &Updates...")
+                text: qsTr("Check for &Updates")
             }
             MenuSeparator {}
             Action {
@@ -260,7 +260,7 @@ ApplicationWindow {
             }
             MenuSeparator {}
             Action {
-                text: qsTr("&Revert to Last Save...")
+                text: qsTr("&Revert to Last Save")
                 shortcut: "F12"
             }
         }
@@ -278,7 +278,7 @@ ApplicationWindow {
                 enabled: false
             }
             Action {
-                text: qsTr("&History...")
+                text: qsTr("&History")
                 shortcut: "Ctrl+H"
                 enabled: false
             }
@@ -476,7 +476,7 @@ ApplicationWindow {
 
             MenuSeparator {}
             Action {
-                text: qsTr("&Tap Tempo...")
+                text: qsTr("&Tap Tempo")
                 onTriggered: {
                     tapTempoWindow.show();
                 }
@@ -1041,5 +1041,6 @@ ApplicationWindow {
     }
     PluginScanProgressWindow {
         id: pluginScanProgressWindow
+        transientParent: preferencesWindow
     }
 }

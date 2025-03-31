@@ -911,13 +911,13 @@ Proceed?</source>
     <name>MainWindow</name>
     <message>
         <location filename="../../content/MainWindow.qml" line="136"/>
-        <source>&amp;About YADAW...</source>
-        <translation>关于 YADAW(&amp;A)...</translation>
+        <source>&amp;About YADAW</source>
+        <translation>关于 YADAW(&amp;A)</translation>
     </message>
     <message>
         <location filename="../../content/MainWindow.qml" line="146"/>
-        <source>About &amp;Qt...</source>
-        <translation>关于 Qt(&amp;Q)...</translation>
+        <source>About &amp;Qt</source>
+        <translation>关于 Qt(&amp;Q)</translation>
     </message>
     <message>
         <location filename="../../content/MainWindow.qml" line="157"/>
@@ -926,8 +926,8 @@ Proceed?</source>
     </message>
     <message>
         <location filename="../../content/MainWindow.qml" line="160"/>
-        <source>Check for &amp;Updates...</source>
-        <translation>检查更新(&amp;U)...</translation>
+        <source>Check for &amp;Updates</source>
+        <translation>检查更新(&amp;U)</translation>
     </message>
     <message>
         <location filename="../../content/MainWindow.qml" line="164"/>
@@ -1016,8 +1016,8 @@ Proceed?</source>
     </message>
     <message>
         <location filename="../../content/MainWindow.qml" line="242"/>
-        <source>&amp;Revert to Last Save...</source>
-        <translation>恢复至上次保存(&amp;R)...</translation>
+        <source>&amp;Revert to Last Save</source>
+        <translation>恢复至上次保存(&amp;R)</translation>
     </message>
     <message>
         <location filename="../../content/MainWindow.qml" line="247"/>
@@ -1027,7 +1027,7 @@ Proceed?</source>
     <message>
         <location filename="../../content/MainWindow.qml" line="260"/>
         <source>&amp;History...</source>
-        <translation>历史记录(&amp;H)...</translation>
+        <translation>历史记录(&amp;H)</translation>
     </message>
     <message>
         <location filename="../../content/MainWindow.qml" line="289"/>
@@ -1081,8 +1081,8 @@ Proceed?</source>
     </message>
     <message>
         <location filename="../../content/MainWindow.qml" line="474"/>
-        <source>&amp;Tap Tempo...</source>
-        <translation>测速(&amp;T)...</translation>
+        <source>&amp;Tap Tempo</source>
+        <translation>测速(&amp;T)</translation>
     </message>
     <message>
         <location filename="../../content/MainWindow.qml" line="668"/>
