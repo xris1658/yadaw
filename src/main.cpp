@@ -27,40 +27,6 @@ int main(int argc, char *argv[])
     qputenv("QSG_NO_VSYNC", "1");
     YADAW::Native::fillCPUIDInfo();
     QGuiApplication app(argc, argv);
-// In Qt 6.8, menu bars are shown as native ones by default, which is in good
-// intent. But since it produces unwanted results on macOS, we do NOT use that
-// feature on macOS for now.
-// On macOS, menu items in App menu (the one between Apple system menu and File
-// menu) are fixed as "About", "Preferences", "Services", "Show/Hide" and
-// "Quit". Seems like there is no way in Qt to add your own menu items other
-// than those listed above.
-// If there are multiple menu items that begin with "about" (case-insensitive)
-// in any menu, then:
-// - Only the last item will be present in the App menu, with its text fixed to
-//   the localized string of "About <app name>". The text is affected only by
-//   your system language and localized app name. Seems like Qt determines the
-//   menu item shown as "About" by pattern-matching all of them.
-// - The other items that begin with "about" disappeared. There's no way to find
-//   these vanished items, even searching for it in the macOS "Help" menu item
-//   finds nothing.
-// This behavior allows some very surprising things to happen. For example:
-// - If I have two menu items named "About YADAW..." and "About Qt..." (which is
-//   exactly what we have in `MainWindow.qml`), then "About Qt..." is shown in
-//   App menu with its text changed to localized "About YADAW". Could you
-//   imagine triggering the menu item called "About YADAW", only to find out an
-//   "About Qt" window appeared for no reason?
-//   - I believe that I CANNOT remove the "About Qt" menu item since it's
-//     required when developing an open-source desktop app with Qt.
-// What's worse, you find this weird behavior ONLY by testing it on macOS.
-// This seems like a bug that has existed for several years.
-// See https://bugreports.qt.io/browse/QTBUG-38705 for more information.
-//
-// There are some applications that adds other menu items in the App menu, like
-// "Secure keyboard entry" of Terminal, which shows below "Preferences". I don't
-// know how it is implemented for now.
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 8, 0) && __APPLE__)
-    QCoreApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
-#endif
     QQmlApplicationEngine engine;
     YADAW::UI::qmlApplicationEngine = &engine;
     YADAW::Entity::initializeEntity();

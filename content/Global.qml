@@ -1,5 +1,6 @@
 pragma Singleton
 
+import QtCore
 import QtQuick
 
 import YADAW.Models
@@ -12,7 +13,10 @@ QtObject {
     property string fileBrowserName: qsTr("File Browser")
     property INativePopupEventFilterModel nativePopupEventFilterModel: null
     property INativePopupEventFilterModel quickMenuBarEventFilterModel: null
-    property bool enableMenuPopup: true
+    property bool enableMenuPopup: qtMinorVersion < 8 || SystemInformation.productType != "macos"
+    Component.onCompleted: {
+        console.log(SystemInformation.productType);
+    }
     function messageDialog(message: string, title: string, icon: int, modal: bool) {
         let component = Qt.createComponent("./MessageDialog.qml");
         if(component.status === Component.Ready) {
