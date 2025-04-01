@@ -7,23 +7,58 @@
 #include <../../System/Library/Frameworks/CoreFoundation.framework/Headers/CFString.h>
 #include <../../System/Library/Frameworks/CoreAudioTypes.Framework/Headers/CoreAudioTypes.h>
 
+#include <cstddef>
 #include <mutex>
 #include <vector>
 
 namespace YADAW::Audio::Backend
 {
+AudioObjectPropertyScope scope[2] = {kAudioObjectPropertyScopeOutput, kAudioObjectPropertyScopeInput};
+
 std::once_flag enumerateAudioDevicesFlag;
 
 std::vector<CoreAudioBackend::DeviceInfo> inputDevices;
 
 std::vector<CoreAudioBackend::DeviceInfo> outputDevices;
 
-void doEnumerateAudioDevices(bool isInput, std::vector<CoreAudioBackend::DeviceInfo>& vec)
+void doEnumerateAudioDevices(bool isInput, const std::vector<AudioObjectID>& ids, std::vector<CoreAudioBackend::DeviceInfo>& vec)
 {
-    AudioObjectPropertyScope scope[2] = {kAudioObjectPropertyScopeOutput, kAudioObjectPropertyScopeInput};
+    for(auto id: ids)
+    {
+        AudioObjectPropertyAddress address {
+            .mSelector = kAudioDevicePropertyStreamConfiguration,
+            .mScope = scope[isInput],
+            .mElement = kAudioObjectPropertyElementMain
+        };
+        std::uint32_t propertySize;
+        AudioObjectGetPropertyDataSize(
+            id, &address, 0, nullptr, &propertySize
+        );
+        auto streamConfigCount = (propertySize - offsetof(AudioBufferList, mBuffers)) / sizeof(AudioBuffer);
+        if(streamConfigCount)
+        {
+            address.mSelector = kAudioDevicePropertyDeviceNameCFString;
+            CFStringRef name = nullptr;
+            propertySize = sizeof(name);
+            AudioObjectGetPropertyData(
+                id,
+                &address,
+                0, nullptr, &propertySize, &name
+            );
+            vec.emplace_back(
+                id, QString::fromCFString(name)
+            );
+            CFRelease(name);
+        }
+    }
+}
+
+void enumerateAudioDevices()
+{
+    // Enumerate all devices...
     AudioObjectPropertyAddress address {
         .mSelector = kAudioHardwarePropertyDevices,
-        .mScope = scope[isInput],
+        .mScope = kAudioObjectPropertyScopeGlobal,
         .mElement = kAudioObjectPropertyElementMain
     };
     std::uint32_t propertySize = 0;
@@ -34,63 +69,24 @@ void doEnumerateAudioDevices(bool isInput, std::vector<CoreAudioBackend::DeviceI
     );
     auto count = propertySize / sizeof(std::uint32_t);
     std::vector<AudioDeviceID> ids(count);
-    vec.reserve(count);
     AudioObjectGetPropertyData(
         static_cast<AudioObjectID>(kAudioObjectSystemObject),
         &address,
         0, nullptr, &propertySize,
         ids.data()
     );
-    FOR_RANGE0(i, count)
-    {
-        address.mSelector = kAudioDevicePropertyStreamConfiguration;
-        auto channelCount = 0;
-        {
-            AudioObjectGetPropertyDataSize(
-                ids[i], &address, 0, nullptr, &propertySize
-            );
-            auto audioBufferList = std::make_unique<AudioBufferList>();
-            AudioObjectGetPropertyData(
-                ids[i],
-                &address,
-                0, nullptr, &propertySize, audioBufferList.get()
-            );
-            FOR_RANGE0(i, audioBufferList->mNumberBuffers)
-            {
-                channelCount += audioBufferList->mBuffers[i].mNumberChannels;
-            }
-        }
-        if(channelCount)
-        {
-            address.mSelector = kAudioDevicePropertyDeviceNameCFString;
-            CFStringRef name = nullptr;
-            propertySize = sizeof(name);
-            AudioObjectGetPropertyData(
-                ids[i],
-                &address,
-                0, nullptr, &propertySize, &name
-            );
-            vec.emplace_back(
-                ids[i], QString::fromCFString(name)
-            );
-            CFRelease(name);
-        }
-    }
-}
-
-void enumerateAudioDevices()
-{
-    doEnumerateAudioDevices(true, inputDevices);
-    doEnumerateAudioDevices(false, outputDevices);
+    // ...and identify them as input/output by checking their I/O stream
+    // configuration count.
+    doEnumerateAudioDevices(true, ids, inputDevices);
+    doEnumerateAudioDevices(false, ids, outputDevices);
 }
 
 AudioDeviceID defaultDevice(bool isInput)
 {
     AudioObjectPropertySelector selector[2] = {kAudioHardwarePropertyDefaultOutputDevice, kAudioHardwarePropertyDefaultInputDevice};
-    AudioObjectPropertyScope scope[2] = {kAudioObjectPropertyScopeOutput, kAudioObjectPropertyScopeInput};
     AudioObjectPropertyAddress address {
         .mSelector = selector[isInput],
-        .mScope = scope[isInput],
+        .mScope = kAudioObjectPropertyScopeGlobal,
         .mElement = kAudioObjectPropertyElementMain
     };
     AudioDeviceID ret;
@@ -148,10 +144,6 @@ AudioDeviceID CoreAudioBackend::Impl::defaultOutputDevice()
 std::optional<double> CoreAudioBackend::Impl::deviceNominalSampleRate(
     bool isInput, AudioDeviceID deviceID)
 {
-    AudioObjectPropertyScope scope[2] = {
-        kAudioObjectPropertyScopeOutput,
-        kAudioObjectPropertyScopeInput
-    };
     double ret;
     std::uint32_t size = sizeof(ret);
     AudioObjectPropertyAddress address {
