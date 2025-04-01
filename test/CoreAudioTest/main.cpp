@@ -47,6 +47,13 @@ int main()
         std::printf("        Sample Rate Range: ");
         printSampleRateRanges(sampleRateRanges, stdout);
         std::printf("\n");
+        std::printf("        Channel Counts: ");
+        auto channelCounts = CoreAudioBackend::deviceAvailableChannelCounts(true, id).value_or(std::vector<std::uint32_t>());
+        for(auto channelCount: channelCounts)
+        {
+            std::printf("%" PRIu32", ", channelCount);
+        }
+        std::printf("\n");
     }
     std::printf("Output Devices:\n");
     FOR_RANGE0(i, outputCount)
@@ -59,6 +66,13 @@ int main()
         .value_or(std::vector<CoreAudioBackend::SampleRateRange>());
         std::printf("        Sample Rate Range: ");
         printSampleRateRanges(sampleRateRanges, stdout);
+        std::printf("\n");
+        std::printf("        Channel Counts: ");
+        auto channelCounts = CoreAudioBackend::deviceAvailableChannelCounts(false, id).value_or(std::vector<std::uint32_t>());
+        for(auto channelCount: channelCounts)
+        {
+            std::printf("%" PRIu32", ", channelCount);
+        }
         std::printf("\n");
     }
 }

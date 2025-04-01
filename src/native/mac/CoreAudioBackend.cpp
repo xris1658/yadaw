@@ -45,6 +45,12 @@ std::optional<std::vector<CoreAudioBackend::SampleRateRange>> CoreAudioBackend::
 {
     return Impl::deviceAvailableNominalSampleRates(isInput, id);
 }
+
+std::optional<const std::vector<std::uint32_t>>
+CoreAudioBackend::deviceAvailableChannelCounts(bool isInput, AudioDeviceID id)
+{
+    return Impl::deviceAvailableChannelCounts(isInput, id);
+}
 }
 
 #endif

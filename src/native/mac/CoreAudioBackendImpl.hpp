@@ -22,6 +22,8 @@ public:
         bool isInput, AudioDeviceID deviceID);
     static std::optional<std::vector<SampleRateRange>> deviceAvailableNominalSampleRates(
         bool isInput, AudioDeviceID deviceID);
+    static std::optional<const std::vector<std::uint32_t>> deviceAvailableChannelCounts(
+        bool isInput, AudioDeviceID id);
 };
 }
 

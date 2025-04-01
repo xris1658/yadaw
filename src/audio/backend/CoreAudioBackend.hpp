@@ -3,6 +3,8 @@
 
 #if __APPLE__
 
+#include "util/OptionalUtil.hpp"
+
 #include <../../System/Library/Frameworks/CoreAudio.framework/Headers/AudioHardware.h>
 
 #include <QString>
@@ -36,6 +38,8 @@ public:
     static AudioDeviceID defaultOutputDevice();
     static std::optional<double> deviceNominalSampleRate(bool isInput, AudioDeviceID id);
     static std::optional<std::vector<SampleRateRange>> deviceAvailableNominalSampleRates(
+        bool isInput, AudioDeviceID id);
+    static std::optional<const std::vector<std::uint32_t>> deviceAvailableChannelCounts(
         bool isInput, AudioDeviceID id);
 };
 }

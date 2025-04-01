@@ -18,10 +18,15 @@ AudioObjectPropertyScope scope[2] = {kAudioObjectPropertyScopeOutput, kAudioObje
 std::once_flag enumerateAudioDevicesFlag;
 
 std::vector<CoreAudioBackend::DeviceInfo> inputDevices;
+std::vector<std::vector<std::uint32_t>> inputChannelCounts;
 
 std::vector<CoreAudioBackend::DeviceInfo> outputDevices;
+std::vector<std::vector<std::uint32_t>> outputChannelCounts;
 
-void doEnumerateAudioDevices(bool isInput, const std::vector<AudioObjectID>& ids, std::vector<CoreAudioBackend::DeviceInfo>& vec)
+void doEnumerateAudioDevices(
+    bool isInput,
+    const std::vector<AudioObjectID>& ids,
+    std::vector<CoreAudioBackend::DeviceInfo>& vec)
 {
     for(auto id: ids)
     {
@@ -170,10 +175,6 @@ std::optional<std::vector<CoreAudioBackend::SampleRateRange>>
 CoreAudioBackend::Impl::deviceAvailableNominalSampleRates(
     bool isInput, AudioDeviceID deviceID)
 {
-    AudioObjectPropertyScope scope[2] = {
-        kAudioObjectPropertyScopeOutput,
-        kAudioObjectPropertyScopeInput
-    };
     AudioObjectPropertyAddress address {
         .mSelector = kAudioDevicePropertyAvailableNominalSampleRates,
         .mScope = scope[isInput],
@@ -199,7 +200,7 @@ CoreAudioBackend::Impl::deviceAvailableNominalSampleRates(
         );
         std::vector<SampleRateRange> ret;
         ret.reserve(ranges.size());
-        for(std::uint32_t i = 0; i < ranges.size(); ++i)
+        FOR_RANGE0(i, ranges.size())
         {
             ret.emplace_back(
                 ranges[i].mMinimum,
@@ -207,6 +208,37 @@ CoreAudioBackend::Impl::deviceAvailableNominalSampleRates(
             );
         }
         return {ret};
+    }
+    return std::nullopt;
+}
+
+std::optional<const std::vector<std::uint32_t>>
+CoreAudioBackend::Impl::deviceAvailableChannelCounts(bool isInput, AudioDeviceID id)
+{
+    AudioObjectPropertyAddress address {
+        .mSelector = kAudioDevicePropertyStreamConfiguration,
+        .mScope = scope[isInput],
+        .mElement = kAudioObjectPropertyElementMain
+    };
+    std::uint32_t propertySize;
+    AudioObjectGetPropertyDataSize(
+        id, &address, 0, nullptr, &propertySize
+        );
+    auto streamConfigCount = (propertySize - offsetof(AudioBufferList, mBuffers)) / sizeof(AudioBuffer);
+    if(streamConfigCount)
+    {
+        auto audioBufferListAsByte = std::make_unique<std::byte[]>(propertySize);
+        AudioObjectGetPropertyData(
+            id, &address, 0, nullptr, &propertySize, audioBufferListAsByte.get()
+        );
+        const auto& audioBufferList = *reinterpret_cast<AudioBufferList*>(audioBufferListAsByte.get());
+        std::vector<std::uint32_t> channelCounts;
+        channelCounts.reserve(audioBufferList.mNumberBuffers);
+        FOR_RANGE0(i, audioBufferList.mNumberBuffers)
+        {
+            channelCounts.emplace_back(audioBufferList.mBuffers[i].mNumberChannels);
+        }
+        return {channelCounts};
     }
     return std::nullopt;
 }
