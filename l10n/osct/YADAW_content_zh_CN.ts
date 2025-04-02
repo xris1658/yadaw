@@ -1026,7 +1026,7 @@ Proceed?</source>
     </message>
     <message>
         <location filename="../../content/MainWindow.qml" line="260"/>
-        <source>&amp;History...</source>
+        <source>&amp;History</source>
         <translation>历史记录(&amp;H)</translation>
     </message>
     <message>
