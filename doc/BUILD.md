@@ -104,7 +104,8 @@ possible, I'd consider add ARM support in the future.
   cmake -S .. -B . \
     -DVST3SDK_SOURCE_DIR=<path to directory of VST3 SDK>/vst3sdk \
     -DCLAP_SOURCE_DIR=<path to directory of CLAP>/clap \
-    -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<path to directory of sqlite_modern_cpp>/sqlite_modern_cpp/hdr
+    -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<path to directory of sqlite_modern_cpp>/sqlite_modern_cpp/hdr \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
   # Make sure vst3sdk/pluginterfaces/base/ustring.cpp compiles
   export PREV_PWD=$PWD
   cd <path to directory of VST3 SDK>/vst3sdk/pluginterfaces

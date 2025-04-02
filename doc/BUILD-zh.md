@@ -99,7 +99,8 @@
   cmake -S .. -B . \
     -DVST3SDK_SOURCE_DIR=<VST3 SDK 所在目录的路径>/vst3sdk \
     -DCLAP_SOURCE_DIR=<CLAP 所在目录的路径>/clap \
-    -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<sqlite_modern_cpp 所在目录的路径>/sqlite_modern_cpp/hdr
+    -DSQLITE_MODERN_CPP_INCLUDE_DIRS=<sqlite_modern_cpp 所在目录的路径>/sqlite_modern_cpp/hdr \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
   # 确保 vst3sdk/pluginterfaces/base/ustring.cpp 能够编译
   export PREV_PWD=$PWD
   cd <VST3 SDK 所在目录的路径>/vst3sdk/pluginterfaces
