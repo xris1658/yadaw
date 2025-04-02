@@ -3,6 +3,7 @@
 #include "audio/util/CLAPHelper.hpp"
 
 #include <iterator>
+#include <span>
 
 namespace YADAW::Audio::Plugin
 {
@@ -96,7 +97,7 @@ template<> std::uint8_t clapSpeakers<ChannelGroupType::e71>[] = {
 };
 
 template<ChannelGroupType C>
-std::basic_string_view<std::uint8_t> clapSpeakerView(clapSpeakers<C>, std::size(clapSpeakers<C>));
+std::span<std::uint8_t> clapSpeakerView(clapSpeakers<C>, std::size(clapSpeakers<C>));
 
 template<ChannelGroupType C>
 bool mappingIsChannelGroupType(const std::vector<std::uint8_t>& mapping)
