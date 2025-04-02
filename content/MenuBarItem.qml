@@ -79,6 +79,7 @@ T.MenuBarItem {
         function onClosed() {
             let nativePopup = menu.nativePopup;
             if(nativePopup) {
+                menu.parent = root;
                 let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
                 if(quickMenuBarEventFilterModel) {
                     quickMenuBarEventFilterModel.remove(nativePopup);
