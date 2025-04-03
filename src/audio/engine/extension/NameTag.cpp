@@ -26,5 +26,6 @@ const NameTag::DataType& NameTag::getData(const ade::NodeHandle& nodeHandle) con
 
 NameTag::DataType& NameTag::getData(const ade::NodeHandle& nodeHandle)
 {
-    return getData_(graph_, nodeHandle);}
+    return getData_(graph_, nodeHandle);
+}
 }
