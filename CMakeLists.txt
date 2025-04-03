@@ -1040,7 +1040,7 @@ target_link_libraries(YADAW PRIVATE
                       ${NATIVE_LIBRARY}
                       base pluginterfaces sdk_common sdk_hosting
                       ${SQLITE_LIBRARY}
-                      yaml-cpp)
+                      yaml-cpp::yaml-cpp)
 
 set_target_properties(YADAW PROPERTIES
                       MACOSX_BUNDLE TRUE
