@@ -30,8 +30,10 @@ QString getFileBrowserName()
                 if(loadStringRet)
                 {
                     fileBrowserName = QString::fromWCharArray(namePtr, loadStringRet);
+                    return;
                 }
             }
+            fileBrowserName = QString::fromWCharArray(defaultName);
         }
     );
     return fileBrowserName;
