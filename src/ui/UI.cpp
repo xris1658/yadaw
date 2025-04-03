@@ -151,8 +151,6 @@ bool isWindows11 = false;
 
 std::once_flag getWindowsVersionFlag;
 
-typedef void(__stdcall*NTPROC)(DWORD*, DWORD*, DWORD*);
-
 void getWindowsVersion()
 {
     auto version = YADAW::Native::getWindowsVersion();
