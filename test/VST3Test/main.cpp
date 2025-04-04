@@ -4,8 +4,8 @@
 #include "audio/util/AudioProcessDataPointerContainer.hpp"
 #include "audio/util/VST3Helper.hpp"
 #include "dao/PluginTable.hpp"
+#include "native/Window.hpp"
 #include "ui/Runtime.hpp"
-#include "ui/UI.hpp"
 
 #include "test/common/DisableStreamBuffer.hpp"
 #include "test/common/CloseWindowEventFilter.hpp"
@@ -151,7 +151,7 @@ void testPlugin(QWindow& pluginWindow)
                             (rect.height() - pluginWindow.height()) / 2
                         );
                     }
-                    YADAW::UI::setWindowResizable(pluginWindow, gui->resizableByUser());
+                    YADAW::Native::setWindowResizable(pluginWindow, gui->resizableByUser());
                 }
                 runtime.audioThread = std::thread([&plugin, sampleRate, bufferSize]()
                 {

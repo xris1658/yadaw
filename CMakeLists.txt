@@ -114,6 +114,7 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/WASAPIExclusiveBackend.cpp
     src/native/win/WASAPIExclusiveBackendImpl.cpp
     src/native/win/WASAPIExclusiveBackendImpl.hpp
+    src/native/win/Window.cpp
     src/native/win/winrt/Async.hpp
     src/native/win/winrt/Forward.hpp
     src/native/win/winrt/QStringFromHString.cpp
@@ -143,8 +144,7 @@ set(MAC_NATIVE_SOURCES
     src/native/mac/Thread.cpp
     src/native/mac/VST3Native.cpp
     src/native/mac/VestifalNative.cpp
-    src/ui/mac/WindowFunctions.hpp
-    src/ui/mac/WindowFunctions.mm
+    src/native/mac/Window.mm
 )
 
 set(LINUX_NATIVE_SOURCES
@@ -178,6 +178,7 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/Thread.cpp
     src/native/linux/VST3Native.cpp
     src/native/linux/VestifalNative.cpp
+    src/native/linux/Window.cpp
 )
 
 if(WIN32)
@@ -561,6 +562,7 @@ set(YADAW_COMMON_SOURCES
     src/util/VectorUtil.hpp
     src/util/YAMLCppUtil.hpp
     src/util/ZeckendorfLogarithm.hpp
+    src/native/Window.hpp
 )
 
 qt_add_executable(YADAW
@@ -609,14 +611,15 @@ add_executable(CLAPTest
                src/native/linux/CLAPNative.cpp
                src/native/linux/Library.cpp
                src/native/linux/Native.cpp
+               src/native/linux/Window.cpp
                src/native/mac/CLAPNative.cpp
                src/native/mac/Library.cpp
                src/native/mac/Native.cpp
+               src/native/mac/Window.mm
                src/native/win/CLAPNative.cpp
                src/native/win/Library.cpp
                src/native/win/Native.cpp
-               src/ui/mac/WindowFunctions.hpp
-               src/ui/mac/WindowFunctions.mm
+               src/native/win/Window.cpp
                src/ui/UI.cpp
                src/ui/UI.hpp
                src/ui/Runtime.cpp
@@ -959,6 +962,7 @@ add_executable(VST3Test
                src/native/MIDIInputDeviceImpl.hpp
                src/native/Native.hpp
                src/native/VST3Native.hpp
+               src/native/Window.hpp
                src/native/linux/ALSADeviceEnumerator.cpp
                src/native/linux/ALSADeviceEnumerator.hpp
                src/native/linux/ALSAHelper.hpp
@@ -969,20 +973,21 @@ add_executable(VST3Test
                src/native/linux/Sequencer.cpp
                src/native/linux/Sequencer.hpp
                src/native/linux/VST3Native.cpp
+               src/native/linux/Window.cpp
                src/native/mac/Library.cpp
                src/native/mac/Native.cpp
                src/native/mac/VST3Native.cpp
+               src/native/mac/Window.mm
                src/native/win/Library.cpp
                src/native/win/MIDIInputDeviceImpl.cpp
                src/native/win/MIDIInputDeviceImpl.hpp
                src/native/win/Native.cpp
                src/native/win/VST3Native.cpp
+               src/native/win/Window.cpp
                src/native/win/winrt/Async.hpp
                src/native/win/winrt/Forward.hpp
                src/native/win/winrt/QStringFromHString.cpp
                src/native/win/winrt/QStringFromHString.hpp
-               src/ui/mac/WindowFunctions.hpp
-               src/ui/mac/WindowFunctions.mm
                src/ui/Runtime.cpp
                src/ui/Runtime.hpp
                src/ui/UI.cpp

@@ -1,12 +1,13 @@
 #include "audio/host/EventFileDescriptorSupport.hpp"
+#include "audio/host/CLAPEventList.hpp"
 #include "audio/host/CLAPHost.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
 #include "audio/util/AudioProcessDataPointerContainer.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/Library.hpp"
+#include "native/Window.hpp"
 #include "util/AlignHelper.hpp"
 #include "ui/Runtime.hpp"
-#include "ui/UI.hpp"
 
 #include "test/common/DisableStreamBuffer.hpp"
 #include "test/common/CloseWindowEventFilter.hpp"
@@ -18,8 +19,6 @@
 #include <cinttypes>
 #include <memory>
 #include <thread>
-
-#include "audio/host/CLAPEventList.hpp"
 
 
 struct PluginRuntime
@@ -143,7 +142,7 @@ void testPlugin(QWindow& pluginWindow)
                         (rect.height() - pluginWindow.height()) / 2
                     );
                 }
-                YADAW::UI::setWindowResizable(pluginWindow, gui->resizableByUser());
+                YADAW::Native::setWindowResizable(pluginWindow, gui->resizableByUser());
             }
             std::vector<std::uint32_t> inputCounts;
             auto inputGroupCount = plugin.audioInputGroupCount();

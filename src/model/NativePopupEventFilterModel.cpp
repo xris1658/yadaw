@@ -1,6 +1,5 @@
 #include "NativePopupEventFilterModel.hpp"
 
-#include "ui/UI.hpp"
 #include "util/IntegerRange.hpp"
 
 namespace YADAW::Model

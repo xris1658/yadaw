@@ -23,9 +23,9 @@
 #include "model/QuickMenuBarEventFilterModel.hpp"
 #include "native/Native.hpp"
 #include "native/Shell.hpp"
+#include "native/Window.hpp"
 #include "ui/MessageDialog.hpp"
 #include "ui/Runtime.hpp"
-#include "ui/UI.hpp"
 #include "util/IntegerRange.hpp"
 #if _WIN32
 #include "controller/AudioGraphBackendController.hpp"
@@ -745,11 +745,11 @@ void EventHandler::onToggleMainWindowFullscreen()
         YADAW::UI::mainWindow->setProperty("previouslyMaximized",
             QVariant::fromValue<bool>(visibility == QWindow::Visibility::Maximized)
         );
-        YADAW::UI::enterFullscreen(*YADAW::UI::mainWindow);
+        YADAW::Native::enterFullscreen(*YADAW::UI::mainWindow);
     }
     else
     {
-        YADAW::UI::exitFullscreen(
+        YADAW::Native::exitFullscreen(
             *YADAW::UI::mainWindow,
             YADAW::UI::mainWindow->property("previouslyMaximized").value<bool>()
         );
@@ -763,7 +763,7 @@ void EventHandler::onShowNativePopup()
     );
     if(nativePopup)
     {
-        YADAW::UI::showWindowWithoutActivating(*nativePopup);
+        YADAW::Native::showWindowWithoutActivating(*nativePopup);
     }
 }
 }

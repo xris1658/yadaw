@@ -1,7 +1,7 @@
 #include "PluginWindowController.hpp"
 
+#include "native/Window.hpp"
 #include "ui/Runtime.hpp"
-#include "ui/UI.hpp"
 
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
@@ -22,8 +22,8 @@ void createPluginWindow()
     gui->attachToWindow(pluginFrame);
     if(!gui->resizableByUser())
     {
-        YADAW::UI::setWindowResizable(*pluginFrame, false);
-        YADAW::UI::setWindowResizable(*pluginWindow, false);
+        YADAW::Native::setWindowResizable(*pluginFrame, false);
+        YADAW::Native::setWindowResizable(*pluginWindow, false);
     }
     // Embed the plugin frame to its outer window (See `PluginWindow.qml`)
     // This process has to be done AFTER `IPluginGUI::attachToWindow`, or the
