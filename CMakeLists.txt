@@ -606,10 +606,17 @@ add_executable(CLAPTest
                src/dao/PluginTable.hpp
                src/native/Library.hpp
                src/native/Native.hpp
-               src/native/linux/Native.cpp
-               src/native/win/Native.cpp
+               src/native/linux/CLAPNative.cpp
                src/native/linux/Library.cpp
+               src/native/linux/Native.cpp
+               src/native/mac/CLAPNative.cpp
+               src/native/mac/Library.cpp
+               src/native/mac/Native.cpp
+               src/native/win/CLAPNative.cpp
                src/native/win/Library.cpp
+               src/native/win/Native.cpp
+               src/ui/mac/WindowFunctions.hpp
+               src/ui/mac/WindowFunctions.mm
                src/ui/UI.cpp
                src/ui/UI.hpp
                src/ui/Runtime.cpp
@@ -962,6 +969,9 @@ add_executable(VST3Test
                src/native/linux/Sequencer.cpp
                src/native/linux/Sequencer.hpp
                src/native/linux/VST3Native.cpp
+               src/native/mac/Library.cpp
+               src/native/mac/Native.cpp
+               src/native/mac/VST3Native.cpp
                src/native/win/Library.cpp
                src/native/win/MIDIInputDeviceImpl.cpp
                src/native/win/MIDIInputDeviceImpl.hpp
@@ -971,6 +981,8 @@ add_executable(VST3Test
                src/native/win/winrt/Forward.hpp
                src/native/win/winrt/QStringFromHString.cpp
                src/native/win/winrt/QStringFromHString.hpp
+               src/ui/mac/WindowFunctions.hpp
+               src/ui/mac/WindowFunctions.mm
                src/ui/Runtime.cpp
                src/ui/Runtime.hpp
                src/ui/UI.cpp
