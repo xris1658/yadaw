@@ -33,10 +33,6 @@ void toggleNSWindowFullscreen(WId winId)
 
 void enterFullscreen(QWindow& window)
 {
-    auto winId = window.winId();
-    auto nsview = reinterpret_cast<NSView*>(winId);
-    auto window = [nsview window];
-    [window toggleFullScreen: nil];
     if(window.visibility() == QWindow::Visibility::Maximized)
     {
         toggleNSWindowFullscreen(window.winId());

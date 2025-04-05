@@ -2,7 +2,6 @@
 #define YADAW_SRC_UI_UI
 
 #include <QString>
-#include <QWindow>
 
 namespace YADAW::UI
 {
