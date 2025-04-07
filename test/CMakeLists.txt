@@ -74,6 +74,14 @@ if(APPLE)
             "-framework CoreAudio"
             "-framework CoreFoundation"
     )
+    add_executable(AudioToolboxTest
+                   AudioToolboxTest/main.cpp)
+    target_link_libraries(AudioToolboxTest
+            PRIVATE Qt6::Core
+            "-framework AudioToolbox"
+            "-framework CoreAudio"
+            "-framework CoreFoundation"
+    )
 endif()
 if(LINUX)
     add_executable(ALSATest
