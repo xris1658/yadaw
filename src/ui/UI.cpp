@@ -1,4 +1,9 @@
 #include "UI.hpp"
+
+#include "native/Native.hpp"
+
+#include <QCoreApplication>
+
 namespace YADAW::UI
 {
 const QString& defaultFontDir()
