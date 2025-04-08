@@ -27,13 +27,6 @@ namespace YADAW::Audio::Mixer
 {
 class Mixer;
 
-namespace Impl
-{
-void blankNodeAddedCallback(const Mixer&);
-void blankNodeRemovedCallback(const Mixer&);
-void blankConnectionUpdatedCallback(const Mixer&);
-}
-
 template<typename Factory, typename Device>
 concept DeviceFactory = requires
 (
@@ -162,8 +155,6 @@ public:
             return !(lhs == rhs);
         }
     };
-    using NodeAddedCallback = void(const Mixer&);
-    using NodeRemovedCallback = void(const Mixer&);
     using ConnectionUpdatedCallback = void(const Mixer&);
     // using VolumeFaderFactoryCallback = std::unique_ptr<VolumeFader>(
     //     YADAW::Audio::Base::ChannelGroupType channelGroupType,
@@ -350,11 +341,7 @@ public:
     bool isInstrumentBypassed(std::uint32_t index) const;
     void setInstrumentBypass(std::uint32_t index, bool bypass);
 public:
-    void setNodeAddedCallback(NodeAddedCallback* callback);
-    void setNodeRemovedCallback(NodeRemovedCallback* callback);
     void setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback);
-    void resetNodeAddedCallback();
-    void resetNodeRemovedCallback();
     void resetConnectionUpdatedCallback();
 public:
     std::optional<ade::EdgeHandle> addConnection(
