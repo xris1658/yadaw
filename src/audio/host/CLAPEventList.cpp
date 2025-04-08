@@ -73,7 +73,7 @@ bool CLAPEventList::doTryPush(const clap_event_header* event)
         auto paramGesture = reinterpret_cast<const clap_event_param_gesture_t*>(event);
         // TODO: Add mechanism recording automations here (an `endEdit`)
     }
-    outputEventList.pushBack(std::move(EventUniquePointer(copy, Impl::EventDeleter())));
+    outputEventList.pushBack(std::move(EventUniquePointer(copy)));
     return true;
 }
 
@@ -87,7 +87,7 @@ bool CLAPEventList::pushBackEvent(const clap_event_header* event)
     // TODO: Use memory pool
     auto copy = reinterpret_cast<clap_event_header*>(std::malloc(event->size));
     std::memcpy(copy, event, event->size);
-    inputEventList.pushBack(std::move(EventUniquePointer(copy, Impl::EventDeleter())));
+    inputEventList.pushBack(std::move(EventUniquePointer(copy)));
     return true;
 }
 

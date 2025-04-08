@@ -529,6 +529,7 @@ set(YADAW_COMMON_SOURCES
     src/util/BatchDisposer.hpp
     src/util/ButlerThread.cpp
     src/util/ButlerThread.hpp
+    src/util/CDeleter.hpp
     src/util/CircularDeque.hpp
     src/util/CompilerSpecifics.hpp
     src/util/Concepts.hpp

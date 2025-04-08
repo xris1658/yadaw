@@ -1,6 +1,7 @@
 #if _WIN32
 
 #include "native/CPU.hpp"
+#include "util/CDeleter.hpp"
 #include "util/IntegerRange.hpp"
 
 #include <intrin.h>
@@ -29,7 +30,7 @@ inline WORD getNUMANodeGroupCount(const NUMA_NODE_RELATIONSHIP& numaNodeRelation
     return *reinterpret_cast<const WORD*>(numaNodeRelationship.Reserved + 18);
 }
 
-std::pair<std::unique_ptr<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>, DWORD> getLogicalProcessorInformationEx(LOGICAL_PROCESSOR_RELATIONSHIP relationship)
+std::pair<YADAW::Util::UniquePtrWithCDeleter<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>, DWORD> getLogicalProcessorInformationEx(LOGICAL_PROCESSOR_RELATIONSHIP relationship)
 {
     PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX buffer = nullptr;
     DWORD length = 0;
@@ -54,7 +55,9 @@ std::pair<std::unique_ptr<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>, DWORD> getLo
             return {};
         }
     }
-    return std::make_pair(std::unique_ptr<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(buffer), length);
+    return std::make_pair(
+        YADAW::Util::UniquePtrWithCDeleter<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(buffer), length
+    );
 }
 
 namespace YADAW::Native
@@ -69,9 +72,8 @@ CPUTopology getCPUTopology()
     std::map<std::uint8_t, std::set<std::uint16_t>> packageProcessors;
     std::map<std::uint8_t, std::set<std::uint16_t>> physicalCoreProcessors;
     CPUTopology ret;
-    std::pair<std::unique_ptr<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>, DWORD> pair;
     // Get NUMA nodes
-    pair = getLogicalProcessorInformationEx(RelationNumaNode);
+    auto pair = getLogicalProcessorInformationEx(RelationNumaNode);
     if(auto& [numaNodes, bufferSize] = pair; numaNodes)
     {
         auto buffer = numaNodes.get();

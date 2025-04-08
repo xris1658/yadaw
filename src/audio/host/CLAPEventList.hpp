@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_HOST_CLAPEVENTLIST
 #define YADAW_SRC_AUDIO_HOST_CLAPEVENTLIST
 
+#include "util/CDeleter.hpp"
 #include "util/FixedSizeCircularDeque.hpp"
 
 #include <clap/events.h>
@@ -12,25 +13,6 @@
 
 namespace YADAW::Audio::Host
 {
-namespace Impl
-{
-class EventDeleter
-{
-public:
-    EventDeleter() noexcept = default;
-    EventDeleter(const EventDeleter&) noexcept = default;
-    EventDeleter& operator=(const EventDeleter&) noexcept = default;
-    EventDeleter(EventDeleter&&) noexcept = default;
-    EventDeleter& operator=(EventDeleter&&) noexcept = default;
-    ~EventDeleter() noexcept = default;
-public:
-    void operator()(void* ptr)
-    {
-        std::free(ptr);
-    }
-};
-}
-
 // QUES: Triple buffer is probably a better choice:
 //                                          |  realtime thread only  |
 //  Input buffer  (host):   Enqueue events -> attach to process data -> GC
@@ -38,7 +20,7 @@ public:
 class CLAPEventList
 {
 public:
-    using EventUniquePointer = std::unique_ptr<clap_event_header, Impl::EventDeleter>;
+    using EventUniquePointer = YADAW::Util::UniquePtrWithCDeleter<clap_event_header>;
     using CircularDequeType = YADAW::Util::FixedSizeCircularDeque<EventUniquePointer, 4096>;
 public:
     CLAPEventList();
