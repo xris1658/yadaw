@@ -156,14 +156,10 @@ public:
         }
     };
     using ConnectionUpdatedCallback = void(const Mixer&);
-    // using VolumeFaderFactoryCallback = std::unique_ptr<VolumeFader>(
-    //     YADAW::Audio::Base::ChannelGroupType channelGroupType,
-    //     std::uint32_t channelCountInGroup
-    // );
-    // using MeterFactoryCallback = std::unique_ptr<Meter>(
-    //     YADAW::Audio::Base::ChannelGroupType channelGroupType,
-    //     std::uint32_t channelCountInGroup
-    // );
+    using PreInsertChannelCallbackArgs = struct { std::uint32_t position; std::uint32_t count; };
+    using PreInsertChannelCallback = void(const Mixer& sender, PreInsertChannelCallbackArgs args);
+private:
+    Mixer();
 public:
     template<
         DeviceFactory<VolumeFader> VolumeFaderFactory,
@@ -172,12 +168,10 @@ public:
     Mixer(
         VolumeFaderFactory&& volumeFaderFactory,
         MeterFactory&& meterFactory):
-        graph_(),
-        graphWithPDC_(graph_),
-        connectionUpdatedCallback_(&Impl::blankConnectionUpdatedCallback),
-        volumeFaderFactory_(std::move(volumeFaderFactory)),
-        meterFactory_(std::move(meterFactory))
+        Mixer()
     {
+        volumeFaderFactory_ = std::move(volumeFaderFactory);
+        meterFactory_ = std::move(meterFactory);
     }
 public:
     const YADAW::Audio::Engine::AudioDeviceGraphWithPDC& graph() const;
@@ -343,6 +337,12 @@ public:
 public:
     void setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback);
     void resetConnectionUpdatedCallback();
+    void setPreInsertAudioInputChannelCallback(std::function<PreInsertChannelCallback>&& callback);
+    void setPreInsertRegularChannelCallback(std::function<PreInsertChannelCallback>&& callback);
+    void setPreInsertAudioOutputChannelCallback(std::function<PreInsertChannelCallback>&& callback);
+    void resetPreInsertAudioInputChannelCallback();
+    void resetPreInsertRegularChannelCallback();
+    void resetPreInsertAudioOutputChannelCallback();
 public:
     std::optional<ade::EdgeHandle> addConnection(
         const ade::NodeHandle& from, const ade::NodeHandle& to,
@@ -563,6 +563,9 @@ private:
     std::unordered_set<ade::EdgeHandle, ade::HandleHasher<ade::Edge>> connections_;
 
     ConnectionUpdatedCallback* connectionUpdatedCallback_;
+    std::function<PreInsertChannelCallback> preInsertAudioInputChannelCallback_;
+    std::function<PreInsertChannelCallback> preInsertRegularChannelCallback_;
+    std::function<PreInsertChannelCallback> preInsertAudioOutputChannelCallback_;
     std::function<DeviceFactoryType<VolumeFader>> volumeFaderFactory_;
     std::function<DeviceFactoryType<Meter>> meterFactory_;
 };

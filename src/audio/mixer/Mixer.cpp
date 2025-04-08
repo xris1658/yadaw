@@ -12,7 +12,18 @@ namespace YADAW::Audio::Mixer
 namespace Impl
 {
 void blankConnectionUpdatedCallback(const Mixer&) {}
+
+void blankPreInsertChannelCallback(const Mixer&, Mixer::PreInsertChannelCallbackArgs) {}
 }
+
+Mixer::Mixer():
+    graph_(),
+    graphWithPDC_(graph_),
+    connectionUpdatedCallback_(&Impl::blankConnectionUpdatedCallback),
+    preInsertAudioInputChannelCallback_(&Impl::blankPreInsertChannelCallback),
+    preInsertRegularChannelCallback_(&Impl::blankPreInsertChannelCallback),
+    preInsertAudioOutputChannelCallback_(&Impl::blankPreInsertChannelCallback)
+{}
 
 const YADAW::Audio::Engine::AudioDeviceGraphWithPDC& Mixer::graph() const
 {
@@ -1308,6 +1319,10 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
     if(channelGroupIndex < device->audioOutputGroupCount()
        && position <= audioInputChannelCount())
     {
+        preInsertAudioInputChannelCallback_(
+            *this,
+            Mixer::PreInsertChannelCallbackArgs {.position = position, .count = 1U}
+        );
         auto it = audioInputChannelId_.emplace(
             audioInputChannelId_.begin() + position,
             audioInputChannelIdGen_()
@@ -1528,6 +1543,10 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
     if(channel < device->audioInputGroupCount()
         && position <= audioOutputChannelCount())
     {
+        preInsertAudioOutputChannelCallback_(
+            *this,
+            Mixer::PreInsertChannelCallbackArgs {.position = position, .count = 1U}
+        );
         auto it = audioOutputChannelId_.emplace(
             audioOutputChannelId_.begin() + position,
             audioOutputChannelIdGen_()
@@ -1922,6 +1941,10 @@ bool Mixer::insertChannels(
     }
     if(ret)
     {
+        preInsertRegularChannelCallback_(
+            *this,
+            Mixer::PreInsertChannelCallbackArgs {.position = position, .count = count}
+        );
         // instruments -----------------------------------------------------
         std::fill_n(
             std::inserter(
@@ -3458,6 +3481,37 @@ void Mixer::setConnectionUpdatedCallback(
 void Mixer::resetConnectionUpdatedCallback()
 {
     connectionUpdatedCallback_ = &Impl::blankConnectionUpdatedCallback;
+}
+
+void Mixer::setPreInsertAudioInputChannelCallback(
+    std::function<PreInsertChannelCallback>&& callback)
+{
+    preInsertAudioInputChannelCallback_ = std::move(callback);
+}
+
+void Mixer::setPreInsertRegularChannelCallback(std::function<PreInsertChannelCallback>&& callback)
+{
+    preInsertRegularChannelCallback_ = std::move(callback);
+}
+
+void Mixer::setPreInsertAudioOutputChannelCallback(std::function<PreInsertChannelCallback>&& callback)
+{
+    preInsertAudioOutputChannelCallback_ = std::move(callback);
+}
+
+void Mixer::resetPreInsertAudioInputChannelCallback()
+{
+    preInsertAudioInputChannelCallback_ = &Impl::blankPreInsertChannelCallback;
+}
+
+void Mixer::resetPreInsertRegularChannelCallback()
+{
+    preInsertRegularChannelCallback_ = &Impl::blankPreInsertChannelCallback;
+}
+
+void Mixer::resetPreInsertAudioOutputChannelCallback()
+{
+    preInsertAudioOutputChannelCallback_ = &Impl::blankPreInsertChannelCallback;
 }
 
 std::optional<ade::EdgeHandle> Mixer::addConnection(

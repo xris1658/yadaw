@@ -289,6 +289,31 @@ MixerChannelListModel::MixerChannelListModel(
         std::fill_n(std::back_inserter(mainInput_), count, nullptr);
         std::fill_n(std::back_inserter(mainOutput_), count, nullptr);
     }
+    std::function<YADAW::Audio::Mixer::Mixer::PreInsertChannelCallback> callback = [this](
+        const YADAW::Audio::Mixer::Mixer&,
+        YADAW::Audio::Mixer::Mixer::PreInsertChannelCallbackArgs args)
+    {
+        if(args.count > 0)
+        {
+            beginInsertRows(
+                QModelIndex(),
+                args.position,
+                args.position + args.count - 1
+            );
+        }
+    };
+    if(listType_ == ListType::AudioHardwareInput)
+    {
+        mixer_.setPreInsertAudioInputChannelCallback(std::move(callback));
+    }
+    else if(listType == ListType::Regular)
+    {
+        mixer_.setPreInsertRegularChannelCallback(std::move(callback));
+    }
+    else if(listType_ == ListType::AudioHardwareOutput)
+    {
+        mixer_.setPreInsertAudioOutputChannelCallback(std::move(callback));
+    }
 }
 
 MixerChannelListModel::~MixerChannelListModel()
@@ -895,7 +920,6 @@ bool MixerChannelListModel::insert(int position, int count,
                 mixer_.channelPreFaderInsertsAt(i)->get().setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
                 mixer_.channelPostFaderInsertsAt(i)->get().setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
             }
-            beginInsertRows(QModelIndex(), position, position + count - 1);
             std::generate_n(
                 std::inserter(insertModels_, insertModels_.begin() + position),
                 count,
@@ -952,7 +976,6 @@ bool MixerChannelListModel::insert(int position, int count,
     else if(listType_ == ListType::AudioHardwareInput || listType_ == ListType::AudioHardwareOutput)
     {
         auto& audioBusConfiguration = YADAW::Controller::appAudioBusConfiguration();
-        beginInsertRows(QModelIndex(), position, position + count - 1);
         auto inNode = mixer_.graph().addNode(
             YADAW::Audio::Engine::AudioDeviceProcess(
                 (listType_ == ListType::AudioHardwareInput?
