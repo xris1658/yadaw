@@ -19,8 +19,11 @@
 #include "event/EventBase.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
 #include "model/MixerChannelSendListModel.hpp"
+#include "ui/Runtime.hpp"
 #include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
+
+#include <QQmlApplicationEngine>
 
 namespace YADAW::Model
 {
@@ -926,13 +929,18 @@ bool MixerChannelListModel::insert(int position, int count,
                 [this, position, offset = 0]() mutable
                 {
                     auto index = position + (offset++);
-                    return std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
+                    auto ret = std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
                         mixer_.channelPreFaderInsertsAt(index)->get(),
                         listType_,
                         index,
                         true,
                         0
                     );
+                    YADAW::UI::qmlApplicationEngine->setObjectOwnership(
+                        ret.get(),
+                        QJSEngine::ObjectOwnership::CppOwnership
+                    );
+                    return ret;
                 }
             );
             FOR_RANGE(i, position + count, insertModels_.size())
