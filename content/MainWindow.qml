@@ -1016,6 +1016,7 @@ ApplicationWindow {
             else if(trackType === AddTrackWindow.AudioEffect && audioEffectEnabled) {
                 for(let i = 0; i < count; ++i) {
                     let index = mixerChannelModel.index(position + i, 0);
+                    // See comments in `MixerChannelListModel::insert`
                     mixerChannelModel.data(
                         index, IMixerChannelListModel.Inserts
                     ).append(audioEffect);
