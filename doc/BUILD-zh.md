@@ -3,8 +3,8 @@
 
 # 构建 YADAW
 
-可以在 Windows x64，Linux x64 和 macOS x64 上构建并使用 YADAW。如果未来有条件，
-笔者会考虑添加 ARM 平台的支持。
+可以在 Windows x64，Linux x64，macOS x64 和 ARM64 上构建并使用 YADAW。如果未来有条
+件，笔者会考虑添加其他 ARM 平台的支持。
 
 ## 在 Windows 上构建
 

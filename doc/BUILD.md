@@ -3,7 +3,7 @@
 
 # Build YADAW
 
-YADAW can be built and used on Windows x64, Linux x64 and macOS x64. If
+YADAW can be built and used on Windows x64, Linux x64, macOS x64 amd ARM64. If
 possible, I'd consider add ARM support in the future.
 
 ## Build on Windows
