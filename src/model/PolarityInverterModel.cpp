@@ -1,12 +1,16 @@
 #include "PolarityInverterModel.hpp"
 
+#include "util/QmlUtil.hpp"
+
 namespace YADAW::Model
 {
 PolarityInverterModel::PolarityInverterModel(
     YADAW::Audio::Mixer::PolarityInverter& polarityInverter, QObject* parent):
     IPolarityInverterModel(parent),
     polarityInverter_(&polarityInverter)
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 PolarityInverterModel::~PolarityInverterModel()
 {

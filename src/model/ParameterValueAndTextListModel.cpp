@@ -1,6 +1,7 @@
 #include "ParameterValueAndTextListModel.hpp"
 
 #include "model/PluginParameterListModel.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
 {
@@ -11,7 +12,9 @@ ParameterValueAndTextListModel::ParameterValueAndTextListModel(
     IParameterValueAndTextListModel(parent),
     model_(&model),
     index_(index)
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 ParameterValueAndTextListModel::~ParameterValueAndTextListModel()
 {}

@@ -2,6 +2,7 @@
 
 #include "entity/ChannelConfigHelper.hpp"
 #include "util/IntegerRange.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
 {
@@ -13,6 +14,7 @@ AudioBusConfigurationModel::AudioBusConfigurationModel(
     name_(),
     isInput_(isInput)
 {
+    YADAW::Util::setCppOwnership(*this);
     auto itemCount = this->itemCount();
     name_.resize(itemCount);
     channelListConnections_.reserve(itemCount);

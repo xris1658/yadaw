@@ -2,6 +2,7 @@
 
 #include "audio/device/IAudioChannelGroup.hpp"
 #include "entity/ChannelConfigHelper.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Entity
 {
@@ -14,7 +15,10 @@ public:
     }
 };
 
-ChannelConfig::ChannelConfig(QObject* parent): QObject(parent) {}
+ChannelConfig::ChannelConfig(QObject* parent): QObject(parent)
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 int ChannelConfig::channelCount(ChannelConfig::Config config)
 {

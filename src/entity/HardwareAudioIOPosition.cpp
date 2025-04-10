@@ -2,6 +2,7 @@
 
 #include "model/HardwareAudioIOPositionModel.hpp"
 #include "model/MixerChannelListModel.hpp"
+#include "util/QmlUtil.hpp"
 
 #include <QCoreApplication>
 
@@ -15,6 +16,7 @@ HardwareAudioIOPosition::HardwareAudioIOPosition(
     model_(&model),
     index_(index)
 {
+    YADAW::Util::setCppOwnership(*this);
     QObject::connect(
         this, &HardwareAudioIOPosition::nameChanged,
         this, &HardwareAudioIOPosition::completeNameChanged

@@ -1,6 +1,7 @@
 #include "PluginParameterListModel.hpp"
 
 #include "util/IntegerRange.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
 {
@@ -9,6 +10,7 @@ PluginParameterListModel::PluginParameterListModel(
     IPluginParameterListModel(parent),
     pluginParameter_(&pluginParameter)
 {
+    YADAW::Util::setCppOwnership(*this);
     auto count = itemCount();
     valueAndTextList_.reserve(count);
     FOR_RANGE0(i, count)

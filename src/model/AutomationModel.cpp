@@ -1,10 +1,14 @@
 #include "AutomationModel.hpp"
 
+#include "util/QmlUtil.hpp"
+
 namespace YADAW::Model
 {
 AutomationModel::AutomationModel(Audio::Base::Automation& automation, QObject* parent):
     YADAW::Model::IAutomationModel(parent), automation_(&automation)
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 AutomationModel::~AutomationModel()
 {}

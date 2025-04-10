@@ -1,5 +1,7 @@
 #include "PluginListModel.hpp"
 
+#include "util/QmlUtil.hpp"
+
 #include <thread>
 
 namespace YADAW::Model
@@ -113,6 +115,7 @@ PluginListModel::PluginListModel(const std::function<List()>& updateListFunc, QO
     IPluginListModel(parent),
     updateListFunc_(updateListFunc)
 {
+    YADAW::Util::setCppOwnership(*this);
     update();
 }
 
@@ -120,6 +123,7 @@ PluginListModel::PluginListModel(std::function<List()>&& updateListFunc, QObject
     IPluginListModel(parent),
     updateListFunc_(std::move(updateListFunc))
 {
+    YADAW::Util::setCppOwnership(*this);
     update();
 }
 

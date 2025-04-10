@@ -1,6 +1,7 @@
 #include "RegularAudioIOPositionModel.hpp"
 
 #include "model/IMixerChannelListModel.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
 {
@@ -10,6 +11,7 @@ RegularAudioIOPositionModel::RegularAudioIOPositionModel(
     IAudioIOPositionModel(parent),
     model_(model)
 {
+    YADAW::Util::setCppOwnership(*this);
     auto count = model.itemCount();
     positions_.reserve(count);
     std::generate_n(

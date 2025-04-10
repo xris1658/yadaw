@@ -1,10 +1,12 @@
 #include "LocalizationListModel.hpp"
 
+#include "util/QmlUtil.hpp"
+
 namespace YADAW::Model
 {
 LocalizationListModel::LocalizationListModel(QObject* parent): ILocalizationListModel(parent)
 {
-
+    YADAW::Util::setCppOwnership(*this);
 }
 
 LocalizationListModel::~LocalizationListModel()

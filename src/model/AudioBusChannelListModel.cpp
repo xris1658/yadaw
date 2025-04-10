@@ -1,6 +1,7 @@
 #include "AudioBusChannelListModel.hpp"
 
 #include "model/AudioBusConfigurationModel.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
 {
@@ -19,14 +20,18 @@ AudioBusChannelListModel::AudioBusChannelListModel(
         (&configuration.inputBusAt(index)->get()):
         (&configuration.outputBusAt(index)->get())
     )
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 AudioBusChannelListModel::AudioBusChannelListModel(const AudioBusChannelListModel& rhs):
     IAudioBusChannelListModel(rhs.parent()),
     configuration_(rhs.configuration_),
     configurationModel_(rhs.configurationModel_),
     bus_(rhs.bus_)
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 AudioBusChannelListModel& AudioBusChannelListModel::operator=(const AudioBusChannelListModel& rhs)
 {

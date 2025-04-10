@@ -1,5 +1,7 @@
 #include "PluginCategoryListModel.hpp"
 
+#include "util/QmlUtil.hpp"
+
 #include <thread>
 
 namespace YADAW::Model
@@ -9,6 +11,7 @@ PluginCategoryListModel::PluginCategoryListModel(
     IPluginCategoryListModel(parent),
     updateListFunc_(updateListFunc)
 {
+    YADAW::Util::setCppOwnership(*this);
     update();
 }
 
@@ -17,6 +20,7 @@ PluginCategoryListModel::PluginCategoryListModel(
         IPluginCategoryListModel(parent),
         updateListFunc_(std::move(updateListFunc))
 {
+    YADAW::Util::setCppOwnership(*this);
     update();
 }
 

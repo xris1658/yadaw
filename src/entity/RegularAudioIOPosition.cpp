@@ -2,6 +2,7 @@
 
 #include "model/MixerChannelListModel.hpp"
 #include "model/RegularAudioIOPositionModel.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Entity
 {
@@ -13,6 +14,7 @@ RegularAudioIOPosition::RegularAudioIOPosition(
     model_(&model),
     index_(index)
 {
+    YADAW::Util::setCppOwnership(*this);
     QObject::connect(
         this, &RegularAudioIOPosition::nameChanged,
         this, &RegularAudioIOPosition::completeNameChanged

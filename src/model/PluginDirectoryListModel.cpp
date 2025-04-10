@@ -1,6 +1,7 @@
 #include "PluginDirectoryListModel.hpp"
 
 #include "dao/PluginDirectoryTable.hpp"
+#include "util/QmlUtil.hpp"
 
 #include <QDir>
 
@@ -9,6 +10,7 @@ namespace YADAW::Model
 PluginDirectoryListModel::PluginDirectoryListModel(QObject* parent):
     IPluginDirectoryListModel(parent)
 {
+    YADAW::Util::setCppOwnership(*this);
     try
     {
         data_ = YADAW::DAO::selectPluginDirectory();

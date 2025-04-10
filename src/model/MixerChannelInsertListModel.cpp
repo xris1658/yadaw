@@ -16,6 +16,7 @@
 #include "controller/VST3PluginPool.hpp"
 #include "event/EventBase.hpp"
 #include "dao/PluginTable.hpp"
+#include "util/QmlUtil.hpp"
 
 #include <new>
 
@@ -38,7 +39,25 @@ MixerChannelInsertListModel::MixerChannelInsertListModel(
     channelIndex_(channelIndex),
     isPreFaderInsert_(isPreFaderInsert),
     insertsIndex_(insertsIndex)
-{}
+{
+    // If this step is missing, then the object ownership will be implicitly set
+    // to `QJSEngine::ObjectOwnership::JavaScriptOwnership` when the object is
+    // used in QML (e.g. in `MainWindow.qml`), allowing the object to be
+    // (incorrectly) destroyed by `deleteLater()` calls!
+    // - From what I can tell, the member function that allows this mess is
+    //   `QQmlData::setImplicitDestructible()` in
+    //   - `include/QtQml/<version>/QtQml/private/qqmldata_p.h`
+    //     in binary includes, or
+    //   - `qtdeclarative/src/qml/qml/qqmldata_p.h` in sources.
+    //   Thank you QML JS Engine for being a troublemaker!
+    // - I haven't checked source of QML JS Engine, so I don't really know how
+    //   the implicit ownership update happens.
+    // - I can make `deleteLater()` not working by filtering out events of type
+    //   `QEvent::Type::DeferredDelete`, but the process might be a little more
+    //   complex. Maybe it's a better idea to set ownership in the constructor?
+    //
+    YADAW::Util::setCppOwnership(*this);
+}
 
 MixerChannelInsertListModel::~MixerChannelInsertListModel()
 {}

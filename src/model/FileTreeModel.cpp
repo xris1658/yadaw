@@ -1,5 +1,7 @@
 #include "FileTreeModel.hpp"
 
+#include "util/QmlUtil.hpp"
+
 #include <algorithm>
 
 namespace YADAW::Model
@@ -8,6 +10,7 @@ FileTreeModel::FileTreeModel(const QString& path, QObject* parent):
     IFileTreeModel(parent),
     rootNode_(std::make_unique<Impl::TreeNode<List>>(QDir(path)))
 {
+    YADAW::Util::setCppOwnership(*this);
     rootNode_->data().fillDirEnd();
 }
 

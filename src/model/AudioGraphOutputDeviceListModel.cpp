@@ -3,6 +3,7 @@
 #include "AudioGraphOutputDeviceListModel.hpp"
 
 #include "audio/backend/AudioGraphBackend.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
 {
@@ -12,6 +13,7 @@ AudioGraphOutputDeviceListModel::AudioGraphOutputDeviceListModel(
     IAudioDeviceListModel(parent),
     backend_(&backend)
 {
+    YADAW::Util::setCppOwnership(*this);
 }
 
 AudioGraphOutputDeviceListModel::~AudioGraphOutputDeviceListModel()

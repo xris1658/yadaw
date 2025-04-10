@@ -1,6 +1,7 @@
 #include "PluginAuxAudioIOPosition.hpp"
 
 #include "model/MixerAudioIOPositionItemModel.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Entity
 {
@@ -10,7 +11,9 @@ PluginAuxAudioIOPosition::PluginAuxAudioIOPosition(
     IAudioIOPosition(parent),
     model_(&model),
     index_(index)
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 PluginAuxAudioIOPosition::~PluginAuxAudioIOPosition()
 {}

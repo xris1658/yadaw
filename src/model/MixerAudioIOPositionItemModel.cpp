@@ -2,6 +2,7 @@
 
 #include "model/AudioDeviceIOGroupListModel.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
+#include "util/QmlUtil.hpp"
 
 #include <QCoreApplication>
 
@@ -19,6 +20,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
     },
     isInput_(isInput)
 {
+    YADAW::Util::setCppOwnership(*this);
     Indices indices;
     initChildren(rootNode_, indices);
     FOR_RANGE0(i, 3)

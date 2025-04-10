@@ -2,6 +2,7 @@
 
 #include "entity/ChannelConfigHelper.hpp"
 #include "util/IntegerRange.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
 {
@@ -13,6 +14,7 @@ AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(
     speakerListModel_(),
     isInput_(isInput)
 {
+    YADAW::Util::setCppOwnership(*this);
     init();
 }
 
@@ -22,7 +24,9 @@ AudioDeviceIOGroupListModel::AudioDeviceIOGroupListModel(
     device_(rhs.device_),
     speakerListModel_(rhs.speakerListModel_),
     isInput_(rhs.isInput_)
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 AudioDeviceIOGroupListModel& AudioDeviceIOGroupListModel::operator=(
     const AudioDeviceIOGroupListModel& rhs)

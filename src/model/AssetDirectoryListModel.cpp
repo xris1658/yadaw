@@ -1,6 +1,7 @@
 #include "AssetDirectoryListModel.hpp"
 
 #include "dao/AssetDirectoryTable.hpp"
+#include "util/QmlUtil.hpp"
 
 #include <QDir>
 #include <QFileInfo>
@@ -10,6 +11,7 @@ namespace YADAW::Model
 AssetDirectoryListModel::AssetDirectoryListModel(QObject* parent):
     IAssetDirectoryListModel(parent)
 {
+    YADAW::Util::setCppOwnership(*this);
     try
     {
         const auto& list = YADAW::DAO::selectAllAssetDirectories();

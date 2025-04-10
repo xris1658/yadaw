@@ -1,13 +1,16 @@
 #include "NativePopupEventFilterModel.hpp"
 
 #include "util/IntegerRange.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
 {
 NativePopupEventFilterModel::NativePopupEventFilterModel(QWindow& parentWindow):
     INativePopupEventFilterModel(&parentWindow),
     nativePopupEventFilter_(parentWindow)
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 NativePopupEventFilterModel* NativePopupEventFilterModel::create(QWindow& parentWindow)
 {

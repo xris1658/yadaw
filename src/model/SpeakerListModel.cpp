@@ -1,19 +1,27 @@
 #include "SpeakerListModel.hpp"
 
+#include "util/QmlUtil.hpp"
+
 namespace YADAW::Model
 {
 SpeakerListModel::SpeakerListModel()
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 SpeakerListModel::SpeakerListModel(const Audio::Device::IAudioChannelGroup& group):
     ISpeakerListModel(),
     group_(&group)
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 SpeakerListModel::SpeakerListModel(const SpeakerListModel& rhs):
     ISpeakerListModel(rhs.parent()),
     group_(rhs.group_)
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 SpeakerListModel& SpeakerListModel::operator=(const SpeakerListModel& rhs)
 {

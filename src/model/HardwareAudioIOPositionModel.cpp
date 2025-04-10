@@ -1,5 +1,7 @@
 #include "HardwareAudioIOPositionModel.hpp"
 
+#include "util/QmlUtil.hpp"
+
 namespace YADAW::Model
 {
 HardwareAudioIOPositionModel::HardwareAudioIOPositionModel(
@@ -8,6 +10,7 @@ HardwareAudioIOPositionModel::HardwareAudioIOPositionModel(
     IAudioIOPositionModel(parent),
     audioHardwareIOModel_(&audioHardwareIOModel)
 {
+    YADAW::Util::setCppOwnership(*this);
     auto count = audioHardwareIOModel.itemCount();
     positions_.reserve(count);
     std::generate_n(

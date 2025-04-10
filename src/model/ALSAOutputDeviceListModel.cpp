@@ -2,13 +2,17 @@
 
 #include "ALSAOutputDeviceListModel.hpp"
 
+#include "util/QmlUtil.hpp"
+
 namespace YADAW::Model
 {
 ALSAOutputDeviceListModel::ALSAOutputDeviceListModel(
     Audio::Backend::ALSABackend& backend, QObject* parent):
     IAudioDeviceListModel(parent),
     backend_(&backend)
-{}
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 ALSAOutputDeviceListModel::~ALSAOutputDeviceListModel()
 {}

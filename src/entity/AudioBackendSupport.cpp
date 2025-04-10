@@ -1,10 +1,14 @@
 #include "entity/AudioBackendSupport.hpp"
 
 #include "audio/backend/AudioBackendSupport.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Entity
 {
-AudioBackendSupport::AudioBackendSupport(QObject* parent): QObject(parent) {}
+AudioBackendSupport::AudioBackendSupport(QObject* parent): QObject(parent)
+{
+    YADAW::Util::setCppOwnership(*this);
+}
 
 Q_INVOKABLE bool AudioBackendSupport::isBackendSupported(YADAW::Entity::AudioBackendSupport::Backend backend) const
 {
