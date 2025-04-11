@@ -611,8 +611,10 @@ void EventHandler::onMainWindowClosing()
     timer.stop();
     auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
 #if _WIN32
+    auto& backend = YADAW::Controller::appAudioGraphBackend();
+    backend.stop();
     audioEngine.setRunning(false);
-    YADAW::Controller::appAudioGraphBackend().uninitialize();
+    backend.uninitialize();
 #elif __linux__
     // See comments of `stop` to unerstand the reason why this is called before
     // actually stopping the backend.
