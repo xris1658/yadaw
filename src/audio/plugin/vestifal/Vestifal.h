@@ -204,9 +204,9 @@ enum EffectOpcode
 // 74
 // 75
 // 76
-    effectSetSamplePrecision = 77
-// 78
-// 79
+    effectSetSamplePrecision = 77,
+    effectGetMIDIInputChannelCount = 78,
+    effectGetMIDIOutputChannelCount = 79
 };
 
 enum VestifalSpeakerArrangementType
