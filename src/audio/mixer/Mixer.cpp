@@ -1695,7 +1695,10 @@ bool Mixer::removeAudioOutputChannel(
             devicesToRemove.reserve(nodesToRemove.size());
             FOR_RANGE0(i, nodesToRemove.size())
             {
-                auto device = graphWithPDC_.removeNode(nodesToRemove[i]);
+                if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
+                {
+                    devicesToRemove.emplace_back(std::move(device));
+                }
             }
             connectionUpdatedCallback_(*this);
         }
@@ -2198,7 +2201,10 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             devicesToRemove.reserve(nodesToRemove.size());
             FOR_RANGE0(i, nodesToRemove.size())
             {
-                auto device = graphWithPDC_.removeNode(nodesToRemove[i]);
+                if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
+                {
+                    devicesToRemove.emplace_back(std::move(device));
+                }
             }
             connectionUpdatedCallback_(*this);
         }
