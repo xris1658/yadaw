@@ -15,6 +15,7 @@
 #include "audio/util/Mute.hpp"
 #include "audio/util/Summing.hpp"
 #include "util/AutoIncrementID.hpp"
+#include "util/BatchDisposer.hpp"
 #include "util/OptionalUtil.hpp"
 
 #include <QColor>
@@ -78,43 +79,6 @@ using DeviceFactoryType = std::unique_ptr<Device>(
 // There's a few DAW mixer which has polarity inverters in send controls.
 // Polarity inverters in sends are useful in some scenarios, so I ended up
 // adding one.
-
-// TODO: Improve the `Mixer` API so that complex operations can be done more
-//       efficiently.
-//       For now, these operations work as follows:
-//       1. `Mixer` removes the nodes of the unused devices, but doesn't dispose
-//          those devices.
-//       2. Call the callback provided outside `Mixer` to make sure those
-//          disposing devices are not used anymore.
-//       3. Dispose unused devices.
-//       For now, the callback provided outside runs on the UI thread, and it
-//       works as follows:
-//       1. Export the device graph in `Mixer` to process sequences used by
-//          the audio thread.
-//       2. Pass the process sequence to the audio thread, wait the audio thread
-//          to grab the new process sequence, which means the old process
-//          sequence (with unused devices) is not used. The audio thread grabs
-//          the new process sequence in the next audio callback, which means
-//          that the UI thread callback might block for (at most) the duration
-//          of the timespan of two audio adjacent callbacks, which is often
-//          measured in milliseconds.
-//       At first, `Mixer` can add only one channel at a time. If the user wants
-//       to add multiple channels, then `Mixer::insertChannel` is called
-//       repeatedly (for the number of new channels). The user has to wait for
-//       multiple audio callbacks before new channels are added and the UI
-//       thread does not freeze anymore.
-//       To solve this problem, I added `Mixer::insertChannels` that adds
-//       multiple channels with only one call to the callback.
-//       I had already provided `Mixer::removeChannel` which can remove multiple
-//       continuous channels at a time with only one call to the callback. But
-//       if the user wants to remove multiple channels that are not continuous,
-//       then `Mixer` still has to call the callback for multiple times. I can
-//       solve this by adding even more member functions, but the user operation
-//       can get more and more complex, which in return makes the mixer API more
-//       and more complex as well, without solving the root problem. I don't
-//       think it's the ultimate solution.
-//       I want to solve the problem listed above without making the `Mixer` API
-//       too complicated. Looking for a better way.
 class Mixer
 {
 public:
@@ -335,6 +299,8 @@ public:
     bool isInstrumentBypassed(std::uint32_t index) const;
     void setInstrumentBypass(std::uint32_t index, bool bypass);
 public:
+    // `Mixer` will invoke this callback ONLY if batch disposer is not assigned
+    // (i.e. `Mixer::setBatchDisposer` is not called).
     void setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback);
     void resetConnectionUpdatedCallback();
     void setPreInsertAudioInputChannelCallback(std::function<PreInsertChannelCallback>&& callback);
@@ -343,6 +309,10 @@ public:
     void resetPreInsertAudioInputChannelCallback();
     void resetPreInsertRegularChannelCallback();
     void resetPreInsertAudioOutputChannelCallback();
+public:
+    OptionalRef<YADAW::Util::BatchDisposer> batchDisposer();
+    void setBatchDisposer(YADAW::Util::BatchDisposer& batchDisposer);
+    void resetBatchDisposer();
 public:
     std::optional<ade::EdgeHandle> addConnection(
         const ade::NodeHandle& from, const ade::NodeHandle& to,
@@ -568,6 +538,8 @@ private:
     std::function<PreInsertChannelCallback> preInsertAudioOutputChannelCallback_;
     std::function<DeviceFactoryType<VolumeFader>> volumeFaderFactory_;
     std::function<DeviceFactoryType<Meter>> meterFactory_;
+
+    YADAW::Util::BatchDisposer* batchDisposer_ = nullptr;
 };
 }
 

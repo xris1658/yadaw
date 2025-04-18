@@ -49,6 +49,11 @@ PMRUniquePtr<T> createUniquePtr(T* ptr)
     return PMRUniquePtr<T>(ptr, PolymorphicDeleter::create<T>());
 }
 
+template<typename T, typename Deleter>
+PMRUniquePtr<T> createPMRUniquePtr(std::unique_ptr<T, Deleter>&& ptr)
+{
+    return PMRUniquePtr<T>(ptr.release(), ptr.get_deleter());
+}
 
 template<typename T>
 PMRUniquePtr<T> createUniquePtr(std::nullptr_t)

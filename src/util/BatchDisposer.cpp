@@ -2,13 +2,16 @@
 
 namespace YADAW::Util
 {
-BatchDisposer::BatchDisposer()
+BatchDisposer::BatchDisposer(std::function<PreDisposeCallback>&& callback):
+    preDisposingObjectCallback_(std::move(callback))
 {}
 
 BatchDisposer::~BatchDisposer()
-{}
+{
+    preDisposingObjectCallback_();
+}
 
-void BatchDisposer::addObject(BatchDisposer::Object&& obj)
+void BatchDisposer::doAddObject(BatchDisposer::Object&& obj)
 {
     disposingObjects_.emplace_back(std::move(obj));
 }
