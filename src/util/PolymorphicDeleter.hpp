@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_UTIL_POLYMORPHICDELETER
 #define YADAW_SRC_UTIL_POLYMORPHICDELETER
 
+#include <functional>
 #include <memory>
 #include <utility>
 
@@ -17,12 +18,17 @@ private:
         delete reinterpret_cast<T*>(ptr);
     }
 private:
-    PolymorphicDeleter(DeleterFunction* deleter) noexcept: deleter_(deleter) {}
+    PolymorphicDeleter(std::function<DeleterFunction>&& deleter): deleter_(std::move(deleter)) {}
 public:
-    template<typename D>
-    static PolymorphicDeleter create()
+    template<typename T, typename Deleter>
+    static PolymorphicDeleter create(Deleter&& deleter = std::default_delete<T>())
     {
-        return PolymorphicDeleter(&deleterFunc<D>);
+        return PolymorphicDeleter(
+            [d = std::forward<Deleter>(deleter)](void* ptr)
+            {
+                d(static_cast<T*>(ptr));
+            }
+        );
     }
     PolymorphicDeleter(const PolymorphicDeleter&) noexcept = default;
     PolymorphicDeleter& operator=(const PolymorphicDeleter&) noexcept = default;
@@ -32,12 +38,8 @@ public:
     {
         deleter_(reinterpret_cast<void*>(pointer));
     }
-    DeleterFunction* getDeleter() const
-    {
-        return deleter_;
-    }
 private:
-    DeleterFunction* const deleter_;
+    std::function<DeleterFunction> deleter_;
 };
 
 template<typename T>
@@ -52,7 +54,10 @@ PMRUniquePtr<T> createUniquePtr(T* ptr)
 template<typename T, typename Deleter>
 PMRUniquePtr<T> createPMRUniquePtr(std::unique_ptr<T, Deleter>&& ptr)
 {
-    return PMRUniquePtr<T>(ptr.release(), ptr.get_deleter());
+    return PMRUniquePtr<T>(
+        ptr.release(),
+        PolymorphicDeleter::create<T>(ptr.get_deleter())
+    );
 }
 
 template<typename T>
