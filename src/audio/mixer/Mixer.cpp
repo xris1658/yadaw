@@ -2408,6 +2408,17 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
                             audioInputSendDestinations_[channelIndex].begin() + sendPosition,
                             destination
                         );
+                        if(batchDisposer_)
+                        {
+                            if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
+                            {
+                                batchDisposer_->addObject(std::move(multiInputWithPDC));
+                            }
+                            batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                            oldSummingAndNode.first = std::move(newSummingAndNode.first);
+                            std::swap(newSummingAndNode.second, oldSummingAndNode.second);
+                        }
+                        else
                         {
                             auto disposingOldSumming = graphWithPDC_.removeNode(oldSummingAndNode.second);
                             std::swap(newSummingAndNode.first, oldSummingAndNode.first);
@@ -2458,6 +2469,18 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
                                 audioInputSendDestinations_[channelIndex].begin() + sendPosition,
                                 destination
                             );
+                            if(batchDisposer_)
+                            {
+                                if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
+                                {
+                                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                                }
+                                batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                                oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                                std::swap(newSummingAndNode.second, oldSummingAndNode.second);
+                                connectionUpdatedCallback_(*this);
+                            }
+                            else
                             {
                                 auto disposingOldSumming = graphWithPDC_.removeNode(oldSummingAndNode.second);
                                 std::unique_ptr<YADAW::Audio::Util::Summing> oldSumming(
@@ -2601,7 +2624,10 @@ std::optional<bool> Mixer::setAudioInputChannelSendDestination(
         {
             if(batchDisposer_)
             {
-                batchDisposer_->addObject(graphWithPDC_.removeNode(oldSummingNode));
+                if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingNode))
+                {
+                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                }
             }
             else
             {
@@ -2773,8 +2799,12 @@ std::optional<bool> Mixer::insertChannelSend(
                         );
                         if(batchDisposer_)
                         {
-                            batchDisposer_->addObject(graphWithPDC_.removeNode(oldSummingAndNode.second));
-                            std::swap(newSummingAndNode.first, oldSummingAndNode.first);
+                            if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
+                            {
+                                batchDisposer_->addObject(std::move(multiInputWithPDC));
+                            }
+                            batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                            oldSummingAndNode.first = std::move(newSummingAndNode.first);
                             std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                         }
                         else
@@ -2830,11 +2860,12 @@ std::optional<bool> Mixer::insertChannelSend(
                             );
                             if(batchDisposer_)
                             {
-                                batchDisposer_->addObject(graphWithPDC_.removeNode(oldSummingAndNode.second));
-                                std::unique_ptr<YADAW::Audio::Util::Summing> oldSumming(
-                                    static_cast<YADAW::Audio::Util::Summing*>(oldSummingAndNode.first.release())
-                                );
-                                oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                                if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
+                                {
+                                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                                }
+                                batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                                oldSummingAndNode.first = std::move(newSummingAndNode.first);
                                 std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                             }
                             else
@@ -2976,7 +3007,10 @@ std::optional<bool> Mixer::setChannelSendDestination(
         {
             if(batchDisposer_)
             {
-                batchDisposer_->addObject(graphWithPDC_.removeNode(oldSummingNode));
+                if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingNode))
+                {
+                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                }
             }
             else
             {
@@ -3148,8 +3182,12 @@ std::optional<bool> Mixer::insertAudioOutputChannelSend(
                         );
                         if(batchDisposer_)
                         {
-                            batchDisposer_->addObject(graphWithPDC_.removeNode(oldSummingAndNode.second));
-                            std::swap(newSummingAndNode.first, oldSummingAndNode.first);
+                            if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
+                            {
+                                batchDisposer_->addObject(std::move(multiInputWithPDC));
+                            }
+                            batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                            oldSummingAndNode.first = std::move(newSummingAndNode.first);
                             std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                         }
                         else
@@ -3205,11 +3243,12 @@ std::optional<bool> Mixer::insertAudioOutputChannelSend(
                             );
                             if(batchDisposer_)
                             {
-                                batchDisposer_->addObject(graphWithPDC_.removeNode(oldSummingAndNode.second));
-                                std::unique_ptr<YADAW::Audio::Util::Summing> oldSumming(
-                                    static_cast<YADAW::Audio::Util::Summing*>(oldSummingAndNode.first.release())
-                                );
-                                oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                                if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
+                                {
+                                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                                }
+                                batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                                oldSummingAndNode.first = std::move(newSummingAndNode.first);
                                 std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                             }
                             else
@@ -3356,7 +3395,10 @@ std::optional<bool> Mixer::setAudioOutputChannelSendDestination(
         {
             if(batchDisposer_)
             {
-                batchDisposer_->addObject(graphWithPDC_.removeNode(oldSummingNode));
+                if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingNode))
+                {
+                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                }
             }
             else
             {
