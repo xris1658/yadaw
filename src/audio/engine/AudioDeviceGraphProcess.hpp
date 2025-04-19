@@ -23,23 +23,12 @@ using ProcessSequenceWithPrev = Vec<Vec<Vec<ProcessPair>, Vec<std::uint32_t, std
 using AudioThreadWorkload = Vec<std::uint32_t, std::uint32_t>;
 
 template<typename... Extensions>
-ProcessSequence getProcessSequence(const YADAW::Audio::Engine::AudioDeviceGraph<Extensions...>& graph)
-{
-    return getProcessSequence(graph,
-        graph.template getExtension<YADAW::Audio::Engine::Extension::Buffer>()
-    );
-}
-
-template<typename... Extensions>
 ProcessSequenceWithPrev getProcessSequenceWithPrev(const YADAW::Audio::Engine::AudioDeviceGraph<Extensions...>& graph)
 {
     return getProcessSequenceWithPrev(graph,
         graph.template getExtension<YADAW::Audio::Engine::Extension::Buffer>()
     );
 }
-
-ProcessSequence getProcessSequence(const YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
-    YADAW::Audio::Engine::Extension::Buffer& bufferExt);
 
 ProcessSequenceWithPrev getProcessSequenceWithPrev(
     const YADAW::Audio::Engine::AudioDeviceGraphBase& graph,

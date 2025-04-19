@@ -177,37 +177,6 @@ void AudioDeviceGraphBase::resetBeforeDisconnectCallback()
     setBeforeDisconnectCallback(&blankBeforeDisconnectCallback);
 }
 
-std::vector<std::vector<std::vector<ade::NodeHandle>>> AudioDeviceGraphBase::topologicalSort() const
-{
-    std::vector<std::vector<std::vector<ade::NodeHandle>>> ret;
-    auto topo = YADAW::Util::topologicalSort(graph_, YADAW::Util::squashGraph(graph_));
-    if(topo.has_value())
-    {
-        auto& topoSortResult = *topo;
-        ret.reserve(topoSortResult.size());
-        for(auto& row: topoSortResult)
-        {
-            auto& retRow = ret.emplace_back();
-            retRow.reserve(row.size());
-            for(auto& [from, to]: row)
-            {
-                auto& retCell = retRow.emplace_back();
-                auto i = from;
-                while(true)
-                {
-                    retCell.emplace_back(i);
-                    if(i == to)
-                    {
-                        break;
-                    }
-                    i = i->outNodes().front();
-                }
-            }
-        }
-    }
-    return ret;
-}
-
 Vec<Vec<Vec<ade::NodeHandle>, Vec<std::uint32_t, std::uint32_t>>>
     AudioDeviceGraphBase::topologicalSortWithPrev() const
 {

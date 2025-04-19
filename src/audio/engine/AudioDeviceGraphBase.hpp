@@ -84,7 +84,6 @@ protected:
     void resetAfterConnectCallback();
     void resetBeforeDisconnectCallback();
 public:
-    std::vector<std::vector<std::vector<ade::NodeHandle>>> topologicalSort() const;
     Vec<Vec<Vec<ade::NodeHandle>, Vec<std::uint32_t, std::uint32_t>>> topologicalSortWithPrev() const;
 private:
     ade::Graph graph_;
