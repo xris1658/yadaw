@@ -9,25 +9,28 @@
 
 namespace YADAW::Util
 {
-class BatchDisposer
+class BatchUpdater
 {
 public:
     using Object = YADAW::Util::PMRUniquePtr<void>;
-    using PreDisposeCallback = void();
+    using UpdateCallback = void();
 public:
-    BatchDisposer(std::function<PreDisposeCallback>&& callback);
-    ~BatchDisposer();
+    BatchUpdater(std::function<UpdateCallback>&& callback);
+    ~BatchUpdater();
 public:
     template<typename T, typename Deleter>
     void addObject(std::unique_ptr<T, Deleter>&& obj)
     {
         doAddObject(YADAW::Util::createPMRUniquePtr(std::move(obj)));
     }
+    void addNull();
+    void commit();
 private:
     void doAddObject(Object&& obj);
 private:
-    std::function<PreDisposeCallback> preDisposingObjectCallback_;
+    std::function<UpdateCallback> updateCallback_;
     std::vector<Object> disposingObjects_;
+    bool hasNull_ = false;
 };
 }
 

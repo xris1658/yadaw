@@ -59,12 +59,6 @@ PMRUniquePtr<T> createPMRUniquePtr(std::unique_ptr<T, Deleter>&& ptr)
         PolymorphicDeleter::create<T>(ptr.get_deleter())
     );
 }
-
-template<typename T>
-PMRUniquePtr<T> createUniquePtr(std::nullptr_t)
-{
-    return PMRUniquePtr<T>(nullptr, PolymorphicDeleter::create<T>());
-}
 }
 
 #endif // YADAW_SRC_UTIL_POLYMORPHICDELETER

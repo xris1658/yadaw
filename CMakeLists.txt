@@ -525,8 +525,8 @@ set(YADAW_COMMON_SOURCES
     src/util/AutoIncrementID.cpp
     src/util/AutoIncrementID.hpp
     src/util/Base.hpp
-    src/util/BatchDisposer.cpp
-    src/util/BatchDisposer.hpp
+    src/util/BatchUpdater.cpp
+    src/util/BatchUpdater.hpp
     src/util/ButlerThread.cpp
     src/util/ButlerThread.hpp
     src/util/CDeleter.hpp

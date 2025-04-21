@@ -15,7 +15,7 @@
 #include "audio/util/Mute.hpp"
 #include "audio/util/Summing.hpp"
 #include "util/AutoIncrementID.hpp"
-#include "util/BatchDisposer.hpp"
+#include "util/BatchUpdater.hpp"
 #include "util/OptionalUtil.hpp"
 
 #include <QColor>
@@ -300,7 +300,7 @@ public:
     void setInstrumentBypass(std::uint32_t index, bool bypass);
 public:
     // `Mixer` will invoke this callback ONLY if batch disposer is not assigned
-    // (i.e. `Mixer::setBatchDisposer` is not called).
+    // (i.e. `Mixer::setBatchUpdater` is not called).
     void setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback);
     void resetConnectionUpdatedCallback();
     void setPreInsertAudioInputChannelCallback(std::function<PreInsertChannelCallback>&& callback);
@@ -310,9 +310,9 @@ public:
     void resetPreInsertRegularChannelCallback();
     void resetPreInsertAudioOutputChannelCallback();
 public:
-    OptionalRef<YADAW::Util::BatchDisposer> batchDisposer();
-    void setBatchDisposer(YADAW::Util::BatchDisposer& batchDisposer);
-    void resetBatchDisposer();
+    OptionalRef<YADAW::Util::BatchUpdater> batchUpdater();
+    void setBatchUpdater(YADAW::Util::BatchUpdater& batchDisposer);
+    void resetBatchUpdater();
 public:
     std::optional<ade::EdgeHandle> addConnection(
         const ade::NodeHandle& from, const ade::NodeHandle& to,
@@ -539,7 +539,7 @@ private:
     std::function<DeviceFactoryType<VolumeFader>> volumeFaderFactory_;
     std::function<DeviceFactoryType<Meter>> meterFactory_;
 
-    YADAW::Util::BatchDisposer* batchDisposer_ = nullptr;
+    YADAW::Util::BatchUpdater* batchUpdater_ = nullptr;
 };
 }
 

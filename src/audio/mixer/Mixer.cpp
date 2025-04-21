@@ -969,7 +969,11 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
         }
         if(ret)
         {
-            if(!batchDisposer_)
+            if(batchUpdater_)
+            {
+                batchUpdater_->addNull();
+            }
+            else
             {
                 connectionUpdatedCallback_(*this);
             }
@@ -1123,9 +1127,9 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     graph_.connect(newSummingNode, audioOutputPolarityInverters_[it->index].second, 0, 0);
                     disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
                     disconnectingNewSumming = std::move(oldSumming);
-                    if(batchDisposer_)
+                    if(batchUpdater_)
                     {
-                        batchDisposer_->addObject(
+                        batchUpdater_->addObject(
                             std::move(disconnectingOldSumming)
                         );
                     }
@@ -1177,12 +1181,12 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         disconnectingNewSumming = std::move(oldSumming);
                         oldSumming = std::move(newSumming);
                         oldSummingNode = newSummingNode;
-                        if(batchDisposer_)
+                        if(batchUpdater_)
                         {
-                            batchDisposer_->addObject(std::move(disconnectingOldSumming));
-                            batchDisposer_->addObject(std::move(disconnectingNewSumming));
-                            batchDisposer_->addObject(std::move(disconnectingOldMultiInput));
-                            batchDisposer_->addObject(std::move(disconnectingNewMultiInput));
+                            batchUpdater_->addObject(std::move(disconnectingOldSumming));
+                            batchUpdater_->addObject(std::move(disconnectingNewSumming));
+                            batchUpdater_->addObject(std::move(disconnectingOldMultiInput));
+                            batchUpdater_->addObject(std::move(disconnectingNewMultiInput));
                         }
                         else
                         {
@@ -1204,10 +1208,10 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
         }
         else if(position.type == Position::Type::Invalid)
         {
-            if(batchDisposer_)
+            if(batchUpdater_)
             {
-                batchDisposer_->addObject(std::move(disconnectingOldMultiInput));
-                batchDisposer_->addObject(std::move(disconnectingOldSumming));
+                batchUpdater_->addObject(std::move(disconnectingOldMultiInput));
+                batchUpdater_->addObject(std::move(disconnectingOldSumming));
             }
             else
             {
@@ -1420,7 +1424,11 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
             audioInputMeters_.begin() + position,
             std::move(meter), meterNode
         );
-        if(!batchDisposer_)
+        if(batchUpdater_)
+        {
+            batchUpdater_->addNull();
+        }
+        else
         {
             connectionUpdatedCallback_(*this);
         }
@@ -1477,13 +1485,13 @@ bool Mixer::removeAudioInputChannel(
             audioInputPostFaderInserts_.begin() + first,
             audioInputPostFaderInserts_.begin() + last
         );
-        if(batchDisposer_)
+        if(batchUpdater_)
         {
             FOR_RANGE0(i, nodesToRemove.size())
             {
                 if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
                 {
-                    batchDisposer_->addObject(std::move(device));
+                    batchUpdater_->addObject(std::move(device));
                 }
             }
         }
@@ -1669,7 +1677,11 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
             audioOutputPolarityInverters_.begin() + position,
             std::move(polarityInverter), polarityInverterNode
         );
-        if(!batchDisposer_)
+        if(batchUpdater_)
+        {
+            batchUpdater_->addNull();
+        }
+        else
         {
             connectionUpdatedCallback_(*this);
         }
@@ -1735,13 +1747,13 @@ bool Mixer::removeAudioOutputChannel(
         {
             clearAudioInputChannelSends(i);
         }
-        if(batchDisposer_)
+        if(batchUpdater_)
         {
             FOR_RANGE0(i, nodesToRemove.size())
             {
                 if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
                 {
-                    batchDisposer_->addObject(std::move(device));
+                    batchUpdater_->addObject(std::move(device));
                 }
             }
         }
@@ -2408,13 +2420,13 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
                             audioInputSendDestinations_[channelIndex].begin() + sendPosition,
                             destination
                         );
-                        if(batchDisposer_)
+                        if(batchUpdater_)
                         {
                             if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
                             {
-                                batchDisposer_->addObject(std::move(multiInputWithPDC));
+                                batchUpdater_->addObject(std::move(multiInputWithPDC));
                             }
-                            batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                            batchUpdater_->addObject(std::move(oldSummingAndNode.first));
                             oldSummingAndNode.first = std::move(newSummingAndNode.first);
                             std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                         }
@@ -2469,13 +2481,13 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
                                 audioInputSendDestinations_[channelIndex].begin() + sendPosition,
                                 destination
                             );
-                            if(batchDisposer_)
+                            if(batchUpdater_)
                             {
                                 if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
                                 {
-                                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                                    batchUpdater_->addObject(std::move(multiInputWithPDC));
                                 }
-                                batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                                batchUpdater_->addObject(std::move(oldSummingAndNode.first));
                                 oldSummingAndNode.first.reset(newSummingAndNode.first.release());
                                 std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                                 connectionUpdatedCallback_(*this);
@@ -2622,11 +2634,11 @@ std::optional<bool> Mixer::setAudioInputChannelSendDestination(
         }
         if(connected)
         {
-            if(batchDisposer_)
+            if(batchUpdater_)
             {
                 if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingNode))
                 {
-                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                    batchUpdater_->addObject(std::move(multiInputWithPDC));
                 }
             }
             else
@@ -2699,13 +2711,13 @@ std::optional<bool> Mixer::removeAudioInputChannelSend(
                     oldSummingAndNode.first.reset(newSummingAndNode.first.release());
                 }
             }
-            if(batchDisposer_)
+            if(batchUpdater_)
             {
                 FOR_RANGE(i, sendPosition, sendPosition + removeCount)
                 {
-                    batchDisposer_->addObject(std::move(sendFaders[i].first));
-                    batchDisposer_->addObject(std::move(sendMutes[i].first));
-                    batchDisposer_->addObject(std::move(sendPolarityInverters[i].first));
+                    batchUpdater_->addObject(std::move(sendFaders[i].first));
+                    batchUpdater_->addObject(std::move(sendMutes[i].first));
+                    batchUpdater_->addObject(std::move(sendPolarityInverters[i].first));
                 }
             }
             else
@@ -2797,13 +2809,13 @@ std::optional<bool> Mixer::insertChannelSend(
                             sendDestinations_[channelIndex].begin() + sendPosition,
                             destination
                         );
-                        if(batchDisposer_)
+                        if(batchUpdater_)
                         {
                             if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
                             {
-                                batchDisposer_->addObject(std::move(multiInputWithPDC));
+                                batchUpdater_->addObject(std::move(multiInputWithPDC));
                             }
-                            batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                            batchUpdater_->addObject(std::move(oldSummingAndNode.first));
                             oldSummingAndNode.first = std::move(newSummingAndNode.first);
                             std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                         }
@@ -2858,13 +2870,13 @@ std::optional<bool> Mixer::insertChannelSend(
                                 sendDestinations_[channelIndex].begin() + sendPosition,
                                 destination
                             );
-                            if(batchDisposer_)
+                            if(batchUpdater_)
                             {
                                 if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
                                 {
-                                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                                    batchUpdater_->addObject(std::move(multiInputWithPDC));
                                 }
-                                batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                                batchUpdater_->addObject(std::move(oldSummingAndNode.first));
                                 oldSummingAndNode.first = std::move(newSummingAndNode.first);
                                 std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                             }
@@ -3005,11 +3017,11 @@ std::optional<bool> Mixer::setChannelSendDestination(
         }
         if(connected)
         {
-            if(batchDisposer_)
+            if(batchUpdater_)
             {
                 if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingNode))
                 {
-                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                    batchUpdater_->addObject(std::move(multiInputWithPDC));
                 }
             }
             else
@@ -3082,13 +3094,13 @@ std::optional<bool> Mixer::removeChannelSend(
                     oldSummingAndNode.first.reset(newSummingAndNode.first.release());
                 }
             }
-            if(batchDisposer_)
+            if(batchUpdater_)
             {
                 FOR_RANGE(i, sendPosition, sendPosition + removeCount)
                 {
-                    batchDisposer_->addObject(std::move(sendFaders[i]).first);
-                    batchDisposer_->addObject(std::move(sendMutes[i]).first);
-                    batchDisposer_->addObject(std::move(sendPolarityInverters[i]).first);
+                    batchUpdater_->addObject(std::move(sendFaders[i]).first);
+                    batchUpdater_->addObject(std::move(sendMutes[i]).first);
+                    batchUpdater_->addObject(std::move(sendPolarityInverters[i]).first);
                 }
             }
             else
@@ -3180,13 +3192,13 @@ std::optional<bool> Mixer::insertAudioOutputChannelSend(
                             audioOutputSendDestinations_[channelIndex].begin() + sendPosition,
                             destination
                         );
-                        if(batchDisposer_)
+                        if(batchUpdater_)
                         {
                             if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
                             {
-                                batchDisposer_->addObject(std::move(multiInputWithPDC));
+                                batchUpdater_->addObject(std::move(multiInputWithPDC));
                             }
-                            batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                            batchUpdater_->addObject(std::move(oldSummingAndNode.first));
                             oldSummingAndNode.first = std::move(newSummingAndNode.first);
                             std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                         }
@@ -3241,13 +3253,13 @@ std::optional<bool> Mixer::insertAudioOutputChannelSend(
                                 audioOutputSendDestinations_[channelIndex].begin() + sendPosition,
                                 destination
                             );
-                            if(batchDisposer_)
+                            if(batchUpdater_)
                             {
                                 if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
                                 {
-                                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                                    batchUpdater_->addObject(std::move(multiInputWithPDC));
                                 }
-                                batchDisposer_->addObject(std::move(oldSummingAndNode.first));
+                                batchUpdater_->addObject(std::move(oldSummingAndNode.first));
                                 oldSummingAndNode.first = std::move(newSummingAndNode.first);
                                 std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                             }
@@ -3393,11 +3405,11 @@ std::optional<bool> Mixer::setAudioOutputChannelSendDestination(
         }
         if(connected)
         {
-            if(batchDisposer_)
+            if(batchUpdater_)
             {
                 if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingNode))
                 {
-                    batchDisposer_->addObject(std::move(multiInputWithPDC));
+                    batchUpdater_->addObject(std::move(multiInputWithPDC));
                 }
             }
             else
@@ -3470,13 +3482,13 @@ std::optional<bool> Mixer::removeAudioOutputChannelSend(
                     oldSummingAndNode.first.reset(newSummingAndNode.first.release());
                 }
             }
-            if(batchDisposer_)
+            if(batchUpdater_)
             {
                 FOR_RANGE(i, sendPosition, sendPosition + removeCount)
                 {
-                    batchDisposer_->addObject(std::move(sendFaders[i].first));
-                    batchDisposer_->addObject(std::move(sendMutes[i].first));
-                    batchDisposer_->addObject(std::move(sendPolarityInverters[i].first));
+                    batchUpdater_->addObject(std::move(sendFaders[i].first));
+                    batchUpdater_->addObject(std::move(sendMutes[i].first));
+                    batchUpdater_->addObject(std::move(sendPolarityInverters[i].first));
                 }
             }
             else
@@ -3717,7 +3729,7 @@ std::optional<ade::EdgeHandle> Mixer::addConnection(
     if(ret.has_value())
     {
         connections_.emplace(*ret);
-        if(batchDisposer_)
+        if(batchUpdater_)
         {
             connectionUpdatedCallback_(*this);
         }
@@ -3725,23 +3737,23 @@ std::optional<ade::EdgeHandle> Mixer::addConnection(
     return ret;
 }
 
-OptionalRef<YADAW::Util::BatchDisposer> Mixer::batchDisposer()
+OptionalRef<YADAW::Util::BatchUpdater> Mixer::batchUpdater()
 {
-    if(batchDisposer_)
+    if(batchUpdater_)
     {
-        return {*batchDisposer_};
+        return {*batchUpdater_};
     }
     return std::nullopt;
 }
 
-void Mixer::setBatchDisposer(YADAW::Util::BatchDisposer& batchDisposer)
+void Mixer::setBatchUpdater(YADAW::Util::BatchUpdater& batchDisposer)
 {
-    batchDisposer_ = &batchDisposer;
+    batchUpdater_ = &batchDisposer;
 }
 
-void Mixer::resetBatchDisposer()
+void Mixer::resetBatchUpdater()
 {
-    batchDisposer_ = nullptr;
+    batchUpdater_ = nullptr;
 }
 
 void Mixer::removeConnection(const ade::EdgeHandle& edgeHandle)
@@ -3750,7 +3762,7 @@ void Mixer::removeConnection(const ade::EdgeHandle& edgeHandle)
     {
         graph_.disconnect(*it);
         connections_.erase(it);
-        if(batchDisposer_)
+        if(batchUpdater_)
         {
             connectionUpdatedCallback_(*this);
         }
@@ -3763,7 +3775,7 @@ void Mixer::clearConnections()
     {
         graph_.disconnect(connection);
     }
-    if(batchDisposer_)
+    if(batchUpdater_)
     {
         connectionUpdatedCallback_(*this);
     }
