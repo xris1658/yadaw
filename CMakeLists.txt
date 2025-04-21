@@ -1019,7 +1019,7 @@ if(${CMAKE_BUILD_TYPE} STREQUAL Release OR ${CMAKE_BUILD_TYPE} STREQUAL MinSizeR
 endif()
 
 if(WIN32)
-    set(NATIVE_LIBRARY version ole32 user32 windowsapp avrt)
+    set(NATIVE_LIBRARY version ole32 user32 windowsapp avrt dwmapi)
     if(MINGW)
         set(NATIVE_LIBRARY ${NATIVE_LIBRARY}
             ksguid # KSDATAFORMAT_xxx

@@ -3,6 +3,8 @@
 #include "native/Library.hpp"
 #include "native/Window.hpp"
 
+#include <dwmapi.h>
+
 #include <mutex>
 
 namespace YADAW::Native
@@ -51,6 +53,12 @@ void enterFullscreen(QWindow& window)
     if(window.visibility() == QWindow::Visibility::Maximized)
     {
         auto hwnd = reinterpret_cast<HWND>(window.winId());
+        // https://devblogs.microsoft.com/oldnewthing/20121003-00/?p=6423
+        BOOL disableAnimation = TRUE;
+        DwmSetWindowAttribute(
+            hwnd, DWMWA_TRANSITIONS_FORCEDISABLED,
+            &disableAnimation, sizeof(disableAnimation)
+        );
         const UINT swpf = SWP_FRAMECHANGED | SWP_NOACTIVATE;
         auto oldGeometry = window.geometry();
         // We only pass the new sizing and positioning flags to the window, without
@@ -85,6 +93,12 @@ void exitFullscreen(QWindow& window, bool previouslyMaximized)
             window.showMinimized();
         }
         window.showMaximized();
+        https://devblogs.microsoft.com/oldnewthing/20121003-00/?p=6423
+        BOOL disableAnimation = FALSE;
+        DwmSetWindowAttribute(
+            hwnd, DWMWA_TRANSITIONS_FORCEDISABLED,
+            &disableAnimation, sizeof(disableAnimation)
+        );
     }
     else
     {
