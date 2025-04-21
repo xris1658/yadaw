@@ -10,8 +10,6 @@ namespace YADAW::Audio::Mixer
 class Inserts
 {
 public:
-    using NodeAddedCallback = void(const Inserts&);
-    using NodeRemovedCallback = void(const Inserts&);
     using ConnectionUpdatedCallback = void(const Inserts&);
 public:
     Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
@@ -61,8 +59,6 @@ private:
     std::vector<std::vector<IDGen::ID>> auxOutputIDs_;
     IDGen* auxInputIDGen_ = nullptr;
     IDGen* auxOutputIDGen_ = nullptr;
-    NodeAddedCallback* nodeAddedCallback_;
-    NodeRemovedCallback* nodeRemovedCallback_;
     ConnectionUpdatedCallback* connectionUpdatedCallback_;
 };
 }
