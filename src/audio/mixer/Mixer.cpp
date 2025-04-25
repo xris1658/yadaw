@@ -1398,7 +1398,7 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
             audioInputPreFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, auxInputIdGen_, auxOutputIdGen_,
-                polarityInverterNode, muteNode, channelGroupIndex, 0
+                polarityInverterNode, muteNode, channelGroupIndex, 0, batchUpdater_
             )
         );
         audioInputMutes_.emplace(
@@ -1410,7 +1410,7 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
             audioInputPostFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, auxInputIdGen_, auxOutputIdGen_,
-                faderNode, meterNode, 0, 0
+                faderNode, meterNode, 0, 0, batchUpdater_
             )
         );
         audioInputPolarityInverters_.emplace(
@@ -1645,7 +1645,7 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
             audioOutputPreFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, auxInputIdGen_, auxOutputIdGen_,
-                polarityInverterNode, muteNode, 0, 0
+                polarityInverterNode, muteNode, 0, 0, batchUpdater_
             )
         );
         graph_.connect(summingNode, polarityInverterNode, 0, 0);
@@ -1658,7 +1658,7 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
             audioOutputPostFaderInserts_.begin() + position,
             std::make_unique<YADAW::Audio::Mixer::Inserts>(
                 graph_, auxInputIdGen_, auxOutputIdGen_,
-                faderNode, meterNode, 0, 0
+                faderNode, meterNode, 0, 0, batchUpdater_
             )
         );
         graph_.connect(meterNode, outNode, 0, channel);
@@ -1929,7 +1929,7 @@ bool Mixer::insertChannels(
             postFaderInserts.emplace_back(
                 std::make_unique<YADAW::Audio::Mixer::Inserts>(
                     graph_, auxInputIdGen_, auxOutputIdGen_,
-                    fadersAndNode[i].second, metersAndNode[i].second, 0, 0
+                    fadersAndNode[i].second, metersAndNode[i].second, 0, 0, batchUpdater_
                 )
             );
         }
@@ -2049,7 +2049,7 @@ bool Mixer::insertChannels(
                 std::make_unique<YADAW::Audio::Mixer::Inserts>(
                     graph_, auxInputIdGen_, auxOutputIdGen_,
                     polarityInvertersAndNode[i].second, mutesAndNode[i].second,
-                    0, 0
+                    0, 0, batchUpdater_
                 )
             );
         }
