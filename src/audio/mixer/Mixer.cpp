@@ -3746,9 +3746,9 @@ OptionalRef<YADAW::Util::BatchUpdater> Mixer::batchUpdater()
     return std::nullopt;
 }
 
-void Mixer::setBatchUpdater(YADAW::Util::BatchUpdater& batchDisposer)
+void Mixer::setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater)
 {
-    batchUpdater_ = &batchDisposer;
+    batchUpdater_ = &batchUpdater;
 }
 
 void Mixer::resetBatchUpdater()

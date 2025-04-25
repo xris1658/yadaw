@@ -311,7 +311,7 @@ public:
     void resetPreInsertAudioOutputChannelCallback();
 public:
     OptionalRef<YADAW::Util::BatchUpdater> batchUpdater();
-    void setBatchUpdater(YADAW::Util::BatchUpdater& batchDisposer);
+    void setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater);
     void resetBatchUpdater();
 public:
     std::optional<ade::EdgeHandle> addConnection(
