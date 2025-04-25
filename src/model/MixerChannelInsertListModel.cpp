@@ -143,7 +143,7 @@ bool MixerChannelInsertListModel::setData(const QModelIndex& index, const QVaria
     if(row >= 0 && row < itemCount())
     {
         auto& graph = inserts_->graph();
-        auto node = *(inserts_->insertAt(row));
+        auto node = *(inserts_->insertNodeAt(row));
         auto& nodeData = graph.getNodeData(node);
         auto device = nodeData.process.device();
         if(device->audioInputGroupCount() > 1)
@@ -430,7 +430,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         removingNodes.reserve(removeCount);
         FOR_RANGE(i, position, position + removeCount)
         {
-            removingNodes.emplace_back(*(inserts_->insertAt(i)));
+            removingNodes.emplace_back(*(inserts_->insertNodeAt(i)));
             if(auto window = pluginEditors_[i].window)
             {
                 window->setProperty("destroyingPlugin", QVariant::fromValue(true));
@@ -648,7 +648,7 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
         auto& mixer = audioEngine.mixer();
         auto& graphWithPDC = mixer.graph();
         auto& graph = graphWithPDC.graph();
-        auto node = *(inserts_->insertAt(index));
+        auto node = *(inserts_->insertNodeAt(index));
         struct Point
         {
             std::uint32_t fromChannelGroupIndex;
