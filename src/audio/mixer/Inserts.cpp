@@ -432,65 +432,8 @@ bool Inserts::move(std::uint32_t position, std::uint32_t count,
     if(count > 0 && position < insertCount()
         && position + count <= insertCount())
     {
-        std::vector<bool> oldBypassed(count, false);
-        std::copy(bypassed_.begin() + position,
-            bypassed_.begin() + position + count,
-            oldBypassed.begin());
-        if(this == &rhs)
-        {
-            if(position != destPosition
-               && position + count < destPosition)
-            {
-                std::tuple<std::uint32_t, std::uint32_t, std::uint32_t> rotate =
-                    position > destPosition?
-                        std::make_tuple(destPosition, position, position + count):
-                        std::make_tuple(position, position + count, destPosition);
-                const auto& [first, middle, last] = rotate;
-                std::rotate(
-                    auxInputIDs_.begin() + first,
-                    auxInputIDs_.begin() + middle,
-                    auxInputIDs_.begin() + last);
-                std::rotate(
-                    auxOutputIDs_.begin() + first,
-                    auxOutputIDs_.begin() + middle,
-                    auxOutputIDs_.begin() + last);
-                std::rotate(
-                    nodes_.begin() + first,
-                    nodes_.begin() + middle,
-                    nodes_.begin() + last);
-                std::rotate(
-                    names_.begin() + first,
-                    names_.begin() + middle,
-                    names_.begin() + last);
-                std::rotate(
-                    bypassed_.begin() + first,
-                    bypassed_.begin() + middle,
-                    bypassed_.begin() + last);
-                std::rotate(
-                    channelGroupIndices_.begin() + first,
-                    channelGroupIndices_.begin() + middle,
-                    channelGroupIndices_.begin() + last);
-                FOR_RANGE0(i, count)
-                {
-                    setBypassed(destPosition + i, oldBypassed[i]);
-                }
-                return true;
-            }
-        }
-        else
-        {
-            FOR_RANGE(i, position, position + count)
-            {
-                setBypassed(i, true);
-            }
-            FOR_RANGE0(i, count)
-            {
-                rhs.insert(nodes_[position + i], destPosition + i, names_[position + i]);
-                rhs.setBypassed(destPosition + i, oldBypassed[i]);
-            }
-            remove(position, count);
-            return true;
-        }
+        // TODO
+        return false;
     }
     return false;
 }
