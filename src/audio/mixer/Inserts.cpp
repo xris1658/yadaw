@@ -10,12 +10,14 @@ void blankConnectionUpdatedCallback(const Inserts&) {}
 Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     IDGen& auxInputIDGen, IDGen& auxOutputIDGen,
     ade::NodeHandle inNode, ade::NodeHandle outNode,
-    std::uint32_t inChannelGroupIndex, std::uint32_t outChannelGroupIndex):
+    std::uint32_t inChannelGroupIndex, std::uint32_t outChannelGroupIndex,
+    YADAW::Util::BatchUpdater* batchUpdater):
     graph_(graph),
     inNode_(std::move(inNode)), outNode_(std::move(outNode)),
     inChannelGroupIndex_(inChannelGroupIndex), outChannelGroupIndex_(outChannelGroupIndex),
     auxInputIDGen_(&auxInputIDGen), auxOutputIDGen_(&auxOutputIDGen),
-    connectionUpdatedCallback_(blankConnectionUpdatedCallback)
+    connectionUpdatedCallback_(blankConnectionUpdatedCallback),
+    batchUpdater_(batchUpdater)
 {
     auto inDevice = graph_.getNodeData(inNode_).process.device();
     auto outDevice = graph_.getNodeData(outNode_).process.device();
@@ -25,6 +27,14 @@ Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
             == outDevice->audioInputGroupAt(outChannelGroupIndex)->get().channelCount())
     {
         graph_.connect(inNode_, outNode_, inChannelGroupIndex_, outChannelGroupIndex_);
+        if(batchUpdater_)
+        {
+            batchUpdater_->addNull();
+        }
+        else
+        {
+            connectionUpdatedCallback_(*this);
+        }
     }
     else
     {
@@ -64,11 +74,29 @@ bool Inserts::empty() const noexcept
     return nodes_.empty();
 }
 
-std::optional<ade::NodeHandle> Inserts::insertAt(std::uint32_t index) const
+std::optional<ade::NodeHandle> Inserts::insertNodeAt(std::uint32_t index) const
 {
     if(index < insertCount())
     {
         return {nodes_[index]};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<const Inserts::Context> Inserts::insertContextAt(std::uint32_t index) const
+{
+    if(index < insertCount())
+    {
+        return {contexts_[index]};
+    }
+    return std::nullopt;
+}
+
+OptionalRef<Inserts::Context> Inserts::insertContextAt(std::uint32_t index)
+{
+    if(index < insertCount())
+    {
+        return {contexts_[index]};
     }
     return std::nullopt;
 }
@@ -244,6 +272,7 @@ bool Inserts::setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChanne
 }
 
 bool Inserts::insert(const ade::NodeHandle& nodeHandle,
+    Inserts::Context&& context,
     std::uint32_t position, const QString& name)
 {
     if(position <= insertCount())
@@ -251,6 +280,7 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
         nodes_.insert(nodes_.begin() + position, nodeHandle);
         names_.insert(names_.begin() + position, name);
         bypassed_.insert(bypassed_.begin() + position, true);
+        contexts_.insert(contexts_.begin() + position, std::move(context));
         auto device = graph_.getNodeData(nodeHandle).process.device();
         auto inChannel = device->audioInputGroupCount();
         auto outChannel = device->audioOutputGroupCount();
@@ -296,15 +326,23 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
                 return (*auxOutputIDGen_)();
             }
         );
-        connectionUpdatedCallback_(*this);
+        if(batchUpdater_)
+        {
+            batchUpdater_->addNull();
+        }
+        else
+        {
+            connectionUpdatedCallback_(*this);
+        }
         return true;
     }
     return false;
 }
 
-bool Inserts::append(const ade::NodeHandle& nodeHandle, const QString& name)
+bool Inserts::append(const ade::NodeHandle& nodeHandle,
+    Inserts::Context&& context, const QString& name)
 {
-    return insert(nodeHandle, insertCount(), name);
+    return insert(nodeHandle, std::move(context), insertCount(), name);
 }
 
 bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
@@ -315,7 +353,15 @@ bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
         FOR_RANGE(i, position, position + removeCount)
         {
             setBypassed(i, true);
+            if(batchUpdater_)
+            {
+                batchUpdater_->addObject(std::move(contexts_[i]));
+            }
         }
+        contexts_.erase(
+            contexts_.begin() + position,
+            contexts_.begin() + position + removeCount
+        );
         auxInputIDs_.erase(
             auxInputIDs_.begin() + position,
             auxInputIDs_.begin() + position + removeCount
@@ -422,7 +468,14 @@ void Inserts::setBypassed(std::uint32_t position, bool bypassed)
                 channelGroupIndices_[position].second, nextChannel);
         }
         bypassed_[position] = bypassed;
-        connectionUpdatedCallback_(*this);
+        if(batchUpdater_)
+        {
+            batchUpdater_->addNull();
+        }
+        else
+        {
+            connectionUpdatedCallback_(*this);
+        }
     }
 }
 
@@ -436,6 +489,25 @@ bool Inserts::move(std::uint32_t position, std::uint32_t count,
         return false;
     }
     return false;
+}
+
+OptionalRef<YADAW::Util::BatchUpdater> Inserts::batchUpdater()
+{
+    if(batchUpdater_)
+    {
+        return {*batchUpdater_};
+    }
+    return std::nullopt;
+}
+
+void Inserts::setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater)
+{
+    batchUpdater_ = &batchUpdater;
+}
+
+void Inserts::resetBatchUpdater()
+{
+    batchUpdater_ = nullptr;
 }
 
 void Inserts::setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback)

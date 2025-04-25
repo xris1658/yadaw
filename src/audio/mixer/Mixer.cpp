@@ -1,11 +1,12 @@
 #include "Mixer.hpp"
 
-#include <complex>
-#include <unordered_map>
-
 #include "audio/mixer/BlankGenerator.hpp"
 #include "audio/util/InputSwitcher.hpp"
 #include "util/Base.hpp"
+
+#include <complex>
+#include <ranges>
+#include <unordered_map>
 
 namespace YADAW::Audio::Mixer
 {
@@ -3749,11 +3750,37 @@ OptionalRef<YADAW::Util::BatchUpdater> Mixer::batchUpdater()
 void Mixer::setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater)
 {
     batchUpdater_ = &batchUpdater;
+    auto vecs = {
+        std::ranges::ref_view(audioInputPreFaderInserts_),
+        std::ranges::ref_view(audioInputPostFaderInserts_),
+        std::ranges::ref_view(preFaderInserts_),
+        std::ranges::ref_view(postFaderInserts_),
+        std::ranges::ref_view(audioOutputPreFaderInserts_),
+        std::ranges::ref_view(audioOutputPostFaderInserts_)
+    };
+    auto view = std::ranges::views::join(vecs);
+    for(auto& inserts: view)
+    {
+        inserts->setBatchUpdater(*batchUpdater_);
+    }
 }
 
 void Mixer::resetBatchUpdater()
 {
     batchUpdater_ = nullptr;
+    auto vecs = {
+        std::ranges::ref_view(audioInputPreFaderInserts_),
+        std::ranges::ref_view(audioInputPostFaderInserts_),
+        std::ranges::ref_view(preFaderInserts_),
+        std::ranges::ref_view(postFaderInserts_),
+        std::ranges::ref_view(audioOutputPreFaderInserts_),
+        std::ranges::ref_view(audioOutputPostFaderInserts_)
+    };
+    auto view = std::ranges::views::join(vecs);
+    for(auto& inserts: view)
+    {
+        inserts->resetBatchUpdater();
+    }
 }
 
 void Mixer::removeConnection(const ade::EdgeHandle& edgeHandle)

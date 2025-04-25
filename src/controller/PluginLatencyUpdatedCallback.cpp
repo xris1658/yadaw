@@ -18,7 +18,7 @@ void latencyUpdated(Audio::Plugin::IAudioPlugin& plugin)
         {
             auto insertListModel = static_cast<YADAW::Model::MixerChannelInsertListModel*>(context.model);
             // Inform the graph
-            auto nodeHandle = *(insertListModel->inserts().insertAt(context.index));
+            auto nodeHandle = *(insertListModel->inserts().insertNodeAt(context.index));
             auto& upstreamLatencyExt = YADAW::Controller::AudioEngine::appAudioEngine().mixer().graph().upstreamLatencyExtension();
             upstreamLatencyExt.onLatencyOfNodeUpdated(nodeHandle);
             // Inform the model

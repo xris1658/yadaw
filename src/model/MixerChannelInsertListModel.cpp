@@ -78,7 +78,7 @@ QVariant MixerChannelInsertListModel::data(const QModelIndex& index, int role) c
     if(row >= 0 && row < itemCount())
     {
         const auto& graph = inserts_->graph();
-        const auto& node = *(inserts_->insertAt(row));
+        const auto& node = *(inserts_->insertNodeAt(row));
         const auto& nodeData = graph.getNodeData(node);
         auto device = nodeData.process.device();
         if(device->audioInputGroupCount() > 1)
