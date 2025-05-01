@@ -20,7 +20,7 @@ CLAPHost* getHost(const clap_host* host)
 }
 
 std::thread::id CLAPHost::mainThreadId_ = {};
-std::thread::id CLAPHost::audioThreadId_ = {};
+std::set<std::thread::id> CLAPHost::audioThreadIds_ = {};
 
 CLAPHost::CLAPHost(YADAW::Audio::Plugin::CLAPPlugin& plugin):
     plugin_(&plugin),
@@ -162,7 +162,7 @@ bool CLAPHost::isMainThread(const clap_host* host)
 
 bool CLAPHost::isAudioThread(const clap_host* host)
 {
-    return std::this_thread::get_id() == audioThreadId_;
+    return audioThreadIds_.contains(std::this_thread::get_id());
 }
 
 bool CLAPHost::registerTimer(const clap_host* host,
@@ -413,7 +413,17 @@ void CLAPHost::setMainThreadId(std::thread::id mainThreadId)
 
 void CLAPHost::setAudioThreadId(std::thread::id audioThreadId)
 {
-    audioThreadId_ = audioThreadId;
+    audioThreadIds_.insert(audioThreadId);
+}
+
+void CLAPHost::unsetAudioThreadId(std::thread::id audioThreadId)
+{
+    audioThreadIds_.erase(audioThreadId);
+}
+
+void CLAPHost::clearAudioThreadId()
+{
+    audioThreadIds_.clear();
 }
 
 void CLAPHost::setLatencyChangedCallback(

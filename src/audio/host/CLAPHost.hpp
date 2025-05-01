@@ -13,6 +13,7 @@
 
 #include <functional>
 #include <thread>
+#include <set>
 
 namespace YADAW::Audio::Plugin
 {
@@ -88,6 +89,8 @@ public:
     YADAW::Audio::Plugin::CLAPPlugin* plugin();
     static void setMainThreadId(std::thread::id mainThreadId);
     static void setAudioThreadId(std::thread::id audioThreadId);
+    static void unsetAudioThreadId(std::thread::id audioThreadId);
+    static void clearAudioThreadId();
     void setLatencyChangedCallback(LatencyChangedCallback* callback);
     void setParameterValueChangedCallback(ParameterValueChangedCallback* callback);
     void setParameterTextChangedCallback(ParameterTextChangedCallback* callback);
@@ -98,7 +101,7 @@ public:
     void resetParameterInfoChangedCallback();
 private:
     static std::thread::id mainThreadId_;
-    static std::thread::id audioThreadId_;
+    static std::set<std::thread::id> audioThreadIds_;
     YADAW::Audio::Plugin::CLAPPlugin* plugin_;
     LatencyChangedCallback* latencyChangedCallback_;
     ParameterValueChangedCallback* parameterValueChangedCallback_;
