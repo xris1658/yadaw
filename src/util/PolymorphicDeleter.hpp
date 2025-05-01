@@ -17,9 +17,8 @@ private:
     {
         delete reinterpret_cast<T*>(ptr);
     }
-private:
-    PolymorphicDeleter(std::function<DeleterFunction>&& deleter): deleter_(std::move(deleter)) {}
 public:
+    PolymorphicDeleter(std::function<DeleterFunction>&& deleter): deleter_(std::move(deleter)) {}
     template<typename T, typename Deleter>
     static PolymorphicDeleter create(Deleter&& deleter = std::default_delete<T>())
     {
@@ -44,6 +43,15 @@ private:
 
 template<typename T>
 using PMRUniquePtr = std::unique_ptr<T, PolymorphicDeleter>;
+
+template<typename T = void>
+PMRUniquePtr<T> createUniquePtr(std::nullptr_t)
+{
+    return PMRUniquePtr<T>(
+        nullptr,
+        PolymorphicDeleter([](T* ptr) {delete ptr;})
+    );
+}
 
 template<typename T>
 PMRUniquePtr<T> createUniquePtr(T* ptr)
