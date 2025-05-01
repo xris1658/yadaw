@@ -7,7 +7,7 @@
 #include "audio/util/VST3Helper.hpp"
 #include "controller/AudioEngineController.hpp"
 #include "controller/LibraryPluginMap.hpp"
-#include "controller/PluginContextMap.hpp"
+#include "controller/PluginPositionMap.hpp"
 #include "controller/PluginController.hpp"
 #include "controller/PluginIOConfigUpdatedCallback.hpp"
 #include "controller/PluginLatencyUpdatedCallback.hpp"
@@ -332,14 +332,14 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 libraryPluginIterators_.begin() + position,
                 it
             );
-            auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
+            auto& pluginContextMap = YADAW::Controller::appPluginPosition();
             const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
                 plugin,
-                YADAW::Controller::PluginContext()
+                YADAW::Controller::PluginPosition()
             );
             assert(inserted);
             auto& context = pluginContextIterator->second;
-            context.position = YADAW::Controller::PluginContext::Position::Insert;
+            context.position = YADAW::Controller::PluginPosition::InChannelPosition::Insert;
             context.model = this;
             context.index = position;
             pluginContextIterators_.emplace(
@@ -428,7 +428,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         auto& graphWithPDC = audioEngine.mixer().graph();
         auto& graph = audioEngine.mixer().graph().graph();
         auto& bufferExt = audioEngine.mixer().bufferExtension();
-        auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
+        auto& pluginContextMap = YADAW::Controller::appPluginPosition();
         std::set<std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>> pluginsToRemove;
         std::vector<YADAW::Audio::Engine::AudioProcessDataBufferContainer<float>> processDataToRemove;
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);

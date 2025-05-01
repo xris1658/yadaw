@@ -17,24 +17,24 @@ class MixerChannelInsertListModel;
 
 namespace YADAW::Controller
 {
-struct PluginContext
+struct PluginPosition
 {
-    enum Position
+    enum InChannelPosition
     {
         Instrument,
         Insert
     };
     void* model = nullptr;
-    Position position = Position::Insert;
+    InChannelPosition position = InChannelPosition::Insert;
     std::uint32_t index = 0U;
 };
 
-using PluginContextMap = std::map<
+using PluginPositionMap = std::map<
     YADAW::Audio::Plugin::IAudioPlugin*,
-    PluginContext
+    PluginPosition
 >;
 
-PluginContextMap& appPluginContextMap();
+PluginPositionMap& appPluginPosition();
 
 }
 

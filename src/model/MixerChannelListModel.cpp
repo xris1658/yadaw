@@ -33,7 +33,7 @@ struct InstrumentInstance
     YADAW::UI::WindowAndConnection genericEditorWindowConnection;
     YADAW::Model::PluginParameterListModel paramListModel;
     YADAW::Controller::LibraryPluginMap::iterator libraryPluginIterator = {};
-    YADAW::Controller::PluginContextMap::iterator pluginContextIterator = {};
+    YADAW::Controller::PluginPositionMap::iterator pluginContextIterator = {};
     QString name;
     template<typename T>
     InstrumentInstance(YADAW::Audio::Mixer::Mixer& mixer, T* plugin):
@@ -1384,14 +1384,14 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
             }
             mixer_.setInstrument(position, instrument->instrumentNode, firstOutput);
             engine.mixerConnectionUpdatedCallback(mixer_);
-            auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
+            auto& pluginContextMap = YADAW::Controller::appPluginPosition();
             const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
                 plugin,
-                YADAW::Controller::PluginContext()
+                YADAW::Controller::PluginPosition()
             );
             assert(inserted);
             auto& context = pluginContextIterator->second;
-            context.position = YADAW::Controller::PluginContext::Position::Instrument;
+            context.position = YADAW::Controller::PluginPosition::InChannelPosition::Instrument;
             context.model = this;
             context.index = position;
             instrument->pluginContextIterator = pluginContextIterator;
@@ -1507,7 +1507,7 @@ bool MixerChannelListModel::removeInstrument(int position)
         {
             pluginPool.erase(it);
         }
-        auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
+        auto& pluginContextMap = YADAW::Controller::appPluginPosition();
         pluginContextMap.erase(instrumentInstance->pluginContextIterator);
         instrumentInstance.reset();
         dataChanged(this->index(position), this->index(position),

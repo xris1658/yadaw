@@ -374,8 +374,6 @@ set(YADAW_COMMON_SOURCES
     src/controller/LocalizationController.hpp
     src/controller/MixerChannelListModelController.cpp
     src/controller/MixerChannelListModelController.hpp
-    src/controller/PluginContextMap.cpp
-    src/controller/PluginContextMap.hpp
     src/controller/PluginController.cpp
     src/controller/PluginController.hpp
     src/controller/PluginDirectoryController.cpp
@@ -386,6 +384,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/PluginLatencyUpdatedCallback.hpp
     src/controller/PluginListController.cpp
     src/controller/PluginListController.hpp
+    src/controller/PluginPositionMap.cpp
+    src/controller/PluginPositionMap.hpp
     src/controller/PluginWindowController.cpp
     src/controller/PluginWindowController.hpp
     src/controller/VST3PluginPool.cpp

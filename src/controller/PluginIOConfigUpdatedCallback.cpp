@@ -8,16 +8,16 @@ namespace YADAW::Controller
 {
 void Impl::ioConfigUpdated(YADAW::Audio::Plugin::IAudioPlugin& plugin)
 {
-    auto& pluginContextMap = YADAW::Controller::appPluginContextMap();
+    auto& pluginContextMap = YADAW::Controller::appPluginPosition();
     if(auto it = pluginContextMap.find(&plugin); it != pluginContextMap.end())
     {
         auto& context = it->second;
-        if(context.position == YADAW::Controller::PluginContext::Position::Insert)
+        if(context.position == YADAW::Controller::PluginPosition::InChannelPosition::Insert)
         {
             auto insertListModel = static_cast<YADAW::Model::MixerChannelInsertListModel*>(context.model);
             insertListModel->updateIOConfig(context.index);
         }
-        else if(context.position == YADAW::Controller::PluginContext::Position::Instrument)
+        else if(context.position == YADAW::Controller::PluginPosition::InChannelPosition::Instrument)
         {
             auto channelListModel = static_cast<YADAW::Model::MixerChannelListModel*>(context.model);
             channelListModel->updateInstrumentIOConfig(context.index);
