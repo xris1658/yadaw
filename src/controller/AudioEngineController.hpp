@@ -10,6 +10,7 @@
 #include "concurrent/PassDataToRealtimeThread.hpp"
 #include "controller/CLAPPluginPool.hpp"
 #include "controller/VST3PluginPool.hpp"
+#include "util/BatchUpdater.hpp"
 #include "util/Concepts.hpp"
 
 #include <atomic>
@@ -49,6 +50,7 @@ public:
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginToSetProcessVector>>& clapPluginToSetProcess();
     bool running() const;
     void setRunning(bool running);
+    YADAW::Util::BatchUpdater& batchUpdater();
 public:
     void uninitialize();
     void process();
@@ -81,6 +83,7 @@ private:
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::VST3PluginPoolVector>> vst3PluginPool_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginPoolVector>> clapPluginPool_;
     YADAW::Concurrent::PassDataToRealtimeThread<std::unique_ptr<YADAW::Controller::CLAPPluginToSetProcessVector>> clapPluginToSetProcess_;
+    YADAW::Util::BatchUpdater batchUpdater_;
 };
 }
 

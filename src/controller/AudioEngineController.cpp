@@ -39,7 +39,8 @@ AudioEngine::AudioEngine():
     ),
     vst3PluginPool_(std::make_unique<YADAW::Controller::VST3PluginPoolVector>()),
     clapPluginPool_(std::make_unique<YADAW::Controller::CLAPPluginPoolVector>()),
-    clapPluginToSetProcess_(std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>())
+    clapPluginToSetProcess_(std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>()),
+    batchUpdater_([this]() { updateProcessSequence(); })
 {
     mixer_.setConnectionUpdatedCallback(&AudioEngine::mixerConnectionUpdatedCallback);
 }
@@ -299,6 +300,11 @@ void AudioEngine::setRunning(bool running)
         workerThreadPool_.stop();
     }
     running_ = running;
+}
+
+YADAW::Util::BatchUpdater& AudioEngine::batchUpdater()
+{
+    return batchUpdater_;
 }
 
 std::unique_ptr<YADAW::Audio::Mixer::VolumeFader> AudioEngine::createVolumeFader(
