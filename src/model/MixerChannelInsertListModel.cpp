@@ -261,7 +261,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             pluginPtr->host().setLatencyChangedCallback(
                 &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::CLAPPlugin>
             );
-            YADAW::Audio::Host::CLAPHost::setMainThreadId(std::this_thread::get_id());
             pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
             pluginPtr->activate();
             auto clapEventList = new(std::nothrow) YADAW::Audio::Host::CLAPEventList();
