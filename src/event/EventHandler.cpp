@@ -103,6 +103,10 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onToggleMainWindowFullscreen()));
     QObject::connect(sender, SIGNAL(showNativePopup()),
         this, SLOT(onShowNativePopup()));
+    QObject::connect(sender, SIGNAL(prepareBatchUpdate()),
+        this, SLOT(onPrepareBatchUpdate()));
+    QObject::connect(sender, SIGNAL(commitBatchUpdate()),
+        this, SLOT(onCommitBatchUpdate()));
 }
 
 void EventHandler::connectToEventReceiver(QObject* receiver)
@@ -767,5 +771,17 @@ void EventHandler::onShowNativePopup()
     {
         YADAW::Native::showWindowWithoutActivating(*nativePopup);
     }
+}
+
+void EventHandler::onPrepareBatchUpdate()
+{
+    auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
+    engine.mixer().setBatchUpdater(engine.batchUpdater());
+}
+
+void EventHandler::onCommitBatchUpdate()
+{
+    auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
+    engine.mixer().resetBatchUpdater();
 }
 }

@@ -13,4 +13,6 @@ QtObject {
     signal setTranslationIndex(index: int)
     signal toggleMainWindowFullscreen()
     signal showNativePopup()
+    signal prepareBatchUpdate()
+    signal commitBatchUpdate()
 }
