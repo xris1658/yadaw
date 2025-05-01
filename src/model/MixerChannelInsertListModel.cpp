@@ -250,7 +250,11 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                     ),
                     engine.running()
                 ).reset();
-                inserts_->insert(nodeHandle, position, pluginInfo.name);
+                inserts_->insert(
+                    nodeHandle,
+                    YADAW::Util::createUniquePtr(nullptr), // TODO
+                    position, pluginInfo.name
+                );
                 ret = true;
             }
             break;
@@ -294,7 +298,11 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 engine.running()
             );
             engine.clapPluginPool().getOld(engine.running()).reset();
-            inserts_->insert(nodeHandle, position, pluginInfo.name);
+            inserts_->insert(
+                nodeHandle,
+                YADAW::Util::createUniquePtr(nullptr), // TODO
+                position, pluginInfo.name
+            );
             ret = true;
             break;
         }
@@ -713,7 +721,11 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
             plugin->startProcessing();
         }
         node = graphWithPDC.addNode(std::move(process));
-        inserts_->insert(node, index, name);
+        inserts_->insert(
+            node,
+            YADAW::Util::createUniquePtr(nullptr), // TODO
+            index, name
+        );
         // TODO: Restore additional connections
         dataChanged(
             this->index(index),
