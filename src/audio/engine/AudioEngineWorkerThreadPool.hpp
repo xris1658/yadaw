@@ -7,6 +7,7 @@
 #include "util/VectorTypes.hpp"
 
 #include <atomic>
+#include <functional>
 #include <thread>
 
 namespace YADAW::Audio::Engine
@@ -32,6 +33,8 @@ public:
         ProcessedByAudioCallbackThread,
         ProcessedByWorkerThread
     };
+    using SetAudioThreadIdCallback = void(const AudioEngineWorkerThreadPool& sender, std::thread::id id);
+    using UnsetAudioThreadIdCallback = void(const AudioEngineWorkerThreadPool& sender, std::thread::id id);
 public:
     AudioEngineWorkerThreadPool(std::unique_ptr<ProcessSequenceWithPrev>&&);
     ~AudioEngineWorkerThreadPool();
@@ -51,6 +54,11 @@ public:
     void mainFunc();
     void updateProcessSequence(
         std::unique_ptr<ProcessSequenceWithPrev>&& processSequenceWithPrev);
+public:
+    void setSetAudioThreadIdCallback(std::function<SetAudioThreadIdCallback>&& setAudioThreadIdCallback);
+    void setUnsetAudioThreadIdCallback(std::function<UnsetAudioThreadIdCallback>&& unsetAudioThreadIdCallback);
+    void resetSetAudioThreadIdCallback();
+    void resetUnsetAudioThreadIdCallback();
 private:
     void workerThreadFunc(std::uint32_t processorIndex, std::uint32_t workloadIndex);
     void workerFunc(std::uint32_t workloadIndex);
@@ -62,6 +70,8 @@ private:
     std::atomic_flag firstCallback_;
     std::atomic_flag running_;
     mutable bool mainAffinityIsSet_ = false;
+    std::function<SetAudioThreadIdCallback> setAudioThreadIdCallback_;
+    std::function<UnsetAudioThreadIdCallback> unsetAudioThreadIdCallback_;
 };
 }
 

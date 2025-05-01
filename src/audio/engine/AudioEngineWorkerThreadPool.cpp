@@ -11,6 +11,12 @@ T* getType(std::vector<YADAW::Util::AlignedStorage<T>>& vec, typename std::vecto
 
 namespace YADAW::Audio::Engine
 {
+void blankSetAudioThreadIdCallback(const AudioEngineWorkerThreadPool&, std::thread::id)
+{}
+
+void blankUnsetAudioThreadIdCallback(const AudioEngineWorkerThreadPool&, std::thread::id)
+{}
+
 AudioEngineWorkerThreadPool::Workload::Workload(
     std::unique_ptr<ProcessSequenceWithPrev>&& processSequenceWithPrev,
     std::uint32_t threadCount
@@ -36,7 +42,9 @@ AudioEngineWorkerThreadPool::Workload::~Workload()
 AudioEngineWorkerThreadPool::AudioEngineWorkerThreadPool(
     std::unique_ptr<ProcessSequenceWithPrev>&& processSequenceWithPrev
 ):
-    workload_(std::make_unique<Workload>(std::move(processSequenceWithPrev), 1))
+    workload_(std::make_unique<Workload>(std::move(processSequenceWithPrev), 1)),
+    setAudioThreadIdCallback_(&blankSetAudioThreadIdCallback),
+    unsetAudioThreadIdCallback_(&blankUnsetAudioThreadIdCallback)
 {}
 
 AudioEngineWorkerThreadPool::~AudioEngineWorkerThreadPool()
@@ -134,12 +142,14 @@ void AudioEngineWorkerThreadPool::stop()
     }
     mainAffinityIsSet_ = false;
     firstCallback_.test_and_set(std::memory_order_release);
+    unsetAudioThreadIdCallback_(*this, std::this_thread::get_id());
 }
 
 void AudioEngineWorkerThreadPool::mainFunc()
 {
     if(firstCallback_.test(std::memory_order_acquire))
     {
+        setAudioThreadIdCallback_(*this, std::this_thread::get_id());
         // This function is called during the first audio callback. Wake up all
         // worker threads.
         running_.test_and_set(std::memory_order_release);
@@ -193,9 +203,32 @@ void AudioEngineWorkerThreadPool::updateProcessSequence(
     std::fprintf(stderr, "}\n");
 }
 
+void AudioEngineWorkerThreadPool::setSetAudioThreadIdCallback(
+    std::function<SetAudioThreadIdCallback>&& setAudioThreadIdCallback)
+{
+    setAudioThreadIdCallback_ = std::move(setAudioThreadIdCallback);
+}
+
+void AudioEngineWorkerThreadPool::setUnsetAudioThreadIdCallback(
+    std::function<UnsetAudioThreadIdCallback>&& unsetAudioThreadIdCallback)
+{
+    unsetAudioThreadIdCallback_ = std::move(unsetAudioThreadIdCallback);
+}
+
+void AudioEngineWorkerThreadPool::resetSetAudioThreadIdCallback()
+{
+    setAudioThreadIdCallback_ = &blankSetAudioThreadIdCallback;
+}
+
+void AudioEngineWorkerThreadPool::resetUnsetAudioThreadIdCallback()
+{
+    unsetAudioThreadIdCallback_ = &blankUnsetAudioThreadIdCallback;
+}
+
 void AudioEngineWorkerThreadPool::workerThreadFunc(
     std::uint32_t processorIndex, std::uint32_t workloadIndex)
 {
+    setAudioThreadIdCallback_(*this, std::this_thread::get_id());
     YADAW::Native::setThreadAffinity(
         YADAW::Native::getCurrentThreadHandle(),
         static_cast<std::uint64_t>(1) << processorIndex
@@ -210,6 +243,7 @@ void AudioEngineWorkerThreadPool::workerThreadFunc(
         done.wait(true, std::memory_order_acquire);
     }
     while(running_.test(std::memory_order_acquire));
+    unsetAudioThreadIdCallback_(*this, std::this_thread::get_id());
 }
 
 void AudioEngineWorkerThreadPool::workerFunc(std::uint32_t workloadIndex)
