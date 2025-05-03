@@ -370,6 +370,8 @@ set(YADAW_COMMON_SOURCES
     src/controller/GeneralSettingsController.hpp
     src/controller/LibraryPluginMap.cpp
     src/controller/LibraryPluginMap.hpp
+    src/controller/LibraryPluginPool.cpp
+    src/controller/LibraryPluginPool.hpp
     src/controller/LocalizationController.cpp
     src/controller/LocalizationController.hpp
     src/controller/MixerChannelListModelController.cpp
