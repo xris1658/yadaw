@@ -83,7 +83,7 @@ std::optional<ade::NodeHandle> Inserts::insertNodeAt(std::uint32_t index) const
     return std::nullopt;
 }
 
-OptionalRef<const Inserts::Context> Inserts::insertContextAt(std::uint32_t index) const
+OptionalRef<const Context> Inserts::insertContextAt(std::uint32_t index) const
 {
     if(index < insertCount())
     {
@@ -92,7 +92,7 @@ OptionalRef<const Inserts::Context> Inserts::insertContextAt(std::uint32_t index
     return std::nullopt;
 }
 
-OptionalRef<Inserts::Context> Inserts::insertContextAt(std::uint32_t index)
+OptionalRef<Context> Inserts::insertContextAt(std::uint32_t index)
 {
     if(index < insertCount())
     {
@@ -272,7 +272,7 @@ bool Inserts::setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChanne
 }
 
 bool Inserts::insert(const ade::NodeHandle& nodeHandle,
-    Inserts::Context&& context,
+    Context&& context,
     std::uint32_t position, const QString& name)
 {
     if(position <= insertCount())
@@ -340,7 +340,7 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
 }
 
 bool Inserts::append(const ade::NodeHandle& nodeHandle,
-    Inserts::Context&& context, const QString& name)
+    Context&& context, const QString& name)
 {
     return insert(nodeHandle, std::move(context), insertCount(), name);
 }

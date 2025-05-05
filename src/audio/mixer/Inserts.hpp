@@ -12,7 +12,6 @@ namespace YADAW::Audio::Mixer
 class Inserts
 {
 public:
-    using Context = YADAW::Util::PMRUniquePtr<void>;
     using ConnectionUpdatedCallback = void(const Inserts&);
 public:
     Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
