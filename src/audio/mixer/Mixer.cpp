@@ -1486,6 +1486,11 @@ bool Mixer::removeAudioInputChannel(
             audioInputPostFaderInserts_.begin() + first,
             audioInputPostFaderInserts_.begin() + last
         );
+        // Remove sends from the removing channel
+        FOR_RANGE(i, first, last)
+        {
+            clearAudioInputChannelSends(i);
+        }
         if(batchUpdater_)
         {
             FOR_RANGE0(i, nodesToRemove.size())
@@ -1746,7 +1751,7 @@ bool Mixer::removeAudioOutputChannel(
         // Remove sends from the removing channel
         FOR_RANGE(i, first, last)
         {
-            clearAudioInputChannelSends(i);
+            clearAudioOutputChannelSends(i);
         }
         if(batchUpdater_)
         {
@@ -2263,7 +2268,7 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         // Remove sends from the removing channel
         FOR_RANGE(i, first, last)
         {
-            clearAudioInputChannelSends(i);
+            clearChannelSends(i);
         }
         {
             std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> devicesToRemove;
