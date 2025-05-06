@@ -3595,7 +3595,7 @@ bool Mixer::setInstrument(
     return ret;
 }
 
-ade::NodeHandle Mixer::removeInstrument(std::uint32_t index)
+ade::NodeHandle Mixer::popInstrumentNode(std::uint32_t index)
 {
     auto ret = ade::NodeHandle();
     if(index < channelCount()
@@ -3603,14 +3603,11 @@ ade::NodeHandle Mixer::removeInstrument(std::uint32_t index)
     {
         ret = inputDevices_[index].second;
         auto polarityInverterNode = polarityInverters_[index].second;
-        for(const auto& edge: ret->outEdges())
+        auto inEdges = polarityInverterNode->inEdges();
+        if(!inEdges.empty())
         {
-            if(edge->dstNode() == polarityInverterNode)
-            {
-                graph_.disconnect(edge);
-                inputDevices_[index].second = nullptr;
-                break;
-            }
+            graph_.disconnect(inEdges.front());
+            inputDevices_[index].second = nullptr;
         }
     }
     return ret;

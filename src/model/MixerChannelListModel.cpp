@@ -1437,7 +1437,7 @@ bool MixerChannelListModel::removeInstrument(int position)
         auto& graphWithPDC = mixer_.graph();
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         {
-            auto instrumentNode = mixer_.removeInstrument(position);
+            auto instrumentNode = mixer_.popInstrumentNode(position);
             auto deviceWithPDC = graphWithPDC.removeNode(instrumentNode);
             engine.mixerConnectionUpdatedCallback(mixer_);
         }
