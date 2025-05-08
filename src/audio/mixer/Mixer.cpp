@@ -1453,16 +1453,7 @@ bool Mixer::removeAudioInputChannel(
     )
     {
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(
-            removeCount * 5 + 3 * std::accumulate(
-                audioInputSendDestinations_.begin() + first,
-                audioInputSendDestinations_.begin() + last,
-                0, [](const auto lhs, const auto& rhs)
-                {
-                    return lhs + rhs.size();
-                }
-            )
-        );
+        nodesToRemove.reserve(removeCount * 5);
         FOR_RANGE(i, first, last)
         {
             auto polarityInverterNode = audioInputPolarityInverters_[i].second;
@@ -1471,12 +1462,6 @@ bool Mixer::removeAudioInputChannel(
             nodesToRemove.emplace_back(audioInputMutes_[i].second);
             nodesToRemove.emplace_back(audioInputFaders_[i].second);
             nodesToRemove.emplace_back(audioInputMeters_[i].second);
-            FOR_RANGE0(j, audioInputSendDestinations_[i].size())
-            {
-                nodesToRemove.emplace_back(audioInputSendPolarityInverters_[i][j].second);
-                nodesToRemove.emplace_back(audioInputSendMutes_[i][j].second);
-                nodesToRemove.emplace_back(audioInputSendFaders_[i][j].second);
-            }
         }
         audioInputPreFaderInserts_.erase(
             audioInputPreFaderInserts_.begin() + first,
@@ -1711,16 +1696,7 @@ bool Mixer::removeAudioOutputChannel(
     )
     {
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(
-            removeCount * 6 + 3 * std::accumulate(
-                audioOutputSendDestinations_.begin() + first,
-                audioOutputSendDestinations_.begin() + last,
-                0, [](const auto lhs, const auto& rhs)
-                {
-                    return lhs + rhs.size();
-                }
-            )
-        );
+        nodesToRemove.reserve(removeCount * 6);
         FOR_RANGE(i, first, last)
         {
             nodesToRemove.emplace_back(audioOutputSummings_[i].second);
@@ -1733,12 +1709,6 @@ bool Mixer::removeAudioOutputChannel(
             nodesToRemove.emplace_back(
                 audioOutputPolarityInverters_[i].second
             );
-            FOR_RANGE0(j, audioOutputSendDestinations_[i].size())
-            {
-                nodesToRemove.emplace_back(audioOutputSendPolarityInverters_[i][j].second);
-                nodesToRemove.emplace_back(audioOutputSendMutes_[i][j].second);
-                nodesToRemove.emplace_back(audioOutputSendFaders_[i][j].second);
-            }
         }
         audioOutputPreFaderInserts_.erase(
             audioOutputPreFaderInserts_.begin() + first,
@@ -2247,16 +2217,7 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             postFaderInserts_.begin() + last
         );
         std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(
-            removeCount * 5 + 3 * std::accumulate(
-                sendDestinations_.begin() + first,
-                sendDestinations_.begin() + last,
-                0, [](const auto lhs, const auto& rhs)
-                {
-                    return lhs + rhs.size();
-                }
-            )
-        );
+        nodesToRemove.reserve(removeCount * 5);
         FOR_RANGE(i, first, last)
         {
             auto nodeToRemove = inputDevices_[i].second;
@@ -2268,12 +2229,6 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
             nodesToRemove.emplace_back(mutes_[i].second);
             nodesToRemove.emplace_back(faders_[i].second);
             nodesToRemove.emplace_back(meters_[i].second);
-            FOR_RANGE0(j, sendDestinations_[i].size())
-            {
-                nodesToRemove.emplace_back(sendPolarityInverters_[i][j].second);
-                nodesToRemove.emplace_back(sendMutes_[i][j].second);
-                nodesToRemove.emplace_back(sendFaders_[i][j].second);
-            }
         }
         // Remove sends from the removing channel
         FOR_RANGE(i, first, last)
