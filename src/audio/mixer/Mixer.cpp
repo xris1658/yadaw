@@ -2037,6 +2037,16 @@ bool Mixer::insertChannels(
             ),
             count, 0U
         );
+        std::generate_n(
+            std::inserter(
+                instrumentContexts_, instrumentContexts_.begin() + position
+            ),
+            count,
+            []()
+            {
+                return YADAW::Util::createUniquePtr(nullptr);
+            }
+        );
         instrumentAuxInputIDs_.insert(
             instrumentAuxInputIDs_.begin() + position, count,
             decltype(instrumentAuxInputIDs_)::value_type()
@@ -2293,6 +2303,10 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         inputDevices_.erase(
             inputDevices_.begin() + first,
             inputDevices_.begin() + last
+        );
+        instrumentContexts_.erase(
+            instrumentContexts_.begin() + first,
+            instrumentContexts_.begin() + last
         );
         polarityInverters_.erase(
             polarityInverters_.begin() + first,

@@ -291,6 +291,8 @@ public:
     std::optional<bool> clearAudioOutputChannelSends(std::uint32_t channelIndex);
 public:
     ade::NodeHandle getInstrument(std::uint32_t index) const;
+    OptionalRef<const Context> getInstrumentContext(std::uint32_t index) const;
+    OptionalRef<Context> getInstrumentContext(std::uint32_t index);
     bool setInstrument(std::uint32_t index,
         ade::NodeHandle nodeHandle, std::uint32_t outputChannelIndex);
     ade::NodeHandle popInstrumentNode(std::uint32_t index);
@@ -494,6 +496,7 @@ private:
     std::vector<IDAndIndex> channelIdAndIndex_;
     std::vector<DeviceAndNode> inputDevices_;
     std::vector<std::uint32_t> instrumentOutputChannelIndex_;
+    std::vector<Context> instrumentContexts_;
     std::vector<bool> instrumentBypassed_;
     std::vector<PolarityInverterAndNode> polarityInverters_;
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> preFaderInserts_;
