@@ -3564,7 +3564,7 @@ bool Mixer::setInstrument(
     return ret;
 }
 
-ade::NodeHandle Mixer::popInstrumentNode(std::uint32_t index)
+ade::NodeHandle Mixer::detachInstrumentNode(std::uint32_t index)
 {
     auto ret = ade::NodeHandle();
     if(index < channelCount()
