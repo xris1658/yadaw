@@ -30,6 +30,12 @@ LibraryPluginPool::Instance::Instance(Instance&& rhs):
     std::destroy_at(YADAW::Util::AlignHelper<PluginIterator>::fromAligned(&rhs.pluginIt_));
 }
 
+LibraryPluginPool::Instance& LibraryPluginPool::Instance::operator=(Instance&& rhs)
+{
+    std::destroy_at(this);
+    new(this) Instance(std::move(rhs));
+}
+
 LibraryPluginPool::Instance::~Instance()
 {
     if(pool_)

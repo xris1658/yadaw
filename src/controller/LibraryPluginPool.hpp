@@ -87,6 +87,7 @@ public:
         );
     public:
         Instance(Instance&& rhs);
+        Instance& operator=(Instance&& rhs);
         ~Instance();
     public:
         operator bool() const;
