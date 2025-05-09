@@ -3611,16 +3611,13 @@ ade::NodeHandle Mixer::detachInstrumentNode(std::uint32_t index)
 {
     auto ret = ade::NodeHandle();
     if(index < channelCount()
+        && inputDevices_[index].second != nullptr
         && channelInfo_[index].channelType == ChannelType::Instrument)
     {
         ret = inputDevices_[index].second;
         auto polarityInverterNode = polarityInverters_[index].second;
-        auto inEdges = polarityInverterNode->inEdges();
-        if(!inEdges.empty())
-        {
-            graph_.disconnect(inEdges.front());
-            inputDevices_[index].second = nullptr;
-        }
+        graph_.disconnect(polarityInverterNode->inEdges().front());
+        inputDevices_[index].second = nullptr;
     }
     return ret;
 }
