@@ -2235,6 +2235,17 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         {
             clearChannelSends(i);
         }
+        if(batchUpdater_)
+        {
+            FOR_RANGE0(i, nodesToRemove.size())
+            {
+                if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
+                {
+                    batchUpdater_->addObject(std::move(device));
+                }
+            }
+        }
+        else
         {
             std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> devicesToRemove;
             devicesToRemove.reserve(nodesToRemove.size());
@@ -3512,6 +3523,26 @@ ade::NodeHandle Mixer::getInstrument(std::uint32_t index) const
     return {};
 }
 
+OptionalRef<const Context> Mixer::getInstrumentContext(std::uint32_t index) const
+{
+    if(index < channelCount()
+        && channelInfo_[index].channelType == ChannelType::Instrument)
+    {
+        return instrumentContexts_[index];
+    }
+    return {};
+}
+
+OptionalRef<Context> Mixer::getInstrumentContext(std::uint32_t index)
+{
+    if(index < channelCount()
+        && channelInfo_[index].channelType == ChannelType::Instrument)
+    {
+        return instrumentContexts_[index];
+    }
+    return {};
+}
+
 bool Mixer::setInstrument(
     std::uint32_t index, ade::NodeHandle nodeHandle,
     std::uint32_t outputChannelIndex)
@@ -3564,6 +3595,18 @@ bool Mixer::setInstrument(
     return ret;
 }
 
+bool Mixer::setInstrument(
+    std::uint32_t index, ade::NodeHandle nodeHandle, Context&& context,
+    std::uint32_t outputChannelIndex)
+{
+    auto ret = setInstrument(index, nodeHandle, outputChannelIndex);
+    if(ret)
+    {
+        instrumentContexts_[index] = std::move(context);
+    }
+    return ret;
+}
+
 ade::NodeHandle Mixer::detachInstrumentNode(std::uint32_t index)
 {
     auto ret = ade::NodeHandle();
@@ -3580,6 +3623,42 @@ ade::NodeHandle Mixer::detachInstrumentNode(std::uint32_t index)
         }
     }
     return ret;
+}
+
+std::pair<ade::NodeHandle, Context> Mixer::detachInstrument(std::uint32_t index)
+{
+    if(auto node = detachInstrumentNode(index); node != nullptr)
+    {
+        return std::make_pair(std::move(node), std::move(instrumentContexts_[index]));
+    }
+    return std::make_pair(ade::NodeHandle(), YADAW::Util::createUniquePtr(nullptr));
+}
+
+bool Mixer::removeInstrument(std::uint32_t index)
+{
+    auto [node, context] = detachInstrument(index);
+    if(node != nullptr)
+    {
+        if(batchUpdater_)
+        {
+            if(context)
+            {
+                batchUpdater_->addObject(std::move(context));
+            }
+            else
+            {
+                batchUpdater_->addNull();
+            }
+        }
+        else
+        {
+            auto multiInputWithPDC = graphWithPDC_.removeNode(node);
+            connectionUpdatedCallback_(*this);
+            context = YADAW::Util::createUniquePtr(nullptr);
+        }
+        return true;
+    }
+    return false;
 }
 
 std::optional<IDGen::ID> Mixer::instrumentAuxInputID(
