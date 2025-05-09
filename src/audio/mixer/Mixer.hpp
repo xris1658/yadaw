@@ -293,8 +293,12 @@ public:
     ade::NodeHandle getInstrument(std::uint32_t index) const;
     OptionalRef<const Context> getInstrumentContext(std::uint32_t index) const;
     OptionalRef<Context> getInstrumentContext(std::uint32_t index);
+    // Set a node as instrument of the channel. Only works if no instrument node
+    // is set.
     bool setInstrument(std::uint32_t index,
         ade::NodeHandle nodeHandle, std::uint32_t outputChannelIndex);
+    // Detach an instrument node from its position. Note that the detaching node
+    // is not removed.
     ade::NodeHandle detachInstrumentNode(std::uint32_t index);
     std::optional<IDGen::ID> instrumentAuxInputID(std::uint32_t channelIndex, std::uint32_t channelGroupIndex) const;
     std::optional<IDGen::ID> instrumentAuxOutputID(std::uint32_t channelIndex, std::uint32_t channelGroupIndex) const;
