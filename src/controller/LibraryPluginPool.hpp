@@ -109,6 +109,8 @@ private:
     Pool pool_;
     bool unloadLibraryIfNoPlugins_;
 };
+
+LibraryPluginPool& appLibraryPluginPool();
 }
 
 #endif // YADAW_SRC_CONTROLLER_LIBRARYPLUGINPOOL

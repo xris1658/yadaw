@@ -126,4 +126,10 @@ LibraryPluginPool::Instance LibraryPluginPool::createPluginInstance(
     }
     return {};
 }
+
+LibraryPluginPool& appLibraryPluginPool()
+{
+    static LibraryPluginPool ret;
+    return ret;
+}
 }
