@@ -652,4 +652,121 @@ std::optional<
     }
     return std::nullopt;
 }
+
+std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin> createPlugin(
+    const YADAW::Native::Library& library,
+    YADAW::DAO::PluginFormat format,
+    const std::vector<char>& uid
+)
+{
+    if(format == YADAW::DAO::PluginFormat::PluginFormatVST3)
+    {
+        if(uid.size() != sizeof(Steinberg::TUID) / sizeof(char))
+        {
+            break;
+        }
+        auto factoryEntry = library.getExport<VST3Plugin::FactoryEntry>("GetPluginFactory");
+        if(!factoryEntry)
+        {
+            break;
+        }
+        auto init = library.getExport<YADAW::Native::VST3InitEntry>(YADAW::Native::initEntryName);
+        auto exit = library.getExport<VST3Plugin::ExitEntry>(YADAW::Native::exitEntryName);
+        auto vst3Plugin = std::make_unique<VST3Plugin>(
+            init, factoryEntry, exit, library.handle()
+        );
+        if(vst3Plugin->status() == IAudioPlugin::Status::Loaded)
+        {
+            Steinberg::TUID tuid;
+            std::memcpy(tuid, uid.data(), std::size(tuid));
+            if(vst3Plugin->createPlugin(tuid))
+            {
+                return std::move(vst3Plugin);
+            }
+        }
+        break;
+    }
+    else if(format == YADAW::DAO::PluginFormat::PluginFormatCLAP)
+    {
+        auto factoryEntry = library.getExport<const clap_plugin_entry*>("clap_entry");
+        if(!factoryEntry)
+        {
+            break;
+        }
+        auto clapPlugin = std::make_unique<CLAPPlugin>(
+            factoryEntry, library.path()
+        );
+        if(clapPlugin->status() == IAudioPlugin::Status::Loaded
+            && clapPlugin->createPlugin(uid.data()))
+        {
+            return std::move(clapPlugin);
+        }
+    }
+    else if(format == YADAW::DAO::PluginFormat::PluginFormatVestifal)
+    {
+        auto entry = YADAW::Audio::Util::vestifalEntryFromLibrary(library);
+        if(!entry)
+        {
+            break;
+        }
+        std::int32_t id;
+        std::memcpy(&id, uid.data(), sizeof(id));
+        auto vestifalPlugin = std::make_unique<VestifalPlugin>(entry, id);
+        if(vestifalPlugin->status() == IAudioPlugin::Status::Created)
+        {
+            return std::move(vestifalPlugin);
+        }
+    }
+}
+
+std::optional<PluginContext> createPluginWithContext(
+    const QString& path, YADAW::DAO::PluginFormat format,
+    const std::vector<char>& uid)
+{
+    auto& pool = appLibraryPluginPool();
+    if(auto instance = pool.createPluginInstance(
+        path,
+        [format, &uid](const YADAW::Native::Library& library)
+        {
+            return createPlugin(library, format, uid);
+        }
+    ))
+    {
+        PluginContext ret {
+            instance,
+            YADAW::Audio::Engine::AudioDeviceProcess(),
+            YADAW::Util::createUniquePtr(nullptr),
+            nullptr,
+            nullptr,
+            YADAW::Util::createUniquePtr(nullptr)
+        };
+        if(format == YADAW::DAO::PluginFormat::PluginFormatVST3)
+        {
+            auto& plugin = static_cast<YADAW::Audio::Plugin::VST3Plugin&>(
+                instance.plugin()->get()
+            );
+            ret.process = YADAW::Audio::Engine::AudioDeviceProcess(plugin);
+            ret.hostContext = YADAW::Util::createPMRUniquePtr(
+                std::make_unique<YADAW::Audio::Host::VST3ComponentHandler>(plugin)
+            );
+        }
+        else if(format == YADAW::DAO::PluginFormat::PluginFormatCLAP)
+        {
+            auto& plugin = static_cast<YADAW::Audio::Plugin::CLAPPlugin&>(
+                instance.plugin()->get()
+            );
+            ret.process = YADAW::Audio::Engine::AudioDeviceProcess();
+            ret.hostContext = YADAW::Util::createPMRUniquePtr(
+                std::make_unique<YADAW::Audio::Host::CLAPHost>(plugin)
+            );
+        }
+        else if(format == YADAW::DAO::PluginFormat::PluginFormatVestifal)
+        {
+            auto& plugin = static_cast<YADAW::Audio::Plugin::VestifalPlugin&>(instance.plugin()->get());
+            ret.process = YADAW::Audio::Engine::AudioDeviceProcess(plugin);
+            // TODO
+        }
+        return ret;
+    }
+}
 }

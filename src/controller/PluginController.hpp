@@ -4,6 +4,7 @@
 #include "audio/plugin/IAudioPlugin.hpp"
 #include "audio/engine/AudioDeviceProcess.hpp"
 #include "controller/LibraryPluginMap.hpp"
+#include "controller/PluginContext.hpp"
 #include "dao/PluginTable.hpp"
 #include "dao/PluginCategoryTable.hpp"
 #include "native/Library.hpp"
@@ -46,6 +47,10 @@ std::optional<
         PluginAndProcess
     >
 > createPlugin(
+    const QString& path, YADAW::DAO::PluginFormat format,
+    const std::vector<char>& uid);
+
+std::optional<PluginContext> createPluginWithContext(
     const QString& path, YADAW::DAO::PluginFormat format,
     const std::vector<char>& uid);
 }
