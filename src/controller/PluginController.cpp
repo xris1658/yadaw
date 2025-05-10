@@ -663,12 +663,12 @@ std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin> createPlugin(
     {
         if(uid.size() != sizeof(Steinberg::TUID) / sizeof(char))
         {
-            break;
+            return nullptr;
         }
         auto factoryEntry = library.getExport<VST3Plugin::FactoryEntry>("GetPluginFactory");
         if(!factoryEntry)
         {
-            break;
+            return nullptr;
         }
         auto init = library.getExport<YADAW::Native::VST3InitEntry>(YADAW::Native::initEntryName);
         auto exit = library.getExport<VST3Plugin::ExitEntry>(YADAW::Native::exitEntryName);
@@ -684,14 +684,13 @@ std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin> createPlugin(
                 return std::move(vst3Plugin);
             }
         }
-        break;
     }
     else if(format == YADAW::DAO::PluginFormat::PluginFormatCLAP)
     {
         auto factoryEntry = library.getExport<const clap_plugin_entry*>("clap_entry");
         if(!factoryEntry)
         {
-            break;
+            return nullptr;
         }
         auto clapPlugin = std::make_unique<CLAPPlugin>(
             factoryEntry, library.path()
@@ -707,7 +706,7 @@ std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin> createPlugin(
         auto entry = YADAW::Audio::Util::vestifalEntryFromLibrary(library);
         if(!entry)
         {
-            break;
+            return nullptr;
         }
         std::int32_t id;
         std::memcpy(&id, uid.data(), sizeof(id));
@@ -717,6 +716,7 @@ std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin> createPlugin(
             return std::move(vestifalPlugin);
         }
     }
+    return nullptr;
 }
 
 std::optional<PluginContext> createPluginWithContext(
@@ -733,7 +733,7 @@ std::optional<PluginContext> createPluginWithContext(
     ))
     {
         PluginContext ret {
-            instance,
+            std::move(instance),
             YADAW::Audio::Engine::AudioDeviceProcess(),
             YADAW::Util::createUniquePtr(nullptr),
             nullptr,
@@ -743,7 +743,7 @@ std::optional<PluginContext> createPluginWithContext(
         if(format == YADAW::DAO::PluginFormat::PluginFormatVST3)
         {
             auto& plugin = static_cast<YADAW::Audio::Plugin::VST3Plugin&>(
-                instance.plugin()->get()
+                ret.pluginInstance.plugin()->get()
             );
             ret.process = YADAW::Audio::Engine::AudioDeviceProcess(plugin);
             ret.hostContext = YADAW::Util::createPMRUniquePtr(
@@ -753,7 +753,7 @@ std::optional<PluginContext> createPluginWithContext(
         else if(format == YADAW::DAO::PluginFormat::PluginFormatCLAP)
         {
             auto& plugin = static_cast<YADAW::Audio::Plugin::CLAPPlugin&>(
-                instance.plugin()->get()
+                ret.pluginInstance.plugin()->get()
             );
             ret.process = YADAW::Audio::Engine::AudioDeviceProcess();
             ret.hostContext = YADAW::Util::createPMRUniquePtr(
@@ -762,11 +762,14 @@ std::optional<PluginContext> createPluginWithContext(
         }
         else if(format == YADAW::DAO::PluginFormat::PluginFormatVestifal)
         {
-            auto& plugin = static_cast<YADAW::Audio::Plugin::VestifalPlugin&>(instance.plugin()->get());
+            auto& plugin = static_cast<YADAW::Audio::Plugin::VestifalPlugin&>(
+                ret.pluginInstance.plugin()->get()
+            );
             ret.process = YADAW::Audio::Engine::AudioDeviceProcess(plugin);
             // TODO
         }
         return ret;
     }
+    return std::nullopt;
 }
 }

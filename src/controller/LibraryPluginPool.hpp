@@ -2,6 +2,7 @@
 #define YADAW_SRC_CONTROLLER_LIBRARYPLUGINPOOL
 
 #include "audio/plugin/IAudioPlugin.hpp"
+#include "controller/LibraryPluginMap.hpp"
 #include "native/Library.hpp"
 #include "util/AlignHelper.hpp"
 
@@ -11,50 +12,6 @@
 
 namespace YADAW::Controller
 {
-namespace Impl
-{
-using YADAW::Native::Library;
-struct CompareLibrary
-{
-    using is_transparent = void;
-    bool operator()(const Library& lhs, const Library& rhs) const
-    {
-        return lhs.path() < rhs.path();
-    }
-    bool operator()(const Library& lhs, const QString& rhs) const
-    {
-        return lhs.path() < rhs;
-    }
-    bool operator()(const QString& lhs, const Library& rhs) const
-    {
-        return lhs < rhs.path();
-    }
-};
-
-struct ComparePlugin
-{
-    using is_transparent = void;
-    bool operator()(
-        const std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>& lhs,
-        const std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>& rhs) const
-    {
-        return lhs < rhs;
-    }
-    bool operator()(
-        const std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>& lhs,
-        const YADAW::Audio::Plugin::IAudioPlugin* rhs) const
-    {
-        return lhs.get() < rhs;
-    }
-    bool operator()(
-        const YADAW::Audio::Plugin::IAudioPlugin* lhs,
-        const std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin>& rhs) const
-    {
-        return lhs < rhs.get();
-    }
-};
-}
-
 class LibraryPluginPool
 {
     using Pool = std::map<
