@@ -34,6 +34,7 @@ LibraryPluginPool::Instance& LibraryPluginPool::Instance::operator=(Instance&& r
 {
     std::destroy_at(this);
     new(this) Instance(std::move(rhs));
+    return *this;
 }
 
 LibraryPluginPool::Instance::~Instance()
