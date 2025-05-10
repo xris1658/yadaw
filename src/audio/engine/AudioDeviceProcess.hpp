@@ -13,17 +13,19 @@ using YADAW::Audio::Device::AudioProcessData;
 class AudioDeviceProcess
 {
 public:
+    AudioDeviceProcess(): func_(&blankProcess) {}
     template<DerivedTo<YADAW::Audio::Device::IAudioDevice> Device>
     explicit AudioDeviceProcess(Device& device):
         audioDevice_(static_cast<YADAW::Audio::Device::IAudioDevice*>(&device)),
         func_(&doProcess<Device>)
     {}
     AudioDeviceProcess(const AudioDeviceProcess& rhs) = default;
-    AudioDeviceProcess(AudioDeviceProcess&& rhs) = default;
     AudioDeviceProcess& operator=(const AudioDeviceProcess& rhs) = default;
-    AudioDeviceProcess& operator=(AudioDeviceProcess&& rhs) = default;
     ~AudioDeviceProcess() = default;
 private:
+    static void blankProcess(YADAW::Audio::Device::IAudioDevice*,
+        const AudioProcessData<float>&)
+    {}
     template<DerivedTo<YADAW::Audio::Device::IAudioDevice> Device>
     static void doProcess(YADAW::Audio::Device::IAudioDevice* ptr,
         const AudioProcessData<float>& audioProcessData)
