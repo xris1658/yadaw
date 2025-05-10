@@ -103,7 +103,7 @@ public:
     void setUnloadLibraryIfNoPlugins(bool unloadLibraryIfNoPlugins);
     Instance createPluginInstance(
         const QString& path,
-        std::function<CreatePluginFromLibraryCallback>& callback
+        const std::function<CreatePluginFromLibraryCallback>& callback
     );
 private:
     Pool pool_;

@@ -99,7 +99,7 @@ void LibraryPluginPool::setUnloadLibraryIfNoPlugins(bool unloadLibraryIfNoPlugin
 }
 
 LibraryPluginPool::Instance LibraryPluginPool::createPluginInstance(
-    const QString& path, std::function<CreatePluginFromLibraryCallback>& callback)
+    const QString& path, const std::function<CreatePluginFromLibraryCallback>& callback)
 {
     auto it = pool_.lower_bound(path);
     if(it == pool_.end() || it->first.path() != path)
