@@ -76,6 +76,10 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     add_compile_options(-Wextra -Werror=return-type)
 endif()
 
+if(WIN32 AND MINGW)
+    add_compile_options(-Wno-template-body)
+endif()
+
 set(WIN32_NATIVE_SOURCES
     rc/YADAW.rc
     # https://cmake.org/cmake/help/v3.4/release/3.4.html#other
