@@ -37,4 +37,13 @@ void createGenericPluginEditor()
     YADAW::UI::qmlApplicationEngine->loadFromModule("content", "GenericPluginEditor");
     pluginWindows.genericEditorWindow->setTransientParent(YADAW::UI::mainWindow);
 }
+
+void createPluginWindows(PluginContext& context)
+{
+    pluginNeedsWindow = &(context.pluginInstance.plugin()->get());
+    createPluginWindow();
+    createGenericPluginEditor();
+    context.editor = pluginWindows.pluginWindow;
+    context.genericEditor = pluginWindows.genericEditorWindow;
+}
 }

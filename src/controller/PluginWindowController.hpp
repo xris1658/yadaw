@@ -2,6 +2,7 @@
 #define YADAW_SRC_CONTROLLER_PLUGINWINDOWCONTROLLER
 
 #include "audio/plugin/IAudioPlugin.hpp"
+#include "controller/PluginContext.hpp"
 
 #include <QWindow>
 
@@ -22,6 +23,8 @@ extern PluginWindows pluginWindows;
 void createPluginWindow();
 
 void createGenericPluginEditor();
+
+void createPluginWindows(PluginContext& context);
 }
 
 #endif // YADAW_SRC_CONTROLLER_PLUGINWINDOWCONTROLLER
