@@ -61,6 +61,10 @@
     -DCLAP_SOURCE_DIR=<CLAP 所在目录的路径>/clap
   cmake --build . --target YADAW -j 16
   ```
+
+要使用 MSVC 工具链构建，需要去掉 `Path` 中 MSYS 工具链的路径，否则构建时可能会出现
+RC1107 错误（[来源](https://github.com/microsoft/vcpkg/issues/39341)）。
+
 ### 使用 MSYS2 构建
 
 - 下载并安装 [MSYS2](https://www.msys2.org/)。  

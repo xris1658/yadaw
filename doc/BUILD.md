@@ -67,6 +67,10 @@ possible, I'd consider add ARM support in the future.
   cmake --build . --target YADAW -j 16
   ```
 
+You might need to remove paths of the MSYS toolchain from `Path` in order to
+build the project with MSVC toolchain, or the build might fail with RC1107
+([Source](https://github.com/microsoft/vcpkg/issues/39341)).
+
 ### Build with MSYS2
 
 - Download and install [MSYS2](https://www.msys2.org/).
