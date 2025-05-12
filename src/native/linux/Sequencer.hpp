@@ -22,4 +22,4 @@ private:
 
 #endif
 
-#endif //YADAW_SRC_NATIVE_LINUX_SEQUENCER
+#endif // YADAW_SRC_NATIVE_LINUX_SEQUENCER

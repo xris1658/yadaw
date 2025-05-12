@@ -13,4 +13,4 @@ void saveBackendToConfig(YADAW::Entity::AudioBackendSupport::Backend backend,
     YAML::Node& node);
 }
 
-#endif //YADAW_SRC_CONTROLLER_AUDIOBACKENDCONTROLLER
+#endif // YADAW_SRC_CONTROLLER_AUDIOBACKENDCONTROLLER

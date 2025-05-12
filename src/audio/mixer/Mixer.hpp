@@ -559,4 +559,4 @@ private:
 };
 }
 
-#endif //YADAW_SRC_AUDIO_MIXER_MIXER
+#endif // YADAW_SRC_AUDIO_MIXER_MIXER

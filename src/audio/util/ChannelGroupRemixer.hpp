@@ -273,4 +273,4 @@ const float stereoFrom71Normalized[2][8] = {
     }
 };
 }
-#endif //YADAW_SRC_AUDIO_UTIL_CHANNELGROUPREMIXER
+#endif // YADAW_SRC_AUDIO_UTIL_CHANNELGROUPREMIXER

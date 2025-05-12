@@ -74,4 +74,4 @@ private:
 };
 }
 
-#endif //YADAW_SRC_AUDIO_MIXER_INSERTS
+#endif // YADAW_SRC_AUDIO_MIXER_INSERTS

@@ -10,4 +10,4 @@ std::uint32_t firstMainAudioInput(const YADAW::Audio::Device::IAudioDevice& devi
 std::uint32_t firstMainAudioOutput(const YADAW::Audio::Device::IAudioDevice& device);
 }
 
-#endif //YADAW_SRC_AUDIO_UTIL_AUDIODEVICEUTIL
+#endif // YADAW_SRC_AUDIO_UTIL_AUDIODEVICEUTIL

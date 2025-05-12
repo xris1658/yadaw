@@ -11,4 +11,4 @@ YADAW::Audio::Base::ChannelGroupType groupTypeFromConfig(YADAW::Entity::ChannelC
 YADAW::Entity::ChannelConfig::Config configFromGroupType(YADAW::Audio::Base::ChannelGroupType groupType);
 }
 
-#endif //YADAW_SRC_ENTITY_CHANNELCONFIGHELPER
+#endif // YADAW_SRC_ENTITY_CHANNELCONFIGHELPER

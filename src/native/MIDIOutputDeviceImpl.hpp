@@ -9,4 +9,4 @@
 #include "native/linux/MIDIOutputDeviceImpl.hpp"
 #endif
 
-#endif //YADAW_SRC_NATIVE_MIDIOUTPUTDEVICEIMPL
+#endif // YADAW_SRC_NATIVE_MIDIOUTPUTDEVICEIMPL

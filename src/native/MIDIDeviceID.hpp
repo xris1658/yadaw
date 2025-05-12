@@ -52,4 +52,4 @@ struct MIDIDeviceID
 #endif
 }
 
-#endif //YADAW_SRC_NATIVE_MIDIDEVICEID
+#endif // YADAW_SRC_NATIVE_MIDIDEVICEID

@@ -39,4 +39,4 @@ private:
     YADAW::Audio::Util::AudioChannelGroup channelGroup_;
 };
 
-#endif //YADAW_TEST_COMMON_SINEWAVEGENERATOR
+#endif // YADAW_TEST_COMMON_SINEWAVEGENERATOR

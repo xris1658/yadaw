@@ -14,4 +14,4 @@ struct DeviceInfo
 };
 }
 
-#endif //YADAW_SRC_MIDI_DEVICEINFO
+#endif // YADAW_SRC_MIDI_DEVICEINFO

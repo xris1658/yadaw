@@ -100,4 +100,4 @@ struct iterator_traits<YADAW::Util::FibonacciIterator<IntegerType>>
 };
 }
 
-#endif //YADAW_SRC_UTIL_FIBONACCIITERATOR
+#endif // YADAW_SRC_UTIL_FIBONACCIITERATOR
