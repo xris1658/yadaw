@@ -721,7 +721,8 @@ std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin> createPlugin(
 
 std::optional<PluginContext> createPluginWithContext(
     const QString& path, YADAW::DAO::PluginFormat format,
-    const std::vector<char>& uid)
+    const std::vector<char>& uid,
+    const std::function<FillPluginContextCallback>& callback)
 {
     auto& pool = appLibraryPluginPool();
     if(auto instance = pool.createPluginInstance(
@@ -768,7 +769,10 @@ std::optional<PluginContext> createPluginWithContext(
             ret.process = YADAW::Audio::Engine::AudioDeviceProcess(plugin);
             // TODO
         }
-        return ret;
+        if(callback && callback(ret))
+        {
+            return ret;
+        }
     }
     return std::nullopt;
 }

@@ -50,9 +50,12 @@ std::optional<
     const QString& path, YADAW::DAO::PluginFormat format,
     const std::vector<char>& uid);
 
+using FillPluginContextCallback = bool(PluginContext& context);
+
 std::optional<PluginContext> createPluginWithContext(
     const QString& path, YADAW::DAO::PluginFormat format,
-    const std::vector<char>& uid);
+    const std::vector<char>& uid,
+    const std::function<FillPluginContextCallback>& callback);
 }
 
 #endif // YADAW_SRC_CONTROLLER_PLUGINCONTROLLER
