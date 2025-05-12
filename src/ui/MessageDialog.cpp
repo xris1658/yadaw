@@ -8,12 +8,39 @@
 #include <QQuickWindow>
 #include <QVariant>
 
+#include <mutex>
+
 namespace YADAW::UI
 {
 QQuickWindow* messageDialog = nullptr;
 
+std::once_flag connectEngineFlag;
+
+void connectEngine()
+{
+    std::call_once(
+        connectEngineFlag,
+        []()
+        {
+            QObject::connect(
+                YADAW::UI::qmlApplicationEngine,
+                &QQmlApplicationEngine::objectCreated,
+                [](QObject *obj, const QUrl &objUrl)
+                {
+                    const auto& fileName = objUrl.fileName();
+                    if(fileName == "MessageDialog.qml")
+                    {
+                        messageDialog = qobject_cast<QQuickWindow*>(obj);
+                    }
+                }
+            );
+        }
+    );
+}
+
 void createMessageDialog()
 {
+    connectEngine();
     qmlApplicationEngine->loadFromModule("content", "MessageDialog");
 }
 

@@ -35,9 +35,6 @@ int main(int argc, char *argv[])
     const QString splashScreenName("SplashScreen.qml");
     QObject* splashScreen = nullptr;
     const QString mainWindowName("YADAW.qml");
-    const QString pluginWindowName("PluginWindow.qml");
-    const QString genericPluginEditorName("GenericPluginEditor.qml");
-    const QString messageDialogName("MessageDialog.qml");
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
         &app,
         [&](QObject *obj, const QUrl &objUrl)
@@ -64,18 +61,6 @@ int main(int argc, char *argv[])
             else if(fileName == mainWindowName)
             {
                 YADAW::UI::mainWindow = qobject_cast<QQuickWindow*>(obj);
-            }
-            else if(fileName == pluginWindowName)
-            {
-                YADAW::Controller::pluginWindows.pluginWindow = qobject_cast<QWindow*>(obj);
-            }
-            else if(fileName == genericPluginEditorName)
-            {
-                YADAW::Controller::pluginWindows.genericEditorWindow = qobject_cast<QWindow*>(obj);
-            }
-            else if(fileName == messageDialogName)
-            {
-                YADAW::UI::messageDialog = qobject_cast<QQuickWindow*>(obj);
             }
         },
         Qt::DirectConnection
