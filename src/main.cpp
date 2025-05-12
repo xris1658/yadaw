@@ -2,7 +2,6 @@
 #include "base/Constants.hpp"
 #include "controller/ConfigController.hpp"
 #include "controller/LocalizationController.hpp"
-#include "controller/PluginWindowController.hpp"
 #include "event/EventBase.hpp"
 #include "event/EventHandler.hpp"
 #include "event/SplashScreenWorkerThread.hpp"
