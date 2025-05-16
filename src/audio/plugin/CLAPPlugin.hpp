@@ -12,6 +12,7 @@
 #include <clap/plugin.h>
 #include <clap/audio-buffer.h>
 #include <clap/ext/audio-ports.h>
+#include <clap/ext/audio-ports-config.h>
 #include <clap/ext/note-ports.h>
 #include <clap/ext/gui.h>
 #include <clap/ext/latency.h>
@@ -28,6 +29,29 @@ namespace YADAW::Audio::Plugin
 class CLAPPlugin: public YADAW::Audio::Plugin::IAudioPlugin
 {
     friend class YADAW::Audio::Host::CLAPHost;
+public:
+    class AudioPortsConfig
+    {
+    public:
+        AudioPortsConfig();
+        AudioPortsConfig(
+            clap_plugin_audio_ports_config& config, clap_plugin& plugin,
+            std::uint32_t index);
+        AudioPortsConfig(const AudioPortsConfig& rhs) = default;
+        AudioPortsConfig& operator=(const AudioPortsConfig& rhs) = default;
+        ~AudioPortsConfig() = default;
+    public:
+        QUtf8StringView name() const;
+        clap_id id() const;
+        std::uint32_t inputCount() const;
+        std::uint32_t outputCount() const;
+        bool hasMainInput() const;
+        bool hasMainOutput() const;
+        std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t> mainInputType() const;
+        std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t> mainOutputType() const;
+    private:
+        clap_audio_ports_config_t audioPortsConfig_;
+    };
 public:
     CLAPPlugin();
     CLAPPlugin(const clap_plugin_entry* entry, const QString& path);
@@ -77,6 +101,10 @@ public:
     clap_process& processData();
     YADAW::Audio::Host::CLAPHost& host();
     void calledOnMainThread();
+public:
+    std::uint32_t audioPortsConfigCount() const;
+    OptionalRef<const AudioPortsConfig> audioPortsConfigAt(std::uint32_t index) const;
+    bool selectAudioPortsConfig(clap_id id);
 private:
     YADAW::Audio::Host::CLAPHost host_ {*this};
     IAudioPlugin::Status status_ = IAudioPlugin::Status::Empty;
@@ -85,6 +113,7 @@ private:
     const clap_plugin_factory* factory_ = nullptr;
     const clap_plugin* plugin_ = nullptr;
     const clap_plugin_audio_ports* audioPorts_ = nullptr;
+    const clap_plugin_audio_ports_config* audioPortsConfig_ = nullptr;
     const clap_plugin_note_ports* notePorts_ = nullptr;
     const clap_plugin_latency* latency_ = nullptr;
     const clap_plugin_tail* tail_ = nullptr;
@@ -114,6 +143,7 @@ private:
         &CLAPPlugin::blankProcess,
         &CLAPPlugin::doProcess
     };
+    std::vector<AudioPortsConfig> audioPortsConfigs_;
 };
 }
 

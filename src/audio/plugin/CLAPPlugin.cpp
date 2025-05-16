@@ -3,8 +3,84 @@
 #include "audio/util/CLAPHelper.hpp"
 #include "util/IntegerRange.hpp"
 
+#include <ranges>
+
 namespace YADAW::Audio::Plugin
 {
+CLAPPlugin::AudioPortsConfig::AudioPortsConfig():
+    audioPortsConfig_ {.id = CLAP_INVALID_ID}
+{}
+
+CLAPPlugin::AudioPortsConfig::AudioPortsConfig(
+    clap_plugin_audio_ports_config_t& config, clap_plugin& plugin,
+    std::uint32_t index):
+    AudioPortsConfig()
+{
+    config.get(&plugin, index, &audioPortsConfig_);
+}
+
+QUtf8StringView CLAPPlugin::AudioPortsConfig::name() const
+{
+    return QUtf8StringView(audioPortsConfig_.name);
+}
+
+clap_id CLAPPlugin::AudioPortsConfig::id() const
+{
+    return audioPortsConfig_.id;
+}
+
+std::uint32_t CLAPPlugin::AudioPortsConfig::inputCount() const
+{
+    return audioPortsConfig_.input_port_count;
+}
+
+std::uint32_t CLAPPlugin::AudioPortsConfig::outputCount() const
+{
+    return audioPortsConfig_.output_port_count;
+}
+
+bool CLAPPlugin::AudioPortsConfig::hasMainInput() const
+{
+    return audioPortsConfig_.has_main_input;
+}
+
+bool CLAPPlugin::AudioPortsConfig::hasMainOutput() const
+{
+    return audioPortsConfig_.has_main_output;
+}
+
+std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>
+channelGroupType(std::uint32_t channelCount, const char* portType)
+{
+    if(std::strcmp(portType, CLAP_PORT_MONO) == 0)
+    {
+        return {YADAW::Audio::Base::ChannelGroupType::eMono, 1U};
+    }
+    if(std::strcmp(portType, CLAP_PORT_STEREO) == 0)
+    {
+        return {YADAW::Audio::Base::ChannelGroupType::eStereo, 2U};
+    }
+    return {YADAW::Audio::Base::ChannelGroupType::eCustomGroup, channelCount};
+}
+
+std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>
+CLAPPlugin::AudioPortsConfig::mainInputType() const
+{
+    return channelGroupType(
+        audioPortsConfig_.main_input_channel_count,
+        audioPortsConfig_.main_input_port_type
+    );
+}
+
+std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>
+CLAPPlugin::AudioPortsConfig::mainOutputType() const
+{
+    return channelGroupType(
+        audioPortsConfig_.main_output_channel_count,
+        audioPortsConfig_.main_output_port_type
+    );
+}
+
 CLAPPlugin::CLAPPlugin() {}
 
 CLAPPlugin::CLAPPlugin(const clap_plugin_entry* entry, const QString& path):
@@ -90,6 +166,17 @@ bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         {
             return false;
         }
+        getExtension(plugin_, CLAP_EXT_AUDIO_PORTS_CONFIG, &audioPortsConfig_);
+        if(audioPortsConfig_)
+        {
+            auto configCount = audioPortsConfig_->count(plugin_);
+            audioPortsConfigs_.reserve(configCount);
+            clap_audio_ports_config_t* config = nullptr;
+            FOR_RANGE0(i, configCount)
+            {
+                audioPortsConfigs_.emplace_back(config);
+            }
+        }
         getExtension(plugin_, CLAP_EXT_NOTE_PORTS, &notePorts_);
         if(notePorts_)
         {
@@ -113,6 +200,7 @@ bool CLAPPlugin::uninitialize()
     eventProcessor_.reset();
     gui_.reset();
     parameter_.reset();
+    audioPortsConfigs_.clear();
     status_ = IAudioPlugin::Status::Created;
     if(plugin_)
     {
@@ -372,5 +460,38 @@ YADAW::Audio::Host::CLAPHost& CLAPPlugin::host()
 void CLAPPlugin::calledOnMainThread()
 {
     plugin_->on_main_thread(plugin_);
+}
+
+std::uint32_t CLAPPlugin::audioPortsConfigCount() const
+{
+    return audioPortsConfigs_.size();
+}
+
+OptionalRef<const CLAPPlugin::AudioPortsConfig> CLAPPlugin::audioPortsConfigAt(
+    std::uint32_t index) const
+{
+    if(index < audioPortsConfigs_.size())
+    {
+        return {audioPortsConfigs_[index]};
+    }
+    return std::nullopt;
+}
+
+bool CLAPPlugin::selectAudioPortsConfig(clap_id id)
+{
+    if(audioPortsConfig_)
+    {
+        if(audioPortsConfig_->select(plugin_, id))
+        {
+            inputChannelGroups_.clear();
+            outputChannelGroups_.clear();
+            inputBuffers_.clear();
+            outputBuffers_.clear();
+            prepareAudioRelatedInfo();
+            prepareProcessData();
+            return true;
+        }
+    }
+    return false;
 }
 }
