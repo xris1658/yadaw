@@ -10,6 +10,11 @@
 
 class QWindow;
 
+namespace YADAW::Audio::Plugin
+{
+class CLAPPlugin;
+}
+
 namespace YADAW::Controller
 {
 struct PluginContext
@@ -25,35 +30,35 @@ struct PluginContext
 
 namespace Impl
 {
-class ComparePluginContext
+struct ComparePluginContext
 {
     using is_transparent = void;
     bool operator()(
-        const LibraryPluginPool::Instance& lhs,
-        const LibraryPluginPool::Instance& rhs
-    )
+        const PluginContext& lhs,
+        const PluginContext& rhs
+    ) const
     {
-        auto lp = lhs.plugin();
+        auto lp = lhs.pluginInstance.plugin();
         YADAW::Audio::Plugin::IAudioPlugin* lptr = lp.has_value()? &(lp->get()): nullptr;
-        auto rp = rhs.plugin();
+        auto rp = rhs.pluginInstance.plugin();
         YADAW::Audio::Plugin::IAudioPlugin* rptr = rp.has_value()? &(rp->get()): nullptr;
         return lptr < rptr;
     }
     bool operator()(
-        const LibraryPluginPool::Instance& lhs,
+        const PluginContext& lhs,
         YADAW::Audio::Plugin::IAudioPlugin* rhs
-    )
+    ) const
     {
-        auto lp = lhs.plugin();
+        auto lp = lhs.pluginInstance.plugin();
         YADAW::Audio::Plugin::IAudioPlugin* lptr = lp.has_value()? &(lp->get()): nullptr;
         return lptr < rhs;
     }
     bool operator()(
         YADAW::Audio::Plugin::IAudioPlugin* lhs,
-        const LibraryPluginPool::Instance& rhs
-    )
+        const PluginContext& rhs
+    ) const
     {
-        auto rp = rhs.plugin();
+        auto rp = rhs.pluginInstance.plugin();
         YADAW::Audio::Plugin::IAudioPlugin* rptr = rp.has_value()? &(rp->get()): nullptr;
         return lhs < rptr;
     }
