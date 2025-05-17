@@ -12,7 +12,7 @@ CLAPPlugin::AudioPortsConfig::AudioPortsConfig():
 {}
 
 CLAPPlugin::AudioPortsConfig::AudioPortsConfig(
-    clap_plugin_audio_ports_config_t& config, clap_plugin& plugin,
+    const clap_plugin_audio_ports_config_t& config, const clap_plugin& plugin,
     std::uint32_t index):
     AudioPortsConfig()
 {
@@ -174,7 +174,7 @@ bool CLAPPlugin::initialize(double sampleRate, std::int32_t maxSampleCount)
             clap_audio_ports_config_t* config = nullptr;
             FOR_RANGE0(i, configCount)
             {
-                audioPortsConfigs_.emplace_back(config);
+                audioPortsConfigs_.emplace_back(*audioPortsConfig_, *plugin_, i);
             }
         }
         getExtension(plugin_, CLAP_EXT_NOTE_PORTS, &notePorts_);

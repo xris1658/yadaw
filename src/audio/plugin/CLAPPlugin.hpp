@@ -35,7 +35,7 @@ public:
     public:
         AudioPortsConfig();
         AudioPortsConfig(
-            clap_plugin_audio_ports_config& config, clap_plugin& plugin,
+            const clap_plugin_audio_ports_config& config, const clap_plugin& plugin,
             std::uint32_t index);
         AudioPortsConfig(const AudioPortsConfig& rhs) = default;
         AudioPortsConfig& operator=(const AudioPortsConfig& rhs) = default;
