@@ -28,6 +28,18 @@ struct PluginContext
     YADAW::Util::PMRUniquePtr<void> userData;
 };
 
+struct InitPluginArgs
+{
+    YADAW::Audio::Base::ChannelGroupType channelGroupType;
+    std::uint32_t channelCountInGroup;
+    using SelectCLAPAudioPortConfigCallback = std::optional<std::uint32_t>(
+        YADAW::Audio::Plugin::CLAPPlugin& plugin,
+        YADAW::Audio::Base::ChannelGroupType channelGroupType,
+        std::uint32_t channelCountInGroup
+    );
+    std::function<SelectCLAPAudioPortConfigCallback> selectCLAPAudioPortConfigCallback;
+};
+
 namespace Impl
 {
 struct ComparePluginContext
