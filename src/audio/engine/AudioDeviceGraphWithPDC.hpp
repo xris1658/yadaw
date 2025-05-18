@@ -26,7 +26,7 @@ public:
     AudioDeviceGraphWithPDC(AudioDeviceGraphWithPDC&&) = delete;
     ~AudioDeviceGraphWithPDC();
 public:
-    ade::NodeHandle addNode(YADAW::Audio::Engine::AudioDeviceProcess&& process);
+    ade::NodeHandle addNode(YADAW::Audio::Engine::AudioDeviceProcess process);
     [[nodiscard]] std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> removeNode(const ade::NodeHandle& nodeHandle);
     void clearMultiInputNodes();
 public:

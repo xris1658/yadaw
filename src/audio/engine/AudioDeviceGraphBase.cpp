@@ -61,11 +61,11 @@ AudioDeviceGraphBase::EdgeData& AudioDeviceGraphBase::getEdgeData(
     return typedGraph_.metadata(edgeHandle).get<EdgeData>();
 }
 
-ade::NodeHandle AudioDeviceGraphBase::addNode(AudioDeviceProcess&& process)
+ade::NodeHandle AudioDeviceGraphBase::addNode(AudioDeviceProcess process)
 {
     auto ret = typedGraph_.createNode();
     typedGraph_.metadata(ret).set<NodeData>(
-        NodeData{std::move(process), nullptr});
+        NodeData{process, nullptr});
     afterAddNodeCallback_(*this, ret);
     return ret;
 }

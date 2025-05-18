@@ -20,9 +20,10 @@ using namespace YADAW::Audio::Plugin;
 
 struct PluginAndProcess
 {
+    PluginAndProcess() = default;
     PluginAndProcess(YADAW::Audio::Plugin::IAudioPlugin* plugin,
-        YADAW::Audio::Engine::AudioDeviceProcess&& process):
-        plugin(plugin), process(std::move(process))
+        YADAW::Audio::Engine::AudioDeviceProcess process):
+        plugin(plugin), process(process)
     {}
     PluginAndProcess(PluginAndProcess&&) noexcept = default;
     YADAW::Audio::Plugin::IAudioPlugin* plugin;

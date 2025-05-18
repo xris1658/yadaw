@@ -52,7 +52,7 @@ public:
     EdgeData& getEdgeData(const ade::EdgeHandle& edgeHandle);
 public:
     ade::NodeHandle addNode(
-        YADAW::Audio::Engine::AudioDeviceProcess&& process);
+        YADAW::Audio::Engine::AudioDeviceProcess process);
     void removeNode(const ade::NodeHandle& nodeHandle);
     std::optional<ade::EdgeHandle> connect(
         const ade::NodeHandle& fromNode, const ade::NodeHandle& toNode,

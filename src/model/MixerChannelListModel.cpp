@@ -1254,7 +1254,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                     pluginPtr,
                     YADAW::Controller::VST3PluginContext{vst3ComponentHandler}
                 );
-                nodeHandle = graphWithPDC.addNode(std::move(process));
+                nodeHandle = graphWithPDC.addNode(process);
                 if(pluginPtr->audioInputGroupCount() > 1)
                 {
                     auto deviceWithPDC = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
@@ -1290,7 +1290,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 pluginPtr,
                 YADAW::Controller::CLAPPluginContext{clapEventList}
             );
-            nodeHandle = graphWithPDC.addNode(std::move(process));
+            nodeHandle = graphWithPDC.addNode(process);
             if(pluginPtr->audioInputGroupCount() > 1)
             {
                 auto deviceWithPDC = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
@@ -1765,7 +1765,7 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
         {
             plugin->startProcessing();
         }
-        instruments_[index]->instrumentNode = graphWithPDC.addNode(std::move(process));
+        instruments_[index]->instrumentNode = graphWithPDC.addNode(process);
         // TODO: Restore additional connections
         setData(this->index(index), QVariant::fromValue<bool>(instrumentIsBypassed),
             IMixerChannelListModel::Role::InstrumentBypassed

@@ -236,7 +236,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                     pluginPtr,
                     YADAW::Controller::VST3PluginContext{vst3ComponentHandler}
                 );
-                auto nodeHandle = graphWithPDC.addNode(std::move(process));
+                auto nodeHandle = graphWithPDC.addNode(process);
                 if(pluginPtr->audioInputGroupCount() > 1)
                 {
                     auto deviceWithPDC = static_cast<MultiInputDeviceWithPDC*>(
@@ -277,7 +277,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 pluginPtr,
                 YADAW::Controller::CLAPPluginContext{clapEventList}
             );
-            auto nodeHandle = graphWithPDC.addNode(std::move(process));
+            auto nodeHandle = graphWithPDC.addNode(process);
             if(pluginPtr->audioInputGroupCount() > 1)
             {
                 auto deviceWithPDC = static_cast<MultiInputDeviceWithPDC*>(
@@ -720,7 +720,7 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
         {
             plugin->startProcessing();
         }
-        node = graphWithPDC.addNode(std::move(process));
+        node = graphWithPDC.addNode(process);
         inserts_->insert(
             node,
             YADAW::Util::createUniquePtr(nullptr), // TODO

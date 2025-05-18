@@ -2,8 +2,8 @@
 
 namespace YADAW::Audio::Engine
 {
-MultiInputDeviceWithPDC::MultiInputDeviceWithPDC(AudioDeviceProcess&& process):
-    process_(std::move(process))
+MultiInputDeviceWithPDC::MultiInputDeviceWithPDC(AudioDeviceProcess process):
+    process_(process)
 {
     auto device = process_.device();
     auto inputCount = device->audioInputGroupCount();

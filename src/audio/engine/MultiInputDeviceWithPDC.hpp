@@ -31,7 +31,7 @@ class MultiInputDeviceWithPDC:
 {
     using Self = MultiInputDeviceWithPDC;
 public:
-    MultiInputDeviceWithPDC(YADAW::Audio::Engine::AudioDeviceProcess&& process);
+    MultiInputDeviceWithPDC(YADAW::Audio::Engine::AudioDeviceProcess process);
     MultiInputDeviceWithPDC(const Self&) = delete;
     MultiInputDeviceWithPDC(Self&&) noexcept = delete;
     ~MultiInputDeviceWithPDC() override;
