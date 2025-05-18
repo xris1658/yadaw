@@ -239,11 +239,19 @@ IMixerChannelListModel::ChannelTypes getChannelType(YADAW::Audio::Mixer::Mixer::
     return static_cast<IMixerChannelListModel::ChannelTypes>(YADAW::Util::underlyingValue(type));
 }
 
+bool blankFillPluginContext(
+    YADAW::Controller::PluginContext& context,
+    const YADAW::Controller::InitPluginArgs& initPluginArgs)
+{
+    return false;
+}
+
 MixerChannelListModel::MixerChannelListModel(
     YADAW::Audio::Mixer::Mixer& mixer, ListType listType, QObject* parent):
     IMixerChannelListModel(parent),
     mixer_(mixer),
-    listType_(listType)
+    listType_(listType),
+    fillPluginContextCallback_(&blankFillPluginContext)
 {
     YADAW::Util::setCppOwnership(*this);
     auto count = itemCount();
@@ -1217,6 +1225,23 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
             return false;
         }
         removeInstrument(position);
+        YADAW::Controller::InitPluginArgs initPluginArgs;
+        auto [channelGroupType, channelCountInGroup] = *mixer_.channelGroupTypeAndChannelCountAt(position);
+        initPluginArgs.channelGroupType = channelGroupType;
+        initPluginArgs.channelCountInGroup = channelCountInGroup;
+        if(static_cast<PluginFormat>(pluginInfo.format) == PluginFormat::PluginFormatCLAP)
+        {
+            initPluginArgs.selectCLAPAudioPortConfigCallback = nullptr;
+        }
+        auto instrumentContext = YADAW::Controller::createPluginWithContext(
+            pluginInfo.path,
+            static_cast<YADAW::DAO::PluginFormat>(pluginInfo.format),
+            pluginInfo.uid,
+            [this, &initPluginArgs](YADAW::Controller::PluginContext& context)
+            {
+                return fillPluginContextCallback_(context, initPluginArgs);
+            }
+        );
         auto& [it, pluginAndProcess] = *optionalCreatePluginResult;
         auto& [plugin, process] = pluginAndProcess;
         switch(pluginInfo.format)
@@ -1671,6 +1696,17 @@ YADAW::Audio::Mixer::Mixer& MixerChannelListModel::mixer()
 const YADAW::Audio::Mixer::Mixer& MixerChannelListModel::mixer() const
 {
     return mixer_;
+}
+
+void MixerChannelListModel::setFillPluginContextCallback(
+    std::function<FillPluginContextCallback>&& callback)
+{
+    fillPluginContextCallback_ = std::move(callback);
+}
+
+void MixerChannelListModel::resetFillPluginContextCallback()
+{
+    fillPluginContextCallback_ = &blankFillPluginContext;
 }
 
 void MixerChannelListModel::instrumentLatencyUpdated(std::uint32_t index) const

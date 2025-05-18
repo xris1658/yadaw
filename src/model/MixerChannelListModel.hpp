@@ -4,6 +4,7 @@
 #include "model/IMixerChannelListModel.hpp"
 
 #include "audio/mixer/Mixer.hpp"
+#include "controller/PluginContext.hpp"
 #include "entity/IAudioIOPosition.hpp"
 #include "model/AudioDeviceIOGroupListModel.hpp"
 #include "model/PolarityInverterModel.hpp"
@@ -29,6 +30,10 @@ public:
         Regular,
         AudioHardwareOutput
     };
+    using FillPluginContextCallback = bool(
+        YADAW::Controller::PluginContext&,
+        const YADAW::Controller::InitPluginArgs& initPluginArgs
+    );
 public:
     MixerChannelListModel(YADAW::Audio::Mixer::Mixer& mixer,
         ListType listType,
@@ -71,6 +76,8 @@ public:
     YADAW::Audio::Mixer::Mixer& mixer();
     const YADAW::Audio::Mixer::Mixer& mixer() const;
 public:
+    void setFillPluginContextCallback(std::function<FillPluginContextCallback>&& callback);
+    void resetFillPluginContextCallback();
     void instrumentLatencyUpdated(std::uint32_t index) const;
     void updateInstrumentIOConfig(std::uint32_t index);
 private:
@@ -91,6 +98,7 @@ private:
     ListType listType_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToInputPositions_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToOutputPositions_;
+    std::function<FillPluginContextCallback> fillPluginContextCallback_;
 };
 }
 

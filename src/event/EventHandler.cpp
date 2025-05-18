@@ -1,6 +1,8 @@
 #include "EventHandler.hpp"
 
 #include "audio/host/CLAPHost.hpp"
+#include "audio/plugin/CLAPPlugin.hpp"
+#include "audio/plugin/VST3Plugin.hpp"
 #include "base/Constants.hpp"
 #include "controller/AppController.hpp"
 #include "controller/AssetDirectoryController.hpp"
@@ -13,7 +15,10 @@
 #include "controller/MixerChannelListModelController.hpp"
 #include "controller/PluginController.hpp"
 #include "controller/PluginDirectoryController.hpp"
+#include "controller/PluginIOConfigUpdatedCallback.hpp"
+#include "controller/PluginLatencyUpdatedCallback.hpp"
 #include "controller/PluginListController.hpp"
+#include "controller/PluginWindowController.hpp"
 #include "entity/ChannelConfigHelper.hpp"
 #include "event/EventBase.hpp"
 #include "model/HardwareAudioIOPositionModel.hpp"
@@ -52,6 +57,11 @@
 #include <algorithm>
 #include <deque>
 #include <thread>
+
+bool fillPluginContext(
+    YADAW::Controller::PluginContext&,
+    const YADAW::Controller::InitPluginArgs& initPluginArgs
+);
 
 namespace YADAW::Event
 {
@@ -302,6 +312,9 @@ void EventHandler::onOpenMainWindow()
     engine.updateProcessSequence();
     auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
     YADAW::Audio::Host::CLAPHost::setMainThreadId(std::this_thread::get_id());
+    mixerChannels.setFillPluginContextCallback(fillPluginContext);
+    audioInputMixerChannels.setFillPluginContextCallback(fillPluginContext);
+    audioOutputMixerChannels.setFillPluginContextCallback(fillPluginContext);
     // Start the audio backend
 #if __APPLE__
 #else
@@ -784,4 +797,70 @@ void EventHandler::onCommitBatchUpdate()
     auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
     engine.mixer().resetBatchUpdater();
 }
+}
+
+bool fillPluginContext(
+    YADAW::Controller::PluginContext& context,
+    const YADAW::Controller::InitPluginArgs& initPluginArgs)
+{
+    auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
+    auto ret = false;
+    auto& plugin = context.pluginInstance.plugin()->get();
+    if(auto format = plugin.format(); format == YADAW::Audio::Plugin::PluginFormat::VST3)
+    {
+        auto& vst3Plugin = static_cast<YADAW::Audio::Plugin::VST3Plugin&>(plugin);
+        auto componentHandler = std::make_unique<YADAW::Audio::Host::VST3ComponentHandler>(
+            vst3Plugin
+        );
+        componentHandler->setLatencyChangedCallback(
+            &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::VST3Plugin>
+        );
+        componentHandler->setIOChangedCallback(
+            &YADAW::Controller::ioConfigUpdated<YADAW::Audio::Plugin::VST3Plugin>
+        );
+        context.hostContext = YADAW::Util::createPMRUniquePtr(
+            std::move(componentHandler)
+        );
+        plugin.initialize(engine.sampleRate(), engine.bufferSize());
+        std::vector<YADAW::Audio::Base::ChannelGroupType> types(
+            std::max(vst3Plugin.audioInputGroupCount(), vst3Plugin.audioOutputGroupCount()),
+            initPluginArgs.channelGroupType
+        );
+        vst3Plugin.setChannelGroups(
+            types.data(), vst3Plugin.audioInputGroupCount(),
+            types.data(), vst3Plugin.audioOutputGroupCount()
+        );
+        vst3Plugin.activate();
+        vst3Plugin.startProcessing();
+        ret = true;
+    }
+    else if(format == YADAW::Audio::Plugin::PluginFormat::CLAP)
+    {
+        auto& clapPlugin = static_cast<YADAW::Audio::Plugin::CLAPPlugin&>(plugin);
+        clapPlugin.host().setLatencyChangedCallback(
+            &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::CLAPPlugin>
+        );
+        clapPlugin.initialize(engine.sampleRate(), engine.bufferSize());
+        clapPlugin.activate();
+        auto eventList = std::make_unique<YADAW::Audio::Host::CLAPEventList>();
+        eventList->attachToProcessData(clapPlugin.processData());
+        context.hostContext = YADAW::Util::createPMRUniquePtr(
+            std::move(eventList)
+        );
+        auto& pluginToSetProcess = engine.clapPluginToSetProcess();
+        pluginToSetProcess.update(
+            std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
+                1, std::make_pair(&clapPlugin, true)
+            ),
+            engine.running()
+        );
+        pluginToSetProcess.getOld(engine.running()).reset();
+        ret = true;
+    }
+    if(ret)
+    {
+        engine.mixer().graph().addNode(context.process);
+        YADAW::Controller::createPluginWindows(context);
+    }
+    return ret;
 }
