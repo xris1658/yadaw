@@ -29,6 +29,7 @@ set(CONTENT_CPP_FILES
     model/IAudioIOPositionItemModel.hpp
     model/IAudioIOPositionModel.hpp
     model/IAutomationModel.hpp
+    model/ICLAPAudioBusConfigurationListModel.hpp
     model/IFileTreeModel.hpp
     model/ILocalizationListModel.hpp
     model/IMixerChannelInsertListModel.hpp
