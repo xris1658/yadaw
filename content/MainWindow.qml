@@ -1044,4 +1044,45 @@ ApplicationWindow {
         id: pluginScanProgressWindow
         transientParent: preferencesWindow
     }
+    Window {
+        id: clapAudioBusConfigurationSelectorWindow
+        width: clapAudioBusConfigurationSelector.width
+        height: clapAudioBusConfigurationSelector.height
+        color: Colors.background
+        flags: Qt.Tool | Qt.FramelessWindowHint
+        signal accepted()
+        signal tryDefault()
+        signal cancelled()
+        CLAPAudioBusConfigurationSelector {
+            id: clapAudioBusConfigurationSelector
+            // audioBusConfigurationListProxyModel.sourceModel: null /*FIXME*/
+            onAccepted: {
+                clapAudioBusConfigurationSelectorWindow.accepted();
+                clapAudioBusConfigurationSelectorWindow.hide();
+            }
+            onCancelled: {
+                clapAudioBusConfigurationSelectorWindow.cancelled();
+                clapAudioBusConfigurationSelectorWindow.hide();
+            }
+            onTryDefault: {
+                clapAudioBusConfigurationSelectorWindow.tryDefault();
+                clapAudioBusConfigurationSelectorWindow.hide();
+            }
+            onActiveFocusChanged: {
+                if(!activeFocus) {
+                    cancelled();
+                }
+            }
+        }
+        onVisibleChanged: {
+            if(visible) {
+                clapAudioBusConfigurationSelector.open();
+                clapAudioBusConfigurationSelector.forceActiveFocus();
+                requestActivate();
+            }
+            else {
+                clapAudioBusConfigurationSelector.close();
+            }
+        }
+    }
 }

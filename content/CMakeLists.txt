@@ -76,6 +76,7 @@ set(CONTENT_QML_FILES
     BigClock.qml
     Button.qml
     BypassIcon.qml
+    CLAPAudioBusConfigurationSelector.qml
     CLAPIcon.qml
     CheckBox.qml
     ColorPicker.qml

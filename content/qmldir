@@ -31,6 +31,7 @@ BigClock 1.0 BigClock.qml
 Button 1.0 Button.qml
 BypassIcon 1.0 BypassIcon.qml
 CheckBox 1.0 CheckBox.qml
+CLAPAudioBusConfigurationSelector 1.0 CLAPAudioBusConfigurationSelector.qml
 CLAPIcon 1.0 CLAPIcon.qml
 ColorPicker 1.0 ColorPicker.qml
 ColorPickerWindow 1.0 ColorPickerWindow.qml
