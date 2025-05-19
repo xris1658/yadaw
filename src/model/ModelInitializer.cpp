@@ -9,6 +9,7 @@
 #include "model/IAudioIOPositionItemModel.hpp"
 #include "model/IAudioIOPositionModel.hpp"
 #include "model/IAutomationModel.hpp"
+#include "model/ICLAPAudioBusConfigurationListModel.hpp"
 #include "model/IFileTreeModel.hpp"
 #include "model/ILocalizationListModel.hpp"
 #include "model/IMixerChannelInsertListModel.hpp"
@@ -45,6 +46,7 @@ void initializeModel()
     QML_REGISTER_UNCREATABLE_TYPE(IAudioIOPositionItemModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IAudioIOPositionModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IAutomationModel, YADAW.Models, 1, 0, modelIsInterfaceText);
+    QML_REGISTER_UNCREATABLE_TYPE(ICLAPAudioBusConfigurationListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IFileTreeModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(ILocalizationListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IMixerChannelInsertListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
