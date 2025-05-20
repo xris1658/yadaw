@@ -129,6 +129,24 @@ std::optional<bool> Inserts::insertBypassed(std::uint32_t index) const
     return std::nullopt;
 }
 
+std::optional<std::uint32_t> Inserts::insertInputChannelGroupIndexAt(std::uint32_t index) const
+{
+    if(index < insertCount())
+    {
+        return {channelGroupIndices_[index].first};
+    }
+    return std::nullopt;
+}
+
+std::optional<std::uint32_t> Inserts::insertOutputChannelGroupIndexAt(std::uint32_t index) const
+{
+    if(index < insertCount())
+    {
+        return {channelGroupIndices_[index].second};
+    }
+    return std::nullopt;
+}
+
 std::optional<IDGen::ID> Inserts::insertAuxInputID(
     std::uint32_t insertIndex, std::uint32_t channelGroupIndex) const
 {
