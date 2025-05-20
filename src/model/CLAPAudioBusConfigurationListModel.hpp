@@ -19,6 +19,9 @@ public:
     int rowCount(const QModelIndex& parent) const override;
     QVariant data(const QModelIndex& index, int role) const override;
 public:
+    bool isComparable(int roleIndex) const override;
+    bool isFilterable(int roleIndex) const override;
+    bool isSearchable(int roleIndex) const override;
     bool isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const override;
     bool isSearchPassed(int roleIndex, const QModelIndex& modelIndex, const QString& string, Qt::CaseSensitivity) const override;
     bool isPassed(const QModelIndex& modelIndex, int role, const QVariant& variant) const override;

@@ -73,6 +73,21 @@ QVariant CLAPAudioBusConfigurationListModel::data(const QModelIndex& index, int 
     return {};
 }
 
+bool CLAPAudioBusConfigurationListModel::isComparable(int roleIndex) const
+{
+    return false;
+}
+
+bool CLAPAudioBusConfigurationListModel::isFilterable(int roleIndex) const
+{
+    return false;
+}
+
+bool CLAPAudioBusConfigurationListModel::isSearchable(int roleIndex) const
+{
+    return false;
+}
+
 bool CLAPAudioBusConfigurationListModel::isLess(int roleIndex, const QModelIndex& lhs, const QModelIndex& rhs) const
 {
     return false;
