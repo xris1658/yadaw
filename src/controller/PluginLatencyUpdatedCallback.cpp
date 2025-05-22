@@ -28,6 +28,11 @@ void latencyUpdated(Audio::Plugin::IAudioPlugin& plugin)
         else if(context.position == YADAW::Controller::PluginPosition::InChannelPosition::Instrument)
         {
             auto channelListModel = static_cast<YADAW::Model::MixerChannelListModel*>(context.model);
+            // Inform the graph
+            auto nodeHandle = channelListModel->mixer().getInstrument(context.index);
+            auto& upstreamLatencyExt = channelListModel->mixer().graph().upstreamLatencyExtension();
+            upstreamLatencyExt.onLatencyOfNodeUpdated(nodeHandle);
+            // Inform the model
             channelListModel->instrumentLatencyUpdated(context.index);
         }
     }
@@ -48,6 +53,11 @@ void latencyUpdated(Audio::Plugin::IAudioPlugin& plugin)
         else if(context.position == YADAW::Controller::PluginPosition::InChannelPosition::Instrument)
         {
             auto channelListModel = static_cast<YADAW::Model::MixerChannelListModel*>(context.model);
+            // Inform the graph
+            auto nodeHandle = channelListModel->mixer().getInstrument(context.index);
+            auto& upstreamLatencyExt = channelListModel->mixer().graph().upstreamLatencyExtension();
+            upstreamLatencyExt.onLatencyOfNodeUpdated(nodeHandle);
+            // Inform the model
             channelListModel->instrumentLatencyUpdated(context.index);
         }
     }
