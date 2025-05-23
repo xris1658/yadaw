@@ -25,6 +25,7 @@ struct PluginContext
     QWindow* editor = nullptr;
     QWindow* genericEditor = nullptr;
     PluginPosition position;
+    ade::NodeHandle node;
     YADAW::Util::PMRUniquePtr<void> userData;
 };
 

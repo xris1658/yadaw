@@ -952,7 +952,7 @@ bool fillPluginContext(
     }
     if(ret)
     {
-        engine.mixer().graph().addNode(context.process);
+        context.node = engine.mixer().graph().addNode(context.process);
         YADAW::Controller::createPluginWindows(context);
     }
     return ret;
