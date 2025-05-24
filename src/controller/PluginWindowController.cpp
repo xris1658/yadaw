@@ -74,9 +74,12 @@ void createPluginWindows(PluginContext& context)
 {
     connectEngine();
     pluginNeedsWindow = &(context.pluginInstance.plugin()->get());
-    createPluginWindow();
+    if(pluginNeedsWindow->gui())
+    {
+        createPluginWindow();
+        context.editor = pluginWindows.pluginWindow;
+    }
     createGenericPluginEditor();
-    context.editor = pluginWindows.pluginWindow;
     context.genericEditor = pluginWindows.genericEditorWindow;
 }
 }
