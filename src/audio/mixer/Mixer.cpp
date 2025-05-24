@@ -3526,7 +3526,8 @@ ade::NodeHandle Mixer::getInstrument(std::uint32_t index) const
 OptionalRef<const Context> Mixer::getInstrumentContext(std::uint32_t index) const
 {
     if(index < channelCount()
-        && channelInfo_[index].channelType == ChannelType::Instrument)
+        && channelInfo_[index].channelType == ChannelType::Instrument
+        && instrumentContexts_[index])
     {
         return instrumentContexts_[index];
     }
@@ -3536,7 +3537,8 @@ OptionalRef<const Context> Mixer::getInstrumentContext(std::uint32_t index) cons
 OptionalRef<Context> Mixer::getInstrumentContext(std::uint32_t index)
 {
     if(index < channelCount()
-        && channelInfo_[index].channelType == ChannelType::Instrument)
+        && channelInfo_[index].channelType == ChannelType::Instrument
+        && instrumentContexts_[index])
     {
         return instrumentContexts_[index];
     }
