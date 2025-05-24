@@ -2,6 +2,7 @@
 #define YADAW_SRC_CONTROLLER_PLUGINCONTEXT
 
 #include "audio/engine/AudioDeviceProcess.hpp"
+#include "audio/engine/AudioDeviceGraphBase.hpp"
 #include "controller/LibraryPluginPool.hpp"
 #include "controller/PluginPositionMap.hpp"
 #include "util/PolymorphicDeleter.hpp"
