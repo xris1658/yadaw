@@ -25,22 +25,21 @@
 
 namespace YADAW::Model
 {
-struct InstrumentInstance
+struct InstrumentContextUserData
 {
-    YADAW::Audio::Plugin::IAudioPlugin* plugin;
-    ade::NodeHandle instrumentNode;
-    YADAW::UI::WindowAndConnection pluginWindowConnection;
-    YADAW::UI::WindowAndConnection genericEditorWindowConnection;
+    QMetaObject::Connection pluginWindowConnection;
+    QMetaObject::Connection genericEditorWindowConnection;
     YADAW::Model::PluginParameterListModel paramListModel;
-    YADAW::Controller::LibraryPluginMap::iterator libraryPluginIterator = {};
-    YADAW::Controller::PluginPositionMap::iterator pluginContextIterator = {};
+    YADAW::Model::AudioDeviceIOGroupListModel instrumentAudioInputs;
+    YADAW::Model::AudioDeviceIOGroupListModel instrumentAudioOutputs;
     QString name;
-    template<typename T>
-    InstrumentInstance(YADAW::Audio::Mixer::Mixer& mixer, T* plugin):
-        plugin(plugin),
-        pluginWindowConnection(nullptr),
-        genericEditorWindowConnection(nullptr),
-        paramListModel(*(plugin->parameter()))
+    InstrumentContextUserData(
+        const YADAW::Controller::PluginContext& pluginContext,
+        const QString& name):
+        paramListModel(*(pluginContext.pluginInstance.plugin()->get().parameter())),
+        instrumentAudioInputs(pluginContext.pluginInstance.plugin()->get(), true),
+        instrumentAudioOutputs(pluginContext.pluginInstance.plugin()->get(), false),
+        name(name)
     {}
 };
 
@@ -292,10 +291,6 @@ MixerChannelListModel::MixerChannelListModel(
     );
     if(listType_ == ListType::Regular)
     {
-        instruments_.reserve(count);
-        std::fill_n(std::back_inserter(instruments_), count, nullptr);
-        std::fill_n(std::back_inserter(instrumentAudioInputs_), count, nullptr);
-        std::fill_n(std::back_inserter(instrumentAudioOutputs_), count, nullptr);
         std::fill_n(std::back_inserter(mainInput_), count, nullptr);
         std::fill_n(std::back_inserter(mainOutput_), count, nullptr);
     }
@@ -450,7 +445,8 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         {
             return QVariant::fromValue(
                 listType_ == ListType::Regular
-                && static_cast<bool>(instruments_[row])
+                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
+                && mixer_.getInstrumentContext(row)
             );
         }
         case Role::InstrumentBypassed:
@@ -460,65 +456,103 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::InstrumentName:
         {
-            if(listType_ == ListType::Regular && instruments_[row])
+            if(listType_ == ListType::Regular
+                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
-                return QVariant::fromValue(instruments_[row]->name);
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    auto& instrumentContext = *static_cast<InstrumentContextUserData*>(pluginContext.userData.get());
+                    return QVariant::fromValue(instrumentContext.name);
+                }
             }
             return {};
         }
         case Role::InstrumentAudioInputs:
         {
-            return QVariant::fromValue<QObject*>(
-                listType_ == ListType::Regular?
-                    instrumentAudioInputs_[row].get():
-                    nullptr
-            );
-        }
-        case Role::InstrumentAudioOutputs:
-        {
-            return QVariant::fromValue<QObject*>(
-                listType_ == ListType::Regular?
-                    instrumentAudioOutputs_[row].get():
-                    nullptr
-            );
-        }
-        case Role::InstrumentHasUI:
-        {
-            if(listType_ == ListType::Regular && instruments_[row])
+            if(listType_ == ListType::Regular
+                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
-                auto ret = static_cast<bool>(instruments_[row]->plugin->gui());
-                return QVariant::fromValue<bool>(ret);
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    auto& instrumentContext = *static_cast<InstrumentContextUserData*>(pluginContext.userData.get());
+                    return QVariant::fromValue(&(instrumentContext.instrumentAudioInputs));
+                }
             }
             return {};
         }
+        case Role::InstrumentAudioOutputs:
+        {
+            if(listType_ == ListType::Regular
+                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+            {
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    auto& instrumentContext = *static_cast<InstrumentContextUserData*>(pluginContext.userData.get());
+                    return QVariant::fromValue(&(instrumentContext.instrumentAudioOutputs));
+                }
+            }
+            return {};
+        }
+        case Role::InstrumentHasUI:
+        {
+            if(listType_ == ListType::Regular
+                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+            {
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    auto& plugin = pluginContext.pluginInstance.plugin()->get();
+                    return static_cast<bool>(plugin.gui());
+                }
+            }
+            return false;
+        }
         case Role::InstrumentWindowVisible:
         {
-            if(listType_ == ListType::Regular && instruments_[row])
+            if(listType_ == ListType::Regular
+                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
-                if(auto window = instruments_[row]->pluginWindowConnection.window; window)
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
                 {
-                    auto ret = window->isVisible();
-                    return QVariant::fromValue(ret);
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    return QVariant::fromValue<bool>(pluginContext.editor && pluginContext.editor->isVisible());
                 }
             }
             return {};
         }
         case Role::InstrumentGenericEditorVisible:
         {
-            if(listType_ == ListType::Regular && instruments_[row])
+            if(listType_ == ListType::Regular
+                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
-                auto window = instruments_[row]->genericEditorWindowConnection.window;
-                return QVariant::fromValue(window->isVisible());
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    return QVariant::fromValue<bool>(pluginContext.genericEditor && pluginContext.genericEditor->isVisible());
+                }
             }
             return {};
         }
         case Role::InstrumentLatency:
         {
-            if(listType_ == ListType::Regular && instruments_[row])
+            if(listType_ == ListType::Regular
+                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
-                return QVariant::fromValue(
-                    instruments_[row]->plugin->latencyInSamples()
-                );
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    return QVariant::fromValue<int>(pluginContext.pluginInstance.plugin()->get().latencyInSamples());
+                }
             }
             return {};
         }
@@ -812,25 +846,35 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         }
         case Role::InstrumentWindowVisible:
         {
-            if(listType_ == ListType::Regular && instruments_[row])
+            if(listType_ == ListType::Regular
+                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
-                if(auto window = instruments_[row]->pluginWindowConnection.window; window)
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
                 {
-                    window->setVisible(value.value<bool>());
-                    dataChanged(this->index(row), this->index(row), {Role::InstrumentWindowVisible});
-                    return true;
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    if(auto editor = pluginContext.editor)
+                    {
+                        editor->setVisible(value.value<bool>());
+                        return true;
+                    }
                 }
             }
             return false;
         }
         case Role::InstrumentGenericEditorVisible:
         {
-            if(listType_ == ListType::Regular && instruments_[row])
+            if(listType_ == ListType::Regular
+                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
-                auto window = instruments_[row]->genericEditorWindowConnection.window;
-                window->setVisible(value.value<bool>());
-                dataChanged(this->index(row), this->index(row), {Role::InstrumentGenericEditorVisible});
-                return true;
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    auto genericEditor = pluginContext.genericEditor;
+                    genericEditor->setVisible(value.value<bool>());
+                    return true;
+                }
             }
             return false;
         }
@@ -950,24 +994,6 @@ bool MixerChannelListModel::insert(int position, int count,
             {
                 insertModels_[i]->setChannelIndex(i);
             }
-            std::fill_n(
-                std::inserter(
-                    instruments_,
-                    instruments_.begin() + position
-                ), count, nullptr
-            );
-            std::fill_n(
-                std::inserter(
-                    instrumentAudioInputs_,
-                    instrumentAudioInputs_.begin() + position
-                ), count, nullptr
-            );
-            std::fill_n(
-                std::inserter(
-                    instrumentAudioOutputs_,
-                    instrumentAudioOutputs_.begin() + position
-                ), count, nullptr
-            );
             updateInstrumentConnections(position + count);
             std::fill_n(
                 std::inserter(
@@ -1149,18 +1175,6 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         }
         if(listType_ == ListType::Regular)
         {
-            instrumentAudioInputs_.erase(
-                instrumentAudioInputs_.begin() + position,
-                instrumentAudioInputs_.begin() + position + removeCount
-            );
-            instrumentAudioOutputs_.erase(
-                instrumentAudioOutputs_.begin() + position,
-                instrumentAudioOutputs_.begin() + position + removeCount
-            );
-            instruments_.erase(
-                instruments_.begin() + position,
-                instruments_.begin() + position + removeCount
-            );
             mainInput_.erase(
                 mainInput_.begin() + position,
                 mainInput_.begin() + position + removeCount
@@ -1215,15 +1229,6 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         auto& graphWithPDC = mixer_.graph();
         const auto& pluginInfo = YADAW::DAO::selectPluginById(pluginId);
-        auto optionalCreatePluginResult = YADAW::Controller::createPlugin(
-            pluginInfo.path,
-            static_cast<PluginFormat>(pluginInfo.format),
-            pluginInfo.uid
-        );
-        if(!optionalCreatePluginResult.has_value())
-        {
-            return false;
-        }
         removeInstrument(position);
         YADAW::Controller::InitPluginArgs initPluginArgs;
         auto [channelGroupType, channelCountInGroup] = *mixer_.channelGroupTypeAndChannelCountAt(position);
@@ -1233,7 +1238,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
         {
             initPluginArgs.selectCLAPAudioPortConfigCallback = nullptr;
         }
-        auto instrumentContext = YADAW::Controller::createPluginWithContext(
+        auto optionalPluginContext = YADAW::Controller::createPluginWithContext(
             pluginInfo.path,
             static_cast<YADAW::DAO::PluginFormat>(pluginInfo.format),
             pluginInfo.uid,
@@ -1242,137 +1247,25 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 return fillPluginContextCallback_(context, initPluginArgs);
             }
         );
-        auto& [it, pluginAndProcess] = *optionalCreatePluginResult;
-        auto& [plugin, process] = pluginAndProcess;
-        switch(pluginInfo.format)
+        if(optionalPluginContext.has_value())
         {
-        case PluginFormat::PluginFormatVST3:
-        {
-            auto pluginPtr = static_cast<YADAW::Audio::Plugin::VST3Plugin*>(plugin);
-            auto vst3ComponentHandler = new(std::nothrow) YADAW::Audio::Host::VST3ComponentHandler(*pluginPtr);
-            if(vst3ComponentHandler)
-            {
-                vst3ComponentHandler->setLatencyChangedCallback(
-                    &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::VST3Plugin>
-                );
-                vst3ComponentHandler->setIOChangedCallback(
-                    &YADAW::Controller::ioConfigUpdated<YADAW::Audio::Plugin::VST3Plugin>
-                );
-                pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
-                auto inputCount = pluginPtr->audioInputGroupCount();
-                auto outputCount = pluginPtr->audioOutputGroupCount();
-                auto channelGroupType = *(mixer_.channelGroupTypeAt(position));
-                std::vector<YADAW::Audio::Base::ChannelGroupType> inputChannels(
-                    inputCount, channelGroupType
-                );
-                std::vector<YADAW::Audio::Base::ChannelGroupType> outputChannels(
-                    outputCount, channelGroupType
-                );
-                pluginPtr->setChannelGroups(
-                    inputChannels.data(), inputChannels.size(),
-                    outputChannels.data(), outputChannels.size()
-                );
-                pluginPtr->activate();
-                pluginPtr->startProcessing();
-                auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
-                vst3PluginPool.emplace(
-                    pluginPtr,
-                    YADAW::Controller::VST3PluginContext{vst3ComponentHandler}
-                );
-                nodeHandle = graphWithPDC.addNode(process);
-                if(pluginPtr->audioInputGroupCount() > 1)
-                {
-                    auto deviceWithPDC = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
-                        graphWithPDC.graph().getNodeData(nodeHandle).process.device()
-                    );
-                    deviceWithPDC->setBufferSize(engine.bufferSize());
-                }
-                engine.vst3PluginPool().updateAndGetOld(
-                    std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
-                        createPoolVector(vst3PluginPool)
-                    ),
-                    engine.running()
-                );
-                ret = true;
-            }
-            break;
-        }
-        case PluginFormat::PluginFormatCLAP:
-        {
-            auto pluginPtr = static_cast<YADAW::Audio::Plugin::CLAPPlugin*>(plugin);
-            pluginPtr->host().setLatencyChangedCallback(
-                &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::CLAPPlugin>
+            auto& pluginContext = *optionalPluginContext;
+            pluginContext.position.position = YADAW::Controller::PluginPosition::InChannelPosition::Instrument;
+            pluginContext.position.index = position;
+            pluginContext.position.model = this;
+            pluginContext.userData = YADAW::Util::createPMRUniquePtr(
+                std::make_unique<InstrumentContextUserData>(
+                    pluginContext, pluginInfo.name
+                )
             );
-            pluginPtr->initialize(engine.sampleRate(), engine.bufferSize());
-            pluginPtr->activate();
-            auto clapEventList = new(std::nothrow) YADAW::Audio::Host::CLAPEventList();
-            if(clapEventList)
-            {
-                clapEventList->attachToProcessData(pluginPtr->processData());
-            }
-            auto& clapPluginPool = YADAW::Controller::appCLAPPluginPool();
-            clapPluginPool.emplace(
-                pluginPtr,
-                YADAW::Controller::CLAPPluginContext{clapEventList}
+            auto& plugin = pluginContext.pluginInstance.plugin()->get();
+            auto& userData = *static_cast<InstrumentContextUserData*>(
+                pluginContext.userData.get()
             );
-            nodeHandle = graphWithPDC.addNode(process);
-            if(pluginPtr->audioInputGroupCount() > 1)
-            {
-                auto deviceWithPDC = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
-                    graphWithPDC.graph().getNodeData(nodeHandle).process.device()
-                );
-                deviceWithPDC->setBufferSize(engine.bufferSize());
-            }
-            engine.clapPluginToSetProcess().update(
-                std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
-                    1, std::make_pair(pluginPtr, true)
-                ),
-                engine.running()
-            );
-            engine.clapPluginPool().update(
-                std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
-                    createPoolVector(clapPluginPool)
-                ),
-                engine.running()
-            );
-            engine.clapPluginPool().getOld(engine.running()).reset();
-            engine.clapPluginToSetProcess().getOld(engine.running()).reset();
-            ret = true;
-            break;
-        }
-        case PluginFormat::PluginFormatVestifal:
-        {
-            ret = false;
-            break;
-        }
-        }
-        if(ret)
-        {
-            instrumentAudioInputs_[position] = std::make_unique<YADAW::Model::AudioDeviceIOGroupListModel>(
-                *plugin, true
-            );
-            instrumentAudioOutputs_[position] = std::make_unique<YADAW::Model::AudioDeviceIOGroupListModel>(
-                *plugin, false
-            );
-            auto& instrument = instruments_[position];
-            instrument = std::make_unique<InstrumentInstance>(
-                mixer_, plugin
-            );
-            instrument->instrumentNode = nodeHandle;
-            instrument->name = pluginInfo.name;
-            instrument->libraryPluginIterator = it;
-            YADAW::Controller::pluginNeedsWindow = plugin;
-            if(plugin->gui())
-            {
-                YADAW::Controller::createPluginWindow();
-            }
-            YADAW::Controller::createGenericPluginEditor();
-            auto& [pluginWindow, genericEditor] = YADAW::Controller::pluginWindows;
-            if(pluginWindow)
+            if(auto pluginWindow = pluginContext.editor)
             {
                 pluginWindow->setTitle(pluginInfo.name);
-                instrument->pluginWindowConnection.window = pluginWindow;
-                instrument->pluginWindowConnection.connection = QObject::connect(
+                userData.pluginWindowConnection = QObject::connect(
                     pluginWindow, &QWindow::visibleChanged,
                     [this, position](bool visible)
                     {
@@ -1382,9 +1275,9 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                     }
                 );
             }
+            auto genericEditor = pluginContext.genericEditor;
             genericEditor->setTitle(pluginInfo.name);
-            instrument->genericEditorWindowConnection.window = genericEditor;
-            instrument->genericEditorWindowConnection.connection = QObject::connect(
+            userData.genericEditorWindowConnection = QObject::connect(
                 genericEditor, &QWindow::visibleChanged,
                 [this, position](bool visible)
                 {
@@ -1395,23 +1288,34 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
             );
             genericEditor->setProperty(
                 "parameterListModel",
-                QVariant::fromValue<QObject*>(&instrument->paramListModel)
+                QVariant::fromValue<QObject*>(&userData.paramListModel)
             );
             std::uint32_t firstOutput = 0;
-            FOR_RANGE0(i, plugin->audioOutputGroupCount())
+            FOR_RANGE0(i, plugin.audioOutputGroupCount())
             {
-                auto& group = plugin->audioOutputGroupAt(i)->get();
+                auto& group = plugin.audioOutputGroupAt(i)->get();
                 if(group.isMain() && group.type() == mixer_.channelGroupTypeAt(position))
                 {
                     firstOutput = i;
                     break;
                 }
             }
-            mixer_.setInstrument(position, instrument->instrumentNode, firstOutput);
+            auto node = pluginContext.node;
+            auto mixerContext = YADAW::Util::createPMRUniquePtr(
+                std::make_unique<YADAW::Controller::PluginContext>(
+                    std::move(pluginContext)
+                )
+            );
+            mixer_.setInstrument(
+                position,
+                node,
+                std::move(mixerContext),
+                firstOutput
+            );
             engine.mixerConnectionUpdatedCallback(mixer_);
             auto& pluginContextMap = YADAW::Controller::appPluginPosition();
             const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
-                plugin,
+                &plugin,
                 YADAW::Controller::PluginPosition()
             );
             assert(inserted);
@@ -1419,7 +1323,6 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
             context.position = YADAW::Controller::PluginPosition::InChannelPosition::Instrument;
             context.model = this;
             context.index = position;
-            instrument->pluginContextIterator = pluginContextIterator;
             dataChanged(this->index(position), this->index(position),
                 {
                     Role::InstrumentExist,
@@ -1452,13 +1355,16 @@ bool MixerChannelListModel::removeInstrument(int position)
        && mixer_.channelInfoAt(position)->get().channelType == Mixer::ChannelType::Instrument
     )
     {
-        auto& instrumentInstance = instruments_[position];
-        if(!instrumentInstance)
+        auto optionalContext = mixer_.getInstrumentContext(position);
+        if(!optionalContext.has_value())
         {
             return false;
         }
-        instrumentAudioInputs_[position].reset();
-        instrumentAudioOutputs_[position].reset();
+        auto& context = *static_cast<YADAW::Controller::PluginContext*>(optionalContext->get().get());
+        if(context.pluginInstance.plugin().has_value())
+        {
+            return false;
+        }
         auto& graphWithPDC = mixer_.graph();
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         {
@@ -1466,16 +1372,16 @@ bool MixerChannelListModel::removeInstrument(int position)
             auto deviceWithPDC = graphWithPDC.removeNode(instrumentNode);
             engine.mixerConnectionUpdatedCallback(mixer_);
         }
-        if(auto window = instrumentInstance->pluginWindowConnection.window; window)
+        if(auto window = context.editor)
         {
-            instrumentInstance->plugin->gui()->detachWithWindow();
+            context.pluginInstance.plugin()->get().gui()->detachWithWindow();
             window->setProperty("destroyingPlugin", QVariant::fromValue(true));
             delete window;
         }
-        auto genericEditor = instrumentInstance->genericEditorWindowConnection.window;
+        auto genericEditor = context.genericEditor;
         genericEditor->setProperty("destroyingPlugin", QVariant::fromValue(true));
         delete genericEditor;
-        auto plugin = instrumentInstance->plugin;
+        auto plugin = &context.pluginInstance.plugin()->get();
         // Copied from `MixerChannelInsertListModel::remove`
         // TODO: Move those codes to dedicated functions
         switch(plugin->format())
@@ -1524,17 +1430,6 @@ bool MixerChannelListModel::removeInstrument(int position)
             break;
         }
         }
-        auto& pluginPool = instrumentInstance->libraryPluginIterator->second;
-        auto it = pluginPool.find(
-            instrumentInstance->plugin
-        );
-        if(it != pluginPool.end())
-        {
-            pluginPool.erase(it);
-        }
-        auto& pluginContextMap = YADAW::Controller::appPluginPosition();
-        pluginContextMap.erase(instrumentInstance->pluginContextIterator);
-        instrumentInstance.reset();
         dataChanged(this->index(position), this->index(position),
             {
                 Role::InstrumentExist,
@@ -1714,7 +1609,7 @@ void MixerChannelListModel::instrumentLatencyUpdated(std::uint32_t index) const
     if(listType_ == ListType::Regular
         && index < itemCount()
         && mixer_.channelInfoAt(index)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
-        && instruments_[index])
+    )
     {
         const_cast<MixerChannelListModel*>(this)->dataChanged(
             this->index(index),
@@ -1729,12 +1624,16 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
     if(listType_ == ListType::Regular
         && index < itemCount()
         && mixer_.channelInfoAt(index)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
-        && instruments_[index])
+    )
     {
-        auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
+        auto& context = mixer_.getInstrumentContext(index)->get();
+        auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context.get());
+        auto& instrumentContextUserData = *static_cast<InstrumentContextUserData*>(
+            pluginContext.userData.get()
+        );
         auto& graphWithPDC = mixer_.graph();
         auto& graph = graphWithPDC.graph();
-        auto instrumentNode = instruments_[index]->instrumentNode;
+        auto instrumentNode = pluginContext.node;
         struct Point
         {
             std::uint32_t fromChannelGroupIndex;
@@ -1791,8 +1690,8 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
         auto status = plugin->status();
         plugin->stopProcessing();
         plugin->deactivate();
-        instrumentAudioInputs_[index]->reset();
-        instrumentAudioOutputs_[index]->reset();
+        instrumentContextUserData.instrumentAudioInputs.reset();
+        instrumentContextUserData.instrumentAudioOutputs.reset();
         if(status >= YADAW::Audio::Plugin::IAudioPlugin::Status::Activated)
         {
             plugin->activate();
@@ -1801,7 +1700,7 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
         {
             plugin->startProcessing();
         }
-        instruments_[index]->instrumentNode = graphWithPDC.addNode(process);
+        pluginContext.node = graphWithPDC.addNode(process);
         // TODO: Restore additional connections
         setData(this->index(index), QVariant::fromValue<bool>(instrumentIsBypassed),
             IMixerChannelListModel::Role::InstrumentBypassed
@@ -1811,18 +1710,20 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
 
 void MixerChannelListModel::updateInstrumentConnections(std::uint32_t from)
 {
-    FOR_RANGE(i, from, instruments_.size())
+    FOR_RANGE(i, from, itemCount())
     {
-        if(auto instrument = instruments_[i].get(); instrument)
+        auto optionalContext = mixer_.getInstrumentContext(i);
+        if(optionalContext.has_value())
         {
-            if(auto& pluginWindowConnection = instrument->pluginWindowConnection;
-                pluginWindowConnection.window)
+            auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(optionalContext->get().get());
+            auto& instrumentContextUserData = *static_cast<InstrumentContextUserData*>(pluginContext.userData.get());
+            if(pluginContext.editor)
             {
                 QObject::disconnect(
-                    pluginWindowConnection.connection
+                    instrumentContextUserData.pluginWindowConnection
                 );
-                pluginWindowConnection.connection = QObject::connect(
-                    pluginWindowConnection.window,
+                instrumentContextUserData.pluginWindowConnection = QObject::connect(
+                    pluginContext.editor,
                     &QWindow::visibleChanged,
                     [this, i](bool visible)
                     {
@@ -1832,13 +1733,11 @@ void MixerChannelListModel::updateInstrumentConnections(std::uint32_t from)
                     }
                 );
             }
-            auto& genericEditorWindowConnection =
-                instrument->genericEditorWindowConnection;
             QObject::disconnect(
-                genericEditorWindowConnection.connection
+                instrumentContextUserData.genericEditorWindowConnection
             );
-            genericEditorWindowConnection.connection = QObject::connect(
-                genericEditorWindowConnection.window,
+            instrumentContextUserData.genericEditorWindowConnection = QObject::connect(
+                pluginContext.genericEditor,
                 &QWindow::visibleChanged,
                 [this, i](bool visible)
                 {
@@ -1847,7 +1746,7 @@ void MixerChannelListModel::updateInstrumentConnections(std::uint32_t from)
                     );
                 }
             );
-            instrument->pluginContextIterator->second.index = i;
+            pluginContext.position.index = i;
         }
     }
 }
