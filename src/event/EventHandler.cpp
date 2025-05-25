@@ -889,50 +889,12 @@ bool fillPluginContext(
         );
         clapPlugin.initialize(engine.sampleRate(), engine.bufferSize());
         YADAW::Controller::InitPluginArgs::SelectCLAPAudioPortConfigArgs args;
-        if(context.position.position == YADAW::Controller::PluginPosition::InChannelPosition::Insert)
-        {
-            auto model = static_cast<YADAW::Model::MixerChannelListModel*>(context.position.model);
-            auto channelGroupType = YADAW::Entity::groupTypeFromConfig(
-                static_cast<YADAW::Entity::ChannelConfig::Config>(
-                    model->data(
-                        model->index(context.position.index),
-                        YADAW::Model::MixerChannelListModel::Role::ChannelConfig
-                    ).value<int>()
-                )
-            );
-            auto channelCountInGroup = static_cast<std::uint32_t>(
-                model->data(
-                    model->index(context.position.index),
-                    YADAW::Model::MixerChannelListModel::Role::ChannelCount
-                ).value<int>()
-            );
-            args.mainOutputChannelGroup = {channelGroupType, channelCountInGroup};
-        }
-        else
-        {
-            auto model = static_cast<const YADAW::Model::MixerChannelInsertListModel*>(context.position.model);
-            const auto& inserts = model->inserts();
-            const auto& fromGroup = inserts.graph().getNodeData(
-                context.position.index == 0?
-                    inserts.inNode():
-                    *(inserts.insertNodeAt(context.position.index - 1))
-            ).process.device()->audioOutputGroupAt(
-                context.position.index == 0?
-                    inserts.inChannelGroupIndex():
-                    *(inserts.insertOutputChannelGroupIndexAt(context.position.index - 1))
-            )->get();
-            const auto& toGroup = inserts.graph().getNodeData(
-                context.position.index == inserts.insertCount()?
-                    inserts.outNode():
-                    *(inserts.insertNodeAt(context.position.index))
-            ).process.device()->audioInputGroupAt(
-                context.position.index == inserts.insertCount()?
-                    inserts.outChannelGroupIndex():
-                    *(inserts.insertInputChannelGroupIndexAt(context.position.index))
-            )->get();
-            args.mainInputChannelGroup = {fromGroup.type(), fromGroup.channelCount()};
-            args.mainOutputChannelGroup = {toGroup.type(), toGroup.channelCount()};
-        }
+        args.mainInputChannelGroup = std::make_pair(
+            initPluginArgs.channelGroupType, initPluginArgs.channelCountInGroup
+        );
+        args.mainOutputChannelGroup = std::make_pair(
+            initPluginArgs.channelGroupType, initPluginArgs.channelCountInGroup
+        );
         selectCLAPAudioPortConfig(clapPlugin, args);
         clapPlugin.activate();
         auto eventList = std::make_unique<YADAW::Audio::Host::CLAPEventList>();
