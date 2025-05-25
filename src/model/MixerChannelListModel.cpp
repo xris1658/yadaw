@@ -1361,15 +1361,16 @@ bool MixerChannelListModel::removeInstrument(int position)
             return false;
         }
         auto& context = *static_cast<YADAW::Controller::PluginContext*>(optionalContext->get().get());
-        if(context.pluginInstance.plugin().has_value())
+        if(!context.pluginInstance.plugin().has_value())
         {
             return false;
         }
         auto& graphWithPDC = mixer_.graph();
+        std::pair<ade::NodeHandle, YADAW::Audio::Mixer::Context> instrument = {ade::NodeHandle(), YADAW::Util::createUniquePtr(nullptr)};
         auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         {
-            auto instrumentNode = mixer_.detachInstrumentNode(position);
-            auto deviceWithPDC = graphWithPDC.removeNode(instrumentNode);
+            instrument = mixer_.detachInstrument(position);
+            auto deviceWithPDC = graphWithPDC.removeNode(instrument.first);
             engine.mixerConnectionUpdatedCallback(mixer_);
         }
         if(auto window = context.editor)
@@ -1382,42 +1383,20 @@ bool MixerChannelListModel::removeInstrument(int position)
         genericEditor->setProperty("destroyingPlugin", QVariant::fromValue(true));
         delete genericEditor;
         auto plugin = &context.pluginInstance.plugin()->get();
-        // Copied from `MixerChannelInsertListModel::remove`
         // TODO: Move those codes to dedicated functions
         switch(plugin->format())
         {
         case YADAW::Audio::Plugin::PluginFormat::VST3:
         {
             auto vst3Plugin = static_cast<YADAW::Audio::Plugin::VST3Plugin*>(plugin);
-            auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
-            auto it = vst3PluginPool.find(vst3Plugin);
-            auto componentHandler = it->second.componentHandler;
-            vst3PluginPool.erase(it);
-            engine.vst3PluginPool().updateAndGetOld(
-                std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
-                    createPoolVector(vst3PluginPool)
-                ),
-                engine.running()
-            );
             vst3Plugin->stopProcessing();
             vst3Plugin->deactivate();
             vst3Plugin->uninitialize();
-            delete componentHandler;
             break;
         }
         case YADAW::Audio::Plugin::PluginFormat::CLAP:
         {
             auto clapPlugin = static_cast<YADAW::Audio::Plugin::CLAPPlugin*>(plugin);
-            auto& clapPluginPool = YADAW::Controller::appCLAPPluginPool();
-            auto it = clapPluginPool.find(clapPlugin);
-            auto eventList = it->second.eventList;
-            clapPluginPool.erase(it);
-            engine.clapPluginPool().update(
-                std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
-                    createPoolVector(clapPluginPool)
-                ),
-                engine.running()
-            );
             engine.clapPluginToSetProcess().updateAndGetOld(
                 std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
                     1, std::make_pair(clapPlugin, false)
@@ -1426,10 +1405,10 @@ bool MixerChannelListModel::removeInstrument(int position)
             );
             clapPlugin->deactivate();
             clapPlugin->uninitialize();
-            delete eventList;
             break;
         }
         }
+        instrument.second.reset();
         dataChanged(this->index(position), this->index(position),
             {
                 Role::InstrumentExist,
