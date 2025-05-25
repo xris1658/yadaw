@@ -203,25 +203,17 @@ void AudioEngineWorkerThreadPool::updateProcessSequence(
     std::fprintf(stderr, "}\n");
 }
 
-void AudioEngineWorkerThreadPool::setSetAudioThreadIdCallback(
-    std::function<SetAudioThreadIdCallback>&& setAudioThreadIdCallback)
-{
-    setAudioThreadIdCallback_ = std::move(setAudioThreadIdCallback);
-}
-
-void AudioEngineWorkerThreadPool::setUnsetAudioThreadIdCallback(
+void AudioEngineWorkerThreadPool::setManageAudioThreadIdCallback(
+    std::function<SetAudioThreadIdCallback>&& setAudioThreadIdCallback,
     std::function<UnsetAudioThreadIdCallback>&& unsetAudioThreadIdCallback)
 {
+    setAudioThreadIdCallback_ = std::move(setAudioThreadIdCallback);
     unsetAudioThreadIdCallback_ = std::move(unsetAudioThreadIdCallback);
 }
 
-void AudioEngineWorkerThreadPool::resetSetAudioThreadIdCallback()
+void AudioEngineWorkerThreadPool::resetManageAudioThreadIdCallback()
 {
     setAudioThreadIdCallback_ = &blankSetAudioThreadIdCallback;
-}
-
-void AudioEngineWorkerThreadPool::resetUnsetAudioThreadIdCallback()
-{
     unsetAudioThreadIdCallback_ = &blankUnsetAudioThreadIdCallback;
 }
 

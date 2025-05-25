@@ -55,10 +55,11 @@ public:
     void updateProcessSequence(
         std::unique_ptr<ProcessSequenceWithPrev>&& processSequenceWithPrev);
 public:
-    void setSetAudioThreadIdCallback(std::function<SetAudioThreadIdCallback>&& setAudioThreadIdCallback);
-    void setUnsetAudioThreadIdCallback(std::function<UnsetAudioThreadIdCallback>&& unsetAudioThreadIdCallback);
-    void resetSetAudioThreadIdCallback();
-    void resetUnsetAudioThreadIdCallback();
+    void setManageAudioThreadIdCallback(
+        std::function<SetAudioThreadIdCallback>&& setAudioThreadIdCallback,
+        std::function<UnsetAudioThreadIdCallback>&& unsetAudioThreadIdCallback
+    );
+    void resetManageAudioThreadIdCallback();
 private:
     void workerThreadFunc(std::uint32_t processorIndex, std::uint32_t workloadIndex);
     void workerFunc(std::uint32_t workloadIndex);
