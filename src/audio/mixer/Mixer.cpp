@@ -3609,55 +3609,22 @@ bool Mixer::setInstrument(
     return ret;
 }
 
-ade::NodeHandle Mixer::detachInstrumentNode(std::uint32_t index)
+std::pair<ade::NodeHandle, Context> Mixer::detachInstrument(std::uint32_t index)
 {
-    auto ret = ade::NodeHandle();
     if(index < channelCount()
         && inputDevices_[index].second != nullptr
         && channelInfo_[index].channelType == ChannelType::Instrument)
     {
-        ret = inputDevices_[index].second;
+        auto instrumentNode = inputDevices_[index].second;
         auto polarityInverterNode = polarityInverters_[index].second;
         graph_.disconnect(polarityInverterNode->inEdges().front());
         inputDevices_[index].second = nullptr;
-    }
-    return ret;
-}
-
-std::pair<ade::NodeHandle, Context> Mixer::detachInstrument(std::uint32_t index)
-{
-    if(auto node = detachInstrumentNode(index); node != nullptr)
-    {
-        return std::make_pair(std::move(node), std::move(instrumentContexts_[index]));
+        return std::make_pair(
+            std::move(instrumentNode),
+            std::move(instrumentContexts_[index])
+        );
     }
     return std::make_pair(ade::NodeHandle(), YADAW::Util::createUniquePtr(nullptr));
-}
-
-bool Mixer::removeInstrument(std::uint32_t index)
-{
-    auto [node, context] = detachInstrument(index);
-    if(node != nullptr)
-    {
-        if(batchUpdater_)
-        {
-            if(context)
-            {
-                batchUpdater_->addObject(std::move(context));
-            }
-            else
-            {
-                batchUpdater_->addNull();
-            }
-        }
-        else
-        {
-            auto multiInputWithPDC = graphWithPDC_.removeNode(node);
-            connectionUpdatedCallback_(*this);
-            context = YADAW::Util::createUniquePtr(nullptr);
-        }
-        return true;
-    }
-    return false;
 }
 
 std::optional<IDGen::ID> Mixer::instrumentAuxInputID(

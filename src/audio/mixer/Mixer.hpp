@@ -301,14 +301,10 @@ public:
     // Only works if no instrument node is set.
     bool setInstrument(std::uint32_t index, ade::NodeHandle nodeHandle,
         Context&& context, std::uint32_t outputChannelIndex);
-    // Detach an instrument node from its position. Note that the detaching node
-    // is not removed.
-    ade::NodeHandle detachInstrumentNode(std::uint32_t index);
     // Detach an instrument node from its position and return its context (if
     // one is set). The context returned from this function is not managed by
     // `Mixer` anymore. Note that the detaching node is not removed.
     std::pair<ade::NodeHandle, Context> detachInstrument(std::uint32_t index);
-    bool removeInstrument(std::uint32_t index);
     std::optional<IDGen::ID> instrumentAuxInputID(std::uint32_t channelIndex, std::uint32_t channelGroupIndex) const;
     std::optional<IDGen::ID> instrumentAuxOutputID(std::uint32_t channelIndex, std::uint32_t channelGroupIndex) const;
     bool isInstrumentBypassed(std::uint32_t index) const;
