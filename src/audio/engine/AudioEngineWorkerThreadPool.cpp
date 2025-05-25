@@ -142,7 +142,6 @@ void AudioEngineWorkerThreadPool::stop()
     }
     mainAffinityIsSet_ = false;
     firstCallback_.test_and_set(std::memory_order_release);
-    unsetAudioThreadIdCallback_(*this, std::this_thread::get_id());
 }
 
 void AudioEngineWorkerThreadPool::mainFunc()
