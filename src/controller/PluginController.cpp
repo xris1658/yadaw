@@ -756,7 +756,7 @@ std::optional<PluginContext> createPluginWithContext(
             auto& plugin = static_cast<YADAW::Audio::Plugin::CLAPPlugin&>(
                 ret.pluginInstance.plugin()->get()
             );
-            ret.process = YADAW::Audio::Engine::AudioDeviceProcess();
+            ret.process = YADAW::Audio::Engine::AudioDeviceProcess(plugin);
             ret.hostContext = YADAW::Util::createPMRUniquePtr(
                 std::make_unique<YADAW::Audio::Host::CLAPHost>(plugin)
             );
