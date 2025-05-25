@@ -14,6 +14,16 @@ YADAW::Native::CPUTopology& getCPUTopology()
     return ret;
 }
 
+void setCLAPAudioThreadId(const YADAW::Audio::Engine::AudioEngineWorkerThreadPool& sender, std::thread::id id)
+{
+    YADAW::Audio::Host::CLAPHost::setAudioThreadId(id);
+}
+
+void unsetCLAPAudioThreadId(const YADAW::Audio::Engine::AudioEngineWorkerThreadPool& sender, std::thread::id id)
+{
+    YADAW::Audio::Host::CLAPHost::unsetAudioThreadId(id);
+}
+
 AudioEngine::AudioEngine():
     mixer_(
         [this](
@@ -43,6 +53,10 @@ AudioEngine::AudioEngine():
     batchUpdater_([this]() { updateProcessSequence(); })
 {
     mixer_.setConnectionUpdatedCallback(&AudioEngine::mixerConnectionUpdatedCallback);
+    workerThreadPool_.setManageAudioThreadIdCallback(
+        &setCLAPAudioThreadId,
+        &unsetCLAPAudioThreadId
+    );
 }
 
 AudioEngine& AudioEngine::appAudioEngine()
