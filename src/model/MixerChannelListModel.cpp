@@ -1231,13 +1231,8 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
         const auto& pluginInfo = YADAW::DAO::selectPluginById(pluginId);
         removeInstrument(position);
         YADAW::Controller::InitPluginArgs initPluginArgs;
-        auto [channelGroupType, channelCountInGroup] = *mixer_.channelGroupTypeAndChannelCountAt(position);
-        initPluginArgs.channelGroupType = channelGroupType;
-        initPluginArgs.channelCountInGroup = channelCountInGroup;
-        if(static_cast<PluginFormat>(pluginInfo.format) == PluginFormat::PluginFormatCLAP)
-        {
-            initPluginArgs.selectCLAPAudioPortConfigCallback = nullptr;
-        }
+        initPluginArgs.mainInputChannelGroup.first = YADAW::Audio::Base::ChannelGroupType::eInvalid;
+        initPluginArgs.mainOutputChannelGroup = *mixer_.channelGroupTypeAndChannelCountAt(position);
         auto optionalPluginContext = YADAW::Controller::createPluginWithContext(
             pluginInfo.path,
             static_cast<YADAW::DAO::PluginFormat>(pluginInfo.format),

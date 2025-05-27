@@ -802,7 +802,7 @@ void EventHandler::onCommitBatchUpdate()
 
 std::optional<std::uint32_t> selectCLAPAudioPortConfig(
     YADAW::Audio::Plugin::CLAPPlugin& plugin,
-    const YADAW::Controller::InitPluginArgs::SelectCLAPAudioPortConfigArgs& args
+    const YADAW::Controller::InitPluginArgs& args
 )
 {
     auto count = plugin.audioPortsConfigCount();
@@ -810,10 +810,9 @@ std::optional<std::uint32_t> selectCLAPAudioPortConfig(
     {
         auto& config = plugin.audioPortsConfigAt(i)->get();
         auto inputQualified = false;
-        if(args.mainInputChannelGroup.has_value())
+        if(args.mainInputChannelGroup.first != YADAW::Audio::Base::ChannelGroupType::eInvalid)
         {
-            const auto& mainInputChannelGroup = *(args.mainInputChannelGroup);
-            if(config.hasMainInput() && config.mainInputType() == mainInputChannelGroup)
+            if(config.hasMainInput() && config.mainInputType() == args.mainInputChannelGroup)
             {
                 inputQualified = true;
             }
@@ -825,10 +824,9 @@ std::optional<std::uint32_t> selectCLAPAudioPortConfig(
         if(inputQualified)
         {
             auto outputQualified = false;
-            if(args.mainOutputChannelGroup.has_value())
+            if(args.mainOutputChannelGroup.first != YADAW::Audio::Base::ChannelGroupType::eInvalid)
             {
-                const auto& mainOutputChannelGroup = *(args.mainOutputChannelGroup);
-                if(config.hasMainOutput() && config.mainOutputType() == mainOutputChannelGroup)
+                if(config.hasMainOutput() && config.mainOutputType() == args.mainOutputChannelGroup)
                 {
                     outputQualified = true;
                 }
@@ -869,14 +867,38 @@ bool fillPluginContext(
             std::move(componentHandler)
         );
         plugin.initialize(engine.sampleRate(), engine.bufferSize());
-        std::vector<YADAW::Audio::Base::ChannelGroupType> types(
-            std::max(vst3Plugin.audioInputGroupCount(), vst3Plugin.audioOutputGroupCount()),
-            initPluginArgs.channelGroupType
-        );
-        vst3Plugin.setChannelGroups(
-            types.data(), vst3Plugin.audioInputGroupCount(),
-            types.data(), vst3Plugin.audioOutputGroupCount()
-        );
+        if(initPluginArgs.mainInputChannelGroup.first == initPluginArgs.mainOutputChannelGroup.first
+            // No main audio input channel group (e.g. an instrument)
+            || initPluginArgs.mainInputChannelGroup.first == YADAW::Audio::Base::ChannelGroupType::eInvalid)
+        {
+            std::vector<YADAW::Audio::Base::ChannelGroupType> types(
+                std::max(vst3Plugin.audioInputGroupCount(), vst3Plugin.audioOutputGroupCount()),
+                initPluginArgs.mainOutputChannelGroup.first
+            );
+            vst3Plugin.setChannelGroups(
+                types.data(), vst3Plugin.audioInputGroupCount(),
+                types.data(), vst3Plugin.audioOutputGroupCount()
+            );
+        }
+        else
+        {
+            std::vector<YADAW::Audio::Base::ChannelGroupType> types(
+                vst3Plugin.audioInputGroupCount() + vst3Plugin.audioOutputGroupCount(),
+                initPluginArgs.mainInputChannelGroup.first
+            );
+            auto outputBegin = std::fill_n(
+                types.begin(), vst3Plugin.audioInputGroupCount(),
+                initPluginArgs.mainInputChannelGroup.first
+            );
+            std::fill_n(
+                outputBegin, vst3Plugin.audioOutputGroupCount(),
+                initPluginArgs.mainOutputChannelGroup.first
+            );
+            vst3Plugin.setChannelGroups(
+                types.data(), vst3Plugin.audioInputGroupCount(),
+                &*outputBegin, vst3Plugin.audioOutputGroupCount()
+            );
+        }
         vst3Plugin.activate();
         vst3Plugin.startProcessing();
         ret = true;
@@ -888,29 +910,69 @@ bool fillPluginContext(
             &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::CLAPPlugin>
         );
         clapPlugin.initialize(engine.sampleRate(), engine.bufferSize());
-        YADAW::Controller::InitPluginArgs::SelectCLAPAudioPortConfigArgs args;
-        args.mainInputChannelGroup = std::make_pair(
-            initPluginArgs.channelGroupType, initPluginArgs.channelCountInGroup
-        );
-        args.mainOutputChannelGroup = std::make_pair(
-            initPluginArgs.channelGroupType, initPluginArgs.channelCountInGroup
-        );
-        selectCLAPAudioPortConfig(clapPlugin, args);
-        clapPlugin.activate();
-        auto eventList = std::make_unique<YADAW::Audio::Host::CLAPEventList>();
-        eventList->attachToProcessData(clapPlugin.processData());
-        context.hostContext = YADAW::Util::createPMRUniquePtr(
-            std::move(eventList)
-        );
-        auto& pluginToSetProcess = engine.clapPluginToSetProcess();
-        pluginToSetProcess.update(
-            std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
-                1, std::make_pair(&clapPlugin, true)
-            ),
-            engine.running()
-        );
-        pluginToSetProcess.getOld(engine.running()).reset();
-        ret = true;
+        auto clapPluginQualified = false;
+        auto inputQualified = false;
+        auto outputQualified = false;
+        // No main audio input channel group (e.g. an instrument)
+        if(initPluginArgs.mainInputChannelGroup.first == YADAW::Audio::Base::ChannelGroupType::eInvalid)
+        {
+            inputQualified = true;
+        }
+        else
+        {
+            FOR_RANGE0(i, clapPlugin.audioInputGroupCount())
+            {
+                auto& group = clapPlugin.audioInputGroupAt(i)->get();
+                if(group.isMain() && group.type() == initPluginArgs.mainInputChannelGroup.first)
+                {
+                    inputQualified = true;
+                    break;
+                }
+            }
+        }
+        if(inputQualified)
+        {
+            FOR_RANGE0(i, clapPlugin.audioOutputGroupCount())
+            {
+                auto& group = clapPlugin.audioOutputGroupAt(i)->get();
+                if(group.isMain() && group.type() == initPluginArgs.mainOutputChannelGroup.first)
+                {
+                    outputQualified = true;
+                    break;
+                }
+            }
+        }
+        if(inputQualified && outputQualified)
+        {
+            clapPluginQualified = true;
+        }
+        else if(auto portConfig = selectCLAPAudioPortConfig(clapPlugin, initPluginArgs); portConfig.has_value())
+        {
+            if(clapPlugin.selectAudioPortsConfig(
+                clapPlugin.audioPortsConfigAt(*portConfig)->get().id()
+            ))
+            {
+                clapPluginQualified = true;
+            }
+        }
+        if(clapPluginQualified)
+        {
+            clapPlugin.activate();
+            auto eventList = std::make_unique<YADAW::Audio::Host::CLAPEventList>();
+            eventList->attachToProcessData(clapPlugin.processData());
+            context.hostContext = YADAW::Util::createPMRUniquePtr(
+                std::move(eventList)
+            );
+            auto& pluginToSetProcess = engine.clapPluginToSetProcess();
+            pluginToSetProcess.update(
+                std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
+                    1, std::make_pair(&clapPlugin, true)
+                ),
+                engine.running()
+            );
+            pluginToSetProcess.getOld(engine.running()).reset();
+            ret = true;
+        }
     }
     if(ret)
     {

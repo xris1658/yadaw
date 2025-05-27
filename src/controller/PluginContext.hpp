@@ -32,19 +32,8 @@ struct PluginContext
 
 struct InitPluginArgs
 {
-    YADAW::Audio::Base::ChannelGroupType channelGroupType;
-    std::uint32_t channelCountInGroup;
-    struct SelectCLAPAudioPortConfigArgs
-    {
-        std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> mainInputChannelGroup;
-        std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> mainOutputChannelGroup;
-    };
-    static constexpr std::uint32_t UseDefault = std::numeric_limits<std::uint32_t>::max();
-    using SelectCLAPAudioPortConfigCallback = std::optional<std::uint32_t>(
-        YADAW::Audio::Plugin::CLAPPlugin& plugin,
-        const SelectCLAPAudioPortConfigArgs& args
-    );
-    std::function<SelectCLAPAudioPortConfigCallback> selectCLAPAudioPortConfigCallback;
+    std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t> mainInputChannelGroup;
+    std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t> mainOutputChannelGroup;
 };
 
 namespace Impl
