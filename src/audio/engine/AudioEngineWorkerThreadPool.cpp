@@ -117,6 +117,10 @@ bool AudioEngineWorkerThreadPool::start()
                 }
             );
         }
+        for(auto& thread: workerThreads_)
+        {
+            setAudioThreadIdCallback_(*this, thread.get_id());
+        }
     }
     return true;
 }
@@ -136,7 +140,9 @@ void AudioEngineWorkerThreadPool::stop()
         {
             if(thread.joinable())
             {
+                auto id = thread.get_id();
                 thread.join();
+                unsetAudioThreadIdCallback_(*this, id);
             }
         }
     }
@@ -219,7 +225,6 @@ void AudioEngineWorkerThreadPool::resetManageAudioThreadIdCallback()
 void AudioEngineWorkerThreadPool::workerThreadFunc(
     std::uint32_t processorIndex, std::uint32_t workloadIndex)
 {
-    setAudioThreadIdCallback_(*this, std::this_thread::get_id());
     YADAW::Native::setThreadAffinity(
         YADAW::Native::getCurrentThreadHandle(),
         static_cast<std::uint64_t>(1) << processorIndex
@@ -234,7 +239,6 @@ void AudioEngineWorkerThreadPool::workerThreadFunc(
         done.wait(true, std::memory_order_acquire);
     }
     while(running_.test(std::memory_order_acquire));
-    unsetAudioThreadIdCallback_(*this, std::this_thread::get_id());
 }
 
 void AudioEngineWorkerThreadPool::workerFunc(std::uint32_t workloadIndex)
