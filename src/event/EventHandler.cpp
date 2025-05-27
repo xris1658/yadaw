@@ -149,9 +149,19 @@ void EventHandler::connectToEventReceiver(QObject* receiver)
 
 void EventHandler::onStartInitializingApplication()
 {
-    YADAW::Event::splashScreenWorkerThread->setText("Initializing application...");
+    YADAW::Event::splashScreenWorkerThread->setText(
+        QCoreApplication::translate(
+            "SplashScreenText",
+            "Initializing application..."
+        )
+    );
     YADAW::Controller::initApplication();
-    YADAW::Event::splashScreenWorkerThread->setText("Opening main window...");
+    YADAW::Event::splashScreenWorkerThread->setText(
+        QCoreApplication::translate(
+            "SplashScreenText",
+            "Opening main window..."
+        )
+    );
     YADAW::Event::splashScreenWorkerThread->openMainWindow();
 }
 
