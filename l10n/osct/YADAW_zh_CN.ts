@@ -120,40 +120,44 @@
 <context>
     <name>MixerAudioIOPositionItemModel</name>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="105"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="318"/>
         <source>Audio Input Bus</source>
         <translation>音频输入总线</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="106"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="319"/>
         <source>Regular Channel</source>
         <translation>一般轨道</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="107"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="320"/>
         <source>Audio Output Bus</source>
         <translation>音频输出总线</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="145"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="358"/>
         <source>Instrument: %1</source>
         <translation>乐器：%1</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="166"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="379"/>
         <source>Pre-Fader Inserts</source>
         <translation>推子前插入</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="182"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="395"/>
         <source>Post-Fader Inserts</source>
         <translation>推子后插入</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="212"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="420"/>
         <source>%1: %2</source>
         <comment>Insert Index: Insert Name</comment>
         <translation>%1：%2</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation type="unfinished">%1：%2</translation>
     </message>
 </context>
 <context>
@@ -170,9 +174,22 @@
     </message>
 </context>
 <context>
+    <name>SplashScreenText</name>
+    <message>
+        <location filename="../../src/event/EventHandler.cpp" line="153"/>
+        <source>Initializing application...</source>
+        <translation>正在初始化应用程序...</translation>
+    </message>
+    <message>
+        <location filename="../../src/event/EventHandler.cpp" line="160"/>
+        <source>Opening main window...</source>
+        <translation>正在打开主窗口...</translation>
+    </message>
+</context>
+<context>
     <name>VolumeFader</name>
     <message>
-        <location filename="../../src/audio/mixer/VolumeFader.cpp" line="35"/>
+        <location filename="../../src/audio/mixer/VolumeFader.cpp" line="38"/>
         <source>Gain</source>
         <translation type="unfinished"></translation>
     </message>
