@@ -85,21 +85,31 @@ int main(int argc, char *argv[])
     }
     auto language = QString::fromStdString(config["general"]["language"].as<std::string>());
     auto& localizationList = YADAW::Controller::appLocalizationListModel();
-    QTranslator translator;
+    std::vector<QTranslator*> translators;
     for(int i = 0; i < localizationList.itemCount(); ++i)
     {
         const auto& localization = localizationList.at(i);
         if(localization.name == language)
         {
             const auto& translationFileList = localization.translationFileList;
+            translators.reserve(translationFileList.size());
             decltype(translationFileList.size()) fileCountLoaded = std::count_if(
                 translationFileList.begin(), translationFileList.end(),
-                [&localization, &translator](const QString& translationFile)
+                [&](const QString& translationFile)
                 {
-                    return translator.load(QLocale(localization.languageCode), translationFile);
+                    auto& pTranslator = translators.emplace_back();
+                    pTranslator = new(std::nothrow) QTranslator(&app);
+                    if(pTranslator)
+                    {
+                        return pTranslator->load(QLocale(localization.languageCode), translationFile);
+                    }
+                    return false;
                 }
             );
-            QCoreApplication::installTranslator(&translator);
+            for(auto pTranslator: translators)
+            {
+                QCoreApplication::installTranslator(pTranslator);
+            }
             for(const auto& font: localization.fontList)
             {
                 QFontDatabase::addApplicationFont(font);
