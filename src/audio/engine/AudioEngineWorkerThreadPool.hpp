@@ -73,6 +73,7 @@ private:
     mutable bool mainAffinityIsSet_ = false;
     std::function<SetAudioThreadIdCallback> setAudioThreadIdCallback_;
     std::function<UnsetAudioThreadIdCallback> unsetAudioThreadIdCallback_;
+    std::thread::id mainCallbackThreadId_;
 };
 }
 

@@ -145,6 +145,8 @@ void AudioEngineWorkerThreadPool::stop()
                 unsetAudioThreadIdCallback_(*this, id);
             }
         }
+        unsetAudioThreadIdCallback_(*this, mainCallbackThreadId_);
+        mainCallbackThreadId_ = {};
     }
     mainAffinityIsSet_ = false;
     firstCallback_.test_and_set(std::memory_order_release);
@@ -154,7 +156,8 @@ void AudioEngineWorkerThreadPool::mainFunc()
 {
     if(firstCallback_.test(std::memory_order_acquire))
     {
-        setAudioThreadIdCallback_(*this, std::this_thread::get_id());
+        mainCallbackThreadId_ = std::this_thread::get_id();
+        setAudioThreadIdCallback_(*this, mainCallbackThreadId_);
         // This function is called during the first audio callback. Wake up all
         // worker threads.
         running_.test_and_set(std::memory_order_release);
