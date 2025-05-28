@@ -232,7 +232,57 @@ SplitView {
                         checked: false
                     }
                 }
+                Connections {
+                    id: connectToMenu
+                    target: trackHeaderBlankOptions
+                    enabled: Global.enableMenuPopup
+                    property bool opened: false
+                    property bool menuOpenedWithClick: false
+                    function onOpened() {
+                        let menu = target;
+                        let nativePopup = menu.nativePopup;
+                        if(nativePopup) {
+                            let globalPoint = trackHeaderListBlankArea.mapToGlobal(menu.x, menu.y);
+                            nativePopup.locate(
+                                Qt.rect(
+                                    globalPoint.x, globalPoint.y, 0, 0
+                                ),
+                                Qt.Vertical
+                            );
+                            nativePopup.showWithoutActivating();
+                            nativePopup.width = menu.implicitWidth;
+                            nativePopup.height = Math.min(
+                                nativePopup.screen.desktopAvailableHeight,
+                                menu.implicitHeight
+                            );
+                            menu.parent = nativePopup.contentItem;
+                            menu.x = 0;
+                            menu.y = 0;
+                            let quickMenuBarEventFilterModel = Global.nativePopupEventFilterModel;
+                            if(quickMenuBarEventFilterModel && !opened) {
+                                quickMenuBarEventFilterModel.append(nativePopup, true);
+                                opened = true;
+                            }
+                        }
+                    }
+                    function onClosed() {
+                        let menu = target;
+                        let nativePopup = menu.nativePopup;
+                        if(nativePopup) {
+                            menu.parent = trackHeaderListBlankArea;
+                            let quickMenuBarEventFilterModel = Global.nativePopupEventFilterModel;
+                            if(quickMenuBarEventFilterModel) {
+                                quickMenuBarEventFilterModel.remove(nativePopup);
+                            }
+                        }
+                        opened = false;
+                        menu.isMenuBarMenu = false;
+                    }
+                }
                 onClicked: {
+                    if(trackHeaderBlankOptions.opened) {
+                        trackHeaderBlankOptions.close();
+                    }
                     trackHeaderBlankOptions.x = mouseX;
                     trackHeaderBlankOptions.y = mouseY;
                     trackHeaderBlankOptions.open();
