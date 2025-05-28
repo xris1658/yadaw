@@ -51,6 +51,7 @@ T.MenuBarItem {
         property bool opened: false
         property bool menuOpenedWithClick: false
         function onOpened() {
+            menu.isMenuBarMenu = true;
             let nativePopup = menu.nativePopup;
             if(nativePopup) {
                 let globalPoint = root.mapToGlobal(0, 0);
@@ -85,6 +86,7 @@ T.MenuBarItem {
                     quickMenuBarEventFilterModel.remove(nativePopup);
                 }
             }
+            menu.isMenuBarMenu = false;
             impl.menuOpenedWithClick = false;
             opened = false;
         }

@@ -134,6 +134,7 @@ T.MenuItem {
         property bool opened: false
         function onOpened() {
             subMenu.isSubMenu = true;
+            subMenu.isMenuBarMenu = menu.isMenuBarMenu;
             let subMenuPopup = subMenu.nativePopup;
             if(subMenuPopup) {
                 let globalPoint = root.mapToGlobal(subMenu.overlap, -1 * subMenu.topPadding);
@@ -155,7 +156,9 @@ T.MenuItem {
                 subMenu.height = subMenuPopup.height;
                 subMenu.x = 0;
                 subMenu.y = 0;
-                let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
+                let quickMenuBarEventFilterModel = menu.isMenuBarMenu?
+                    Global.quickMenuBarEventFilterModel:
+                    Global.nativePopupEventFilterModel;
                 if(quickMenuBarEventFilterModel && !opened) {
                     let menuPopup = root.menu.nativePopup;
                     if(menuPopup) {
@@ -171,7 +174,9 @@ T.MenuItem {
         function onClosed() {
             let menuPopup = root.menu.nativePopup;
             if(menuPopup) {
-                let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
+                let quickMenuBarEventFilterModel = menu.isMenuBarMenu?
+                    Global.quickMenuBarEventFilterModel:
+                    Global.nativePopupEventFilterModel;
                 if(quickMenuBarEventFilterModel) {
                     quickMenuBarEventFilterModel.popupShouldReceiveKeyEvents(
                         menuPopup, true
@@ -182,6 +187,7 @@ T.MenuItem {
                     }
                 }
             }
+            subMenu.isMenuBarMenu = false;
             opened = false;
         }
     }
