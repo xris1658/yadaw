@@ -1,34 +1,44 @@
-#include "QuickMenuBarEventFilterModel.hpp"
+#include "QuickMenuEventFilterModel.hpp"
 
 #include "util/IntegerRange.hpp"
 
 namespace YADAW::Model
 {
-QuickMenuBarEventFilterModel::QuickMenuBarEventFilterModel(QWindow& parentWindow, QObject& menuBar):
+QuickMenuEventFilterModel::QuickMenuEventFilterModel(QWindow& parentWindow):
+    INativePopupEventFilterModel(&parentWindow),
+    quickMenuBarEventFilter_(parentWindow)
+{}
+
+QuickMenuEventFilterModel::QuickMenuEventFilterModel(QWindow& parentWindow, QObject& menuBar):
     INativePopupEventFilterModel(&parentWindow),
     quickMenuBarEventFilter_(parentWindow, menuBar)
 {}
 
-QuickMenuBarEventFilterModel* QuickMenuBarEventFilterModel::create(QWindow& parentWindow, QObject& menuBar)
+QuickMenuEventFilterModel* QuickMenuEventFilterModel::create(QWindow& parentWindow)
 {
-    return new QuickMenuBarEventFilterModel(parentWindow, menuBar);
+    return new QuickMenuEventFilterModel(parentWindow);
 }
 
-QuickMenuBarEventFilterModel::~QuickMenuBarEventFilterModel()
+QuickMenuEventFilterModel* QuickMenuEventFilterModel::create(QWindow& parentWindow, QObject& menuBar)
+{
+    return new QuickMenuEventFilterModel(parentWindow, menuBar);
+}
+
+QuickMenuEventFilterModel::~QuickMenuEventFilterModel()
 {
 }
 
-std::uint32_t QuickMenuBarEventFilterModel::itemCount() const
+std::uint32_t QuickMenuEventFilterModel::itemCount() const
 {
     return quickMenuBarEventFilter_.count();
 }
 
-int QuickMenuBarEventFilterModel::rowCount(const QModelIndex&) const
+int QuickMenuEventFilterModel::rowCount(const QModelIndex&) const
 {
     return itemCount();
 }
 
-QVariant QuickMenuBarEventFilterModel::data(const QModelIndex& index, int role) const
+QVariant QuickMenuEventFilterModel::data(const QModelIndex& index, int role) const
 {
     if(auto row = index.row(); row >= 0 && row < itemCount())
     {
@@ -45,7 +55,7 @@ QVariant QuickMenuBarEventFilterModel::data(const QModelIndex& index, int role) 
     return {};
 }
 
-bool QuickMenuBarEventFilterModel::insert(QWindow* nativePopup, int index, bool shouldReceiveKeyEvents)
+bool QuickMenuEventFilterModel::insert(QWindow* nativePopup, int index, bool shouldReceiveKeyEvents)
 {
     auto ret = false;
     if(nativePopup && index >= 0)
@@ -60,7 +70,7 @@ bool QuickMenuBarEventFilterModel::insert(QWindow* nativePopup, int index, bool 
     return ret;
 }
 
-bool QuickMenuBarEventFilterModel::append(QWindow* nativePopup, bool shouldReceiveKeyEvents)
+bool QuickMenuEventFilterModel::append(QWindow* nativePopup, bool shouldReceiveKeyEvents)
 {
     auto ret = false;
     if(nativePopup)
@@ -73,9 +83,8 @@ bool QuickMenuBarEventFilterModel::append(QWindow* nativePopup, bool shouldRecei
     return ret;
 }
 
-void QuickMenuBarEventFilterModel::popupShouldReceiveKeyEvents(QWindow* nativePopup, bool shouldReceiveKeyEvents)
+void QuickMenuEventFilterModel::popupShouldReceiveKeyEvents(QWindow* nativePopup, bool shouldReceiveKeyEvents)
 {
-    auto ret = false;
     if(nativePopup)
     {
         FOR_RANGE0(i, quickMenuBarEventFilter_.count())
@@ -89,7 +98,7 @@ void QuickMenuBarEventFilterModel::popupShouldReceiveKeyEvents(QWindow* nativePo
     }
 }
 
-bool QuickMenuBarEventFilterModel::remove(QWindow* nativePopup)
+bool QuickMenuEventFilterModel::remove(QWindow* nativePopup)
 {
     auto ret = false;
     for(auto i = 0U; i < itemCount(); ++i)
@@ -105,7 +114,7 @@ bool QuickMenuBarEventFilterModel::remove(QWindow* nativePopup)
     return ret;
 }
 
-void QuickMenuBarEventFilterModel::clear()
+void QuickMenuEventFilterModel::clear()
 {
     if(auto count = itemCount(); count > 0)
     {

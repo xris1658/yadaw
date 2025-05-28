@@ -2,20 +2,22 @@
 #define YADAW_SRC_MODEL_QUICKMENUBAREVENTFILTERMODEL
 
 #include "model/INativePopupEventFilterModel.hpp"
-#include "ui/QuickMenuBarEventFilter.hpp"
+#include "ui/QuickMenuEventFilter.hpp"
 
 #include <QWindow>
 
 namespace YADAW::Model
 {
-class QuickMenuBarEventFilterModel: public INativePopupEventFilterModel
+class QuickMenuEventFilterModel: public INativePopupEventFilterModel
 {
     Q_OBJECT
 private:
-    QuickMenuBarEventFilterModel(QWindow& parentWindow, QObject& menuBar);
+    QuickMenuEventFilterModel(QWindow& parentWindow);
+    QuickMenuEventFilterModel(QWindow& parentWindow, QObject& menuBar);
 public:
-    static QuickMenuBarEventFilterModel* create(QWindow& parentWindow, QObject& menuBar);
-    ~QuickMenuBarEventFilterModel() override;
+    static QuickMenuEventFilterModel* create(QWindow& parentWindow);
+    static QuickMenuEventFilterModel* create(QWindow& parentWindow, QObject& menuBar);
+    ~QuickMenuEventFilterModel() override;
 public:
     std::uint32_t itemCount() const;
 public:
@@ -28,7 +30,7 @@ public:
     bool remove(QWindow* nativePopup) override;
     void clear() override;
 private:
-    YADAW::UI::QuickMenuBarEventFilter quickMenuBarEventFilter_;
+    YADAW::UI::QuickMenuEventFilter quickMenuBarEventFilter_;
 };
 }
 

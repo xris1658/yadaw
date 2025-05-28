@@ -1,4 +1,4 @@
-#include "QuickMenuBarEventFilter.hpp"
+#include "QuickMenuEventFilter.hpp"
 
 #include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
@@ -58,7 +58,17 @@ static std::map<int, const char*> events = {
 
 namespace YADAW::UI
 {
-QuickMenuBarEventFilter::QuickMenuBarEventFilter(
+QuickMenuEventFilter::QuickMenuEventFilter(QWindow& parentWindow):
+    QObject(nullptr),
+    QAbstractNativeEventFilter(),
+    parentWindow_(parentWindow),
+    menuBar_(nullptr)
+{
+    parentWindow_.window->installEventFilter(this);
+    QCoreApplication::instance()->installNativeEventFilter(this);
+}
+
+QuickMenuEventFilter::QuickMenuEventFilter(
     QWindow& parentWindow, QObject& menuBar):
     QObject(nullptr),
     QAbstractNativeEventFilter(),
@@ -74,53 +84,53 @@ QuickMenuBarEventFilter::QuickMenuBarEventFilter(
     installMenuBarItemEventFilter();
 }
 
-QuickMenuBarEventFilter::~QuickMenuBarEventFilter()
+QuickMenuEventFilter::~QuickMenuEventFilter()
 {
     QCoreApplication::instance()->removeNativeEventFilter(this);
     parentWindow_.window->removeEventFilter(this);
 }
 
-const QWindow& QuickMenuBarEventFilter::parentWindow() const
+const QWindow& QuickMenuEventFilter::parentWindow() const
 {
     return *parentWindow_.window;
 }
 
-QWindow& QuickMenuBarEventFilter::parentWindow()
+QWindow& QuickMenuEventFilter::parentWindow()
 {
     return *parentWindow_.window;
 }
 
-bool QuickMenuBarEventFilter::empty() const
+bool QuickMenuEventFilter::empty() const
 {
     return nativePopups_.empty();
 }
 
-std::uint32_t QuickMenuBarEventFilter::count() const
+std::uint32_t QuickMenuEventFilter::count() const
 {
     return nativePopups_.size();
 }
 
-const QWindow& QuickMenuBarEventFilter::operator[](std::uint32_t index) const
+const QWindow& QuickMenuEventFilter::operator[](std::uint32_t index) const
 {
     return *nativePopups_[index].window;
 }
 
-QWindow& QuickMenuBarEventFilter::operator[](std::uint32_t index)
+QWindow& QuickMenuEventFilter::operator[](std::uint32_t index)
 {
     return *nativePopups_[index].window;
 }
 
-const QWindow& QuickMenuBarEventFilter::at(std::uint32_t index) const
+const QWindow& QuickMenuEventFilter::at(std::uint32_t index) const
 {
     return *nativePopups_.at(index).window;
 }
 
-QWindow& QuickMenuBarEventFilter::at(std::uint32_t index)
+QWindow& QuickMenuEventFilter::at(std::uint32_t index)
 {
     return *nativePopups_.at(index).window;
 }
 
-bool QuickMenuBarEventFilter::insert(QWindow& nativePopup, std::uint32_t index, bool shouldReceiveKeyEvents)
+bool QuickMenuEventFilter::insert(QWindow& nativePopup, std::uint32_t index, bool shouldReceiveKeyEvents)
 {
     if(index < count())
     {
@@ -133,13 +143,13 @@ bool QuickMenuBarEventFilter::insert(QWindow& nativePopup, std::uint32_t index, 
     return false;
 }
 
-void QuickMenuBarEventFilter::append(QWindow& nativePopup, bool shouldReceiveKeyEvents)
+void QuickMenuEventFilter::append(QWindow& nativePopup, bool shouldReceiveKeyEvents)
 {
     nativePopups_.emplace_back(nativePopup);
     shouldReceiveKeyEvents_.emplace_back(shouldReceiveKeyEvents);
 }
 
-void QuickMenuBarEventFilter::popupShouldReceiveKeyEvents(std::uint32_t index, bool shouldReceiveKeyEvents)
+void QuickMenuEventFilter::popupShouldReceiveKeyEvents(std::uint32_t index, bool shouldReceiveKeyEvents)
 {
     if(index < count())
     {
@@ -147,7 +157,7 @@ void QuickMenuBarEventFilter::popupShouldReceiveKeyEvents(std::uint32_t index, b
     }
 }
 
-bool QuickMenuBarEventFilter::remove(std::uint32_t index, std::uint32_t removeCount)
+bool QuickMenuEventFilter::remove(std::uint32_t index, std::uint32_t removeCount)
 {
     auto count = this->count();
     if(index < count && index + removeCount <= count)
@@ -169,7 +179,7 @@ bool QuickMenuBarEventFilter::remove(std::uint32_t index, std::uint32_t removeCo
     return false;
 }
 
-void QuickMenuBarEventFilter::clear()
+void QuickMenuEventFilter::clear()
 {
     for(auto& [window, winId]: nativePopups_)
     {
@@ -181,7 +191,7 @@ void QuickMenuBarEventFilter::clear()
 
 static const char menuBarItemClassPrefix[] = "MenuBarItem_QMLTYPE_";
 
-void QuickMenuBarEventFilter::menuBarCountChanged()
+void QuickMenuEventFilter::menuBarCountChanged()
 {
     auto itemCount = menuBar_->property("count").value<int>();
     if(itemCount > menuBarItems_.size())
@@ -226,7 +236,7 @@ void QuickMenuBarEventFilter::menuBarCountChanged()
     }
 }
 
-void QuickMenuBarEventFilter::installMenuBarItemEventFilter()
+void QuickMenuEventFilter::installMenuBarItemEventFilter()
 {
     if(auto menuBarAsQuickItem = qobject_cast<QQuickItem*>(menuBar_))
     {
@@ -276,7 +286,7 @@ private:
     bool& flag_;
 };
 
-bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
+bool QuickMenuEventFilter::eventFilter(QObject* watched, QEvent* event)
 {
     if(watched == parentWindow_.window)
     {
@@ -510,7 +520,10 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
                             if(key == Qt::Key_Left || key == Qt::Key_Right)
                             {
                                 event->accept();
-                                QCoreApplication::sendEvent(menuBar_, event);
+                                if(menuBar_)
+                                {
+                                    QCoreApplication::sendEvent(menuBar_, event);
+                                }
                             }
                         }
                     }
@@ -562,7 +575,7 @@ bool QuickMenuBarEventFilter::eventFilter(QObject* watched, QEvent* event)
     return false;
 }
 
-bool QuickMenuBarEventFilter::nativeEventFilter(
+bool QuickMenuEventFilter::nativeEventFilter(
     const QByteArray& eventType, void* message, qintptr* result)
 {
 #if _WIN32
@@ -579,11 +592,14 @@ bool QuickMenuBarEventFilter::nativeEventFilter(
         {
             if(!nativePopups_.empty())
             {
-                auto metaObject = menuBar_->metaObject();
-                auto signalIndex = metaObject->indexOfMethod("closeAllMenus()");
-                if(signalIndex != -1)
+                if(menuBar_)
                 {
-                    metaObject->method(signalIndex).invoke(menuBar_);
+                    auto metaObject = menuBar_->metaObject();
+                    auto signalIndex = metaObject->indexOfMethod("closeAllMenus()");
+                    if(signalIndex != -1)
+                    {
+                        metaObject->method(signalIndex).invoke(menuBar_);
+                    }
                 }
             }
             return false;

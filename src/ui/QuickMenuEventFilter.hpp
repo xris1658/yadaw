@@ -1,5 +1,5 @@
-#ifndef YADAW_SRC_UI_QUICKMENUBAREVENTFILTER
-#define YADAW_SRC_UI_QUICKMENUBAREVENTFILTER
+#ifndef YADAW_SRC_UI_QUICKMENUEVENTFILTER
+#define YADAW_SRC_UI_QUICKMENUEVENTFILTER
 
 #include "ui/WindowAndId.hpp"
 
@@ -17,12 +17,13 @@ namespace YADAW::UI
 // Note that I used private implementations (see related sources in
 // qtdeclarative/src/quicktemplates) instead of manually making one. It might
 // not work on several versions of Qt.
-class QuickMenuBarEventFilter: public QObject, public QAbstractNativeEventFilter
+class QuickMenuEventFilter: public QObject, public QAbstractNativeEventFilter
 {
     Q_OBJECT
 public:
-    QuickMenuBarEventFilter(QWindow& parentWindow, QObject& menuBar);
-    ~QuickMenuBarEventFilter();
+    QuickMenuEventFilter(QWindow& parentWindow);
+    QuickMenuEventFilter(QWindow& parentWindow, QObject& menuBar);
+    ~QuickMenuEventFilter();
 public:
     const QWindow& parentWindow() const;
     QWindow& parentWindow();
@@ -55,4 +56,4 @@ private:
 };
 }
 
-#endif // YADAW_SRC_UI_QUICKMENUBAREVENTFILTER
+#endif // YADAW_SRC_UI_QUICKMENUEVENTFILTER
