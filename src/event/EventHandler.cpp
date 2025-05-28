@@ -24,7 +24,6 @@
 #include "model/HardwareAudioIOPositionModel.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
 #include "model/MixerChannelListModel.hpp"
-#include "model/NativePopupEventFilterModel.hpp"
 #include "model/RegularAudioIOPositionModel.hpp"
 #include "model/QuickMenuEventFilterModel.hpp"
 #include "native/Native.hpp"
