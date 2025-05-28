@@ -192,7 +192,7 @@ QtObject {
     property int titleTextPointSize: 8
     property string mnemonicRegexInEnglish: "&"
     property string mnemonicRegexReplaceWithInEnglish: ""
-    property string mnemonicRegex: qsTr("&")
-    property string mnemonicRegexReplaceWith: qsTr("")
+    property string mnemonicRegex: qsTr("&", "`mnemonicRegex`: Replace this pattern of the mnemonic part of item text, e.g. \"&\" in \"&File\"")
+    property string mnemonicRegexReplaceWith: qsTr("", "Replace the mnemonic part matched with `mnemonicRegex` with this")
     property bool isMnemonicSupported: SystemInformation.productType != "macos"
 }
