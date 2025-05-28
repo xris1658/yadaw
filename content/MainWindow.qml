@@ -153,6 +153,7 @@ ApplicationWindow {
         Menu {
             title: "&YADAW"
             mnemonicRegex: Constants.mnemonicRegexInEnglish
+            mnemonicRegexReplaceWith: Constants.mnemonicRegexReplaceWithInEnglish
             Action {
                 text: qsTr("&About YADAW")
                 onTriggered: {
