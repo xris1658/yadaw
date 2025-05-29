@@ -326,6 +326,22 @@ bool QuickMenuEventFilter::eventFilter(QObject* watched, QEvent* event)
         else if(type == QEvent::Type::KeyPress
             || type == QEvent::Type::KeyRelease)
         {
+            if(type == QEvent::Type::KeyRelease && menuBar_)
+            {
+                auto keyEvent = static_cast<QKeyEvent*>(event);
+                auto key = keyEvent->key();
+                if(key == Qt::Key_Alt && menuBar_->property("focus").value<bool>())
+                {
+                    auto metaObject = menuBar_->metaObject();
+                    auto methodIndex = metaObject->indexOfMethod("forceActiveFocus()");
+                    if(methodIndex != -1)
+                    {
+                        metaObject->method(methodIndex).invoke(menuBar_);
+                        keyEvent->accept();
+                        return true;
+                    }
+                }
+            }
             if(!nativePopups_.empty())
             {
                 auto ret = false;
