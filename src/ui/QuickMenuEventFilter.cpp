@@ -418,6 +418,11 @@ bool QuickMenuEventFilter::eventFilter(QObject* watched, QEvent* event)
                                     {
                                         if(auto selectedItem = itemAtIndex(matchedItemIndices.front()))
                                         {
+                                            // Parent object of `NativePopup` (see Menu.qml)
+                                            if(auto menu = static_cast<QObject*>(nativePopup)->parent())
+                                            {
+                                                menu->setProperty("currentIndex", QVariant::fromValue<int>(matchedItemIndices.front()));
+                                            }
                                             if(selectedItem->property("checkable").value<bool>())
                                             {
                                                 selectedItem->setProperty(
