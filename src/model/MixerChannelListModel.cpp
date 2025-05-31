@@ -258,7 +258,6 @@ MixerChannelListModel::MixerChannelListModel(
     sendModels_.reserve(count);
     polarityInverterModels_.reserve(count);
     editingVolume_.resize(count, false);
-    auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
     std::generate_n(
         std::back_inserter(insertModels_), count,
         [this, i = 0U]() mutable
@@ -1101,7 +1100,6 @@ bool MixerChannelListModel::insert(int position, int count,
                 {Role::NameWithIndex}
             );
         }
-        auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
     }
     return ret;
 }
@@ -1307,7 +1305,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 std::move(mixerContext),
                 firstOutput
             );
-            engine.mixerConnectionUpdatedCallback(mixer_);
+            mixer_.connectionUpdated();
             auto& pluginContextMap = YADAW::Controller::appPluginPosition();
             const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
                 &plugin,
@@ -1366,7 +1364,7 @@ bool MixerChannelListModel::removeInstrument(int position)
         {
             instrument = mixer_.detachInstrument(position);
             auto deviceWithPDC = graphWithPDC.removeNode(instrument.first);
-            engine.mixerConnectionUpdatedCallback(mixer_);
+            mixer_.connectionUpdated();
         }
         if(auto window = context.editor)
         {

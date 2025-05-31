@@ -314,6 +314,7 @@ public:
     // (i.e. `Mixer::setBatchUpdater` is not called).
     void setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback);
     void resetConnectionUpdatedCallback();
+    void connectionUpdated() const;
     void setPreInsertAudioInputChannelCallback(std::function<PreInsertChannelCallback>&& callback);
     void setPreInsertRegularChannelCallback(std::function<PreInsertChannelCallback>&& callback);
     void setPreInsertAudioOutputChannelCallback(std::function<PreInsertChannelCallback>&& callback);

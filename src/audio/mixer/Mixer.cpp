@@ -3707,6 +3707,11 @@ void Mixer::resetConnectionUpdatedCallback()
     connectionUpdatedCallback_ = &Impl::blankConnectionUpdatedCallback;
 }
 
+void Mixer::connectionUpdated() const
+{
+    connectionUpdatedCallback_(*this);
+}
+
 void Mixer::setPreInsertAudioInputChannelCallback(
     std::function<PreInsertChannelCallback>&& callback)
 {
