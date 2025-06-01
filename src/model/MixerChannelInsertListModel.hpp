@@ -47,6 +47,9 @@ public:
     void updateIOConfig(std::uint32_t index);
     const YADAW::Audio::Mixer::Inserts& inserts() const;
     YADAW::Audio::Mixer::Inserts& inserts();
+public:
+    void setFillPluginContextCallback(FillPluginContextCallback* callback);
+    void resetFillPluginContextCallback();
 signals:
     void channelIndexChanged();
 private:
@@ -64,6 +67,7 @@ private:
     std::vector<YADAW::Controller::PluginPositionMap::iterator> pluginContextIterators_;
     mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> inputAudioChannelGroupLists_;
     mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> outputAudioChannelGroupLists_;
+    FillPluginContextCallback* fillPluginContextCallback_;
 };
 }
 

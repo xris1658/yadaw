@@ -38,7 +38,8 @@ MixerChannelInsertListModel::MixerChannelInsertListModel(
     type_(type),
     channelIndex_(channelIndex),
     isPreFaderInsert_(isPreFaderInsert),
-    insertsIndex_(insertsIndex)
+    insertsIndex_(insertsIndex),
+    fillPluginContextCallback_(&Impl::blankFillPluginContext)
 {
     // If this step is missing, then the object ownership will be implicitly set
     // to `QJSEngine::ObjectOwnership::JavaScriptOwnership` when the object is
@@ -743,6 +744,16 @@ const YADAW::Audio::Mixer::Inserts& MixerChannelInsertListModel::inserts() const
 YADAW::Audio::Mixer::Inserts& MixerChannelInsertListModel::inserts()
 {
     return *inserts_;
+}
+
+void MixerChannelInsertListModel::setFillPluginContextCallback(FillPluginContextCallback* callback)
+{
+    fillPluginContextCallback_ = callback;
+}
+
+void MixerChannelInsertListModel::resetFillPluginContextCallback()
+{
+    fillPluginContextCallback_ = &Impl::blankFillPluginContext;
 }
 
 void MixerChannelInsertListModel::updateInsertConnections(std::uint32_t from)

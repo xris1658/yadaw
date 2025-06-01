@@ -964,6 +964,13 @@ bool MixerChannelListModel::insert(int position, int count,
                     return ret;
                 }
             );
+            if(fillPluginContextCallback_ != &Impl::blankFillPluginContext)
+            {
+                FOR_RANGE(i, position, position + count)
+                {
+                    insertModels_[i]->setFillPluginContextCallback(fillPluginContextCallback_);
+                }
+            }
             FOR_RANGE(i, position + count, insertModels_.size())
             {
                 insertModels_[i]->setChannelIndex(i);
@@ -1544,11 +1551,19 @@ void MixerChannelListModel::setFillPluginContextCallback(
     FillPluginContextCallback* callback)
 {
     fillPluginContextCallback_ = callback;
+    for(auto& insertModel: insertModels_)
+    {
+        insertModel->setFillPluginContextCallback(callback);
+    }
 }
 
 void MixerChannelListModel::resetFillPluginContextCallback()
 {
     fillPluginContextCallback_ = &Impl::blankFillPluginContext;
+    for(auto& insertModel: insertModels_)
+    {
+        insertModel->resetFillPluginContextCallback();
+    }
 }
 
 void MixerChannelListModel::instrumentLatencyUpdated(std::uint32_t index) const
