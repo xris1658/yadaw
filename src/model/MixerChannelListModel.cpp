@@ -1541,9 +1541,9 @@ const YADAW::Audio::Mixer::Mixer& MixerChannelListModel::mixer() const
 }
 
 void MixerChannelListModel::setFillPluginContextCallback(
-    std::function<FillPluginContextCallback>&& callback)
+    FillPluginContextCallback* callback)
 {
-    fillPluginContextCallback_ = std::move(callback);
+    fillPluginContextCallback_ = callback;
 }
 
 void MixerChannelListModel::resetFillPluginContextCallback()
