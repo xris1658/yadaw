@@ -481,6 +481,8 @@ set(YADAW_COMMON_SOURCES
     src/model/ParameterValueAndTextListModel.hpp
     src/model/PluginCategoryListModel.cpp
     src/model/PluginCategoryListModel.hpp
+    src/model/PluginContextUserData.cpp
+    src/model/PluginContextUserData.hpp
     src/model/PluginDirectoryListModel.cpp
     src/model/PluginDirectoryListModel.hpp
     src/model/PluginListModel.cpp

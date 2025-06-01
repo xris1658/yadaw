@@ -19,30 +19,13 @@
 #include "event/EventBase.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
 #include "model/MixerChannelSendListModel.hpp"
+#include "model/PluginContextUserData.hpp"
 #include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
 #include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
 {
-struct InstrumentContextUserData
-{
-    QMetaObject::Connection pluginWindowConnection;
-    QMetaObject::Connection genericEditorWindowConnection;
-    YADAW::Model::PluginParameterListModel paramListModel;
-    YADAW::Model::AudioDeviceIOGroupListModel instrumentAudioInputs;
-    YADAW::Model::AudioDeviceIOGroupListModel instrumentAudioOutputs;
-    QString name;
-    InstrumentContextUserData(
-        const YADAW::Controller::PluginContext& pluginContext,
-        const QString& name):
-        paramListModel(*(pluginContext.pluginInstance.plugin()->get().parameter())),
-        instrumentAudioInputs(pluginContext.pluginInstance.plugin()->get(), true),
-        instrumentAudioOutputs(pluginContext.pluginInstance.plugin()->get(), false),
-        name(name)
-    {}
-};
-
 YADAW::Audio::Mixer::Mixer::ChannelType channelTypeFromModelTypes(
     IMixerChannelListModel::ChannelTypes type
 )
@@ -462,7 +445,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
                 if(context.has_value())
                 {
                     auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
-                    auto& instrumentContext = *static_cast<InstrumentContextUserData*>(pluginContext.userData.get());
+                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
                     return QVariant::fromValue(instrumentContext.name);
                 }
             }
@@ -477,8 +460,8 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
                 if(context.has_value())
                 {
                     auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
-                    auto& instrumentContext = *static_cast<InstrumentContextUserData*>(pluginContext.userData.get());
-                    return QVariant::fromValue(&(instrumentContext.instrumentAudioInputs));
+                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
+                    return QVariant::fromValue(&(instrumentContext.audioInputs));
                 }
             }
             return {};
@@ -492,8 +475,8 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
                 if(context.has_value())
                 {
                     auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
-                    auto& instrumentContext = *static_cast<InstrumentContextUserData*>(pluginContext.userData.get());
-                    return QVariant::fromValue(&(instrumentContext.instrumentAudioOutputs));
+                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
+                    return QVariant::fromValue(&(instrumentContext.audioOutputs));
                 }
             }
             return {};
@@ -1247,12 +1230,12 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
             pluginContext.position.index = position;
             pluginContext.position.model = this;
             pluginContext.userData = YADAW::Util::createPMRUniquePtr(
-                std::make_unique<InstrumentContextUserData>(
+                std::make_unique<PluginContextUserData>(
                     pluginContext, pluginInfo.name
                 )
             );
             auto& plugin = pluginContext.pluginInstance.plugin()->get();
-            auto& userData = *static_cast<InstrumentContextUserData*>(
+            auto& userData = *static_cast<PluginContextUserData*>(
                 pluginContext.userData.get()
             );
             if(auto pluginWindow = pluginContext.editor)
@@ -1600,7 +1583,7 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
     {
         auto& context = mixer_.getInstrumentContext(index)->get();
         auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context.get());
-        auto& instrumentContextUserData = *static_cast<InstrumentContextUserData*>(
+        auto& pluginContextUserData = *static_cast<PluginContextUserData*>(
             pluginContext.userData.get()
         );
         auto& graphWithPDC = mixer_.graph();
@@ -1662,8 +1645,8 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
         auto status = plugin->status();
         plugin->stopProcessing();
         plugin->deactivate();
-        instrumentContextUserData.instrumentAudioInputs.reset();
-        instrumentContextUserData.instrumentAudioOutputs.reset();
+        pluginContextUserData.audioInputs.reset();
+        pluginContextUserData.audioOutputs.reset();
         if(status >= YADAW::Audio::Plugin::IAudioPlugin::Status::Activated)
         {
             plugin->activate();
@@ -1688,13 +1671,13 @@ void MixerChannelListModel::updateInstrumentConnections(std::uint32_t from)
         if(optionalContext.has_value())
         {
             auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(optionalContext->get().get());
-            auto& instrumentContextUserData = *static_cast<InstrumentContextUserData*>(pluginContext.userData.get());
+            auto& pluginContextUserData = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
             if(pluginContext.editor)
             {
                 QObject::disconnect(
-                    instrumentContextUserData.pluginWindowConnection
+                    pluginContextUserData.pluginWindowConnection
                 );
-                instrumentContextUserData.pluginWindowConnection = QObject::connect(
+                pluginContextUserData.pluginWindowConnection = QObject::connect(
                     pluginContext.editor,
                     &QWindow::visibleChanged,
                     [this, i](bool visible)
@@ -1706,9 +1689,9 @@ void MixerChannelListModel::updateInstrumentConnections(std::uint32_t from)
                 );
             }
             QObject::disconnect(
-                instrumentContextUserData.genericEditorWindowConnection
+                pluginContextUserData.genericEditorWindowConnection
             );
-            instrumentContextUserData.genericEditorWindowConnection = QObject::connect(
+            pluginContextUserData.genericEditorWindowConnection = QObject::connect(
                 pluginContext.genericEditor,
                 &QWindow::visibleChanged,
                 [this, i](bool visible)
