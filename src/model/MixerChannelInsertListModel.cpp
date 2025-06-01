@@ -35,7 +35,6 @@ MixerChannelInsertListModel::MixerChannelInsertListModel(
     QObject* parent):
     IMixerChannelInsertListModel(parent),
     inserts_(&inserts),
-    type_(type),
     channelIndex_(channelIndex),
     isPreFaderInsert_(isPreFaderInsert),
     insertsIndex_(insertsIndex),
