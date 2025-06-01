@@ -1342,7 +1342,6 @@ bool MixerChannelListModel::removeInstrument(int position)
         }
         auto& graphWithPDC = mixer_.graph();
         std::pair<ade::NodeHandle, YADAW::Audio::Mixer::Context> instrument = {ade::NodeHandle(), YADAW::Util::createUniquePtr(nullptr)};
-        auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         {
             instrument = mixer_.detachInstrument(position);
             auto deviceWithPDC = graphWithPDC.removeNode(instrument.first);
@@ -1358,30 +1357,20 @@ bool MixerChannelListModel::removeInstrument(int position)
         genericEditor->setProperty("destroyingPlugin", QVariant::fromValue(true));
         delete genericEditor;
         auto plugin = &context.pluginInstance.plugin()->get();
-        // TODO: Move those codes to dedicated functions
-        switch(plugin->format())
+        if(plugin->format() == YADAW::Audio::Plugin::PluginFormat::CLAP)
         {
-        case YADAW::Audio::Plugin::PluginFormat::VST3:
-        {
-            auto vst3Plugin = static_cast<YADAW::Audio::Plugin::VST3Plugin*>(plugin);
-            vst3Plugin->stopProcessing();
-            vst3Plugin->deactivate();
-            vst3Plugin->uninitialize();
-            break;
-        }
-        case YADAW::Audio::Plugin::PluginFormat::CLAP:
-        {
+            // TODO: Decouple with `appAudioEngine`
+            //   Since `CLAPPlugin::stopProcessing` has to be called in the
+            //   audio thread, I have to couple this model with
+            //   `appAudioEngine`.
             auto clapPlugin = static_cast<YADAW::Audio::Plugin::CLAPPlugin*>(plugin);
+            auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
             engine.clapPluginToSetProcess().updateAndGetOld(
                 std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
                     1, std::make_pair(clapPlugin, false)
                 ),
                 engine.running()
             );
-            clapPlugin->deactivate();
-            clapPlugin->uninitialize();
-            break;
-        }
         }
         instrument.second.reset();
         dataChanged(this->index(position), this->index(position),
