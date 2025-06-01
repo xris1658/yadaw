@@ -19,7 +19,6 @@
 #include "event/EventBase.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
 #include "model/MixerChannelSendListModel.hpp"
-#include "model/PluginContextUserData.hpp"
 #include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
 #include "util/QmlUtil.hpp"
@@ -221,19 +220,12 @@ IMixerChannelListModel::ChannelTypes getChannelType(YADAW::Audio::Mixer::Mixer::
     return static_cast<IMixerChannelListModel::ChannelTypes>(YADAW::Util::underlyingValue(type));
 }
 
-bool blankFillPluginContext(
-    YADAW::Controller::PluginContext& context,
-    const YADAW::Controller::InitPluginArgs& initPluginArgs)
-{
-    return false;
-}
-
 MixerChannelListModel::MixerChannelListModel(
     YADAW::Audio::Mixer::Mixer& mixer, ListType listType, QObject* parent):
     IMixerChannelListModel(parent),
     mixer_(mixer),
     listType_(listType),
-    fillPluginContextCallback_(&blankFillPluginContext)
+    fillPluginContextCallback_(&Impl::blankFillPluginContext)
 {
     YADAW::Util::setCppOwnership(*this);
     auto count = itemCount();
@@ -1556,7 +1548,7 @@ void MixerChannelListModel::setFillPluginContextCallback(
 
 void MixerChannelListModel::resetFillPluginContextCallback()
 {
-    fillPluginContextCallback_ = &blankFillPluginContext;
+    fillPluginContextCallback_ = &Impl::blankFillPluginContext;
 }
 
 void MixerChannelListModel::instrumentLatencyUpdated(std::uint32_t index) const

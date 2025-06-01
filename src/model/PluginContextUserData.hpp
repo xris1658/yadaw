@@ -23,6 +23,18 @@ struct PluginContextUserData
         const QString& name
     );
 };
+
+using FillPluginContextCallback = bool(
+    YADAW::Controller::PluginContext&,
+    const YADAW::Controller::InitPluginArgs& initPluginArgs
+);
+
+namespace Impl
+{
+bool blankFillPluginContext(
+    YADAW::Controller::PluginContext& context,
+    const YADAW::Controller::InitPluginArgs& initPluginArgs);
+}
 }
 
 #endif // YADAW_SRC_MODEL_CONTEXTUSERDATA

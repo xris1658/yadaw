@@ -9,4 +9,14 @@ PluginContextUserData::PluginContextUserData(
     audioOutputs(pluginContext.pluginInstance.plugin()->get(), false),
     name(name)
 {}
+
+namespace Impl
+{
+bool blankFillPluginContext(
+    YADAW::Controller::PluginContext& context,
+    const YADAW::Controller::InitPluginArgs& initPluginArgs)
+{
+    return false;
+}
+}
 }

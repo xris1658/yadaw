@@ -7,6 +7,7 @@
 #include "controller/PluginContext.hpp"
 #include "entity/IAudioIOPosition.hpp"
 #include "model/AudioDeviceIOGroupListModel.hpp"
+#include "model/PluginContextUserData.hpp"
 #include "model/PolarityInverterModel.hpp"
 
 #include <memory>
@@ -30,10 +31,6 @@ public:
         Regular,
         AudioHardwareOutput
     };
-    using FillPluginContextCallback = bool(
-        YADAW::Controller::PluginContext&,
-        const YADAW::Controller::InitPluginArgs& initPluginArgs
-    );
 public:
     MixerChannelListModel(YADAW::Audio::Mixer::Mixer& mixer,
         ListType listType,
