@@ -1,5 +1,27 @@
 #include "SampleDelay.hpp"
 
+#include <algorithm>
+#include <ranges>
+
+template<typename T>
+auto rotateAndTakeLast(
+    const std::vector<T>& from,
+    std::size_t offset, std::size_t itemCount,
+    std::vector<T>& to
+)
+{
+    auto sizes = itemCount > offset?
+        std::array{itemCount - offset, offset}:
+        std::array{static_cast<std::size_t>(0), itemCount};
+    auto copyFrom = {
+        std::ranges::views::counted(from.end() - sizes[0], sizes[0]),
+        std::ranges::views::counted(from.begin() + offset - sizes[1], sizes[1])
+    };
+    return std::ranges::copy(
+        std::ranges::views::join(copyFrom), to.begin()
+    ).out;
+}
+
 namespace YADAW::Audio::Util
 {
 SampleDelay::SampleDelay(std::uint32_t delay,
@@ -70,15 +92,10 @@ bool SampleDelay::setDelay(std::uint32_t delay)
         //      | 5 | 1 | 2 |
         if(delay_ > delay)
         {
-            const auto delta = delay_ - delay;
             for(std::size_t i = 0; i < buffers_.size(); ++i)
             {
-                for(std::size_t j = 0; j < delay; ++j)
-                {
-                    buffers[i][j] = buffers_[i][(offset_ + j + delta) % delay_];
-                }
+                rotateAndTakeLast(buffers_[i], offset_, delay, buffers[i]);
             }
-            offset_ = 0;
         }
         // 3 -> 5:
         // old:       v
@@ -88,16 +105,17 @@ bool SampleDelay::setDelay(std::uint32_t delay)
         //      | 0 | 0 | 2 | 3 | 1 |
         else
         {
-            const auto delta = delay - delay_;
             for(std::size_t i = 0; i < buffers_.size(); ++i)
             {
-                for(std::size_t j = 0; j < delay_; ++j)
-                {
-                    buffers[i][j + delta] = buffers_[i][(offset_ + j) % delay_];
-                }
+                const auto delta = delay - delay_;
+                std::ranges::rotate_copy(
+                    buffers_[i],
+                    buffers_[i].begin() + offset_,
+                    buffers[i].begin() + delta
+                );
             }
-            offset_ = 0;
         }
+        offset_ = 0;
         buffers_ = std::move(buffers);
         delay_ = delay;
         processFunc_ = delay_ == 0? &SampleDelay::doProcessIfDelayIsZero:
