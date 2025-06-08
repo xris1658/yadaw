@@ -7,8 +7,14 @@
 #include "util/BatchUpdater.hpp"
 #include "util/PolymorphicDeleter.hpp"
 
+#include <concepts>
+
 namespace YADAW::Audio::Mixer
 {
+
+template<typename Func>
+concept IsDetachContextCallback = std::invocable<Func, Context&&>;
+
 class Inserts
 {
 public:
@@ -45,6 +51,17 @@ public:
 public:
     bool insert(const ade::NodeHandle& nodeHandle, Context&& context, std::uint32_t position, const QString& name);
     bool append(const ade::NodeHandle& nodeHandle, Context&& context, const QString& name);
+    template<IsDetachContextCallback Callback>
+    bool detachContexts(Callback&& callback, std::uint32_t position, std::uint32_t detachCount = 1)
+    {
+        if(position < insertCount() && detachCount > 0 && position + detachCount <= insertCount())
+        {
+            FOR_RANGE(i, position, position + detachCount)
+            {
+                std::forward<Callback>(callback)(std::move(contexts_[i]));
+            }
+        }
+    }
     bool remove(std::uint32_t position, std::uint32_t removeCount = 1);
     void clear();
     void setName(std::uint32_t position, const QString& name);
