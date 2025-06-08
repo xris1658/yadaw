@@ -708,6 +708,7 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
         }
         auto plugin = static_cast<YADAW::Audio::Plugin::IAudioPlugin*>(device);
         auto status = plugin->status();
+        // TODO: Start/stop processing plugins on audio thread if needed
         plugin->stopProcessing();
         plugin->deactivate();
         inputAudioChannelGroupLists_[index]->reset();
@@ -718,6 +719,7 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
         }
         if(status >= IAudioPlugin::Status::Processing)
         {
+            // TODO: Start/stop processing plugins on audio thread if needed
             plugin->startProcessing();
         }
         node = graphWithPDC.addNode(process);
