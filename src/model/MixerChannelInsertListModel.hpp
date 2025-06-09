@@ -59,13 +59,6 @@ private:
     std::uint32_t channelIndex_;
     bool isPreFaderInsert_;
     std::uint32_t insertsIndex_;
-    std::vector<YADAW::UI::WindowAndConnection> pluginEditors_;
-    std::vector<YADAW::UI::WindowAndConnection> genericEditors_;
-    std::vector<std::unique_ptr<YADAW::Model::PluginParameterListModel>> paramListModel_;
-    std::vector<YADAW::Controller::LibraryPluginMap::iterator> libraryPluginIterators_;
-    std::vector<YADAW::Controller::PluginPositionMap::iterator> pluginContextIterators_;
-    mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> inputAudioChannelGroupLists_;
-    mutable std::vector<std::unique_ptr<YADAW::Model::AudioDeviceIOGroupListModel>> outputAudioChannelGroupLists_;
     FillPluginContextCallback* fillPluginContextCallback_;
 };
 }
