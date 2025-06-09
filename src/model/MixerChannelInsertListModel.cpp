@@ -294,6 +294,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         && position + removeCount <= inserts_->insertCount())
     {
         ret = true;
+        beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
         std::vector<YADAW::Audio::Mixer::Context> contexts;
         std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> multiInputDevices;
         auto contextCount = 0;
@@ -363,6 +364,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 );
             }
         }
+        endRemoveRows();
     }
     return ret;
 }
