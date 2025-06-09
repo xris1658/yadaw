@@ -266,6 +266,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 node, std::move(mixerContext), position, pluginInfo.name
             );
             endInsertRows();
+            updateInsertConnections(position + 1);
             auto& pluginContextMap = YADAW::Controller::appPluginPosition();
             const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
                 &plugin,
@@ -365,6 +366,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             }
         }
         endRemoveRows();
+        updateInsertConnections(position);
     }
     return ret;
 }
