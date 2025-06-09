@@ -318,14 +318,22 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             },
             position, removeCount
         );
+        std::vector<ade::NodeHandle> nodes;
+        nodes.reserve(removeCount);
         FOR_RANGE(i, position, position + removeCount)
         {
-            if(auto multiInputDevice = graph.removeNode(*inserts_->insertNodeAt(i)))
+            nodes.emplace_back(*inserts_->insertNodeAt(i));
+        }
+        inserts_->remove(position, removeCount);
+        for(auto node: nodes)
+        {
+            if(auto multiInputDevice = graph.removeNode(node))
             {
                 multiInputDevices.emplace_back(std::move(multiInputDevice));
             }
         }
-        inserts_->remove(position, removeCount);
+        audioEngine.insertsNodeRemovedCallback(*inserts_);
+        multiInputDevices.clear();
         for(auto& context: contexts)
         {
             auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context.get());
