@@ -33,7 +33,6 @@ public:
     std::optional<ade::NodeHandle> insertNodeAt(std::uint32_t index) const;
     OptionalRef<const Context> insertContextAt(std::uint32_t index) const;
     OptionalRef<Context> insertContextAt(std::uint32_t index);
-    std::optional<QString> insertNameAt(std::uint32_t index) const;
     std::optional<std::uint32_t> insertLatencyAt(std::uint32_t index) const;
     std::optional<bool> insertBypassed(std::uint32_t index) const;
     std::optional<std::uint32_t> insertInputChannelGroupIndexAt(std::uint32_t index) const;
@@ -49,8 +48,8 @@ public:
     bool setInNode(const ade::NodeHandle& inNode, std::uint32_t inChannelGroupIndex);
     bool setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChannelGroupIndex);
 public:
-    bool insert(const ade::NodeHandle& nodeHandle, Context&& context, std::uint32_t position, const QString& name);
-    bool append(const ade::NodeHandle& nodeHandle, Context&& context, const QString& name);
+    bool insert(const ade::NodeHandle& nodeHandle, Context&& context, std::uint32_t position);
+    bool append(const ade::NodeHandle& nodeHandle, Context&& context);
     template<IsDetachContextCallback Callback>
     bool detachContexts(Callback&& callback, std::uint32_t position, std::uint32_t detachCount = 1)
     {
@@ -66,7 +65,6 @@ public:
     }
     bool remove(std::uint32_t position, std::uint32_t removeCount = 1);
     void clear();
-    void setName(std::uint32_t position, const QString& name);
     void setBypassed(std::uint32_t position, bool bypassed);
     bool move(std::uint32_t position, std::uint32_t count, Inserts& rhs, std::uint32_t destPosition);
 public:
@@ -83,7 +81,6 @@ private:
     std::uint32_t outChannelGroupIndex_;
     std::vector<ade::NodeHandle> nodes_;
     std::vector<Context> contexts_;
-    std::vector<QString> names_;
     std::vector<bool> bypassed_;
     std::vector<std::pair<std::uint32_t, std::uint32_t>> channelGroupIndices_;
     std::vector<std::vector<IDGen::ID>> auxInputIDs_;

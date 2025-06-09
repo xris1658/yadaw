@@ -101,15 +101,6 @@ OptionalRef<Context> Inserts::insertContextAt(std::uint32_t index)
     return std::nullopt;
 }
 
-std::optional<QString> Inserts::insertNameAt(std::uint32_t index) const
-{
-    if(index < insertCount())
-    {
-        return {names_[index]};
-    }
-    return std::nullopt;
-}
-
 std::optional<std::uint32_t> Inserts::insertLatencyAt(std::uint32_t index) const
 {
     if(index < insertCount())
@@ -291,12 +282,11 @@ bool Inserts::setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChanne
 
 bool Inserts::insert(const ade::NodeHandle& nodeHandle,
     Context&& context,
-    std::uint32_t position, const QString& name)
+    std::uint32_t position)
 {
     if(position <= insertCount())
     {
         nodes_.insert(nodes_.begin() + position, nodeHandle);
-        names_.insert(names_.begin() + position, name);
         bypassed_.insert(bypassed_.begin() + position, true);
         contexts_.insert(contexts_.begin() + position, std::move(context));
         auto device = graph_.getNodeData(nodeHandle).process.device();
@@ -357,10 +347,9 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
     return false;
 }
 
-bool Inserts::append(const ade::NodeHandle& nodeHandle,
-    Context&& context, const QString& name)
+bool Inserts::append(const ade::NodeHandle& nodeHandle, Context&& context)
 {
-    return insert(nodeHandle, std::move(context), insertCount(), name);
+    return insert(nodeHandle, std::move(context), insertCount());
 }
 
 bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
@@ -390,8 +379,6 @@ bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
         );
         nodes_.erase(nodes_.begin() + position,
             nodes_.begin() + position + removeCount);
-        names_.erase(names_.begin() + position,
-            names_.begin() + position + removeCount);
         bypassed_.erase(bypassed_.begin() + position,
             bypassed_.begin() + position + removeCount);
         channelGroupIndices_.erase(channelGroupIndices_.begin() + position,
@@ -404,14 +391,6 @@ bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
 void Inserts::clear()
 {
     remove(0, insertCount());
-}
-
-void Inserts::setName(std::uint32_t position, const QString& name)
-{
-    if(position < insertCount())
-    {
-        names_[position] = name;
-    }
 }
 
 void Inserts::setBypassed(std::uint32_t position, bool bypassed)

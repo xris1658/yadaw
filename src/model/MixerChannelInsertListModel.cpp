@@ -263,7 +263,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             );
             beginInsertRows(QModelIndex(), position, position);
             inserts_->insert(
-                node, std::move(mixerContext), position, pluginInfo.name
+                node, std::move(mixerContext), position
             );
             endInsertRows();
             updateInsertConnections(position + 1);
@@ -421,9 +421,6 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
 {
     if(index < itemCount())
     {
-        auto& context = inserts_->insertContextAt(index)->get();
-        auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context.get());
-        auto& pluginContextUserData = *static_cast<YADAW::Model::PluginContextUserData*>(pluginContext.userData.get());
         auto& audioEngine = YADAW::Controller::AudioEngine::appAudioEngine();
         auto& mixer = audioEngine.mixer();
         auto& graphWithPDC = mixer.graph();
@@ -473,8 +470,18 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
             process = multiInput->process();
             device = process.device();
         }
+        auto context = YADAW::Util::createUniquePtr(nullptr);
+        inserts_->detachContexts(
+            [&context](YADAW::Audio::Mixer::Context&& insertContext)
+            {
+                context = std::move(insertContext);
+            },
+            index, 1
+        );
+        auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context.get());
+        auto& pluginContextUserData = *static_cast<YADAW::Model::PluginContextUserData*>(pluginContext.userData.get());
         inserts_->remove(index);
-        auto name = *inserts_->insertNameAt(index);
+        auto name = pluginContextUserData.name;
         {
             auto disposingDevice = graphWithPDC.removeNode(node);
             YADAW::Controller::AudioEngine::insertsNodeRemovedCallback(*inserts_);
@@ -497,9 +504,7 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
         }
         node = graphWithPDC.addNode(process);
         inserts_->insert(
-            node,
-            YADAW::Util::createUniquePtr(nullptr), // TODO
-            index, name
+            node, std::move(context), index
         );
         // TODO: Restore additional connections
         dataChanged(
