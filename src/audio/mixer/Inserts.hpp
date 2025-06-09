@@ -60,7 +60,9 @@ public:
             {
                 std::forward<Callback>(callback)(std::move(contexts_[i]));
             }
+            return true;
         }
+        return false;
     }
     bool remove(std::uint32_t position, std::uint32_t removeCount = 1);
     void clear();
