@@ -1196,20 +1196,16 @@ void MixerChannelListModel::clear()
 
 bool MixerChannelListModel::setInstrument(int position, int pluginId)
 {
-    using PluginFormat = YADAW::DAO::PluginFormat;
-    using YADAW::Audio::Mixer::Mixer;
     auto ret = false;
     ade::NodeHandle nodeHandle;
     if(listType_ == ListType::Regular
         && position >= 0
         && position < mixer_.channelCount()
-        && mixer_.channelInfoAt(position)->get().channelType == Mixer::ChannelType::Instrument
+        && mixer_.channelInfoAt(position)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
     )
     {
-        auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
-        auto& graphWithPDC = mixer_.graph();
-        const auto& pluginInfo = YADAW::DAO::selectPluginById(pluginId);
         removeInstrument(position);
+        const auto& pluginInfo = YADAW::DAO::selectPluginById(pluginId);
         YADAW::Controller::InitPluginArgs initPluginArgs;
         initPluginArgs.mainInputChannelGroup.first = YADAW::Audio::Base::ChannelGroupType::eInvalid;
         initPluginArgs.mainOutputChannelGroup = *mixer_.channelGroupTypeAndChannelCountAt(position);
