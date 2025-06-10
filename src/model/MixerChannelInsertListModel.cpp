@@ -214,6 +214,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         );
         if(optionalPluginContext.has_value())
         {
+            ret = true;
             auto& pluginContext = *optionalPluginContext;
             pluginContext.position.position = YADAW::Controller::PluginPosition::InChannelPosition::Instrument;
             pluginContext.position.index = position;
