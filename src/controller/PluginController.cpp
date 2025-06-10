@@ -735,8 +735,8 @@ std::optional<PluginContext> createPluginWithContext(
     {
         PluginContext ret {
             .hostContext = YADAW::Util::createUniquePtr(nullptr),
-            .process = YADAW::Audio::Engine::AudioDeviceProcess(),
             .pluginInstance = std::move(instance),
+            .process = YADAW::Audio::Engine::AudioDeviceProcess(),
             .editor = nullptr,
             .genericEditor = nullptr,
             .userData = YADAW::Util::createUniquePtr(nullptr)
