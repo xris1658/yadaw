@@ -530,6 +530,16 @@ bool QuickMenuEventFilter::eventFilter(QObject* watched, QEvent* event)
                                 }
                                 ret = true;
                             }
+                            else if(key == Qt::Key_Escape)
+                            {
+                                auto popup = receiveKeyEventItem->parent(); // Menu_QMLTYPE_***
+                                auto popupMetaObj = popup->metaObject();
+                                if(auto methodIndex = popupMetaObj->indexOfMethod("close()"); methodIndex != -1)
+                                {
+                                    popupMetaObj->method(methodIndex).invoke(popup);
+                                    event->accept();
+                                }
+                            }
                             else
                             {
                                 QCoreApplication::sendEvent(receiveKeyEventItem, event);
