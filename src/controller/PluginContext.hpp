@@ -20,9 +20,9 @@ namespace YADAW::Controller
 {
 struct PluginContext
 {
+    YADAW::Util::PMRUniquePtr<void> hostContext;
     LibraryPluginPool::Instance pluginInstance;
     YADAW::Audio::Engine::AudioDeviceProcess process;
-    YADAW::Util::PMRUniquePtr<void> hostContext;
     QWindow* editor = nullptr;
     QWindow* genericEditor = nullptr;
     PluginPosition position;
