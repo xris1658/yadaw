@@ -49,7 +49,6 @@ T.MenuBarItem {
         target: menu
         enabled: Global.enableMenuPopup
         property bool opened: false
-        property bool menuOpenedWithClick: false
         function onOpened() {
             menu.isMenuBarMenu = true;
             let nativePopup = menu.nativePopup;
