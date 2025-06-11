@@ -1,3 +1,10 @@
 module YADAW.Models
 
+FilterRoleModel 1.0 FilterRoleModel.qml
+IMixerChannelListModel 1.0 IMixerChannelListModel.qml
 IPluginListModel 1.0 IPluginListModel.qml
+INativePopupEventFilterModel 1.0 INativePopupEventFilterModel.qml
+ISortFilterListModel 1.0 ISortFilterListModel.qml
+MessageDialogButtonBoxModel 1.0 MessageDialogButtonBoxModel.qml
+SortFilterProxyListModel 1.0 SortFilterProxyListModel.qml
+SortOrderModel 1.0 SortOrderModel.qml
