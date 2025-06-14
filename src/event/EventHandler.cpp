@@ -988,7 +988,15 @@ bool fillPluginContext(
     }
     if(ret)
     {
-        context.node = engine.mixer().graph().addNode(context.process);
+        auto& graphWithPDC = engine.mixer().graph();
+        context.node = graphWithPDC.addNode(context.process);
+        if(plugin.audioInputGroupCount() > 1)
+        {
+            auto deviceWithPDC = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
+                graphWithPDC.graph().getNodeData(context.node).process.device()
+            );
+            deviceWithPDC->setBufferSize(engine.bufferSize());
+        }
         YADAW::Controller::createPluginWindows(context);
     }
     return ret;
