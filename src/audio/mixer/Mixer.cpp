@@ -3743,22 +3743,6 @@ void Mixer::resetPreInsertAudioOutputChannelCallback()
     preInsertAudioOutputChannelCallback_ = &Impl::blankPreInsertChannelCallback;
 }
 
-std::optional<ade::EdgeHandle> Mixer::addConnection(
-    const ade::NodeHandle& from, const ade::NodeHandle& to,
-    std::uint32_t fromChannel, std::uint32_t toChannel)
-{
-    auto ret = graph_.connect(from, to, fromChannel, toChannel);
-    if(ret.has_value())
-    {
-        connections_.emplace(*ret);
-        if(batchUpdater_)
-        {
-            connectionUpdatedCallback_(*this);
-        }
-    }
-    return ret;
-}
-
 OptionalRef<YADAW::Util::BatchUpdater> Mixer::batchUpdater()
 {
     if(batchUpdater_)
@@ -3804,6 +3788,26 @@ void Mixer::resetBatchUpdater()
     }
 }
 
+std::optional<ade::EdgeHandle> Mixer::addConnection(
+    const ade::NodeHandle& from, const ade::NodeHandle& to,
+    std::uint32_t fromChannel, std::uint32_t toChannel)
+{
+    auto ret = graph_.connect(from, to, fromChannel, toChannel);
+    if(ret.has_value())
+    {
+        connections_.emplace(*ret);
+        if(batchUpdater_)
+        {
+            batchUpdater_->addNull();
+        }
+        else
+        {
+            connectionUpdatedCallback_(*this);
+        }
+    }
+    return ret;
+}
+
 void Mixer::removeConnection(const ade::EdgeHandle& edgeHandle)
 {
     if(auto it = connections_.find(edgeHandle); it != connections_.end())
@@ -3811,6 +3815,10 @@ void Mixer::removeConnection(const ade::EdgeHandle& edgeHandle)
         graph_.disconnect(*it);
         connections_.erase(it);
         if(batchUpdater_)
+        {
+            batchUpdater_->addNull();
+        }
+        else
         {
             connectionUpdatedCallback_(*this);
         }
@@ -3824,6 +3832,10 @@ void Mixer::clearConnections()
         graph_.disconnect(connection);
     }
     if(batchUpdater_)
+    {
+        batchUpdater_->addNull();
+    }
+    else
     {
         connectionUpdatedCallback_(*this);
     }
