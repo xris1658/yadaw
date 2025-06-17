@@ -29,6 +29,7 @@
 #include "native/Native.hpp"
 #include "native/Shell.hpp"
 #include "native/Window.hpp"
+#include "ui/ExposeAndPaintEventFilter.hpp"
 #include "ui/MessageDialog.hpp"
 #include "ui/Runtime.hpp"
 #include "util/IntegerRange.hpp"
@@ -339,6 +340,7 @@ void EventHandler::onOpenMainWindow()
     // Open main window---------------------------------------------------------
     // -------------------------------------------------------------------------
     YADAW::UI::qmlApplicationEngine->loadFromModule("Main", "YADAW");
+    YADAW::UI::ExposeAndPaintEventFilter::createIfNeeded(*YADAW::UI::mainWindow);
     YADAW::UI::mainWindow->setProperty("currentAudioBackend",
         QVariant::fromValue<int>(currentBackend));
     YADAW::UI::mainWindow->setProperty("assetDirectoryListModel",

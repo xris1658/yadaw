@@ -513,6 +513,8 @@ set(YADAW_COMMON_SOURCES
     src/native/Thread.hpp
     src/native/VST3Native.hpp
     src/native/VestifalNative.hpp
+    src/ui/ExposeAndPaintEventFilter.cpp
+    src/ui/ExposeAndPaintEventFilter.hpp
     src/ui/MessageDialog.cpp
     src/ui/MessageDialog.hpp
     src/ui/QuickMenuEventFilter.cpp
