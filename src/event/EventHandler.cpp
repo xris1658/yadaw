@@ -597,6 +597,8 @@ void EventHandler::onOpenMainWindow()
     }
     YADAW::Event::splashScreenWorkerThread->closeSplashScreen();
     auto& timer = YADAW::UI::idleProcessTimer();
+    // FIXME: Use a more efficient mechanism to update the CPU meter to solve
+    //        the performance issues of main window
     timer.callOnTimeout(
         this,
         []()
