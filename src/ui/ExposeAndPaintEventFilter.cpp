@@ -1,5 +1,12 @@
 #include "ExposeAndPaintEventFilter.hpp"
 
+#include <QEvent>
+#include <QExposeEvent>
+#include <QObject>
+#include <QPaintEvent>
+#include <QVariant>
+#include <QWindow>
+
 #include <cinttypes>
 
 namespace YADAW::UI

@@ -1,5 +1,6 @@
 #include "SampleDelay.hpp"
 
+#include <array>
 #include <algorithm>
 #include <ranges>
 
