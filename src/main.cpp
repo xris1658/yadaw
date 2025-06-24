@@ -64,6 +64,18 @@ int main(int argc, char *argv[])
         },
         Qt::DirectConnection
     );
+#if _WIN32
+    // A temporary workaround to avoid GUI performance issues on Windows while
+    // dragging the window.
+    // On Windows, Direct3D 11 is the default backend of the scene graph
+    // threaded renderer. For reasons that I've not known, when dragging a
+    // window with Qt 6.5 and Direct3D as the backend, swapping frames takes too
+    // much time (about 50ms per swap operation), causing visible stutters.
+    // I don't use OpenGL or Vulkan as the backend because visible artifacts
+    // (black screen, Windows 7 classic title bar) can be seen while entering or
+    // leaving full screen mode.
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::OpenGL);
+#endif
     YADAW::Controller::initializeApplicationConfig();
     auto config = YADAW::Controller::loadConfig();
     auto systemFontRendering = config["general"]["system-font-rendering"].as<bool>();
