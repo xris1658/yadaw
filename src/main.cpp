@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     // I don't use OpenGL or Vulkan as the backend because visible artifacts
     // (black screen, Windows 7 classic title bar) can be seen while entering or
     // leaving full screen mode.
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::OpenGL);
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::Software);
 #endif
     YADAW::Controller::initializeApplicationConfig();
     auto config = YADAW::Controller::loadConfig();
