@@ -8,7 +8,10 @@ template<typename T>
 using Vector2D = std::vector<std::vector<T>>;
 
 template<typename T>
-using Vector3D = std::vector<std::vector<std::vector<T>>>;
+using Vector3D = std::vector<Vector2D<T>>;
+
+template<typename T>
+using Vector4D = std::vector<Vector3D<T>>;
 
 template<typename... Args>
 using Vec = std::conditional_t<
