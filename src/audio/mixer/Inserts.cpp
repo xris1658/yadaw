@@ -6,6 +6,8 @@
 namespace YADAW::Audio::Mixer
 {
 void blankConnectionUpdatedCallback(const Inserts&) {}
+void blankInsertAddedCallback(Inserts& sender, std::uint32_t index) {}
+void blankInsertRemovedCallback(Inserts& sender, std::uint32_t index, std::uint32_t removeCount) {}
 
 Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     IDGen& auxInputIDGen, IDGen& auxOutputIDGen,
@@ -17,7 +19,10 @@ Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     inChannelGroupIndex_(inChannelGroupIndex), outChannelGroupIndex_(outChannelGroupIndex),
     auxInputIDGen_(&auxInputIDGen), auxOutputIDGen_(&auxOutputIDGen),
     connectionUpdatedCallback_(blankConnectionUpdatedCallback),
-    batchUpdater_(batchUpdater)
+    batchUpdater_(batchUpdater),
+    insertCallbackUserData_(YADAW::Util::createUniquePtr(nullptr)),
+    insertAddedCallback_(&blankInsertAddedCallback),
+    insertRemovedCallback_(&blankInsertRemovedCallback)
 {
     auto inDevice = graph_.getNodeData(inNode_).process.device();
     auto outDevice = graph_.getNodeData(outNode_).process.device();
@@ -342,6 +347,7 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
         {
             connectionUpdatedCallback_(*this);
         }
+        insertAddedCallback_(*this, position);
         return true;
     }
     return false;
@@ -383,6 +389,7 @@ bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
             bypassed_.begin() + position + removeCount);
         channelGroupIndices_.erase(channelGroupIndices_.begin() + position,
             channelGroupIndices_.begin() + position + removeCount);
+        insertRemovedCallback_(*this, position, removeCount);
         return true;
     }
     return false;
@@ -505,6 +512,26 @@ void Inserts::setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater)
 void Inserts::resetBatchUpdater()
 {
     batchUpdater_ = nullptr;
+}
+
+YADAW::Util::PMRUniquePtr<void>& Inserts::getInsertCallbackUserData() const
+{
+    return insertCallbackUserData_;
+}
+
+void Inserts::setInsertCallbackUserData(YADAW::Util::PMRUniquePtr<void> userData)
+{
+    insertCallbackUserData_ = std::move(userData);
+}
+
+void Inserts::setInsertAddedCallback(InsertAddedCallback* callback)
+{
+    insertAddedCallback_ = callback;
+}
+
+void Inserts::setInsertRemovedCallback(InsertRemovedCallback* callback)
+{
+    insertRemovedCallback_ = callback;
 }
 
 void Inserts::setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback)

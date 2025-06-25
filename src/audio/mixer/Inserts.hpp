@@ -8,6 +8,7 @@
 #include "util/PolymorphicDeleter.hpp"
 
 #include <concepts>
+#include <cstdint>
 
 namespace YADAW::Audio::Mixer
 {
@@ -18,6 +19,8 @@ concept IsDetachContextCallback = std::invocable<Func, Context&&>;
 class Inserts
 {
 public:
+    using InsertAddedCallback = void(Inserts&, std::uint32_t);
+    using InsertRemovedCallback = void(Inserts&, std::uint32_t, std::uint32_t);
     using ConnectionUpdatedCallback = void(const Inserts&);
 public:
     Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
@@ -72,6 +75,10 @@ public:
     void setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater);
     void resetBatchUpdater();
 public:
+    YADAW::Util::PMRUniquePtr<void>& getInsertCallbackUserData() const;
+    void setInsertCallbackUserData(YADAW::Util::PMRUniquePtr<void>&& userData);
+    void setInsertAddedCallback(InsertAddedCallback* callback);
+    void setInsertRemovedCallback(InsertRemovedCallback* callback);
     void setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback);
 private:
     YADAW::Audio::Engine::AudioDeviceGraphBase& graph_;
@@ -89,6 +96,9 @@ private:
     IDGen* auxOutputIDGen_ = nullptr;
     ConnectionUpdatedCallback* connectionUpdatedCallback_;
     YADAW::Util::BatchUpdater* batchUpdater_;
+    mutable YADAW::Util::PMRUniquePtr<void> insertCallbackUserData_;
+    InsertAddedCallback* insertAddedCallback_;
+    InsertRemovedCallback* insertRemovedCallback_;
 };
 }
 

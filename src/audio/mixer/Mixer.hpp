@@ -118,6 +118,15 @@ public:
             return !(lhs == rhs);
         }
     };
+    struct PluginAuxIOPosition
+    {
+        enum ChannelType { AudioHardwareInput, Regular, AudioHardwareOutput };
+        ChannelType channelType;
+        std::uint32_t channelIndex;
+        bool isPreFaderInsert;
+        std::uint32_t insertIndex;
+        std::uint32_t channelGroupIndex;
+    };
     using ConnectionUpdatedCallback = void(const Mixer&);
     using PreInsertChannelCallbackArgs = struct { std::uint32_t position; std::uint32_t count; };
     using PreInsertChannelCallback = void(const Mixer& sender, PreInsertChannelCallbackArgs args);
@@ -324,6 +333,13 @@ public:
     OptionalRef<YADAW::Util::BatchUpdater> batchUpdater();
     void setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater);
     void resetBatchUpdater();
+public:
+    std::optional<PluginAuxIOPosition> getAuxInputPosition(IDGen::ID id) const;
+    std::optional<PluginAuxIOPosition> getAuxOutputPosition(IDGen::ID id) const;
+private:
+    static void insertAdded(Inserts& sender, std::uint32_t position);
+    static void insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t removeCount);
+    void updatePluginAuxPosition(PluginAuxIOPosition::ChannelType channelType, std::uint32_t fromChannelIndex);
 private:
     using PolarityInverterAndNode = std::pair<
         std::unique_ptr<YADAW::Audio::Mixer::PolarityInverter>,
@@ -540,6 +556,12 @@ private:
     std::function<PreInsertChannelCallback> preInsertAudioOutputChannelCallback_;
     std::function<DeviceFactoryType<VolumeFader>> volumeFaderFactory_;
     std::function<DeviceFactoryType<Meter>> meterFactory_;
+
+    std::map<IDGen::ID, PluginAuxIOPosition> pluginAuxInputIDs_;
+    std::map<IDGen::ID, PluginAuxIOPosition> pluginAuxOutputIDs_;
+
+    std::array<Vector4D<decltype(pluginAuxInputIDs_) ::iterator>, 3> pluginAuxInputs_;
+    std::array<Vector4D<decltype(pluginAuxOutputIDs_)::iterator>, 3> pluginAuxOutputs_;
 
     YADAW::Util::BatchUpdater* batchUpdater_ = nullptr;
 };

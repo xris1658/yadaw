@@ -17,6 +17,14 @@ void blankConnectionUpdatedCallback(const Mixer&) {}
 void blankPreInsertChannelCallback(const Mixer&, Mixer::PreInsertChannelCallbackArgs) {}
 }
 
+struct InsertPosition
+{
+    Mixer& mixer;
+    Mixer::PluginAuxIOPosition::ChannelType channelType;
+    std::uint32_t channelIndex;
+    std::uint32_t insertsIndex;
+};
+
 Mixer::Mixer():
     graph_(),
     graphWithPDC_(graph_),
@@ -1439,6 +1447,37 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
         audioInputSendFaders_.emplace(audioInputSendFaders_.begin() + position);
         audioInputSendPolarityInverters_.emplace(audioInputSendPolarityInverters_.begin() + position);
         audioInputSendDestinations_.emplace(audioInputSendDestinations_.begin() + position);
+        auto& vecInput = pluginAuxInputs_[PluginAuxIOPosition::ChannelType::AudioHardwareInput];
+        vecInput.emplace(vecInput.begin() + position, 2);
+        auto& vecOutput = pluginAuxOutputs_[PluginAuxIOPosition::ChannelType::AudioHardwareInput];
+        vecOutput.emplace(vecOutput.begin() + position, 2);
+        auto insertPosition = new InsertPosition {
+            .mixer = *this,
+            .channelType = PluginAuxIOPosition::ChannelType::AudioHardwareInput,
+            .channelIndex = position,
+            .insertsIndex = 0U
+        };
+        audioInputPreFaderInserts_[position]->setInsertCallbackUserData(
+            YADAW::Util::createPMRUniquePtr(
+                std::make_unique<InsertPosition>(
+                    *this, PluginAuxIOPosition::ChannelType::AudioHardwareInput, position, 0U
+                )
+            )
+        );
+        audioInputPostFaderInserts_[position]->setInsertCallbackUserData(
+            YADAW::Util::createPMRUniquePtr(
+                std::make_unique<InsertPosition>(
+                    *this, PluginAuxIOPosition::ChannelType::AudioHardwareInput, position, 1U
+                )
+            )
+        );
+        audioInputPreFaderInserts_[position]->setInsertAddedCallback(&Mixer::insertAdded);
+        audioInputPreFaderInserts_[position]->setInsertRemovedCallback(&Mixer::insertRemoved);
+        audioInputPostFaderInserts_[position]->setInsertAddedCallback(&Mixer::insertAdded);
+        audioInputPostFaderInserts_[position]->setInsertRemovedCallback(&Mixer::insertRemoved);
+        updatePluginAuxPosition(
+            PluginAuxIOPosition::ChannelType::AudioHardwareInput, position + 1
+        );
         return true;
     }
     return false;
@@ -1559,6 +1598,13 @@ bool Mixer::removeAudioInputChannel(
         audioInputChannelId_.erase(
             audioInputChannelId_.begin() + first,
             audioInputChannelId_.begin() + last
+        );
+        auto& vecInput = pluginAuxInputs_[PluginAuxIOPosition::ChannelType::AudioHardwareInput];
+        vecInput.erase(vecInput.begin() + first, vecInput.begin() + last);
+        auto& vecOutput = pluginAuxOutputs_[PluginAuxIOPosition::ChannelType::AudioHardwareInput];
+        vecOutput.erase(vecOutput.begin() + first, vecOutput.begin() + last);
+        updatePluginAuxPosition(
+            PluginAuxIOPosition::ChannelType::AudioHardwareInput, first
         );
         return true;
     }
@@ -1682,6 +1728,31 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
         audioOutputSendFaders_.emplace(audioOutputSendFaders_.begin() + position);
         audioOutputSendPolarityInverters_.emplace(audioOutputSendPolarityInverters_.begin() + position);
         audioOutputSendDestinations_.emplace(audioOutputSendDestinations_.begin() + position);
+        auto& vecInput = pluginAuxInputs_[PluginAuxIOPosition::ChannelType::AudioHardwareOutput];
+        vecInput.emplace(vecInput.begin() + position, 2);
+        auto& vecOutput = pluginAuxOutputs_[PluginAuxIOPosition::ChannelType::AudioHardwareOutput];
+        vecOutput.emplace(vecOutput.begin() + position, 2);
+        audioOutputPreFaderInserts_[position]->setInsertCallbackUserData(
+            YADAW::Util::createPMRUniquePtr(
+                std::make_unique<InsertPosition>(
+                    *this, PluginAuxIOPosition::ChannelType::AudioHardwareOutput, position, 0U
+                )
+            )
+        );
+        audioOutputPostFaderInserts_[position]->setInsertCallbackUserData(
+            YADAW::Util::createPMRUniquePtr(
+                std::make_unique<InsertPosition>(
+                    *this, PluginAuxIOPosition::ChannelType::AudioHardwareOutput, position, 1U
+                )
+            )
+        );
+        audioOutputPreFaderInserts_[position]->setInsertAddedCallback(&Mixer::insertAdded);
+        audioOutputPreFaderInserts_[position]->setInsertRemovedCallback(&Mixer::insertRemoved);
+        audioOutputPostFaderInserts_[position]->setInsertAddedCallback(&Mixer::insertAdded);
+        audioOutputPostFaderInserts_[position]->setInsertRemovedCallback(&Mixer::insertRemoved);
+        updatePluginAuxPosition(
+            PluginAuxIOPosition::ChannelType::AudioHardwareOutput, position + 1
+        );
         return true;
     }
     return false;
@@ -1810,6 +1881,13 @@ bool Mixer::removeAudioOutputChannel(
         audioOutputChannelId_.erase(
             audioOutputChannelId_.begin() + first,
             audioOutputChannelId_.begin() + last
+        );
+        auto& vecInput = pluginAuxInputs_[PluginAuxIOPosition::ChannelType::AudioHardwareOutput];
+        vecInput.erase(vecInput.begin() + first, vecInput.begin() + last);
+        auto& vecOutput = pluginAuxOutputs_[PluginAuxIOPosition::ChannelType::AudioHardwareOutput];
+        vecOutput.erase(vecOutput.begin() + first, vecOutput.begin() + last);
+        updatePluginAuxPosition(
+            PluginAuxIOPosition::ChannelType::AudioHardwareOutput, first
         );
         return true;
     }
@@ -2171,6 +2249,38 @@ bool Mixer::insertChannels(
             std::inserter(mainOutput_, mainOutput_.begin() + position), count,
             Position {Position::Invalid, IDGen::InvalidId}
         );
+        auto& vecInput = pluginAuxInputs_[PluginAuxIOPosition::ChannelType::Regular];
+        vecInput.insert(
+            vecInput.begin() + position, count, decltype(pluginAuxInputs_)::value_type::value_type(2)
+        );
+        auto& vecOutput = pluginAuxOutputs_[PluginAuxIOPosition::ChannelType::Regular];
+        vecOutput.insert(
+            vecOutput.begin() + position, count, decltype(pluginAuxOutputs_)::value_type::value_type(2)
+        );
+        FOR_RANGE(i, position, position + count)
+        {
+            audioInputPreFaderInserts_[position]->setInsertCallbackUserData(
+                YADAW::Util::createPMRUniquePtr(
+                    std::make_unique<InsertPosition>(
+                        *this, PluginAuxIOPosition::ChannelType::AudioHardwareInput, i, 0U
+                    )
+                )
+            );
+            audioInputPostFaderInserts_[position]->setInsertCallbackUserData(
+                YADAW::Util::createPMRUniquePtr(
+                    std::make_unique<InsertPosition>(
+                        *this, PluginAuxIOPosition::ChannelType::AudioHardwareInput, i, 1U
+                    )
+                )
+            );
+            preFaderInserts_[i]->setInsertAddedCallback(&Mixer::insertAdded);
+            preFaderInserts_[i]->setInsertRemovedCallback(&Mixer::insertRemoved);
+            postFaderInserts_[i]->setInsertAddedCallback(&Mixer::insertAdded);
+            postFaderInserts_[i]->setInsertRemovedCallback(&Mixer::insertRemoved);
+        }
+        updatePluginAuxPosition(
+            PluginAuxIOPosition::ChannelType::Regular, position + count
+        );
         connectionUpdatedCallback_(*this);
     }
     return ret;
@@ -2340,6 +2450,13 @@ bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
         channelId_.erase(
             channelId_.begin() + first,
             channelId_.begin() + last
+        );
+        auto& vecInput = pluginAuxInputs_[PluginAuxIOPosition::ChannelType::Regular];
+        vecInput.erase(vecInput.begin() + first, vecInput.begin() + last);
+        auto& vecOutput = pluginAuxOutputs_[PluginAuxIOPosition::ChannelType::Regular];
+        vecOutput.erase(vecOutput.begin() + first, vecOutput.begin() + last);
+        updatePluginAuxPosition(
+            PluginAuxIOPosition::ChannelType::Regular, first
         );
         return true;
     }
@@ -3808,5 +3925,200 @@ std::tuple<Mixer::PolarityInverterAndNode, Mixer::MuteAndNode, Mixer::FaderAndNo
         std::pair{std::move(mute), std::move(muteNode)},
         std::pair{std::move(fader), std::move(faderNode)}
     };
+}
+
+std::optional<Mixer::PluginAuxIOPosition> Mixer::getAuxInputPosition(IDGen::ID id) const
+{
+    auto it = pluginAuxInputIDs_.find(id);
+    if(it != pluginAuxInputIDs_.end())
+    {
+        return {it->second};
+    }
+    return std::nullopt;
+}
+
+std::optional<Mixer::PluginAuxIOPosition> Mixer::getAuxOutputPosition(IDGen::ID id) const
+{
+    auto it = pluginAuxOutputIDs_.find(id);
+    if(it != pluginAuxOutputIDs_.end())
+    {
+        return {it->second};
+    }
+    return std::nullopt;
+}
+
+void Mixer::insertAdded(Inserts& sender, std::uint32_t position)
+{
+    auto& insertPosition = *static_cast<InsertPosition*>(sender.getInsertCallbackUserData().get());
+    auto& mixer = insertPosition.mixer;
+    auto& vecInput = mixer.pluginAuxInputs_[insertPosition.channelType][insertPosition.channelIndex][insertPosition.insertsIndex];
+    auto& vecOutput = mixer.pluginAuxOutputs_[insertPosition.channelType][insertPosition.channelIndex][insertPosition.insertsIndex];
+    auto auxInputIt = vecInput.emplace(vecInput.begin() + position);
+    auto auxOutputIt = vecOutput.emplace(vecInput.begin() + position);
+    auto node = *sender.insertNodeAt(position);
+    auto device = sender.graph().getNodeData(node).process.device();
+    auxInputIt->reserve(device->audioInputGroupCount() - 1);
+    auxOutputIt->reserve(device->audioOutputGroupCount() - 1);
+    auto inputIndex = *sender.insertInputChannelGroupIndexAt(position);
+    auto outputIndex = *sender.insertOutputChannelGroupIndexAt(position);
+    FOR_RANGE0(i, inputIndex)
+    {
+        auto id = *sender.insertAuxInputID(position, i);
+        auxInputIt->emplace_back(
+            mixer.pluginAuxInputIDs_.emplace(
+                id, PluginAuxIOPosition {
+                    .channelType = insertPosition.channelType,
+                    .channelIndex = insertPosition.channelIndex,
+                    .isPreFaderInsert = static_cast<bool>(insertPosition.insertsIndex),
+                    .insertIndex = position,
+                    .channelGroupIndex = i
+                }
+            ).first
+        );
+    }
+    FOR_RANGE(i, inputIndex + 1, device->audioInputGroupCount())
+    {
+        auto id = *sender.insertAuxInputID(position, i);
+        auxInputIt->emplace_back(
+            mixer.pluginAuxInputIDs_.emplace(
+                id, PluginAuxIOPosition {
+                    .channelType = insertPosition.channelType,
+                    .channelIndex = insertPosition.channelIndex,
+                    .isPreFaderInsert = static_cast<bool>(insertPosition.insertsIndex),
+                    .insertIndex = position,
+                    .channelGroupIndex = i
+                }
+            ).first
+        );
+    }
+    FOR_RANGE0(i, outputIndex)
+    {
+        auto id = *sender.insertAuxOutputID(position, i);
+        auxInputIt->emplace_back(
+            mixer.pluginAuxOutputIDs_.emplace(
+                id, PluginAuxIOPosition {
+                    .channelType = insertPosition.channelType,
+                    .channelIndex = insertPosition.channelIndex,
+                    .isPreFaderInsert = static_cast<bool>(insertPosition.insertsIndex),
+                    .insertIndex = position,
+                    .channelGroupIndex = i
+                }
+            ).first
+        );
+    }
+    FOR_RANGE(i, outputIndex + 1, device->audioOutputGroupCount())
+    {
+        auto id = *sender.insertAuxOutputID(position, i);
+        auxInputIt->emplace_back(
+            mixer.pluginAuxOutputIDs_.emplace(
+                id, PluginAuxIOPosition {
+                    .channelType = insertPosition.channelType,
+                    .channelIndex = insertPosition.channelIndex,
+                    .isPreFaderInsert = static_cast<bool>(insertPosition.insertsIndex),
+                    .insertIndex = position,
+                    .channelGroupIndex = i
+                }
+            ).first
+        );
+    }
+    FOR_RANGE(i, position + 1, vecInput.size())
+    {
+        for(auto it: vecInput[i])
+        {
+            it->second.insertIndex = i;
+        }
+    }
+    FOR_RANGE(i, position + 1, vecOutput.size())
+    {
+        for(auto it: vecOutput[i])
+        {
+            it->second.insertIndex = i;
+        }
+    }
+}
+
+void Mixer::insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t removeCount)
+{
+    auto& insertPosition = *static_cast<InsertPosition*>(sender.getInsertCallbackUserData().get());
+    auto& mixer = insertPosition.mixer;
+    auto& vecInput = mixer.pluginAuxInputs_[insertPosition.channelType][insertPosition.channelIndex][insertPosition.insertsIndex];
+    auto& vecOutput = mixer.pluginAuxOutputs_[insertPosition.channelType][insertPosition.channelIndex][insertPosition.insertsIndex];
+    FOR_RANGE(i, position, position + removeCount)
+    {
+        for(auto it: vecInput[i])
+        {
+            mixer.pluginAuxInputIDs_.erase(it);
+        }
+        for(auto it: vecOutput[i])
+        {
+            mixer.pluginAuxOutputIDs_.erase(it);
+        }
+    }
+    vecInput.erase(vecInput.begin() + position, vecInput.begin() + position + removeCount);
+    vecOutput.erase(vecInput.begin() + position, vecInput.begin() + position + removeCount);
+    FOR_RANGE(i, position, vecInput.size())
+    {
+        for(auto it: vecInput[i])
+        {
+            it->second.insertIndex = i;
+        }
+    }
+    FOR_RANGE(i, position, vecOutput.size())
+    {
+        for(auto it: vecOutput[i])
+        {
+            it->second.insertIndex = i;
+        }
+    }
+}
+
+void Mixer::updatePluginAuxPosition(
+    PluginAuxIOPosition::ChannelType channelType,
+    std::uint32_t fromChannelIndex)
+{
+    auto& preFaderInserts =
+        channelType == PluginAuxIOPosition::ChannelType::AudioHardwareInput? audioInputPreFaderInserts_:
+        channelType == PluginAuxIOPosition::ChannelType::AudioHardwareOutput? audioOutputPreFaderInserts_:
+        preFaderInserts_;
+    auto& postFaderInserts =
+        channelType == PluginAuxIOPosition::ChannelType::AudioHardwareInput? audioInputPostFaderInserts_:
+        channelType == PluginAuxIOPosition::ChannelType::AudioHardwareOutput? audioOutputPostFaderInserts_:
+        postFaderInserts_;
+    auto& vecIn = pluginAuxInputs_[channelType];
+    for(auto it = vecIn.begin() + fromChannelIndex; it != vecIn.end(); ++it)
+    {
+        for(auto& inserts: *it)
+        {
+            for(auto& insert: inserts)
+            {
+                for(auto& position: insert)
+                {
+                    position->second.channelIndex = std::distance(vecIn.begin(), it);
+                }
+            }
+        }
+    }
+    auto& vecOut = pluginAuxInputs_[channelType];
+    for(auto it = vecOut.begin() + fromChannelIndex; it != vecOut.end(); ++it)
+    {
+        for(auto& inserts: *it)
+        {
+            for(auto& insert: inserts)
+            {
+                for(auto& position: insert)
+                {
+                    position->second.channelIndex = std::distance(vecOut.begin(), it);
+                }
+            }
+        }
+    }
+    FOR_RANGE(i, fromChannelIndex, preFaderInserts.size())
+    {
+        static_cast<InsertPosition*>(preFaderInserts[i]->getInsertCallbackUserData().get())->channelIndex = i;
+    }
+    FOR_RANGE(i, fromChannelIndex, postFaderInserts.size())
+    {
+        static_cast<InsertPosition*>(postFaderInserts[i]->getInsertCallbackUserData().get())->channelIndex = i;
+    }
 }
 }
