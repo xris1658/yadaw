@@ -107,12 +107,11 @@ public:
             PluginAuxIO
         };
         Type type = Type::Invalid;
-        std::uint32_t channelGroupIndex = 0;
         IDGen::ID id = IDGen::InvalidId;
         friend bool operator==(const Position& lhs, const Position& rhs)
         {
-            return std::tie(lhs.type, lhs.channelGroupIndex, lhs.id)
-                == std::tie(rhs.type, rhs.channelGroupIndex, rhs.id);
+            return std::tie(lhs.type, lhs.id)
+                == std::tie(rhs.type, rhs.id);
         }
         friend bool operator!=(const Position& lhs, const Position& rhs)
         {

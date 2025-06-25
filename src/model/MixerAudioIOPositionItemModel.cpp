@@ -565,7 +565,6 @@ MixerAudioIOPositionItemModel::getPosition(const QModelIndex& index) const
                     return {
                         YADAW::Audio::Mixer::Mixer::Position {
                             .type = YADAW::Audio::Mixer::Mixer::Position::Type::PluginAuxIO,
-                            .channelGroupIndex = 0U,
                             .id = *mixer.instrumentAuxInputID(
                                 indices[NodeData::Indent::ChannelIndex],
                                 indices[NodeData::Indent::ChannelGroupIndex]
@@ -578,7 +577,6 @@ MixerAudioIOPositionItemModel::getPosition(const QModelIndex& index) const
                     return {
                         YADAW::Audio::Mixer::Mixer::Position {
                             .type = YADAW::Audio::Mixer::Mixer::Position::Type::PluginAuxIO,
-                            .channelGroupIndex = 0U,
                             .id = *mixer.instrumentAuxOutputID(
                                 indices[NodeData::Indent::ChannelIndex],
                                 indices[NodeData::Indent::ChannelGroupIndex]
@@ -600,7 +598,6 @@ MixerAudioIOPositionItemModel::getPosition(const QModelIndex& index) const
                 {
                     return YADAW::Audio::Mixer::Mixer::Position {
                         .type = YADAW::Audio::Mixer::Mixer::Position::Type::PluginAuxIO,
-                        .channelGroupIndex = 0U,
                         .id = *inserts.insertAuxInputID(
                             indices[NodeData::Indent::InsertIndex],
                             indices[NodeData::Indent::ChannelGroupIndex]
@@ -611,7 +608,6 @@ MixerAudioIOPositionItemModel::getPosition(const QModelIndex& index) const
                 {
                     return YADAW::Audio::Mixer::Mixer::Position {
                         .type = YADAW::Audio::Mixer::Mixer::Position::Type::PluginAuxIO,
-                        .channelGroupIndex = 0U,
                         .id = *inserts.insertAuxOutputID(
                             indices[NodeData::Indent::InsertIndex],
                             indices[NodeData::Indent::ChannelGroupIndex]
