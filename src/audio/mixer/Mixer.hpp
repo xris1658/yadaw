@@ -325,14 +325,6 @@ public:
     OptionalRef<YADAW::Util::BatchUpdater> batchUpdater();
     void setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater);
     void resetBatchUpdater();
-public:
-    std::optional<ade::EdgeHandle> addConnection(
-        const ade::NodeHandle& from, const ade::NodeHandle& to,
-        std::uint32_t fromChannel, std::uint32_t toChannel);
-    void removeConnection(
-        const ade::EdgeHandle& edgeHandle
-    );
-    void clearConnections();
 private:
     using PolarityInverterAndNode = std::pair<
         std::unique_ptr<YADAW::Audio::Mixer::PolarityInverter>,
@@ -542,8 +534,6 @@ private:
 
     IDGen auxInputIdGen_;
     IDGen auxOutputIdGen_;
-
-    std::unordered_set<ade::EdgeHandle, ade::HandleHasher<ade::Edge>> connections_;
 
     ConnectionUpdatedCallback* connectionUpdatedCallback_;
     std::function<PreInsertChannelCallback> preInsertAudioInputChannelCallback_;

@@ -3788,60 +3788,6 @@ void Mixer::resetBatchUpdater()
     }
 }
 
-std::optional<ade::EdgeHandle> Mixer::addConnection(
-    const ade::NodeHandle& from, const ade::NodeHandle& to,
-    std::uint32_t fromChannel, std::uint32_t toChannel)
-{
-    auto ret = graph_.connect(from, to, fromChannel, toChannel);
-    if(ret.has_value())
-    {
-        connections_.emplace(*ret);
-        if(batchUpdater_)
-        {
-            batchUpdater_->addNull();
-        }
-        else
-        {
-            connectionUpdatedCallback_(*this);
-        }
-    }
-    return ret;
-}
-
-void Mixer::removeConnection(const ade::EdgeHandle& edgeHandle)
-{
-    if(auto it = connections_.find(edgeHandle); it != connections_.end())
-    {
-        graph_.disconnect(*it);
-        connections_.erase(it);
-        if(batchUpdater_)
-        {
-            batchUpdater_->addNull();
-        }
-        else
-        {
-            connectionUpdatedCallback_(*this);
-        }
-    }
-}
-
-void Mixer::clearConnections()
-{
-    for(const auto& connection: connections_)
-    {
-        graph_.disconnect(connection);
-    }
-    if(batchUpdater_)
-    {
-        batchUpdater_->addNull();
-    }
-    else
-    {
-        connectionUpdatedCallback_(*this);
-    }
-    connections_.clear();
-}
-
 std::tuple<Mixer::PolarityInverterAndNode, Mixer::MuteAndNode, Mixer::FaderAndNode> Mixer::createSend(
     ade::NodeHandle fromNode, ade::NodeHandle toNode,
     std::uint32_t fromChannel, std::uint32_t toChannel)
