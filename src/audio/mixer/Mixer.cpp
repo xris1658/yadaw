@@ -2165,13 +2165,11 @@ bool Mixer::insertChannels(
         }
         std::fill_n(
             std::inserter(mainInput_, mainInput_.begin() + position), count,
-            Position {
-                Position::Invalid, 0, IDGen::InvalidId
-            }
+            Position {Position::Invalid, IDGen::InvalidId}
         );
         std::fill_n(
             std::inserter(mainOutput_, mainOutput_.begin() + position), count,
-            Position {Position::Invalid, 0, IDGen::InvalidId}
+            Position {Position::Invalid, IDGen::InvalidId}
         );
         connectionUpdatedCallback_(*this);
     }
