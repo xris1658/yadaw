@@ -519,7 +519,7 @@ YADAW::Util::PMRUniquePtr<void>& Inserts::getInsertCallbackUserData() const
     return insertCallbackUserData_;
 }
 
-void Inserts::setInsertCallbackUserData(YADAW::Util::PMRUniquePtr<void> userData)
+void Inserts::setInsertCallbackUserData(YADAW::Util::PMRUniquePtr<void>&& userData)
 {
     insertCallbackUserData_ = std::move(userData);
 }
