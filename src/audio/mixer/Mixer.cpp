@@ -1451,12 +1451,6 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
         vecInput.emplace(vecInput.begin() + position, 2);
         auto& vecOutput = pluginAuxOutputs_[PluginAuxIOPosition::ChannelType::AudioHardwareInput];
         vecOutput.emplace(vecOutput.begin() + position, 2);
-        auto insertPosition = new InsertPosition {
-            .mixer = *this,
-            .channelType = PluginAuxIOPosition::ChannelType::AudioHardwareInput,
-            .channelIndex = position,
-            .insertsIndex = 0U
-        };
         audioInputPreFaderInserts_[position]->setInsertCallbackUserData(
             YADAW::Util::createPMRUniquePtr(
                 std::make_unique<InsertPosition>(
