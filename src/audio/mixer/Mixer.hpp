@@ -123,6 +123,8 @@ public:
         enum ChannelType { AudioHardwareInput, Regular, AudioHardwareOutput };
         ChannelType channelType;
         std::uint32_t channelIndex;
+        enum InChannelPosition { Instrument, Inserts };
+        InChannelPosition inChannelPosition;
         bool isPreFaderInsert;
         std::uint32_t insertIndex;
         std::uint32_t channelGroupIndex;
@@ -528,8 +530,6 @@ private:
     std::vector<std::vector<FaderAndNode>> sendFaders_;
     std::vector<std::vector<PolarityInverterAndNode>> sendPolarityInverters_;
     std::vector<std::vector<Position>> sendDestinations_;
-    std::vector<std::vector<IDGen::ID>> instrumentAuxInputIDs_;
-    std::vector<std::vector<IDGen::ID>> instrumentAuxOutputIDs_;
 
     IDGen audioOutputChannelIdGen_;
     std::vector<IDGen::ID> audioOutputChannelId_;
@@ -560,8 +560,19 @@ private:
     std::map<IDGen::ID, PluginAuxIOPosition> pluginAuxInputIDs_;
     std::map<IDGen::ID, PluginAuxIOPosition> pluginAuxOutputIDs_;
 
-    std::array<Vector4D<decltype(pluginAuxInputIDs_) ::iterator>, 3> pluginAuxInputs_;
-    std::array<Vector4D<decltype(pluginAuxOutputIDs_)::iterator>, 3> pluginAuxOutputs_;
+    using PluginAuxPosIt = std::map<IDGen::ID, PluginAuxIOPosition>::iterator;
+    using PluginAuxCollection = std::array< // channel type
+        std::vector<std::pair<              // channel index
+            Vec<PluginAuxPosIt>,            // instruments -> channel group index
+            Vec<                            // inserts -> inserts index
+                Vec<                        // insert index
+                    Vec<PluginAuxPosIt>     // channel group index
+                >
+            >
+        >>, 3
+    >;
+    PluginAuxCollection pluginAuxInputs_;
+    PluginAuxCollection pluginAuxOutputs_;
 
     YADAW::Util::BatchUpdater* batchUpdater_ = nullptr;
 };
