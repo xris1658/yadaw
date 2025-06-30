@@ -12,8 +12,8 @@ Major changes:
 - [ ] [WIP] Beyond stereo: add multiple speaker arrangement support
 - [ ] Mixer structure
   - [ ] Insert groups
-  - [ ] Send support
-  - [ ] Sidechain support
+  - [ ] [WIP] Send support
+  - [ ] [WIP] Sidechain support
   - [x] PDC supoort
   - ...
 - [ ] Stock plugins (maybe)
