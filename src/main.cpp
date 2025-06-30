@@ -17,9 +17,11 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QGuiApplication>
+#include <QLibraryInfo>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
 #include <QTranslator>
+#include <QVersionNumber>
 
 int main(int argc, char *argv[])
 {
@@ -65,16 +67,32 @@ int main(int argc, char *argv[])
         Qt::DirectConnection
     );
 #if _WIN32
-    // A temporary workaround to avoid GUI performance issues on Windows while
-    // dragging the window.
+    // A temporary workaround to solve/avoid GUI performance issues on Windows
+    // while dragging the window.
     // On Windows, Direct3D 11 is the default backend of the scene graph
-    // threaded renderer. For reasons that I've not known, when dragging a
-    // window with Qt 6.5 and Direct3D as the backend, swapping frames takes too
-    // much time (about 50ms per swap operation), causing visible stutters.
+    // threaded renderer. When the D3D11 swap chain is created in flip mode (
+    // with `DXGI_SWAP_EFFECT_FLIP_xxx` as swap effect), swapping frames takes
+    // too much time (about 50ms per swap operation) when dragging a window,
+    // causing visible stutters.
+    // An enviroment variable is added in Qt 6.6.1 to choose if the backend
+    // creates the swap chain in flip mode. It's undocumented, so it might not
+    // work in future versions of Qt.
+    // (See https://github.com/qt/qtbase/blob/e2cbce919ccefcae2b18f90257d67bc6e24c3c94/src/gui/rhi/qrhid3d11.cpp#L198)
+    if(QLibraryInfo::version() >= QVersionNumber(6, 6, 1))
+    {
+        qputenv("QT_D3D_NO_FLIP", "1");
+    }
+    // As for older Qt versions before Qt 6.6.1, I just avoid using Direct3D by
+    // switching to software rendering. The main window UI is not that dynamic
+    // and complicated for now, so the performance is still okay.
+    // TODO: Control the rendering process by using `QQuickRenderControl`
     // I don't use OpenGL or Vulkan as the backend because visible artifacts
     // (black screen, Windows 7 classic title bar) can be seen while entering or
     // leaving full screen mode.
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::Software);
+    else
+    {
+        QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::Software);
+    }
 #endif
     YADAW::Controller::initializeApplicationConfig();
     auto config = YADAW::Controller::loadConfig();
