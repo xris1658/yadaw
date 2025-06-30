@@ -342,6 +342,7 @@ private:
     static void insertAdded(Inserts& sender, std::uint32_t position);
     static void insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t removeCount);
     void updatePluginAuxPosition(PluginAuxIOPosition::ChannelType channelType, std::uint32_t fromChannelIndex);
+    ade::NodeHandle getNodeFromPluginAuxPosition(const PluginAuxIOPosition& position) const;
 private:
     using PolarityInverterAndNode = std::pair<
         std::unique_ptr<YADAW::Audio::Mixer::PolarityInverter>,

@@ -4,6 +4,7 @@
 #include "audio/util/InputSwitcher.hpp"
 #include "util/Base.hpp"
 
+#include <algorithm>
 #include <complex>
 #include <ranges>
 #include <unordered_map>
@@ -1101,7 +1102,26 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
         }
         else if(oldPosition.type == Position::Type::PluginAuxIO)
         {
-            // not-implemented
+            auto it = pluginAuxInputIDs_.find(oldPosition.id);
+            const auto& pluginAuxIOPosition = it->second;
+            auto node = getNodeFromPluginAuxPosition(pluginAuxIOPosition);
+            for(const auto& edgeHandle: node->inEdges())
+            {
+                if(graph_.getEdgeData(edgeHandle).toChannel == pluginAuxIOPosition.channelGroupIndex)
+                {
+                    graph_.disconnect(edgeHandle);
+                    if(batchUpdater_)
+                    {
+                        batchUpdater_->addNull();
+                    }
+                    else
+                    {
+                        connectionUpdatedCallback_(*this);
+                    }
+                    // TODO
+                    break;
+                }
+            }
         }
         // Connect
         std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> disconnectingNewMultiInput;
@@ -1213,7 +1233,41 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
         }
         else if(position.type == Position::Type::PluginAuxIO)
         {
-            // not implemented
+            if(auto it = pluginAuxInputIDs_.find(position.id); it != pluginAuxInputIDs_.end())
+            {
+                const auto& pluginAuxIOPosition = it->second;
+                auto node = getNodeFromPluginAuxPosition(pluginAuxIOPosition);
+                auto device = graph_.getNodeData(node).process.device();
+                const auto& destChannelGroup = device->audioInputGroupAt(pluginAuxIOPosition.channelGroupIndex)->get();
+                auto inEdges = node->inEdges();
+                auto fromNode = postFaderInserts_[index]->outNode();
+                if(
+                    destChannelGroup.type() == channelGroup.type()
+                    && destChannelGroup.channelCount() == channelGroup.channelCount()
+                    && std::none_of(
+                        inEdges.begin(), inEdges.end(),
+                        [this, channelGroupIndex = pluginAuxIOPosition.channelGroupIndex](const ade::EdgeHandle& edge)
+                        {
+                            return graph_.getEdgeData(edge).toChannel == channelGroupIndex;
+                        }
+                    )
+                    && !YADAW::Util::pathExists(node, fromNode)
+                )
+                {
+                    graph_.connect(
+                        fromNode, node, 0, pluginAuxIOPosition.channelGroupIndex
+                    );
+                    // TODO
+                    if(batchUpdater_)
+                    {
+                        batchUpdater_->addNull();
+                    }
+                    else
+                    {
+                        connectionUpdatedCallback_(*this);
+                    }
+                }
+            }
         }
         else if(position.type == Position::Type::Invalid)
         {
@@ -4171,5 +4225,24 @@ void Mixer::updatePluginAuxPosition(
     {
         static_cast<InsertPosition*>(postFaderInserts[i]->getInsertCallbackUserData().get())->channelIndex = i;
     }
+}
+
+ade::NodeHandle Mixer::getNodeFromPluginAuxPosition(const PluginAuxIOPosition& position) const
+{
+    if(position.inChannelPosition == PluginAuxIOPosition::Inserts)
+    {
+        const decltype(preFaderInserts_)* insertsCollection[3][2] = {
+            {&audioInputPostFaderInserts_,  &audioInputPreFaderInserts_},
+            {&postFaderInserts_,            &preFaderInserts_},
+            {&audioOutputPostFaderInserts_, &audioOutputPreFaderInserts_}
+        };
+        auto& inserts = (*insertsCollection[position.channelType][position.isPreFaderInsert])[position.channelIndex];
+        return *(inserts->insertNodeAt(position.insertIndex));
+    }
+    else if(position.inChannelPosition == PluginAuxIOPosition::Instrument)
+    {
+        return inputDevices_[position.channelIndex].second;
+    }
+    return {};
 }
 }
