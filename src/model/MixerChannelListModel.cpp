@@ -1284,16 +1284,6 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 firstOutput
             );
             mixer_.connectionUpdated();
-            auto& pluginContextMap = YADAW::Controller::appPluginPosition();
-            const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
-                &plugin,
-                YADAW::Controller::PluginPosition()
-            );
-            assert(inserted);
-            auto& context = pluginContextIterator->second;
-            context.position = YADAW::Controller::PluginPosition::InChannelPosition::Instrument;
-            context.model = this;
-            context.index = position;
             dataChanged(this->index(position), this->index(position),
                 {
                     Role::InstrumentExist,

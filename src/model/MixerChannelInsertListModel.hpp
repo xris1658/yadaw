@@ -5,7 +5,6 @@
 
 #include "audio/mixer/Inserts.hpp"
 #include "controller/LibraryPluginMap.hpp"
-#include "controller/PluginPositionMap.hpp"
 #include "model/AudioDeviceIOGroupListModel.hpp"
 #include "model/MixerChannelListModel.hpp"
 #include "model/PluginParameterListModel.hpp"

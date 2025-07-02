@@ -392,7 +392,6 @@ set(YADAW_COMMON_SOURCES
     src/controller/PluginLatencyUpdatedCallback.hpp
     src/controller/PluginListController.cpp
     src/controller/PluginListController.hpp
-    src/controller/PluginPositionMap.cpp
     src/controller/PluginPositionMap.hpp
     src/controller/PluginWindowController.cpp
     src/controller/PluginWindowController.hpp

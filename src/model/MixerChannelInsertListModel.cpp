@@ -268,16 +268,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             );
             endInsertRows();
             updateInsertConnections(position + 1);
-            auto& pluginContextMap = YADAW::Controller::appPluginPosition();
-            const auto& [pluginContextIterator, inserted] = pluginContextMap.emplace(
-                &plugin,
-                YADAW::Controller::PluginPosition()
-            );
-            assert(inserted);
-            auto& context = pluginContextIterator->second;
-            context.position = YADAW::Controller::PluginPosition::InChannelPosition::Insert;
-            context.model = this;
-            context.index = position;
         }
     }
     YADAW::Controller::pluginWindows.pluginWindow = nullptr;
