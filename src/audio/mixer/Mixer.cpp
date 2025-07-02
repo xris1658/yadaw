@@ -2331,7 +2331,7 @@ bool Mixer::insertChannels(
                     )
                 )
             );
-            preFaderInserts_[position]->setInsertCallbackUserData(
+            postFaderInserts_[position]->setInsertCallbackUserData(
                 YADAW::Util::createPMRUniquePtr(
                     std::make_unique<InsertPosition>(
                         *this, PluginAuxIOPosition::ChannelType::Regular, i, 1U
@@ -4047,7 +4047,7 @@ void Mixer::insertAdded(Inserts& sender, std::uint32_t position)
     auto& vecInput = mixer.pluginAuxInputs_[insertPosition.channelType][insertPosition.channelIndex].second[insertPosition.insertsIndex];
     auto& vecOutput = mixer.pluginAuxOutputs_[insertPosition.channelType][insertPosition.channelIndex].second[insertPosition.insertsIndex];
     auto auxInputIt = vecInput.emplace(vecInput.begin() + position);
-    auto auxOutputIt = vecOutput.emplace(vecInput.begin() + position);
+    auto auxOutputIt = vecOutput.emplace(vecOutput.begin() + position);
     auto node = *sender.insertNodeAt(position);
     auto device = sender.graph().getNodeData(node).process.device();
     auxInputIt->reserve(device->audioInputGroupCount() - 1);
@@ -4152,7 +4152,7 @@ void Mixer::insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t
         }
     }
     vecInput.erase(vecInput.begin() + position, vecInput.begin() + position + removeCount);
-    vecOutput.erase(vecInput.begin() + position, vecInput.begin() + position + removeCount);
+    vecOutput.erase(vecOutput.begin() + position, vecOutput.begin() + position + removeCount);
     FOR_RANGE(i, position, vecInput.size())
     {
         for(auto it: vecInput[i])
