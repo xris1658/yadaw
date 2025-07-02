@@ -102,7 +102,7 @@ QC.Popup {
             required property int depth
             width: treeView.columnWidthProvider(column)
             leftPadding: depth * height + indicator.width
-            text: aiopim_is_tree_node? aiopim_tree_name: aiopim_position.completeName
+            text: aiopim_tree_name
             highlighted: treeView.currentRow == row && treeView.currentColumn == column
             Label {
                 id: indicator
