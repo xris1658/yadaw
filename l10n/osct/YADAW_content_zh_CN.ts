@@ -376,6 +376,21 @@
         <source>Audio Group Tracks</source>
         <translation>音频编组轨道</translation>
     </message>
+    <message>
+        <location filename="../../content/Assets.qml" line="463"/>
+        <source>Plugin Aux I/O</source>
+        <translation>插件辅助输入/输出</translation>
+    </message>
+    <message>
+        <location filename="../../content/Assets.qml" line="479"/>
+        <source>Plugin Aux Input</source>
+        <translation>插件辅助输入</translation>
+    </message>
+    <message>
+        <location filename="../../content/Assets.qml" line="482"/>
+        <source>Plugin Aux Output</source>
+        <translation>插件辅助输出</translation>
+    </message>
 </context>
 <context>
     <name>AudioBusConfiguration</name>
