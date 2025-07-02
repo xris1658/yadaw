@@ -783,6 +783,8 @@ ApplicationWindow {
                     anchors.fill: parent
                     anchors.topMargin: 5
                     anchors.bottomMargin: detailPlaceholder.visible? 0: 5
+                    pluginAuxInModel: root.pluginAuxInModel
+                    pluginAuxOutModel: root.pluginAuxOutModel
                 }
             }
             Item {

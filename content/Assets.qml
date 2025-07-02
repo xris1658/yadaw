@@ -17,8 +17,40 @@ Rectangle {
     property alias directoryListModel: directoryList.model
     property alias pluginListModel: pluginListProxyModel.sourceModel
     property IMixerChannelListModel mixerChannelListModel: null
+    property alias pluginAuxInModel: pluginAuxInTreeView.model
+    property alias pluginAuxOutModel: pluginAuxOutTreeView.model
 
     clip: true
+    Component {
+        id: audioIOPositionTreeComponent
+        ItemDelegate {
+            required property TreeView treeView
+            required property bool isTreeNode
+            required property bool expanded
+            required property int hasChildren
+            required property int depth
+            width: treeView.columnWidthProvider(column)
+            leftPadding: depth * height + indicator.width
+            // text: aiopim_is_tree_node? aiopim_tree_name: aiopim_position.completeName
+            text: aiopim_tree_name
+            highlighted: treeView.currentRow == row && treeView.currentColumn == column
+            Label {
+                id: indicator
+                x: depth * parent.height
+                width: height
+                height: parent.height
+                verticalAlignment: Label.AlignVCenter
+                horizontalAlignment: Label.AlignHCenter
+                visible: parent.isTreeNode && parent.hasChildren
+                text: parent.expanded? "\u25bc": "\u25b6"
+            }
+            onClicked: {
+                if(hasChildren) {
+                    treeView.toggleExpanded(row);
+                }
+            }
+        }
+    }
 
     QtObject {
         id: impl
@@ -427,6 +459,45 @@ Rectangle {
                         }
                     }
                 }
+                Label {
+                    text: qsTr("Plugin Aux I/O")
+                    color: Colors.secondaryContent
+                    font.pointSize: Qt.application.font.pointSize * 0.9
+                    width: leftColumn.width
+                    height: contentHeight + topPadding + bottomPadding
+                    leftPadding: 0
+                    topPadding: 3
+                    bottomPadding: 0
+                    elide: Text.ElideRight
+                }
+                ListView {
+                    id: pluginAuxIOColumn
+                    width: leftColumn.width
+                    height: contentHeight
+                    model: ListModel {
+                        ListElement {
+                            name: qsTr("Plugin Aux Input")
+                        }
+                        ListElement {
+                            name: qsTr("Plugin Aux Output")
+                        }
+                    }
+                    delegate: ItemDelegate {
+                        id: trackItemDelegate
+                        width: parent.width
+                        height: implicitHeight
+                        text: name
+                        leftPadding: 2
+                        rightPadding: 2
+                        topPadding: 2
+                        bottomPadding: 2
+                        highlighted: rightLayout.currentIndex === 3 && pluginAuxIOColumn.currentIndex === index
+                        onClicked: {
+                            rightLayout.currentIndex = 3;
+                            pluginAuxIOColumn.currentIndex = index;
+                        }
+                    }
+                }
             }
         }
         Rectangle {
@@ -694,6 +765,29 @@ Rectangle {
                                 width: parent.width
                                 text: mclm_name_with_index
                             }
+                        }
+                    }
+                }
+                StackLayout {
+                    id: pluginAuxIOLayout
+                    currentIndex: pluginAuxIOColumn.currentIndex
+                    clip: true
+                    TreeView {
+                        id: pluginAuxInTreeView
+                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
+                        delegate: audioIOPositionTreeComponent
+                        columnWidthProvider: (column) => {
+                            return pluginAuxIOLayout.width;
+                        }
+                    }
+                    TreeView {
+                        id: pluginAuxOutTreeView
+                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
+                        delegate: audioIOPositionTreeComponent
+                        columnWidthProvider: (column) => {
+                            return pluginAuxIOLayout.width;
                         }
                     }
                 }
