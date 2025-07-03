@@ -262,7 +262,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                             parentNode->children.erase(
                                 parentNode->children.begin()
                             );
-                            endInsertRows();
+                            endRemoveRows();
                         }
                     }
                 }
