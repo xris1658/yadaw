@@ -224,6 +224,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                     );
                     FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
                     {
+                        auto index = MixerAudioIOPositionItemModel::index(i, 0, parentIndex);
                         auto& parentNode = rootNode_.children[
                             MixerChannelListModel::ListType::Regular
                         ]->children[i];
@@ -235,7 +236,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                         );
                         if(instrumentExists && oldRowCount == 1)
                         {
-                            beginInsertRows(parentIndex, 0, 0);
+                            beginInsertRows(index, 0, 0);
                             auto instrumentNode = std::make_unique<NodeData>(
                                 NodeData {
                                     .indent = NodeData::Indent::InChannelPosition,
@@ -257,7 +258,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                         }
                         else if(!instrumentExists && oldRowCount == 2)
                         {
-                            beginRemoveRows(parentIndex, 0, 0);
+                            beginRemoveRows(index, 0, 0);
                             parentNode->children.erase(
                                 parentNode->children.begin()
                             );
