@@ -18,9 +18,7 @@ class PluginAuxAudioIOPosition: public IAudioIOPosition
     friend class YADAW::Model::MixerAudioIOPositionItemModel;
 private:
     PluginAuxAudioIOPosition(
-        YADAW::Model::MixerAudioIOPositionItemModel& model,
-        const QModelIndex& index,
-        QObject* parent = nullptr
+        const QModelIndex& index, QObject* parent = nullptr
     );
 public:
     ~PluginAuxAudioIOPosition() override;
@@ -33,7 +31,6 @@ public:
 public:
     operator YADAW::Audio::Mixer::Mixer::Position() const;
 private:
-    YADAW::Model::MixerAudioIOPositionItemModel* model_;
     QModelIndex index_;
 };
 }

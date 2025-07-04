@@ -6,10 +6,8 @@
 namespace YADAW::Entity
 {
 PluginAuxAudioIOPosition::PluginAuxAudioIOPosition(
-    YADAW::Model::MixerAudioIOPositionItemModel& model,
     const QModelIndex& index, QObject* parent):
     IAudioIOPosition(parent),
-    model_(&model),
     index_(index)
 {
     YADAW::Util::setCppOwnership(*this);
@@ -25,7 +23,7 @@ IAudioIOPosition::Type PluginAuxAudioIOPosition::getType() const
 
 QString PluginAuxAudioIOPosition::getName() const
 {
-    return model_->data(
+    return getModel().data(
         index_,
         YADAW::Model::MixerAudioIOPositionItemModel::Role::TreeName
     ).value<QString>();
@@ -38,12 +36,12 @@ QString PluginAuxAudioIOPosition::getCompleteName() const
 
 const YADAW::Model::MixerAudioIOPositionItemModel& PluginAuxAudioIOPosition::getModel() const
 {
-    return *model_;
+    return *static_cast<const YADAW::Model::MixerAudioIOPositionItemModel*>(index_.model());
 }
 
 PluginAuxAudioIOPosition::operator YADAW::Audio::Mixer::Mixer::Position() const
 {
-    return model_->getPosition(index_).value_or(
+    return getModel().getPosition(index_).value_or(
         YADAW::Audio::Mixer::Mixer::Position {
             .type = YADAW::Audio::Mixer::Mixer::Position::Type::Invalid,
             .id = YADAW::Audio::Mixer::IDGen::InvalidId
