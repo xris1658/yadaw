@@ -15,6 +15,7 @@
 #include "dao/PluginTable.hpp"
 #include "entity/ChannelConfigHelper.hpp"
 #include "entity/HardwareAudioIOPosition.hpp"
+#include "entity/PluginAuxAudioIOPosition.hpp"
 #include "entity/RegularAudioIOPosition.hpp"
 #include "event/EventBase.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
@@ -754,7 +755,11 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                     }
                     case YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO:
                     {
-                        // not implemented
+                        const auto& pluginAuxIOPosition = static_cast<const YADAW::Entity::PluginAuxAudioIOPosition&>(*pPosition);
+                        ret = mixer_.setMainOutputAt(
+                            row,
+                            static_cast<YADAW::Audio::Mixer::Mixer::Position>(pluginAuxIOPosition)
+                        );
                         break;
                     }
                     }
