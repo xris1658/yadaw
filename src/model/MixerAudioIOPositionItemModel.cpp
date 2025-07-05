@@ -579,7 +579,7 @@ MixerAudioIOPositionItemModel::getPosition(const QModelIndex& index) const
             Indices indices;
             for(auto node = nodeData; node != &rootNode_; node = node->parent)
             {
-                indices[nodeData->indent] = nodeData->index;
+                indices[node->indent] = node->index;
             }
             if(auto position = indices[NodeData::Indent::InChannelPosition];
                 position == NodeData::NodeInChannelPosition::Instrument)
