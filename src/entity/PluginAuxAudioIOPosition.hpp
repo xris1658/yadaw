@@ -16,11 +16,10 @@ class PluginAuxAudioIOPosition: public IAudioIOPosition
 {
     Q_OBJECT
     friend class YADAW::Model::MixerAudioIOPositionItemModel;
-private:
+public:
     PluginAuxAudioIOPosition(
         const QModelIndex& index, QObject* parent = nullptr
     );
-public:
     ~PluginAuxAudioIOPosition() override;
 public:
     Type getType() const override;

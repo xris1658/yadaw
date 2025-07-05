@@ -3,6 +3,7 @@
 
 #include "model/IAudioIOPositionItemModel.hpp"
 
+#include "entity/PluginAuxAudioIOPosition.hpp"
 #include "model/MixerChannelListModel.hpp"
 
 namespace YADAW::Model
@@ -10,6 +11,7 @@ namespace YADAW::Model
 class MixerAudioIOPositionItemModel: public IAudioIOPositionItemModel
 {
     Q_OBJECT
+    friend YADAW::Entity::PluginAuxAudioIOPosition;
 private:
     struct NodeData
     {
@@ -33,6 +35,7 @@ private:
         std::uint32_t index;
         NodeData* parent = nullptr;
         std::vector<std::unique_ptr<NodeData>> children;
+        std::vector<std::unique_ptr<YADAW::Entity::PluginAuxAudioIOPosition>> positions;
     };
 public:
     MixerAudioIOPositionItemModel(
@@ -62,6 +65,7 @@ public:
 private:
     using Indices = std::uint8_t[NodeData::Indent::Count];
     void initChildren(NodeData& nodeData, Indices& indices);
+    void updatePositionCompleteNames(NodeData& nodeData);
     const NodeData* getParentNodeData(const QModelIndex& index) const;
     NodeData* getParentNodeData(const QModelIndex& index);
     const NodeData* getNodeData(const QModelIndex& index) const;

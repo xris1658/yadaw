@@ -112,6 +112,10 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                                     );
                                 }
                             );
+                            FOR_RANGE(j, last + 1, destParentNode->children.size())
+                            {
+                                updatePositionCompleteNames(*destParentNode->children[j]);
+                            }
                             Indices indices;
                             for(auto node = destParentNode; node != &rootNode_; node = node->parent)
                             {
@@ -149,9 +153,17 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                                 destParentNode->children.begin() + first,
                                 destParentNode->children.begin() + last + 1
                             );
+                            FOR_RANGE(j, first, destParentNode->children.size())
+                            {
+                                updatePositionCompleteNames(*destParentNode->children[j]);
+                            }
                             endRemoveRows();
                         }
                     );
+                }
+                FOR_RANGE(j, last + 1, treeNode->children.size())
+                {
+                    updatePositionCompleteNames(*(treeNode->children[j]));
                 }
                 endInsertRows();
             }
@@ -177,6 +189,10 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                     treeNode->children.begin() + first,
                     treeNode->children.begin() + last + 1
                 );
+                FOR_RANGE(j, first, treeNode->children.size())
+                {
+                    updatePositionCompleteNames(*treeNode->children[j]);
+                }
                 endRemoveRows();
             }
         );
@@ -346,6 +362,7 @@ QVariant MixerAudioIOPositionItemModel::data(const QModelIndex& index, int role)
             {
                 return true;
             }
+            break;
         }
         case NodeData::Indent::InChannelPosition:
         {
@@ -404,6 +421,7 @@ QVariant MixerAudioIOPositionItemModel::data(const QModelIndex& index, int role)
                     return true;
                 }
             }
+            break;
         }
         case NodeData::Indent::InsertIndex:
         {
@@ -435,6 +453,7 @@ QVariant MixerAudioIOPositionItemModel::data(const QModelIndex& index, int role)
                     return true;
                 }
             }
+            break;
         }
         case NodeData::Indent::ChannelGroupIndex:
         {
@@ -488,7 +507,12 @@ QVariant MixerAudioIOPositionItemModel::data(const QModelIndex& index, int role)
                     ioList->index(indices[NodeData::Indent::ChannelGroupIndex]),
                     AudioDeviceIOGroupListModel::Role::ChannelCount
                 );
+            case Role::Position:
+                return QVariant::fromValue<QObject*>(
+                    getNodeData(index.parent())->positions[index.row()].get()
+                );
             }
+            break;
         }
         }
     }
@@ -668,6 +692,7 @@ void MixerAudioIOPositionItemModel::initChildren(
     }
     else
     {
+        auto& positions = nodeData.positions;
         auto listType = indices[NodeData::Indent::ListType];
         if(nodeData.indent == NodeData::Indent::ChannelIndex)
         {
@@ -714,6 +739,7 @@ void MixerAudioIOPositionItemModel::initChildren(
                     );
                     auto count = static_cast<std::uint32_t>(instrumentAudioInputs->itemCount());
                     children.reserve(count);
+                    positions.reserve(count);
                     FOR_RANGE0(j, count)
                     {
                         children.emplace_back(
@@ -723,6 +749,11 @@ void MixerAudioIOPositionItemModel::initChildren(
                                     .index  = j,
                                     .parent = &nodeData
                                 }
+                            )
+                        );
+                        positions.emplace_back(
+                            std::make_unique<YADAW::Entity::PluginAuxAudioIOPosition>(
+                                createIndex(j, 0, &nodeData)
                             )
                         );
                     }
@@ -737,6 +768,7 @@ void MixerAudioIOPositionItemModel::initChildren(
                     );
                     auto count = static_cast<std::uint32_t>(instrumentAudioOutputs->itemCount());
                     children.reserve(count - 1);
+                    positions.reserve(count - 1);
                     auto insertModel = static_cast<MixerChannelInsertListModel*>(
                         mixerChannelListModels_[listType]->data(
                             mixerChannelListModels_[listType]->index(
@@ -744,7 +776,7 @@ void MixerAudioIOPositionItemModel::initChildren(
                             ),
                             MixerChannelListModel::Role::Inserts
                         ).value<QObject*>()
-                        );
+                    );
                     auto mainOutput = insertModel->inserts().inChannelGroupIndex();
                     FOR_RANGE0(j, mainOutput)
                     {
@@ -767,6 +799,14 @@ void MixerAudioIOPositionItemModel::initChildren(
                                     .index  = j,
                                     .parent = &nodeData
                                 }
+                            )
+                        );
+                    }
+                    FOR_RANGE0(j, count - 1)
+                    {
+                        positions.emplace_back(
+                            std::make_unique<YADAW::Entity::PluginAuxAudioIOPosition>(
+                                createIndex(j, 0, &nodeData)
                             )
                         );
                     }
@@ -856,6 +896,16 @@ void MixerAudioIOPositionItemModel::initChildren(
                     );
                 }
             );
+            std::generate_n(
+                std::back_inserter(positions),
+                list->itemCount() - 1,
+                [this, &nodeData, channelGroupIndex = 0U]() mutable
+                {
+                    return std::make_unique<YADAW::Entity::PluginAuxAudioIOPosition>(
+                        createIndex(channelGroupIndex++, 0, &nodeData)
+                    );
+                }
+            );
         }
     }
     if(nodeData.indent != NodeData::Indent::Root)
@@ -865,6 +915,18 @@ void MixerAudioIOPositionItemModel::initChildren(
     for(auto& child: children)
     {
         initChildren(*child, indices);
+    }
+}
+
+void MixerAudioIOPositionItemModel::updatePositionCompleteNames(NodeData& nodeData)
+{
+    for(auto& position: nodeData.positions)
+    {
+        position->completeNameChanged();
+    }
+    for(auto& child: nodeData.children)
+    {
+        updatePositionCompleteNames(*child);
     }
 }
 
