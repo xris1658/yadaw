@@ -29,9 +29,41 @@ QString PluginAuxAudioIOPosition::getName() const
     ).value<QString>();
 }
 
+constexpr char listTypeIndicator[3][2] = {"I", "R", "O"};
+
 QString PluginAuxAudioIOPosition::getCompleteName() const
 {
-    return getName(); // TODO
+    using YADAW::Model::MixerAudioIOPositionItemModel;
+    auto model = static_cast<const MixerAudioIOPositionItemModel*>(index_.model());
+    auto node = model->getNodeData(index_);
+    MixerAudioIOPositionItemModel::Indices indices;
+    for(auto n = node; n != &model->rootNode_; n = n->parent)
+    {
+        indices[n->indent] = n->index;
+    }
+    QString ret;
+    ret.append(listTypeIndicator[indices[MixerAudioIOPositionItemModel::NodeData::Indent::ListType]]);
+    ret.append(QString::number(indices[MixerAudioIOPositionItemModel::NodeData::Indent::ChannelIndex] + 1));
+    auto inChannelPosition = indices[MixerAudioIOPositionItemModel::NodeData::Indent::InChannelPosition];
+    if(inChannelPosition == MixerAudioIOPositionItemModel::NodeData::NodeInChannelPosition::Instrument)
+    {
+        ret.append("Ins");
+    }
+    else
+    {
+        if(inChannelPosition == MixerAudioIOPositionItemModel::NodeData::NodeInChannelPosition::PreFaderInserts)
+        {
+            ret.append("Pre");
+        }
+        else if(inChannelPosition == MixerAudioIOPositionItemModel::NodeData::NodeInChannelPosition::PostFaderInserts)
+        {
+            ret.append("Pos");
+        }
+        ret.append(QString::number(indices[MixerAudioIOPositionItemModel::NodeData::Indent::InsertIndex] + 1));
+        ret.append("-");
+    }
+    ret.append(QString::number(indices[MixerAudioIOPositionItemModel::NodeData::Indent::ChannelGroupIndex] + 1));
+    return ret;
 }
 
 const YADAW::Model::MixerAudioIOPositionItemModel& PluginAuxAudioIOPosition::getModel() const
