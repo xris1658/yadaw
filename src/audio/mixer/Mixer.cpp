@@ -1266,6 +1266,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     {
                         connectionUpdatedCallback_(*this);
                     }
+                    ret = true;
                 }
             }
         }
