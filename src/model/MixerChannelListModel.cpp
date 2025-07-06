@@ -670,7 +670,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                 }
                 if(ret)
                 {
-                    if(pPosition)
+                    if(pPosition) // FIXME: Handle plugin aux input
                     {
                         auto& [refCount, connection] = connectToInputPositions_[pPosition];
                         if(!connection)
