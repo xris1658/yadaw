@@ -118,15 +118,13 @@ QC.Popup {
                 if(hasChildren) {
                     treeView.toggleExpanded(row);
                 }
-                else {
-                    ListView.view.currentIndex = index;
+                else if(aiopim_position) {
                     root.currentPosition = aiopim_position;
                 }
             }
             onDoubleClicked: {
-                if(!hasChildren) {
-                    ListView.view.currentIndex = index;
-                    root.currentPosition = aiopm_position;
+                if(aiopim_position) {
+                    root.currentPosition = aiopim_position;
                     root.accepted();
                 }
             }
