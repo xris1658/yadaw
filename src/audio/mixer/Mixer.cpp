@@ -2325,14 +2325,14 @@ bool Mixer::insertChannels(
         );
         FOR_RANGE(i, position, position + count)
         {
-            preFaderInserts_[position]->setInsertCallbackUserData(
+            preFaderInserts_[i]->setInsertCallbackUserData(
                 YADAW::Util::createPMRUniquePtr(
                     std::make_unique<InsertPosition>(
                         *this, PluginAuxIOPosition::ChannelType::Regular, i, 0U
                     )
                 )
             );
-            postFaderInserts_[position]->setInsertCallbackUserData(
+            postFaderInserts_[i]->setInsertCallbackUserData(
                 YADAW::Util::createPMRUniquePtr(
                     std::make_unique<InsertPosition>(
                         *this, PluginAuxIOPosition::ChannelType::Regular, i, 1U
