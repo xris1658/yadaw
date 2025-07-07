@@ -296,7 +296,6 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
         contexts_.insert(contexts_.begin() + position, std::move(context));
         auto device = graph_.getNodeData(nodeHandle).process.device();
         auto inChannel = device->audioInputGroupCount();
-        auto outChannel = device->audioOutputGroupCount();
         FOR_RANGE0(i, inChannel)
         {
             if(device->audioInputGroupAt(i)->get().isMain())
@@ -305,6 +304,24 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
                 break;
             }
         }
+        if(inChannel == device->audioInputGroupCount())
+        {
+            auto& inNodeChannelGroup = graph_.getNodeData(inNode_).process.device()->audioOutputGroupAt(inChannelGroupIndex_)->get();
+            FOR_RANGE0(i, inChannel)
+            {
+                auto& channelGroup = device->audioInputGroupAt(i)->get();
+                if(channelGroup.type() == inNodeChannelGroup.type() && channelGroup.channelCount() == inNodeChannelGroup.channelCount())
+                {
+                    inChannel = i;
+                    break;
+                }
+            }
+        }
+        if(inChannel == device->audioInputGroupCount())
+        {
+            throw std::invalid_argument("No channel group available");
+        }
+        auto outChannel = device->audioOutputGroupCount();
         FOR_RANGE0(i, outChannel)
         {
             if(device->audioOutputGroupAt(i)->get().isMain())
@@ -312,6 +329,23 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
                 outChannel = i;
                 break;
             }
+        }
+        if(outChannel == device->audioOutputGroupCount())
+        {
+            auto& inNodeChannelGroup = graph_.getNodeData(inNode_).process.device()->audioOutputGroupAt(inChannelGroupIndex_)->get();
+            FOR_RANGE0(i, outChannel)
+            {
+                auto& channelGroup = device->audioOutputGroupAt(i)->get();
+                if(channelGroup.type() == inNodeChannelGroup.type() && channelGroup.channelCount() == inNodeChannelGroup.channelCount())
+                {
+                    inChannel = i;
+                    break;
+                }
+            }
+        }
+        if(outChannel == device->audioOutputGroupCount())
+        {
+            throw std::invalid_argument("No channel group available");
         }
         channelGroupIndices_.insert(channelGroupIndices_.begin() + position,
             std::make_pair(inChannel, outChannel)
@@ -324,7 +358,7 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
             auxOutputIDs_.begin() + position
         );
         inputIDs.reserve(device->audioInputGroupCount() - 1);
-        inputIDs.reserve(device->audioOutputGroupCount() - 1);
+        outputIDs.reserve(device->audioOutputGroupCount() - 1);
         std::generate_n(
             std::back_inserter(inputIDs), device->audioInputGroupCount() - 1,
             [this]()

@@ -854,23 +854,13 @@ void MixerAudioIOPositionItemModel::initChildren(
                     )
                 .value<QObject*>()
             );
-            std::uint32_t firstMain = list->itemCount();
-            FOR_RANGE0(k, list->itemCount())
-            {
-                if(
-                    list->data(
-                        list->index(k),
-                        AudioDeviceIOGroupListModel::Role::IsMain
-                    ).value<bool>()
-                )
-                {
-                    firstMain = k;
-                    break;
-                }
-            }
+            const auto& inserts = insertModel->inserts();
+            auto mainChannelGroupIndex = isInput_?
+                *inserts.insertInputChannelGroupIndexAt(indices[NodeData::Indent::InsertIndex]):
+                *inserts.insertOutputChannelGroupIndexAt(indices[NodeData::Indent::InsertIndex]);
             std::generate_n(
                 std::back_inserter(nodeData.children),
-                firstMain,
+                mainChannelGroupIndex,
                 [&nodeData, channelGroupIndex = 0U]() mutable
                 {
                     return std::make_unique<NodeData>(
@@ -884,8 +874,8 @@ void MixerAudioIOPositionItemModel::initChildren(
             );
             std::generate_n(
                 std::back_inserter(nodeData.children),
-                list->itemCount() - firstMain - 1,
-                [&nodeData, channelGroupIndex = firstMain + 1]() mutable
+                list->itemCount() - mainChannelGroupIndex - 1,
+                [&nodeData, channelGroupIndex = mainChannelGroupIndex + 1]() mutable
                 {
                     return std::make_unique<NodeData>(
                         NodeData {
