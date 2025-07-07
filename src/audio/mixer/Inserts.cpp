@@ -304,6 +304,10 @@ bool Inserts::insert(const ade::NodeHandle& nodeHandle,
                 break;
             }
         }
+        // Some devices might have no main input/output available. For instance,
+        // instrument plugins that can be inserted here as an audio effect might
+        // have no main input. In this case, YADAW uses the first main
+        // input/output whose `type()` and `channelCount()` match the `Inserts`.
         if(inChannel == device->audioInputGroupCount())
         {
             auto& inNodeChannelGroup = graph_.getNodeData(inNode_).process.device()->audioOutputGroupAt(inChannelGroupIndex_)->get();
