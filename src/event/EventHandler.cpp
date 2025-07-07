@@ -929,7 +929,8 @@ bool fillPluginContext(
         engine.vst3PluginPool().updateAndGetOld(
             std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
                 YADAW::Controller::createPoolVector(pool)
-            )
+            ),
+            engine.running()
         );
         ret = true;
     }
@@ -1015,7 +1016,8 @@ bool fillPluginContext(
             engine.clapPluginPool().updateAndGetOld(
                 std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
                     YADAW::Controller::createPoolVector(pool)
-                )
+                ),
+                engine.running()
             );
             ret = true;
         }

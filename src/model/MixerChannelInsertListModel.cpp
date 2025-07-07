@@ -354,7 +354,8 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 engine.vst3PluginPool().updateAndGetOld(
                     std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
                         YADAW::Controller::createPoolVector(pool)
-                    )
+                    ),
+                    engine.running()
                 );
             }
             else if(format == YADAW::Audio::Plugin::PluginFormat::CLAP)
@@ -377,7 +378,8 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 engine.clapPluginPool().updateAndGetOld(
                     std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
                         YADAW::Controller::createPoolVector(pool)
-                    )
+                    ),
+                    engine.running()
                 );
             }
         }
