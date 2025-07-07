@@ -216,7 +216,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
         {
             ret = true;
             auto& pluginContext = *optionalPluginContext;
-            pluginContext.position.position = YADAW::Controller::PluginPosition::InChannelPosition::Instrument;
+            pluginContext.position.position = YADAW::Controller::PluginPosition::InChannelPosition::Insert;
             pluginContext.position.index = position;
             pluginContext.position.model = this;
             pluginContext.userData = YADAW::Util::createPMRUniquePtr(
