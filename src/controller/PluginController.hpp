@@ -1,8 +1,10 @@
 #ifndef YADAW_SRC_CONTROLLER_PLUGINCONTROLLER
 #define YADAW_SRC_CONTROLLER_PLUGINCONTROLLER
 
-#include "audio/plugin/IAudioPlugin.hpp"
 #include "audio/engine/AudioDeviceProcess.hpp"
+#include "audio/host/CLAPEventList.hpp"
+#include "audio/host/CLAPHost.hpp"
+#include "audio/plugin/IAudioPlugin.hpp"
 #include "controller/LibraryPluginMap.hpp"
 #include "controller/PluginContext.hpp"
 #include "dao/PluginTable.hpp"
@@ -53,6 +55,17 @@ std::optional<
 
 using FillPluginContextCallback = bool(PluginContext& context);
 
+struct CLAPHostContext
+{
+    YADAW::Audio::Host::CLAPHost host;
+    YADAW::Audio::Host::CLAPEventList eventList;
+    CLAPHostContext(YADAW::Audio::Plugin::CLAPPlugin& clapPlugin);
+};
+
+// Load a plugin instance from the description (path, format and uid),
+// create a `PluginContext` with its `pluginInstance` and `process` filled,
+// and invoke the callback to fill other parts of the `PluginContext` before
+// returning it.
 std::optional<PluginContext> createPluginWithContext(
     const QString& path, YADAW::DAO::PluginFormat format,
     const std::vector<char>& uid,

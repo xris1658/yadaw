@@ -12,7 +12,7 @@ void Impl::ioConfigUpdated(YADAW::Audio::Plugin::IAudioPlugin& plugin)
     auto& pluginContexts = YADAW::Controller::appPluginContexts();
     if(auto it = pluginContexts.find(&plugin); it != pluginContexts.end())
     {
-        auto& context = it->position;
+        auto& context = (*it)->position;
         if(context.position == YADAW::Controller::PluginPosition::InChannelPosition::Insert)
         {
             auto insertListModel = static_cast<YADAW::Model::MixerChannelInsertListModel*>(context.model);

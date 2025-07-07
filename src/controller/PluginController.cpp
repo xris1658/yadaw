@@ -1,5 +1,6 @@
 #include "PluginController.hpp"
 
+#include "audio/host/CLAPEventList.hpp"
 #include "audio/host/VestifalCallback.hpp"
 #include "audio/util/CLAPHelper.hpp"
 #include "audio/util/VST3Helper.hpp"
@@ -719,6 +720,10 @@ std::unique_ptr<YADAW::Audio::Plugin::IAudioPlugin> createPlugin(
     return nullptr;
 }
 
+CLAPHostContext::CLAPHostContext(YADAW::Audio::Plugin::CLAPPlugin& clapPlugin):
+    host(clapPlugin), eventList()
+{}
+
 std::optional<PluginContext> createPluginWithContext(
     const QString& path, YADAW::DAO::PluginFormat format,
     const std::vector<char>& uid,
@@ -747,9 +752,6 @@ std::optional<PluginContext> createPluginWithContext(
                 ret.pluginInstance.plugin()->get()
             );
             ret.process = YADAW::Audio::Engine::AudioDeviceProcess(plugin);
-            ret.hostContext = YADAW::Util::createPMRUniquePtr(
-                std::make_unique<YADAW::Audio::Host::VST3ComponentHandler>(plugin)
-            );
         }
         else if(format == YADAW::DAO::PluginFormat::PluginFormatCLAP)
         {
@@ -757,9 +759,6 @@ std::optional<PluginContext> createPluginWithContext(
                 ret.pluginInstance.plugin()->get()
             );
             ret.process = YADAW::Audio::Engine::AudioDeviceProcess(plugin);
-            ret.hostContext = YADAW::Util::createPMRUniquePtr(
-                std::make_unique<YADAW::Audio::Host::CLAPHost>(plugin)
-            );
         }
         else if(format == YADAW::DAO::PluginFormat::PluginFormatVestifal)
         {
@@ -767,7 +766,6 @@ std::optional<PluginContext> createPluginWithContext(
                 ret.pluginInstance.plugin()->get()
             );
             ret.process = YADAW::Audio::Engine::AudioDeviceProcess(plugin);
-            // TODO
         }
         if(callback && callback(ret))
         {

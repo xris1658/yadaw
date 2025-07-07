@@ -262,6 +262,7 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                     std::move(pluginContext)
                 )
             );
+            YADAW::Controller::appPluginContexts().emplace(mixerContext.get());
             beginInsertRows(QModelIndex(), position, position);
             inserts_->insert(
                 node, std::move(mixerContext), position
@@ -333,6 +334,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         {
             auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context.get());
             auto& plugin = pluginContext.pluginInstance.plugin()->get();
+            YADAW::Controller::appPluginContexts().erase(&pluginContext);
             if(auto window = pluginContext.editor)
             {
                 plugin.gui()->detachWithWindow();
@@ -342,19 +344,40 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             auto genericEditor = pluginContext.genericEditor;
             genericEditor->setProperty("destroyingPlugin", QVariant::fromValue(true));
             delete genericEditor;
-            if(plugin.format() == YADAW::Audio::Plugin::PluginFormat::CLAP)
+            auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
+            if(auto format = plugin.format(); format == YADAW::Audio::Plugin::PluginFormat::VST3)
+            {
+                auto& pool = YADAW::Controller::appVST3PluginPool();
+                pool.erase(
+                    static_cast<YADAW::Audio::Plugin::VST3Plugin*>(&plugin)
+                );
+                engine.vst3PluginPool().updateAndGetOld(
+                    std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
+                        YADAW::Controller::createPoolVector(pool)
+                    )
+                );
+            }
+            else if(format == YADAW::Audio::Plugin::PluginFormat::CLAP)
             {
                 // TODO: Decouple with `appAudioEngine`
                 //   Since `CLAPPlugin::stopProcessing` has to be called in the
                 //   audio thread, I have to couple this model with
                 //   `appAudioEngine`.
                 auto* clapPlugin = static_cast<YADAW::Audio::Plugin::CLAPPlugin*>(&plugin);
-                auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
                 engine.clapPluginToSetProcess().updateAndGetOld(
                     std::make_unique<YADAW::Controller::CLAPPluginToSetProcessVector>(
                         1, std::make_pair(clapPlugin, false)
                     ),
                     engine.running()
+                );
+                auto& pool = YADAW::Controller::appCLAPPluginPool();
+                pool.erase(
+                    static_cast<YADAW::Audio::Plugin::CLAPPlugin*>(&plugin)
+                );
+                engine.clapPluginPool().updateAndGetOld(
+                    std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
+                        YADAW::Controller::createPoolVector(pool)
+                    )
                 );
             }
         }

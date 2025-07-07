@@ -1282,6 +1282,8 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                     std::move(pluginContext)
                 )
             );
+            auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
+            YADAW::Controller::appPluginContexts().emplace(mixerContext.get());
             mixer_.setInstrument(
                 position,
                 node,
@@ -1338,6 +1340,7 @@ bool MixerChannelListModel::removeInstrument(int position)
             auto deviceWithPDC = graphWithPDC.removeNode(instrument.first);
             mixer_.connectionUpdated();
         }
+        YADAW::Controller::appPluginContexts().erase(&context);
         if(auto window = context.editor)
         {
             context.pluginInstance.plugin()->get().gui()->detachWithWindow();
@@ -1347,8 +1350,21 @@ bool MixerChannelListModel::removeInstrument(int position)
         auto genericEditor = context.genericEditor;
         genericEditor->setProperty("destroyingPlugin", QVariant::fromValue(true));
         delete genericEditor;
+        auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
         auto plugin = &context.pluginInstance.plugin()->get();
-        if(plugin->format() == YADAW::Audio::Plugin::PluginFormat::CLAP)
+        if(auto format = plugin->format(); format == YADAW::Audio::Plugin::PluginFormat::VST3)
+        {
+            auto& pool = YADAW::Controller::appVST3PluginPool();
+            pool.erase(
+                static_cast<YADAW::Audio::Plugin::VST3Plugin*>(plugin)
+            );
+            engine.vst3PluginPool().updateAndGetOld(
+                std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
+                    YADAW::Controller::createPoolVector(pool)
+                )
+            );
+        }
+        else if(format == YADAW::Audio::Plugin::PluginFormat::CLAP)
         {
             // TODO: Decouple with `appAudioEngine`
             //   Since `CLAPPlugin::stopProcessing` has to be called in the
@@ -1361,6 +1377,15 @@ bool MixerChannelListModel::removeInstrument(int position)
                     1, std::make_pair(clapPlugin, false)
                 ),
                 engine.running()
+            );
+            auto& pool = YADAW::Controller::appCLAPPluginPool();
+            pool.erase(
+                static_cast<YADAW::Audio::Plugin::CLAPPlugin*>(plugin)
+            );
+            engine.clapPluginPool().updateAndGetOld(
+                std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
+                    YADAW::Controller::createPoolVector(pool)
+                )
             );
         }
         instrument.second.reset();

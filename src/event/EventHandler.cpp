@@ -917,6 +917,20 @@ bool fillPluginContext(
         }
         vst3Plugin.activate();
         vst3Plugin.startProcessing();
+        auto& pool = YADAW::Controller::appVST3PluginPool();
+        pool.emplace(
+            static_cast<YADAW::Audio::Plugin::VST3Plugin* const>(&plugin),
+            YADAW::Controller::VST3PluginContext {
+                .componentHandler = static_cast<YADAW::Audio::Host::VST3ComponentHandler*>(
+                    context.hostContext.get()
+                )
+            }
+        );
+        engine.vst3PluginPool().updateAndGetOld(
+            std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
+                YADAW::Controller::createPoolVector(pool)
+            )
+        );
         ret = true;
     }
     else if(format == YADAW::Audio::Plugin::PluginFormat::CLAP)
@@ -977,7 +991,9 @@ bool fillPluginContext(
             auto eventList = std::make_unique<YADAW::Audio::Host::CLAPEventList>();
             eventList->attachToProcessData(clapPlugin.processData());
             context.hostContext = YADAW::Util::createPMRUniquePtr(
-                std::move(eventList)
+                std::make_unique<YADAW::Controller::CLAPHostContext>(
+                    clapPlugin
+                )
             );
             auto& pluginToSetProcess = engine.clapPluginToSetProcess();
             pluginToSetProcess.update(
@@ -987,6 +1003,20 @@ bool fillPluginContext(
                 engine.running()
             );
             pluginToSetProcess.getOld(engine.running()).reset();
+            auto& pool = YADAW::Controller::appCLAPPluginPool();
+            pool.emplace(
+                static_cast<YADAW::Audio::Plugin::CLAPPlugin* const>(&plugin),
+                YADAW::Controller::CLAPPluginContext {
+                    .eventList = &(static_cast<YADAW::Controller::CLAPHostContext*>(
+                        context.hostContext.get()
+                    )->eventList)
+                }
+            );
+            engine.clapPluginPool().updateAndGetOld(
+                std::make_unique<YADAW::Controller::CLAPPluginPoolVector>(
+                    YADAW::Controller::createPoolVector(pool)
+                )
+            );
             ret = true;
         }
     }

@@ -42,38 +42,38 @@ struct ComparePluginContext
 {
     using is_transparent = void;
     bool operator()(
-        const PluginContext& lhs,
-        const PluginContext& rhs
+        const PluginContext* lhs,
+        const PluginContext* rhs
     ) const
     {
-        auto lp = lhs.pluginInstance.plugin();
+        auto lp = lhs->pluginInstance.plugin();
         YADAW::Audio::Plugin::IAudioPlugin* lptr = lp.has_value()? &(lp->get()): nullptr;
-        auto rp = rhs.pluginInstance.plugin();
+        auto rp = rhs->pluginInstance.plugin();
         YADAW::Audio::Plugin::IAudioPlugin* rptr = rp.has_value()? &(rp->get()): nullptr;
         return lptr < rptr;
     }
     bool operator()(
-        const PluginContext& lhs,
+        const PluginContext* lhs,
         YADAW::Audio::Plugin::IAudioPlugin* rhs
     ) const
     {
-        auto lp = lhs.pluginInstance.plugin();
+        auto lp = lhs->pluginInstance.plugin();
         YADAW::Audio::Plugin::IAudioPlugin* lptr = lp.has_value()? &(lp->get()): nullptr;
         return lptr < rhs;
     }
     bool operator()(
         YADAW::Audio::Plugin::IAudioPlugin* lhs,
-        const PluginContext& rhs
+        const PluginContext* rhs
     ) const
     {
-        auto rp = rhs.pluginInstance.plugin();
+        auto rp = rhs->pluginInstance.plugin();
         YADAW::Audio::Plugin::IAudioPlugin* rptr = rp.has_value()? &(rp->get()): nullptr;
         return lhs < rptr;
     }
 };
 }
 
-using PluginContexts = std::set<PluginContext, Impl::ComparePluginContext>;
+using PluginContexts = std::set<PluginContext*, Impl::ComparePluginContext>;
 
 PluginContexts& appPluginContexts();
 }
