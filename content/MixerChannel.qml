@@ -1046,9 +1046,8 @@ Rectangle {
                     Rectangle {
                         color: "#000000"
                         width: 20
-                        height: parent.height - impl.padding - volumeFader.handleLength
-                        anchors.top: parent.top
-                        anchors.topMargin: volumeFader.handleLength / 2 + 2
+                        height: parent.height - impl.padding
+                        anchors.bottom: parent.bottom
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                 }
