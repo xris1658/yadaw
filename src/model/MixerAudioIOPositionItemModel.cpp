@@ -114,6 +114,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                             );
                             FOR_RANGE(j, last + 1, destParentNode->children.size())
                             {
+                                destParentNode->children[j]->index = j;
                                 updatePositionCompleteNames(*destParentNode->children[j]);
                             }
                             Indices indices;
@@ -155,6 +156,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                             );
                             FOR_RANGE(j, first, destParentNode->children.size())
                             {
+                                destParentNode->children[j]->index = j;
                                 updatePositionCompleteNames(*destParentNode->children[j]);
                             }
                             endRemoveRows();
