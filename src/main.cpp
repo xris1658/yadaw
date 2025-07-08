@@ -25,7 +25,6 @@
 
 int main(int argc, char *argv[])
 {
-    qputenv("QSG_NO_VSYNC", "1");
     YADAW::Native::fillCPUIDInfo();
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
@@ -91,8 +90,11 @@ int main(int argc, char *argv[])
     // leaving full screen mode.
     else
     {
+        qputenv("QSG_NO_VSYNC", "1");
         QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::Software);
     }
+#else
+    qputenv("QSG_NO_VSYNC", "1");
 #endif
     YADAW::Controller::initializeApplicationConfig();
     auto config = YADAW::Controller::loadConfig();
