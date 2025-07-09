@@ -47,7 +47,6 @@ Rectangle {
                 height: 16
                 IOIcon {
                     path.fillColor: parent.contentItem.color
-                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
                 }
@@ -62,7 +61,6 @@ Rectangle {
                 enabled: showSend | showFader
                 InsertIcon {
                     path.fillColor: parent.contentItem.color
-                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
                 }
@@ -77,7 +75,6 @@ Rectangle {
                 enabled: showInsert | showFader
                 SendIcon {
                     path.fillColor: parent.contentItem.color
-                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
                 }
@@ -92,7 +89,6 @@ Rectangle {
                 enabled: showInsert | showSend
                 FaderIcon {
                     path.fillColor: parent.contentItem.color
-                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
                 }
@@ -126,7 +122,6 @@ Rectangle {
                 height: 16
                 ShowLeftPaneIcon {
                     path.fillColor: parent.contentItem.color
-                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
                 }
@@ -140,7 +135,6 @@ Rectangle {
                 ShowLeftPaneIcon {
                     rotation: 180
                     path.fillColor: parent.contentItem.color
-                    path.strokeWidth: 0
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
                 }
