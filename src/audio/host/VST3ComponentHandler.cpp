@@ -263,27 +263,14 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
 void VST3ComponentHandler::bufferSwitched(std::int64_t switchTimestampInNanosecond)
 {
     timestamp_ = switchTimestampInNanosecond;
-    auto oldHostBufferIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
-    outputParameterChanges_[oldHostBufferIndex].clearPointsInQueue();
-    const auto hostBufferIndex = oldHostBufferIndex ^ 1;
-    inputParameterChanges_[hostBufferIndex].clearPointsInQueue();
+    auto hostBufferIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
+    // TODO: Use this in `consumeOutputParameterChanges`
+    outputParameterChanges_[hostBufferIndex].reset();
+    // FIXME: Sync with `doPerformEdit`
+    inputParameterChanges_[hostBufferIndex].reset();
+    mappings_[hostBufferIndex].clear();
     auto pluginBufferIndex = hostBufferIndex ^ 1;
-    // Add initial values before giving it to the plugin to process.
-    // This is a temporary fix made for Ozone 11 Equalizer. This plugin always
-    // gets the last point from the `IParamValueQueue` if the queue (returned
-    // from `IParameterChanges::getParameterData`) exists, even if the queue is
-    // empty, in which case `getPoint` with an index of -1 (getPointCount() - 1)
-    // will be called.
-    // We might like to make `IParameterChanges::getParameterData` to return
-    // `nullptr` in this circumstance, which is a bad idea given that other
-    // plugins might dereference the result without checking it.
     auto& inputParameterChanges = inputParameterChanges_[pluginBufferIndex];
-    FOR_RANGE0(i, inputParameterChanges.getParameterCount())
-    {
-        auto& queue = *inputParameterChanges.getParameterData(i);
-        int32 index = -1;
-        queue.addPoint(0, plugin_->editController()->getParamNormalized(queue.getParameterId()), index);
-    }
     plugin_->setParameterChanges(inputParameterChanges,
         outputParameterChanges_ + pluginBufferIndex);
 }
