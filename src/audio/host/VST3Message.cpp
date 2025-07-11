@@ -1,5 +1,7 @@
 #include "VST3Message.hpp"
 
+#include "audio/util/VST3Helper.hpp"
+
 namespace YADAW::Audio::Host
 {
 using namespace Steinberg;
@@ -24,8 +26,7 @@ VST3Message* VST3Message::createMessage()
 
 VST3Message::~VST3Message() noexcept
 {
-    attributeList_->release();
-    attributeList_ = nullptr;
+    releasePointer(attributeList_);
 }
 
 uint32 VST3Message::addRef()
