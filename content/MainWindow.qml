@@ -899,6 +899,9 @@ ApplicationWindow {
         signal resetted()
         AudioIOSelector {
             id: audioIOSelector
+            onAboutToHide: { // Handle closing on pressing Esc correctly
+                audioIOSelectorWindow.hide();
+            }
             onAccepted: {
                 audioIOSelectorWindow.accepted();
                 audioIOSelectorWindow.hide();
@@ -941,6 +944,9 @@ ApplicationWindow {
         PluginSelector {
             id: pluginSelector
             pluginListProxyModel.sourceModel: root.pluginListModel
+            onAboutToHide: { // Handle closing on pressing Esc correctly
+                pluginSelectorWindow.hide();
+            }
             onAccepted: {
                 pluginSelectorWindow.accepted();
                 pluginSelectorWindow.hide();
