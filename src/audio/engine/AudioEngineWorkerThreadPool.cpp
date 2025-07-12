@@ -184,17 +184,24 @@ void AudioEngineWorkerThreadPool::mainFunc()
             completionMark.clear(std::memory_order_relaxed);
         }
     }
-    for(auto& storage: workerThreadDoneStorage_)
+    auto& workload = workload_.get()->audioThreadWorkload;
+    FOR_RANGE(i, 0, workload.size() - 1)
     {
-        auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(&storage);
-        done.clear(std::memory_order_release);
-        done.notify_one();
+        if(!workload[i].empty())
+        {
+            auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(workerThreadDoneStorage_.data() + i);
+            done.clear(std::memory_order_release);
+            done.notify_one();
+        }
     }
     workerFunc(affinities_.size() - 1);
-    FOR_RANGE0(i, workerThreads_.size())
+    FOR_RANGE(i, 0, workload.size() - 1)
     {
-        auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(workerThreadDoneStorage_.data() + i);
-        done.wait(false, std::memory_order_acquire);
+        if(!workload[i].empty())
+        {
+            auto& done = *YADAW::Util::AlignHelper<std::atomic_flag>::fromAligned(workerThreadDoneStorage_.data() + i);
+            done.wait(false, std::memory_order_acquire);
+        }
     }
 }
 
