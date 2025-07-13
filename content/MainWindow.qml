@@ -54,6 +54,8 @@ ApplicationWindow {
     property var pluginWindow: null
     property var genericPluginEditor: null
 
+    property bool debugMode: false
+
     property PluginScanProgressWindow pluginScanProgressWindow: pluginScanProgressWindow
     property INativePopupEventFilterModel nativePopupEventFilterModel: null
     property INativePopupEventFilterModel quickMenuBarEventFilterModel: null
@@ -757,8 +759,9 @@ ApplicationWindow {
         height: contentHeight + topPadding + bottomPadding
         elide: Text.ElideRight
         text: qsTr("Ready")
+        color: root.debugMode? Colors.debugModeStatusBarForeground: Colors.content
         background: Rectangle {
-            color: Colors.controlBackground
+            color: root.debugMode? Colors.debugModeStatusBarBackground: Colors.controlBackground
         }
     }
     SplitView {
