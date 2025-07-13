@@ -630,6 +630,12 @@ void EventHandler::onOpenMainWindow()
             )
         )
     );
+    YADAW::UI::mainWindow->setProperty(
+        "debugMode",
+        QVariant::fromValue<bool>(
+            YADAW::Native::isDebuggerPresent()
+        )
+    );
     mainWindowReady();
 }
 
