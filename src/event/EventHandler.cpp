@@ -819,6 +819,7 @@ void EventHandler::onCommitBatchUpdate()
 {
     auto& engine = YADAW::Controller::AudioEngine::appAudioEngine();
     engine.mixer().resetBatchUpdater();
+    engine.batchUpdater().commit();
 }
 }
 
