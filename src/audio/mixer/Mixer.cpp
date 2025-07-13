@@ -2347,7 +2347,14 @@ bool Mixer::insertChannels(
         updatePluginAuxPosition(
             PluginAuxIOPosition::ChannelType::Regular, position + count
         );
-        connectionUpdatedCallback_(*this);
+        if(batchUpdater_)
+        {
+            batchUpdater_->addNull();
+        }
+        else
+        {
+            connectionUpdatedCallback_(*this);
+        }
     }
     return ret;
 }
