@@ -93,6 +93,7 @@ set(WIN32_NATIVE_SOURCES
     src/model/AudioGraphInputDeviceListModel.hpp
     src/model/AudioGraphOutputDeviceListModel.cpp
     src/model/AudioGraphOutputDeviceListModel.hpp
+    src/native/win/AudioEngineWorkerThreadScheduler.cpp
     src/native/win/AudioGraphBackend.cpp
     src/native/win/AudioGraphBackendImpl.cpp
     src/native/win/AudioGraphBackendImpl.hpp
@@ -132,6 +133,7 @@ set(MAC_NATIVE_SOURCES
     src/audio/plugin/AudioUnitV3Plugin.hpp
     src/controller/CoreAudioBackendController.cpp
     src/controller/CoreAudioBackendController.hpp
+    src/native/mac/AudioEngineWorkerThreadScheduler.cpp
     src/native/mac/CLAPNative.cpp
     src/native/mac/CPU.cpp
     src/native/mac/CoreAudioBackend.cpp
@@ -167,6 +169,7 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/ALSADeviceEnumerator.cpp
     src/native/linux/ALSADeviceEnumerator.hpp
     src/native/linux/ALSAHelper.hpp
+    src/native/linux/AudioEngineWorkerThreadScheduler.cpp
     src/native/linux/CLAPNative.cpp
     src/native/linux/CPU.cpp
     src/native/linux/Library.cpp
@@ -499,6 +502,7 @@ set(YADAW_COMMON_SOURCES
     src/model/SpeakerListModel.hpp
     src/model/impl/TreeNode.hpp
     src/native/AudioBackendSupport.hpp
+    src/native/AudioEngineWorkerThreadScheduler.hpp
     src/native/CLAPNative.hpp
     src/native/CPU.hpp
     src/native/Library.hpp

@@ -1,5 +1,6 @@
 #include "AudioEngineWorkerThreadPool.hpp"
 
+#include "native/AudioEngineWorkerThreadScheduler.hpp"
 #include "native/CPU.hpp"
 #include "native/Thread.hpp"
 
@@ -235,6 +236,7 @@ void AudioEngineWorkerThreadPool::resetManageAudioThreadIdCallback()
 void AudioEngineWorkerThreadPool::workerThreadFunc(
     std::uint32_t processorIndex, std::uint32_t workloadIndex)
 {
+    ThreadScheduler threadScheduler(*this, InitArgs()/*TODO*/);
     YADAW::Native::setThreadAffinity(
         YADAW::Native::getCurrentThreadHandle(),
         static_cast<std::uint64_t>(1) << processorIndex

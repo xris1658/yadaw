@@ -35,6 +35,12 @@ public:
     };
     using SetAudioThreadIdCallback = void(const AudioEngineWorkerThreadPool& sender, std::thread::id id);
     using UnsetAudioThreadIdCallback = void(const AudioEngineWorkerThreadPool& sender, std::thread::id id);
+ private:
+    struct InitArgs
+    {
+        // TODO
+    };
+    class ThreadScheduler;
 public:
     AudioEngineWorkerThreadPool(std::unique_ptr<ProcessSequenceWithPrev>&&);
     ~AudioEngineWorkerThreadPool();
@@ -55,6 +61,8 @@ public:
     void updateProcessSequence(
         std::unique_ptr<ProcessSequenceWithPrev>&& processSequenceWithPrev);
 public:
+    // Callbacks managing audio thread IDs are called in `start` and `stop`, not
+    // in the worker threads.
     void setManageAudioThreadIdCallback(
         std::function<SetAudioThreadIdCallback>&& setAudioThreadIdCallback,
         std::function<UnsetAudioThreadIdCallback>&& unsetAudioThreadIdCallback
