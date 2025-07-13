@@ -987,6 +987,7 @@ ApplicationWindow {
             addTrackWindow.showNormal();
         }
         onAccepted: {
+            EventSender.prepareBatchUpdate();
             let trackName = name? name: placeholderName;
             mixerChannelModel.insert(position, count, trackType, channelConfig);
             if(count === 1) {
@@ -1031,6 +1032,7 @@ ApplicationWindow {
                     ).append(audioEffect);
                 }
             }
+            EventSender.commitBatchUpdate();
         }
     }
     Window {

@@ -1290,7 +1290,14 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 std::move(mixerContext),
                 firstOutput
             );
-            mixer_.connectionUpdated();
+            if(auto optionalBatchUpdater = mixer_.batchUpdater(); optionalBatchUpdater.has_value())
+            {
+                optionalBatchUpdater->get().addNull();
+            }
+            else
+            {
+                mixer_.connectionUpdated();
+            }
             dataChanged(this->index(position), this->index(position),
                 {
                     Role::InstrumentExist,
