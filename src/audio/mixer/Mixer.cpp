@@ -1208,8 +1208,6 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         graph_.disconnect(polarityInverters_[it->index].second->inEdges().front());
                         graph_.connect(newSummingNode, polarityInverters_[it->index].second, 0, 0);
                         disconnectingNewSumming = std::move(oldSumming);
-                        oldSumming = std::move(newSumming);
-                        oldSummingNode = newSummingNode;
                         if(batchUpdater_)
                         {
                             batchUpdater_->addObject(std::move(disconnectingOldSumming));
@@ -1226,6 +1224,8 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                             disconnectingOldMultiInput.reset();
                             disconnectingNewMultiInput.reset();
                         }
+                        oldSumming = std::move(newSumming);
+                        oldSummingNode = newSummingNode;
                         ret = true;
                     }
                 }
