@@ -3838,8 +3838,8 @@ std::optional<IDGen::ID> Mixer::instrumentAuxInputID(
 {
     if(channelIndex < channelCount()
         && channelInfo_[channelIndex].channelType == ChannelType::Instrument
-        && inputDevices_[channelIndex].first
-        && channelGroupIndex < inputDevices_[channelIndex].first->audioInputGroupCount())
+        && inputDevices_[channelIndex].second != nullptr
+        && channelGroupIndex < graph_.getNodeData(inputDevices_[channelIndex].second).process.device()->audioInputGroupCount())
     {
         return pluginAuxInputs_
             [PluginAuxIOPosition::ChannelType::Regular]
@@ -3853,8 +3853,8 @@ std::optional<IDGen::ID> Mixer::instrumentAuxOutputID(
 {
     if(channelIndex < channelCount()
         && channelInfo_[channelIndex].channelType == ChannelType::Instrument
-        && inputDevices_[channelIndex].first
-        && channelGroupIndex < inputDevices_[channelIndex].first->audioOutputGroupCount())
+        && inputDevices_[channelIndex].second != nullptr
+        && channelGroupIndex < graph_.getNodeData(inputDevices_[channelIndex].second).process.device()->audioOutputGroupCount())
     {
         if(channelGroupIndex > preFaderInserts_[channelIndex]->outChannelGroupIndex())
         {
