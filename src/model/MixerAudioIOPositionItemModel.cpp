@@ -133,7 +133,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                     );
                     QObject::connect(
                         mixerChannelInsertListModel,
-                        &MixerChannelInsertListModel::rowsRemoved,
+                        &MixerChannelInsertListModel::rowsAboutToBeRemoved,
                         [this, parentIndex, mixerChannelListModel = sender, mixerChannelInsertListModel]
                         (const QModelIndex&, int first, int last)
                         {
@@ -285,6 +285,17 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                     }
                 }
             }
+        }
+    );
+    QObject::connect(
+        &mixerRegularChannelListModel,
+        &MixerChannelListModel::instrumentAboutToBeRemoved,
+        [this, sender = &mixerRegularChannelListModel](std::uint32_t index)
+        {
+            auto node = rootNode_.children[YADAW::Model::MixerChannelListModel::ListType::Regular]
+                ->children[index]
+                ->children[NodeData::NodeInChannelPosition::Instrument].get();
+            node->positions.clear();
         }
     );
 }

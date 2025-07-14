@@ -77,6 +77,8 @@ public:
     void resetFillPluginContextCallback();
     void instrumentLatencyUpdated(std::uint32_t index) const;
     void updateInstrumentIOConfig(std::uint32_t index);
+signals:
+    void instrumentAboutToBeRemoved(std::uint32_t index);
 private:
     void updateInstrumentConnections(std::uint32_t from);
 private:

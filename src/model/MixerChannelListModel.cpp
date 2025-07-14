@@ -1340,6 +1340,7 @@ bool MixerChannelListModel::removeInstrument(int position)
         {
             return false;
         }
+        instrumentAboutToBeRemoved(position);
         auto& graphWithPDC = mixer_.graph();
         std::pair<ade::NodeHandle, YADAW::Audio::Mixer::Context> instrument = {ade::NodeHandle(), YADAW::Util::createUniquePtr(nullptr)};
         {
