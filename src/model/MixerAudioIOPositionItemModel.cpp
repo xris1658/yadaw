@@ -128,6 +128,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                                 indices[children.indent] = children.index;
                                 initChildren(children, indices);
                             }
+                            // See https://bugreports.qt.io/browse/QTBUG-138493 if you've encountered an assertion failure here :(
                             endInsertRows();
                         }
                     );
@@ -167,6 +168,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                 {
                     updatePositionCompleteNames(*(treeNode->children[j]));
                 }
+                // See https://bugreports.qt.io/browse/QTBUG-138493 if you've encountered an assertion failure here :(
                 endInsertRows();
             }
         );
