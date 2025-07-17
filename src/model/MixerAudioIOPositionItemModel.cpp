@@ -28,148 +28,372 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
         auto parentIndex = MixerAudioIOPositionItemModel::index(i, 0, QModelIndex());
         QObject::connect(
             mixerChannelListModels_[i],
-            &MixerChannelListModel::rowsAboutToBeInserted,
-            [this, parentIndex](const QModelIndex&, int first, int last)
-            {
-                beginInsertRows(parentIndex, first, last);
-            }
-        );
-        QObject::connect(
-            mixerChannelListModels_[i],
             &MixerChannelListModel::rowsInserted,
             [this, parentIndex, sender = mixerChannelListModels_[i], &treeNode = rootNode_.children[i]]
             (const QModelIndex&, int first, int last) // MixerChannelListModel::rowsInserted
             {
-                std::generate_n(
-                    std::inserter(treeNode->children, treeNode->children.begin() + first), last - first + 1,
-                    [&treeNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
+                // Workaround of https://bugreports.qt.io/browse/QTBUG-138493 (hope it gets fixed soon)
+                if(first > 0 && last == sender->rowCount(QModelIndex()) - 1)
+                {
+                    beginInsertRows(parentIndex, first - 1, last - 1);
+                    std::generate_n(
+                        std::inserter(treeNode->children, treeNode->children.begin() + first - 1), last - first + 1,
+                        [&treeNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
+                        {
+                            return std::make_unique<NodeData>(
+                                NodeData {
+                                    .indent = NodeData::Indent::ChannelIndex,
+                                    .index  = channelIndex++,
+                                    .parent = treeNode.get()
+                                }
+                            );
+                        }
+                    );
+                    Indices indices;
+                    for(auto node = treeNode.get(); node != &rootNode_; node = node->parent)
                     {
-                        return std::make_unique<NodeData>(
-                            NodeData {
-                                .indent = NodeData::Indent::ChannelIndex,
-                                .index  = channelIndex++,
-                                .parent = treeNode.get()
+                        indices[node->indent] = node->index;
+                    }
+                    FOR_RANGE(j, first - 1, last)
+                    {
+                        initChildren(*treeNode->children[j], indices);
+                        auto mixerChannelInsertListModel = static_cast<YADAW::Model::MixerChannelInsertListModel*>(
+                            sender->data(
+                                sender->index(j), MixerChannelListModel::Role::Inserts
+                            ).value<QObject*>()
+                        );
+                        QObject::connect(
+                            mixerChannelInsertListModel,
+                            &MixerChannelInsertListModel::channelIndexChanged,
+                            [mixerChannelInsertListModel, node = treeNode->children[j].get()]()
+                            {
+                                node->index = mixerChannelInsertListModel->channelIndex();
+                            }
+                        );
+                        QObject::connect(
+                            mixerChannelInsertListModel,
+                            &MixerChannelInsertListModel::rowsInserted,
+                            [this, parentIndex, mixerChannelListModel = sender, mixerChannelInsertListModel]
+                            (const QModelIndex& parent, int first, int last)
+                            {
+                                auto destParentIndex = MixerAudioIOPositionItemModel::index(
+                                    mixerChannelListModel->data(
+                                        mixerChannelListModel->index(
+                                            mixerChannelInsertListModel->channelIndex()
+                                        ),
+                                        MixerChannelListModel::Role::InstrumentExist
+                                    ).value<bool>()? 1: 0,
+                                    0,
+                                    MixerAudioIOPositionItemModel::index(
+                                        mixerChannelInsertListModel->channelIndex(), 0,
+                                        parentIndex
+                                    )
+                                );
+                                auto destParentNode = getNodeData(destParentIndex);
+                                // Workaround of https://bugreports.qt.io/browse/QTBUG-138493 (hope it gets fixed soon)
+                                if(first > 0 && last == mixerChannelInsertListModel->rowCount(QModelIndex()) - 1)
+                                {
+                                    beginInsertRows(destParentIndex, first - 1, last - 1);
+                                    std::generate_n(
+                                        std::inserter(
+                                            destParentNode->children,
+                                            destParentNode->children.begin() + first - 1
+                                        ),
+                                        last - first + 1,
+                                        [destParentNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
+                                        {
+                                            return std::make_unique<NodeData>(
+                                                NodeData {
+                                                    .indent = NodeData::Indent::InsertIndex,
+                                                    .index  = channelIndex++,
+                                                    .parent = destParentNode
+                                                }
+                                            );
+                                        }
+                                    );
+                                    Indices indices;
+                                    for(auto node = destParentNode; node != &rootNode_; node = node->parent)
+                                    {
+                                        indices[node->indent] = node->index;
+                                    }
+                                    FOR_RANGE(j, first - 1, last)
+                                    {
+                                        auto& children = *destParentNode->children[j];
+                                        indices[children.indent] = children.index;
+                                        initChildren(children, indices);
+                                    }
+                                    endInsertRows();
+                                    // beginMoveRows(destParentIndex, first - 1, last - 1, destParentIndex, first);
+                                    // equivalent to the code above but does not trigger an assertion failure
+                                    beginMoveRows(destParentIndex, last, last, destParentIndex, first - 1);
+                                    std::rotate(
+                                        destParentNode->children.begin() + first - 1,
+                                        destParentNode->children.begin() + last - 1,
+                                        destParentNode->children.begin() + last
+                                    );
+                                    endMoveRows();
+                                }
+                                else
+                                {
+                                    beginInsertRows(destParentIndex, first, last);
+                                    std::generate_n(
+                                        std::inserter(
+                                            destParentNode->children,
+                                            destParentNode->children.begin() + first
+                                        ),
+                                        last - first + 1,
+                                        [destParentNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
+                                        {
+                                            return std::make_unique<NodeData>(
+                                                NodeData {
+                                                    .indent = NodeData::Indent::InsertIndex,
+                                                    .index  = channelIndex++,
+                                                    .parent = destParentNode
+                                                }
+                                            );
+                                        }
+                                    );
+                                    FOR_RANGE(j, last + 1, destParentNode->children.size())
+                                    {
+                                        destParentNode->children[j]->index = j;
+                                        updatePositionCompleteNames(*destParentNode->children[j]);
+                                    }
+                                    Indices indices;
+                                    for(auto node = destParentNode; node != &rootNode_; node = node->parent)
+                                    {
+                                        indices[node->indent] = node->index;
+                                    }
+                                    FOR_RANGE(j, first, last + 1)
+                                    {
+                                        auto& children = *destParentNode->children[j];
+                                        indices[children.indent] = children.index;
+                                        initChildren(children, indices);
+                                    }
+                                    endInsertRows();
+                                }
+                            }
+                        );
+                        QObject::connect(
+                            mixerChannelInsertListModel,
+                            &MixerChannelInsertListModel::rowsAboutToBeRemoved,
+                            [this, parentIndex, mixerChannelListModel = sender, mixerChannelInsertListModel]
+                            (const QModelIndex&, int first, int last)
+                            {
+                                auto destParentIndex = MixerAudioIOPositionItemModel::index(
+                                    mixerChannelListModel->data(
+                                        mixerChannelListModel->index(mixerChannelInsertListModel->channelIndex()),
+                                        MixerChannelListModel::Role::InstrumentExist
+                                    ).value<bool>()? 1: 0,
+                                    0,
+                                    MixerAudioIOPositionItemModel::index(
+                                        mixerChannelInsertListModel->channelIndex(), 0,
+                                        parentIndex
+                                    )
+                                );
+                                beginRemoveRows(destParentIndex, first, last);
+                                auto destParentNode = getNodeData(destParentIndex);
+                                destParentNode->children.erase(
+                                    destParentNode->children.begin() + first,
+                                    destParentNode->children.begin() + last + 1
+                                );
+                                FOR_RANGE(j, first, destParentNode->children.size())
+                                {
+                                    destParentNode->children[j]->index = j;
+                                    updatePositionCompleteNames(*destParentNode->children[j]);
+                                }
+                                endRemoveRows();
                             }
                         );
                     }
-                );
-                Indices indices;
-                for(auto node = treeNode.get(); node != &rootNode_; node = node->parent)
-                {
-                    indices[node->indent] = node->index;
+                    endInsertRows();
+                    // beginMoveRows(parentIndex, first - 1, last - 1, parentIndex, first);
+                    // equivalent to the code above but does not trigger an assertion failure
+                    beginMoveRows(parentIndex, last, last, parentIndex, first - 1);
+                    std::rotate(
+                        treeNode->children.begin() + first - 1,
+                        treeNode->children.begin() + last - 1,
+                        treeNode->children.begin() + last
+                    );
+                    endMoveRows();
                 }
-                FOR_RANGE(j, first, last + 1)
+                else
                 {
-                    initChildren(*treeNode->children[j], indices);
-                    auto mixerChannelInsertListModel = static_cast<YADAW::Model::MixerChannelInsertListModel*>(
-                        sender->data(
-                            sender->index(j), MixerChannelListModel::Role::Inserts
-                        ).value<QObject*>()
-                    );
-                    QObject::connect(
-                        mixerChannelInsertListModel,
-                        &MixerChannelInsertListModel::channelIndexChanged,
-                        [mixerChannelInsertListModel, node = treeNode->children[j].get()]()
+                    beginInsertRows(parentIndex, first, last);
+                    std::generate_n(
+                        std::inserter(treeNode->children, treeNode->children.begin() + first), last - first + 1,
+                        [&treeNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
                         {
-                            node->index = mixerChannelInsertListModel->channelIndex();
-                        }
-                    );
-                    QObject::connect(
-                        mixerChannelInsertListModel,
-                        &MixerChannelInsertListModel::rowsInserted,
-                        [this, parentIndex, mixerChannelListModel = sender, mixerChannelInsertListModel]
-                        (const QModelIndex&, int first, int last)
-                        {
-                            auto destParentIndex = MixerAudioIOPositionItemModel::index(
-                                mixerChannelListModel->data(
-                                    mixerChannelListModel->index(
-                                        mixerChannelInsertListModel->channelIndex()
-                                    ),
-                                    MixerChannelListModel::Role::InstrumentExist
-                                ).value<bool>()? 1: 0,
-                                0,
-                                MixerAudioIOPositionItemModel::index(
-                                    mixerChannelInsertListModel->channelIndex(), 0,
-                                    parentIndex
-                                )
-                            );
-                            beginInsertRows(destParentIndex, first, last);
-                            auto destParentNode = getNodeData(destParentIndex);
-                            std::generate_n(
-                                std::inserter(
-                                    destParentNode->children,
-                                    destParentNode->children.begin() + first
-                                ),
-                                last - first + 1,
-                                [destParentNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
-                                {
-                                    return std::make_unique<NodeData>(
-                                        NodeData {
-                                            .indent = NodeData::Indent::InsertIndex,
-                                            .index  = channelIndex++,
-                                            .parent = destParentNode
-                                        }
-                                    );
+                            return std::make_unique<NodeData>(
+                                NodeData {
+                                    .indent = NodeData::Indent::ChannelIndex,
+                                    .index  = channelIndex++,
+                                    .parent = treeNode.get()
                                 }
                             );
-                            FOR_RANGE(j, last + 1, destParentNode->children.size())
-                            {
-                                destParentNode->children[j]->index = j;
-                                updatePositionCompleteNames(*destParentNode->children[j]);
-                            }
-                            Indices indices;
-                            for(auto node = destParentNode; node != &rootNode_; node = node->parent)
-                            {
-                                indices[node->indent] = node->index;
-                            }
-                            FOR_RANGE(j, first, last + 1)
-                            {
-                                auto& children = *destParentNode->children[j];
-                                indices[children.indent] = children.index;
-                                initChildren(children, indices);
-                            }
-                            // See https://bugreports.qt.io/browse/QTBUG-138493 if you've encountered an assertion failure here :(
-                            endInsertRows();
                         }
                     );
-                    QObject::connect(
-                        mixerChannelInsertListModel,
-                        &MixerChannelInsertListModel::rowsAboutToBeRemoved,
-                        [this, parentIndex, mixerChannelListModel = sender, mixerChannelInsertListModel]
-                        (const QModelIndex&, int first, int last)
-                        {
-                            auto destParentIndex = MixerAudioIOPositionItemModel::index(
-                                mixerChannelListModel->data(
-                                    mixerChannelListModel->index(mixerChannelInsertListModel->channelIndex()),
-                                    MixerChannelListModel::Role::InstrumentExist
-                                ).value<bool>()? 1: 0,
-                                0,
-                                MixerAudioIOPositionItemModel::index(
-                                    mixerChannelInsertListModel->channelIndex(), 0,
-                                    parentIndex
-                                )
-                            );
-                            beginRemoveRows(destParentIndex, first, last);
-                            auto destParentNode = getNodeData(destParentIndex);
-                            destParentNode->children.erase(
-                                destParentNode->children.begin() + first,
-                                destParentNode->children.begin() + last + 1
-                            );
-                            FOR_RANGE(j, first, destParentNode->children.size())
+                    Indices indices;
+                    for(auto node = treeNode.get(); node != &rootNode_; node = node->parent)
+                    {
+                        indices[node->indent] = node->index;
+                    }
+                    FOR_RANGE(j, first, last + 1)
+                    {
+                        initChildren(*treeNode->children[j], indices);
+                        auto mixerChannelInsertListModel = static_cast<YADAW::Model::MixerChannelInsertListModel*>(
+                            sender->data(
+                                sender->index(j), MixerChannelListModel::Role::Inserts
+                            ).value<QObject*>()
+                        );
+                        QObject::connect(
+                            mixerChannelInsertListModel,
+                            &MixerChannelInsertListModel::channelIndexChanged,
+                            [mixerChannelInsertListModel, node = treeNode->children[j].get()]()
                             {
-                                destParentNode->children[j]->index = j;
-                                updatePositionCompleteNames(*destParentNode->children[j]);
+                                node->index = mixerChannelInsertListModel->channelIndex();
                             }
-                            endRemoveRows();
-                        }
-                    );
+                        );
+                        QObject::connect(
+                            mixerChannelInsertListModel,
+                            &MixerChannelInsertListModel::rowsInserted,
+                            [this, parentIndex, mixerChannelListModel = sender, mixerChannelInsertListModel]
+                            (const QModelIndex& parent, int first, int last)
+                            {
+                                auto destParentIndex = MixerAudioIOPositionItemModel::index(
+                                    mixerChannelListModel->data(
+                                        mixerChannelListModel->index(
+                                            mixerChannelInsertListModel->channelIndex()
+                                        ),
+                                        MixerChannelListModel::Role::InstrumentExist
+                                    ).value<bool>()? 1: 0,
+                                    0,
+                                    MixerAudioIOPositionItemModel::index(
+                                        mixerChannelInsertListModel->channelIndex(), 0,
+                                        parentIndex
+                                    )
+                                );
+                                auto destParentNode = getNodeData(destParentIndex);
+                                // Workaround of https://bugreports.qt.io/browse/QTBUG-138493 (hope it gets fixed soon)
+                                if(first > 0 && last == mixerChannelInsertListModel->rowCount(QModelIndex()) - 1)
+                                {
+                                    beginInsertRows(destParentIndex, first - 1, last - 1);
+                                    std::generate_n(
+                                        std::inserter(
+                                            destParentNode->children,
+                                            destParentNode->children.begin() + first - 1
+                                        ),
+                                        last - first + 1,
+                                        [destParentNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
+                                        {
+                                            return std::make_unique<NodeData>(
+                                                NodeData {
+                                                    .indent = NodeData::Indent::InsertIndex,
+                                                    .index  = channelIndex++,
+                                                    .parent = destParentNode
+                                                }
+                                            );
+                                        }
+                                    );
+                                    Indices indices;
+                                    for(auto node = destParentNode; node != &rootNode_; node = node->parent)
+                                    {
+                                        indices[node->indent] = node->index;
+                                    }
+                                    FOR_RANGE(j, first - 1, last)
+                                    {
+                                        auto& children = *destParentNode->children[j];
+                                        indices[children.indent] = children.index;
+                                        initChildren(children, indices);
+                                    }
+                                    endInsertRows();
+                                    // beginMoveRows(destParentIndex, first - 1, last - 1, destParentIndex, first);
+                                    // equivalent to the code above but does not trigger an assertion failure
+                                    beginMoveRows(destParentIndex, last, last, destParentIndex, first - 1);
+                                    std::rotate(
+                                        destParentNode->children.begin() + first - 1,
+                                        destParentNode->children.begin() + last - 1,
+                                        destParentNode->children.begin() + last
+                                    );
+                                    endMoveRows();
+                                }
+                                else
+                                {
+                                    beginInsertRows(destParentIndex, first, last);
+                                    std::generate_n(
+                                        std::inserter(
+                                            destParentNode->children,
+                                            destParentNode->children.begin() + first
+                                        ),
+                                        last - first + 1,
+                                        [destParentNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
+                                        {
+                                            return std::make_unique<NodeData>(
+                                                NodeData {
+                                                    .indent = NodeData::Indent::InsertIndex,
+                                                    .index  = channelIndex++,
+                                                    .parent = destParentNode
+                                                }
+                                            );
+                                        }
+                                    );
+                                    FOR_RANGE(j, last + 1, destParentNode->children.size())
+                                    {
+                                        destParentNode->children[j]->index = j;
+                                        updatePositionCompleteNames(*destParentNode->children[j]);
+                                    }
+                                    Indices indices;
+                                    for(auto node = destParentNode; node != &rootNode_; node = node->parent)
+                                    {
+                                        indices[node->indent] = node->index;
+                                    }
+                                    FOR_RANGE(j, first, last + 1)
+                                    {
+                                        auto& children = *destParentNode->children[j];
+                                        indices[children.indent] = children.index;
+                                        initChildren(children, indices);
+                                    }
+                                    endInsertRows();
+                                }
+                            }
+                        );
+                        QObject::connect(
+                            mixerChannelInsertListModel,
+                            &MixerChannelInsertListModel::rowsAboutToBeRemoved,
+                            [this, parentIndex, mixerChannelListModel = sender, mixerChannelInsertListModel]
+                            (const QModelIndex&, int first, int last)
+                            {
+                                auto destParentIndex = MixerAudioIOPositionItemModel::index(
+                                    mixerChannelListModel->data(
+                                        mixerChannelListModel->index(mixerChannelInsertListModel->channelIndex()),
+                                        MixerChannelListModel::Role::InstrumentExist
+                                    ).value<bool>()? 1: 0,
+                                    0,
+                                    MixerAudioIOPositionItemModel::index(
+                                        mixerChannelInsertListModel->channelIndex(), 0,
+                                        parentIndex
+                                    )
+                                );
+                                beginRemoveRows(destParentIndex, first, last);
+                                auto destParentNode = getNodeData(destParentIndex);
+                                destParentNode->children.erase(
+                                    destParentNode->children.begin() + first,
+                                    destParentNode->children.begin() + last + 1
+                                );
+                                FOR_RANGE(j, first, destParentNode->children.size())
+                                {
+                                    destParentNode->children[j]->index = j;
+                                    updatePositionCompleteNames(*destParentNode->children[j]);
+                                }
+                                endRemoveRows();
+                            }
+                        );
+                    }
+                    FOR_RANGE(j, last + 1, treeNode->children.size())
+                    {
+                        updatePositionCompleteNames(*(treeNode->children[j]));
+                    }
+                    endInsertRows();
                 }
-                FOR_RANGE(j, last + 1, treeNode->children.size())
-                {
-                    updatePositionCompleteNames(*(treeNode->children[j]));
-                }
-                // See https://bugreports.qt.io/browse/QTBUG-138493 if you've encountered an assertion failure here :(
-                endInsertRows();
             }
         );
         QObject::connect(
