@@ -218,13 +218,52 @@ void EventHandler::onOpenMainWindow()
             YADAW::UI::getMessageDialogResult();
         }
     }
+#elif __linux__
+    auto& backend = YADAW::Controller::appALSABackend();
+    // initialize backend
+    QObject::connect(&YADAW::Controller::appALSAInputDeviceListModel(),
+        &QAbstractItemModel::dataChanged, &saveAudioBackendState);
+    QObject::connect(&YADAW::Controller::appALSAOutputDeviceListModel(),
+        &QAbstractItemModel::dataChanged, &saveAudioBackendState);
+    auto alsaNode = appConfig["audio-hardware"]["alsa"];
+    auto errors = YADAW::Controller::initializeALSAFromConfig(alsaNode);
+    if(!errors.empty())
+    {
+        auto errorString = errors.front();
+        for(auto it = errorString.begin() + 1; it != errorString.end(); ++it)
+        {
+            errorString.append(u'\n');
+            errorString.append(*it);
+        }
+        YADAW::UI::createMessageDialog();
+        YADAW::UI::setHideCloseButton(true);
+        auto messageDialog = YADAW::UI::messageDialog;
+        if(messageDialog)
+        {
+            messageDialog->setProperty(
+                "icon",
+                QVariant::fromValue<int>(YADAW::UI::IconType::Warning)
+            );
+            messageDialog->setProperty(
+                "message",
+                QVariant::fromValue<QString>(errorString)
+            );
+            messageDialog->setTitle(YADAW::Base::ProductName);
+            messageDialog->setModality(Qt::WindowModality::ApplicationModal);
+            messageDialog->setVisible(true);
+            YADAW::UI::focusMessageDialogButton(0);
+            YADAW::UI::getMessageDialogResult();
+        }
+    }
+#endif
     // -------------------------------------------------------------------------
     // initialize audio bus configuration --------------------------------------
     // -------------------------------------------------------------------------
-    auto changes = YADAW::Controller::getAudioInputDeviceIndexChanges(audioGraphNode);
     if(auto audioBusConfigNode = appConfig["audio-bus"];
         audioBusConfigNode.IsDefined())
     {
+#if _WIN32
+        auto changes = YADAW::Controller::getAudioInputDeviceIndexChanges(audioGraphNode);
         FOR_RANGE0(i, audioBusConfigNode.size())
         {
             auto channelsNode = audioBusConfigNode["input-buses"][i]["channels"];
@@ -238,11 +277,17 @@ void EventHandler::onOpenMainWindow()
                 indexNode = newIndex;
             }
         }
+#endif
         YADAW::Controller::loadAudioBusConfiguration(audioBusConfigNode,
             appAudioBusInputConfigurationModel, appAudioBusOutputConfigurationModel
         );
+#if _WIN32
         audioGraphNode = YADAW::Controller::deviceConfigFromCurrentAudioGraph();
+#elif __linux__
+        alsaNode = YADAW::Controller::deviceConfigFromALSA();
+#endif
     }
+#if _WIN32
     const auto& currentOutputDeviceId = backend.currentOutputDevice().id;
     int currentOutputDeviceIndex = -1;
     FOR_RANGE0(i, backend.audioOutputDeviceCount())
@@ -259,16 +304,15 @@ void EventHandler::onOpenMainWindow()
         &QAbstractItemModel::dataChanged,
         &saveAudioBackendState);
     appConfig["audio-hardware"]["audiograph"] = audioGraphNode;
-    YADAW::Controller::saveConfig(appConfig);
 #elif __linux__
-    auto& backend = YADAW::Controller::appALSABackend();
-    // initialize backend
     QObject::connect(&YADAW::Controller::appALSAInputDeviceListModel(),
-        &QAbstractItemModel::dataChanged, &saveAudioBackendState);
+        &QAbstractItemModel::dataChanged,
+        &saveAudioBackendState);
     QObject::connect(&YADAW::Controller::appALSAOutputDeviceListModel(),
-        &QAbstractItemModel::dataChanged, &saveAudioBackendState);
-    auto errors = YADAW::Controller::initializeALSAFromConfig(appConfig["audio-hardware"]["alsa"]);
+        &QAbstractItemModel::dataChanged,
+        &saveAudioBackendState);
 #endif
+    YADAW::Controller::saveConfig(appConfig);
     // -------------------------------------------------------------------------
     // initialize device graph and mixer----------------------------------------
     // -------------------------------------------------------------------------
