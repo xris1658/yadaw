@@ -523,6 +523,8 @@ set(YADAW_COMMON_SOURCES
     src/ui/QuickMenuEventFilter.hpp
     src/ui/RawMouseEventFilter.cpp
     src/ui/RawMouseEventFilter.hpp
+    src/ui/ResizeEventFilter.cpp
+    src/ui/ResizeEventFilter.hpp
     src/ui/Runtime.cpp
     src/ui/Runtime.hpp
     src/ui/UI.cpp
