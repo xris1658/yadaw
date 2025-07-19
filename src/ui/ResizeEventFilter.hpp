@@ -12,7 +12,7 @@ class ResizeEventFilter: public QObject, public QAbstractNativeEventFilter
 {
     Q_OBJECT
 public:
-    enum DragPosition
+    enum DragPosition: std::uint8_t
     {
         TopLeft,
         Top,
@@ -35,8 +35,12 @@ public:
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
 private:
     WindowAndId windowAndId_;
-    bool aboutToStartResize_;
+    DragPosition position_;
+    bool aboutToStartResize_ = false;
     bool resizing_ = false;
+#if _WIN32
+    bool prevIsCaptureChanged_ = false;
+#endif
 };
 }
 
