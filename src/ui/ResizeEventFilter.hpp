@@ -29,7 +29,7 @@ public:
 signals:
     void startResize();
     void aboutToResize(DragPosition dragPosition, QRect* rect);
-    void resized();
+    void resized(QRect rect);
     void endResize();
 public:
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;

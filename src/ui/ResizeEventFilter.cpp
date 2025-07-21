@@ -10,6 +10,31 @@
 #include <vssym32.h>
 #endif
 
+#if _WIN32
+
+#include <mutex>
+
+QMargins clientMargins;
+
+std::once_flag getMarginsFlag;
+
+void getMargins()
+{
+    auto sizeFrame = GetSystemMetrics(SM_CXSIZEFRAME);
+    auto fixedFrame = GetSystemMetrics(SM_CXFIXEDFRAME);
+    auto border = GetSystemMetrics(SM_CXBORDER);
+    auto titleBar = GetSystemMetrics(SM_CYCAPTION);
+    clientMargins.setLeft(
+        GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXFIXEDFRAME) + GetSystemMetrics(SM_CXBORDER)
+    );
+    clientMargins.setRight(clientMargins.left());
+    clientMargins.setBottom(
+        GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYBORDER)
+    );
+    clientMargins.setTop(clientMargins.bottom() + GetSystemMetrics(SM_CYCAPTION));
+}
+#endif
+
 namespace YADAW::UI
 {
 ResizeEventFilter::ResizeEventFilter(QWindow& window):
@@ -22,7 +47,7 @@ ResizeEventFilter::~ResizeEventFilter()
 {
     if(resizing_)
     {
-        resized();
+        resized(windowAndId_.window->geometry());
         endResize();
     }
     QCoreApplication::instance()->removeNativeEventFilter(this);
@@ -42,8 +67,6 @@ bool ResizeEventFilter::nativeEventFilter(
         DragPosition::BottomLeft,
         DragPosition::BottomRight
     };
-    // TODO: Need to find out what the value actually is
-    auto borderSize = 8;
     if(eventType == "windows_generic_MSG")
     {
         bool ret = false;
@@ -51,7 +74,11 @@ bool ResizeEventFilter::nativeEventFilter(
             &ResizeEventFilter::aboutToResize
         );
         auto msg = static_cast<MSG*>(message);
-        if(msg->message == WM_NCLBUTTONDOWN
+        if(msg->hwnd != reinterpret_cast<HWND>(windowAndId_.winId))
+        {
+            ret = false;
+        }
+        else if(msg->message == WM_NCLBUTTONDOWN
             && (msg->wParam >= HTLEFT && msg->wParam <= HTBOTTOMRIGHT))
         {
             position_ = positions[msg->wParam - HTLEFT];
@@ -71,18 +98,12 @@ bool ResizeEventFilter::nativeEventFilter(
         {
             if(isSignalConnected(aboutToResizeSignal))
             {
+                std::call_once(getMarginsFlag, &getMargins);
                 auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
                 QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
-                RECT sysRect;
-                GetWindowRect(reinterpret_cast<HWND>(windowAndId_.winId), &sysRect);
-                auto margins = windowAndId_.window->frameMargins();
-                margins.setLeft(margins.left() + borderSize);
-                margins.setRight(margins.right() + borderSize);
-                margins.setBottom(margins.bottom() + borderSize);
-                rect = rect.marginsRemoved(margins);
-                auto qtRect = windowAndId_.window->geometry();
+                rect = rect.marginsRemoved(clientMargins);
                 aboutToResize(position_, &rect);
-                rect = rect.marginsAdded(margins);
+                rect = rect.marginsAdded(clientMargins);
                 nativeRect->x = rect.left();
                 nativeRect->y = rect.top();
                 nativeRect->cx = rect.width();
@@ -98,7 +119,10 @@ bool ResizeEventFilter::nativeEventFilter(
             );
             if(isSignalConnected(resizedSignal))
             {
-                resized();
+                auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
+                QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
+                rect = rect.marginsRemoved(clientMargins);
+                resized(rect);
             }
         }
         else if(msg->message == WM_EXITSIZEMOVE && resizing_)
@@ -110,22 +134,19 @@ bool ResizeEventFilter::nativeEventFilter(
         {
             if(isSignalConnected(aboutToResizeSignal))
             {
+                std::call_once(getMarginsFlag, &getMargins);
                 position_ = positions[msg->wParam - WMSZ_LEFT];
-                auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
-                auto frameRect = windowAndId_.window->frameGeometry();
-                QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
-                auto margins = windowAndId_.window->frameMargins();
-                margins.setLeft(borderSize);
-                margins.setRight(borderSize);
-                margins.setBottom(borderSize);
-                rect = rect.marginsRemoved(margins);
-                auto qtRect = windowAndId_.window->geometry();
+                auto nativeRect = reinterpret_cast<RECT*>(msg->lParam);
+                QRect rect(nativeRect->left, nativeRect->top,
+                    nativeRect->right - nativeRect->left, nativeRect->bottom - nativeRect->top
+                );
+                rect = rect.marginsRemoved(clientMargins);
                 aboutToResize(position_, &rect);
-                rect = rect.marginsAdded(margins);
-                nativeRect->x = rect.left();
-                nativeRect->y = rect.top();
-                nativeRect->cx = rect.width();
-                nativeRect->cy = rect.height();
+                rect = rect.marginsAdded(clientMargins);
+                nativeRect->left = rect.left();
+                nativeRect->top = rect.top();
+                nativeRect->right = rect.width();
+                nativeRect->bottom = rect.height();
                 *result = 0;
                 ret = true;
             }
