@@ -1,4 +1,6 @@
 #include "ResizeEventFilter.hpp"
+#include "ResizeEventFilter.hpp"
+#include "ResizeEventFilter.hpp"
 
 #include <QCoreApplication>
 #include <QMetaMethod>
@@ -39,9 +41,31 @@ void getMargins()
 
 namespace YADAW::UI
 {
+#if __linux__
+    ResizeEventFilter::DesktopNativeEventFilter ResizeEventFilter::desktopNativeEventFilter;
+#endif
 ResizeEventFilter::ResizeEventFilter(QWindow& window):
     windowAndId_(window)
 {
+#if __linux__
+    // Since different DEs have their own event patterns on resizing a window,
+    // we have to check the pattern and interpret those events by myself
+    // (e.g. by running `xev` and monitoring events on resizing the window).
+    // I haven't taken Wayland into account for now. Sorry about that.
+    auto desktop = std::getenv("XDG_SESSION_DESKTOP");
+    if(std::strstr(desktop, "KDE"))
+    {
+        desktopNativeEventFilter = &ResizeEventFilter::nativeEventFilterOnKDE;
+    }
+    else if(std::strstr(desktop, "GNOME"))
+    {
+        desktopNativeEventFilter = &ResizeEventFilter::nativeEventFilterOnGNOME;
+    }
+    else
+    {
+        desktopNativeEventFilter = &ResizeEventFilter::nativeEventFilterOnUnknown;
+    }
+#endif
     QCoreApplication::instance()->installNativeEventFilter(this);
 }
 
@@ -61,9 +85,89 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
     return FeatureSupportFlag::SupportsStartStopResize
         |  FeatureSupportFlag::SupportsAdjustOnAboutToResize;
 #elif __linux__
+    // On KDE:
+    // - No events are sent on starting/ending resizing.
+    // - Two `XCB_CONFIGURE_NOTIFY` events are sent while resizing a
+    //   window. Both events store the new window size.
+    //   `QWindow::geometry()` returns the old size on receiving the first one.
+    //   (This might change if Qt updates their implementations.)
+    //
+    // `ResizeEventFilter`:
+    // - Emits `aboutToResize()` on receiving the first `XCB_CONFIGURE_NOTIFY`
+    //   event;
+    // - Emits `resized()` on receiving the second `XCB_CONFIGURE_NOTIFY`.
+    if(desktopNativeEventFilter == &ResizeEventFilter::nativeEventFilterOnKDE)
+    {
+        return FeatureSupportFlag::SupportsAboutToResize
+            |  FeatureSupportFlag::SupportsResized;
+    }
+    // On GNOME:
+    // - An `XCB_FOCUS_OUT` event is sent on starting resizing, and an
+    //   `XCB_FOCUS_IN` event on ending resizing. The first event is sent
+    //   whether the window has focus or not on starting resizing.
+    // - Only one `XCB_CONFIGURE_NOTIFY` event is sent during resizing, and
+    //   `QWindow::geometry()` returns the old size on receiving this event.
+    //   (This might change if Qt updates their implementations.)
+    //
+    // `ResizeEventFilter`:
+    // - Emits `startResizing()` on receiving the first `XCB_CONFIGURE_NOTIFY`
+    //   event after the `XCB_FOCUS_OUT` event;
+    // - Emits `aboutToResize()` on receiving the event. Of course,
+    //   `aboutToResize()` is emitted AFTER `startResizing()`.
+    // - Emits `stopResizing()` on receiving the `XCB_FOCUS_IN` event;
+    if(desktopNativeEventFilter == &ResizeEventFilter::nativeEventFilterOnGNOME)
+    {
+        return 0;
+    }
+    // TODO: Add status and events sent of other DEs
     return 0;
 #endif
 }
+
+#if __linux__
+bool ResizeEventFilter::nativeEventFilterOnKDE(xcb_generic_event_t* event)
+{
+    static auto aboutToResizeSignal = QMetaMethod::fromSignal(
+        &ResizeEventFilter::aboutToResize
+    );
+    auto responseType = event->response_type & 0x7F;
+    if(responseType == XCB_CONFIGURE_NOTIFY)
+    {
+        auto configureNotifyEvent = reinterpret_cast<xcb_configure_notify_event_t*>(event);
+        if(configureNotifyEvent->window == windowAndId_.winId)
+        {
+            if(auto geometry = windowAndId_.window->geometry();
+                configureNotifyEvent->width != geometry.width()
+                || configureNotifyEvent->height != geometry.height()
+            )
+            {
+                QRect newGeometry(
+                    configureNotifyEvent->x, configureNotifyEvent->y,
+                    configureNotifyEvent->width, configureNotifyEvent->height
+                );
+                aboutToResize(ResizeEventFilter::DragPosition::BottomRight, &newGeometry);
+            }
+            else
+            {
+                resized(geometry);
+            }
+        }
+    }
+    return false;
+}
+
+bool ResizeEventFilter::nativeEventFilterOnGNOME(xcb_generic_event_t* event)
+{
+    // TODO
+    return false;
+}
+
+bool ResizeEventFilter::nativeEventFilterOnUnknown(xcb_generic_event_t* event)
+{
+    // TODO
+    return false;
+}
+#endif
 
 bool ResizeEventFilter::resizing() const
 {
@@ -174,33 +278,9 @@ bool ResizeEventFilter::nativeEventFilter(
 #elif __linux__
     if(eventType == "xcb_generic_event_t")
     {
-        static auto aboutToResizeSignal = QMetaMethod::fromSignal(
-            &ResizeEventFilter::aboutToResize
-        );
         auto event = static_cast<xcb_generic_event_t*>(message);
-        auto responseType = event->response_type & 0x7F;
-        if(responseType == XCB_CONFIGURE_NOTIFY)
-        {
-            auto configureNotifyEvent = reinterpret_cast<xcb_configure_notify_event_t*>(event);
-            if(configureNotifyEvent->window == windowAndId_.winId && isSignalConnected(aboutToResizeSignal))
-            {
-                if(auto geometry = windowAndId_.window->geometry();
-                    configureNotifyEvent->width != geometry.width()
-                    || configureNotifyEvent->height != geometry.height()
-                )
-                {
-                    QRect newGeometry(
-                        configureNotifyEvent->x, configureNotifyEvent->y,
-                        configureNotifyEvent->width, configureNotifyEvent->height
-                    );
-                    aboutToResize(position_, &newGeometry);
-                }
-                else
-                {
-                    resized(geometry);
-                }
-            }
-        }
+        auto func = desktopNativeEventFilter;
+        (this->*func)(event);
     }
 #endif
     return false;

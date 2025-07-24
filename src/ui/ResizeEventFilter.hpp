@@ -6,6 +6,10 @@
 #include <QAbstractNativeEventFilter>
 #include <QObject>
 
+#if __linux__
+#include <xcb/xcb.h>
+#endif
+
 namespace YADAW::UI
 {
 class ResizeEventFilter: public QObject, public QAbstractNativeEventFilter
@@ -26,14 +30,17 @@ public:
     enum FeatureSupportFlag: std::uint64_t
     {
         SupportsStartStopResize       = 1 << 0,
-        SupportsAdjustOnAboutToResize = 1 << 1
+        SupportsAboutToResize         = 1 << 1,
+        SupportsDragPosition          = 1 << 2,
+        SupportsResized               = 1 << 3,
+        SupportsAdjustOnAboutToResize = 1 << 4
     };
     using FeatureSupportFlags = std::underlying_type_t<FeatureSupportFlag>;
 public:
     ResizeEventFilter(QWindow& window);
     ~ResizeEventFilter() override;
 public:
-    static constexpr FeatureSupportFlags getNativeSupportFlags();
+    static FeatureSupportFlags getNativeSupportFlags();
     bool resizing() const; // needs SupportsStartStopResize
 signals:
     void startResize(); // needs SupportsStartStopResize
@@ -42,6 +49,13 @@ signals:
     void endResize(); // needs SupportsStartStopResize
 public:
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
+#if __linux__
+private:
+    using DesktopNativeEventFilter = bool(ResizeEventFilter::*)(xcb_generic_event_t* event);
+    bool nativeEventFilterOnKDE(xcb_generic_event_t* event);
+    bool nativeEventFilterOnGNOME(xcb_generic_event_t* event);
+    bool nativeEventFilterOnUnknown(xcb_generic_event_t* event);
+#endif
 private:
     WindowAndId windowAndId_;
     DragPosition position_;
@@ -49,6 +63,8 @@ private:
     bool resizing_ = false;
 #if _WIN32
     bool prevIsCaptureChanged_ = false;
+#elif __linux__
+    static DesktopNativeEventFilter desktopNativeEventFilter;
 #endif
 };
 
