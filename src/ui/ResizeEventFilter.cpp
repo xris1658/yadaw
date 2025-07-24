@@ -8,6 +8,8 @@
 #include <uxtheme.h>
 #include <vsstyle.h>
 #include <vssym32.h>
+#elif __linux__
+#include <xcb/xproto.h>
 #endif
 
 #if _WIN32
@@ -58,6 +60,8 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
 #if _WIN32
     return FeatureSupportFlag::SupportsStartStopResize
         |  FeatureSupportFlag::SupportsAdjustOnAboutToResize;
+#elif __linux__
+    return 0;
 #endif
 }
 
@@ -166,6 +170,37 @@ bool ResizeEventFilter::nativeEventFilter(
         }
         prevIsCaptureChanged_ = msg->message == WM_CAPTURECHANGED;
         return ret;
+    }
+#elif __linux__
+    if(eventType == "xcb_generic_event_t")
+    {
+        static auto aboutToResizeSignal = QMetaMethod::fromSignal(
+            &ResizeEventFilter::aboutToResize
+        );
+        auto event = static_cast<xcb_generic_event_t*>(message);
+        auto responseType = event->response_type & 0x7F;
+        if(responseType == XCB_CONFIGURE_NOTIFY)
+        {
+            auto configureNotifyEvent = reinterpret_cast<xcb_configure_notify_event_t*>(event);
+            if(configureNotifyEvent->window == windowAndId_.winId && isSignalConnected(aboutToResizeSignal))
+            {
+                if(auto geometry = windowAndId_.window->geometry();
+                    configureNotifyEvent->width != geometry.width()
+                    || configureNotifyEvent->height != geometry.height()
+                )
+                {
+                    QRect newGeometry(
+                        configureNotifyEvent->x, configureNotifyEvent->y,
+                        configureNotifyEvent->width, configureNotifyEvent->height
+                    );
+                    aboutToResize(position_, &newGeometry);
+                }
+                else
+                {
+                    resized(geometry);
+                }
+            }
+        }
     }
 #endif
     return false;
