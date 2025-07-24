@@ -53,6 +53,14 @@ ResizeEventFilter::~ResizeEventFilter()
     QCoreApplication::instance()->removeNativeEventFilter(this);
 }
 
+ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags()
+{
+#if _WIN32
+    return FeatureSupportFlag::SupportsStartStopResize
+        |  FeatureSupportFlag::SupportsAdjustOnAboutToResize;
+#endif
+}
+
 bool ResizeEventFilter::nativeEventFilter(
     const QByteArray& eventType, void* message, qintptr* result)
 {

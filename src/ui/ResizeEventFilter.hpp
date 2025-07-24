@@ -23,14 +23,22 @@ public:
         Bottom,
         BottomRight
     };
+    enum FeatureSupportFlag: std::uint64_t
+    {
+        SupportsStartStopResize       = 1 << 0,
+        SupportsAdjustOnAboutToResize = 1 << 1
+    };
+    using FeatureSupportFlags = std::underlying_type_t<FeatureSupportFlag>;
 public:
     ResizeEventFilter(QWindow& window);
     ~ResizeEventFilter() override;
+public:
+    static constexpr FeatureSupportFlags getNativeSupportFlags();
 signals:
-    void startResize();
-    void aboutToResize(DragPosition dragPosition, QRect* rect);
+    void startResize(); // needs SupportsStartStopResize
+    void aboutToResize(DragPosition dragPosition, QRect* rect); // needs SupportsAdjustOnAboutToResize
     void resized(QRect rect);
-    void endResize();
+    void endResize(); // needs SupportsStartStopResize
 public:
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
 private:
