@@ -61,6 +61,11 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
 #endif
 }
 
+bool ResizeEventFilter::resizing() const
+{
+    return resizing_;
+}
+
 bool ResizeEventFilter::nativeEventFilter(
     const QByteArray& eventType, void* message, qintptr* result)
 {
@@ -164,5 +169,27 @@ bool ResizeEventFilter::nativeEventFilter(
     }
 #endif
     return false;
+}
+
+void adjustRect(QRect& rect, ResizeEventFilter::DragPosition position, QSize newSize)
+{
+    using YADAW::UI::ResizeEventFilter;
+    // See `QRect::right()` and `QRect::bottom()`
+    if(position == ResizeEventFilter::DragPosition::TopLeft)
+    {
+        rect.setTopLeft(QPoint(rect.right() - newSize.width(), rect.bottom() - newSize.height()));
+    }
+    else if(position == ResizeEventFilter::DragPosition::Top || position == ResizeEventFilter::DragPosition::TopRight)
+    {
+        rect.setTopRight(QPoint(rect.left() + newSize.width() - 1, rect.bottom() - newSize.height()));
+    }
+    else if(position == ResizeEventFilter::DragPosition::Left || position == ResizeEventFilter::DragPosition::BottomLeft)
+    {
+        rect.setBottomLeft(QPoint(rect.right() - newSize.width(), rect.top() + newSize.height() - 1));
+    }
+    else
+    {
+        rect.setBottomRight(QPoint(rect.left() + newSize.width() - 1, rect.top() + newSize.height() - 1));
+    }
 }
 }

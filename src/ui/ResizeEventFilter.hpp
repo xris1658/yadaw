@@ -34,6 +34,7 @@ public:
     ~ResizeEventFilter() override;
 public:
     static constexpr FeatureSupportFlags getNativeSupportFlags();
+    bool resizing() const; // needs SupportsStartStopResize
 signals:
     void startResize(); // needs SupportsStartStopResize
     void aboutToResize(DragPosition dragPosition, QRect* rect); // needs SupportsAdjustOnAboutToResize
@@ -50,6 +51,8 @@ private:
     bool prevIsCaptureChanged_ = false;
 #endif
 };
+
+void adjustRect(QRect& rect, ResizeEventFilter::DragPosition position, QSize newSize);
 }
 
 #endif // YADAW_SRC_UI_RESIZEEVENTFILTER
