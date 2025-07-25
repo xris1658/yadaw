@@ -24,10 +24,6 @@ std::once_flag getMarginsFlag;
 
 void getMargins()
 {
-    auto sizeFrame = GetSystemMetrics(SM_CXSIZEFRAME);
-    auto fixedFrame = GetSystemMetrics(SM_CXFIXEDFRAME);
-    auto border = GetSystemMetrics(SM_CXBORDER);
-    auto titleBar = GetSystemMetrics(SM_CYCAPTION);
     clientMargins.setLeft(
         GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXFIXEDFRAME) + GetSystemMetrics(SM_CXBORDER)
     );
