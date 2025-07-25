@@ -119,7 +119,9 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
     // - Emits `stopResizing()` on receiving the `XCB_FOCUS_IN` event;
     if(desktopNativeEventFilter == &ResizeEventFilter::nativeEventFilterOnGNOME)
     {
-        return 0;
+        return FeatureSupportFlag::SupportsStartStopResize
+            |  FeatureSupportFlag::SupportsAboutToResize
+            |  FeatureSupportFlag::SupportsResized;
     }
     // TODO: Add status and events sent of other DEs
     return 0;
