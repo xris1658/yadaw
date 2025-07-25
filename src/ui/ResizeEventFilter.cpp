@@ -83,6 +83,9 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
 {
 #if _WIN32
     return FeatureSupportFlag::SupportsStartStopResize
+        |  FeatureSupportFlag::SupportsAboutToResize
+        |  FeatureSupportFlag::SupportsDragPosition
+        |  FeatureSupportFlag::SupportsResized
         |  FeatureSupportFlag::SupportsAdjustOnAboutToResize;
 #elif __linux__
     // On KDE:
