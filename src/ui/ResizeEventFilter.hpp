@@ -72,6 +72,7 @@ private:
     bool prevIsCaptureChanged_ = false;
 #elif __linux__
     static DesktopNativeEventFilter desktopNativeEventFilter;
+    int lastResponseType_ = XCB_GE_GENERIC + 1;
 #endif
 };
 

@@ -3,6 +3,7 @@
 #include "ResizeEventFilter.hpp"
 
 #include <QCoreApplication>
+#include <QGuiApplication>
 #include <QMetaMethod>
 
 #if _WIN32
@@ -12,6 +13,8 @@
 #include <vssym32.h>
 #elif __linux__
 #include <xcb/xproto.h>
+
+#include <cinttypes>
 #endif
 
 #if _WIN32
@@ -125,8 +128,7 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
 
 #if __linux__
 bool ResizeEventFilter::nativeEventFilterOnKDE(xcb_generic_event_t* event)
-{
-    static auto aboutToResizeSignal = QMetaMethod::fromSignal(
+{    static auto aboutToResizeSignal = QMetaMethod::fromSignal(
         &ResizeEventFilter::aboutToResize
     );
     auto responseType = event->response_type & 0x7F;
@@ -157,13 +159,76 @@ bool ResizeEventFilter::nativeEventFilterOnKDE(xcb_generic_event_t* event)
 
 bool ResizeEventFilter::nativeEventFilterOnGNOME(xcb_generic_event_t* event)
 {
-    // TODO
+    static auto aboutToResizeSignal = QMetaMethod::fromSignal(
+        &ResizeEventFilter::aboutToResize
+    );
+    auto responseType = event->response_type & 0x7F;
+    if(responseType == XCB_CONFIGURE_NOTIFY)
+    {
+        if(lastResponseType_ == XCB_FOCUS_OUT)
+        {
+            resizing_ = true;
+            startResize();
+            if(auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>())
+            {
+                if(auto connection = x11Interface->connection())
+                {
+                    auto windowHandle = static_cast<xcb_window_t>(windowAndId_.winId);
+                    auto pointerCookie = xcb_query_pointer(connection, windowHandle);
+                    xcb_generic_error_t* error = nullptr;
+                    auto pointerReply = xcb_query_pointer_reply(connection, pointerCookie, &error);
+                    // TODO: Deduct drag position from pointerReply->win_x and win_y
+                }
+            }
+        }
+        auto configureNotifyEvent = reinterpret_cast<xcb_configure_notify_event_t*>(event);
+        if(configureNotifyEvent->window == windowAndId_.winId)
+        {
+            QRect newGeometry(
+                configureNotifyEvent->x, configureNotifyEvent->y,
+                configureNotifyEvent->width, configureNotifyEvent->height
+            );
+            aboutToResize(ResizeEventFilter::DragPosition::BottomRight, &newGeometry);
+        }
+    }
+    else if(resizing_)
+    {
+        if(responseType == XCB_FOCUS_IN)
+        {
+            endResize();
+            resizing_ = false;
+        }
+        else if(responseType == XCB_EXPOSE && lastResponseType_ == XCB_CONFIGURE_NOTIFY)
+        {
+            resized(windowAndId_.window->geometry());
+        }
+    }
+    if(responseType != XCB_CLIENT_MESSAGE)
+    {
+        lastResponseType_ = responseType;
+    }
     return false;
 }
 
 bool ResizeEventFilter::nativeEventFilterOnUnknown(xcb_generic_event_t* event)
 {
-    // TODO
+    auto responseType = event->response_type & 0x7F;
+    if(responseType == XCB_CONFIGURE_NOTIFY)
+    {
+        auto configureNotifyEvent = reinterpret_cast<xcb_configure_notify_event_t*>(event);
+        if(configureNotifyEvent->window == windowAndId_.winId)
+        {
+            QRect newGeometry(
+                configureNotifyEvent->x, configureNotifyEvent->y,
+                configureNotifyEvent->width, configureNotifyEvent->height
+            );
+            aboutToResize(ResizeEventFilter::DragPosition::BottomRight, &newGeometry);
+        }
+    }
+    else if(responseType == XCB_EXPOSE && lastResponseType_ == XCB_CONFIGURE_NOTIFY)
+    {
+        resized(windowAndId_.window->geometry());
+    }
     return false;
 }
 #endif
