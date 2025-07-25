@@ -41,12 +41,19 @@ public:
     ~ResizeEventFilter() override;
 public:
     static FeatureSupportFlags getNativeSupportFlags();
-    bool resizing() const; // needs SupportsStartStopResize
+    // Valid if `SupportsStartStopResize`; always return false otherwise
+    bool resizing() const;
 signals:
-    void startResize(); // needs SupportsStartStopResize
-    void aboutToResize(DragPosition dragPosition, QRect* rect); // needs SupportsAdjustOnAboutToResize
+    // Emitted if `SupportsStartStopResize`
+    void startResize();
+    // Emitted if `SupportsAboutToResize`
+    // - `dragPosition` is valid if `SupportsDragPosition`
+    // - `*rect` can be adjusted if `SupportsAdjustOnAboutToResize`
+    void aboutToResize(DragPosition dragPosition, QRect* rect);
+    // Emitted if `SupportsResized`
     void resized(QRect rect);
-    void endResize(); // needs SupportsStartStopResize
+    // Emitted if `SupportsStartStopResize`
+    void endResize();
 public:
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
 #if __linux__
