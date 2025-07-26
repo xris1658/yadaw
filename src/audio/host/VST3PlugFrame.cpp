@@ -56,14 +56,9 @@ Steinberg::tresult VST3PlugFrame::resizeView(Steinberg::IPlugView* view, Steinbe
         {
             return result;
         }
-        auto& tweakedNewSize = oldSize;
-        if(auto result = view->getSize(&tweakedNewSize); result != Steinberg::kResultOk)
-        {
-            return result;
-        }
         window->resize(
-            std::round(tweakedNewSize.getWidth() / devicePixelRatio),
-            std::round(tweakedNewSize.getHeight() / devicePixelRatio)
+            std::round(newSize->getWidth() / devicePixelRatio),
+            std::round(newSize->getHeight() / devicePixelRatio)
         );
         if(auto result = view->onSize(newSize); result != Steinberg::kResultOk)
         {
