@@ -562,19 +562,24 @@ private:
     std::map<IDGen::ID, PluginAuxIOPosition> pluginAuxOutputIDs_;
 
     using PluginAuxPosIt = std::map<IDGen::ID, PluginAuxIOPosition>::iterator;
-    using PluginAuxCollection = std::array< // channel type
-        std::vector<std::pair<              // channel index
-            Vec<PluginAuxPosIt>,            // instruments -> channel group index
-            Vec<                            // inserts -> inserts index
-                Vec<                        // insert index
-                    Vec<PluginAuxPosIt>     // channel group index
+    template<typename T>
+    using PluginAuxIOContainer = std::array< // channel type
+        std::vector<std::pair<               // channel index
+            Vec<T>,                          // instruments -> channel group index
+            Vec<                             // inserts -> inserts index
+                Vec<                         // insert index
+                    Vec<T>                   // channel group index
                 >
             >
         >>, 3
     >;
+    using PluginAuxCollection = PluginAuxIOContainer<PluginAuxPosIt>;
     PluginAuxCollection pluginAuxInputs_;
     PluginAuxCollection pluginAuxOutputs_;
-
+    using PluginAuxInputSources = PluginAuxIOContainer<Position>;
+    using PluginAuxOutputDestinations = PluginAuxIOContainer<std::vector<Position>>;
+    PluginAuxInputSources pluginAuxInputSources_;
+    PluginAuxOutputDestinations pluginAuxOutputDestinations_;
     YADAW::Util::BatchUpdater* batchUpdater_ = nullptr;
 };
 }
