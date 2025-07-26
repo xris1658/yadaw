@@ -515,6 +515,7 @@ set(YADAW_COMMON_SOURCES
     src/native/Thread.hpp
     src/native/VST3Native.hpp
     src/native/VestifalNative.hpp
+    src/native/Window.hpp
     src/ui/ExposeAndPaintEventFilter.cpp
     src/ui/ExposeAndPaintEventFilter.hpp
     src/ui/MessageDialog.cpp
@@ -577,7 +578,6 @@ set(YADAW_COMMON_SOURCES
     src/util/VectorUtil.hpp
     src/util/YAMLCppUtil.hpp
     src/util/ZeckendorfLogarithm.hpp
-    src/native/Window.hpp
 )
 
 qt_add_executable(YADAW
