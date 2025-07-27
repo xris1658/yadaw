@@ -969,7 +969,7 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
                 ret = graph_.connect(fromNode, toNode, 0, 1).has_value();
             }
         }
-        else if(position.type == Position::Type::BusAndFXChannel)
+        else if(position.type == Position::Type::RegularChannel)
         {
             // not implemented
         }
@@ -1058,7 +1058,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 oldSummingNode = newSummingNode;
             }
         }
-        else if(oldPosition.type == Position::Type::BusAndFXChannel)
+        else if(oldPosition.type == Position::Type::RegularChannel)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -1176,7 +1176,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 }
             }
         }
-        else if(position.type == Position::Type::BusAndFXChannel)
+        else if(position.type == Position::Type::RegularChannel)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -2607,7 +2607,7 @@ std::optional<bool> Mixer::insertAudioInputChannelSend(
                     }
                 }
             }
-            else if(destination.type == Position::Type::BusAndFXChannel)
+            else if(destination.type == Position::Type::RegularChannel)
             {
                 auto it = std::lower_bound(
                     channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
@@ -2721,7 +2721,7 @@ std::optional<bool> Mixer::setAudioInputChannelSendDestination(
             );
             oldSummingNode = audioOutputSummings_[it->index].second;
         }
-        else if(oldDestination.type == Position::Type::BusAndFXChannel)
+        else if(oldDestination.type == Position::Type::RegularChannel)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -2768,7 +2768,7 @@ std::optional<bool> Mixer::setAudioInputChannelSendDestination(
                 }
             }
         }
-        else if(destination.type == Position::Type::BusAndFXChannel)
+        else if(destination.type == Position::Type::RegularChannel)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -2996,7 +2996,7 @@ std::optional<bool> Mixer::insertChannelSend(
                     }
                 }
             }
-            else if(destination.type == Position::Type::BusAndFXChannel)
+            else if(destination.type == Position::Type::RegularChannel)
             {
                 auto it = std::lower_bound(
                     channelIdAndIndex_.begin(),
@@ -3109,7 +3109,7 @@ std::optional<bool> Mixer::setChannelSendDestination(
             );
             oldSummingNode = audioOutputSummings_[it->index].second;
         }
-        else if(oldDestination.type == Position::Type::BusAndFXChannel)
+        else if(oldDestination.type == Position::Type::RegularChannel)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
@@ -3151,7 +3151,7 @@ std::optional<bool> Mixer::setChannelSendDestination(
                 }
             }
         }
-        else if(destination.type == Position::Type::BusAndFXChannel)
+        else if(destination.type == Position::Type::RegularChannel)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -3379,7 +3379,7 @@ std::optional<bool> Mixer::insertAudioOutputChannelSend(
                     }
                 }
             }
-            else if(destination.type == Position::Type::BusAndFXChannel)
+            else if(destination.type == Position::Type::RegularChannel)
             {
                 auto it = std::lower_bound(
                     channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
@@ -3492,7 +3492,7 @@ std::optional<bool> Mixer::setAudioOutputChannelSendDestination(
             );
             oldSummingNode = audioOutputSummings_[it->index].second;
         }
-        else if(oldDestination.type == Position::Type::BusAndFXChannel)
+        else if(oldDestination.type == Position::Type::RegularChannel)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -3539,7 +3539,7 @@ std::optional<bool> Mixer::setAudioOutputChannelSendDestination(
                 }
             }
         }
-        else if(destination.type == Position::Type::BusAndFXChannel)
+        else if(destination.type == Position::Type::RegularChannel)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),

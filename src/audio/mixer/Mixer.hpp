@@ -103,7 +103,7 @@ public:
         {
             Invalid,
             AudioHardwareIOChannel,
-            BusAndFXChannel,
+            RegularChannel,
             PluginAuxIO
         };
         Type type = Type::Invalid;
