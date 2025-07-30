@@ -338,6 +338,12 @@ public:
 public:
     std::optional<PluginAuxIOPosition> getAuxInputPosition(IDGen::ID id) const;
     std::optional<PluginAuxIOPosition> getAuxOutputPosition(IDGen::ID id) const;
+    std::optional<Position> getAuxInputSource(const PluginAuxIOPosition& position) const;
+    bool setAuxInputSource(const PluginAuxIOPosition& position, Position source) const;
+    OptionalRef<const std::vector<Position>> getAuxOutputDestinations(const PluginAuxIOPosition& position);
+    bool addAuxOutputDestination(const PluginAuxIOPosition& position, Position destination);
+    bool removeAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index, std::uint32_t removeCount = 1);
+    void clearAuxOutputDestinations(const PluginAuxIOPosition& position);
 private:
     static void insertAdded(Inserts& sender, std::uint32_t position);
     static void insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t removeCount);
@@ -558,10 +564,11 @@ private:
     std::function<DeviceFactoryType<VolumeFader>> volumeFaderFactory_;
     std::function<DeviceFactoryType<Meter>> meterFactory_;
 
-    std::map<IDGen::ID, PluginAuxIOPosition> pluginAuxInputIDs_;
-    std::map<IDGen::ID, PluginAuxIOPosition> pluginAuxOutputIDs_;
+    using PluginAuxPosIDs = std::map<IDGen::ID, PluginAuxIOPosition>;
+    PluginAuxPosIDs pluginAuxInputIDs_;
+    PluginAuxPosIDs pluginAuxOutputIDs_;
 
-    using PluginAuxPosIt = std::map<IDGen::ID, PluginAuxIOPosition>::iterator;
+    using PluginAuxPosIt = PluginAuxPosIDs::iterator;
     template<typename T>
     using PluginAuxIOContainer = std::array< // channel type
         std::vector<std::pair<               // channel index
