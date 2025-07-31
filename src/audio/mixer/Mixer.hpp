@@ -185,6 +185,9 @@ public:
     std::optional<const Position> audioInputChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
     std::optional<const Position> channelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
     std::optional<const Position> audioOutputChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    std::optional<const IDGen::ID> audioInputChannelSendID(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    std::optional<const IDGen::ID> channelSendID(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    std::optional<const IDGen::ID> audioOutputChannelSendID(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
     OptionalRef<const VolumeFader> audioInputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
     OptionalRef<const VolumeFader> ChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
     OptionalRef<const VolumeFader> audioOutputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
@@ -512,6 +515,7 @@ private:
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioInputPostFaderInserts_;
     std::vector<MeterAndNode> audioInputMeters_;
     std::vector<ChannelInfo> audioInputChannelInfo_;
+    std::vector<std::vector<IDGen::ID>> audioInputSendIDs_;
     std::vector<std::vector<MuteAndNode>> audioInputSendMutes_;
     std::vector<std::vector<FaderAndNode>> audioInputSendFaders_;
     std::vector<std::vector<PolarityInverterAndNode>> audioInputSendPolarityInverters_;
@@ -533,6 +537,7 @@ private:
     std::vector<ChannelInfo> channelInfo_;
     std::vector<Position> mainInput_;
     std::vector<Position> mainOutput_;
+    std::vector<std::vector<IDGen::ID>> sendIDs_;
     std::vector<std::vector<MuteAndNode>> sendMutes_;
     std::vector<std::vector<FaderAndNode>> sendFaders_;
     std::vector<std::vector<PolarityInverterAndNode>> sendPolarityInverters_;
@@ -549,6 +554,7 @@ private:
     std::vector<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> audioOutputPostFaderInserts_;
     std::vector<MeterAndNode> audioOutputMeters_;
     std::vector<ChannelInfo> audioOutputChannelInfo_;
+    std::vector<std::vector<IDGen::ID>> audioOutputSendIDs_;
     std::vector<std::vector<MuteAndNode>> audioOutputSendMutes_;
     std::vector<std::vector<FaderAndNode>> audioOutputSendFaders_;
     std::vector<std::vector<PolarityInverterAndNode>> audioOutputSendPolarityInverters_;
@@ -588,6 +594,7 @@ private:
     PluginAuxInputSources pluginAuxInputSources_;
     PluginAuxOutputDestinations pluginAuxOutputDestinations_;
     YADAW::Util::BatchUpdater* batchUpdater_ = nullptr;
+    IDGen sendIDGen_;
 };
 }
 
