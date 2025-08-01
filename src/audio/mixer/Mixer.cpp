@@ -4193,7 +4193,7 @@ std::optional<Mixer::Position> Mixer::getAuxInputSource(const PluginAuxIOPositio
         {
             if(auto& v3 = v2.second; position.insertIndex < v3.size())
             {
-                if(auto& v4 = v3[position.insertIndex][position.isPreFaderInsert? 0: 1];
+                if(auto& v4 = v3[position.isPreFaderInsert? 0: 1][position.insertIndex];
                     position.channelGroupIndex < v4.size())
                 {
                     return v4[position.channelGroupIndex];
@@ -4226,7 +4226,7 @@ OptionalRef<const std::vector<Mixer::Position>> Mixer::getAuxOutputDestinations(
         {
             if(auto& v3 = v2.second; position.insertIndex < v3.size())
             {
-                if(auto& v4 = v3[position.insertIndex][position.isPreFaderInsert? 0: 1];
+                if(auto& v4 = v3[position.isPreFaderInsert? 0: 1][position.insertIndex];
                     position.channelGroupIndex < v4.size())
                 {
                     return v4[position.channelGroupIndex];
