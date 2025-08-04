@@ -1150,6 +1150,14 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 if(graph_.getEdgeData(edgeHandle).toChannel == pluginAuxIOPosition.channelGroupIndex)
                 {
                     graph_.disconnect(edgeHandle);
+                    auto& v2 = pluginAuxInputSources_[pluginAuxIOPosition.channelType][pluginAuxIOPosition.channelIndex];
+                    auto& source = pluginAuxIOPosition.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Instrument?
+                        (v2.first[pluginAuxIOPosition.channelGroupIndex]):
+                        (v2.second[pluginAuxIOPosition.isPreFaderInsert? 0: 1][pluginAuxIOPosition.insertIndex][pluginAuxIOPosition.channelGroupIndex]);
+                    source = Position {
+                        .type = Position::Type::Invalid,
+                        .id = IDGen::InvalidId
+                    };
                     if(batchUpdater_)
                     {
                         batchUpdater_->addNull();
@@ -1297,7 +1305,14 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     graph_.connect(
                         fromNode, node, 0, pluginAuxIOPosition.channelGroupIndex
                     );
-                    // TODO
+                    auto& v2 = pluginAuxInputSources_[pluginAuxIOPosition.channelType][pluginAuxIOPosition.channelIndex];
+                    auto& source = pluginAuxIOPosition.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Instrument?
+                        (v2.first[pluginAuxIOPosition.channelGroupIndex]):
+                        (v2.second[pluginAuxIOPosition.isPreFaderInsert? 0: 1][pluginAuxIOPosition.insertIndex][pluginAuxIOPosition.channelGroupIndex]);
+                    source = Position {
+                        .type = Position::Type::RegularChannel,
+                        .id = channelId_[index]
+                    };
                     if(batchUpdater_)
                     {
                         batchUpdater_->addNull();
