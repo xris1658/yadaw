@@ -3212,6 +3212,65 @@ std::optional<bool> Mixer::insertChannelSend(
                     }
                 }
             }
+            else if(destination.type == Position::Type::PluginAuxIO)
+            {
+                if(auto optPosition = getAuxInputPosition(destination.id); optPosition.has_value())
+                {
+                    const auto& position = *optPosition;
+                    auto sendTo = getNodeFromPluginAuxPosition(position);
+                    auto sendFrom = isPreFader? mutes_[channelIndex].second: faders_[channelIndex].second;
+                    auto device = graph_.getNodeData(sendTo).process.device();
+                    const auto& destChannelGroup = device->audioInputGroupAt(position.channelGroupIndex)->get();
+                    auto inEdges = sendTo->inEdges();
+                    auto [channelGroupType, channelCountInGroup] = *channelGroupTypeAndChannelCountAt(channelIndex);
+                    if(channelGroupType == destChannelGroup.type()
+                        && channelCountInGroup == destChannelGroup.channelCount()
+                        && std::none_of(
+                            inEdges.begin(), inEdges.end(),
+                            [this, channelGroupIndex = position.channelGroupIndex]
+                            (const ade::EdgeHandle& edge)
+                            {
+                                return graph_.getEdgeData(edge).toChannel == channelGroupIndex;
+                            }
+                        )
+                        && !YADAW::Util::pathExists(sendTo, sendFrom)
+                    )
+                    {
+                        auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
+                            sendFrom, sendTo, 0, position.channelGroupIndex
+                        );
+                        sendIDs_[channelIndex].emplace(
+                            sendIDs_[channelIndex].begin() + sendPosition,
+                            sendIDGen_()
+                        );
+                        sendPolarityInverters_[channelIndex].emplace(
+                            sendPolarityInverters_[channelIndex].begin() + sendPosition,
+                            std::move(polarityInverterAndNode)
+                        );
+                        sendMutes_[channelIndex].emplace(
+                            sendMutes_[channelIndex].begin() + sendPosition,
+                            std::move(muteAndNode)
+                        );
+                        sendFaders_[channelIndex].emplace(
+                            sendFaders_[channelIndex].begin() + sendPosition,
+                            std::move(faderAndNode)
+                        );
+                        sendDestinations_[channelIndex].emplace(
+                            sendDestinations_[channelIndex].begin() + sendPosition,
+                            destination
+                        );
+                        if(batchUpdater_)
+                        {
+                            batchUpdater_->addNull();
+                        }
+                        else
+                        {
+                            connectionUpdatedCallback_(*this);
+                        }
+                        return {true};
+                    }
+                }
+            }
         }
         return {false};
     }
