@@ -2339,7 +2339,7 @@ bool Mixer::insertChannels(
             std::inserter(
                 sendIDs_,
                 sendIDs_.begin() + position), count,
-            []() -> decltype(sendIDs_)::value_type
+            []() -> std::decay_t<decltype(sendIDs_)>::value_type
             {
                 return {};
             }
@@ -2348,7 +2348,7 @@ bool Mixer::insertChannels(
             std::inserter(
                 sendPolarityInverters_,
                 sendPolarityInverters_.begin() + position), count,
-            []() -> decltype(sendPolarityInverters_)::value_type
+            []() -> std::decay_t<decltype(sendPolarityInverters_)>::value_type
             {
                 return {};
             }
@@ -2357,7 +2357,7 @@ bool Mixer::insertChannels(
             std::inserter(
                 sendMutes_,
                 sendMutes_.begin() + position), count,
-            []() -> decltype(sendMutes_)::value_type
+            []() -> std::decay_t<decltype(sendMutes_)>::value_type
             {
                 return {};
             }
@@ -2366,7 +2366,7 @@ bool Mixer::insertChannels(
             std::inserter(
                 sendFaders_,
                 sendFaders_.begin() + position), count,
-            []() -> decltype(sendFaders_)::value_type
+            []() -> std::decay_t<decltype(sendFaders_)>::value_type
             {
                 return {};
             }
@@ -2375,7 +2375,7 @@ bool Mixer::insertChannels(
             std::inserter(
                 sendDestinations_,
                 sendDestinations_.begin() + position), count,
-                decltype(sendDestinations_)::value_type()
+                std::decay_t<decltype(sendDestinations_)>::value_type()
         );
         // info, etc.
         std::fill_n(
@@ -4561,10 +4561,10 @@ ade::NodeHandle Mixer::getNodeFromPluginAuxPosition(const PluginAuxIOPosition& p
 {
     if(position.inChannelPosition == PluginAuxIOPosition::Inserts)
     {
-        const decltype(preFaderInserts_)* insertsCollection[3][2] = {
-            {&audioInputPostFaderInserts_,  &audioInputPreFaderInserts_},
-            {&postFaderInserts_,            &preFaderInserts_},
-            {&audioOutputPostFaderInserts_, &audioOutputPreFaderInserts_}
+        const Vec<std::unique_ptr<Inserts>>* insertsCollection[3][2] = {
+            {&channelPostFaderInserts_[AudioHardwareInputList],  &channelPreFaderInserts_[AudioHardwareInputList]},
+            {&channelPostFaderInserts_[RegularList],             &channelPreFaderInserts_[RegularList]},
+            {&channelPostFaderInserts_[AudioHardwareOutputList], &channelPreFaderInserts_[AudioHardwareOutputList]}
         };
         auto& inserts = (*insertsCollection[position.channelType][position.isPreFaderInsert])[position.channelIndex];
         return *(inserts->insertNodeAt(position.insertIndex));
