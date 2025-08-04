@@ -82,6 +82,7 @@ using DeviceFactoryType = std::unique_ptr<Device>(
 class Mixer
 {
 public:
+    enum ChannelListType { AudioHardwareInputList, RegularList, AudioHardwareOutputList };
     enum class ChannelType
     {
         Audio,
@@ -154,6 +155,34 @@ public:
     YADAW::Audio::Engine::Extension::Buffer& bufferExtension();
     const YADAW::Audio::Engine::Extension::NameTag& nameTagExtension() const;
     YADAW::Audio::Engine::Extension::NameTag& nameTag();
+public: // TODO: Add API with `ChannelListType` to remove redundant codes
+    std::uint32_t channelCount(ChannelListType type) const;
+    OptionalRef<const YADAW::Audio::Mixer::PolarityInverter> polarityInverterAt(ChannelListType type, std::uint32_t index) const;
+    OptionalRef<      YADAW::Audio::Mixer::PolarityInverter> polarityInverterAt(ChannelListType type, std::uint32_t index);
+    OptionalRef<const YADAW::Audio::Mixer::Inserts> preFaderInsertsAt(ChannelListType type, std::uint32_t index) const;
+    OptionalRef<      YADAW::Audio::Mixer::Inserts> preFaderInsertsAt(ChannelListType type, std::uint32_t index);
+    OptionalRef<const YADAW::Audio::Mixer::Inserts> postFaderInsertsAt(ChannelListType type, std::uint32_t index) const;
+    OptionalRef<      YADAW::Audio::Mixer::Inserts> postFaderInsertsAt(ChannelListType type, std::uint32_t index);
+    std::optional<const std::uint32_t> sendCount(ChannelListType type, std::uint32_t index) const;
+    std::optional<const bool> sendIsPreFader(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    std::optional<const Position> sendDestination(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    std::optional<const IDGen::ID> sendID(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<const VolumeFader> sendFaderAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<      VolumeFader> sendFaderAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex);
+    OptionalRef<const YADAW::Audio::Util::Mute> sendMuteAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<      YADAW::Audio::Util::Mute> sendMuteAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex);
+    OptionalRef<const PolarityInverter> sendPolarityInverterAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
+    OptionalRef<      PolarityInverter> sendPolarityInverterAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex);
+    OptionalRef<const ChannelInfo> channelInfoAt(ChannelListType type, std::uint32_t index) const;
+    OptionalRef<const VolumeFader> volumeFaderAt(ChannelListType type, std::uint32_t index) const;
+    OptionalRef<      VolumeFader> volumeFaderAt(ChannelListType type, std::uint32_t index);
+    OptionalRef<const YADAW::Audio::Util::Mute> muteAt(ChannelListType type, std::uint32_t index) const;
+    OptionalRef<      YADAW::Audio::Util::Mute> muteAt(ChannelListType type, std::uint32_t index);
+    OptionalRef<const Meter> meterAt(ChannelListType type, std::uint32_t index) const;
+    OptionalRef<      Meter> meterAt(ChannelListType type, std::uint32_t index);
+    std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> channelGroupTypeAndChannelCountAt(ChannelListType type, std::uint32_t index) const;
+    std::optional<IDGen::ID> idAt(ChannelListType type, std::uint32_t index) const;
+    std::optional<std::uint32_t> getIndexOfId(ChannelListType type, IDGen::ID id) const;
 public:
     std::uint32_t audioInputChannelCount() const;
     std::uint32_t channelCount() const;
