@@ -155,7 +155,8 @@ public:
     YADAW::Audio::Engine::Extension::Buffer& bufferExtension();
     const YADAW::Audio::Engine::Extension::NameTag& nameTagExtension() const;
     YADAW::Audio::Engine::Extension::NameTag& nameTag();
-public: // TODO: Add API with `ChannelListType` to remove redundant codesstd::uint32_t count(ChannelListType type) const;
+public: // TODO: Add API with `ChannelListType` to remove redundant codes
+    std::uint32_t count(ChannelListType type) const;
     OptionalRef<const YADAW::Audio::Mixer::PolarityInverter> polarityInverterAt(ChannelListType type, std::uint32_t index) const;
     OptionalRef<      YADAW::Audio::Mixer::PolarityInverter> polarityInverterAt(ChannelListType type, std::uint32_t index);
     OptionalRef<const YADAW::Audio::Mixer::Inserts> preFaderInsertsAt(ChannelListType type, std::uint32_t index) const;
@@ -182,7 +183,22 @@ public: // TODO: Add API with `ChannelListType` to remove redundant codesstd::ui
     std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> channelGroupTypeAndChannelCountAt(ChannelListType type, std::uint32_t index) const;
     std::optional<IDGen::ID> idAt(ChannelListType type, std::uint32_t index) const;
     std::optional<std::uint32_t> getChannelIndexOfId(ChannelListType type, IDGen::ID id) const;
+    bool hasMute(ChannelListType type) const;
+    void unmute(ChannelListType type);
+    void unmute();
+public:
+    bool remove(ChannelListType type, std::uint32_t index, std::uint32_t removeCount = 1);
+    bool clear(ChannelListType type);
+    bool clear();
+public:
+    std::optional<bool> appendSend(ChannelListType type, std::uint32_t channelIndex, bool isPreFader, Position destination);
+    std::optional<bool> insertSend(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendPosition, bool isPreFader, Position destination);
+    std::optional<bool> setSendPreFader(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex, bool preFader);
+    std::optional<bool> setSendDestination(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex, Position destination);
+    std::optional<bool> removeSend(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
+    std::optional<bool> clearSends(ChannelListType type, std::uint32_t channelIndex);
 public: // I HATE MYSELF FOR ADDING THOSE **BLOAT**
+#pragma region
     std::uint32_t audioInputChannelCount() const;
     std::uint32_t channelCount() const;
     std::uint32_t audioOutputChannelCount() const;
@@ -267,10 +283,6 @@ public: // I HATE MYSELF FOR ADDING THOSE **BLOAT**
     std::optional<IDGen::ID> audioInputChannelIDAt(std::uint32_t index) const;
     std::optional<IDGen::ID> audioOutputChannelIDAt(std::uint32_t index) const;
     std::optional<IDGen::ID> channelIDAt(std::uint32_t index) const;
-    OptionalRef<const Position> mainInputAt(std::uint32_t index) const;
-    bool setMainInputAt(std::uint32_t index, Position position);
-    OptionalRef<const Position> mainOutputAt(std::uint32_t index) const;
-    bool setMainOutputAt(std::uint32_t index, Position position);
     std::optional<std::uint32_t> getInputIndexOfId(IDGen::ID id) const;
     std::optional<std::uint32_t> getOutputIndexOfId(IDGen::ID id) const;
     std::optional<std::uint32_t> getIndexOfId(IDGen::ID id) const;
@@ -281,19 +293,28 @@ public: // I HATE MYSELF FOR ADDING THOSE **BLOAT**
     void unmuteRegularChannels();
     void unmuteAudioOutputChannels();
     void unmuteAllChannels();
+#pragma endregion
+    OptionalRef<const Position> mainInputAt(std::uint32_t index) const;
+    bool setMainInputAt(std::uint32_t index, Position position);
+    OptionalRef<const Position> mainOutputAt(std::uint32_t index) const;
+    bool setMainOutputAt(std::uint32_t index, Position position);
 public:
     bool appendAudioInputChannel(
         const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
     bool insertAudioInputChannel(
         std::uint32_t position, const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
+#pragma region
     bool removeAudioInputChannel(std::uint32_t position, std::uint32_t removeCount = 1);
     void clearAudioInputChannels();
+    bool removeAudioOutputChannel(std::uint32_t position, std::uint32_t removeCount = 1);
+    void clearAudioOutputChannels();
+    bool removeChannel(std::uint32_t position, std::uint32_t removeCount = 1);
+    void clearChannels();
+#pragma endregion
     bool appendAudioOutputChannel(
         const ade::NodeHandle& outNode, std::uint32_t channelGroupIndex);
     bool insertAudioOutputChannel(
         std::uint32_t position, const ade::NodeHandle& outNode, std::uint32_t channel);
-    bool removeAudioOutputChannel(std::uint32_t position, std::uint32_t removeCount = 1);
-    void clearAudioOutputChannels();
     bool insertChannels(
         std::uint32_t position, std::uint32_t count,
         ChannelType channelType,
@@ -306,12 +327,8 @@ public:
         YADAW::Audio::Base::ChannelGroupType channelGroupType,
         std::uint32_t channelCountInGroup = 0
     );
-    bool removeChannel(
-        std::uint32_t position,
-        std::uint32_t removeCount = 1
-    );
-    void clearChannels();
 public:
+#pragma region
     std::optional<bool> appendAudioInputChannelSend(std::uint32_t channelIndex, bool isPreFader, Position destination);
     std::optional<bool> insertAudioInputChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, bool isPreFader, Position destination);
     std::optional<bool> setAudioInputChannelSendPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex, bool preFader);
@@ -330,6 +347,7 @@ public:
     std::optional<bool> setAudioOutputChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex, Position destination);
     std::optional<bool> removeAudioOutputChannelSend(std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
     std::optional<bool> clearAudioOutputChannelSends(std::uint32_t channelIndex);
+#pragma endregion
 public:
     ade::NodeHandle getInstrument(std::uint32_t index) const;
     OptionalRef<const Context> getInstrumentContext(std::uint32_t index) const;
