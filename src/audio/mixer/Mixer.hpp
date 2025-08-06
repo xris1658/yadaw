@@ -174,6 +174,7 @@ public: // TODO: Add API with `ChannelListType` to remove redundant codes
     OptionalRef<const PolarityInverter> sendPolarityInverterAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
     OptionalRef<      PolarityInverter> sendPolarityInverterAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex);
     OptionalRef<const ChannelInfo> channelInfoAt(ChannelListType type, std::uint32_t index) const;
+    OptionalRef<      ChannelInfo> channelInfoAt(ChannelListType type, std::uint32_t index);
     OptionalRef<const VolumeFader> volumeFaderAt(ChannelListType type, std::uint32_t index) const;
     OptionalRef<      VolumeFader> volumeFaderAt(ChannelListType type, std::uint32_t index);
     OptionalRef<const YADAW::Audio::Util::Mute> muteAt(ChannelListType type, std::uint32_t index) const;

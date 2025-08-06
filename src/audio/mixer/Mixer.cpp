@@ -273,6 +273,15 @@ OptionalRef<const Mixer::ChannelInfo> Mixer::channelInfoAt(ChannelListType type,
     return std::nullopt;
 }
 
+OptionalRef<Mixer::ChannelInfo> Mixer::channelInfoAt(ChannelListType type, std::uint32_t index)
+{
+    if(auto& channelInfos = channelInfos_[type]; index < channelInfos.size())
+    {
+        return channelInfos[index];
+    }
+    return std::nullopt;
+}
+
 OptionalRef<const VolumeFader> Mixer::volumeFaderAt(ChannelListType type, std::uint32_t index) const
 {
     if(auto& faders = channelFaders_[type]; index < faders.size())
