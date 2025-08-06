@@ -1109,10 +1109,11 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 QVariant::fromValue<QObject*>(&userData.paramListModel)
             );
             std::uint32_t firstOutput = 0;
+            auto [channelGroupType, channelCountInGroup] = *mixer_.channelGroupTypeAndChannelCountAt(channelListType_, position);
             FOR_RANGE0(i, plugin.audioOutputGroupCount())
             {
                 auto& group = plugin.audioOutputGroupAt(i)->get();
-                if(group.isMain() && group.type() == mixer_.channelGroupTypeAt(position))
+                if(group.isMain() && group.type() == channelGroupType && group.channelCount() == channelCountInGroup)
                 {
                     firstOutput = i;
                     break;

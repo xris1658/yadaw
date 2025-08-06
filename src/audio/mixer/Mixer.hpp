@@ -275,9 +275,6 @@ public: // I HATE MYSELF FOR ADDING THOSE **BLOAT**
     OptionalRef<Meter> audioInputMeterAt(std::uint32_t index);
     OptionalRef<Meter> audioOutputMeterAt(std::uint32_t index);
     OptionalRef<Meter> meterAt(std::uint32_t index);
-    std::optional<YADAW::Audio::Base::ChannelGroupType> audioInputChannelGroupTypeAt(std::uint32_t index) const;
-    std::optional<YADAW::Audio::Base::ChannelGroupType> audioOutputChannelGroupTypeAt(std::uint32_t index) const;
-    std::optional<YADAW::Audio::Base::ChannelGroupType> channelGroupTypeAt(std::uint32_t index) const;
     std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> audioInputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const;
     std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> audioOutputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const;
     std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> channelGroupTypeAndChannelCountAt(std::uint32_t index) const;

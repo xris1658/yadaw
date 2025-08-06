@@ -544,7 +544,6 @@ std::optional<const IDGen::ID> Mixer::channelSendID(std::uint32_t channelIndex, 
 {
     return sendID(ChannelListType::RegularList, channelIndex, sendIndex);
 }
-
 std::optional<const IDGen::ID> Mixer::audioOutputChannelSendID(std::uint32_t channelIndex,
     std::uint32_t sendIndex) const
 {
@@ -634,287 +633,173 @@ OptionalRef<PolarityInverter> Mixer::audioOutputChannelSendPolarityInverterAt(
 {
     return sendPolarityInverterAt(ChannelListType::AudioHardwareOutputList, channelIndex, sendIndex);
 }
-#pragma endregion old-functions
-
 OptionalRef<const Mixer::ChannelInfo> Mixer::audioInputChannelInfoAt(std::uint32_t index) const
 {
-    if(index < audioInputChannelCount())
-    {
-        return {std::ref(audioInputChannelInfo_[index])};
-    }
-    return std::nullopt;
+    return channelInfoAt(ChannelListType::AudioHardwareInputList, index);
 }
-
 OptionalRef<const Mixer::ChannelInfo> Mixer::audioOutputChannelInfoAt(std::uint32_t index) const
 {
-    if(index < audioOutputChannelCount())
-    {
-        return {std::ref(audioOutputChannelInfo_[index])};
-    }
-    return std::nullopt;
+    return channelInfoAt(ChannelListType::AudioHardwareOutputList, index);
 }
-
 OptionalRef<const Mixer::ChannelInfo> Mixer::channelInfoAt(std::uint32_t index) const
 {
-    if(index < channelCount())
-    {
-        return {std::ref(channelInfo_[index])};
-    }
-    return std::nullopt;
+    return channelInfoAt(ChannelListType::RegularList, index);
 }
-
 OptionalRef<Mixer::ChannelInfo> Mixer::audioInputChannelInfoAt(std::uint32_t index)
 {
-    if(index < audioInputChannelCount())
-    {
-        return {std::ref(audioInputChannelInfo_[index])};
-    }
-    return std::nullopt;
+    return channelInfoAt(ChannelListType::AudioHardwareInputList, index);
 }
-
 OptionalRef<Mixer::ChannelInfo> Mixer::audioOutputChannelInfoAt(std::uint32_t index)
 {
-    if(index < audioOutputChannelCount())
-    {
-        return {std::ref(audioOutputChannelInfo_[index])};
-    }
-    return std::nullopt;
+    return channelInfoAt(ChannelListType::AudioHardwareOutputList, index);
 }
-
 OptionalRef<Mixer::ChannelInfo> Mixer::channelInfoAt(std::uint32_t index)
 {
-    if(index < channelCount())
-    {
-        return {std::ref(channelInfo_[index])};
-    }
-    return std::nullopt;
+    return channelInfoAt(ChannelListType::RegularList, index);
 }
-
 OptionalRef<const VolumeFader> Mixer::audioInputVolumeFaderAt(std::uint32_t index) const
 {
-    if(index < audioInputChannelCount())
-    {
-        return {std::ref(*(audioInputFaders_[index].first))};
-    }
-    return std::nullopt;
+    return volumeFaderAt(ChannelListType::AudioHardwareInputList, index);
 }
-
 OptionalRef<const VolumeFader> Mixer::audioOutputVolumeFaderAt(std::uint32_t index) const
 {
-    if(index < audioOutputChannelCount())
-    {
-        return {std::ref(*(audioOutputFaders_[index].first))};
-    }
-    return std::nullopt;
+    return volumeFaderAt(ChannelListType::AudioHardwareOutputList, index);
 }
-
 OptionalRef<const VolumeFader> Mixer::volumeFaderAt(std::uint32_t index) const
 {
-    if(index < channelCount())
-    {
-        return {std::ref(*(faders_[index].first))};
-    }
-    return std::nullopt;
+    return volumeFaderAt(ChannelListType::RegularList, index);
 }
-
 OptionalRef<VolumeFader> Mixer::audioInputVolumeFaderAt(std::uint32_t index)
 {
-    if(index < audioInputChannelCount())
-    {
-        return {std::ref(*(audioInputFaders_[index].first))};
-    }
-    return std::nullopt;
+    return volumeFaderAt(ChannelListType::AudioHardwareInputList, index);
 }
-
 OptionalRef<VolumeFader> Mixer::audioOutputVolumeFaderAt(std::uint32_t index)
 {
-    if(index < audioOutputChannelCount())
-    {
-        return {std::ref(*(audioOutputFaders_[index].first))};
-    }
-    return std::nullopt;
+    return volumeFaderAt(ChannelListType::AudioHardwareOutputList, index);
 }
-
 OptionalRef<VolumeFader> Mixer::volumeFaderAt(std::uint32_t index)
 {
-    if(index < channelCount())
-    {
-        return {std::ref(*(faders_[index].first))};
-    }
-    return std::nullopt;
+    return volumeFaderAt(ChannelListType::RegularList, index);
 }
-
 OptionalRef<const YADAW::Audio::Util::Mute> Mixer::audioInputMuteAt(std::uint32_t index) const
 {
-    if(index < audioInputChannelCount())
-    {
-        return {std::ref(*(audioInputMutes_[index].first))};
-    }
-    return std::nullopt;
+    return muteAt(ChannelListType::AudioHardwareInputList, index);
 }
-
 OptionalRef<const YADAW::Audio::Util::Mute> Mixer::audioOutputMuteAt(std::uint32_t index) const
 {
-    if(index < audioOutputChannelCount())
-    {
-        return {std::ref(*(audioOutputMutes_[index].first))};
-    }
-    return std::nullopt;
+    return muteAt(ChannelListType::AudioHardwareOutputList, index);
 }
-
 OptionalRef<const YADAW::Audio::Util::Mute> Mixer::muteAt(std::uint32_t index) const
 {
-    if(index < channelCount())
-    {
-        return {std::ref(*(mutes_[index].first))};
-    }
-    return std::nullopt;
+    return muteAt(ChannelListType::RegularList, index);
 }
-
 OptionalRef<YADAW::Audio::Util::Mute> Mixer::audioInputMuteAt(std::uint32_t index)
 {
-    if(index < audioInputChannelCount())
-    {
-        return {std::ref(*(audioInputMutes_[index].first))};
-    }
-    return std::nullopt;
+    return muteAt(ChannelListType::AudioHardwareInputList, index);
 }
-
 OptionalRef<YADAW::Audio::Util::Mute> Mixer::audioOutputMuteAt(std::uint32_t index)
 {
-    if(index < audioOutputChannelCount())
-    {
-        return {std::ref(*(audioOutputMutes_[index].first))};
-    }
-    return std::nullopt;
+    return muteAt(ChannelListType::AudioHardwareOutputList, index);
 }
-
 OptionalRef<YADAW::Audio::Util::Mute> Mixer::muteAt(std::uint32_t index)
 {
-    if(index < channelCount())
-    {
-        return {std::ref(*(mutes_[index].first))};
-    }
-    return std::nullopt;
+    return muteAt(ChannelListType::RegularList, index);
 }
-
 OptionalRef<const Meter> Mixer::audioInputMeterAt(std::uint32_t index) const
 {
-    if(index < audioInputChannelCount())
-    {
-        return {std::ref(*(audioInputMeters_[index].first))};
-    }
-    return std::nullopt;
+    return meterAt(ChannelListType::AudioHardwareInputList, index);
 }
-
 OptionalRef<const Meter> Mixer::audioOutputMeterAt(std::uint32_t index) const
 {
-    if(index < audioOutputChannelCount())
-    {
-        return {std::ref(*(audioOutputMeters_[index].first))};
-    }
-    return std::nullopt;
+    return meterAt(ChannelListType::AudioHardwareOutputList, index);
 }
-
 OptionalRef<const Meter> Mixer::meterAt(std::uint32_t index) const
 {
-    if(index < channelCount())
-    {
-        return {std::ref(*(meters_[index].first))};
-    }
-    return std::nullopt;
+    return meterAt(ChannelListType::RegularList, index);
 }
-
 OptionalRef<Meter> Mixer::audioInputMeterAt(std::uint32_t index)
 {
-    if(index < audioInputChannelCount())
-    {
-        return {std::ref(*(audioInputMeters_[index].first))};
-    }
-    return std::nullopt;
+    return meterAt(ChannelListType::AudioHardwareInputList, index);
 }
-
 OptionalRef<Meter> Mixer::audioOutputMeterAt(std::uint32_t index)
 {
-    if(index < audioOutputChannelCount())
-    {
-        return {std::ref(*(audioOutputMeters_[index].first))};
-    }
-    return std::nullopt;
+    return meterAt(ChannelListType::AudioHardwareOutputList, index);
 }
-
 OptionalRef<Meter> Mixer::meterAt(std::uint32_t index)
 {
-    if(index < channelCount())
-    {
-        return {std::ref(*(meters_[index].first))};
-    }
-    return std::nullopt;
+    return meterAt(ChannelListType::RegularList, index);
 }
-
-std::optional<YADAW::Audio::Base::ChannelGroupType>
-Mixer::audioInputChannelGroupTypeAt(std::uint32_t index) const
-{
-    if(index < audioInputChannelCount())
-    {
-        return {audioInputMutes_[index].first->audioInputGroupAt(0)->get().type()};
-    }
-    return std::nullopt;
-}
-
-std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::audioOutputChannelGroupTypeAt(std::uint32_t index) const
-{
-    if(index < audioOutputChannelCount())
-    {
-        return {audioOutputMutes_[index].first->audioInputGroupAt(0)->get().type()};
-    }
-    return std::nullopt;
-}
-
-std::optional<YADAW::Audio::Base::ChannelGroupType> Mixer::channelGroupTypeAt(std::uint32_t index) const
-{
-    if(index < channelCount())
-    {
-        return {mutes_[index].first->audioInputGroupAt(0)->get().type()};
-    }
-    return std::nullopt;
-}
-
 std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>>
 Mixer::audioInputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const
 {
     return channelGroupTypeAndChannelCountAt(ChannelListType::AudioHardwareInputList, index);
 }
-
 std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>>
 Mixer::audioOutputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const
 {
     return channelGroupTypeAndChannelCountAt(ChannelListType::RegularList, index);
 }
-
 std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>>
 Mixer::channelGroupTypeAndChannelCountAt(std::uint32_t index) const
 {
     return channelGroupTypeAndChannelCountAt(ChannelListType::AudioHardwareOutputList, index);
 }
-
 std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioInputChannelIDAt(
     std::uint32_t index) const
 {
     return idAt(ChannelListType::AudioHardwareInputList, index);
 }
-
 std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioOutputChannelIDAt(
     std::uint32_t index) const
 {
     return idAt(ChannelListType::AudioHardwareOutputList, index);
 }
-
 std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::channelIDAt(
     std::uint32_t index) const
 {
     return idAt(ChannelListType::RegularList, index);
 }
+std::optional<std::uint32_t> Mixer::getInputIndexOfId(IDGen::ID id) const
+{
+    return getChannelIndexOfId(ChannelListType::AudioHardwareInputList, id);
+}
+    std::optional<std::uint32_t> Mixer::getOutputIndexOfId(IDGen::ID id) const
+{
+    return getChannelIndexOfId(ChannelListType::AudioHardwareOutputList, id);
+}
+    std::optional<std::uint32_t> Mixer::getIndexOfId(IDGen::ID id) const
+{
+    return getChannelIndexOfId(ChannelListType::RegularList, id);
+}
+    bool Mixer::hasMuteInAudioInputChannels() const
+{
+    return hasMute(ChannelListType::AudioHardwareInputList);
+}
+    bool Mixer::hasMuteInRegularChannels() const
+{
+    return hasMute(ChannelListType::RegularList);
+}
+    bool Mixer::hasMuteInAudioOutputChannels() const
+{
+    return hasMute(ChannelListType::AudioHardwareOutputList);
+}
+    void Mixer::unmuteAudioInputChannels()
+{
+    unmute(ChannelListType::AudioHardwareInputList);
+}
+    void Mixer::unmuteRegularChannels()
+{
+    unmute(ChannelListType::RegularList);
+}
+    void Mixer::unmuteAudioOutputChannels()
+{
+    unmute(ChannelListType::AudioHardwareOutputList);
+}
+    void Mixer::unmuteAllChannels()
+{
+    unmute();
+}
+#pragma endregion old-functions
 
 OptionalRef<const Mixer::Position> Mixer::mainInputAt(std::uint32_t index) const
 {
@@ -1295,56 +1180,6 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
         oldPosition = position;
     }
     return ret;
-}
-
-std::optional<std::uint32_t> Mixer::getInputIndexOfId(IDGen::ID id) const
-{
-    return getChannelIndexOfId(ChannelListType::AudioHardwareInputList, id);
-}
-
-std::optional<std::uint32_t> Mixer::getOutputIndexOfId(IDGen::ID id) const
-{
-    return getChannelIndexOfId(ChannelListType::AudioHardwareOutputList, id);
-}
-
-std::optional<std::uint32_t> Mixer::getIndexOfId(IDGen::ID id) const
-{
-    return getChannelIndexOfId(ChannelListType::RegularList, id);
-}
-
-bool Mixer::hasMuteInAudioInputChannels() const
-{
-    return hasMute(ChannelListType::AudioHardwareInputList);
-}
-
-bool Mixer::hasMuteInRegularChannels() const
-{
-    return hasMute(ChannelListType::RegularList);
-}
-
-bool Mixer::hasMuteInAudioOutputChannels() const
-{
-    return hasMute(ChannelListType::AudioHardwareOutputList);
-}
-
-void Mixer::unmuteAudioInputChannels()
-{
-    unmute(ChannelListType::AudioHardwareInputList);
-}
-
-void Mixer::unmuteRegularChannels()
-{
-    unmute(ChannelListType::RegularList);
-}
-
-void Mixer::unmuteAudioOutputChannels()
-{
-    unmute(ChannelListType::AudioHardwareOutputList);
-}
-
-void Mixer::unmuteAllChannels()
-{
-    unmute();
 }
 
 bool Mixer::appendAudioInputChannel(
