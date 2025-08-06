@@ -19,7 +19,7 @@ class MixerChannelInsertListModel: public IMixerChannelInsertListModel
     Q_OBJECT
 public:
     MixerChannelInsertListModel(YADAW::Audio::Mixer::Inserts& inserts,
-        YADAW::Model::MixerChannelListModel::ListType type,
+        YADAW::Audio::Mixer::Mixer::ChannelListType type,
         std::uint32_t channelIndex,
         bool isPreFaderInsert,
         std::uint32_t insertsIndex,

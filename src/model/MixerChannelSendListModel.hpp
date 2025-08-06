@@ -14,7 +14,7 @@ class MixerChannelSendListModel: public IMixerChannelSendListModel
 public:
     MixerChannelSendListModel(
         YADAW::Audio::Mixer::Mixer& mixer,
-        YADAW::Model::MixerChannelListModel::ListType type,
+        YADAW::Audio::Mixer::Mixer::ChannelListType type,
         std::uint32_t channelIndex
     );
     ~MixerChannelSendListModel() override;
@@ -31,6 +31,7 @@ public:
     void setChannelIndex(std::uint32_t channelIndex);
 private:
     YADAW::Audio::Mixer::Mixer* mixer_;
+    YADAW::Audio::Mixer::Mixer::ChannelListType channelListType_;
     YADAW::Model::MixerChannelListModel::ListType listType_;
     std::vector<bool> editingVolume_;
     std::vector<YADAW::Entity::IAudioIOPosition*> destinations_;

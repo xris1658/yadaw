@@ -33,7 +33,7 @@ public:
     };
 public:
     MixerChannelListModel(YADAW::Audio::Mixer::Mixer& mixer,
-        ListType listType,
+        YADAW::Audio::Mixer::Mixer::ChannelListType listType,
         QObject* parent = nullptr);
     ~MixerChannelListModel() override;
 public:
@@ -69,7 +69,7 @@ public:
         Qt::CaseSensitivity caseSensitivity) const override;
     bool isPassed(const QModelIndex& modelIndex, int role,
         const QVariant& variant) const override;
-    ListType type() const;
+    YADAW::Audio::Mixer::Mixer::ChannelListType type() const;
     YADAW::Audio::Mixer::Mixer& mixer();
     const YADAW::Audio::Mixer::Mixer& mixer() const;
 public:
@@ -91,8 +91,8 @@ private:
     // }
     std::vector<bool> editingVolume_;
     mutable std::vector<std::unique_ptr<YADAW::Model::PolarityInverterModel>> polarityInverterModels_;
-    ListType listType_;
     YADAW::Audio::Mixer::Mixer::ChannelListType channelListType_;
+    ListType listType_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToInputPositions_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToOutputPositions_;
     FillPluginContextCallback* fillPluginContextCallback_;

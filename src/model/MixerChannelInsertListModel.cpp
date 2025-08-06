@@ -28,7 +28,7 @@ using YADAW::Audio::Plugin::IAudioPlugin;
 
 MixerChannelInsertListModel::MixerChannelInsertListModel(
     YADAW::Audio::Mixer::Inserts& inserts,
-    YADAW::Model::MixerChannelListModel::ListType type,
+    YADAW::Audio::Mixer::Mixer::ChannelListType type,
     std::uint32_t channelIndex,
     bool isPreFaderInsert,
     std::uint32_t insertsIndex,

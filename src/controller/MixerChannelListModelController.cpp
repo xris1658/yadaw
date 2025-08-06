@@ -8,7 +8,7 @@ YADAW::Model::MixerChannelListModel& appAudioInputMixerChannels()
 {
     static YADAW::Model::MixerChannelListModel ret(
         YADAW::Controller::AudioEngine::appAudioEngine().mixer(),
-        YADAW::Model::MixerChannelListModel::ListType::AudioHardwareInput
+        YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList
     );
     return ret;
 }
@@ -17,7 +17,7 @@ YADAW::Model::MixerChannelListModel& appMixerChannels()
 {
     static YADAW::Model::MixerChannelListModel ret(
         YADAW::Controller::AudioEngine::appAudioEngine().mixer(),
-        YADAW::Model::MixerChannelListModel::ListType::Regular
+        YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
     );
     return ret;
 }
@@ -26,7 +26,7 @@ YADAW::Model::MixerChannelListModel& appAudioOutputMixerChannels()
 {
     static YADAW::Model::MixerChannelListModel ret(
         YADAW::Controller::AudioEngine::appAudioEngine().mixer(),
-        YADAW::Model::MixerChannelListModel::ListType::AudioHardwareOutput
+        YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList
     );
     return ret;
 }

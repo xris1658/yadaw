@@ -81,17 +81,16 @@ void AudioEngine::initialize(double sampleRate, std::uint32_t bufferSize)
     bufferSize_ = bufferSize;
     mixer_.bufferExtension().setBufferSize(bufferSize_);
     // FIXME: Reset all audio devices in the graph
-    FOR_RANGE0(i, mixer_.audioInputChannelCount())
+    for(auto channelListType: {
+        YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList,
+        YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList,
+        YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList
+    })
     {
-        mixer_.audioInputVolumeFaderAt(i)->get().initialize(sampleRate, bufferSize);
-    }
-    FOR_RANGE0(i, mixer_.audioOutputChannelCount())
-    {
-        mixer_.audioOutputVolumeFaderAt(i)->get().initialize(sampleRate, bufferSize);
-    }
-    FOR_RANGE0(i, mixer_.channelCount())
-    {
-        mixer_.volumeFaderAt(i)->get().initialize(sampleRate, bufferSize);
+        FOR_RANGE0(i, mixer_.count(channelListType))
+        {
+            mixer_.volumeFaderAt(i)->get().initialize(sampleRate, bufferSize);
+        }
     }
 }
 
@@ -162,18 +161,17 @@ void AudioEngine::process()
         YADAW::Util::currentTimeValueInNanosecond()
     );
     YADAW::Controller::fillCLAPInputParameterChanges(*(clapPluginPool_.get()),
-        YADAW::Util::currentTimeValueInNanosecond());
-    FOR_RANGE0(i, mixer_.audioInputChannelCount())
+    YADAW::Util::currentTimeValueInNanosecond());
+    for(auto channelListType: {
+        YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList,
+        YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList,
+        YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList
+    })
     {
-        mixer_.audioInputVolumeFaderAt(i)->get().onBufferSwitched(now);
-    }
-    FOR_RANGE0(i, mixer_.channelCount())
-    {
-        mixer_.volumeFaderAt(i)->get().onBufferSwitched(now);
-    }
-    FOR_RANGE0(i, mixer_.audioOutputChannelCount())
-    {
-        mixer_.audioOutputVolumeFaderAt(i)->get().onBufferSwitched(now);
+        FOR_RANGE0(i, mixer_.count(channelListType))
+        {
+            mixer_.volumeFaderAt(i)->get().onBufferSwitched(now);
+        }
     }
     workerThreadPool_.mainFunc();
     processTime_.store(
