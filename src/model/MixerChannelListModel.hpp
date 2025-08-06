@@ -92,6 +92,7 @@ private:
     std::vector<bool> editingVolume_;
     mutable std::vector<std::unique_ptr<YADAW::Model::PolarityInverterModel>> polarityInverterModels_;
     ListType listType_;
+    YADAW::Audio::Mixer::Mixer::ChannelListType channelListType_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToInputPositions_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToOutputPositions_;
     FillPluginContextCallback* fillPluginContextCallback_;

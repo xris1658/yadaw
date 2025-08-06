@@ -1,6 +1,8 @@
 #include "MixerChannelListModel.hpp"
+#include "MixerChannelListModel.hpp"
 
 #include "RegularAudioIOPositionModel.hpp"
+#include "audio/mixer/Mixer.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "audio/util/InputSwitcher.hpp"
@@ -33,90 +35,6 @@ YADAW::Audio::Mixer::Mixer::ChannelType channelTypeFromModelTypes(
     return static_cast<YADAW::Audio::Mixer::Mixer::ChannelType>(type);
 }
 
-using GetCount = decltype(&YADAW::Audio::Mixer::Mixer::channelCount);
-
-GetCount getCount[3] = {
-    &YADAW::Audio::Mixer::Mixer::audioInputChannelCount,
-    &YADAW::Audio::Mixer::Mixer::channelCount,
-    &YADAW::Audio::Mixer::Mixer::audioOutputChannelCount,
-};
-
-using GetInserts =
-    OptionalRef<YADAW::Audio::Mixer::Inserts>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t);
-
-GetInserts getPreFaderInserts[3] = {
-    static_cast<GetInserts>(&YADAW::Audio::Mixer::Mixer::audioInputChannelPreFaderInsertsAt),
-    static_cast<GetInserts>(&YADAW::Audio::Mixer::Mixer::channelPreFaderInsertsAt),
-    static_cast<GetInserts>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelPreFaderInsertsAt)
-};
-
-GetInserts getPostFaderInserts[3] = {
-    static_cast<GetInserts>(&YADAW::Audio::Mixer::Mixer::audioInputChannelPostFaderInsertsAt),
-    static_cast<GetInserts>(&YADAW::Audio::Mixer::Mixer::channelPostFaderInsertsAt),
-    static_cast<GetInserts>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelPostFaderInsertsAt)
-};
-
-using GetConstInserts =
-    OptionalRef<const YADAW::Audio::Mixer::Inserts>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t) const;
-
-GetConstInserts getConstPreFaderInserts[3] = {
-    static_cast<GetConstInserts>(&YADAW::Audio::Mixer::Mixer::audioInputChannelPreFaderInsertsAt),
-    static_cast<GetConstInserts>(&YADAW::Audio::Mixer::Mixer::channelPreFaderInsertsAt),
-    static_cast<GetConstInserts>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelPreFaderInsertsAt)
-};
-
-GetConstInserts getConstPostFaderInserts[3] = {
-    static_cast<GetConstInserts>(&YADAW::Audio::Mixer::Mixer::audioInputChannelPostFaderInsertsAt),
-    static_cast<GetConstInserts>(&YADAW::Audio::Mixer::Mixer::channelPostFaderInsertsAt),
-    static_cast<GetConstInserts>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelPostFaderInsertsAt)
-};
-
-using GetFader =
-    OptionalRef<YADAW::Audio::Mixer::VolumeFader>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t);
-
-GetFader getFader[3] = {
-    static_cast<GetFader>(&YADAW::Audio::Mixer::Mixer::audioInputVolumeFaderAt),
-    static_cast<GetFader>(&YADAW::Audio::Mixer::Mixer::volumeFaderAt),
-    static_cast<GetFader>(&YADAW::Audio::Mixer::Mixer::audioOutputVolumeFaderAt)
-};
-
-using GetConstFader =
-    OptionalRef<const YADAW::Audio::Mixer::VolumeFader>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t) const;
-
-GetConstFader getConstFader[3] = {
-    static_cast<GetConstFader>(&YADAW::Audio::Mixer::Mixer::audioInputVolumeFaderAt),
-    static_cast<GetConstFader>(&YADAW::Audio::Mixer::Mixer::volumeFaderAt),
-    static_cast<GetConstFader>(&YADAW::Audio::Mixer::Mixer::audioOutputVolumeFaderAt)
-};
-
-using GetChannelInfo =
-    OptionalRef<YADAW::Audio::Mixer::Mixer::ChannelInfo>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t);
-
-GetChannelInfo getChannelInfo[3] = {
-    static_cast<GetChannelInfo>(&YADAW::Audio::Mixer::Mixer::audioInputChannelInfoAt),
-    static_cast<GetChannelInfo>(&YADAW::Audio::Mixer::Mixer::channelInfoAt),
-    static_cast<GetChannelInfo>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelInfoAt)
-};
-
-using GetConstChannelInfo =
-    OptionalRef<const YADAW::Audio::Mixer::Mixer::ChannelInfo>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t) const;
-
-GetConstChannelInfo getConstChannelInfo[3] = {
-    static_cast<GetConstChannelInfo>(&YADAW::Audio::Mixer::Mixer::audioInputChannelInfoAt),
-    static_cast<GetConstChannelInfo>(&YADAW::Audio::Mixer::Mixer::channelInfoAt),
-    static_cast<GetConstChannelInfo>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelInfoAt)
-};
-
-using GetConstID =
-    std::optional<YADAW::Audio::Mixer::IDGen::ID>(YADAW::Audio::Mixer::Mixer::*)(
-        std::uint32_t) const;
-
-GetConstID getConstID[3] = {
-    &Audio::Mixer::Mixer::audioInputChannelIDAt,
-    &Audio::Mixer::Mixer::channelIDAt,
-    &Audio::Mixer::Mixer::audioOutputChannelIDAt
-};
-
 using RemoveChannels =
     decltype(&YADAW::Audio::Mixer::Mixer::removeChannel);
 
@@ -135,87 +53,6 @@ ClearChannels clearChannels[3] = {
     &YADAW::Audio::Mixer::Mixer::clearAudioOutputChannels,
 };
 
-using GetIndexOfId =
-    decltype(&YADAW::Audio::Mixer::Mixer::getIndexOfId);
-
-GetIndexOfId getIndexOfIdFunc[3] = {
-    &YADAW::Audio::Mixer::Mixer::getInputIndexOfId,
-    &YADAW::Audio::Mixer::Mixer::getIndexOfId,
-    &YADAW::Audio::Mixer::Mixer::getOutputIndexOfId,
-};
-
-using GetChannelGroupType =
-    decltype(&YADAW::Audio::Mixer::Mixer::audioInputChannelGroupTypeAt);
-
-GetChannelGroupType getChannelGroupType[3] = {
-    &YADAW::Audio::Mixer::Mixer::audioInputChannelGroupTypeAt,
-    &YADAW::Audio::Mixer::Mixer::channelGroupTypeAt,
-    &YADAW::Audio::Mixer::Mixer::audioOutputChannelGroupTypeAt
-};
-
-using GetChannelGroupTypeAndCount =
-    decltype(&YADAW::Audio::Mixer::Mixer::audioInputChannelGroupTypeAndChannelCountAt);
-
-GetChannelGroupTypeAndCount getChannelGroupTypeAndCount[3] = {
-    &YADAW::Audio::Mixer::Mixer::audioInputChannelGroupTypeAndChannelCountAt,
-    &YADAW::Audio::Mixer::Mixer::channelGroupTypeAndChannelCountAt,
-    &YADAW::Audio::Mixer::Mixer::audioOutputChannelGroupTypeAndChannelCountAt
-};
-
-using GetConstMuteAt =
-    OptionalRef<const YADAW::Audio::Util::Mute>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t index) const;
-
-GetConstMuteAt getConstMuteAt[3] = {
-    static_cast<GetConstMuteAt>(&YADAW::Audio::Mixer::Mixer::audioInputMuteAt),
-    static_cast<GetConstMuteAt>(&YADAW::Audio::Mixer::Mixer::muteAt),
-    static_cast<GetConstMuteAt>(&YADAW::Audio::Mixer::Mixer::audioOutputMuteAt)
-};
-
-using GetMuteAt =
-    OptionalRef<YADAW::Audio::Util::Mute>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t index);
-
-GetMuteAt getMuteAt[3] = {
-    static_cast<GetMuteAt>(&YADAW::Audio::Mixer::Mixer::audioInputMuteAt),
-    static_cast<GetMuteAt>(&YADAW::Audio::Mixer::Mixer::muteAt),
-    static_cast<GetMuteAt>(&YADAW::Audio::Mixer::Mixer::audioOutputMuteAt)
-};
-
-using HasMute =
-    decltype(&YADAW::Audio::Mixer::Mixer::hasMuteInRegularChannels);
-
-HasMute hasMuteFunc[3] = {
-    &YADAW::Audio::Mixer::Mixer::hasMuteInAudioInputChannels,
-    &YADAW::Audio::Mixer::Mixer::hasMuteInRegularChannels,
-    &YADAW::Audio::Mixer::Mixer::hasMuteInAudioOutputChannels
-};
-
-using UnmuteAll =
-    decltype(&YADAW::Audio::Mixer::Mixer::unmuteRegularChannels);
-
-UnmuteAll unmuteAllFunc[3] = {
-    &YADAW::Audio::Mixer::Mixer::unmuteAudioInputChannels,
-    &YADAW::Audio::Mixer::Mixer::unmuteRegularChannels,
-    &YADAW::Audio::Mixer::Mixer::unmuteAudioOutputChannels
-};
-
-using GetConstPolarityInverterFunc =
-    OptionalRef<const YADAW::Audio::Mixer::PolarityInverter>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t index) const;
-
-GetConstPolarityInverterFunc getConstPolarityInverters[3] = {
-    static_cast<GetConstPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::audioInputChannelPolarityInverterAt),
-    static_cast<GetConstPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::channelPolarityInverterAt),
-    static_cast<GetConstPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelPolarityInverterAt)
-};
-
-using GetPolarityInverterFunc =
-    OptionalRef<YADAW::Audio::Mixer::PolarityInverter>(YADAW::Audio::Mixer::Mixer::*)(std::uint32_t index);
-
-GetPolarityInverterFunc getPolarityInverters[3] = {
-    static_cast<GetPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::audioInputChannelPolarityInverterAt),
-    static_cast<GetPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::channelPolarityInverterAt),
-    static_cast<GetPolarityInverterFunc>(&YADAW::Audio::Mixer::Mixer::audioOutputChannelPolarityInverterAt)
-};
-
 IMixerChannelListModel::ChannelTypes getChannelType(YADAW::Audio::Mixer::Mixer::ChannelType type)
 {
     return static_cast<IMixerChannelListModel::ChannelTypes>(YADAW::Util::underlyingValue(type));
@@ -226,6 +63,11 @@ MixerChannelListModel::MixerChannelListModel(
     IMixerChannelListModel(parent),
     mixer_(mixer),
     listType_(listType),
+    channelListType_(
+        listType == ListType::AudioHardwareInput? YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList:
+        listType == ListType::Regular? YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList:
+        YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList
+    ),
     fillPluginContextCallback_(&Impl::blankFillPluginContext)
 {
     YADAW::Util::setCppOwnership(*this);
@@ -240,7 +82,7 @@ MixerChannelListModel::MixerChannelListModel(
         {
             auto index = i++;
             return std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
-                (mixer_.*getPreFaderInserts[YADAW::Util::underlyingValue(listType_)])(index)->get(),
+                mixer_.preFaderInsertsAt(channelListType_, index)->get(),
                 listType_, true, index, 0
             );
         }
@@ -260,7 +102,7 @@ MixerChannelListModel::MixerChannelListModel(
         {
             auto index = i++;
             return std::make_unique<PolarityInverterModel>(
-                (mixer_.*getPolarityInverters[YADAW::Util::underlyingValue(listType_)])(index)->get()
+                mixer_.polarityInverterAt(channelListType_, index)->get()
             );
         }
     );
@@ -301,7 +143,7 @@ MixerChannelListModel::~MixerChannelListModel()
 
 int MixerChannelListModel::itemCount() const
 {
-    return (mixer_.*getCount[YADAW::Util::underlyingValue(listType_)])();
+    return mixer_.count(channelListType_);
 }
 
 int MixerChannelListModel::rowCount(const QModelIndex& parent) const
@@ -318,7 +160,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         {
         case Role::Id:
         {
-            auto optionalId = (mixer_.*getConstID[YADAW::Util::underlyingValue(listType_)])(row);
+            auto optionalId = mixer_.idAt(channelListType_, row);
             if(optionalId.has_value())
             {
                 return QVariant::fromValue(QString::number(*optionalId));
@@ -327,7 +169,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::Name:
         {
-            const auto& optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+            const auto& optionalInfo = mixer_.channelInfoAt(channelListType_, row);
             if(optionalInfo.has_value())
             {
                 return QVariant::fromValue(optionalInfo->get().name);
@@ -336,7 +178,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::NameWithIndex:
         {
-            const auto& optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+            const auto& optionalInfo = mixer_.channelInfoAt(channelListType_, row);
             if(optionalInfo.has_value())
             {
                 return QVariant::fromValue(QString("%1: %2").arg(QString::number(row + 1), optionalInfo->get().name));
@@ -345,7 +187,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::Color:
         {
-            const auto& optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+            const auto& optionalInfo = mixer_.channelInfoAt(channelListType_, row);
             if(optionalInfo.has_value())
             {
                 return QVariant::fromValue(optionalInfo->get().color);
@@ -354,7 +196,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::ChannelType:
         {
-            auto optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+            const auto& optionalInfo = mixer_.channelInfoAt(channelListType_, row);
             if(optionalInfo.has_value())
             {
                 return QVariant::fromValue(getChannelType(optionalInfo->get().channelType));
@@ -363,7 +205,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::ChannelConfig:
         {
-            auto optionalChannelGroupTypeAndCount = (mixer_.*getChannelGroupTypeAndCount[YADAW::Util::underlyingValue(listType_)])(row);
+            auto optionalChannelGroupTypeAndCount = mixer_.channelGroupTypeAndChannelCountAt(channelListType_, row);
             if(optionalChannelGroupTypeAndCount.has_value())
             {
                 auto ret = YADAW::Entity::configFromGroupType(
@@ -375,7 +217,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::ChannelCount:
         {
-            auto optionalChannelGroupTypeAndCount = (mixer_.*getChannelGroupTypeAndCount[YADAW::Util::underlyingValue(listType_)])(row);
+            auto optionalChannelGroupTypeAndCount = mixer_.channelGroupTypeAndChannelCountAt(channelListType_, row);
             if(optionalChannelGroupTypeAndCount.has_value())
             {
                 return QVariant::fromValue<int>(optionalChannelGroupTypeAndCount->second);
@@ -392,7 +234,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::InputType:
         {
-            auto optionalInfo = (mixer_.*getConstChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+            auto optionalInfo = mixer_.channelInfoAt(channelListType_, row);
             if(optionalInfo.has_value())
             {
                 auto channelType = optionalInfo->get().channelType;
@@ -541,7 +383,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::Mute:
         {
-            const auto& mute = (mixer_.*getConstMuteAt[listType_])(row)->get();
+            const auto& mute = mixer_.muteAt(channelListType_, row)->get();
             return QVariant::fromValue<bool>(
                 mute.getMute()
             );
@@ -582,7 +424,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         case Role::Volume:
         {
             return QVariant::fromValue<double>(
-                (mixer_.*getConstFader[listType_])(row)->get()
+                mixer_.volumeFaderAt(channelListType_, row)->get()
                 .parameter(0)->value()
             );
         }
@@ -604,7 +446,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         {
         case Role::Name:
         {
-            auto optionalInfo = (mixer_.*getChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+            auto optionalInfo = mixer_.channelInfoAt(channelListType_, row);
             if(optionalInfo.has_value())
             {
                 optionalInfo->get().name = value.value<QString>();
@@ -615,7 +457,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         }
         case Role::Color:
         {
-            auto optionalInfo = (mixer_.*getChannelInfo[YADAW::Util::underlyingValue(listType_)])(row);
+            auto optionalInfo = mixer_.channelInfoAt(channelListType_, row);
             if(optionalInfo.has_value())
             {
                 optionalInfo->get().color = value.value<QColor>();
@@ -859,7 +701,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         }
         case Role::Mute:
         {
-            auto& mute = (mixer_.*getMuteAt[listType_])(row)->get();
+            auto& mute = mixer_.muteAt(channelListType_, row)->get();
             mute.setMute(value.value<bool>());
             dataChanged(this->index(row), this->index(row), {Role::Mute});
             hasMuteChanged();
@@ -895,7 +737,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         }
         case Role::Volume:
         {
-            auto& fader = (mixer_.*getFader[listType_])(row)->get();
+            auto& fader = mixer_.volumeFaderAt(channelListType_, row)->get();
             if(!editingVolume_[row])
             {
                 fader.beginEditGain();
@@ -911,7 +753,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         }
         case Role::EditingVolume:
         {
-            auto& fader = (mixer_.*getFader[listType_])(row)->get();
+            auto& fader = mixer_.volumeFaderAt(channelListType_, row)->get();
             if(value.value<bool>())
             {
                 fader.beginEditGain();
@@ -1057,7 +899,7 @@ bool MixerChannelListModel::insert(int position, int count,
             {
                 auto index = position + (offset++);
                 return std::make_unique<YADAW::Model::PolarityInverterModel>(
-                    (mixer_.*getPolarityInverters[YADAW::Util::underlyingValue(listType_)])(index)->get()
+                    mixer_.polarityInverterAt(channelListType_, index)->get()
                 );
             }
         );
@@ -1425,8 +1267,7 @@ int MixerChannelListModel::getIndexOfId(const QString& id) const
     auto idAsNum = id.toULongLong(&converted);
     if(converted)
     {
-        auto getIndexResult =
-            (mixer_.*getIndexOfIdFunc[YADAW::Util::underlyingValue(listType_)])(idAsNum);
+        auto getIndexResult = mixer_.getChannelIndexOfId(channelListType_, idAsNum);
         if(getIndexResult.has_value())
         {
             return *getIndexResult;
@@ -1437,12 +1278,12 @@ int MixerChannelListModel::getIndexOfId(const QString& id) const
 
 bool MixerChannelListModel::hasMute() const
 {
-    return (mixer_.*hasMuteFunc[listType_])();
+    return mixer_.hasMute(channelListType_);
 }
 
 void MixerChannelListModel::unmuteAll()
 {
-    (mixer_.*unmuteAllFunc[listType_])();
+    mixer_.unmute(channelListType_);
     dataChanged(index(0), index(itemCount() - 1), {Role::Mute});
     hasMuteChanged();
 }
