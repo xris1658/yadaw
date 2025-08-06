@@ -411,102 +411,6 @@ std::uint32_t Mixer::audioOutputChannelCount() const
 {
     return count(ChannelListType::AudioHardwareOutputList);
 }
-OptionalRef<const YADAW::Audio::Mixer::PolarityInverter> Mixer::audioInputChannelPolarityInverterAt(std::uint32_t index) const
-{
-    return polarityInverterAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<const YADAW::Audio::Mixer::PolarityInverter> Mixer::audioOutputChannelPolarityInverterAt(std::uint32_t index) const
-{
-    return polarityInverterAt(ChannelListType::RegularList, index);
-}
-OptionalRef<const YADAW::Audio::Mixer::PolarityInverter> Mixer::channelPolarityInverterAt(std::uint32_t index) const
-{
-    return polarityInverterAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<YADAW::Audio::Mixer::PolarityInverter> Mixer::audioInputChannelPolarityInverterAt(std::uint32_t index)
-{
-    return polarityInverterAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<YADAW::Audio::Mixer::PolarityInverter> Mixer::audioOutputChannelPolarityInverterAt(std::uint32_t index)
-{
-    return polarityInverterAt(ChannelListType::RegularList, index);
-}
-OptionalRef<YADAW::Audio::Mixer::PolarityInverter> Mixer::channelPolarityInverterAt(std::uint32_t index)
-{
-    return polarityInverterAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<const YADAW::Audio::Mixer::Inserts>
-    Mixer::audioInputChannelPreFaderInsertsAt(std::uint32_t index) const
-{
-    return preFaderInsertsAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<const YADAW::Audio::Mixer::Inserts>
-    Mixer::audioInputChannelPostFaderInsertsAt(std::uint32_t index) const
-{
-    return postFaderInsertsAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<const YADAW::Audio::Mixer::Inserts>
-    Mixer::channelPreFaderInsertsAt(std::uint32_t index) const
-{
-    return preFaderInsertsAt(ChannelListType::RegularList, index);
-}
-OptionalRef<const YADAW::Audio::Mixer::Inserts>
-    Mixer::channelPostFaderInsertsAt(std::uint32_t index) const
-{
-    return postFaderInsertsAt(ChannelListType::RegularList, index);
-}
-OptionalRef<const YADAW::Audio::Mixer::Inserts>
-    Mixer::audioOutputChannelPreFaderInsertsAt(std::uint32_t index) const
-{
-    return preFaderInsertsAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<const YADAW::Audio::Mixer::Inserts>
-    Mixer::audioOutputChannelPostFaderInsertsAt(std::uint32_t index) const
-{
-    return postFaderInsertsAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<YADAW::Audio::Mixer::Inserts>
-    Mixer::audioInputChannelPreFaderInsertsAt(std::uint32_t index)
-{
-    return preFaderInsertsAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<YADAW::Audio::Mixer::Inserts>
-    Mixer::audioInputChannelPostFaderInsertsAt(std::uint32_t index)
-{
-    return postFaderInsertsAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<YADAW::Audio::Mixer::Inserts>
-    Mixer::channelPreFaderInsertsAt(std::uint32_t index)
-{
-    return preFaderInsertsAt(ChannelListType::RegularList, index);
-}
-OptionalRef<YADAW::Audio::Mixer::Inserts>
-    Mixer::channelPostFaderInsertsAt(std::uint32_t index)
-{
-    return postFaderInsertsAt(ChannelListType::RegularList, index);
-}
-OptionalRef<YADAW::Audio::Mixer::Inserts>
-    Mixer::audioOutputChannelPreFaderInsertsAt(std::uint32_t index)
-{
-    return preFaderInsertsAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<YADAW::Audio::Mixer::Inserts>
-    Mixer::audioOutputChannelPostFaderInsertsAt(std::uint32_t index)
-{
-    return postFaderInsertsAt(ChannelListType::AudioHardwareOutputList, index);
-}
-std::optional<const std::uint32_t> Mixer::audioInputChannelSendCount(std::uint32_t index) const
-{
-    return sendCount(ChannelListType::AudioHardwareInputList, index);
-}
-std::optional<const std::uint32_t> Mixer::channelSendCount(std::uint32_t index) const
-{
-    return sendCount(ChannelListType::RegularList, index);
-}
-std::optional<const std::uint32_t> Mixer::audioOutputChannelSendCount(std::uint32_t index) const
-{
-    return sendCount(ChannelListType::AudioHardwareOutputList, index);
-}
 std::optional<const bool> Mixer::audioInputChannelSendIsPreFader(
     std::uint32_t channelIndex, std::uint32_t sendIndex) const
 {
@@ -2794,7 +2698,7 @@ std::optional<bool> Mixer::appendChannelSend(std::uint32_t channelIndex, bool is
 {
     if(channelIndex < channelCount())
     {
-        return insertChannelSend(channelIndex, *channelSendCount(channelIndex), isPreFader, destination);
+        return insertChannelSend(channelIndex, *sendCount(ChannelListType::RegularList, channelIndex), isPreFader, destination);
     }
     return std::nullopt;
 }
