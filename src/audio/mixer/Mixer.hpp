@@ -121,8 +121,7 @@ public:
     };
     struct PluginAuxIOPosition
     {
-        enum ChannelType { AudioHardwareInput, Regular, AudioHardwareOutput };
-        ChannelType channelType;
+        ChannelListType channelListType;
         std::uint32_t channelIndex;
         enum InChannelPosition { Instrument, Inserts };
         InChannelPosition inChannelPosition;
@@ -394,7 +393,7 @@ public:
 private:
     static void insertAdded(Inserts& sender, std::uint32_t position);
     static void insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t removeCount);
-    void updatePluginAuxPosition(PluginAuxIOPosition::ChannelType channelType, std::uint32_t fromChannelIndex);
+    void updatePluginAuxPosition(ChannelListType type, std::uint32_t fromChannelIndex);
     ade::NodeHandle getNodeFromPluginAuxPosition(const PluginAuxIOPosition& position) const;
 private:
     using PolarityInverterAndNode = std::pair<
