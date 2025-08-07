@@ -188,8 +188,8 @@ public: // TODO: Add API with `ChannelListType` to remove redundant codes
     void unmute();
 public:
     bool remove(ChannelListType type, std::uint32_t index, std::uint32_t removeCount = 1);
-    bool clear(ChannelListType type);
-    bool clear();
+    void clear(ChannelListType type);
+    void clear();
 public:
     std::optional<bool> appendSend(ChannelListType type, std::uint32_t channelIndex, bool isPreFader, Position destination);
     std::optional<bool> insertSend(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendPosition, bool isPreFader, Position destination);

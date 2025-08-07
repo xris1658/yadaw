@@ -400,8 +400,217 @@ void Mixer::unmute()
     unmute(ChannelListType::AudioHardwareOutputList);
 }
 
+bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t removeCount)
+{
+    if(auto last = index + removeCount; index < count(type) && index + removeCount <= count(type))
+    {
+        std::vector<ade::NodeHandle> nodesToRemove;
+        nodesToRemove.reserve(
+            removeCount * (type == ChannelListType::AudioHardwareOutputList? 6: 5)
+        );
+        if(type == ChannelListType::AudioHardwareInputList)
+        {
+            FOR_RANGE(i, index, last)
+            {
+                nodesToRemove.emplace_back(
+                    channelPolarityInverters_[type][i].second->inNodes().front()
+                );
+            }
+        }
+        else if(type == ChannelListType::RegularList)
+        {
+            instrumentBypassed_.erase(
+                instrumentBypassed_.begin() + index,
+                instrumentBypassed_.begin() + last
+            );
+            instrumentOutputChannelIndex_.erase(
+                instrumentOutputChannelIndex_.begin() + index,
+                instrumentOutputChannelIndex_.begin() + last
+            );
+            FOR_RANGE(i, index, last)
+            {
+                if(auto node = inputDevices_[i].second; node != nullptr)
+                {
+                    nodesToRemove.emplace_back(node);
+                }
+            }
+        }
+        else if(type == ChannelListType::AudioHardwareOutputList)
+        {
+            FOR_RANGE(i, index, last)
+            {
+                nodesToRemove.emplace_back(
+                    audioOutputSummings_[i].second
+                );
+                nodesToRemove.emplace_back(
+                    channelMeters_[type][i].second->outNodes().front()
+                );
+            }
+        }
+        channelPreFaderInserts_[type].erase(
+            channelPreFaderInserts_[type].begin() + index,
+            channelPreFaderInserts_[type].begin() + last
+        );
+        channelPostFaderInserts_[type].erase(
+            channelPostFaderInserts_[type].begin() + index,
+            channelPostFaderInserts_[type].begin() + last
+        );
+        FOR_RANGE(i, index, last)
+        {
+            nodesToRemove.emplace_back(channelPolarityInverters_[type][i].second);
+            nodesToRemove.emplace_back(channelMutes_[type][i].second);
+            nodesToRemove.emplace_back(channelFaders_[type][i].second);
+            nodesToRemove.emplace_back(channelMeters_[type][i].second);
+        }
+        FOR_RANGE(i, index, last)
+        {
+            clearSends(type, i);
+        }
+        if(batchUpdater_)
+        {
+            for(const auto& node: nodesToRemove)
+            {
+                if(auto device = graphWithPDC_.removeNode(node))
+                {
+                    batchUpdater_->addObject(std::move(device));
+                }
+            }
+        }
+        else
+        {
+            std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> devicesToRemove;
+            devicesToRemove.reserve(nodesToRemove.size());
+            for(const auto& node: nodesToRemove)
+            {
+                if(auto device = graphWithPDC_.removeNode(node))
+                {
+                    devicesToRemove.emplace_back(std::move(device));
+                }
+            }
+            connectionUpdatedCallback_(*this);
+        }
+        if(type == ChannelListType::RegularList)
+        {
+            mainOutput_.erase(
+                mainOutput_.begin() + index,
+                mainOutput_.begin() + last
+            );
+            mainInput_.erase(
+                mainInput_.begin() + index,
+                mainInput_.begin() + last
+            );
+            inputDevices_.erase(
+                inputDevices_.begin() + index,
+                inputDevices_.begin() + last
+            );
+            instrumentContexts_.erase(
+                instrumentContexts_.begin() + index,
+                instrumentContexts_.begin() + last
+            );
+        }
+        channelPolarityInverters_[type].erase(
+            channelPolarityInverters_[type].begin() + index,
+            channelPolarityInverters_[type].begin() + last
+        );
+        channelMutes_[type].erase(
+            channelMutes_[type].begin() + index,
+            channelMutes_[type].begin() + last
+        );
+        channelMeters_[type].erase(
+            channelMeters_[type].begin() + index,
+            channelMeters_[type].begin() + last
+        );
+        channelFaders_[type].erase(
+            channelFaders_[type].begin() + index,
+            channelFaders_[type].begin() + last
+        );
+        channelSendIDs_[type].erase(
+            channelSendIDs_[type].begin() + index,
+            channelSendIDs_[type].begin() + last
+        );
+        channelSendPolarityInverters_[type].erase(
+            channelSendPolarityInverters_[type].begin() + index,
+            channelSendPolarityInverters_[type].begin() + last
+        );
+        channelSendIDs_[type].erase(
+            channelSendIDs_[type].begin() + index,
+            channelSendIDs_[type].begin() + last
+        );
+        channelSendMutes_[type].erase(
+            channelSendMutes_[type].begin() + index,
+            channelSendMutes_[type].begin() + last
+        );
+        channelSendFaders_[type].erase(
+            channelSendFaders_[type].begin() + index,
+            channelSendFaders_[type].begin() + last
+        );
+        channelSendDestinations_[type].erase(
+            channelSendDestinations_[type].begin() + index,
+            channelSendDestinations_[type].begin() + last
+        );
+        channelInfos_[type].erase(
+            channelInfos_[type].begin() + index,
+            channelInfos_[type].begin() + last
+        );
+        std::sort(
+            channelIDs_[type].begin() + index,
+            channelIDs_[type].begin() + last
+        );
+        auto it2 = channelIDs_[type].begin() + index;
+        std::erase_if(
+            channelIDAndIndex_[type],
+            [this, index, last](IDAndIndex idAndIndex)
+            {
+                auto it = std::lower_bound(
+                    channelId_.begin() + index,
+                    channelId_.begin() + last,
+                    idAndIndex.id
+                );
+                return it != channelId_.begin() + last
+                    && *it == idAndIndex.id;
+            }
+        );
+        for(auto& [id, index]: channelIDAndIndex_[type])
+        {
+            if(index >= last)
+            {
+                index -= removeCount;
+            }
+        }
+        channelIDs_[type].erase(
+            channelIDs_[type].begin() + index,
+            channelIDs_[type].begin() + last
+        );
+        auto& vecInput = pluginAuxInputs_[type];
+        vecInput.erase(vecInput.begin() + index, vecInput.begin() + last);
+        auto& vecOutput = pluginAuxOutputs_[type];
+        vecOutput.erase(vecOutput.begin() + index, vecOutput.begin() + last);
+        auto& vecInputSources = pluginAuxInputSources_[type];
+        vecInputSources.erase(vecInputSources.begin() + index, vecInputSources.begin() + last);
+        auto& vecOutputDestinations = pluginAuxOutputDestinations_[type];
+        vecOutputDestinations.erase(vecOutputDestinations.begin() + index, vecOutputDestinations.begin() + last);
+        updatePluginAuxPosition(
+            ChannelListType::RegularList, index
+        );
+        return true;
+    }
+    return false;
+}
+
+void Mixer::clear(ChannelListType type)
+{
+    remove(type, 0, count(type));
+}
+
+void Mixer::clear()
+{
+    clear(ChannelListType::AudioHardwareInputList);
+    clear(ChannelListType::RegularList);
+    clear(ChannelListType::AudioHardwareOutputList);
+}
+
 std::optional<bool> Mixer::appendSend(ChannelListType type,
-    std::uint32_t channelIndex, bool isPreFader, Position destination)
+                                      std::uint32_t channelIndex, bool isPreFader, Position destination)
 {
     return insertSend(type, channelIndex, *sendCount(type, channelIndex), isPreFader, destination);
 }
@@ -1663,142 +1872,12 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
 bool Mixer::removeAudioInputChannel(
     std::uint32_t first, std::uint32_t removeCount)
 {
-    if(auto last = first + removeCount;
-        first < count(ChannelListType::AudioHardwareInputList)
-            && last <= count(ChannelListType::AudioHardwareInputList)
-    )
-    {
-        std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 5);
-        FOR_RANGE(i, first, last)
-        {
-            auto polarityInverterNode = audioInputPolarityInverters_[i].second;
-            nodesToRemove.emplace_back(polarityInverterNode);
-            nodesToRemove.emplace_back(polarityInverterNode->inNodes().front());
-            nodesToRemove.emplace_back(audioInputMutes_[i].second);
-            nodesToRemove.emplace_back(audioInputFaders_[i].second);
-            nodesToRemove.emplace_back(audioInputMeters_[i].second);
-        }
-        audioInputPreFaderInserts_.erase(
-            audioInputPreFaderInserts_.begin() + first,
-            audioInputPreFaderInserts_.begin() + last
-        );
-        audioInputPostFaderInserts_.erase(
-            audioInputPostFaderInserts_.begin() + first,
-            audioInputPostFaderInserts_.begin() + last
-        );
-        // Remove sends from the removing channel
-        FOR_RANGE(i, first, last)
-        {
-            clearSends(ChannelListType::AudioHardwareInputList, i);
-        }
-        if(batchUpdater_)
-        {
-            FOR_RANGE0(i, nodesToRemove.size())
-            {
-                if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
-                {
-                    batchUpdater_->addObject(std::move(device));
-                }
-            }
-        }
-        else
-        {
-            std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> devicesToRemove;
-            devicesToRemove.reserve(nodesToRemove.size());
-            FOR_RANGE0(i, nodesToRemove.size())
-            {
-                if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
-                {
-                    devicesToRemove.emplace_back(std::move(device));
-                }
-            }
-            connectionUpdatedCallback_(*this);
-        }
-        audioInputMutes_.erase(
-            audioInputMutes_.begin() + first,
-            audioInputMutes_.begin() + last
-        );
-        audioInputFaders_.erase(
-            audioInputFaders_.begin() + first,
-            audioInputFaders_.begin() + last
-        );
-        audioInputMeters_.erase(
-            audioInputMeters_.begin() + first,
-            audioInputMeters_.begin() + last
-        );
-        audioInputChannelInfo_.erase(
-            audioInputChannelInfo_.begin() + first,
-            audioInputChannelInfo_.begin() + last
-        );
-        audioInputPolarityInverters_.erase(
-            audioInputPolarityInverters_.begin() + first,
-            audioInputPolarityInverters_.begin() + last
-        );
-        audioInputSendIDs_.erase(
-            audioInputSendIDs_.begin() + first,
-            audioInputSendIDs_.begin() + last
-        );
-        audioInputSendPolarityInverters_.erase(
-            audioInputSendPolarityInverters_.begin() + first,
-            audioInputSendPolarityInverters_.begin() + last
-        );
-        audioInputSendMutes_.erase(
-            audioInputSendMutes_.begin() + first,
-            audioInputSendMutes_.begin() + last
-        );
-        audioInputSendFaders_.erase(
-            audioInputSendFaders_.begin() + first,
-            audioInputSendFaders_.begin() + last
-        );
-        audioInputSendDestinations_.erase(
-            audioInputSendDestinations_.begin() + first,
-            audioInputSendDestinations_.begin() + last
-        );
-        std::sort(
-            audioInputChannelId_.begin() + first,
-            audioInputChannelId_.begin() + last
-        );
-        auto it2 = audioInputChannelId_.begin() + first;
-        audioInputChannelIdAndIndex_.erase(
-            std::remove_if(
-                audioInputChannelIdAndIndex_.begin(),
-                audioInputChannelIdAndIndex_.end(),
-                [&it2](IDAndIndex idAndIndex)
-                {
-                    if(idAndIndex.id == *it2)
-                    {
-                        ++it2;
-                        return true;
-                    }
-                    return false;
-                }
-            ),
-            audioInputChannelIdAndIndex_.end()
-        );
-        audioInputChannelId_.erase(
-            audioInputChannelId_.begin() + first,
-            audioInputChannelId_.begin() + last
-        );
-        auto& vecInput = pluginAuxInputs_[ChannelListType::AudioHardwareInputList];
-        vecInput.erase(vecInput.begin() + first, vecInput.begin() + last);
-        auto& vecOutput = pluginAuxOutputs_[ChannelListType::AudioHardwareInputList];
-        vecOutput.erase(vecOutput.begin() + first, vecOutput.begin() + last);
-        auto& vecInputSources = pluginAuxInputSources_[ChannelListType::AudioHardwareInputList];
-        vecInputSources.erase(vecInputSources.begin() + first, vecInputSources.begin() + last);
-        auto& vecOutputDestinations = pluginAuxOutputDestinations_[ChannelListType::AudioHardwareInputList];
-        vecOutputDestinations.erase(vecOutputDestinations.begin() + first, vecOutputDestinations.begin() + last);
-        updatePluginAuxPosition(
-            ChannelListType::AudioHardwareInputList, first
-        );
-        return true;
-    }
-    return false;
+    return remove(ChannelListType::AudioHardwareInputList, first, removeCount);
 }
 
 void Mixer::clearAudioInputChannels()
 {
-    removeAudioInputChannel(0, count(ChannelListType::AudioHardwareInputList));
+    clear(ChannelListType::AudioHardwareInputList);
 }
 
 bool Mixer::appendAudioOutputChannel(
@@ -1970,150 +2049,12 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
 bool Mixer::removeAudioOutputChannel(
     std::uint32_t first, std::uint32_t removeCount)
 {
-    if(auto last = first + removeCount;
-        first < count(ChannelListType::AudioHardwareOutputList)
-            && last <= count(ChannelListType::AudioHardwareOutputList)
-    )
-    {
-        std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 6);
-        FOR_RANGE(i, first, last)
-        {
-            nodesToRemove.emplace_back(audioOutputSummings_[i].second);
-            nodesToRemove.emplace_back(audioOutputMutes_[i].second);
-            nodesToRemove.emplace_back(audioOutputFaders_[i].second);
-            nodesToRemove.emplace_back(audioOutputMeters_[i].second);
-            nodesToRemove.emplace_back(
-                *(audioOutputMeters_[i].second->outNodes().begin())
-            );
-            nodesToRemove.emplace_back(
-                audioOutputPolarityInverters_[i].second
-            );
-        }
-        audioOutputPreFaderInserts_.erase(
-            audioOutputPreFaderInserts_.begin() + first,
-            audioOutputPreFaderInserts_.begin() + last
-        );
-        audioOutputPostFaderInserts_.erase(
-            audioOutputPostFaderInserts_.begin() + first,
-            audioOutputPostFaderInserts_.begin() + last
-        );
-        // Remove sends from the removing channel
-        FOR_RANGE(i, first, last)
-        {
-            clearSends(ChannelListType::AudioHardwareOutputList, i);
-        }
-        if(batchUpdater_)
-        {
-            FOR_RANGE0(i, nodesToRemove.size())
-            {
-                if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
-                {
-                    batchUpdater_->addObject(std::move(device));
-                }
-            }
-        }
-        else
-        {
-            std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> devicesToRemove;
-            devicesToRemove.reserve(nodesToRemove.size());
-            FOR_RANGE0(i, nodesToRemove.size())
-            {
-                if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
-                {
-                    devicesToRemove.emplace_back(std::move(device));
-                }
-            }
-            connectionUpdatedCallback_(*this);
-        }
-        audioOutputMutes_.erase(
-            audioOutputMutes_.begin() + first,
-            audioOutputMutes_.begin() + last
-        );
-        audioOutputSummings_.erase(
-            audioOutputSummings_.begin() + first,
-            audioOutputSummings_.begin() + last
-        );
-        audioOutputFaders_.erase(
-            audioOutputFaders_.begin() + first,
-            audioOutputFaders_.begin() + last
-        );
-        audioOutputMeters_.erase(
-            audioOutputMeters_.begin() + first,
-            audioOutputMeters_.begin() + last
-        );
-        audioOutputPolarityInverters_.erase(
-            audioOutputPolarityInverters_.begin() + first,
-            audioOutputPolarityInverters_.begin() + last
-        );
-        audioOutputSendIDs_.erase(
-            audioOutputSendIDs_.begin() + first,
-            audioOutputSendIDs_.begin() + last
-        );
-        audioOutputSendPolarityInverters_.erase(
-            audioOutputSendPolarityInverters_.begin() + first,
-            audioOutputSendPolarityInverters_.begin() + last
-        );
-        audioOutputSendMutes_.erase(
-            audioOutputSendMutes_.begin() + first,
-            audioOutputSendMutes_.begin() + last
-        );
-        audioOutputSendFaders_.erase(
-            audioOutputSendFaders_.begin() + first,
-            audioOutputSendFaders_.begin() + last
-        );
-        audioOutputSendDestinations_.erase(
-            audioOutputSendDestinations_.begin() + first,
-            audioOutputSendDestinations_.begin() + last
-        );
-        audioOutputChannelInfo_.erase(
-            audioOutputChannelInfo_.begin() + first,
-            audioOutputChannelInfo_.begin() + last
-        );
-        std::sort(
-            audioOutputChannelId_.begin() + first,
-            audioOutputChannelId_.begin() + last
-        );
-        auto it2 = audioOutputChannelId_.begin() + first;
-        audioOutputChannelIdAndIndex_.erase(
-            std::remove_if(
-                audioOutputChannelIdAndIndex_.begin(),
-                audioOutputChannelIdAndIndex_.end(),
-                [&it2](IDAndIndex idAndIndex)
-                {
-                    if(idAndIndex.id == *it2)
-                    {
-                        ++it2;
-                        return true;
-                    }
-                    return false;
-                }
-            ),
-            audioOutputChannelIdAndIndex_.end()
-        );
-        audioOutputChannelId_.erase(
-            audioOutputChannelId_.begin() + first,
-            audioOutputChannelId_.begin() + last
-        );
-        auto& vecInput = pluginAuxInputs_[ChannelListType::AudioHardwareOutputList];
-        vecInput.erase(vecInput.begin() + first, vecInput.begin() + last);
-        auto& vecOutput = pluginAuxOutputs_[ChannelListType::AudioHardwareOutputList];
-        vecOutput.erase(vecOutput.begin() + first, vecOutput.begin() + last);
-        auto& vecInputSources = pluginAuxInputSources_[ChannelListType::AudioHardwareOutputList];
-        vecInputSources.erase(vecInputSources.begin() + first, vecInputSources.begin() + last);
-        auto& vecOutputDestinations = pluginAuxOutputDestinations_[ChannelListType::AudioHardwareOutputList];
-        vecOutputDestinations.erase(vecOutputDestinations.begin() + first, vecOutputDestinations.begin() + last);
-        updatePluginAuxPosition(
-            ChannelListType::AudioHardwareOutputList, first
-        );
-        return true;
-    }
-    return false;
+    return remove(ChannelListType::AudioHardwareOutputList, first, removeCount);
 }
 
 void Mixer::clearAudioOutputChannels()
 {
-    removeAudioOutputChannel(0, count(ChannelListType::AudioHardwareOutputList));
+    return clear(ChannelListType::AudioHardwareOutputList);
 }
 
 bool Mixer::insertChannels(
@@ -2543,176 +2484,12 @@ bool Mixer::appendChannels(
 
 bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
 {
-    if(auto last = first + removeCount;
-        first < count(ChannelListType::RegularList)
-        && last <= count(ChannelListType::RegularList))
-    {
-        instrumentBypassed_.erase(
-            instrumentBypassed_.begin() + first,
-            instrumentBypassed_.begin() + last
-        );
-        instrumentOutputChannelIndex_.erase(
-            instrumentOutputChannelIndex_.begin() + first,
-            instrumentOutputChannelIndex_.begin() + last
-        );
-        preFaderInserts_.erase(
-            preFaderInserts_.begin() + first,
-            preFaderInserts_.begin() + last
-        );
-        postFaderInserts_.erase(
-            postFaderInserts_.begin() + first,
-            postFaderInserts_.begin() + last
-        );
-        std::vector<ade::NodeHandle> nodesToRemove;
-        nodesToRemove.reserve(removeCount * 5);
-        FOR_RANGE(i, first, last)
-        {
-            auto nodeToRemove = inputDevices_[i].second;
-            if(nodeToRemove != nullptr)
-            {
-                nodesToRemove.emplace_back(nodeToRemove);
-            }
-            nodesToRemove.emplace_back(polarityInverters_[i].second);
-            nodesToRemove.emplace_back(mutes_[i].second);
-            nodesToRemove.emplace_back(faders_[i].second);
-            nodesToRemove.emplace_back(meters_[i].second);
-        }
-        // Remove sends from the removing channel
-        FOR_RANGE(i, first, last)
-        {
-            clearSends(ChannelListType::RegularList, i);
-        }
-        if(batchUpdater_)
-        {
-            FOR_RANGE0(i, nodesToRemove.size())
-            {
-                if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
-                {
-                    batchUpdater_->addObject(std::move(device));
-                }
-            }
-        }
-        else
-        {
-            std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> devicesToRemove;
-            devicesToRemove.reserve(nodesToRemove.size());
-            FOR_RANGE0(i, nodesToRemove.size())
-            {
-                if(auto device = graphWithPDC_.removeNode(nodesToRemove[i]))
-                {
-                    devicesToRemove.emplace_back(std::move(device));
-                }
-            }
-            connectionUpdatedCallback_(*this);
-        }
-        mainOutput_.erase(
-            mainOutput_.begin() + first,
-            mainOutput_.begin() + last
-        );
-        mainInput_.erase(
-            mainInput_.begin() + first,
-            mainInput_.begin() + last
-        );
-        inputDevices_.erase(
-            inputDevices_.begin() + first,
-            inputDevices_.begin() + last
-        );
-        instrumentContexts_.erase(
-            instrumentContexts_.begin() + first,
-            instrumentContexts_.begin() + last
-        );
-        polarityInverters_.erase(
-            polarityInverters_.begin() + first,
-            polarityInverters_.begin() + last
-        );
-        mutes_.erase(
-            mutes_.begin() + first,
-            mutes_.begin() + last
-        );
-        meters_.erase(
-            meters_.begin() + first,
-            meters_.begin() + last
-        );
-        faders_.erase(
-            faders_.begin() + first,
-            faders_.begin() + last
-            );
-        sendIDs_.erase(
-            sendIDs_.begin() + first,
-            sendIDs_.begin() + last
-        );
-        sendPolarityInverters_.erase(
-            sendPolarityInverters_.begin() + first,
-            sendPolarityInverters_.begin() + last
-        );
-        sendMutes_.erase(
-            sendMutes_.begin() + first,
-            sendMutes_.begin() + last
-        );
-        sendFaders_.erase(
-            sendFaders_.begin() + first,
-            sendFaders_.begin() + last
-        );
-        sendDestinations_.erase(
-            sendDestinations_.begin() + first,
-            sendDestinations_.begin() + last
-        );
-        channelInfo_.erase(
-            channelInfo_.begin() + first,
-            channelInfo_.begin() + last
-        );
-        std::sort(
-            channelId_.begin() + first,
-            channelId_.begin() + last
-        );
-        auto it2 = channelId_.begin() + first;
-        channelIdAndIndex_.erase(
-            std::remove_if(
-                channelIdAndIndex_.begin(),
-                channelIdAndIndex_.end(),
-                [this, first, last](IDAndIndex idAndIndex)
-                {
-                    auto it = std::lower_bound(
-                        channelId_.begin() + first,
-                        channelId_.begin() + last,
-                        idAndIndex.id
-                    );
-                    return it != channelId_.begin() + last
-                        && *it == idAndIndex.id;
-                }
-            ),
-            channelIdAndIndex_.end()
-        );
-        for(auto& [id, index]: channelIdAndIndex_)
-        {
-            if(index >= last)
-            {
-                index -= removeCount;
-            }
-        }
-        channelId_.erase(
-            channelId_.begin() + first,
-            channelId_.begin() + last
-        );
-        auto& vecInput = pluginAuxInputs_[ChannelListType::RegularList];
-        vecInput.erase(vecInput.begin() + first, vecInput.begin() + last);
-        auto& vecOutput = pluginAuxOutputs_[ChannelListType::RegularList];
-        vecOutput.erase(vecOutput.begin() + first, vecOutput.begin() + last);
-        auto& vecInputSources = pluginAuxInputSources_[ChannelListType::RegularList];
-        vecInputSources.erase(vecInputSources.begin() + first, vecInputSources.begin() + last);
-        auto& vecOutputDestinations = pluginAuxOutputDestinations_[ChannelListType::RegularList];
-        vecOutputDestinations.erase(vecOutputDestinations.begin() + first, vecOutputDestinations.begin() + last);
-        updatePluginAuxPosition(
-            ChannelListType::RegularList, first
-        );
-        return true;
-    }
-    return false;
+    return remove(ChannelListType::RegularList, first, removeCount);
 }
 
 void Mixer::clearChannels()
 {
-    removeChannel(0, count(ChannelListType::RegularList));
+    clear(ChannelListType::RegularList);
 }
 
 ade::NodeHandle Mixer::getInstrument(std::uint32_t index) const
