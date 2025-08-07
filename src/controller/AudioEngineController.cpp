@@ -89,7 +89,7 @@ void AudioEngine::initialize(double sampleRate, std::uint32_t bufferSize)
     {
         FOR_RANGE0(i, mixer_.count(channelListType))
         {
-            mixer_.volumeFaderAt(i)->get().initialize(sampleRate, bufferSize);
+            mixer_.volumeFaderAt(channelListType, i)->get().initialize(sampleRate, bufferSize);
         }
     }
 }
@@ -116,9 +116,7 @@ YADAW::Audio::Engine::AudioEngineWorkerThreadPool& AudioEngine::workerThreadPool
 
 void AudioEngine::uninitialize()
 {
-    mixer_.clearChannels();
-    mixer_.clearAudioInputChannels();
-    mixer_.clearAudioOutputChannels();
+    mixer_.clear();
     mixer_.graph().clearMultiInputNodes();
     mixer_.graph().graph().clear();
 }
@@ -170,7 +168,7 @@ void AudioEngine::process()
     {
         FOR_RANGE0(i, mixer_.count(channelListType))
         {
-            mixer_.volumeFaderAt(i)->get().onBufferSwitched(now);
+            mixer_.volumeFaderAt(channelListType, i)->get().onBufferSwitched(now);
         }
     }
     workerThreadPool_.mainFunc();

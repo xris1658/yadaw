@@ -141,9 +141,9 @@ OptionalRef<YADAW::Audio::Mixer::Inserts> Mixer::postFaderInsertsAt(
 
 std::optional<const std::uint32_t> Mixer::sendCount(ChannelListType type, std::uint32_t index) const
 {
-    if(auto& destinations = channelSendDestinations_[type]; index < destinations.size())
+    if(index < count(type))
     {
-        return destinations.size();
+        return channelSendDestinations_[type][index].size();
     }
     return std::nullopt;
 }
@@ -610,7 +610,7 @@ void Mixer::clear()
 }
 
 std::optional<bool> Mixer::appendSend(ChannelListType type,
-                                      std::uint32_t channelIndex, bool isPreFader, Position destination)
+    std::uint32_t channelIndex, bool isPreFader, Position destination)
 {
     return insertSend(type, channelIndex, *sendCount(type, channelIndex), isPreFader, destination);
 }
@@ -1020,323 +1020,16 @@ std::optional<bool> Mixer::removeSend(
 std::optional<bool> Mixer::clearSends(
     ChannelListType type, std::uint32_t channelIndex)
 {
-    if(channelIndex < channelCount())
+    if(channelIndex < count(type))
     {
         return removeSend(type, channelIndex, 0, *sendCount(type, channelIndex));
     }
     return std::nullopt;
 }
 
-#pragma region old-functions
-std::uint32_t Mixer::audioInputChannelCount() const
-{
-    return count(ChannelListType::AudioHardwareInputList);
-}
-std::uint32_t Mixer::channelCount() const
-{
-    return count(ChannelListType::RegularList);
-}
-std::uint32_t Mixer::audioOutputChannelCount() const
-{
-    return count(ChannelListType::AudioHardwareOutputList);
-}
-std::optional<const bool> Mixer::audioInputChannelSendIsPreFader(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendIsPreFader(ChannelListType::AudioHardwareInputList, channelIndex, sendIndex);
-}
-std::optional<const bool> Mixer::channelSendIsPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendIsPreFader(ChannelListType::RegularList, channelIndex, sendIndex);
-}
-std::optional<const bool> Mixer::audioOutputChannelSendIsPreFader(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendIsPreFader(ChannelListType::AudioHardwareOutputList, channelIndex, sendIndex);
-}
-std::optional<const Mixer::Position> Mixer::audioInputChannelSendDestination(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendDestination(ChannelListType::AudioHardwareInputList, channelIndex, sendIndex);
-}
-std::optional<const Mixer::Position> Mixer::channelSendDestination(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendDestination(ChannelListType::RegularList, channelIndex, sendIndex);
-}
-std::optional<const Mixer::Position> Mixer::audioOutputChannelSendDestination(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendDestination(ChannelListType::AudioHardwareOutputList, channelIndex, sendIndex);
-}
-std::optional<const IDGen::ID> Mixer::audioInputChannelSendID(std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendID(ChannelListType::AudioHardwareInputList, channelIndex, sendIndex);
-}
-std::optional<const IDGen::ID> Mixer::channelSendID(std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendID(ChannelListType::RegularList, channelIndex, sendIndex);
-}
-std::optional<const IDGen::ID> Mixer::audioOutputChannelSendID(std::uint32_t channelIndex,
-    std::uint32_t sendIndex) const
-{
-    return sendID(ChannelListType::AudioHardwareOutputList, channelIndex, sendIndex);
-}
-OptionalRef<const VolumeFader> Mixer::audioInputChannelSendFaderAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendFaderAt(ChannelListType::AudioHardwareInputList, channelIndex, sendIndex);
-}
-OptionalRef<const VolumeFader> Mixer::ChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendFaderAt(ChannelListType::RegularList, channelIndex, sendIndex);
-}
-OptionalRef<const VolumeFader> Mixer::audioOutputChannelSendFaderAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendFaderAt(ChannelListType::AudioHardwareOutputList, channelIndex, sendIndex);
-}
-OptionalRef<VolumeFader> Mixer::audioInputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex)
-{
-    return sendFaderAt(ChannelListType::AudioHardwareInputList, channelIndex, sendIndex);
-}
-OptionalRef<VolumeFader> Mixer::channelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex)
-{
-    return sendFaderAt(ChannelListType::RegularList, channelIndex, sendIndex);
-}
-OptionalRef<VolumeFader> Mixer::audioOutputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex)
-{
-    return sendFaderAt(ChannelListType::AudioHardwareOutputList, channelIndex, sendIndex);
-}
-OptionalRef<const YADAW::Audio::Util::Mute> Mixer::audioInputChannelSendMuteAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendMuteAt(ChannelListType::AudioHardwareInputList, channelIndex, sendIndex);
-}
-OptionalRef<const YADAW::Audio::Util::Mute> Mixer::channelSendMuteAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendMuteAt(ChannelListType::RegularList, channelIndex, sendIndex);
-}
-OptionalRef<const YADAW::Audio::Util::Mute> Mixer::audioOutputChannelSendMuteAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendMuteAt(ChannelListType::AudioHardwareOutputList, channelIndex, sendIndex);
-}
-OptionalRef<YADAW::Audio::Util::Mute> Mixer::audioInputChannelSendMuteAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex)
-{
-    return sendMuteAt(ChannelListType::AudioHardwareInputList, channelIndex, sendIndex);
-}
-OptionalRef<YADAW::Audio::Util::Mute> Mixer::channelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex)
-{
-    return sendMuteAt(ChannelListType::RegularList, channelIndex, sendIndex);
-}
-OptionalRef<YADAW::Audio::Util::Mute> Mixer::audioOutputChannelSendMuteAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex)
-{
-    return sendMuteAt(ChannelListType::AudioHardwareOutputList, channelIndex, sendIndex);
-}
-OptionalRef<const PolarityInverter> Mixer::audioInputChannelSendPolarityInverterAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendPolarityInverterAt(ChannelListType::AudioHardwareInputList, channelIndex, sendIndex);
-}
-OptionalRef<const PolarityInverter> Mixer::channelSendPolarityInverterAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendPolarityInverterAt(ChannelListType::RegularList, channelIndex, sendIndex);
-}
-OptionalRef<const PolarityInverter> Mixer::audioOutputChannelSendPolarityInverterAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex) const
-{
-    return sendPolarityInverterAt(ChannelListType::AudioHardwareOutputList, channelIndex, sendIndex);
-}
-OptionalRef<PolarityInverter> Mixer::audioInputChannelSendPolarityInverterAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex)
-{
-    return sendPolarityInverterAt(ChannelListType::AudioHardwareInputList, channelIndex, sendIndex);
-}
-OptionalRef<PolarityInverter> Mixer::channelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex)
-{
-    return sendPolarityInverterAt(ChannelListType::RegularList, channelIndex, sendIndex);
-}
-OptionalRef<PolarityInverter> Mixer::audioOutputChannelSendPolarityInverterAt(
-    std::uint32_t channelIndex, std::uint32_t sendIndex)
-{
-    return sendPolarityInverterAt(ChannelListType::AudioHardwareOutputList, channelIndex, sendIndex);
-}
-OptionalRef<const Mixer::ChannelInfo> Mixer::audioInputChannelInfoAt(std::uint32_t index) const
-{
-    return channelInfoAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<const Mixer::ChannelInfo> Mixer::audioOutputChannelInfoAt(std::uint32_t index) const
-{
-    return channelInfoAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<const Mixer::ChannelInfo> Mixer::channelInfoAt(std::uint32_t index) const
-{
-    return channelInfoAt(ChannelListType::RegularList, index);
-}
-OptionalRef<Mixer::ChannelInfo> Mixer::audioInputChannelInfoAt(std::uint32_t index)
-{
-    return channelInfoAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<Mixer::ChannelInfo> Mixer::audioOutputChannelInfoAt(std::uint32_t index)
-{
-    return channelInfoAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<Mixer::ChannelInfo> Mixer::channelInfoAt(std::uint32_t index)
-{
-    return channelInfoAt(ChannelListType::RegularList, index);
-}
-OptionalRef<const VolumeFader> Mixer::audioInputVolumeFaderAt(std::uint32_t index) const
-{
-    return volumeFaderAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<const VolumeFader> Mixer::audioOutputVolumeFaderAt(std::uint32_t index) const
-{
-    return volumeFaderAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<const VolumeFader> Mixer::volumeFaderAt(std::uint32_t index) const
-{
-    return volumeFaderAt(ChannelListType::RegularList, index);
-}
-OptionalRef<VolumeFader> Mixer::audioInputVolumeFaderAt(std::uint32_t index)
-{
-    return volumeFaderAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<VolumeFader> Mixer::audioOutputVolumeFaderAt(std::uint32_t index)
-{
-    return volumeFaderAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<VolumeFader> Mixer::volumeFaderAt(std::uint32_t index)
-{
-    return volumeFaderAt(ChannelListType::RegularList, index);
-}
-OptionalRef<const YADAW::Audio::Util::Mute> Mixer::audioInputMuteAt(std::uint32_t index) const
-{
-    return muteAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<const YADAW::Audio::Util::Mute> Mixer::audioOutputMuteAt(std::uint32_t index) const
-{
-    return muteAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<const YADAW::Audio::Util::Mute> Mixer::muteAt(std::uint32_t index) const
-{
-    return muteAt(ChannelListType::RegularList, index);
-}
-OptionalRef<YADAW::Audio::Util::Mute> Mixer::audioInputMuteAt(std::uint32_t index)
-{
-    return muteAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<YADAW::Audio::Util::Mute> Mixer::audioOutputMuteAt(std::uint32_t index)
-{
-    return muteAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<YADAW::Audio::Util::Mute> Mixer::muteAt(std::uint32_t index)
-{
-    return muteAt(ChannelListType::RegularList, index);
-}
-OptionalRef<const Meter> Mixer::audioInputMeterAt(std::uint32_t index) const
-{
-    return meterAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<const Meter> Mixer::audioOutputMeterAt(std::uint32_t index) const
-{
-    return meterAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<const Meter> Mixer::meterAt(std::uint32_t index) const
-{
-    return meterAt(ChannelListType::RegularList, index);
-}
-OptionalRef<Meter> Mixer::audioInputMeterAt(std::uint32_t index)
-{
-    return meterAt(ChannelListType::AudioHardwareInputList, index);
-}
-OptionalRef<Meter> Mixer::audioOutputMeterAt(std::uint32_t index)
-{
-    return meterAt(ChannelListType::AudioHardwareOutputList, index);
-}
-OptionalRef<Meter> Mixer::meterAt(std::uint32_t index)
-{
-    return meterAt(ChannelListType::RegularList, index);
-}
-std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>>
-Mixer::audioInputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const
-{
-    return channelGroupTypeAndChannelCountAt(ChannelListType::AudioHardwareInputList, index);
-}
-std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>>
-Mixer::audioOutputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const
-{
-    return channelGroupTypeAndChannelCountAt(ChannelListType::RegularList, index);
-}
-std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>>
-Mixer::channelGroupTypeAndChannelCountAt(std::uint32_t index) const
-{
-    return channelGroupTypeAndChannelCountAt(ChannelListType::AudioHardwareOutputList, index);
-}
-std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioInputChannelIDAt(
-    std::uint32_t index) const
-{
-    return idAt(ChannelListType::AudioHardwareInputList, index);
-}
-std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::audioOutputChannelIDAt(
-    std::uint32_t index) const
-{
-    return idAt(ChannelListType::AudioHardwareOutputList, index);
-}
-std::optional<YADAW::Util::AutoIncrementID::ID> Mixer::channelIDAt(
-    std::uint32_t index) const
-{
-    return idAt(ChannelListType::RegularList, index);
-}
-std::optional<std::uint32_t> Mixer::getInputIndexOfId(IDGen::ID id) const
-{
-    return getChannelIndexOfId(ChannelListType::AudioHardwareInputList, id);
-}
-std::optional<std::uint32_t> Mixer::getOutputIndexOfId(IDGen::ID id) const
-{
-    return getChannelIndexOfId(ChannelListType::AudioHardwareOutputList, id);
-}
-std::optional<std::uint32_t> Mixer::getIndexOfId(IDGen::ID id) const
-{
-    return getChannelIndexOfId(ChannelListType::RegularList, id);
-}
-bool Mixer::hasMuteInAudioInputChannels() const
-{
-    return hasMute(ChannelListType::AudioHardwareInputList);
-}
-bool Mixer::hasMuteInRegularChannels() const
-{
-    return hasMute(ChannelListType::RegularList);
-}
-bool Mixer::hasMuteInAudioOutputChannels() const
-{
-    return hasMute(ChannelListType::AudioHardwareOutputList);
-}
-void Mixer::unmuteAudioInputChannels()
-{
-    unmute(ChannelListType::AudioHardwareInputList);
-}
-void Mixer::unmuteRegularChannels()
-{
-    unmute(ChannelListType::RegularList);
-}
-void Mixer::unmuteAudioOutputChannels()
-{
-    unmute(ChannelListType::AudioHardwareOutputList);
-}
-void Mixer::unmuteAllChannels()
-{
-    unmute();
-}
-#pragma endregion old-functions
-
 OptionalRef<const Mixer::Position> Mixer::mainInputAt(std::uint32_t index) const
 {
-    if(index < channelCount()
+    if(index < count(ChannelListType::RegularList)
         && channelInfo_[index].channelType == ChannelType::Audio)
     {
         return {mainInput_[index]};
@@ -1346,7 +1039,7 @@ OptionalRef<const Mixer::Position> Mixer::mainInputAt(std::uint32_t index) const
 
 bool Mixer::setMainInputAt(std::uint32_t index, Position position)
 {
-    if(index < channelCount()
+    if(index < count(ChannelListType::RegularList)
         && channelInfo_[index].channelType == ChannelType::Audio)
     {
         // Disconnect
@@ -1403,7 +1096,7 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
 
 OptionalRef<const Mixer::Position> Mixer::mainOutputAt(std::uint32_t index) const
 {
-    if(index < channelCount())
+    if(index < count(ChannelListType::RegularList))
     {
         return {mainOutput_[index]};
     }
@@ -1412,7 +1105,7 @@ OptionalRef<const Mixer::Position> Mixer::mainOutputAt(std::uint32_t index) cons
 
 bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
 {
-    if(index >= channelCount())
+    if(index >= count(ChannelListType::RegularList))
     {
         return false;
     }
@@ -1552,10 +1245,13 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
             if(it != audioOutputChannelIdAndIndex_.end() && it->id == position.id)
             {
                 auto outputChannelIndex = it->index;
-                const auto& destPair =
-                    *audioOutputChannelGroupTypeAndChannelCountAt(outputChannelIndex);
-                const auto& srcPair =
-                    *channelGroupTypeAndChannelCountAt(index);
+                const auto& destPair = *channelGroupTypeAndChannelCountAt(
+                    ChannelListType::AudioHardwareOutputList,
+                    outputChannelIndex
+                );
+                const auto& srcPair = *channelGroupTypeAndChannelCountAt(
+                    ChannelListType::RegularList, index
+                );
                 if(srcPair == destPair)
                 {
                     auto fromNode = postFaderInserts_[index]->outNode();
@@ -1606,9 +1302,9 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 if(channelType == ChannelType::AudioBus || channelType == ChannelType::AudioFX)
                 {
                     const auto& destPair =
-                        *channelGroupTypeAndChannelCountAt(outputChannelIndex);
+                        *channelGroupTypeAndChannelCountAt(ChannelListType::RegularList, outputChannelIndex);
                     const auto& srcPair =
-                        *channelGroupTypeAndChannelCountAt(index);
+                        *channelGroupTypeAndChannelCountAt(ChannelListType::RegularList, index);
                     if(srcPair == destPair)
                     {
                         auto fromNode = postFaderInserts_[index]->outNode();
@@ -1869,17 +1565,6 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
     return false;
 }
 
-bool Mixer::removeAudioInputChannel(
-    std::uint32_t first, std::uint32_t removeCount)
-{
-    return remove(ChannelListType::AudioHardwareInputList, first, removeCount);
-}
-
-void Mixer::clearAudioInputChannels()
-{
-    clear(ChannelListType::AudioHardwareInputList);
-}
-
 bool Mixer::appendAudioOutputChannel(
     const ade::NodeHandle& outNode, std::uint32_t channelGroupIndex)
 {
@@ -2044,17 +1729,6 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
         return true;
     }
     return false;
-}
-
-bool Mixer::removeAudioOutputChannel(
-    std::uint32_t first, std::uint32_t removeCount)
-{
-    return remove(ChannelListType::AudioHardwareOutputList, first, removeCount);
-}
-
-void Mixer::clearAudioOutputChannels()
-{
-    return clear(ChannelListType::AudioHardwareOutputList);
 }
 
 bool Mixer::insertChannels(
@@ -2482,19 +2156,9 @@ bool Mixer::appendChannels(
         this->count(ChannelListType::RegularList), count, channelType, channelGroupType, channelCountInGroup);
 }
 
-bool Mixer::removeChannel(std::uint32_t first, std::uint32_t removeCount)
-{
-    return remove(ChannelListType::RegularList, first, removeCount);
-}
-
-void Mixer::clearChannels()
-{
-    clear(ChannelListType::RegularList);
-}
-
 ade::NodeHandle Mixer::getInstrument(std::uint32_t index) const
 {
-    if(index < channelCount()
+    if(index < count(ChannelListType::RegularList)
         && channelInfo_[index].channelType == ChannelType::Instrument)
     {
         return inputDevices_[index].second;
@@ -2504,7 +2168,7 @@ ade::NodeHandle Mixer::getInstrument(std::uint32_t index) const
 
 OptionalRef<const Context> Mixer::getInstrumentContext(std::uint32_t index) const
 {
-    if(index < channelCount()
+    if(index < count(ChannelListType::RegularList)
         && channelInfo_[index].channelType == ChannelType::Instrument
         && instrumentContexts_[index])
     {
@@ -2515,7 +2179,7 @@ OptionalRef<const Context> Mixer::getInstrumentContext(std::uint32_t index) cons
 
 OptionalRef<Context> Mixer::getInstrumentContext(std::uint32_t index)
 {
-    if(index < channelCount()
+    if(index < count(ChannelListType::RegularList)
         && channelInfo_[index].channelType == ChannelType::Instrument
         && instrumentContexts_[index])
     {
@@ -2529,7 +2193,7 @@ bool Mixer::setInstrument(
     std::uint32_t outputChannelIndex)
 {
     auto ret = false;
-    if(index < channelCount()
+    if(index < count(ChannelListType::RegularList)
         && channelInfo_[index].channelType == ChannelType::Instrument
         && nodeHandle != nullptr
         && inputDevices_[index].second == nullptr)
@@ -2618,7 +2282,7 @@ bool Mixer::setInstrument(
 
 std::pair<ade::NodeHandle, Context> Mixer::detachInstrument(std::uint32_t index)
 {
-    if(index < channelCount()
+    if(index < count(ChannelListType::RegularList)
         && inputDevices_[index].second != nullptr
         && channelInfo_[index].channelType == ChannelType::Instrument)
     {
@@ -2653,7 +2317,7 @@ std::pair<ade::NodeHandle, Context> Mixer::detachInstrument(std::uint32_t index)
 std::optional<IDGen::ID> Mixer::instrumentAuxInputID(
     std::uint32_t channelIndex, std::uint32_t channelGroupIndex) const
 {
-    if(channelIndex < channelCount()
+    if(channelIndex < count(ChannelListType::RegularList)
         && channelInfo_[channelIndex].channelType == ChannelType::Instrument
         && inputDevices_[channelIndex].second != nullptr
         && channelGroupIndex < graph_.getNodeData(inputDevices_[channelIndex].second).process.device()->audioInputGroupCount())
@@ -2668,7 +2332,7 @@ std::optional<IDGen::ID> Mixer::instrumentAuxInputID(
 std::optional<IDGen::ID> Mixer::instrumentAuxOutputID(
     std::uint32_t channelIndex, std::uint32_t channelGroupIndex) const
 {
-    if(channelIndex < channelCount()
+    if(channelIndex < count(ChannelListType::RegularList)
         && channelInfo_[channelIndex].channelType == ChannelType::Instrument
         && inputDevices_[channelIndex].second != nullptr
         && channelGroupIndex < graph_.getNodeData(inputDevices_[channelIndex].second).process.device()->audioOutputGroupCount())
@@ -2691,7 +2355,7 @@ std::optional<IDGen::ID> Mixer::instrumentAuxOutputID(
 
 bool Mixer::isInstrumentBypassed(std::uint32_t index) const
 {
-    if(index < channelCount())
+    if(index < count(ChannelListType::RegularList))
     {
         return instrumentBypassed_[index];
     }
@@ -2700,7 +2364,7 @@ bool Mixer::isInstrumentBypassed(std::uint32_t index) const
 
 void Mixer::setInstrumentBypass(std::uint32_t index, bool bypass)
 {
-    if(index < channelCount()
+    if(index < count(ChannelListType::RegularList)
         && channelInfo_[index].channelType == ChannelType::Instrument
         && inputDevices_[index].second != nullptr)
     {

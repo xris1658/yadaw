@@ -242,7 +242,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         {
             return QVariant::fromValue(
             channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
                 && mixer_.getInstrumentContext(row)
             );
         }
@@ -254,7 +254,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         case Role::InstrumentName:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
                 auto context = mixer_.getInstrumentContext(row);
                 if(context.has_value())
@@ -269,7 +269,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         case Role::InstrumentAudioInputs:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
                 auto context = mixer_.getInstrumentContext(row);
                 if(context.has_value())
@@ -284,7 +284,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         case Role::InstrumentAudioOutputs:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
                 auto context = mixer_.getInstrumentContext(row);
                 if(context.has_value())
@@ -299,7 +299,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         case Role::InstrumentHasUI:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
                 auto context = mixer_.getInstrumentContext(row);
                 if(context.has_value())
@@ -314,7 +314,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         case Role::InstrumentWindowVisible:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
                 auto context = mixer_.getInstrumentContext(row);
                 if(context.has_value())
@@ -328,7 +328,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         case Role::InstrumentGenericEditorVisible:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
                 auto context = mixer_.getInstrumentContext(row);
                 if(context.has_value())
@@ -342,7 +342,7 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         case Role::InstrumentLatency:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
                 auto context = mixer_.getInstrumentContext(row);
                 if(context.has_value())
@@ -645,7 +645,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         case Role::InstrumentWindowVisible:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
                 auto context = mixer_.getInstrumentContext(row);
                 if(context.has_value())
@@ -663,7 +663,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         case Role::InstrumentGenericEditorVisible:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
             {
                 auto context = mixer_.getInstrumentContext(row);
                 if(context.has_value())
@@ -922,7 +922,7 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         }
         if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList)
         {
-            FOR_RANGE0(i, mixer_.channelCount())
+            FOR_RANGE0(i, mixer_.count(channelListType_))
             {
                 auto audioIOPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
                     data(
@@ -1009,14 +1009,16 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
     auto ret = false;
     ade::NodeHandle nodeHandle;
     if(position >= 0 && position < mixer_.count(channelListType_)
-        && mixer_.channelInfoAt(position)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
+        && mixer_.channelInfoAt(channelListType_, position)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
     )
     {
         removeInstrument(position);
         const auto& pluginInfo = YADAW::DAO::selectPluginById(pluginId);
         YADAW::Controller::InitPluginArgs initPluginArgs;
         initPluginArgs.mainInputChannelGroup.first = YADAW::Audio::Base::ChannelGroupType::eInvalid;
-        initPluginArgs.mainOutputChannelGroup = *mixer_.channelGroupTypeAndChannelCountAt(position);
+        initPluginArgs.mainOutputChannelGroup = *mixer_.channelGroupTypeAndChannelCountAt(
+            YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList, position
+        );
         auto optionalPluginContext = YADAW::Controller::createPluginWithContext(
             pluginInfo.path,
             static_cast<YADAW::DAO::PluginFormat>(pluginInfo.format),
@@ -1128,8 +1130,8 @@ bool MixerChannelListModel::removeInstrument(int position)
 {
     using YADAW::Audio::Plugin::IAudioPlugin;
     using YADAW::Audio::Mixer::Mixer;
-    if(position >= 0 && position < mixer_.channelCount()
-       && mixer_.channelInfoAt(position)->get().channelType == Mixer::ChannelType::Instrument
+    if(position >= 0 && position < mixer_.count(channelListType_)
+       && mixer_.channelInfoAt(channelListType_, position)->get().channelType == Mixer::ChannelType::Instrument
     )
     {
         auto optionalContext = mixer_.getInstrumentContext(position);
@@ -1385,7 +1387,7 @@ void MixerChannelListModel::resetFillPluginContextCallback()
 void MixerChannelListModel::instrumentLatencyUpdated(std::uint32_t index) const
 {
     if(index < itemCount()
-        && mixer_.channelInfoAt(index)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
+        && mixer_.channelInfoAt(channelListType_, index)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
     )
     {
         const_cast<MixerChannelListModel*>(this)->dataChanged(
@@ -1399,7 +1401,7 @@ void MixerChannelListModel::instrumentLatencyUpdated(std::uint32_t index) const
 void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
 {
     if(index < itemCount()
-        && mixer_.channelInfoAt(index)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
+        && mixer_.channelInfoAt(channelListType_, index)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
     )
     {
         auto& context = mixer_.getInstrumentContext(index)->get();

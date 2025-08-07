@@ -197,79 +197,7 @@ public:
     std::optional<bool> setSendDestination(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex, Position destination);
     std::optional<bool> removeSend(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
     std::optional<bool> clearSends(ChannelListType type, std::uint32_t channelIndex);
-public: // I HATE MYSELF FOR ADDING THOSE **BLOAT**
-#pragma region
-    std::uint32_t audioInputChannelCount() const;
-    std::uint32_t channelCount() const;
-    std::uint32_t audioOutputChannelCount() const;
-    std::optional<const bool> audioInputChannelSendIsPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    std::optional<const bool> channelSendIsPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    std::optional<const bool> audioOutputChannelSendIsPreFader(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    std::optional<const Position> audioInputChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    std::optional<const Position> channelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    std::optional<const Position> audioOutputChannelSendDestination(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    std::optional<const IDGen::ID> audioInputChannelSendID(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    std::optional<const IDGen::ID> channelSendID(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    std::optional<const IDGen::ID> audioOutputChannelSendID(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<const VolumeFader> audioInputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<const VolumeFader> ChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<const VolumeFader> audioOutputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<VolumeFader> audioInputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
-    OptionalRef<VolumeFader> channelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
-    OptionalRef<VolumeFader> audioOutputChannelSendFaderAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
-    OptionalRef<const YADAW::Audio::Util::Mute> audioInputChannelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<const YADAW::Audio::Util::Mute> channelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<const YADAW::Audio::Util::Mute> audioOutputChannelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<YADAW::Audio::Util::Mute> audioInputChannelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
-    OptionalRef<YADAW::Audio::Util::Mute> channelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
-    OptionalRef<YADAW::Audio::Util::Mute> audioOutputChannelSendMuteAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
-    OptionalRef<const PolarityInverter> audioInputChannelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<const PolarityInverter> channelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<const PolarityInverter> audioOutputChannelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<PolarityInverter> audioInputChannelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
-    OptionalRef<PolarityInverter> channelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
-    OptionalRef<PolarityInverter> audioOutputChannelSendPolarityInverterAt(std::uint32_t channelIndex, std::uint32_t sendIndex);
-    OptionalRef<const ChannelInfo> audioInputChannelInfoAt(std::uint32_t index) const;
-    OptionalRef<const ChannelInfo> audioOutputChannelInfoAt(std::uint32_t index) const;
-    OptionalRef<const ChannelInfo> channelInfoAt(std::uint32_t index) const;
-    OptionalRef<ChannelInfo> audioInputChannelInfoAt(std::uint32_t index);
-    OptionalRef<ChannelInfo> audioOutputChannelInfoAt(std::uint32_t index);
-    OptionalRef<ChannelInfo> channelInfoAt(std::uint32_t index);
-    OptionalRef<const VolumeFader> audioInputVolumeFaderAt(std::uint32_t index) const;
-    OptionalRef<const VolumeFader> audioOutputVolumeFaderAt(std::uint32_t index) const;
-    OptionalRef<const VolumeFader> volumeFaderAt(std::uint32_t index) const;
-    OptionalRef<VolumeFader> audioInputVolumeFaderAt(std::uint32_t index);
-    OptionalRef<VolumeFader> audioOutputVolumeFaderAt(std::uint32_t index);
-    OptionalRef<VolumeFader> volumeFaderAt(std::uint32_t index);
-    OptionalRef<const YADAW::Audio::Util::Mute> audioInputMuteAt(std::uint32_t index) const;
-    OptionalRef<const YADAW::Audio::Util::Mute> audioOutputMuteAt(std::uint32_t index) const;
-    OptionalRef<const YADAW::Audio::Util::Mute> muteAt(std::uint32_t index) const;
-    OptionalRef<YADAW::Audio::Util::Mute> audioInputMuteAt(std::uint32_t index);
-    OptionalRef<YADAW::Audio::Util::Mute> audioOutputMuteAt(std::uint32_t index);
-    OptionalRef<YADAW::Audio::Util::Mute> muteAt(std::uint32_t index);
-    OptionalRef<const Meter> audioInputMeterAt(std::uint32_t index) const;
-    OptionalRef<const Meter> audioOutputMeterAt(std::uint32_t index) const;
-    OptionalRef<const Meter> meterAt(std::uint32_t index) const;
-    OptionalRef<Meter> audioInputMeterAt(std::uint32_t index);
-    OptionalRef<Meter> audioOutputMeterAt(std::uint32_t index);
-    OptionalRef<Meter> meterAt(std::uint32_t index);
-    std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> audioInputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const;
-    std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> audioOutputChannelGroupTypeAndChannelCountAt(std::uint32_t index) const;
-    std::optional<std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>> channelGroupTypeAndChannelCountAt(std::uint32_t index) const;
-    std::optional<IDGen::ID> audioInputChannelIDAt(std::uint32_t index) const;
-    std::optional<IDGen::ID> audioOutputChannelIDAt(std::uint32_t index) const;
-    std::optional<IDGen::ID> channelIDAt(std::uint32_t index) const;
-    std::optional<std::uint32_t> getInputIndexOfId(IDGen::ID id) const;
-    std::optional<std::uint32_t> getOutputIndexOfId(IDGen::ID id) const;
-    std::optional<std::uint32_t> getIndexOfId(IDGen::ID id) const;
-    bool hasMuteInAudioInputChannels() const;
-    bool hasMuteInRegularChannels() const;
-    bool hasMuteInAudioOutputChannels() const;
-    void unmuteAudioInputChannels();
-    void unmuteRegularChannels();
-    void unmuteAudioOutputChannels();
-    void unmuteAllChannels();
-#pragma endregion
+public:
     OptionalRef<const Position> mainInputAt(std::uint32_t index) const;
     bool setMainInputAt(std::uint32_t index, Position position);
     OptionalRef<const Position> mainOutputAt(std::uint32_t index) const;
@@ -279,14 +207,6 @@ public:
         const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
     bool insertAudioInputChannel(
         std::uint32_t position, const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
-#pragma region
-    bool removeAudioInputChannel(std::uint32_t position, std::uint32_t removeCount = 1);
-    void clearAudioInputChannels();
-    bool removeAudioOutputChannel(std::uint32_t position, std::uint32_t removeCount = 1);
-    void clearAudioOutputChannels();
-    bool removeChannel(std::uint32_t position, std::uint32_t removeCount = 1);
-    void clearChannels();
-#pragma endregion
     bool appendAudioOutputChannel(
         const ade::NodeHandle& outNode, std::uint32_t channelGroupIndex);
     bool insertAudioOutputChannel(
