@@ -117,33 +117,30 @@ bool MixerChannelSendListModel::setData(
 bool MixerChannelSendListModel::append(bool isPreFader, YADAW::Entity::IAudioIOPosition* position)
 {
     auto ret = false;
-    if(listType_ == MixerChannelListModel::ListType::Regular)
+    if(position)
     {
-        if(position)
+        switch(position->getType())
         {
-            switch(position->getType())
-            {
-            case YADAW::Entity::IAudioIOPosition::Type::AudioHardwareIOChannel:
-            {
-                const auto& hardwareAudioIOPosition = static_cast<const YADAW::Entity::HardwareAudioIOPosition&>(*position);
-                ret = *mixer_->appendChannelSend(
-                    channelIndex_, isPreFader, hardwareAudioIOPosition
-                );
-                break;
-            }
-            case YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel:
-            {
-                const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioIOPosition&>(*position);
-                ret = *mixer_->appendChannelSend(
-                    channelIndex_, isPreFader, regularAudioIOPosition
-                );
-                break;
-            }
-            case YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO:
-            {
-                // not implemented
-                break;
-            }
+        case YADAW::Entity::IAudioIOPosition::Type::AudioHardwareIOChannel:
+        {
+            const auto& hardwareAudioIOPosition = static_cast<const YADAW::Entity::HardwareAudioIOPosition&>(*position);
+            ret = *mixer_->appendSend(
+                channelListType_, channelIndex_, isPreFader, hardwareAudioIOPosition
+            );
+            break;
+        }
+        case YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel:
+        {
+            const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioIOPosition&>(*position);
+            ret = *mixer_->appendSend(
+                channelListType_, channelIndex_, isPreFader, regularAudioIOPosition
+            );
+            break;
+        }
+        case YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO:
+        {
+            // not implemented
+            break;
         }
         }
     }
