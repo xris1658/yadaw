@@ -166,7 +166,7 @@ bool MixerChannelSendListModel::remove(int position, int removeCount)
         && position >= 0 && removeCount > 0 && position + removeCount <= itemCount())
     {
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
-        mixer_->removeChannelSend(channelIndex_, position, removeCount);
+        mixer_->removeSend(channelListType_, channelIndex_, position, removeCount);
         editingVolume_.erase(
             editingVolume_.begin() + position,
             editingVolume_.begin() + position + removeCount
