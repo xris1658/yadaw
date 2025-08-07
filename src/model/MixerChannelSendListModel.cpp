@@ -12,13 +12,6 @@ MixerChannelSendListModel::MixerChannelSendListModel(
     std::uint32_t channelIndex):
     mixer_(&mixer),
     channelListType_(type),
-    listType_(
-        type == YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList?
-            YADAW::Model::MixerChannelListModel::ListType::AudioHardwareInput:
-        type == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList?
-            YADAW::Model::MixerChannelListModel::ListType::Regular:
-        YADAW::Model::MixerChannelListModel::ListType::AudioHardwareOutput
-    ),
     channelIndex_(channelIndex)
 {}
 
@@ -162,8 +155,7 @@ bool MixerChannelSendListModel::append(bool isPreFader, YADAW::Entity::IAudioIOP
 
 bool MixerChannelSendListModel::remove(int position, int removeCount)
 {
-    if(listType_ == MixerChannelListModel::ListType::Regular
-        && position >= 0 && removeCount > 0 && position + removeCount <= itemCount())
+    if(position >= 0 && removeCount > 0 && position + removeCount <= itemCount())
     {
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
         mixer_->removeSend(channelListType_, channelIndex_, position, removeCount);

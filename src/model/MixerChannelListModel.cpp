@@ -35,24 +35,6 @@ YADAW::Audio::Mixer::Mixer::ChannelType channelTypeFromModelTypes(
     return static_cast<YADAW::Audio::Mixer::Mixer::ChannelType>(type);
 }
 
-using RemoveChannels =
-    decltype(&YADAW::Audio::Mixer::Mixer::removeChannel);
-
-RemoveChannels removeChannels[3] = {
-    &YADAW::Audio::Mixer::Mixer::removeAudioInputChannel,
-    &YADAW::Audio::Mixer::Mixer::removeChannel,
-    &YADAW::Audio::Mixer::Mixer::removeAudioOutputChannel
-};
-
-using ClearChannels =
-    decltype(&YADAW::Audio::Mixer::Mixer::clearChannels);
-
-ClearChannels clearChannels[3] = {
-    &YADAW::Audio::Mixer::Mixer::clearAudioInputChannels,
-    &YADAW::Audio::Mixer::Mixer::clearChannels,
-    &YADAW::Audio::Mixer::Mixer::clearAudioOutputChannels,
-};
-
 IMixerChannelListModel::ChannelTypes getChannelType(YADAW::Audio::Mixer::Mixer::ChannelType type)
 {
     return static_cast<IMixerChannelListModel::ChannelTypes>(YADAW::Util::underlyingValue(type));
@@ -65,11 +47,6 @@ MixerChannelListModel::MixerChannelListModel(
     IMixerChannelListModel(parent),
     mixer_(mixer),
     channelListType_(listType),
-    listType_(
-        listType == YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList? ListType::AudioHardwareInput:
-        listType == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList? ListType::Regular:
-        ListType::AudioHardwareOutput
-    ),
     fillPluginContextCallback_(&Impl::blankFillPluginContext)
 {
     YADAW::Util::setCppOwnership(*this);
@@ -972,9 +949,7 @@ bool MixerChannelListModel::remove(int position, int removeCount)
                 );
             }
         }
-        (mixer_.*removeChannels[YADAW::Util::underlyingValue(listType_)])(
-            position, removeCount
-        );
+        mixer_.remove(channelListType_, position, removeCount);
         insertModels_.erase(
             insertModels_.begin() + position,
             insertModels_.begin() + position + removeCount

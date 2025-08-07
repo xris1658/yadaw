@@ -25,13 +25,6 @@ class MixerChannelListModel: public IMixerChannelListModel
 {
     Q_OBJECT
 public:
-    enum ListType
-    {
-        AudioHardwareInput,
-        Regular,
-        AudioHardwareOutput
-    };
-public:
     MixerChannelListModel(YADAW::Audio::Mixer::Mixer& mixer,
         YADAW::Audio::Mixer::Mixer::ChannelListType listType,
         QObject* parent = nullptr);
@@ -92,7 +85,6 @@ private:
     std::vector<bool> editingVolume_;
     mutable std::vector<std::unique_ptr<YADAW::Model::PolarityInverterModel>> polarityInverterModels_;
     YADAW::Audio::Mixer::Mixer::ChannelListType channelListType_;
-    ListType listType_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToInputPositions_;
     std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToOutputPositions_;
     FillPluginContextCallback* fillPluginContextCallback_;

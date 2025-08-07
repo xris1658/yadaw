@@ -470,7 +470,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                     {
                         auto index = MixerAudioIOPositionItemModel::index(i, 0, parentIndex);
                         auto& parentNode = rootNode_.children[
-                            MixerChannelListModel::ListType::Regular
+                            YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
                         ]->children[i];
                         auto instrumentExists = sender->data(
                             sender->index(i), MixerChannelListModel::Role::InstrumentExist
@@ -518,7 +518,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
         &MixerChannelListModel::instrumentAboutToBeRemoved,
         [this, sender = &mixerRegularChannelListModel](std::uint32_t index)
         {
-            auto node = rootNode_.children[YADAW::Model::MixerChannelListModel::ListType::Regular]
+            auto node = rootNode_.children[YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList]
                 ->children[index]
                 ->children[NodeData::NodeInChannelPosition::Instrument].get();
             node->positions.clear();
@@ -823,7 +823,7 @@ MixerAudioIOPositionItemModel::getPosition(const QModelIndex& index) const
             if(auto position = indices[NodeData::Indent::InChannelPosition];
                 position == NodeData::NodeInChannelPosition::Instrument)
             {
-                const auto& mixer = mixerChannelListModels_[MixerChannelListModel::ListType::Regular]->mixer();
+                const auto& mixer = mixerChannelListModels_[YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList]->mixer();
                 if(isInput_)
                 {
                     return {

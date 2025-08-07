@@ -4,7 +4,7 @@
 #include "model/IMixerChannelSendListModel.hpp"
 
 #include "audio/mixer/Mixer.hpp"
-#include "model/MixerChannelListModel.hpp"
+#include "model/PolarityInverterModel.hpp"
 
 namespace YADAW::Model
 {
@@ -32,7 +32,6 @@ public:
 private:
     YADAW::Audio::Mixer::Mixer* mixer_;
     YADAW::Audio::Mixer::Mixer::ChannelListType channelListType_;
-    YADAW::Model::MixerChannelListModel::ListType listType_;
     std::vector<bool> editingVolume_;
     std::vector<YADAW::Entity::IAudioIOPosition*> destinations_;
     std::vector<std::unique_ptr<YADAW::Model::PolarityInverterModel>> polarityInverterModels_;
