@@ -128,8 +128,8 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                                     beginMoveRows(destParentIndex, last, last, destParentIndex, first - 1);
                                     std::rotate(
                                         destParentNode->children.begin() + first - 1,
-                                        destParentNode->children.begin() + last - 1,
-                                        destParentNode->children.begin() + last
+                                        destParentNode->children.begin() + last,
+                                        destParentNode->children.begin() + last + 1
                                     );
                                     endMoveRows();
                                 }
@@ -211,8 +211,8 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                     beginMoveRows(parentIndex, last, last, parentIndex, first - 1);
                     std::rotate(
                         treeNode->children.begin() + first - 1,
-                        treeNode->children.begin() + last - 1,
-                        treeNode->children.begin() + last
+                        treeNode->children.begin() + last,
+                        treeNode->children.begin() + last + 1
                     );
                     endMoveRows();
                 }
@@ -311,8 +311,8 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                                     beginMoveRows(destParentIndex, last, last, destParentIndex, first - 1);
                                     std::rotate(
                                         destParentNode->children.begin() + first - 1,
-                                        destParentNode->children.begin() + last - 1,
-                                        destParentNode->children.begin() + last
+                                        destParentNode->children.begin() + last,
+                                        destParentNode->children.begin() + last + 1
                                     );
                                     endMoveRows();
                                 }
