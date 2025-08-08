@@ -615,7 +615,7 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
     bool isPreFader, Position destination)
 {
     if(channelIndex < count(type)
-        && sendPosition < *sendCount(type, channelIndex))
+        && sendPosition <= *sendCount(type, channelIndex))
     {
         auto& idAndIndex = channelIDAndIndex_[type];
         if(destination.type == Position::Type::AudioHardwareIOChannel)
