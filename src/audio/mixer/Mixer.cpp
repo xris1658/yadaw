@@ -532,10 +532,6 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
             channelSendPolarityInverters_[type].begin() + index,
             channelSendPolarityInverters_[type].begin() + last
         );
-        channelSendIDs_[type].erase(
-            channelSendIDs_[type].begin() + index,
-            channelSendIDs_[type].begin() + last
-        );
         channelSendMutes_[type].erase(
             channelSendMutes_[type].begin() + index,
             channelSendMutes_[type].begin() + last
@@ -559,14 +555,14 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
         auto it2 = channelIDs_[type].begin() + index;
         std::erase_if(
             channelIDAndIndex_[type],
-            [this, index, last](IDAndIndex idAndIndex)
+            [this, index, last, type](IDAndIndex idAndIndex)
             {
                 auto it = std::lower_bound(
-                    channelId_.begin() + index,
-                    channelId_.begin() + last,
+                    channelIDs_[type].begin() + index,
+                    channelIDs_[type].begin() + last,
                     idAndIndex.id
                 );
-                return it != channelId_.begin() + last
+                return it != channelIDs_[type].begin() + last
                     && *it == idAndIndex.id;
             }
         );
