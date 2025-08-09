@@ -1206,10 +1206,16 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 if(graph_.getEdgeData(edgeHandle).toChannel == pluginAuxIOPosition.channelGroupIndex)
                 {
                     graph_.disconnect(edgeHandle);
+                    auto afterMainInput = (pluginAuxIOPosition.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Inserts)
+                     && pluginAuxIOPosition.channelGroupIndex > (pluginAuxIOPosition.isPreFaderInsert?
+                        channelPreFaderInserts_:
+                        channelPostFaderInserts_
+                    )[pluginAuxIOPosition.channelListType]
+                    [pluginAuxIOPosition.channelIndex]->insertInputChannelGroupIndexAt(pluginAuxIOPosition.insertIndex).value();
                     auto& v2 = pluginAuxInputSources_[pluginAuxIOPosition.channelListType][pluginAuxIOPosition.channelIndex];
                     auto& source = pluginAuxIOPosition.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Instrument?
                         (v2.first[pluginAuxIOPosition.channelGroupIndex]):
-                        (v2.second[pluginAuxIOPosition.isPreFaderInsert? 0: 1][pluginAuxIOPosition.insertIndex][pluginAuxIOPosition.channelGroupIndex]);
+                        (v2.second[pluginAuxIOPosition.isPreFaderInsert? 0: 1][pluginAuxIOPosition.insertIndex][pluginAuxIOPosition.channelGroupIndex - afterMainInput]);
                     source = Position {
                         .type = Position::Type::Invalid,
                         .id = IDGen::InvalidId
@@ -1364,10 +1370,16 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     graph_.connect(
                         fromNode, node, 0, pluginAuxIOPosition.channelGroupIndex
                     );
+                    auto afterMainInput = (pluginAuxIOPosition.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Inserts)
+                     && pluginAuxIOPosition.channelGroupIndex > (pluginAuxIOPosition.isPreFaderInsert?
+                        channelPreFaderInserts_:
+                        channelPostFaderInserts_
+                    )[pluginAuxIOPosition.channelListType]
+                    [pluginAuxIOPosition.channelIndex]->insertInputChannelGroupIndexAt(pluginAuxIOPosition.insertIndex).value();
                     auto& v2 = pluginAuxInputSources_[pluginAuxIOPosition.channelListType][pluginAuxIOPosition.channelIndex];
                     auto& source = pluginAuxIOPosition.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Instrument?
                         (v2.first[pluginAuxIOPosition.channelGroupIndex]):
-                        (v2.second[pluginAuxIOPosition.isPreFaderInsert? 0: 1][pluginAuxIOPosition.insertIndex][pluginAuxIOPosition.channelGroupIndex]);
+                        (v2.second[pluginAuxIOPosition.isPreFaderInsert? 0: 1] [pluginAuxIOPosition.insertIndex][pluginAuxIOPosition.channelGroupIndex - afterMainInput]);
                     source = Position {
                         .type = Position::Type::RegularChannel,
                         .id = channelId_[index]
