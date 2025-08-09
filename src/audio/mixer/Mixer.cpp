@@ -2106,14 +2106,14 @@ bool Mixer::insertChannels(
             )
         );
         auto& vecInputSources = pluginAuxInputSources_[ChannelListType::RegularList];
-        vecInputSources.emplace(vecInputSources.begin() + position,
+        vecInputSources.insert(vecInputSources.begin() + position, count,
             PluginAuxInputSources::value_type::value_type(
                 PluginAuxInputSources::value_type::value_type::first_type(),
                 PluginAuxInputSources::value_type::value_type::second_type(2)
             )
         );
         auto& vecOutputDestinations = pluginAuxOutputDestinations_[ChannelListType::RegularList];
-        vecOutputDestinations.emplace(vecOutputDestinations.begin() + position,
+        vecOutputDestinations.insert(vecOutputDestinations.begin() + position, count,
             PluginAuxOutputDestinations::value_type::value_type(
                 PluginAuxOutputDestinations::value_type::value_type::first_type(),
                 PluginAuxOutputDestinations::value_type::value_type::second_type(2)
@@ -2228,6 +2228,13 @@ bool Mixer::setInstrument(
                 auto& auxOutputDestinations = pluginAuxOutputDestinations_
                     [ChannelListType::RegularList]
                     [index].first;
+                auxInputSources.resize(
+                    device->audioInputGroupCount(),
+                    Position { .type = Position::Type::Invalid }
+                );
+                auxOutputDestinations.resize(
+                    device->audioOutputGroupCount() - 1
+                );
                 auxInputIDs.reserve(device->audioInputGroupCount());
                 FOR_RANGE0(i, device->audioInputGroupCount())
                 {
@@ -2243,9 +2250,6 @@ bool Mixer::setInstrument(
                                 .channelGroupIndex = i
                             }
                         ).first
-                    );
-                    auxInputSources.emplace_back(
-                        Position { .type = Position::Type::Invalid }
                     );
                 }
                 auxOutputIDs.reserve(device->audioOutputGroupCount() - 1);
@@ -2268,7 +2272,6 @@ bool Mixer::setInstrument(
                             }
                         ).first
                     );
-                    auxOutputDestinations.emplace_back();
                 }
             }
         }
@@ -2619,12 +2622,18 @@ void Mixer::insertAdded(Inserts& sender, std::uint32_t position)
     auto& mixer = insertPosition.mixer;
     auto& vecInput = mixer.pluginAuxInputs_[insertPosition.type][insertPosition.channelIndex].second[insertPosition.insertsIndex];
     auto& vecOutput = mixer.pluginAuxOutputs_[insertPosition.type][insertPosition.channelIndex].second[insertPosition.insertsIndex];
+    auto& vecInputSource = mixer.pluginAuxInputSources_[insertPosition.type][insertPosition.channelIndex].second[insertPosition.insertsIndex];
+    auto& vecOutputDestinations = mixer.pluginAuxOutputDestinations_[insertPosition.type][insertPosition.channelIndex].second[insertPosition.insertsIndex];
     auto auxInputIt = vecInput.emplace(vecInput.begin() + position);
     auto auxOutputIt = vecOutput.emplace(vecOutput.begin() + position);
+    auto auxInputSourceIt = vecInputSource.emplace(vecInputSource.begin() + position);
+    auto auxOutputDestinationsIt = vecOutputDestinations.emplace(vecOutputDestinations.begin() + position);
     auto node = *sender.insertNodeAt(position);
     auto device = sender.graph().getNodeData(node).process.device();
     auxInputIt->reserve(device->audioInputGroupCount() - 1);
     auxOutputIt->reserve(device->audioOutputGroupCount() - 1);
+    auxInputSourceIt->resize(device->audioInputGroupCount() - 1, Position {.type = Position::Type::Invalid, .id = IDGen::InvalidId});
+    auxOutputDestinationsIt->resize(device->audioOutputGroupCount() - 1);
     auto inputIndex = *sender.insertInputChannelGroupIndexAt(position);
     auto outputIndex = *sender.insertOutputChannelGroupIndexAt(position);
     FOR_RANGE0(i, inputIndex)
@@ -2713,6 +2722,8 @@ void Mixer::insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t
     auto& mixer = insertPosition.mixer;
     auto& vecInput = mixer.pluginAuxInputs_[insertPosition.type][insertPosition.channelIndex].second[insertPosition.insertsIndex];
     auto& vecOutput = mixer.pluginAuxOutputs_[insertPosition.type][insertPosition.channelIndex].second[insertPosition.insertsIndex];
+    auto& vecInputSource = mixer.pluginAuxInputSources_[insertPosition.type][insertPosition.channelIndex].second[insertPosition.insertsIndex];
+    auto& vecOutputDestinations = mixer.pluginAuxOutputDestinations_[insertPosition.type][insertPosition.channelIndex].second[insertPosition.insertsIndex];
     FOR_RANGE(i, position, position + removeCount)
     {
         for(auto it: vecInput[i])
@@ -2726,6 +2737,8 @@ void Mixer::insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t
     }
     vecInput.erase(vecInput.begin() + position, vecInput.begin() + position + removeCount);
     vecOutput.erase(vecOutput.begin() + position, vecOutput.begin() + position + removeCount);
+    vecInputSource.erase(vecInput.begin() + position, vecInput.begin() + position + removeCount);
+    vecOutputDestinations.erase(vecOutput.begin() + position, vecOutput.begin() + position + removeCount);
     FOR_RANGE(i, position, vecInput.size())
     {
         for(auto it: vecInput[i])
