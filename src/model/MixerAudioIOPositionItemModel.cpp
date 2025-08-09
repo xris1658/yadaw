@@ -59,7 +59,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                         initChildren(*treeNode->children[j], indices);
                         auto mixerChannelInsertListModel = static_cast<YADAW::Model::MixerChannelInsertListModel*>(
                             sender->data(
-                                sender->index(j), MixerChannelListModel::Role::Inserts
+                                sender->index(j + 1), MixerChannelListModel::Role::Inserts
                             ).value<QObject*>()
                         );
                         QObject::connect(
