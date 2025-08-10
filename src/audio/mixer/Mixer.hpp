@@ -264,11 +264,13 @@ public:
     std::optional<PluginAuxIOPosition> getAuxOutputPosition(IDGen::ID id) const;
     std::optional<Position> getAuxInputSource(const PluginAuxIOPosition& position) const;
     bool setAuxInputSource(const PluginAuxIOPosition& position, Position source) const;
-    OptionalRef<const std::vector<Position>> getAuxOutputDestinations(const PluginAuxIOPosition& position);
+    OptionalRef<const std::vector<Position>> getAuxOutputDestinations(const PluginAuxIOPosition& position) const;
     bool addAuxOutputDestination(const PluginAuxIOPosition& position, Position destination);
     bool removeAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index, std::uint32_t removeCount = 1);
     void clearAuxOutputDestinations(const PluginAuxIOPosition& position);
 private:
+    Position& getAuxInputSource(const PluginAuxIOPosition& position);
+    std::vector<Position>& getAuxOutputDestinations(const PluginAuxIOPosition& position);
     static void insertAdded(Inserts& sender, std::uint32_t position);
     static void insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t removeCount);
     void updatePluginAuxPosition(ChannelListType type, std::uint32_t fromChannelIndex);
