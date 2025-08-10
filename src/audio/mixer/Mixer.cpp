@@ -2737,8 +2737,8 @@ void Mixer::insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t
     }
     vecInput.erase(vecInput.begin() + position, vecInput.begin() + position + removeCount);
     vecOutput.erase(vecOutput.begin() + position, vecOutput.begin() + position + removeCount);
-    vecInputSource.erase(vecInput.begin() + position, vecInput.begin() + position + removeCount);
-    vecOutputDestinations.erase(vecOutput.begin() + position, vecOutput.begin() + position + removeCount);
+    vecInputSource.erase(vecInputSource.begin() + position, vecInputSource.begin() + position + removeCount);
+    vecOutputDestinations.erase(vecOutputDestinations.begin() + position, vecOutputDestinations.begin() + position + removeCount);
     FOR_RANGE(i, position, vecInput.size())
     {
         for(auto it: vecInput[i])
