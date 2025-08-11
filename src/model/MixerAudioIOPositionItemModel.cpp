@@ -32,7 +32,17 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
             [this, parentIndex, sender = mixerChannelListModels_[i], &treeNode = rootNode_.children[i]]
             (const QModelIndex&, int first, int last) // MixerChannelListModel::rowsInserted
             {
-                // Workaround of https://bugreports.qt.io/browse/QTBUG-138493 (hope it gets fixed soon)
+                // [*] This is a workaround of https://bugreports.qt.io/browse/QTBUG-138493.
+                //     It is not finished as assertion failures can be triggered
+                //     on appending channels with enough layers of the last item
+                //     expanded.
+                //     I reported this issue about a month ago, only to receive
+                //     a response which is machine generated and nothing else
+                //     (until this commit).
+                //     Since this issue comes from bugs of `TreeView` (more
+                //     specifically, `QQmlTreeModelToTableModel` which is the
+                //     internal proxy model of `TreeView`), I'd better make a
+                //     `TreeView` and a proxy model by myself.
                 if(first > 0 && last == sender->rowCount(QModelIndex()) - 1)
                 {
                     beginInsertRows(parentIndex, first - 1, last - 1);
@@ -90,7 +100,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                                     )
                                 );
                                 auto destParentNode = getNodeData(destParentIndex);
-                                // Workaround of https://bugreports.qt.io/browse/QTBUG-138493 (hope it gets fixed soon)
+                                // See [*]
                                 if(first > 0 && last == mixerChannelInsertListModel->rowCount(QModelIndex()) - 1)
                                 {
                                     beginInsertRows(destParentIndex, first - 1, last - 1);
@@ -273,7 +283,7 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                                     )
                                 );
                                 auto destParentNode = getNodeData(destParentIndex);
-                                // Workaround of https://bugreports.qt.io/browse/QTBUG-138493 (hope it gets fixed soon)
+                                // See [*]
                                 if(first > 0 && last == mixerChannelInsertListModel->rowCount(QModelIndex()) - 1)
                                 {
                                     beginInsertRows(destParentIndex, first - 1, last - 1);
