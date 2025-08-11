@@ -31,6 +31,7 @@
 #include "model/MessageDialogButtonBoxModel.hpp"
 #include "model/SortFilterProxyListModel.hpp"
 #include "model/SortOrderModel.hpp"
+#include "model/TreeModelToListModel.hpp"
 
 namespace YADAW::Model
 {
@@ -68,5 +69,6 @@ void initializeModel()
     QML_REGISTER_TYPE(MessageDialogButtonBoxModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(SortFilterProxyListModel, YADAW.Models, 1, 0);
     QML_REGISTER_TYPE(SortOrderModel, YADAW.Models, 1, 0);
+    QML_REGISTER_TYPE(TreeModelToListModel, YADAW.Models, 1, 0);
 }
 }

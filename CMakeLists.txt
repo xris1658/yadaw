@@ -500,6 +500,7 @@ set(YADAW_COMMON_SOURCES
     src/model/SortFilterProxyListModel.cpp
     src/model/SpeakerListModel.cpp
     src/model/SpeakerListModel.hpp
+    src/model/TreeModelToListModel.cpp
     src/model/impl/TreeNode.hpp
     src/native/AudioBackendSupport.hpp
     src/native/AudioEngineWorkerThreadScheduler.hpp

@@ -51,6 +51,7 @@ set(CONTENT_CPP_FILES
     model/ITrackListModel.hpp
     model/SortFilterProxyListModel.hpp
     model/SortOrderModel.hpp
+    model/TreeModelToListModel.hpp
     )
 
 set(CONTENT_QML_FILES
