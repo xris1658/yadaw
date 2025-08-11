@@ -585,9 +585,7 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
         vecInputSources.erase(vecInputSources.begin() + index, vecInputSources.begin() + last);
         auto& vecOutputDestinations = pluginAuxOutputDestinations_[type];
         vecOutputDestinations.erase(vecOutputDestinations.begin() + index, vecOutputDestinations.begin() + last);
-        updatePluginAuxPosition(
-            ChannelListType::RegularList, index
-        );
+        updatePluginAuxPosition(type, index);
         return true;
     }
     return false;
@@ -2785,14 +2783,8 @@ void Mixer::updatePluginAuxPosition(
     ChannelListType type,
     std::uint32_t fromChannelIndex)
 {
-    auto& preFaderInserts =
-        type == ChannelListType::AudioHardwareInputList? audioInputPreFaderInserts_:
-        type == ChannelListType::AudioHardwareOutputList? audioOutputPreFaderInserts_:
-        preFaderInserts_;
-    auto& postFaderInserts =
-        type == ChannelListType::AudioHardwareInputList? audioInputPostFaderInserts_:
-        type == ChannelListType::AudioHardwareOutputList? audioOutputPostFaderInserts_:
-        postFaderInserts_;
+    auto& preFaderInserts = channelPreFaderInserts_[type];
+    auto& postFaderInserts = channelPostFaderInserts_[type];
     auto& vecIn = pluginAuxInputs_[type];
     for(auto it = vecIn.begin() + fromChannelIndex; it != vecIn.end(); ++it)
     {
@@ -2811,7 +2803,7 @@ void Mixer::updatePluginAuxPosition(
             }
         }
     }
-    auto& vecOut = pluginAuxInputs_[type];
+    auto& vecOut = pluginAuxOutputs_[type];
     for(auto it = vecOut.begin() + fromChannelIndex; it != vecOut.end(); ++it)
     {
         for(auto& position: it->first)
