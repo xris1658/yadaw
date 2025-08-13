@@ -894,6 +894,10 @@ bool MixerChannelListModel::insert(int position, int count,
                 {Role::NameWithIndex}
             );
         }
+        // FIXME
+        dataChanged(
+            index(0), index(itemCount() - 1), {Role::Input, Role::Output}
+        );
     }
     return ret;
 }
