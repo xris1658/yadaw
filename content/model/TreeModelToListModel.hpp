@@ -6,12 +6,29 @@
 #include <QAbstractItemModel>
 #include <QAbstractListModel>
 
+#include <cstdint>
+
 namespace YADAW::Model
 {
 class TreeModelToListModel: public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(QAbstractItemModel* sourceModel READ getSourceModel WRITE setSourceModel NOTIFY sourceModelChanged)
+private:
+    struct TreeNode
+    {
+        enum Status: std::uint8_t
+        {
+            Unchecked,
+            NotExpanded,
+            Expanded
+        };
+        TreeNode* parent = nullptr;
+        QModelIndex sourceModelIndex;
+        std::vector<std::unique_ptr<TreeNode>> children;
+        int destIndex = 0;
+        Status status = Status::Unchecked;
+    };
 public:
     enum Role // Copied from `QQmlTreeModelToTableModel`
     {
@@ -28,11 +45,12 @@ public:
     QAbstractItemModel* getSourceModel() const;
     void setSourceModel(QAbstractItemModel* sourceModel);
 public:
-    QModelIndex sourceToDest(const QModelIndex& source);
-    QModelIndex destToSource(const QModelIndex& dest);
+    QModelIndex sourceToDest(const QModelIndex& source) const;
+    QModelIndex destToSource(const QModelIndex& dest) const;
 public:
-    int rowCount(const QModelIndex& parent) const override;
+    int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
+    bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 signals:
     void sourceModelChanged();
 protected:
@@ -49,15 +67,15 @@ private slots:
     void onSourceModelAboutToBeReset();
     void onSourceModelReset();
 private:
-    struct TreeNode
-    {
-        TreeNode* parent = nullptr;
-        QModelIndex sourceModelIndex;
-        std::vector<std::unique_ptr<TreeNode>> children;
-    };
+    static bool compareTreeNodeIndex(const std::unique_ptr<TreeNode>& node, int index);
+private:
     QAbstractItemModel* sourceModel_ = nullptr;
-    TreeNode root_;
-
+    TreeNode root_ {
+        .sourceModelIndex = QModelIndex(),
+        .destIndex = -1,
+        .status = TreeNode::Status::Expanded
+    };
+    std::uint32_t maxDepth_ = 0;
 };
 }
 
