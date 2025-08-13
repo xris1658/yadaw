@@ -815,7 +815,7 @@ bool MixerChannelListModel::insert(int position, int count,
             endInsertRows();
         }
     }
-    else
+    else if(count == 1)
     {
         auto& audioBusConfiguration = YADAW::Controller::appAudioBusConfiguration();
         auto inNode = mixer_.graph().addNode(
@@ -841,16 +841,9 @@ bool MixerChannelListModel::insert(int position, int count,
                 0
             )
         );
-        sendModels_.emplace(
-            sendModels_.begin() + position,
-            std::make_unique<YADAW::Model::MixerChannelSendListModel>(
-                mixer_, channelListType_, position
-            )
-        );
         FOR_RANGE(i, position + 1, insertModels_.size())
         {
             insertModels_[i]->setChannelIndex(i);
-            sendModels_[i]->setChannelIndex(i);
         }
         endInsertRows();
         dataChanged(index(position + count), index(itemCount() - 1), {Role::NameWithIndex});
@@ -870,11 +863,10 @@ bool MixerChannelListModel::insert(int position, int count,
         );
         std::generate_n(
             std::inserter(sendModels_, sendModels_.begin() + position), count,
-            [this, position, offset = 0]() mutable
+            [this, index = position]() mutable
             {
-                auto index = position + (offset++);
                 return std::make_unique<MixerChannelSendListModel>(
-                    mixer_, channelListType_, index
+                    mixer_, channelListType_, index++
                 );
             }
         );
