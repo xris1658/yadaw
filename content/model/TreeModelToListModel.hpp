@@ -3,6 +3,8 @@
 
 #include "ModelBase.hpp"
 
+#include "util/OptionalUtil.hpp"
+
 #include <QAbstractItemModel>
 #include <QAbstractListModel>
 
@@ -32,7 +34,7 @@ private:
 public:
     enum Role // Copied from `QQmlTreeModelToTableModel`
     {
-        Depth = Qt::UserRole - 5,
+        Indent = Qt::UserRole - 5,
         Expanded,
         HasChildren,
         HasSibling,
@@ -67,7 +69,9 @@ private slots:
     void onSourceModelAboutToBeReset();
     void onSourceModelReset();
 private:
-    static bool compareTreeNodeIndex(const std::unique_ptr<TreeNode>& node, int index);
+    TreeNode* getNode(const QModelIndex& sourceIndex) const;
+    OptionalRef<      TreeNode> getNode(int destIndex) const;
+
 private:
     QAbstractItemModel* sourceModel_ = nullptr;
     TreeNode root_ {

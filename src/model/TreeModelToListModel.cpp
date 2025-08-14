@@ -72,6 +72,7 @@ void TreeModelToListModel::setSourceModel(QAbstractItemModel* sourceModel)
             sourceModel_, &QAbstractItemModel::modelAboutToBeReset,
             this, &TreeModelToListModel::onSourceModelAboutToBeReset
         );
+        maxDepth_ = 1;
     }
     // TODO
     sourceModelChanged();
@@ -79,6 +80,14 @@ void TreeModelToListModel::setSourceModel(QAbstractItemModel* sourceModel)
 
 QModelIndex TreeModelToListModel::sourceToDest(const QModelIndex& source) const
 {
+    if(source == QModelIndex())
+    {
+        return QModelIndex();
+    }
+    if(auto treeNode = getNode(source))
+    {
+        return index(treeNode->destIndex);
+    }
     return {};
 }
 
@@ -91,32 +100,27 @@ QModelIndex TreeModelToListModel::destToSource(const QModelIndex& dest) const
         while(!children->empty())
         {
             auto lowerBound = std::lower_bound(
-                children->begin(), children->end(), index,
-                &TreeModelToListModel::compareTreeNodeIndex
+                children->rbegin(), children->rend(), index,
+                [](const std::unique_ptr<TreeNode>& lhs, int rhs) { return lhs->destIndex > rhs; }
             );
-            if(lowerBound == children->end())
+            if(lowerBound == children->rend())
             {
                 assert(false);
                 return {};
             }
-            else if(lowerBound->get()->destIndex == index)
+            else if((*lowerBound)->destIndex == index)
             {
                 return sourceModel_->index(
-                    lowerBound - children->begin(), 0, sourceParent
+                    children->size() - 1 - (lowerBound - children->rbegin()),
+                    0, sourceParent
                 );
-            }
-            else if(lowerBound == children->begin())
-            {
-                assert(false);
-                return {};
             }
             else
             {
-                --lowerBound;
                 sourceParent = sourceModel_->index(
-                    lowerBound - children->begin(), 0, sourceParent
+                    children->size() - 1 - (lowerBound - children->rbegin()), 0, sourceParent
                 );
-                children = &(lowerBound->get()->children);
+                children = &((*lowerBound)->children);
             }
         }
     }
@@ -135,12 +139,37 @@ int TreeModelToListModel::rowCount(const QModelIndex&) const
 
 QVariant TreeModelToListModel::data(const QModelIndex& index, int role) const
 {
-    if(role >= Role::Depth && role < Qt::UserRole)
-    {
-        return {}; // TODO
-    }
     if(auto sourceIndex = destToSource(index); sourceIndex.isValid())
     {
+        if(role == Role::Indent)
+        {
+            int ret = 0;
+            for(auto i = sourceIndex; i.parent() != QModelIndex(); i = i.parent())
+            {
+                ++ret;
+            }
+            return ret;
+        }
+        else if(role == Role::Expanded)
+        {
+            auto node = getNode(sourceIndex);
+            return node->status == TreeNode::Status::Expanded;
+        }
+        else if(role == Role::HasChildren)
+        {
+            auto node = getNode(sourceIndex);
+            return (sourceModel_->flags(sourceIndex) & Qt::ItemFlag::ItemNeverHasChildren) == 0
+                && sourceModel_->hasChildren(sourceIndex);
+        }
+        else if(role == Role::HasSibling)
+        {
+            auto node = getNode(sourceIndex);
+            return node->parent->children.size() > 1;
+        }
+        else if(role == Role::ModelIndex)
+        {
+            return sourceIndex;
+        }
         return sourceModel_->data(sourceIndex, role);
     }
     return {};
@@ -148,9 +177,13 @@ QVariant TreeModelToListModel::data(const QModelIndex& index, int role) const
 
 bool TreeModelToListModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
-    if(role >= Role::Depth && role < Qt::UserRole)
+    if(role == Role::Expanded)
     {
-        return false; // TODO
+        // TODO
+    }
+    else if(role >= Role::Indent && role < Qt::UserRole)
+    {
+        return false;
     }
     if(auto sourceIndex = destToSource(index); sourceIndex.isValid())
     {
@@ -162,7 +195,7 @@ bool TreeModelToListModel::setData(const QModelIndex& index, const QVariant& val
 RoleNames TreeModelToListModel::roleNames() const
 {
     auto ret = sourceModel_? sourceModel_->roleNames(): RoleNames();
-    ret.insert(Role::Depth,       "tmtlm_depth");
+    ret.insert(Role::Indent,      "tmtlm_indent");
     ret.insert(Role::Expanded,    "tmtlm_expanded");
     ret.insert(Role::HasChildren, "tmtlm_has_children");
     ret.insert(Role::HasSibling,  "tmtlm_has_sibling");
@@ -200,9 +233,26 @@ void TreeModelToListModel::onSourceModelReset()
 {
 }
 
-bool TreeModelToListModel::compareTreeNodeIndex(
-    const std::unique_ptr<TreeModelToListModel::TreeNode>& node, int index)
+TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(const QModelIndex& sourceIndex) const
 {
-    return node->destIndex < index;
+    std::vector<int> indices;
+    indices.reserve(maxDepth_);
+    for(auto index = sourceIndex; index.parent() != QModelIndex(); index = index.parent())
+    {
+        indices.emplace_back(index.row());
+    }
+    auto* ret = &root_;
+    for(auto it = indices.rbegin(); it != indices.rend(); ++it)
+    {
+        if(const auto& children = ret->children; (*it) < children.size())
+        {
+            ret = children[*it].get();
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+    return ret;
 }
 }
