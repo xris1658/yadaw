@@ -883,13 +883,13 @@ bool MixerChannelListModel::insert(int position, int count,
             dataChanged(
                 index(position + count),
                 index(itemCount() - 1),
-                {Role::NameWithIndex}
+                {
+                    Role::NameWithIndex,
+                    // FIXME
+                    Role::Input, Role::Output
+                }
             );
         }
-        // FIXME
-        dataChanged(
-            index(0), index(itemCount() - 1), {Role::Input, Role::Output}
-        );
     }
     return ret;
 }
