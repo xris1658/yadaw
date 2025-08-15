@@ -9,6 +9,7 @@
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QDir>
+#include <QEvent>
 #include <QEventLoop>
 #include <QFile>
 #include <QFileInfo>
@@ -18,6 +19,7 @@
 #include <QList>
 #include <QMetaObject>
 #include <QObject>
+#include <QProcess>
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
@@ -26,5 +28,6 @@
 #include <QTranslator>
 #include <QUrl>
 #include <QVariant>
+#include <QVersionNumber>
 
 #endif // YADAW_PCH_QTCORE

@@ -9,6 +9,8 @@
 #include <Windows.h>
 #include <winreg.h>
 #include <winerror.h>
+#include <avrt.h>
+#include <dwmapi.h>
 #include <errhandlingapi.h>
 #include <libloaderapi.h>
 #include <shellapi.h>
