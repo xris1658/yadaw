@@ -8,7 +8,6 @@
 
 #include <sys/epoll.h>
 #include <sys/types.h>
-#include <sys/sysctl.h>
 
 // ALSA
 #include <alsa/asoundlib.h>
