@@ -77,7 +77,9 @@ private slots:
     void onSourceModelReset();
 private:
     const TreeNode* getNode(const QModelIndex& sourceIndex) const;
+    TreeNode* getNode(const QModelIndex& sourceIndex);
     std::pair<const TreeNode*, QModelIndex> getNodeAndSourceIndex(int destIndex) const;
+    std::pair<TreeNode*, QModelIndex> getNodeAndSourceIndex(int destIndex);
 
 private:
     QAbstractItemModel* sourceModel_ = nullptr;

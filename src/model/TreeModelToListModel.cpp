@@ -159,6 +159,62 @@ bool TreeModelToListModel::setData(const QModelIndex& index, const QVariant& val
 
 void TreeModelToListModel::expand(int destIndex)
 {
+    if(!sourceModel_)
+    {
+        return;
+    }
+    if(auto [node, sourceIndex] = getNodeAndSourceIndex(destIndex);
+        node && sourceIndex.isValid()
+    )
+    {
+        if(node->status == TreeNode::Status::Unchecked)
+        {
+            if((!sourceModel_->flags(sourceIndex).testFlag(Qt::ItemFlag::ItemNeverHasChildren))
+                && sourceModel_->hasChildren(sourceIndex)
+            )
+            {
+                if(auto rowCount = sourceModel_->rowCount(sourceIndex); rowCount > 0)
+                {
+                    beginInsertRows(QModelIndex(), destIndex + 1, destIndex + rowCount);
+                    auto& children = node->children;
+                    children.clear();
+                    children.reserve(rowCount);
+                    std::generate_n(
+                        std::back_inserter(children), rowCount,
+                        [node, offset = 0, destIndex, &sourceIndex]() mutable
+                        {
+                            ++offset;
+                            return std::make_unique<TreeNode>(
+                                TreeNode {
+                                    .parent = node,
+                                    .sourceModelIndex = sourceIndex.model()->index(offset, 0, sourceIndex),
+                                    .children = {},
+                                    .destIndex = destIndex + offset,
+                                    .status = TreeNode::Status::Unchecked
+                                }
+                            );
+                        }
+                    );
+                    node->status = TreeNode::Status::Expanded;
+                    endInsertRows();
+                }
+            }
+        }
+        else if(node->status == TreeNode::Status::NotExpanded)
+        {
+            if(auto& children = node->children; !children.empty())
+            {
+                auto* last = children.back().get();
+                while(last->status == TreeNode::Status::Expanded && !last->children.empty())
+                {
+                    last = last->children.back().get();
+                }
+                beginInsertRows(QModelIndex(), children.front()->destIndex, last->destIndex);
+                node->status = TreeNode::Status::Expanded;
+                endInsertRows();
+            }
+        }
+    }
 }
 
 void TreeModelToListModel::expandRecursively(int destIndex)
@@ -167,6 +223,28 @@ void TreeModelToListModel::expandRecursively(int destIndex)
 
 void TreeModelToListModel::collapse(int destIndex)
 {
+    if(!sourceModel_)
+    {
+        return;
+    }
+    if(auto [node, sourceIndex] = getNodeAndSourceIndex(destIndex);
+        node && sourceIndex.isValid()
+        && node->status == TreeNode::Status::Expanded
+        && (!node->children.empty())
+    )
+    {
+        if(const auto& children = node->children; !children.empty())
+        {
+            auto* last = children.back().get();
+            while(last->status == TreeNode::Status::Expanded && !last->children.empty())
+            {
+                last = last->children.back().get();
+            }
+            beginRemoveRows(QModelIndex(), destIndex + 1, last->destIndex);
+            node->status = TreeNode::Status::NotExpanded;
+            endRemoveRows();
+        }
+    }
 }
 
 void TreeModelToListModel::collapseRecursively(int destIndex)
@@ -246,6 +324,11 @@ const TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(const QModel
     return ret;
 }
 
+TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(const QModelIndex& sourceIndex)
+{
+    return const_cast<TreeNode*>(static_cast<const TreeModelToListModel*>(this)->getNode(sourceIndex));
+}
+
 std::pair<const TreeModelToListModel::TreeNode*, QModelIndex>
 TreeModelToListModel::getNodeAndSourceIndex(int destIndex) const
 {
@@ -286,5 +369,11 @@ TreeModelToListModel::getNodeAndSourceIndex(int destIndex) const
         }
     }
     return {nullptr, QModelIndex()};
+}
+
+std::pair<TreeModelToListModel::TreeNode*, QModelIndex> TreeModelToListModel::getNodeAndSourceIndex(int destIndex)
+{
+    auto ret = static_cast<const TreeModelToListModel*>(this)->getNodeAndSourceIndex(destIndex);
+    return {const_cast<TreeNode*>(ret.first), ret.second};
 }
 }
