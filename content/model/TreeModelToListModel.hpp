@@ -32,7 +32,7 @@ private:
         Status status = Status::Unchecked;
     };
 public:
-    enum Role // Copied from `QQmlTreeModelToTableModel`
+    enum Role // Copied from `QQmlTreeModelToTableModel` TODO: Use attached properties instead of this
     {
         Indent = Qt::UserRole - 5,
         Expanded,
@@ -53,6 +53,13 @@ public:
     int rowCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;
+public:
+    Q_INVOKABLE void expand(int destIndex);
+    Q_INVOKABLE void expandRecursively(int destIndex);
+    Q_INVOKABLE void collapse(int destIndex);
+    Q_INVOKABLE void collapseRecursively(int destIndex);
+    // Returns the dest index used for `ListView.positionViewAtIndex`
+    Q_INVOKABLE int  expandToIndex(const QModelIndex& sourceIndex);
 signals:
     void sourceModelChanged();
 protected:
@@ -69,8 +76,8 @@ private slots:
     void onSourceModelAboutToBeReset();
     void onSourceModelReset();
 private:
-    TreeNode* getNode(const QModelIndex& sourceIndex) const;
-    OptionalRef<      TreeNode> getNode(int destIndex) const;
+    const TreeNode* getNode(const QModelIndex& sourceIndex) const;
+    std::pair<const TreeNode*, QModelIndex> getNodeAndSourceIndex(int destIndex) const;
 
 private:
     QAbstractItemModel* sourceModel_ = nullptr;

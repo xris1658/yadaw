@@ -93,38 +93,7 @@ QModelIndex TreeModelToListModel::sourceToDest(const QModelIndex& source) const
 
 QModelIndex TreeModelToListModel::destToSource(const QModelIndex& dest) const
 {
-    if(auto index = dest.row(); index >= 0)
-    {
-        QModelIndex sourceParent;
-        auto* children = &root_.children;
-        while(!children->empty())
-        {
-            auto lowerBound = std::lower_bound(
-                children->rbegin(), children->rend(), index,
-                [](const std::unique_ptr<TreeNode>& lhs, int rhs) { return lhs->destIndex > rhs; }
-            );
-            if(lowerBound == children->rend())
-            {
-                assert(false);
-                return {};
-            }
-            else if((*lowerBound)->destIndex == index)
-            {
-                return sourceModel_->index(
-                    children->size() - 1 - (lowerBound - children->rbegin()),
-                    0, sourceParent
-                );
-            }
-            else
-            {
-                sourceParent = sourceModel_->index(
-                    children->size() - 1 - (lowerBound - children->rbegin()), 0, sourceParent
-                );
-                children = &((*lowerBound)->children);
-            }
-        }
-    }
-    return {};
+    return getNodeAndSourceIndex(dest.row()).second;
 }
 
 int TreeModelToListModel::rowCount(const QModelIndex&) const
@@ -177,11 +146,7 @@ QVariant TreeModelToListModel::data(const QModelIndex& index, int role) const
 
 bool TreeModelToListModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
-    if(role == Role::Expanded)
-    {
-        // TODO
-    }
-    else if(role >= Role::Indent && role < Qt::UserRole)
+    if(role >= Role::Indent && role < Qt::UserRole)
     {
         return false;
     }
@@ -190,6 +155,27 @@ bool TreeModelToListModel::setData(const QModelIndex& index, const QVariant& val
         return sourceModel_->setData(sourceIndex, value, role);
     }
     return false;
+}
+
+void TreeModelToListModel::expand(int destIndex)
+{
+}
+
+void TreeModelToListModel::expandRecursively(int destIndex)
+{
+}
+
+void TreeModelToListModel::collapse(int destIndex)
+{
+}
+
+void TreeModelToListModel::collapseRecursively(int destIndex)
+{
+}
+
+int TreeModelToListModel::expandToIndex(const QModelIndex& sourceIndex)
+{
+    return -1;
 }
 
 RoleNames TreeModelToListModel::roleNames() const
@@ -233,15 +219,19 @@ void TreeModelToListModel::onSourceModelReset()
 {
 }
 
-TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(const QModelIndex& sourceIndex) const
+const TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(const QModelIndex& sourceIndex) const
 {
+    if(sourceIndex == QModelIndex())
+    {
+        return nullptr;
+    }
     std::vector<int> indices;
     indices.reserve(maxDepth_);
     for(auto index = sourceIndex; index.parent() != QModelIndex(); index = index.parent())
     {
         indices.emplace_back(index.row());
     }
-    auto* ret = &root_;
+    const auto* ret = &root_;
     for(auto it = indices.rbegin(); it != indices.rend(); ++it)
     {
         if(const auto& children = ret->children; (*it) < children.size())
@@ -254,5 +244,47 @@ TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(const QModelIndex&
         }
     }
     return ret;
+}
+
+std::pair<const TreeModelToListModel::TreeNode*, QModelIndex>
+TreeModelToListModel::getNodeAndSourceIndex(int destIndex) const
+{
+    if(destIndex >= 0)
+    {
+        QModelIndex sourceParent;
+        auto* children = &root_.children;
+        while(!children->empty())
+        {
+            auto lowerBound = std::lower_bound(
+                children->rbegin(), children->rend(), destIndex,
+                [](const std::unique_ptr<TreeNode>& lhs, int rhs)
+                {
+                    return lhs->destIndex > rhs;
+                }
+            );
+            if(lowerBound == children->rend())
+            {
+                assert(false);
+                break;
+            }
+            else if((*lowerBound)->destIndex == destIndex)
+            {
+                return {
+                    lowerBound->get(),
+                    sourceModel_->index(
+                        children->size() - 1 - (lowerBound - children->rbegin()
+                    ), 0, sourceParent)
+                };
+            }
+            else
+            {
+                sourceParent = sourceModel_->index(
+                    children->size() - 1 - (lowerBound - children->rbegin()), 0, sourceParent
+                );
+                children = &((*lowerBound)->children);
+            }
+        }
+    }
+    return {nullptr, QModelIndex()};
 }
 }
