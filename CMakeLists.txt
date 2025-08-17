@@ -355,6 +355,7 @@ set(YADAW_COMMON_SOURCES
     src/concurrent/AtomicMutex.hpp
     src/concurrent/DoubleBufferSwitch.hpp
     src/concurrent/InterProcessMutex.hpp
+    src/concurrent/FixedSizeLockFreeQueue.hpp
     src/concurrent/PassDataToRealtimeThread.hpp
     src/controller/AppController.cpp
     src/controller/AppController.hpp
