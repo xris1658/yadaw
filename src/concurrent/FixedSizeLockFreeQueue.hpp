@@ -41,7 +41,10 @@ public:
     };
 public:
     FixedSizeLockFreeQueue();
-    ~FixedSizeLockFreeQueue();
+    ~FixedSizeLockFreeQueue()
+    {
+        clear();
+    }
 public:
     static constexpr std::size_t capacity() noexcept { return Capacity; }
     std::size_t size() const noexcept
@@ -64,7 +67,7 @@ public:
     OptionalRef<T> pushBack(T& value)
     {
         if(auto tail = tail_.load(std::memory_order_relaxed);
-            tail + 1 > head_.load(std::memory_order_relaxed))
+            tail - head_.load(std::memory_order_relaxed) < capacity())
         {
             std::atomic_thread_fence(std::memory_order_acquire);
             auto pointer = AH::fromAligned(container_.data() + tail);
@@ -76,8 +79,9 @@ public:
     }
     OptionalRef<T> pushBack(T&& value)
     {
+
         if(auto tail = tail_.load(std::memory_order_relaxed);
-            tail + 1 > head_.load(std::memory_order_relaxed))
+            tail - head_.load(std::memory_order_relaxed) < capacity())
         {
             std::atomic_thread_fence(std::memory_order_acquire);
             auto pointer = AH::fromAligned(container_.data() + tail);
@@ -91,7 +95,7 @@ public:
     OptionalRef<T> emplaceBack(Args&&... args)
     {
         if(auto tail = tail_.load(std::memory_order_relaxed);
-            tail + 1 > head_.load(std::memory_order_relaxed))
+            tail - head_.load(std::memory_order_relaxed) < capacity())
         {
             std::atomic_thread_fence(std::memory_order_acquire);
             auto pointer = AH::fromAligned(container_.data() + tail);
