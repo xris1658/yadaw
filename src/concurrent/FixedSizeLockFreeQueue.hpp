@@ -29,18 +29,19 @@ public:
         {}
     public:
         View(const View& rhs) = default;
+        View& operator=(const View& rhs) = default;
         ~View() = default;
     public:
         std::size_t size() const noexcept { return tail_ - head_; }
-        T& operator[](std::size_t index) { return pointer_[(head_ + index) % (Capacity + 1)]; }
-        const T& operator[](std::size_t index) const { return pointer_[(head_ + index) % (Capacity + 1)]; }
+        T& operator[](std::size_t index) { return *AH::fromAligned(pointer_ + ((head_ + index) % (Capacity + 1))); }
+        const T& operator[](std::size_t index) const { return *AH::fromAligned(pointer_ + ((head_ + index) % (Capacity + 1))); }
     private:
         YADAW::Util::AlignedStorage<T>* pointer_;
         std::size_t head_;
         std::size_t tail_;
     };
 public:
-    FixedSizeLockFreeQueue();
+    FixedSizeLockFreeQueue() = default;
     ~FixedSizeLockFreeQueue()
     {
         clear();
@@ -60,7 +61,7 @@ public:
             tail > middle_.load(std::memory_order_relaxed))
         {
             std::atomic_thread_fence(std::memory_order_acquire);
-            return AH::fromAligned(container_.data() + tail);
+            return *AH::fromAligned(container_.data() + tail);
         }
         return std::nullopt;
     }
@@ -118,7 +119,7 @@ public:
         auto noPointInThisProcess = middle_.compare_exchange_strong(
             middle, tail, std::memory_order_acq_rel, std::memory_order_acquire
         );
-        return View(container_.data(), head, noPointInThisProcess? tail: middle);
+        return View(*this, head, noPointInThisProcess? tail: middle);
     }
     void popToMiddle(const View& headToMiddleView)
     {
@@ -148,7 +149,7 @@ public:
             std::atomic_thread_fence(std::memory_order_release);
             head_.store(0, std::memory_order_relaxed);
             middle_.store(0, std::memory_order_relaxed);
-            tail_.store(0, std::memory_order_relaxed)
+            tail_.store(0, std::memory_order_relaxed);
         }
     }
 private:
