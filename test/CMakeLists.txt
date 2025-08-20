@@ -331,3 +331,5 @@ target_link_libraries(SampleDelayTest PRIVATE Qt6::Core)
 add_subdirectory(FileTreeModelTest)
 
 add_subdirectory(SortFilterTest)
+
+add_subdirectory(TreeViewTest)
