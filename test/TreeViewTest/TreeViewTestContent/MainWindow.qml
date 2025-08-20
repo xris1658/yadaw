@@ -27,7 +27,8 @@ Window {
                 width: height
                 height: parent.height
                 visible: tmtlm_has_children
-                anchors.right: parent.content.left
+                anchors.left: parent.left
+                anchors.leftMargin: parent.leftPadding - height
                 Label {
                     text: tmtlm_expanded? "\u25b3": "\u25bd"
                     anchors.centerIn: parent
