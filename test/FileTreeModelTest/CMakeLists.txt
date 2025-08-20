@@ -2,6 +2,7 @@ add_subdirectory(FileTreeModelTestContent)
 
 add_executable(FileTreeModelTest
                ../../content/model/IFileTreeModel.hpp
+               ../../content/model/ISortFilterItemModel.hpp
                ../../src/model/impl/TreeNode.hpp
                ../../src/model/FileTreeModel.cpp
                ../../src/model/FileTreeModel.hpp
