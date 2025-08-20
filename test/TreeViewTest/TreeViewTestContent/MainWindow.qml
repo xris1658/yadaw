@@ -33,6 +33,16 @@ Window {
                     anchors.centerIn: parent
                 }
             }
+            onClicked: {
+                if(tmtlm_has_children) {
+                    if(tmtlm_expanded) {
+                        treeModelToListModel.collapse(index);
+                    }
+                    else {
+                        treeModelToListModel.expand(index);
+                    }
+                }
+            }
         }
     }
 }
