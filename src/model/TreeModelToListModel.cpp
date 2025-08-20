@@ -198,6 +198,7 @@ void TreeModelToListModel::expand(int destIndex)
                         bumpRowCountAfter(*n, rowCount);
                     }
                     endInsertRows();
+                    dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
                 }
             }
         }
@@ -213,6 +214,7 @@ void TreeModelToListModel::expand(int destIndex)
                 beginInsertRows(QModelIndex(), children.front()->destIndex, last->destIndex);
                 node->status = TreeNode::Status::Expanded;
                 endInsertRows();
+                dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
             }
         }
     }
@@ -249,6 +251,7 @@ void TreeModelToListModel::collapse(int destIndex)
                 bumpRowCountAfter(*n, bumpRowCount);
             }
             endRemoveRows();
+            dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
         }
     }
 }
