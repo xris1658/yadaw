@@ -80,7 +80,8 @@ private:
     TreeNode* getNode(const QModelIndex& sourceIndex);
     std::pair<const TreeNode*, QModelIndex> getNodeAndSourceIndex(int destIndex) const;
     std::pair<TreeNode*, QModelIndex> getNodeAndSourceIndex(int destIndex);
-
+    void bumpRowCountAfter(TreeNode& node, int rowCount);
+    void bumpRowCount(TreeNode& node, int rowCount);
 private:
     QAbstractItemModel* sourceModel_ = nullptr;
     TreeNode root_ {
@@ -91,5 +92,7 @@ private:
     std::uint32_t maxDepth_ = 0;
 };
 }
+
+Q_DECLARE_METATYPE(YADAW::Model::TreeModelToListModel)
 
 #endif // YADAW_CONTENT_MODEL_TREEMODELTOLISTMODEL

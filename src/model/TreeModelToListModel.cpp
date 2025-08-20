@@ -196,6 +196,10 @@ void TreeModelToListModel::expand(int destIndex)
                         }
                     );
                     node->status = TreeNode::Status::Expanded;
+                    for(auto n = node; n != &root_; n = n->parent)
+                    {
+                        bumpRowCountAfter(*n, rowCount);
+                    }
                     endInsertRows();
                 }
             }
@@ -242,6 +246,11 @@ void TreeModelToListModel::collapse(int destIndex)
             }
             beginRemoveRows(QModelIndex(), destIndex + 1, last->destIndex);
             node->status = TreeNode::Status::NotExpanded;
+            auto bumpRowCount = destIndex - last->destIndex;
+            for(auto n = node; n != &root_; n = n->parent)
+            {
+                bumpRowCountAfter(*n, bumpRowCount);
+            }
             endRemoveRows();
         }
     }
@@ -375,5 +384,23 @@ std::pair<TreeModelToListModel::TreeNode*, QModelIndex> TreeModelToListModel::ge
 {
     auto ret = static_cast<const TreeModelToListModel*>(this)->getNodeAndSourceIndex(destIndex);
     return {const_cast<TreeNode*>(ret.first), ret.second};
+}
+
+void TreeModelToListModel::bumpRowCountAfter(TreeNode& node, int rowCount)
+{
+    for(auto& child: node.parent->children | std::views::drop(node.sourceModelIndex.row() + 1))
+    {
+        child->destIndex += rowCount;
+        bumpRowCount(*child, rowCount);
+    }
+}
+
+void TreeModelToListModel::bumpRowCount(TreeNode& node, int rowCount)
+{
+    for(auto& child: node.children)
+    {
+        child->destIndex += node.sourceModelIndex.row();
+        bumpRowCount(*child, rowCount);
+    }
 }
 }
