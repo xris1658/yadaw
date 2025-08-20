@@ -108,7 +108,7 @@ int TreeModelToListModel::rowCount(const QModelIndex&) const
 
 QVariant TreeModelToListModel::data(const QModelIndex& index, int role) const
 {
-    if(auto sourceIndex = destToSource(index); sourceIndex.isValid())
+    if(auto [node, sourceIndex] = getNodeAndSourceIndex(index.row()); sourceIndex.isValid())
     {
         if(role == Role::Indent)
         {
@@ -121,18 +121,15 @@ QVariant TreeModelToListModel::data(const QModelIndex& index, int role) const
         }
         else if(role == Role::Expanded)
         {
-            auto node = getNode(sourceIndex);
             return node->status == TreeNode::Status::Expanded;
         }
         else if(role == Role::HasChildren)
         {
-            auto node = getNode(sourceIndex);
             return (sourceModel_->flags(sourceIndex) & Qt::ItemFlag::ItemNeverHasChildren) == 0
                 && sourceModel_->hasChildren(sourceIndex);
         }
         else if(role == Role::HasSibling)
         {
-            auto node = getNode(sourceIndex);
             return node->parent->children.size() > 1;
         }
         else if(role == Role::ModelIndex)
