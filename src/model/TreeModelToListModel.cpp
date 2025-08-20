@@ -314,7 +314,7 @@ const TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(const QModel
     }
     std::vector<int> indices;
     indices.reserve(maxDepth_);
-    for(auto index = sourceIndex; index.parent() != QModelIndex(); index = index.parent())
+    for(auto index = sourceIndex; index != QModelIndex(); index = index.parent())
     {
         indices.emplace_back(index.row());
     }
