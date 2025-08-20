@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
         }
     );
     engine.loadFromModule("TreeViewTestContent", "MainWindow");
-    YADAW::Model::FileTreeModel fileTreeModel("D:");
+    YADAW::Model::FileTreeModel fileTreeModel(QCoreApplication::applicationDirPath() + "\\tree");
     window->setProperty(
         "model", QVariant::fromValue<QObject*>(&fileTreeModel)
     );
