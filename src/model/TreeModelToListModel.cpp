@@ -204,13 +204,12 @@ void TreeModelToListModel::expand(int destIndex)
                         std::back_inserter(children), rowCount,
                         [node, offset = 0, destIndex, &sourceIndex]() mutable
                         {
-                            ++offset;
                             return std::make_unique<TreeNode>(
                                 TreeNode {
                                     .parent = node,
                                     .sourceModelIndex = sourceIndex.model()->index(offset, 0, sourceIndex),
                                     .children = {},
-                                    .destIndex = destIndex + offset,
+                                    .destIndex = destIndex + (++offset),
                                     .status = TreeNode::Status::Unchecked
                                 }
                             );
@@ -236,9 +235,14 @@ void TreeModelToListModel::expand(int destIndex)
                 {
                     last = last->children.back().get();
                 }
+                auto rowCount = last->destIndex - children.front()->destIndex + 1;
                 std::fprintf(stderr, "[DEBUG] TreeModelToListModel insert: %d\t%d\n", children.front()->destIndex, last->destIndex);
                 beginInsertRows(QModelIndex(), children.front()->destIndex, last->destIndex);
                 node->status = TreeNode::Status::Expanded;
+                for(auto n = node; n != &root_; n = n->parent)
+                {
+                    bumpRowCountAfter(*n, rowCount);
+                }
                 endInsertRows();
                 root_.dump();
                 dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
@@ -430,7 +434,7 @@ void TreeModelToListModel::bumpRowCount(TreeNode& node, int rowCount)
 {
     for(auto& child: node.children)
     {
-        child->destIndex += node.sourceModelIndex.row();
+        child->destIndex += rowCount;
         bumpRowCount(*child, rowCount);
     }
 }
