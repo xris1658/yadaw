@@ -30,6 +30,8 @@ private:
         std::vector<std::unique_ptr<TreeNode>> children;
         int destIndex = 0;
         Status status = Status::Unchecked;
+        void dump();
+        void dump(std::uint32_t indent);
     };
 public:
     enum Role // Copied from `QQmlTreeModelToTableModel` TODO: Use attached properties instead of this

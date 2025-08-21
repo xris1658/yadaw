@@ -5,6 +5,27 @@
 
 namespace YADAW::Model
 {
+void TreeModelToListModel::TreeNode::dump()
+{
+    std::fprintf(stderr, "[DEBUG] --- Begin dump ---\n");
+    for(const auto& child: children)
+    {
+        child->dump(0);
+    }
+    std::fprintf(stderr, "[DEBUG] ---  End dump  ---\n");
+}
+
+void TreeModelToListModel::TreeNode::dump(std::uint32_t indent)
+{
+    std::fprintf(stderr, "[DEBUG] %*s%c %d\n",
+        indent * 4, "",
+        status == Status::Unchecked? 'x': status == Status::NotExpanded? 'v': '^', destIndex);
+    for(const auto& child: children)
+    {
+        child->dump(indent + 1);
+    }
+}
+
 TreeModelToListModel::TreeModelToListModel(QObject* parent): QAbstractListModel(parent)
 {}
 
@@ -76,6 +97,7 @@ void TreeModelToListModel::setSourceModel(QAbstractItemModel* sourceModel)
     }
     // TODO
     sourceModelChanged();
+    root_.dump();
 }
 
 QModelIndex TreeModelToListModel::sourceToDest(const QModelIndex& source) const
@@ -172,6 +194,8 @@ void TreeModelToListModel::expand(int destIndex)
             {
                 if(auto rowCount = sourceModel_->rowCount(sourceIndex); rowCount > 0)
                 {
+                    std::fprintf(stderr, "[DEBUG] TreeModelToListModel insert: %d\t%d\n", destIndex + 1, destIndex + rowCount);
+                    std::fprintf(stderr, "[DEBUG] Bump row count: %d\n", rowCount);
                     beginInsertRows(QModelIndex(), destIndex + 1, destIndex + rowCount);
                     auto& children = node->children;
                     children.clear();
@@ -198,6 +222,7 @@ void TreeModelToListModel::expand(int destIndex)
                         bumpRowCountAfter(*n, rowCount);
                     }
                     endInsertRows();
+                    root_.dump();
                     dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
                 }
             }
@@ -211,9 +236,11 @@ void TreeModelToListModel::expand(int destIndex)
                 {
                     last = last->children.back().get();
                 }
+                std::fprintf(stderr, "[DEBUG] TreeModelToListModel insert: %d\t%d\n", children.front()->destIndex, last->destIndex);
                 beginInsertRows(QModelIndex(), children.front()->destIndex, last->destIndex);
                 node->status = TreeNode::Status::Expanded;
                 endInsertRows();
+                root_.dump();
                 dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
             }
         }
@@ -243,6 +270,7 @@ void TreeModelToListModel::collapse(int destIndex)
             {
                 last = last->children.back().get();
             }
+            std::fprintf(stderr, "[DEBUG] TreeModelToListModel remove: %d\t%d\n", destIndex + 1, last->destIndex);
             beginRemoveRows(QModelIndex(), destIndex + 1, last->destIndex);
             node->status = TreeNode::Status::NotExpanded;
             auto bumpRowCount = destIndex - last->destIndex;
@@ -251,6 +279,7 @@ void TreeModelToListModel::collapse(int destIndex)
                 bumpRowCountAfter(*n, bumpRowCount);
             }
             endRemoveRows();
+            root_.dump();
             dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
         }
     }
@@ -388,7 +417,9 @@ std::pair<TreeModelToListModel::TreeNode*, QModelIndex> TreeModelToListModel::ge
 
 void TreeModelToListModel::bumpRowCountAfter(TreeNode& node, int rowCount)
 {
-    for(auto& child: node.parent->children | std::views::drop(node.sourceModelIndex.row() + 1))
+    auto offset = node.sourceModelIndex.row() + 1;
+    std::fprintf(stderr, "[DEBUG] `bumpRowCountAfter` node offset: %d\n", offset);
+    for(auto& child: node.parent->children | std::views::drop(offset))
     {
         child->destIndex += rowCount;
         bumpRowCount(*child, rowCount);
