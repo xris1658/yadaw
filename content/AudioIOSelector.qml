@@ -95,15 +95,12 @@ QC.Popup {
     Component {
         id: audioIOPositionTreeComponent
         ItemDelegate {
-            required property TreeView treeView
-            required property bool isTreeNode
-            required property bool expanded
-            required property int hasChildren
-            required property int depth
-            width: treeView.columnWidthProvider(column)
+            property bool expanded: tmtlm_expanded
+            property int hasChildren: tmtlm_has_children
+            property int depth: tmtlm_indent
+            width: ListView.view.treeView.width
             leftPadding: depth * height + indicator.width
             text: aiopim_position? aiopim_position.completeName + " (" + aiopim_tree_name + ")": aiopim_tree_name
-            highlighted: treeView.currentRow == row && treeView.currentColumn == column
             Label {
                 id: indicator
                 x: depth * parent.height
@@ -111,12 +108,12 @@ QC.Popup {
                 height: parent.height
                 verticalAlignment: Label.AlignVCenter
                 horizontalAlignment: Label.AlignHCenter
-                visible: parent.isTreeNode && parent.hasChildren
+                visible: parent.hasChildren
                 text: parent.expanded? "\u25bc": "\u25b6"
             }
             onClicked: {
                 if(hasChildren) {
-                    treeView.toggleExpanded(row);
+                    ListView.view.treeView.toggleExpanded(index);
                 }
                 else if(aiopim_position) {
                     root.currentPosition = aiopim_position;
@@ -287,21 +284,15 @@ QC.Popup {
                         model: audioEffectChannelProxyModel
                         delegate: audioIOPositionComponent
                     }
-                    TreeView {
+                    TreeViewAsListView {
                         id: pluginAuxInTreeView
                         clip: true
-                        delegate: audioIOPositionTreeComponent
-                        columnWidthProvider: (column) => {
-                            return stackLayout.width;
-                        }
+                        listView.delegate: audioIOPositionTreeComponent
                     }
-                    TreeView {
+                    TreeViewAsListView {
                         id: pluginAuxOutTreeView
                         clip: true
-                        delegate: audioIOPositionTreeComponent
-                        columnWidthProvider: (column) => {
-                            return stackLayout.width;
-                        }
+                        listView.delegate: audioIOPositionTreeComponent
                     }
                     onCurrentIndexChanged: {
                         root.currentPosition = null;
