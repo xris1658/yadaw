@@ -60,6 +60,7 @@ public:
     Q_INVOKABLE void expandRecursively(int destIndex);
     Q_INVOKABLE void collapse(int destIndex);
     Q_INVOKABLE void collapseRecursively(int destIndex);
+    Q_INVOKABLE void toggleExpanded(int destIndex);
     // Returns the dest index used for `ListView.positionViewAtIndex`
     Q_INVOKABLE int  expandToIndex(const QModelIndex& sourceIndex);
 signals:

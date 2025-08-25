@@ -293,6 +293,21 @@ void TreeModelToListModel::collapseRecursively(int destIndex)
 {
 }
 
+void TreeModelToListModel::toggleExpanded(int destIndex)
+{
+    if(auto [node, sourceIndex] = getNodeAndSourceIndex(destIndex); sourceIndex.isValid())
+    {
+        if(node->status == TreeNode::Status::Expanded)
+        {
+            collapse(destIndex);
+        }
+        else
+        {
+            expand(destIndex);
+        }
+    }
+}
+
 int TreeModelToListModel::expandToIndex(const QModelIndex& sourceIndex)
 {
     return -1;
