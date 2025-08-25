@@ -612,7 +612,7 @@ Rectangle {
                             height: parent.height
                             verticalAlignment: Label.AlignVCenter
                             horizontalAlignment: Label.AlignHCenter
-                            visible: parent.isTreeNode && parent.hasChildren
+                            visible: parent.isTreeNode
                             text: parent.expanded? "\u25bc": "\u25b6"
                         }
                         text: ftm_name
