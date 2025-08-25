@@ -32,62 +32,21 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
             [this, parentIndex, sender = mixerChannelListModels_[i], &treeNode = rootNode_.children[i]]
             (const QModelIndex&, int first, int last) // MixerChannelListModel::rowsInserted
             {
-                // [*] This is a workaround of https://bugreports.qt.io/browse/QTBUG-138493.
-                //     It is not finished as assertion failures can be triggered
-                //     on appending channels with enough layers of the last item
-                //     expanded.
-                //     I reported this issue about a month ago, only to receive
-                //     a response which is machine generated and nothing else
-                //     (until this commit).
-                //     Since this issue comes from bugs of `TreeView` (more
-                //     specifically, `QQmlTreeModelToTableModel` which is the
-                //     internal proxy model of `TreeView`), I'd better make a
-                //     `TreeView` and a proxy model by myself.
-                if(first > 0 && last == sender->rowCount(QModelIndex()) - 1)
-                {
-                    beginInsertRows(parentIndex, first - 1, last - 1);
-                    std::generate_n(
-                        std::inserter(treeNode->children, treeNode->children.begin() + first - 1), last - first + 1,
-                        [&treeNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
-                        {
-                            return std::make_unique<NodeData>(
-                                NodeData {
-                                    .indent = NodeData::Indent::ChannelIndex,
-                                    .index  = channelIndex++,
-                                    .parent = treeNode.get()
-                                }
-                            );
-                        }
-                    );
-                    endInsertRows();
-                    // beginMoveRows(parentIndex, first - 1, last - 1, parentIndex, first);
-                    // equivalent to the code above but does not trigger an assertion failure
-                    beginMoveRows(parentIndex, last, last, parentIndex, first - 1);
-                    std::rotate(
-                        treeNode->children.begin() + first - 1,
-                        treeNode->children.begin() + last,
-                        treeNode->children.begin() + last + 1
-                    );
-                    endMoveRows();
-                }
-                else
-                {
-                    beginInsertRows(parentIndex, first, last);
-                    std::generate_n(
-                        std::inserter(treeNode->children, treeNode->children.begin() + first), last - first + 1,
-                        [&treeNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
-                        {
-                            return std::make_unique<NodeData>(
-                                NodeData {
-                                    .indent = NodeData::Indent::ChannelIndex,
-                                    .index  = channelIndex++,
-                                    .parent = treeNode.get()
-                                }
-                            );
-                        }
-                    );
-                    endInsertRows();
-                }
+                beginInsertRows(parentIndex, first, last);
+                std::generate_n(
+                    std::inserter(treeNode->children, treeNode->children.begin() + first), last - first + 1,
+                    [&treeNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
+                    {
+                        return std::make_unique<NodeData>(
+                            NodeData {
+                                .indent = NodeData::Indent::ChannelIndex,
+                                .index  = channelIndex++,
+                                .parent = treeNode.get()
+                            }
+                        );
+                    }
+                );
+                endInsertRows();
                 Indices indices;
                 for(auto node = treeNode.get(); node != &rootNode_; node = node->parent)
                 {
@@ -129,60 +88,25 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
                                 )
                             );
                             auto destParentNode = getNodeData(destParentIndex);
-                            // See [*]
-                            if(first > 0 && last == mixerChannelInsertListModel->rowCount(QModelIndex()) - 1)
-                            {
-                                beginInsertRows(destParentIndex, first - 1, last - 1);
-                                std::generate_n(
-                                    std::inserter(
-                                        destParentNode->children,
-                                        destParentNode->children.begin() + first - 1
-                                    ),
-                                    last - first + 1,
-                                    [destParentNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
-                                    {
-                                        return std::make_unique<NodeData>(
-                                            NodeData {
-                                                .indent = NodeData::Indent::InsertIndex,
-                                                .index  = channelIndex++,
-                                                .parent = destParentNode
-                                            }
-                                        );
-                                    }
-                                );
-                                endInsertRows();
-                                // beginMoveRows(destParentIndex, first - 1, last - 1, destParentIndex, first);
-                                // equivalent to the code above but does not trigger an assertion failure
-                                beginMoveRows(destParentIndex, last, last, destParentIndex, first - 1);
-                                std::rotate(
-                                    destParentNode->children.begin() + first - 1,
-                                    destParentNode->children.begin() + last,
-                                    destParentNode->children.begin() + last + 1
-                                );
-                                endMoveRows();
-                            }
-                            else
-                            {
-                                beginInsertRows(destParentIndex, first, last);
-                                std::generate_n(
-                                    std::inserter(
-                                        destParentNode->children,
-                                        destParentNode->children.begin() + first
-                                    ),
-                                    last - first + 1,
-                                    [destParentNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
-                                    {
-                                        return std::make_unique<NodeData>(
-                                            NodeData {
-                                                .indent = NodeData::Indent::InsertIndex,
-                                                .index  = channelIndex++,
-                                                .parent = destParentNode
-                                            }
-                                        );
-                                    }
-                                );
-                                endInsertRows();
-                            }
+                            beginInsertRows(destParentIndex, first, last);
+                            std::generate_n(
+                                std::inserter(
+                                    destParentNode->children,
+                                    destParentNode->children.begin() + first
+                                ),
+                                last - first + 1,
+                                [destParentNode, channelIndex = static_cast<std::uint32_t>(first)]() mutable
+                                {
+                                    return std::make_unique<NodeData>(
+                                        NodeData {
+                                            .indent = NodeData::Indent::InsertIndex,
+                                            .index  = channelIndex++,
+                                            .parent = destParentNode
+                                        }
+                                    );
+                                }
+                            );
+                            endInsertRows();
                             FOR_RANGE(j, last + 1, destParentNode->children.size())
                             {
                                 destParentNode->children[j]->index = j;
