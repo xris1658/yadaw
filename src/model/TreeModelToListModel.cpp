@@ -216,10 +216,13 @@ void TreeModelToListModel::expand(int destIndex)
                         }
                     );
                     node->status = TreeNode::Status::Expanded;
+                    decltype(maxDepth_) depth = 0;
                     for(auto n = node; n != &root_; n = n->parent)
                     {
+                        ++depth;
                         bumpRowCountAfter(*n, rowCount);
                     }
+                    maxDepth_ = std::max(maxDepth_, depth);
                     endInsertRows();
                     root_.dump();
                     dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
@@ -239,10 +242,13 @@ void TreeModelToListModel::expand(int destIndex)
                 std::fprintf(stderr, "[DEBUG] TreeModelToListModel insert: %d\t%d\n", children.front()->destIndex, last->destIndex);
                 beginInsertRows(QModelIndex(), children.front()->destIndex, last->destIndex);
                 node->status = TreeNode::Status::Expanded;
+                decltype(maxDepth_) depth = 0;
                 for(auto n = node; n != &root_; n = n->parent)
                 {
+                    ++depth;
                     bumpRowCountAfter(*n, rowCount);
                 }
+                maxDepth_ = std::max(maxDepth_, depth);
                 endInsertRows();
                 root_.dump();
                 dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
