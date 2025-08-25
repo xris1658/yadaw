@@ -192,6 +192,7 @@ void TreeModelToListModel::expand(int destIndex)
                 && sourceModel_->hasChildren(sourceIndex)
             )
             {
+                node->status = TreeNode::Status::Expanded;
                 if(auto rowCount = sourceModel_->rowCount(sourceIndex); rowCount > 0)
                 {
                     std::fprintf(stderr, "[DEBUG] TreeModelToListModel insert: %d\t%d\n", destIndex + 1, destIndex + rowCount);
@@ -215,7 +216,6 @@ void TreeModelToListModel::expand(int destIndex)
                             );
                         }
                     );
-                    node->status = TreeNode::Status::Expanded;
                     decltype(maxDepth_) depth = 0;
                     for(auto n = node; n != &root_; n = n->parent)
                     {
@@ -225,12 +225,13 @@ void TreeModelToListModel::expand(int destIndex)
                     maxDepth_ = std::max(maxDepth_, depth);
                     endInsertRows();
                     root_.dump();
-                    dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
                 }
+                dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
             }
         }
         else if(node->status == TreeNode::Status::NotExpanded)
         {
+            node->status = TreeNode::Status::Expanded;
             if(auto& children = node->children; !children.empty())
             {
                 auto* last = children.back().get();
@@ -241,7 +242,6 @@ void TreeModelToListModel::expand(int destIndex)
                 auto rowCount = last->destIndex - children.front()->destIndex + 1;
                 std::fprintf(stderr, "[DEBUG] TreeModelToListModel insert: %d\t%d\n", children.front()->destIndex, last->destIndex);
                 beginInsertRows(QModelIndex(), children.front()->destIndex, last->destIndex);
-                node->status = TreeNode::Status::Expanded;
                 decltype(maxDepth_) depth = 0;
                 for(auto n = node; n != &root_; n = n->parent)
                 {
@@ -251,8 +251,8 @@ void TreeModelToListModel::expand(int destIndex)
                 maxDepth_ = std::max(maxDepth_, depth);
                 endInsertRows();
                 root_.dump();
-                dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
             }
+            dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
         }
     }
 }
@@ -270,9 +270,9 @@ void TreeModelToListModel::collapse(int destIndex)
     if(auto [node, sourceIndex] = getNodeAndSourceIndex(destIndex);
         node && sourceIndex.isValid()
         && node->status == TreeNode::Status::Expanded
-        && (!node->children.empty())
     )
     {
+        node->status = TreeNode::Status::NotExpanded;
         if(const auto& children = node->children; !children.empty())
         {
             auto* last = children.back().get();
@@ -282,7 +282,6 @@ void TreeModelToListModel::collapse(int destIndex)
             }
             std::fprintf(stderr, "[DEBUG] TreeModelToListModel remove: %d\t%d\n", destIndex + 1, last->destIndex);
             beginRemoveRows(QModelIndex(), destIndex + 1, last->destIndex);
-            node->status = TreeNode::Status::NotExpanded;
             auto bumpRowCount = destIndex - last->destIndex;
             for(auto n = node; n != &root_; n = n->parent)
             {
@@ -290,8 +289,8 @@ void TreeModelToListModel::collapse(int destIndex)
             }
             endRemoveRows();
             root_.dump();
-            dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
         }
+        dataChanged(index(destIndex), index(destIndex), {Role::Expanded});
     }
 }
 
