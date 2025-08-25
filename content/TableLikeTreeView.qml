@@ -90,22 +90,17 @@ Item {
                 color: Colors.border
             }
         }
-        onContentWidthChanged: {
-            treeView.columnWidthProvider = (column) => {
-                return headerListView.contentWidth;
-            }
-        }
     }
-    TreeView {
+    TreeViewAsListView {
         id: treeView
         property int columnWidth: headerListView.contentWidth
         z: 1
         anchors.fill: parent
-        topMargin: headerListView.height
+        listView.topMargin: headerListView.height
         anchors.rightMargin: vbar.visible? vbar.width: 0
         anchors.bottomMargin: hbar.visible? hbar.height: 0
-        ScrollBar.vertical: vbar
-        ScrollBar.horizontal: hbar
+        listView.ScrollBar.vertical: vbar
+        listView.ScrollBar.horizontal: hbar
     }
     ScrollBar {
         z: 3

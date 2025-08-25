@@ -108,7 +108,7 @@ TimeIndicator 1.0 TimeIndicator.qml
 Timeline 1.0 Timeline.qml
 ToolTip 1.0 ToolTip.qml
 TrackHeader 1.0 TrackHeader.qml
-TreeView 1.0 TreeView.qml
+TreeViewAsListView 1.0 TreeViewAsListView.qml
 VestifalIcon 1.0 VestifalIcon.qml
 VST3Icon 1.0 VST3Icon.qml
 WASAPIExclusiveSettings 1.0 WASAPIExclusiveSettings.qml

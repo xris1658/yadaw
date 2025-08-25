@@ -162,7 +162,7 @@ set(CONTENT_QML_FILES
     Timeline.qml
     ToolTip.qml
     TrackHeader.qml
-    TreeView.qml
+    TreeViewAsListView.qml
     VestifalIcon.qml
     VST3Icon.qml
     WASAPIExclusiveSettings.qml

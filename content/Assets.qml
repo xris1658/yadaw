@@ -24,28 +24,25 @@ Rectangle {
     Component {
         id: audioIOPositionTreeComponent
         ItemDelegate {
-            required property TreeView treeView
-            required property bool isTreeNode
-            required property bool expanded
-            required property int hasChildren
-            required property int depth
-            width: treeView.columnWidthProvider(column)
-            leftPadding: depth * height + indicator.width
+            property bool expanded: tmtlm_expanded
+            property bool hasChildren: tmtlm_has_children
+            property int indent: tmtlm_indent
+            width: ListView.view.width
+            leftPadding: indent * height + indicator.width
             text: aiopim_position? aiopim_position.completeName + " (" + aiopim_tree_name + ")": aiopim_tree_name
-            highlighted: treeView.currentRow == row && treeView.currentColumn == column
             Label {
                 id: indicator
-                x: depth * parent.height
+                x: indent * parent.height
                 width: height
                 height: parent.height
                 verticalAlignment: Label.AlignVCenter
                 horizontalAlignment: Label.AlignHCenter
-                visible: parent.isTreeNode && parent.hasChildren
+                visible: parent.hasChildren
                 text: parent.expanded? "\u25bc": "\u25b6"
             }
             onClicked: {
                 if(hasChildren) {
-                    treeView.toggleExpanded(row);
+                    ListView.view.treeView.toggleExpanded(index);
                 }
             }
         }
@@ -279,7 +276,7 @@ Rectangle {
                         }
                         onHighlightedChanged: {
                             if(highlighted) {
-                                assetTreeView.model = adlm_file_tree;
+                                assetTreeView.treeView.model = adlm_file_tree;
                             }
                         }
                     }
@@ -599,19 +596,18 @@ Rectangle {
                 TableLikeTreeView {
                     id: assetTreeView
                     headerListModel: assetHeaderListModel
-                    treeView.boundsBehavior: Flickable.StopAtBounds
-                    treeView.clip: true
-                    treeView.delegate: ItemDelegate {
-                        required property TreeView treeView
-                        required property bool isTreeNode
-                        required property bool expanded
-                        required property int hasChildren
-                        required property int depth
-                        leftPadding: depth * height + indicator.width
-                        width: assetTreeView.treeView.columnWidthProvider(column)
+                    treeView.listView.boundsBehavior: Flickable.StopAtBounds
+                    treeView.listView.clip: true
+                    treeView.listView.delegate: ItemDelegate {
+                        id: assetTreeDelegate
+                        property bool isTreeNode: tmtlm_has_children
+                        property bool expanded: tmtlm_expanded
+                        property int indent: tmtlm_indent
+                        leftPadding: indent * height + indicator.width
+                        width: assetTreeView.width
                         Label {
                             id: indicator
-                            x: depth * parent.height
+                            x: indent * parent.height
                             width: height
                             height: parent.height
                             verticalAlignment: Label.AlignVCenter
@@ -621,7 +617,7 @@ Rectangle {
                         }
                         text: ftm_name
                         onClicked: {
-                            assetTreeView.treeView.toggleExpanded(row);
+                            assetTreeView.treeView.toggleExpanded(index);
                         }
                     }
                 }
@@ -771,23 +767,17 @@ Rectangle {
                     id: pluginAuxIOLayout
                     currentIndex: pluginAuxIOColumn.currentIndex
                     clip: true
-                    TreeView {
+                    TableLikeTreeView {
                         id: pluginAuxInTreeView
                         clip: true
-                        boundsBehavior: Flickable.StopAtBounds
-                        delegate: audioIOPositionTreeComponent
-                        columnWidthProvider: (column) => {
-                            return pluginAuxIOLayout.width;
-                        }
+                        treeView.listView.boundsBehavior: Flickable.StopAtBounds
+                        treeView.listView.delegate: audioIOPositionTreeComponent
                     }
-                    TreeView {
+                    TableLikeTreeView {
                         id: pluginAuxOutTreeView
                         clip: true
-                        boundsBehavior: Flickable.StopAtBounds
-                        delegate: audioIOPositionTreeComponent
-                        columnWidthProvider: (column) => {
-                            return pluginAuxIOLayout.width;
-                        }
+                        treeView.listView.boundsBehavior: Flickable.StopAtBounds
+                        treeView.listView.delegate: audioIOPositionTreeComponent
                     }
                 }
             }
