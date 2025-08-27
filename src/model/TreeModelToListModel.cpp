@@ -359,7 +359,8 @@ void TreeModelToListModel::onSourceModelReset()
 {
 }
 
-const TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(const QModelIndex& sourceIndex) const
+ const TreeModelToListModel::TreeNode*
+TreeModelToListModel::getNode(const QModelIndex& sourceIndex, bool onlyIfExpanded) const
 {
     if(sourceIndex == QModelIndex())
     {
@@ -371,8 +372,9 @@ const TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(const QModel
     {
         indices.emplace_back(index.row());
     }
+    maxDepth_ = std::max(maxDepth_, static_cast<std::uint32_t>(indices.size()));
     const auto* ret = &root_;
-    for(auto it = indices.rbegin(); it != indices.rend(); ++it)
+    for(auto it = indices.rbegin(); it != indices.rend() && ((!onlyIfExpanded) || ret->status == TreeNode::Status::Expanded); ++it)
     {
         if(const auto& children = ret->children; (*it) < children.size())
         {
@@ -386,9 +388,14 @@ const TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(const QModel
     return ret;
 }
 
-TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(const QModelIndex& sourceIndex)
+TreeModelToListModel::TreeNode* TreeModelToListModel::getNode(
+    const QModelIndex& sourceIndex, bool onlyIfExpanded)
 {
-    return const_cast<TreeNode*>(static_cast<const TreeModelToListModel*>(this)->getNode(sourceIndex));
+    return const_cast<TreeNode*>(
+        static_cast<const TreeModelToListModel*>(this)->getNode(
+            sourceIndex, onlyIfExpanded
+        )
+    );
 }
 
 std::pair<const TreeModelToListModel::TreeNode*, QModelIndex>

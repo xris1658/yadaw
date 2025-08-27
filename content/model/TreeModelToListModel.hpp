@@ -79,8 +79,8 @@ private slots:
     void onSourceModelAboutToBeReset();
     void onSourceModelReset();
 private:
-    const TreeNode* getNode(const QModelIndex& sourceIndex) const;
-    TreeNode* getNode(const QModelIndex& sourceIndex);
+    const TreeNode* getNode(const QModelIndex& sourceIndex, bool onlyIfExpanded = true) const;
+    TreeNode* getNode(const QModelIndex& sourceIndex, bool onlyIfExpanded = true);
     std::pair<const TreeNode*, QModelIndex> getNodeAndSourceIndex(int destIndex) const;
     std::pair<TreeNode*, QModelIndex> getNodeAndSourceIndex(int destIndex);
     void bumpRowCountAfter(TreeNode& node, int rowCount);
@@ -92,7 +92,7 @@ private:
         .destIndex = -1,
         .status = TreeNode::Status::Expanded
     };
-    std::uint32_t maxDepth_ = 0;
+    mutable std::uint32_t maxDepth_ = 0;
 };
 }
 
