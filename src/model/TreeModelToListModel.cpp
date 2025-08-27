@@ -406,6 +406,18 @@ void TreeModelToListModel::onSourceModelDataChanged(
     const QModelIndex& sourceTopLeft, const QModelIndex& sourceBottomRight,
     const QList<int>& roles)
 {
+    if(auto sourceParentIndex = sourceTopLeft.parent();
+        sourceParentIndex == sourceBottomRight.parent())
+    {
+        if(auto node = getNode(sourceParentIndex))
+        {
+            dataChanged(
+                index(node->children[sourceTopLeft.row()]->destIndex),
+                index(node->children[sourceBottomRight.row()]->destIndex),
+                {roles}
+            );
+        }
+    }
 }
 
 void TreeModelToListModel::onSourceModelAboutToBeReset()
