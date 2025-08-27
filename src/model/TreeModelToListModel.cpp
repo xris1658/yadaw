@@ -46,9 +46,9 @@ void TreeModelToListModel::setSourceModel(QAbstractItemModel* sourceModel)
     if(sourceModel_)
     {
         QObject::disconnect(sourceModel_, nullptr, this, nullptr);
-        beginResetModel();
         root_.children.clear();
     }
+    beginResetModel();
     if(sourceModel)
     {
         sourceModel_ = sourceModel;
@@ -68,7 +68,6 @@ void TreeModelToListModel::setSourceModel(QAbstractItemModel* sourceModel)
                 );
             }
         );
-        endResetModel();
         QObject::connect(
             sourceModel_, &QAbstractItemModel::rowsInserted,
             this, &TreeModelToListModel::onSourceModelRowsInserted
@@ -95,6 +94,7 @@ void TreeModelToListModel::setSourceModel(QAbstractItemModel* sourceModel)
         );
         maxDepth_ = 1;
     }
+    endResetModel();
     // TODO
     sourceModelChanged();
     root_.dump();
