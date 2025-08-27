@@ -332,6 +332,63 @@ RoleNames TreeModelToListModel::roleNames() const
 void TreeModelToListModel::onSourceModelRowsInserted(
     const QModelIndex& sourceModelParent, int first, int last)
 {
+    if(auto node = getNode(sourceModelParent, false))
+    {
+        TreeNode* lowestNotExpandedNode = &root_;
+        for(auto n = node; n != &root_; n = n->parent)
+        {
+            if(n->status != TreeNode::Status::Expanded)
+            {
+                lowestNotExpandedNode = n;
+                break;
+            }
+        }
+        auto prevDestIndex = first?
+            node->children[first - 1]->destIndex:
+            node->destIndex;
+        if(lowestNotExpandedNode == &root_)
+        {
+            std::fprintf(
+                stderr, "Dest index from (first, last): %d, %d\n",
+                prevDestIndex + 1,
+                prevDestIndex + 1 + last - first
+            );
+            beginInsertRows(
+                QModelIndex(),
+                prevDestIndex + 1,
+                prevDestIndex + 1 + last - first
+            );
+        }
+        std::ranges::copy(
+            std::ranges::views::iota(first, last + 1) |
+            std::ranges::views::transform(
+                [node, sourceModelParent, destIndex = prevDestIndex + 1](int row) mutable
+                {
+                    return std::make_unique<TreeNode>(
+                        TreeNode {
+                            .parent = node,
+                            .sourceModelIndex = sourceModelParent.model()->index(row, 0, sourceModelParent),
+                            .destIndex = destIndex++
+                        }
+                    );
+                }
+            ),
+            std::inserter(node->children, node->children.begin() + first)
+        );
+        root_.dump();
+        std::fprintf(stderr, "Items inserted, about to bump dest index\n");
+        for(auto n = node->children[last].get(); n != lowestNotExpandedNode; n = n->parent)
+        {
+            bumpRowCountAfter(*n, last - first + 1);
+            root_.dump();
+        }
+        if(lowestNotExpandedNode == &root_)
+        {
+            root_.dump();
+            std::fprintf(stderr, "Items inserted, about to call `endInsertRows()`\n");
+            endInsertRows();
+        }
+    }
 }
 
 void TreeModelToListModel::onSourceModelRowsRemoved(
@@ -359,7 +416,7 @@ void TreeModelToListModel::onSourceModelReset()
 {
 }
 
- const TreeModelToListModel::TreeNode*
+const TreeModelToListModel::TreeNode*
 TreeModelToListModel::getNode(const QModelIndex& sourceIndex, bool onlyIfExpanded) const
 {
     if(sourceIndex == QModelIndex())
