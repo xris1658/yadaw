@@ -9,9 +9,6 @@ Item {
 
     TreeModelToListModel {
         id: proxyModel
-        onSourceModelChanged: {
-            console.log("`sourceModelChanged()` triggered");
-        }
     }
     ListView {
         id: listView
