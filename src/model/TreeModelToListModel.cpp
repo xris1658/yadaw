@@ -332,7 +332,8 @@ RoleNames TreeModelToListModel::roleNames() const
 void TreeModelToListModel::onSourceModelRowsInserted(
     const QModelIndex& sourceModelParent, int first, int last)
 {
-    if(auto node = getNode(sourceModelParent, false))
+    if(auto node = getNode(sourceModelParent, false);
+        node && node->status != TreeNode::Status::Unchecked)
     {
         TreeNode* lowestNotExpandedNode = &root_;
         for(auto n = node; n != &root_; n = n->parent)
