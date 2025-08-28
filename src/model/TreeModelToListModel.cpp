@@ -401,6 +401,54 @@ void TreeModelToListModel::onSourceModelRowsInserted(
 void TreeModelToListModel::onSourceModelRowsRemoved(
     const QModelIndex& sourceModelParent, int first, int last)
 {
+    if(auto node = getNode(sourceModelParent, false);
+        node->status != TreeNode::Status::Unchecked)
+    {
+        TreeNode* lowestNotExpandedNode = &root_;
+        for(auto n = node; n != &root_; n = n->parent)
+        {
+            if(n->status != TreeNode::Status::Expanded)
+            {
+                lowestNotExpandedNode = n;
+                break;
+            }
+        }
+        auto prevDestIndex = first?
+            node->children[first - 1]->destIndex:
+            node->destIndex;
+        auto destLast = node->children[last].get();
+        if(lowestNotExpandedNode == &root_)
+        {
+            while(destLast->status == TreeNode::Status::Expanded && (!destLast->children.empty()))
+            {
+                destLast = destLast->children.back().get();
+            }
+            beginRemoveRows(
+                QModelIndex(),
+                prevDestIndex + 1,
+                destLast->destIndex
+            );
+        }
+        auto bump = node->children[first]->destIndex - (destLast->destIndex + 1);
+        node->children.erase(
+            node->children.begin() + first,
+            node->children.begin() + last + 1
+        );
+        for(auto it = node->children.begin() + first; it != node->children.end(); ++it)
+        {
+            (*it)->sourceModelIndex = sourceModel_->index(
+                it - node->children.begin(), 0, node->sourceModelIndex
+            );
+        }
+        for(auto n = first == 0? node: (node->children.begin() + first)->get(); n != lowestNotExpandedNode; n = n->parent)
+        {
+            bumpRowCountAfter(*n, bump);
+        }
+        if(lowestNotExpandedNode == &root_)
+        {
+            endRemoveRows();
+        }
+    }
 }
 
 void TreeModelToListModel::onSourceModelRowsMoved(
@@ -416,7 +464,7 @@ void TreeModelToListModel::onSourceModelDataChanged(
     if(auto sourceParentIndex = sourceTopLeft.parent();
         sourceParentIndex == sourceBottomRight.parent())
     {
-        if(auto node = getNode(sourceParentIndex))
+        if(auto node = getNode(sourceParentIndex); node->status == TreeNode::Status::Expanded)
         {
             dataChanged(
                 index(node->children[sourceTopLeft.row()]->destIndex),
