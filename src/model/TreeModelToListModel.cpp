@@ -375,6 +375,12 @@ void TreeModelToListModel::onSourceModelRowsInserted(
             ),
             std::inserter(node->children, node->children.begin() + first)
         );
+        for(auto it = node->children.begin() + last + 1; it != node->children.end(); ++it)
+        {
+            (*it)->sourceModelIndex = sourceModel_->index(
+                it - node->children.begin(), 0, node->sourceModelIndex
+            );
+        }
         root_.dump();
         std::fprintf(stderr, "Items inserted, about to bump dest index\n");
         for(auto n = node->children[last].get(); n != lowestNotExpandedNode; n = n->parent)
