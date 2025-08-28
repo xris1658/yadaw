@@ -315,7 +315,22 @@ void TreeModelToListModel::toggleExpanded(int destIndex)
 
 int TreeModelToListModel::expandToIndex(const QModelIndex& sourceIndex)
 {
-    return -1;
+    if(auto parentIndex = sourceIndex.parent(); parentIndex != QModelIndex())
+    {
+        std::vector<int> indices; indices.reserve(maxDepth_);
+        for(auto index = parentIndex; index != QModelIndex(); index = index.parent())
+        {
+            indices.emplace_back(index.row());
+        }
+        maxDepth_ = std::max(maxDepth_, static_cast<std::uint32_t>(indices.size()) + 1);
+        auto node = &root_;
+        for(auto index: indices)
+        {
+            node = node->children[index].get();
+            expand(node->destIndex);
+        }
+        return node->children[sourceIndex.row()]->destIndex;
+    }
 }
 
 RoleNames TreeModelToListModel::roleNames() const
