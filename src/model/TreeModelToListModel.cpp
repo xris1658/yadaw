@@ -440,7 +440,15 @@ void TreeModelToListModel::onSourceModelRowsRemoved(
                 it - node->children.begin(), 0, node->sourceModelIndex
             );
         }
-        for(auto n = first == 0? node: (node->children.begin() + first)->get(); n != lowestNotExpandedNode; n = n->parent)
+        if(first == 0)
+        {
+            bumpRowCount(*node, bump);
+        }
+        else
+        {
+            bumpRowCountAfter(*node->children[first - 1], bump);
+        }
+        for(auto n = node; n != lowestNotExpandedNode; n = n->parent)
         {
             bumpRowCountAfter(*n, bump);
         }
