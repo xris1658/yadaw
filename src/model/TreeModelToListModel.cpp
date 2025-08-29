@@ -331,6 +331,7 @@ int TreeModelToListModel::expandToIndex(const QModelIndex& sourceIndex)
         }
         return node->children[sourceIndex.row()]->destIndex;
     }
+    return -1;
 }
 
 RoleNames TreeModelToListModel::roleNames() const
