@@ -527,12 +527,18 @@ void TreeModelToListModel::onSourceModelRowsMoved(
             for(auto it = children.begin() + rotateIndex[0]; it != newMiddle; ++it)
             {
                 auto& child = **it;
+                child.sourceModelIndex = sourceModel_->index(
+                    it - children.begin(), 0, sourceModelFromParent
+                );
                 child.destIndex += bumpBeforeNewMiddle;
                 bumpRowCount(child, bumpBeforeNewMiddle);
             }
             for(auto it = newMiddle; it != children.begin() + rotateIndex[2]; ++it)
             {
                 auto& child = **it;
+                child.sourceModelIndex = sourceModel_->index(
+                    it - children.begin(), 0, sourceModelFromParent
+                );
                 child.destIndex += bumpAfterNewMiddle;
                 bumpRowCount(child, bumpAfterNewMiddle);
             }
