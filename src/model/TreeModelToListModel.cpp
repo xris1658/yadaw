@@ -479,6 +479,73 @@ void TreeModelToListModel::onSourceModelRowsMoved(
     const QModelIndex& sourceModelFromParent, int first, int last,
     const QModelIndex& sourceModelToParent, int dest)
 {
+    if(sourceModelFromParent == sourceModelToParent)
+    {
+        if(auto fromNode = getNode(sourceModelFromParent, false);
+            fromNode && fromNode->status != TreeNode::Status::Unchecked)
+        {
+            auto* lowestNotExpandedNode = &root_;
+            for(auto n = fromNode; n != &root_; n = n->parent)
+            {
+                if(n->status != TreeNode::Status::Expanded)
+                {
+                    lowestNotExpandedNode = n;
+                    break;
+                }
+            }
+            auto& children = fromNode->children;
+            if(lowestNotExpandedNode == &root_)
+            {
+                beginMoveRows(
+                    QModelIndex(),
+                    children[first]->destIndex, children[last]->destIndex,
+                    QModelIndex(),
+                    children[dest]->destIndex
+                );
+            }
+            int rotateIndices[5] = {first, last + 1, dest, first, last + 1};
+            auto* rotateIndex = rotateIndices + (first < dest? 0: 2);
+            auto bumpBeforeNewMiddle = 0;
+            auto bumpAfterNewMiddle = 0;
+            auto* n = children[rotateIndex[2]].get();
+            while(n->status == TreeNode::Status::Expanded && (!n->children.empty()))
+            {
+                n = n->children.back().get();
+            }
+            bumpBeforeNewMiddle = children[rotateIndex[1]]->destIndex - (n->destIndex + 1);
+            n = children[rotateIndex[1]].get();
+            while(n->status == TreeNode::Status::Expanded && (!n->children.empty()))
+            {
+                n = n->children.back().get();
+            }
+            bumpAfterNewMiddle = n->destIndex + 1 - children[rotateIndex[0]]->destIndex;
+            auto newMiddle = std::rotate(
+                children.begin() + rotateIndex[0],
+                children.begin() + rotateIndex[1],
+                children.begin() + rotateIndex[2]
+            );
+            for(auto it = children.begin() + rotateIndex[0]; it != newMiddle; ++it)
+            {
+                auto& child = **it;
+                child.destIndex += bumpBeforeNewMiddle;
+                bumpRowCount(child, bumpBeforeNewMiddle);
+            }
+            for(auto it = newMiddle; it != children.begin() + rotateIndex[2]; ++it)
+            {
+                auto& child = **it;
+                child.destIndex += bumpAfterNewMiddle;
+                bumpRowCount(child, bumpAfterNewMiddle);
+            }
+            if(lowestNotExpandedNode == &root_)
+            {
+                endMoveRows();
+            }
+        }
+    }
+    else
+    {
+        // TODO
+    }
 }
 
 void TreeModelToListModel::onSourceModelDataChanged(
