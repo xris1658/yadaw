@@ -550,7 +550,140 @@ void TreeModelToListModel::onSourceModelRowsMoved(
     }
     else
     {
-        // TODO
+        std::vector<int> indices; indices.reserve(maxDepth_ * 2);
+        for(auto index = sourceModelFromParent; index != QModelIndex(); index = index.parent())
+        {
+            indices.emplace_back(index.row());
+        }
+        auto fromIndexCount = indices.size();
+        for(auto index = sourceModelToParent; index != QModelIndex(); index = index.parent())
+        {
+            indices.emplace_back(index.row());
+        }
+        auto toIndexCount = indices.size() - fromIndexCount;
+        auto fromIndices = indices | std::ranges::views::reverse | std::ranges::views::drop(toIndexCount);
+        auto toIndices   = indices | std::ranges::views::reverse | std::ranges::views::take(toIndexCount);
+        auto fromNode = &root_;
+        auto lowestNotExpandedFromNode = &root_;
+        for(auto fromIndex: fromIndices)
+        {
+            if(auto& children = fromNode->children; fromIndex < fromNode->children.size())
+            {
+                fromNode = children[fromIndex].get();
+            }
+            else
+            {
+                fromNode = nullptr;
+                break;
+            }
+        }
+        if(fromNode)
+        {
+            for(auto n = fromNode; n != &root_; n = n->parent)
+            {
+                if(n->status != TreeNode::Status::Expanded)
+                {
+                    lowestNotExpandedFromNode = n;
+                    break;
+                }
+            }
+        }
+        auto toNode = &root_;
+        auto lowestNotExpandedToNode = &root_;
+        for(auto toIndex: toIndices)
+        {
+            if(auto& children = toNode->children; toIndex < toNode->children.size())
+            {
+                toNode = children[toIndex].get();
+            }
+            else
+            {
+                toNode = nullptr;
+                break;
+            }
+        }
+        if(toNode)
+        {
+            for(auto n = toNode; n != &root_; n = n->parent)
+            {
+                if(n->status != TreeNode::Status::Expanded)
+                {
+                    lowestNotExpandedToNode = n;
+                    break;
+                }
+            }
+        }
+        auto [mismatchFrom, mismatchTo] = std::ranges::mismatch(fromIndices, toIndices);
+        // Use lexicographical compare so that we know if `sourceModelParent` is
+        // located above `sourceModelToParent`.
+        auto isMovingDown = mismatchFrom == fromIndices.end()
+            || (mismatchTo != fromIndices.end() && *mismatchFrom < *mismatchTo);
+        auto fromNodeIsVisible = fromNode && lowestNotExpandedFromNode == &root_;
+        auto toNodeIsVisible   = toNode   && lowestNotExpandedToNode   == &root_;
+        if(fromNodeIsVisible)
+        {
+            if(toNodeIsVisible)
+            {
+                auto fromLast = fromNode->children[last].get();
+                while(fromLast->status == TreeNode::Status::Expanded && (!fromLast->children.empty()))
+                {
+                    fromLast = fromNode->children.back().get();
+                }
+                if(dest < toNode->children.size())
+                {
+                    beginMoveRows(
+                        QModelIndex(), fromNode->children[first]->destIndex, fromLast->destIndex,
+                        QModelIndex(), toNode->children[dest]->destIndex
+                    );
+                }
+                else if(toNode->children.empty())
+                {
+                    beginMoveRows(
+                        QModelIndex(), fromNode->children[first]->destIndex, fromLast->destIndex,
+                        QModelIndex(), toNode->destIndex + 1
+                    );
+                }
+                else
+                {
+                    auto toBeforeNode = toNode->children[dest - 1].get();
+                    while(toBeforeNode->status == TreeNode::Status::Expanded && (!toBeforeNode->children.empty()))
+                    {
+                        toBeforeNode = toNode->children.back().get();
+                    }
+                    beginMoveRows(
+                        QModelIndex(), fromNode->children[first]->destIndex, fromLast->destIndex,
+                        QModelIndex(), toBeforeNode->destIndex + 1
+                    );
+                }
+                // TODO: Update index
+                std::move(
+                    fromNode->children.begin() + first, fromNode->children.begin() + last,
+                    std::inserter(toNode->children, toNode->children.begin())
+                );
+                for(auto it = toNode->children.begin() + dest; it != toNode->children.begin() + dest + (last - first + 1); ++it)
+                {
+                    auto& node = **it;
+                    node.sourceModelIndex = sourceModel_->index(it - toNode->children.begin(), 0, toNode->sourceModelIndex);
+                    // TODO: update `destIndex`
+                }
+                endMoveRows();
+            }
+            else
+            {
+                // TODO:remove rows
+            }
+        }
+        else
+        {
+            if(toNodeIsVisible)
+            {
+                // TODO: insert rows
+            }
+            else
+            {
+                // TODO: do nothing?
+            }
+        }
     }
 }
 
