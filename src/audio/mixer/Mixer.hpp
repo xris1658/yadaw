@@ -105,6 +105,7 @@ public:
             Invalid,
             AudioHardwareIOChannel,
             RegularChannel,
+            Send,
             PluginAuxIO
         };
         Type type = Type::Invalid;

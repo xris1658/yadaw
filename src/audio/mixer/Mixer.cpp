@@ -793,7 +793,74 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
         }
         else if(destination.type == Position::Type::PluginAuxIO)
         {
-            // not implemented
+            if(auto it = pluginAuxInputIDs_.find(destination.id);
+                it != pluginAuxInputIDs_.end())
+            {
+                const auto& pluginAuxIOPosition = it->second;
+                auto toNode = getNodeFromPluginAuxPosition(pluginAuxIOPosition);
+                auto fromNode = isPreFader? channelMutes_[type][channelIndex].second: channelFaders_[type][channelIndex].second;
+                const auto& fromChannelGroup = graph_.getNodeData(
+                    fromNode
+                ).process.device()->audioOutputGroupAt(0)->get();
+                const auto& toChannelGroup = graph_.getNodeData(
+                    toNode
+                ).process.device()->audioOutputGroupAt(
+                    pluginAuxIOPosition.channelGroupIndex
+                )->get();
+                if(fromChannelGroup.type() == toChannelGroup.type()
+                    && fromChannelGroup.channelCount() == toChannelGroup.channelCount()
+                    && !YADAW::Util::pathExists(toNode, fromNode)
+                )
+                {
+                    auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
+                        fromNode, toNode, 0, pluginAuxIOPosition.channelGroupIndex
+                    );
+                    auto sendPosIt = sendPositions_.emplace(
+                        sendIDGen_(), SendPosition {
+                            .channelListType = type,
+                            .channelIndex = channelIndex,
+                            .sendIndex = sendPosition
+                        }
+                    ).first;
+                    channelSendIDs_[type][channelIndex].emplace(
+                        channelSendIDs_[type][channelIndex].begin() + sendPosition,
+                        sendPosIt
+                    );
+                    FOR_RANGE(i, sendPosition + 1, channelSendIDs_[type][channelIndex].size())
+                    {
+                        ++(channelSendIDs_[type][channelIndex][i]->second.sendIndex);
+                    }
+                    getAuxInputSource(pluginAuxIOPosition) = Position {
+                        .type = Position::Type::Send,
+                        .id = sendPosIt->first
+                    };
+                    channelSendPolarityInverters_[type][channelIndex].emplace(
+                        channelSendPolarityInverters_[type][channelIndex].begin() + sendPosition,
+                        std::move(polarityInverterAndNode)
+                    );
+                    channelSendMutes_[type][channelIndex].emplace(
+                        channelSendMutes_[type][channelIndex].begin() + sendPosition,
+                        std::move(muteAndNode)
+                    );
+                    channelSendFaders_[type][channelIndex].emplace(
+                        channelSendFaders_[type][channelIndex].begin() + sendPosition,
+                        std::move(faderAndNode)
+                    );
+                    channelSendDestinations_[type][channelIndex].emplace(
+                        channelSendDestinations_[type][channelIndex].begin() + sendPosition,
+                        destination
+                    );
+                    if(batchUpdater_)
+                    {
+                        batchUpdater_->addNull();
+                    }
+                    else
+                    {
+                        connectionUpdatedCallback_(*this);
+                    }
+                    return true;
+                }
+            }
             return false;
         }
     }
@@ -854,7 +921,11 @@ std::optional<bool> Mixer::setSendDestination(
         }
         else if(oldDestination.type == Position::Type::PluginAuxIO)
         {
-            // not implemented
+            auto it = pluginAuxInputIDs_.find(oldDestination.id);
+            getAuxInputSource(it->second) = Position {
+                .type = Position::Type::Invalid,
+                .id = IDGen::InvalidId
+            };
         }
         if(oldSummingNode != nullptr)
         {
@@ -920,7 +991,49 @@ std::optional<bool> Mixer::setSendDestination(
         }
         else if(destination.type == Position::Type::PluginAuxIO)
         {
-            // not implemented
+            if(auto it = pluginAuxInputIDs_.find(destination.id);
+                it != pluginAuxInputIDs_.end())
+            {
+                const auto& pluginAuxIOPosition = it->second;
+                auto toNode = getNodeFromPluginAuxPosition(pluginAuxIOPosition);
+                auto fromNode = channelSendPolarityInverters_[type][channelIndex][sendIndex].second->inNodes().front();
+                const auto& fromChannelGroup = channelSendFaders_[type][channelIndex][sendIndex].first->audioOutputGroupAt(0)->get();
+                const auto& toChannelGroup = graph_.getNodeData(
+                    toNode
+                ).process.device()->audioOutputGroupAt(
+                    pluginAuxIOPosition.channelGroupIndex
+                )->get();
+                if(fromChannelGroup.type() == toChannelGroup.type()
+                    && fromChannelGroup.channelCount() == toChannelGroup.channelCount()
+                    && !YADAW::Util::pathExists(toNode, fromNode)
+                )
+                {
+                    auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
+                        fromNode, toNode, 0, pluginAuxIOPosition.channelGroupIndex
+                    );
+                    auto sendPosIt = sendPositions_.emplace(
+                        sendIDGen_(), SendPosition {
+                            .channelListType = type,
+                            .channelIndex = channelIndex,
+                            .sendIndex = sendIndex
+                        }
+                    ).first;
+                    getAuxInputSource(pluginAuxIOPosition) = Position {
+                        .type = Position::Type::Send,
+                        .id = sendPosIt->first
+                    };
+                    if(batchUpdater_)
+                    {
+                        batchUpdater_->addNull();
+                    }
+                    else
+                    {
+                        connectionUpdatedCallback_(*this);
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
         if(connected)
         {
