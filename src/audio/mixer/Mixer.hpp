@@ -129,6 +129,12 @@ public:
         std::uint32_t insertIndex;
         std::uint32_t channelGroupIndex;
     };
+    struct SendPosition
+    {
+        ChannelListType channelListType;
+        std::uint32_t channelIndex;
+        std::uint32_t sendIndex;
+    };
     using ConnectionUpdatedCallback = void(const Mixer&);
     using PreInsertChannelCallbackArgs = struct { std::uint32_t position; std::uint32_t count; };
     using PreInsertChannelCallback = void(const Mixer& sender, PreInsertChannelCallbackArgs args);
@@ -259,6 +265,8 @@ public:
     OptionalRef<YADAW::Util::BatchUpdater> batchUpdater();
     void setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater);
     void resetBatchUpdater();
+public:
+    std::optional<SendPosition> getSendPosition(IDGen::ID id) const;
 public:
     std::optional<PluginAuxIOPosition> getAuxInputPosition(IDGen::ID id) const;
     std::optional<PluginAuxIOPosition> getAuxOutputPosition(IDGen::ID id) const;
@@ -427,6 +435,12 @@ private:
         YADAW::Audio::Engine::Extension::NameTag,
         YADAW::Audio::Engine::Extension::UpstreamLatency> graph_;
     YADAW::Audio::Engine::AudioDeviceGraphWithPDC graphWithPDC_;
+    using SendPositions = std::map<IDGen::ID, SendPosition>;
+    using SendPosIt = SendPositions::iterator;
+    SendPositions sendPositions_;
+    template<typename T>
+    using SendContainer = std::array<std::vector<std::vector<T>>, 3>;
+    using SendCollection = SendContainer<SendPosIt>;
 
     IDGen                             channelIDGen_                [3];
     Vec<IDGen::ID>                    channelIDs_                  [3];
@@ -438,7 +452,7 @@ private:
     Vec<std::unique_ptr<Inserts>>     channelPostFaderInserts_     [3];
     Vec<MeterAndNode>                 channelMeters_               [3];
     Vec<ChannelInfo>                  channelInfos_                [3];
-    Vec<Vec<IDGen::ID>>               channelSendIDs_              [3];
+    Vec<Vec<SendPosIt>>               channelSendIDs_              [3];
     Vec<Vec<MuteAndNode>>             channelSendMutes_            [3];
     Vec<Vec<FaderAndNode>>            channelSendFaders_           [3];
     Vec<Vec<PolarityInverterAndNode>> channelSendPolarityInverters_[3];
@@ -454,7 +468,7 @@ private:
     Vec<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> &audioInputPostFaderInserts_       = channelPostFaderInserts_     [AudioHardwareInputList];
     Vec<MeterAndNode>                                  &audioInputMeters_                 = channelMeters_               [AudioHardwareInputList];
     Vec<ChannelInfo>                                   &audioInputChannelInfo_            = channelInfos_                [AudioHardwareInputList];
-    Vec<Vec<IDGen::ID>>                                &audioInputSendIDs_                = channelSendIDs_              [AudioHardwareInputList];
+    Vec<Vec<SendPosIt>>                                &audioInputSendIDs_                = channelSendIDs_              [AudioHardwareInputList];
     Vec<Vec<MuteAndNode>>                              &audioInputSendMutes_              = channelSendMutes_            [AudioHardwareInputList];
     Vec<Vec<FaderAndNode>>                             &audioInputSendFaders_             = channelSendFaders_           [AudioHardwareInputList];
     Vec<Vec<PolarityInverterAndNode>>                  &audioInputSendPolarityInverters_  = channelSendPolarityInverters_[AudioHardwareInputList];
@@ -470,7 +484,7 @@ private:
     Vec<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> &postFaderInserts_                 = channelPostFaderInserts_     [RegularList];
     Vec<MeterAndNode>                                  &meters_                           = channelMeters_               [RegularList];
     Vec<ChannelInfo>                                   &channelInfo_                      = channelInfos_                [RegularList];
-    Vec<Vec<IDGen::ID>>                                &sendIDs_                          = channelSendIDs_              [RegularList];
+    Vec<Vec<SendPosIt>>                                &sendIDs_                          = channelSendIDs_              [RegularList];
     Vec<Vec<MuteAndNode>>                              &sendMutes_                        = channelSendMutes_            [RegularList];
     Vec<Vec<FaderAndNode>>                             &sendFaders_                       = channelSendFaders_           [RegularList];
     Vec<Vec<PolarityInverterAndNode>>                  &sendPolarityInverters_            = channelSendPolarityInverters_[RegularList];
@@ -486,7 +500,7 @@ private:
     Vec<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> &audioOutputPostFaderInserts_      = channelPostFaderInserts_     [AudioHardwareOutputList];
     Vec<MeterAndNode>                                  &audioOutputMeters_                = channelMeters_               [AudioHardwareOutputList];
     Vec<ChannelInfo>                                   &audioOutputChannelInfo_           = channelInfos_                [AudioHardwareOutputList];
-    Vec<Vec<IDGen::ID>>                                &audioOutputSendIDs_               = channelSendIDs_              [AudioHardwareOutputList];
+    Vec<Vec<SendPosIt>>                                &audioOutputSendIDs_               = channelSendIDs_              [AudioHardwareOutputList];
     Vec<Vec<MuteAndNode>>                              &audioOutputSendMutes_             = channelSendMutes_            [AudioHardwareOutputList];
     Vec<Vec<FaderAndNode>>                             &audioOutputSendFaders_            = channelSendFaders_           [AudioHardwareOutputList];
     Vec<Vec<PolarityInverterAndNode>>                  &audioOutputSendPolarityInverters_ = channelSendPolarityInverters_[AudioHardwareOutputList];

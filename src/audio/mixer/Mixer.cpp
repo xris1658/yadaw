@@ -182,7 +182,7 @@ std::optional<const IDGen::ID> Mixer::sendID(
     {
         if(auto& ids = sendIDs[channelIndex]; sendIndex < ids.size())
         {
-            return ids[sendIndex];
+            return ids[sendIndex]->first;
         }
     }
     return std::nullopt;
@@ -528,6 +528,13 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
             channelSendIDs_[type].begin() + index,
             channelSendIDs_[type].begin() + last
         );
+        FOR_RANGE(i, index, channelSendIDs_[type].size())
+        {
+            for(const auto& it: channelSendIDs_[type][i])
+            {
+                it->second.channelIndex -= removeCount;
+            }
+        }
         channelSendPolarityInverters_[type].erase(
             channelSendPolarityInverters_[type].begin() + index,
             channelSendPolarityInverters_[type].begin() + last
@@ -644,10 +651,21 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                         fromNode, newSummingAndNode.second,
                         0, newSummingAndNode.first->audioInputGroupCount() - 1
                     );
+                    auto sendPosIt = sendPositions_.emplace(
+                        sendIDGen_(), SendPosition {
+                            .channelListType = type,
+                            .channelIndex = channelIndex,
+                            .sendIndex = sendPosition
+                        }
+                    ).first;
                     channelSendIDs_[type][channelIndex].emplace(
                         channelSendIDs_[type][channelIndex].begin() + sendPosition,
-                        sendIDGen_()
+                        sendPosIt
                     );
+                    FOR_RANGE(i, sendPosition + 1, channelSendIDs_[type][channelIndex].size())
+                    {
+                        ++(channelSendIDs_[type][channelIndex][i]->second.sendIndex);
+                    }
                     channelSendPolarityInverters_[type][channelIndex].emplace(
                         channelSendPolarityInverters_[type][channelIndex].begin() + sendPosition,
                         std::move(polarityInverterAndNode)
@@ -711,9 +729,21 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                         auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
                             fromNode, newSummingAndNode.second, 0, newSummingAndNode.first->audioInputGroupCount() - 1
                         );
+                        auto sendPosIt = sendPositions_.emplace(
+                            sendIDGen_(), SendPosition {
+                                .channelListType = type,
+                                .channelIndex = channelIndex,
+                                .sendIndex = sendPosition
+                            }
+                        ).first;
                         channelSendIDs_[type][channelIndex].emplace(
-                            channelSendIDs_[type][channelIndex].begin() + sendPosition, sendIDGen_()
+                            channelSendIDs_[type][channelIndex].begin() + sendPosition,
+                            sendPosIt
                         );
+                        FOR_RANGE(i, sendPosition + 1, channelSendIDs_[type][channelIndex].size())
+                        {
+                            ++(channelSendIDs_[type][channelIndex][i]->second.sendIndex);
+                        }
                         channelSendPolarityInverters_[type][channelIndex].emplace(
                             channelSendPolarityInverters_[type][channelIndex].begin() + sendPosition,
                             std::move(polarityInverterAndNode)
@@ -985,10 +1015,18 @@ std::optional<bool> Mixer::removeSend(
             {
                 connectionUpdatedCallback_(*this);
             }
+            FOR_RANGE(i, sendPosition, sendPosition + removeCount)
+            {
+                sendPositions_.erase(sendIDs[i]);
+            }
             sendIDs.erase(
                 sendIDs.begin() + sendPosition,
                 sendIDs.begin() + sendPosition + removeCount
             );
+            FOR_RANGE(i, sendPosition, sendIDs.size())
+            {
+                sendIDs[i]->second.sendIndex -= removeCount;
+            }
             sendDestinations.erase(
                 sendDestinations.begin() + sendPosition,
                 sendDestinations.begin() + sendPosition + removeCount
@@ -1493,7 +1531,14 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
         }
         auto& info = *audioInputChannelInfo_.emplace(audioInputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
-        audioInputSendIDs_.emplace(audioInputSendIDs_.begin() + position, IDGen::InvalidId);
+        audioInputSendIDs_.emplace(audioInputSendIDs_.begin() + position);
+        FOR_RANGE(i, position + 1, audioInputSendIDs_.size())
+        {
+            for(auto& it: audioInputSendIDs_[i])
+            {
+                ++(it->second.channelIndex);
+            }
+        }
         audioInputSendMutes_.emplace(audioInputSendMutes_.begin() + position);
         audioInputSendFaders_.emplace(audioInputSendFaders_.begin() + position);
         audioInputSendPolarityInverters_.emplace(audioInputSendPolarityInverters_.begin() + position);
@@ -1659,7 +1704,14 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
         }
         auto& info = *audioOutputChannelInfo_.emplace(audioOutputChannelInfo_.begin() + position);
         info.channelType = ChannelType::AudioBus;
-        audioOutputSendIDs_.emplace(audioOutputSendIDs_.begin() + position, IDGen::InvalidId);
+        audioOutputSendIDs_.emplace(audioOutputSendIDs_.begin() + position);
+        FOR_RANGE(i, position + 1, audioOutputSendIDs_.size())
+        {
+            for(const auto& it: audioInputSendIDs_[i])
+            {
+                ++(it->second.channelIndex);
+            }
+        }
         audioOutputSendMutes_.emplace(audioOutputSendMutes_.begin() + position);
         audioOutputSendFaders_.emplace(audioOutputSendFaders_.begin() + position);
         audioOutputSendPolarityInverters_.emplace(audioOutputSendPolarityInverters_.begin() + position);
@@ -1994,6 +2046,13 @@ bool Mixer::insertChannels(
                 return {};
             }
         );
+        FOR_RANGE(i, position + 1, sendIDs_.size())
+        {
+            for(const auto& it: sendIDs_[i])
+            {
+                ++(it->second.channelIndex);
+            }
+        }
         std::generate_n(
             std::inserter(
                 sendPolarityInverters_,
@@ -2580,6 +2639,15 @@ std::tuple<Mixer::PolarityInverterAndNode, Mixer::MuteAndNode, Mixer::FaderAndNo
         std::pair{std::move(mute), std::move(muteNode)},
         std::pair{std::move(fader), std::move(faderNode)}
     };
+}
+
+std::optional<Mixer::SendPosition> Mixer::getSendPosition(IDGen::ID id) const
+{
+    if(auto it = sendPositions_.find(id); it != sendPositions_.end())
+    {
+        return it->second;
+    }
+    return std::nullopt;
 }
 
 std::optional<Mixer::PluginAuxIOPosition> Mixer::getAuxInputPosition(IDGen::ID id) const
