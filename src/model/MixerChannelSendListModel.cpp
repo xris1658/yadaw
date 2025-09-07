@@ -1,6 +1,7 @@
 #include "MixerChannelSendListModel.hpp"
 
 #include "entity/HardwareAudioIOPosition.hpp"
+#include "entity/PluginAuxAudioIOPosition.hpp"
 #include "entity/RegularAudioIOPosition.hpp"
 #include "util/Base.hpp"
 
@@ -84,8 +85,15 @@ bool MixerChannelSendListModel::setData(
                 }
                 else if(type == YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO)
                 {
-                    // not implemented
-                    return false;
+                    const auto& pluginAuxAudioIOPosition = static_cast<const YADAW::Entity::PluginAuxAudioIOPosition&>(*pPosition);
+                    return *(
+                        mixer_->setSendDestination(
+                            channelListType_, channelIndex_, row,
+                            static_cast<YADAW::Audio::Mixer::Mixer::Position>(
+                                pluginAuxAudioIOPosition
+                            )
+                        )
+                    );
                 }
             }
         }
@@ -132,7 +140,10 @@ bool MixerChannelSendListModel::append(bool isPreFader, YADAW::Entity::IAudioIOP
         }
         case YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO:
         {
-            // not implemented
+            const auto& pluginAuxAudioIOPosition = static_cast<const YADAW::Entity::PluginAuxAudioIOPosition&>(*position);
+            ret = *mixer_->appendSend(
+                channelListType_, channelIndex_, isPreFader, pluginAuxAudioIOPosition
+            );
             break;
         }
         }
