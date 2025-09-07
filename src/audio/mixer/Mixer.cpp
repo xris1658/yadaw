@@ -804,7 +804,7 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                 ).process.device()->audioOutputGroupAt(0)->get();
                 const auto& toChannelGroup = graph_.getNodeData(
                     toNode
-                ).process.device()->audioOutputGroupAt(
+                ).process.device()->audioInputGroupAt(
                     pluginAuxIOPosition.channelGroupIndex
                 )->get();
                 if(fromChannelGroup.type() == toChannelGroup.type()
@@ -1000,7 +1000,7 @@ std::optional<bool> Mixer::setSendDestination(
                 const auto& fromChannelGroup = channelSendFaders_[type][channelIndex][sendIndex].first->audioOutputGroupAt(0)->get();
                 const auto& toChannelGroup = graph_.getNodeData(
                     toNode
-                ).process.device()->audioOutputGroupAt(
+                ).process.device()->audioInputGroupAt(
                     pluginAuxIOPosition.channelGroupIndex
                 )->get();
                 if(fromChannelGroup.type() == toChannelGroup.type()
