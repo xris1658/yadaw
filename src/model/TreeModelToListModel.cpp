@@ -360,9 +360,16 @@ void TreeModelToListModel::onSourceModelRowsInserted(
                 break;
             }
         }
-        auto prevDestIndex = first?
-            node->children[first - 1]->destIndex:
-            node->destIndex;
+        auto prevNode = node;
+        if(first)
+        {
+            prevNode = prevNode->children[first - 1].get();
+            while(prevNode->status == TreeNode::Status::Expanded && !node->children.empty())
+            {
+                prevNode = prevNode->children.back().get();
+            }
+        }
+        auto prevDestIndex = prevNode->destIndex;
         if(lowestNotExpandedNode == &root_)
         {
             std::fprintf(
