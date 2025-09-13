@@ -459,6 +459,14 @@ set(YADAW_COMMON_SOURCES
     src/model/AudioDeviceIOGroupListModel.hpp
     src/model/AutomationModel.cpp
     src/model/AutomationModel.hpp
+    src/model/AuxIOTargetListModel.cpp
+    src/model/AuxIOTargetListModel.hpp
+    src/model/AuxInputSourceListModel.cpp
+    src/model/AuxInputSourceListModel.hpp
+    src/model/AuxOutputDestinationListModel.cpp
+    src/model/AuxOutputDestinationListModel.hpp
+    src/model/AuxOutputDestinationModel.cpp
+    src/model/AuxOutputDestinationModel.hpp
     src/model/CLAPAudioBusConfigurationListModel.cpp
     src/model/CLAPAudioBusConfigurationListModel.hpp
     src/model/FileTreeModel.cpp
