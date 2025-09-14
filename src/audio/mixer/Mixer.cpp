@@ -2720,6 +2720,11 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
     return false;
 }
 
+bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index, Position destination)
+{
+    return false;
+}
+
 bool Mixer::removeAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index,
     std::uint32_t removeCount)
 {

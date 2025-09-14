@@ -276,6 +276,7 @@ public:
     OptionalRef<const std::vector<Position>> getAuxOutputDestinations(const PluginAuxIOPosition& position) const;
     bool addAuxOutputDestination(const PluginAuxIOPosition& position, Position destination);
     bool removeAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index, std::uint32_t removeCount = 1);
+    bool setAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index, Position destination);
     void clearAuxOutputDestinations(const PluginAuxIOPosition& position);
 private:
     Position& getAuxInputSource(const PluginAuxIOPosition& position);
