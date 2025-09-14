@@ -1,6 +1,7 @@
 #include "AuxOutputDestinationListModel.hpp"
 
 #include "model/AuxOutputDestinationModel.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
 {
@@ -12,6 +13,7 @@ AuxOutputDestinationListModel::AuxOutputDestinationListModel(
     AuxIOTargetListModel(mixer, channelListType, channelIndex, isInstrument,
         isPreFaderInsert, insertIndex, parent)
 {
+    YADAW::Util::setCppOwnership(*this);
 }
 
 AuxOutputDestinationListModel::~AuxOutputDestinationListModel()

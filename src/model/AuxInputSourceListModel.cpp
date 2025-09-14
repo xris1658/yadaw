@@ -3,6 +3,7 @@
 #include "entity/HardwareAudioIOPosition.hpp"
 #include "entity/PluginAuxAudioIOPosition.hpp"
 #include "entity/RegularAudioIOPosition.hpp"
+#include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
 {
@@ -14,6 +15,7 @@ AuxInputSourceListModel::AuxInputSourceListModel(
     AuxIOTargetListModel(mixer, channelListType, channelIndex, isInstrument,
         isPreFaderInsert, insertIndex, parent)
 {
+    YADAW::Util::setCppOwnership(*this);
 }
 
 AuxInputSourceListModel::~AuxInputSourceListModel()
@@ -76,35 +78,45 @@ bool AuxInputSourceListModel::setData(const QModelIndex& index,
     using YADAW::Entity::HardwareAudioIOPosition;
     using YADAW::Entity::PluginAuxAudioIOPosition;
     using YADAW::Entity::RegularAudioIOPosition;
+    auto ret = false;
     auto row = index.row();
     if(row >= 0 && row < rowCount(QModelIndex()) && role == Role::Target)
     {
         auto obj = value.value<QObject*>();
         if(auto pPosition = dynamic_cast<IAudioIOPosition*>(obj))
         {
-            Mixer::Position mixerPos;
+            Mixer::Position source;
             auto type = pPosition->getType();
             if(type == IAudioIOPosition::Type::AudioHardwareIOChannel)
             {
                 auto audioHardwareIOPosition = static_cast<HardwareAudioIOPosition*>(pPosition);
-                mixerPos = static_cast<Mixer::Position>(*audioHardwareIOPosition);
+                source = static_cast<Mixer::Position>(*audioHardwareIOPosition);
             }
             else if(type == IAudioIOPosition::Type::BusAndFXChannel)
             {
                 auto busAndFXPosition = static_cast<RegularAudioIOPosition*>(pPosition);
-                mixerPos = static_cast<Mixer::Position>(*busAndFXPosition);
+                source = static_cast<Mixer::Position>(*busAndFXPosition);
             }
             else if(type == IAudioIOPosition::Type::PluginAuxIO)
             {
                 auto pluginAuxPosition = static_cast<PluginAuxAudioIOPosition*>(pPosition);
-                mixerPos = static_cast<Mixer::Position>(*pluginAuxPosition);
+                source = static_cast<Mixer::Position>(*pluginAuxPosition);
             }
-            if(mixerPos.type != Mixer::Position::Type::Invalid)
+            if(source.type != Mixer::Position::Type::Invalid)
             {
-                // TODO
+                auto channelGroupIndex = data(index, Role::ChannelIndex);
+                if(channelGroupIndex.isValid())
+                {
+                    auto self = position(channelGroupIndex.value<int>());
+                    ret = mixer_->setAuxInputSource(self, source);
+                }
             }
         }
     }
-    return false;
+    if(ret)
+    {
+        dataChanged(index, index, {Role::Target});
+    }
+    return ret;
 }
 }
