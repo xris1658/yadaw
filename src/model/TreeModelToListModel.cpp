@@ -684,6 +684,17 @@ void TreeModelToListModel::bumpRowCountAfter(TreeNode& node, int rowCount)
     }
 }
 
+void TreeModelToListModel::bumpRowCountUntil(TreeNode& node, int rowCount)
+{
+    auto offset = node.sourceModelIndex.row();
+    std::fprintf(stderr, "[DEBUG] `bumpRowCountAfter` node offset: %d\n", offset);
+    for(auto& child: node.parent->children | std::views::take(offset))
+    {
+        child->destIndex += rowCount;
+        bumpRowCount(*child, rowCount);
+    }
+}
+
 void TreeModelToListModel::bumpRowCount(TreeNode& node, int rowCount)
 {
     for(auto& child: node.children)

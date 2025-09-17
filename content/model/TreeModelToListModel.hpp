@@ -84,6 +84,7 @@ private:
     std::pair<const TreeNode*, QModelIndex> getNodeAndSourceIndex(int destIndex) const;
     std::pair<TreeNode*, QModelIndex> getNodeAndSourceIndex(int destIndex);
     void bumpRowCountAfter(TreeNode& node, int rowCount);
+    void bumpRowCountUntil(TreeNode& node, int rowCount);
     void bumpRowCount(TreeNode& node, int rowCount);
 private:
     QAbstractItemModel* sourceModel_ = nullptr;
