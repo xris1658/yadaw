@@ -673,22 +673,22 @@ std::pair<TreeModelToListModel::TreeNode*, QModelIndex> TreeModelToListModel::ge
     return {const_cast<TreeNode*>(ret.first), ret.second};
 }
 
-void TreeModelToListModel::bumpRowCountAfter(TreeNode& node, int rowCount)
+void TreeModelToListModel::bumpRowCountAfter(TreeNode& node, int rowCount, bool inclusive)
 {
     auto offset = node.sourceModelIndex.row() + 1;
     std::fprintf(stderr, "[DEBUG] `bumpRowCountAfter` node offset: %d\n", offset);
-    for(auto& child: node.parent->children | std::views::drop(offset))
+    for(auto& child: node.parent->children | std::views::drop(offset - inclusive))
     {
         child->destIndex += rowCount;
         bumpRowCount(*child, rowCount);
     }
 }
 
-void TreeModelToListModel::bumpRowCountUntil(TreeNode& node, int rowCount)
+void TreeModelToListModel::bumpRowCountUntil(TreeNode& node, int rowCount, bool inclusive)
 {
     auto offset = node.sourceModelIndex.row();
     std::fprintf(stderr, "[DEBUG] `bumpRowCountAfter` node offset: %d\n", offset);
-    for(auto& child: node.parent->children | std::views::take(offset))
+    for(auto& child: node.parent->children | std::views::take(offset + inclusive))
     {
         child->destIndex += rowCount;
         bumpRowCount(*child, rowCount);
