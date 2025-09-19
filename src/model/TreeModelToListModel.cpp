@@ -557,6 +557,201 @@ void TreeModelToListModel::onSourceModelRowsMoved(
     }
     else
     {
+        std::vector<int> indices; indices.reserve(maxDepth_ * 2);
+        for(auto fromIndex = sourceModelFromParent; fromIndex != QModelIndex(); fromIndex = fromIndex.parent())
+        {
+            indices.emplace_back(fromIndex.row());
+        }
+        auto fromIndexCount = indices.size();
+        for(auto toIndex = sourceModelToParent; toIndex != QModelIndex(); toIndex = toIndex.parent())
+        {
+            indices.emplace_back(toIndex.row());
+        }
+        auto toIndexCount = indices.size() - fromIndexCount;
+        auto fromIndexRange = std::ranges::views::counted(indices.rbegin() + toIndexCount, fromIndexCount);
+        auto toIndexRange = std::ranges::views::counted(indices.rbegin(), toIndexCount);
+        auto [mismatchFrom, mismatchTo] = std::ranges::mismatch(fromIndexRange, toIndexRange);
+        // Lexicographical compare:
+        // | mismatchFrom | mismatchto | result |
+        // |     end      |     1      |   <    |
+        // |      1       |    end     |   >    |
+        // |      1       |     2      |   <    |
+        // |      2       |     1      |   >    |
+        auto fromIsUpper = mismatchFrom == fromIndexRange.end()
+            || (mismatchTo != toIndexRange.end() && *mismatchFrom < *mismatchTo);
+        struct Range
+        {
+            decltype(fromIndexRange)& range;
+            decltype(mismatchFrom)&   mismatch;
+            decltype(mismatchFrom)    unexpandedFirst;
+            decltype(mismatchFrom)    uncheckedFirst;
+            TreeNode*                 unexpandedParentNode;
+            TreeNode*                 uncheckedParentNode;
+            Range(TreeNode* root, decltype(range) range, decltype(mismatch)& mismatch):
+            range(range), mismatch(mismatch),
+            unexpandedFirst(range.begin()), uncheckedFirst(range.begin()),
+            unexpandedParentNode(root), uncheckedParentNode(root)
+            {
+                while(unexpandedParentNode->status == TreeNode::Status::Expanded)
+                {
+                    unexpandedParentNode = unexpandedParentNode->children[*(unexpandedFirst++)].get();
+                }
+                uncheckedFirst = unexpandedFirst;
+                uncheckedParentNode = unexpandedParentNode;
+                while(uncheckedParentNode->status != TreeNode::Status::Unchecked)
+                {
+                    uncheckedParentNode = uncheckedParentNode->children[*(uncheckedFirst++)].get();
+                }
+            }
+        };
+        Range ranges[2] = {
+            Range { &root_, toIndexRange,   mismatchTo   },
+            Range { &root_, fromIndexRange, mismatchFrom },
+        };
+        auto& fromRange  = ranges[0];
+        auto& toRange    = ranges[1];
+        auto& upperRange = ranges[ fromIsUpper];
+        auto& lowerRange = ranges[!fromIsUpper];
+        auto divergingIndex = QModelIndex();
+        for(auto it = fromIndexRange.begin(); it != mismatchFrom; ++it)
+        {
+            divergingIndex = sourceModel_->index(*it, 0, divergingIndex);
+        }
+        if(auto divergingNode = getNode(divergingIndex)) // FIXME: handle unexpanded/unchecked nodes
+        {
+            for(auto it = toIndexRange.begin(); it != mismatchTo; ++it)
+            {
+                divergingNode = divergingNode->children[*it].get();
+            }
+            auto movingFirst = getNode(sourceModel_->index(first, 0, sourceModelFromParent)); // FIXME: handle unexpanded/unchecked nodes
+            auto movingLast  = getNode(sourceModel_->index(last , 0, sourceModelFromParent)); // FIXME: handle unexpanded/unchecked nodes
+            if(movingFirst && movingLast)
+            {
+                while(movingLast->status == TreeNode::Status::Expanded && !movingLast->children.empty())
+                {
+                    movingLast = movingLast->children.back().get();
+                }
+                auto bumpCount = movingLast->destIndex - movingFirst->destIndex + 1;
+                if(fromIsUpper)
+                {
+                    bumpCount = -bumpCount;
+                }
+                // The nodes are splited into three parts as follows:
+                //      +===+
+                //     /|   |\
+                //    / |   | \
+                //   /  |   |  \
+                //  / 1 | 2 | 3 \
+                // +====+===+====+
+                if(upperRange.mismatch != upperRange.range.end())
+                {
+                    // [1]
+                    auto it = upperRange.mismatch; ++it;
+                    auto node = divergingNode->children[*upperRange.mismatch].get();
+                    while(it != upperRange.range.end())
+                    {
+                        bumpRowCountAfter(*(node->children[*it]), bumpCount);
+                        node = node->children[*(it++)].get();
+                    }
+                    // [2]
+                    for(auto it2 = divergingNode->children.begin() + (*upperRange.mismatch) + 1; it2 != divergingNode->children.begin() + (*lowerRange.mismatch); ++it2)
+                    {
+                        bumpRowCount(**it2, bumpCount);
+                    }
+                }
+                // [3]
+                {
+                    auto it = lowerRange.mismatch; ++it;
+                    auto node = divergingNode->children[*lowerRange.mismatch].get();
+                    while(it != lowerRange.range.end())
+                    {
+                        bumpRowCountUntil(*(node->children[*it]), bumpCount, true);
+                        node = node->children[*(it++)].get();
+                    }
+                }
+            }
+        }
+        if(fromRange.uncheckedFirst == fromRange.range.end())
+        {
+            auto& fromChildren = fromRange.uncheckedParentNode->children;
+            auto moveFirstNode = fromChildren[first].get();
+            auto moveLastNode = fromChildren[last].get();
+            if(toRange.uncheckedFirst == toRange.range.end())
+            {
+                auto& toChildren = toRange.uncheckedParentNode->children;
+                auto moveBeforeDestNode = dest == 0? toRange.uncheckedParentNode: toRange.uncheckedParentNode->children[dest - 1].get();
+                while(moveLastNode->status == TreeNode::Status::Expanded && !moveLastNode->children.empty())
+                {
+                    moveLastNode = moveLastNode->children.back().get();
+                }
+                beginMoveRows(QModelIndex(), moveFirstNode->destIndex, moveLastNode->destIndex, QModelIndex(), moveBeforeDestNode->destIndex + 1);
+                std::move(
+                    fromChildren.begin() + first,
+                    fromChildren.begin() + last + 1,
+                    std::inserter(toChildren, toChildren.begin() + dest)
+                );
+                auto bump = last - first + 1;
+                for(auto& child: fromChildren | std::ranges::views::drop(last + 1))
+                {
+                    child->sourceModelIndex = sourceModel_->index(child->sourceModelIndex.row() - bump, 0, sourceModelFromParent);
+                }
+                for(auto& child: toChildren | std::ranges::views::drop(dest + bump))
+                {
+                    child->sourceModelIndex = sourceModel_->index(child->sourceModelIndex.row() + bump, 0, sourceModelToParent);
+                }
+                fromChildren.erase(
+                    fromChildren.begin() + first,
+                    fromChildren.begin() + last + 1
+                );
+                endMoveRows();
+            }
+            else
+            {
+                beginRemoveRows(QModelIndex(), moveFirstNode->destIndex, moveLastNode->destIndex);
+                fromChildren.erase(
+                    fromChildren.begin() + first,
+                    fromChildren.begin() + last + 1
+                );
+                auto bump = last - first + 1;
+                for(auto& child: fromChildren | std::ranges::views::drop(last + 1))
+                {
+                    child->sourceModelIndex = sourceModel_->index(child->sourceModelIndex.row() - bump, 0, sourceModelFromParent);
+                }
+                endRemoveRows();
+            }
+        }
+        else
+        {
+            if(toRange.uncheckedFirst == toRange.range.end())
+            {
+                auto& toChildren = toRange.uncheckedParentNode->children;
+                auto offset = (dest == 0?
+                    toRange.uncheckedParentNode->destIndex:
+                    toChildren[first - 1]->destIndex
+                ) + 1;
+                beginInsertRows(QModelIndex(), offset + 1, offset + (last - first + 1));
+                std::generate_n(
+                    std::inserter(toChildren, toChildren.begin() + dest),
+                    last - first + 1,
+                    [&sourceModelToParent, i = dest, offset, &toRange]() mutable
+                    {
+                        return std::make_unique<TreeNode>(
+                            TreeNode {
+                                .parent = toRange.uncheckedParentNode,
+                                .sourceModelIndex = sourceModelToParent,
+                                .destIndex = offset + i,
+                                .status = TreeNode::Status::Unchecked
+                            }
+                        );
+                    }
+                );
+                auto bump = last - first + 1;
+                for(auto& child: toChildren | std::ranges::views::drop(dest + bump))
+                {
+                    child->sourceModelIndex = sourceModel_->index(child->sourceModelIndex.row() + bump, 0, sourceModelToParent);
+                }
+            }
+        }
     }
 }
 
