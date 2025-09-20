@@ -203,12 +203,12 @@ void TreeModelToListModel::expand(int destIndex)
                     children.reserve(rowCount);
                     std::generate_n(
                         std::back_inserter(children), rowCount,
-                        [node, offset = 0, destIndex, &sourceIndex]() mutable
+                        [this, node, offset = 0, destIndex, &sourceIndex]() mutable
                         {
                             return std::make_unique<TreeNode>(
                                 TreeNode {
                                     .parent = node,
-                                    .sourceModelIndex = sourceIndex.model()->index(offset, 0, sourceIndex),
+                                    .sourceModelIndex = sourceModel_->index(offset, 0, sourceIndex),
                                     .children = {},
                                     .destIndex = destIndex + (++offset),
                                     .status = TreeNode::Status::Unchecked
@@ -386,12 +386,12 @@ void TreeModelToListModel::onSourceModelRowsInserted(
         std::ranges::copy(
             std::ranges::views::iota(first, last + 1) |
             std::ranges::views::transform(
-                [node, sourceModelParent, destIndex = prevDestIndex + 1](int row) mutable
+                [this, node, sourceModelParent, destIndex = prevDestIndex + 1](int row) mutable
                 {
                     return std::make_unique<TreeNode>(
                         TreeNode {
                             .parent = node,
-                            .sourceModelIndex = sourceModelParent.model()->index(row, 0, sourceModelParent),
+                            .sourceModelIndex = sourceModel_->index(row, 0, sourceModelParent),
                             .destIndex = destIndex++
                         }
                     );
@@ -786,7 +786,7 @@ TreeModelToListModel::getNode(const QModelIndex& sourceIndex, bool onlyIfExpande
 {
     if(sourceIndex == QModelIndex())
     {
-        return nullptr;
+        return &root_;
     }
     std::vector<int> indices;
     indices.reserve(maxDepth_);
