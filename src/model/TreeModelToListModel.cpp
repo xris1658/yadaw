@@ -503,24 +503,44 @@ void TreeModelToListModel::onSourceModelRowsMoved(
             auto& children = fromNode->children;
             if(lowestNotExpandedNode == &root_)
             {
+                auto lastNode = children[last].get();
+                while(lastNode->status == TreeNode::Status::Expanded && !lastNode->children.empty())
+                {
+                    lastNode = lastNode->children.back().get();
+                }
+                auto sourceLastIndex = lastNode->destIndex;
+                auto destIndex = 0;
+                if(dest == 0)
+                {
+                    destIndex = fromNode->destIndex + 1;
+                }
+                else
+                {
+                    lastNode = children[dest - 1].get();
+                    while(lastNode->status == TreeNode::Status::Expanded && !lastNode->children.empty())
+                    {
+                        lastNode = lastNode->children.back().get();
+                    }
+                    destIndex = lastNode->destIndex + 1;
+                }
                 beginMoveRows(
                     QModelIndex(),
-                    children[first]->destIndex, children[last]->destIndex,
+                    children[first]->destIndex, sourceLastIndex,
                     QModelIndex(),
-                    children[dest]->destIndex
+                    destIndex
                 );
             }
             int rotateIndices[5] = {first, last + 1, dest, first, last + 1};
             auto* rotateIndex = rotateIndices + (first < dest? 0: 2);
             auto bumpBeforeNewMiddle = 0;
             auto bumpAfterNewMiddle = 0;
-            auto* n = children[rotateIndex[2]].get();
+            auto* n = children[rotateIndex[2] - 1].get();
             while(n->status == TreeNode::Status::Expanded && (!n->children.empty()))
             {
                 n = n->children.back().get();
             }
             bumpBeforeNewMiddle = children[rotateIndex[1]]->destIndex - (n->destIndex + 1);
-            n = children[rotateIndex[1]].get();
+            n = children[rotateIndex[1] - 1].get();
             while(n->status == TreeNode::Status::Expanded && (!n->children.empty()))
             {
                 n = n->children.back().get();
