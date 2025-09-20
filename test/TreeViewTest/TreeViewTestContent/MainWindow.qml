@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls.Fusion
 import QtQuick.Window
 
 import Models
@@ -12,6 +12,9 @@ Window {
     property alias model: treeModelToListModel.sourceModel
     property alias treeModelToListModel: treeModelToListModel
     color: "#202020"
+
+    signal modifyModel()
+
     ListView {
         id: listView
         anchors.fill: parent
@@ -22,7 +25,7 @@ Window {
             width: listView.width
             height: 25
             leftPadding: height * (tmtlm_indent + 1)
-            text: ftm_name
+            text: stm_data
             Item {
                 width: height
                 height: parent.height
@@ -45,5 +48,12 @@ Window {
                 }
             }
         }
+        footer: Button {
+            text: "Modify"
+            onClicked: {
+                root.modifyModel();
+            }
+        }
+        footerPositioning: ListView.OverlayFooter
     }
 }

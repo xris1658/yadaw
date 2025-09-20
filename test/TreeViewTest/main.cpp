@@ -1,3 +1,6 @@
+#include "EventHandler.hpp"
+#include "SimpleTreeModel.hpp"
+
 #include "model/FileTreeModel.hpp"
 #include "model/TreeModelToListModel.hpp"
 #include "util/QmlUtil.hpp"
@@ -5,6 +8,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
+
 
 int main(int argc, char* argv[])
 {
@@ -20,14 +24,13 @@ int main(int argc, char* argv[])
         }
     );
     engine.loadFromModule("TreeViewTestContent", "MainWindow");
-    YADAW::Model::FileTreeModel fileTreeModel(
-        argc > 1?
-        QString(argv[1]):
-        QCoreApplication::applicationDirPath() + "\\tree"
-    );
+    SimpleTreeModel stm;
     window->setProperty(
-        "model", QVariant::fromValue<QObject*>(&fileTreeModel)
+        "model", QVariant::fromValue<QObject*>(&stm)
     );
+    EventHandler eh(stm);
+    QObject::connect(window, SIGNAL(modifyModel()),
+        &eh, SLOT(onModifyModel()));
     auto proxyModel = window->property("treeModelToListModel").value<QObject*>();
     return app.exec();
 }
