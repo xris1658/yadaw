@@ -532,20 +532,20 @@ void TreeModelToListModel::onSourceModelRowsMoved(
             }
             int rotateIndices[5] = {first, last + 1, dest, first, last + 1};
             auto* rotateIndex = rotateIndices + (first < dest? 0: 2);
-            auto bumpBeforeNewMiddle = 0;
-            auto bumpAfterNewMiddle = 0;
-            auto* n = children[rotateIndex[2] - 1].get();
+            auto* n = children[rotateIndex[1] - 1].get();
             while(n->status == TreeNode::Status::Expanded && (!n->children.empty()))
             {
                 n = n->children.back().get();
             }
-            bumpBeforeNewMiddle = children[rotateIndex[1]]->destIndex - (n->destIndex + 1);
-            n = children[rotateIndex[1] - 1].get();
+            auto bumpBeforeNewMiddle = children[rotateIndex[0]]->destIndex - (n->destIndex + 1);
+            std::fprintf(stderr, "[DEBUG] `bumpBeforeNewMiddle`: %d\n", bumpBeforeNewMiddle);
+            n = children[rotateIndex[2] - 1].get();
             while(n->status == TreeNode::Status::Expanded && (!n->children.empty()))
             {
                 n = n->children.back().get();
             }
-            bumpAfterNewMiddle = n->destIndex + 1 - children[rotateIndex[0]]->destIndex;
+            auto bumpAfterNewMiddle = n->destIndex + 1 - children[rotateIndex[1]]->destIndex;
+            std::fprintf(stderr, "[DEBUG] `bumpAfterNewMiddle`: %d\n", bumpAfterNewMiddle);
             auto newMiddle = std::rotate(
                 children.begin() + rotateIndex[0],
                 children.begin() + rotateIndex[1],
