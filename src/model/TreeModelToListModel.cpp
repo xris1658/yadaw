@@ -590,6 +590,18 @@ void TreeModelToListModel::onSourceModelRowsMoved(
         auto toIndexCount = indices.size() - fromIndexCount;
         auto fromIndexRange = std::ranges::views::counted(indices.rbegin() + toIndexCount, fromIndexCount);
         auto toIndexRange = std::ranges::views::counted(indices.rbegin(), toIndexCount);
+        std::fprintf(stderr, "[DEBUG] `fromIndexRange`:");
+        for(const auto& fromIndex: fromIndexRange)
+        {
+            std::fprintf(stderr, " %d", fromIndex);
+        }
+        std::fprintf(stderr, "\n");
+        std::fprintf(stderr, "[DEBUG] `toIndexRange`:  ");
+        for(const auto& toIndex: toIndexRange)
+        {
+            std::fprintf(stderr, " %d", toIndex);
+        }
+        std::fprintf(stderr, "\n");
         auto [mismatchFrom, mismatchTo] = std::ranges::mismatch(fromIndexRange, toIndexRange);
         // Lexicographical compare:
         // | mismatchFrom | mismatchto | result |
@@ -612,13 +624,13 @@ void TreeModelToListModel::onSourceModelRowsMoved(
             unexpandedFirst(range.begin()), uncheckedFirst(range.begin()),
             unexpandedParentNode(root), uncheckedParentNode(root)
             {
-                while(unexpandedParentNode->status == TreeNode::Status::Expanded)
+                while(unexpandedParentNode->status == TreeNode::Status::Expanded && unexpandedFirst != range.end())
                 {
                     unexpandedParentNode = unexpandedParentNode->children[*(unexpandedFirst++)].get();
                 }
                 uncheckedFirst = unexpandedFirst;
                 uncheckedParentNode = unexpandedParentNode;
-                while(uncheckedParentNode->status != TreeNode::Status::Unchecked)
+                while(uncheckedParentNode->status != TreeNode::Status::Unchecked && uncheckedFirst != range.end())
                 {
                     uncheckedParentNode = uncheckedParentNode->children[*(uncheckedFirst++)].get();
                 }
@@ -628,8 +640,8 @@ void TreeModelToListModel::onSourceModelRowsMoved(
             Range { &root_, toIndexRange,   mismatchTo   },
             Range { &root_, fromIndexRange, mismatchFrom },
         };
-        auto& fromRange  = ranges[0];
-        auto& toRange    = ranges[1];
+        auto& toRange    = ranges[0];
+        auto& fromRange  = ranges[1];
         auto& upperRange = ranges[ fromIsUpper];
         auto& lowerRange = ranges[!fromIsUpper];
         auto divergingIndex = QModelIndex();
@@ -643,26 +655,45 @@ void TreeModelToListModel::onSourceModelRowsMoved(
             {
                 divergingNode = divergingNode->children[*it].get();
             }
-            auto movingFirst = getNode(sourceModel_->index(first, 0, sourceModelFromParent)); // FIXME: handle unexpanded/unchecked nodes
-            auto movingLast  = getNode(sourceModel_->index(last , 0, sourceModelFromParent)); // FIXME: handle unexpanded/unchecked nodes
-            if(movingFirst && movingLast)
+            auto movingFromParent = getNode(sourceModelFromParent);
+            if(movingFromParent && last < movingFromParent->children.size())
             {
-                while(movingLast->status == TreeNode::Status::Expanded && !movingLast->children.empty())
+                // While moving, we need to update the nodes corresponding to
+                // the ones moved by the source model {1}, called "active" ones,
+                // AND nodes between the source position and destination
+                // position {2} that needs their `destIndex` updated since
+                // they are pushed by the active nodes, called "passive" ones.
+                int bumpPassiveMoveCount = 0;
+                // {2}
                 {
-                    movingLast = movingLast->children.back().get();
+                    auto movingFirst = movingFromParent->children[first].get(); // FIXME: handle unexpanded/unchecked nodes
+                    auto movingLast  = movingFromParent->children[last ].get(); // FIXME: handle unexpanded/unchecked nodes
+                    while(movingLast->status == TreeNode::Status::Expanded && !movingLast->children.empty())
+                    {
+                        movingLast = movingLast->children.back().get();
+                    }
+                    bumpPassiveMoveCount = movingLast->destIndex - movingFirst->destIndex + 1;
+                    if(fromIsUpper)
+                    {
+                        bumpPassiveMoveCount = -bumpPassiveMoveCount;
+                    }
                 }
-                auto bumpCount = movingLast->destIndex - movingFirst->destIndex + 1;
-                if(fromIsUpper)
-                {
-                    bumpCount = -bumpCount;
-                }
-                // The nodes are splited into three parts as follows:
-                //      +===+
-                //     /|   |\
-                //    / |   | \
-                //   /  |   |  \
-                //  / 1 | 2 | 3 \
-                // +====+===+====+
+                // The passive nodes are splited into at most three parts as follows:
+                // +---------------------- Node: right after "from last" if `fromRange` is upper,
+                // |                             or dest if `toRange` is upper.
+                // |       +-------------- Node: with index of `upperRange.mismatch`.
+                // |       |                     Only exists if two ranges are on different branches.
+                // |       |
+                // |       |   +---------- Node with index of `lowerRange.mismatch`
+                // |       V   V
+                // |       +===+
+                // |      /|   |\
+                // |     / |   | \
+                // |    /  |   |  \
+                // |   /[1]|[2]|[3]\
+                // +->+====+===+====+ <--- Node: right before "dest" if `fromRange` is upper,
+                //                               or right before "from first" if `toRange` is upper.
+                //
                 if(upperRange.mismatch != upperRange.range.end())
                 {
                     // [1]
@@ -670,13 +701,14 @@ void TreeModelToListModel::onSourceModelRowsMoved(
                     auto node = divergingNode->children[*upperRange.mismatch].get();
                     while(it != upperRange.range.end())
                     {
-                        bumpRowCountAfter(*(node->children[*it]), bumpCount);
+                        bumpRowCountAfter(*(node->children[*it]), bumpPassiveMoveCount);
                         node = node->children[*(it++)].get();
                     }
                     // [2]
                     for(auto it2 = divergingNode->children.begin() + (*upperRange.mismatch) + 1; it2 != divergingNode->children.begin() + (*lowerRange.mismatch); ++it2)
                     {
-                        bumpRowCount(**it2, bumpCount);
+                        (*it2)->destIndex += bumpPassiveMoveCount;
+                        bumpRowCount(**it2, bumpPassiveMoveCount);
                     }
                 }
                 // [3]
@@ -685,15 +717,21 @@ void TreeModelToListModel::onSourceModelRowsMoved(
                     auto node = divergingNode->children[*lowerRange.mismatch].get();
                     while(it != lowerRange.range.end())
                     {
-                        bumpRowCountUntil(*(node->children[*it]), bumpCount, true);
+                        bumpRowCountUntil(*(node->children[*it]), bumpPassiveMoveCount, true);
                         node = node->children[*(it++)].get();
                     }
+                    node = divergingNode->children[*lowerRange.mismatch].get();
+                    node->destIndex += bumpPassiveMoveCount;
                 }
             }
         }
         if(fromRange.uncheckedFirst == fromRange.range.end())
         {
+            // {1}
             auto& fromChildren = fromRange.uncheckedParentNode->children;
+            auto bumpActiveMoveCount = fromChildren[first]->destIndex - (dest == 0?
+                (toRange.uncheckedParentNode->destIndex + 1): (toRange.uncheckedParentNode->children[first - 1]->destIndex + 1)
+            );
             auto moveFirstNode = fromChildren[first].get();
             auto moveLastNode = fromChildren[last].get();
             if(toRange.uncheckedFirst == toRange.range.end())
@@ -705,6 +743,11 @@ void TreeModelToListModel::onSourceModelRowsMoved(
                     moveLastNode = moveLastNode->children.back().get();
                 }
                 beginMoveRows(QModelIndex(), moveFirstNode->destIndex, moveLastNode->destIndex, QModelIndex(), moveBeforeDestNode->destIndex + 1);
+                for(auto it = fromChildren.begin() + first; it != fromChildren.begin() + last + 1; ++it)
+                {
+                    (*it)->destIndex += bumpActiveMoveCount;
+                    bumpRowCount(**it, bumpActiveMoveCount);
+                }
                 std::move(
                     fromChildren.begin() + first,
                     fromChildren.begin() + last + 1,
@@ -723,6 +766,7 @@ void TreeModelToListModel::onSourceModelRowsMoved(
                     fromChildren.begin() + first,
                     fromChildren.begin() + last + 1
                 );
+                root_.dump();
                 endMoveRows();
             }
             else
@@ -737,6 +781,7 @@ void TreeModelToListModel::onSourceModelRowsMoved(
                 {
                     child->sourceModelIndex = sourceModel_->index(child->sourceModelIndex.row() - bump, 0, sourceModelFromParent);
                 }
+                root_.dump();
                 endRemoveRows();
             }
         }
