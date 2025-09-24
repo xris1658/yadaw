@@ -3,6 +3,7 @@
 #include "entity/HardwareAudioIOPosition.hpp"
 #include "entity/PluginAuxAudioIOPosition.hpp"
 #include "entity/RegularAudioIOPosition.hpp"
+#include "model/AuxOutputDestinationListModel.hpp"
 #include "util/QmlUtil.hpp"
 
 namespace YADAW::Model

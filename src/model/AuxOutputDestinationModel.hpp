@@ -3,10 +3,10 @@
 
 #include "model/IAuxOutputDestinationListModel.hpp"
 
-#include "model/AuxOutputDestinationListModel.hpp"
-
 namespace YADAW::Model
 {
+class AuxOutputDestinationListModel;
+
 class AuxOutputDestinationModel: public IAuxOutputDestinationListModel
 {
 public:

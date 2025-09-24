@@ -2,6 +2,7 @@
 #define YADAW_SRC_MODEL_AUXOUTPUTDESTINATIONLISTMODEL
 
 #include "model/AuxIOTargetListModel.hpp"
+#include "model/AuxOutputDestinationModel.hpp"
 
 #include <memory>
 
