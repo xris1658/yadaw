@@ -45,7 +45,11 @@ void EventHandler::onModifyModel()
     }
     else if(index_ == 4)
     {
-        stm_.moveRows(stm_.index(3, 0, QModelIndex()), 0, 2, stm_.index(1, 0, QModelIndex()), 0);
+        stm_.moveRows(stm_.index(3, 0, QModelIndex()), 0, 2, stm_.index(0, 0, QModelIndex()), 0);
+    }
+    else if(index_ == 5)
+    {
+        stm_.moveRows(stm_.index(0, 0, QModelIndex()), 0, 2, stm_.index(1, 0, QModelIndex()), 0);
     }
     else
     {
