@@ -732,7 +732,7 @@ void TreeModelToListModel::onSourceModelRowsMoved(
                 }
             }
         }
-        if(fromRange.uncheckedFirst == fromRange.range.end())
+        if(fromRange.uncheckedFirst == fromRange.range.end() && fromRange.uncheckedParentNode->status != TreeNode::Status::Unchecked)
         {
             // {1}
             auto& fromChildren = fromRange.uncheckedParentNode->children;
@@ -794,24 +794,24 @@ void TreeModelToListModel::onSourceModelRowsMoved(
         }
         else
         {
-            if(toRange.uncheckedFirst == toRange.range.end())
+            if(toRange.uncheckedFirst == toRange.range.end() && toRange.uncheckedParentNode->status == TreeNode::Status::Expanded)
             {
                 auto& toChildren = toRange.uncheckedParentNode->children;
                 auto offset = (dest == 0?
                     toRange.uncheckedParentNode->destIndex:
                     toChildren[first - 1]->destIndex
                 ) + 1;
-                beginInsertRows(QModelIndex(), offset + 1, offset + (last - first + 1));
+                beginInsertRows(QModelIndex(), offset, offset + (last - first));
                 std::generate_n(
                     std::inserter(toChildren, toChildren.begin() + dest),
                     last - first + 1,
-                    [&sourceModelToParent, i = dest, offset, &toRange]() mutable
+                    [this, &sourceModelToParent, i = dest, offset, &toRange]() mutable
                     {
                         return std::make_unique<TreeNode>(
                             TreeNode {
                                 .parent = toRange.uncheckedParentNode,
-                                .sourceModelIndex = sourceModelToParent,
-                                .destIndex = offset + i,
+                                .sourceModelIndex = sourceModel_->index(i, 0, sourceModelToParent),
+                                .destIndex = offset + i++,
                                 .status = TreeNode::Status::Unchecked
                             }
                         );
@@ -822,6 +822,12 @@ void TreeModelToListModel::onSourceModelRowsMoved(
                 {
                     child->sourceModelIndex = sourceModel_->index(child->sourceModelIndex.row() + bump, 0, sourceModelToParent);
                 }
+                for(auto node = toChildren[dest + last - first].get(); node != &root_; node = node->parent)
+                {
+                    bumpRowCountAfter(*node, bump);
+                }
+                root_.dump();
+                endInsertRows();
             }
         }
     }
