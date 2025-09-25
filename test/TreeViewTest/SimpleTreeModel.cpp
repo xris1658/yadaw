@@ -141,6 +141,10 @@ bool SimpleTreeModel::moveRows(const QModelIndex& sourceParent, int sourceRow, i
         {
             auto sourceParentNode = getNode(sourceParent);
             auto destParentNode = getNode(destinationParent);
+            for(auto it = sourceParentNode->children.begin() + sourceRow; it != sourceParentNode->children.begin() + sourceRow + count; ++it)
+            {
+                (*it)->parent = destParentNode;
+            }
             std::move(
                 sourceParentNode->children.begin() + sourceRow,
                 sourceParentNode->children.begin() + sourceRow + count,
