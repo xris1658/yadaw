@@ -644,6 +644,12 @@ void TreeModelToListModel::onSourceModelRowsMoved(
         auto& fromRange  = ranges[1];
         auto& upperRange = ranges[ fromIsUpper];
         auto& lowerRange = ranges[!fromIsUpper];
+        auto proxyDest = 0;
+        if(fromRange.uncheckedFirst == fromRange.range.end() && toRange.uncheckedFirst == toRange.range.end())
+        {
+            auto moveBeforeDestNode = dest == 0? toRange.uncheckedParentNode: toRange.uncheckedParentNode->children[dest - 1].get();
+            proxyDest = moveBeforeDestNode->destIndex + 1;
+        }
         auto divergingIndex = QModelIndex();
         for(auto it = fromIndexRange.begin(); it != mismatchFrom; ++it)
         {
@@ -677,6 +683,7 @@ void TreeModelToListModel::onSourceModelRowsMoved(
                     {
                         bumpPassiveMoveCount = -bumpPassiveMoveCount;
                     }
+                    std::fprintf(stderr, "[DEBUG] `bumpPassiveMoveCount`: %d\n", bumpPassiveMoveCount);
                 }
                 // The passive nodes are splited into at most three parts as follows:
                 // +---------------------- Node: right after "from last" if `fromRange` is upper,
@@ -729,20 +736,20 @@ void TreeModelToListModel::onSourceModelRowsMoved(
         {
             // {1}
             auto& fromChildren = fromRange.uncheckedParentNode->children;
-            auto bumpActiveMoveCount = fromChildren[first]->destIndex - (dest == 0?
+            auto bumpActiveMoveCount = (dest == 0?
                 (toRange.uncheckedParentNode->destIndex + 1): (toRange.uncheckedParentNode->children[first - 1]->destIndex + 1)
-            );
+            ) - fromChildren[first]->destIndex;
+            std::fprintf(stderr, "[DEBUG] `bumpActiveMoveCount`: %d\n", bumpActiveMoveCount);
             auto moveFirstNode = fromChildren[first].get();
             auto moveLastNode = fromChildren[last].get();
             if(toRange.uncheckedFirst == toRange.range.end())
             {
                 auto& toChildren = toRange.uncheckedParentNode->children;
-                auto moveBeforeDestNode = dest == 0? toRange.uncheckedParentNode: toRange.uncheckedParentNode->children[dest - 1].get();
                 while(moveLastNode->status == TreeNode::Status::Expanded && !moveLastNode->children.empty())
                 {
                     moveLastNode = moveLastNode->children.back().get();
                 }
-                beginMoveRows(QModelIndex(), moveFirstNode->destIndex, moveLastNode->destIndex, QModelIndex(), moveBeforeDestNode->destIndex + 1);
+                beginMoveRows(QModelIndex(), moveFirstNode->destIndex, moveLastNode->destIndex, QModelIndex(), proxyDest);
                 for(auto it = fromChildren.begin() + first; it != fromChildren.begin() + last + 1; ++it)
                 {
                     (*it)->destIndex += bumpActiveMoveCount;
