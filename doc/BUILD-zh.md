@@ -212,8 +212,10 @@ Qt 6 中内置了 IBus 输入法支持。如果使用 Fcitx，则需要构建并
   ```shell
   export PATH=$PATH:<可执行文件路径, e.g. /Users/xris1658/apps/ninja-build>
   ```
-- 下载并安装 Qt（参见“使用 MSVC 构建”中描述的版本要求）。安装完成后，将 Qt 可执
-  行文件所在的目录（<Qt 安装目录>\<版本>\macos\bin）添加到环境变量 `PATH` 中。
+- 下载并安装 Qt。要使用 macOS 26 构建项目,需要 Qt 6.9.2 或更高版本（原因见[此处](https://bugreports.qt.io/browse/QTBUG-137687);
+  要使用旧版 macOS 构建,参见“使用 MSVC 构建”中描述的版本要求）。
+  安装完成后，将 Qt 可执行文件所在的目录（<Qt 安装目录>\<版本>\macos\bin）添加到
+  环境变量 `PATH` 中。
 - 下载 VST3 SDK，并记住路径。
 - 下载 CLAP，并记住路径。
 - 下载并安装 vcpkg：

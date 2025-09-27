@@ -220,9 +220,12 @@ project cannot be built with older macOS toolchains.
   ```shell
   export PATH=$PATH:/<executable path, e.g. /Users/xris1658/apps/ninja-build>
   ```
-- Download and install Qt (see steps described in Build With MSVC). Once
-  installed, add the directory containing the Qt executable (<Qt install
-  directory>\<version>\macos\bin) to the environment variable `PATH`.
+- Download and install Qt. You need Qt 6.9.2 and newer versions to build
+  this project on macOS 26 (see [here](https://bugreports.qt.io/browse/QTBUG-137687);
+  for older macOS versions, see steps described in Build With MSVC). Once
+  installed, add the directory containing the Qt executable
+  (<Qt install directory>\<version>\macos\bin) to the environment variable
+  `PATH`.
 - Download VST3 SDK, and remember the path to it.
 - ```cmake
   if(XCODE_VERSION VERSION_LESS "9")
