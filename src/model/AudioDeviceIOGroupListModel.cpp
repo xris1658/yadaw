@@ -82,6 +82,8 @@ QVariant AudioDeviceIOGroupListModel::data(const QModelIndex& index, int role) c
             {
             case Role::Name:
                 return QVariant::fromValue(group->get().name());
+            case Role::Index:
+                return QVariant::fromValue(row);
             case Role::IsMain:
                 return QVariant::fromValue(group->get().isMain());
             case Role::ChannelConfig:

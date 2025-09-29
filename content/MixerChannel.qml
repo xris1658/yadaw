@@ -22,6 +22,8 @@ Rectangle {
     property bool instrumentGenericEditorVisible
     property var instrumentAudioInputs: null
     property var instrumentAudioOutputs: null
+    property var instrumentAudioAuxInputs: null
+    property var instrumentAudioAuxOutputs: null
     property alias insertModel: insertList.model
     property alias sendModel: sendList.model
     property alias name: nameLabel.text
@@ -270,8 +272,8 @@ Rectangle {
                             onClicked: {
                                 if(root.pluginRouteEditorWindow) {
                                     root.pluginRouteEditorWindow.showNormal();
-                                    root.pluginRouteEditorWindow.pluginRouteEditor.inputRouteListModel = root.instrumentAudioInputs;
-                                    root.pluginRouteEditorWindow.pluginRouteEditor.outputRouteListModel = root.instrumentAudioOutputs;
+                                    root.pluginRouteEditorWindow.pluginRouteEditor.inputRouteListModel = root.instrumentAudioAuxInputs;
+                                    root.pluginRouteEditorWindow.pluginRouteEditor.outputRouteListModel = root.instrumentAudioAuxOutputs;
                                 }
                             }
                         }
@@ -479,8 +481,8 @@ Rectangle {
                                     onClicked: {
                                         if(root.pluginRouteEditorWindow) {
                                             root.pluginRouteEditorWindow.show();
-                                            root.pluginRouteEditorWindow.pluginRouteEditor.inputRouteListModel = mcilm_audio_inputs;
-                                            root.pluginRouteEditorWindow.pluginRouteEditor.outputRouteListModel = mcilm_audio_outputs;
+                                            root.pluginRouteEditorWindow.pluginRouteEditor.inputRouteListModel = mcilm_audio_aux_inputs;
+                                            root.pluginRouteEditorWindow.pluginRouteEditor.outputRouteListModel = mcilm_audio_aux_outputs;
                                         }
                                     }
                                 }

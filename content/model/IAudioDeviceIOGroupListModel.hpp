@@ -16,6 +16,7 @@ public:
     enum Role
     {
         Name,
+        Index,
         IsMain,
         ChannelConfig,
         ChannelCount,
@@ -36,6 +37,7 @@ protected:
         static RoleNames ret
         {
             std::make_pair(Role::Name,             "adioglm_name"),
+            std::make_pair(Role::Index,            "adioglm_index"),
             std::make_pair(Role::IsMain,           "adioglm_is_main"),
             std::make_pair(Role::ChannelConfig,    "adioglm_channel_config"),
             std::make_pair(Role::SpeakerList,      "adioglm_speaker_list"),

@@ -455,6 +455,8 @@ set(YADAW_COMMON_SOURCES
     src/model/AudioBusChannelListModel.hpp
     src/model/AudioBusConfigurationModel.cpp
     src/model/AudioBusConfigurationModel.hpp
+    src/model/AudioDeviceAuxIOGroupListModel.cpp
+    src/model/AudioDeviceAuxIOGroupListModel.hpp
     src/model/AudioDeviceIOGroupListModel.cpp
     src/model/AudioDeviceIOGroupListModel.hpp
     src/model/AutomationModel.cpp

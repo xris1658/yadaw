@@ -296,6 +296,36 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
             }
             return {};
         }
+        case Role::InstrumentAudioAuxInputs:
+        {
+            if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+            {
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
+                    return QVariant::fromValue(&(instrumentContext.getAudioAuxInputs()));
+                }
+            }
+            return {};
+        }
+        case Role::InstrumentAudioAuxOutputs:
+        {
+            if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+            {
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
+                    return QVariant::fromValue(&(instrumentContext.getAudioAuxOutputs()));
+                }
+            }
+            return {};
+        }
         case Role::InstrumentHasUI:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
@@ -1030,12 +1060,27 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
             pluginContext.position.position = YADAW::Controller::PluginPosition::InChannelPosition::Instrument;
             pluginContext.position.index = position;
             pluginContext.position.model = this;
-            pluginContext.userData = YADAW::Util::createPMRUniquePtr(
-                std::make_unique<PluginContextUserData>(
-                    pluginContext, pluginInfo.name
-                )
-            );
             auto& plugin = pluginContext.pluginInstance.plugin()->get();
+            std::uint32_t firstOutput = 0;
+            auto [channelGroupType, channelCountInGroup] = *mixer_.channelGroupTypeAndChannelCountAt(channelListType_, position);
+            FOR_RANGE0(i, plugin.audioOutputGroupCount())
+            {
+                auto& group = plugin.audioOutputGroupAt(i)->get();
+                if(group.isMain() && group.type() == channelGroupType && group.channelCount() == channelCountInGroup)
+                {
+                    firstOutput = i;
+                    break;
+                }
+            }
+            {
+                auto contextUserData = std::make_unique<PluginContextUserData>(
+                    pluginContext, pluginInfo.name
+                );
+                contextUserData->initAuxModels(std::nullopt, firstOutput);
+                pluginContext.userData = YADAW::Util::createPMRUniquePtr(
+                    std::move(contextUserData)
+                );
+            }
             auto& userData = *static_cast<PluginContextUserData*>(
                 pluginContext.userData.get()
             );
@@ -1067,17 +1112,6 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 "parameterListModel",
                 QVariant::fromValue<QObject*>(&userData.paramListModel)
             );
-            std::uint32_t firstOutput = 0;
-            auto [channelGroupType, channelCountInGroup] = *mixer_.channelGroupTypeAndChannelCountAt(channelListType_, position);
-            FOR_RANGE0(i, plugin.audioOutputGroupCount())
-            {
-                auto& group = plugin.audioOutputGroupAt(i)->get();
-                if(group.isMain() && group.type() == channelGroupType && group.channelCount() == channelCountInGroup)
-                {
-                    firstOutput = i;
-                    break;
-                }
-            }
             auto node = pluginContext.node;
             auto mixerContext = YADAW::Util::createPMRUniquePtr(
                 std::make_unique<YADAW::Controller::PluginContext>(
@@ -1107,6 +1141,8 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                     Role::InstrumentName,
                     Role::InstrumentAudioInputs,
                     Role::InstrumentAudioOutputs,
+                    Role::InstrumentAudioAuxInputs,
+                    Role::InstrumentAudioAuxOutputs,
                     Role::InstrumentEventInputs,
                     Role::InstrumentEventOutputs,
                     Role::InstrumentHasUI,
@@ -1206,6 +1242,8 @@ bool MixerChannelListModel::removeInstrument(int position)
                 Role::InstrumentName,
                 Role::InstrumentAudioInputs,
                 Role::InstrumentAudioOutputs,
+                Role::InstrumentAudioAuxInputs,
+                Role::InstrumentAudioAuxOutputs,
                 Role::InstrumentEventInputs,
                 Role::InstrumentEventOutputs,
                 Role::InstrumentHasUI,

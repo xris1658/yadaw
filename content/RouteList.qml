@@ -48,7 +48,6 @@ Item {
             }
             ComboBoxButton {
                 id: comboBoxButton
-                enabled: adioglm_is_main
                 width: 100
                 onCheckedChanged: {
                     if(checked) {

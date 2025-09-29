@@ -110,6 +110,14 @@ QVariant MixerChannelInsertListModel::data(const QModelIndex& index, int role) c
         {
             return QVariant::fromValue<QObject*>(&pluginContextUserData.audioOutputs);
         }
+        case Role::AudioAuxInputs:
+        {
+            return QVariant::fromValue<QObject*>(&pluginContextUserData.getAudioAuxInputs());
+        }
+        case Role::AudioAuxOutputs:
+        {
+            return QVariant::fromValue<QObject*>(&pluginContextUserData.getAudioAuxOutputs());
+        }
         case Role::HasUI:
         {
             auto ret = false;
@@ -219,11 +227,13 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             pluginContext.position.position = YADAW::Controller::PluginPosition::InChannelPosition::Insert;
             pluginContext.position.index = position;
             pluginContext.position.model = this;
-            pluginContext.userData = YADAW::Util::createPMRUniquePtr(
+            auto uPtrContextUserData = YADAW::Util::createPMRUniquePtr(
                 std::make_unique<PluginContextUserData>(
                     pluginContext, pluginInfo.name
                 )
             );
+            auto contextUserData = uPtrContextUserData.get();
+            pluginContext.userData = std::move(uPtrContextUserData);
             auto& plugin = pluginContext.pluginInstance.plugin()->get();
             auto& userData = *static_cast<PluginContextUserData*>(
                 pluginContext.userData.get()
@@ -266,6 +276,10 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             beginInsertRows(QModelIndex(), position, position);
             inserts_->insert(
                 node, std::move(mixerContext), position
+            );
+            contextUserData->initAuxModels(
+                inserts_->insertInputChannelGroupIndexAt(position),
+                inserts_->insertOutputChannelGroupIndexAt(position)
             );
             endInsertRows();
             updateInsertConnections(position + 1);
@@ -528,7 +542,7 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
         dataChanged(
             this->index(index),
             this->index(index),
-            {Role::AudioInputs, Role::AudioOutputs}
+            {Role::AudioInputs, Role::AudioOutputs, Role::AudioAuxInputs, Role::AudioAuxOutputs}
         );
     }
 }
