@@ -24,15 +24,17 @@ Rectangle {
     Component {
         id: audioIOPositionTreeComponent
         ItemDelegate {
-            property bool expanded: tmtlm_expanded
-            property bool hasChildren: tmtlm_has_children
-            property int indent: tmtlm_indent
+            required property TreeView treeView
+            required property bool isTreeNode
+            required property bool expanded
+            required property int hasChildren
+            required property int depth
             width: ListView.view.width
-            leftPadding: indent * height + indicator.width
+            leftPadding: depth * height + indicator.width
             text: aiopim_position? aiopim_position.completeName + " (" + aiopim_tree_name + ")": aiopim_tree_name
             Label {
                 id: indicator
-                x: indent * parent.height
+                x: depth * parent.height
                 width: height
                 height: parent.height
                 verticalAlignment: Label.AlignVCenter
@@ -42,7 +44,7 @@ Rectangle {
             }
             onClicked: {
                 if(hasChildren) {
-                    ListView.view.treeView.toggleExpanded(index);
+                    treeView.toggleExpanded(index);
                 }
             }
         }
@@ -767,17 +769,23 @@ Rectangle {
                     id: pluginAuxIOLayout
                     currentIndex: pluginAuxIOColumn.currentIndex
                     clip: true
-                    TableLikeTreeView {
+                    TreeView {
                         id: pluginAuxInTreeView
                         clip: true
-                        treeView.listView.boundsBehavior: Flickable.StopAtBounds
-                        treeView.listView.delegate: audioIOPositionTreeComponent
+                        boundsBehavior: Flickable.StopAtBounds
+                        delegate: audioIOPositionTreeComponent
+                        columnWidthProvider: function (column) {
+                            return pluginAuxInTreeView.width;
+                        }
                     }
-                    TableLikeTreeView {
+                    TreeView {
                         id: pluginAuxOutTreeView
                         clip: true
-                        treeView.listView.boundsBehavior: Flickable.StopAtBounds
-                        treeView.listView.delegate: audioIOPositionTreeComponent
+                        boundsBehavior: Flickable.StopAtBounds
+                        delegate: audioIOPositionTreeComponent
+                        columnWidthProvider: function (column) {
+                            return pluginAuxOutTreeView.width;
+                        }
                     }
                 }
             }

@@ -296,7 +296,11 @@ MixerAudioIOPositionItemModel::MixerAudioIOPositionItemModel(
 QModelIndex MixerAudioIOPositionItemModel::index(
     int row, int column, const QModelIndex& parent) const
 {
-    return createIndex(row, column, getNodeData(parent));
+    if(hasIndex(row, column, parent))
+    {
+        return createIndex(row, column, getNodeData(parent));
+    }
+    return QModelIndex();
 }
 
 QModelIndex MixerAudioIOPositionItemModel::parent(const QModelIndex& child) const
