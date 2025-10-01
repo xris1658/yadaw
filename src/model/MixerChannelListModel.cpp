@@ -326,6 +326,36 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
             }
             return {};
         }
+        case Role::InstrumentAudioAuxInputSource:
+        {
+            if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+            {
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
+                    return QVariant::fromValue(instrumentContext.audioAuxInputSources.get());
+                }
+            }
+            return {};
+        }
+        case Role::InstrumentAudioAuxOutputDestination:
+        {
+            if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
+                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
+            {
+                auto context = mixer_.getInstrumentContext(row);
+                if(context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
+                    return QVariant::fromValue(instrumentContext.audioAuxOutputDestinations.get());
+                }
+            }
+            return {};
+        }
         case Role::InstrumentHasUI:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
@@ -1125,6 +1155,12 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 node,
                 std::move(mixerContext),
                 firstOutput
+            );
+            userData.audioAuxInputSources = std::make_unique<YADAW::Model::AuxInputSourceListModel>(
+                mixer_, channelListType_, position, true, false, 0
+            );
+            userData.audioAuxOutputDestinations = std::make_unique<YADAW::Model::AuxOutputDestinationListModel>(
+                mixer_, channelListType_, position, true, false, 0
             );
             if(auto optionalBatchUpdater = mixer_.batchUpdater(); optionalBatchUpdater.has_value())
             {

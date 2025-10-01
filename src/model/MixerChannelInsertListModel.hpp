@@ -55,6 +55,7 @@ private:
     void updateInsertConnections(std::uint32_t from);
 private:
     YADAW::Audio::Mixer::Inserts* inserts_;
+    YADAW::Audio::Mixer::Mixer::ChannelListType channelListType_;
     std::uint32_t channelIndex_;
     bool isPreFaderInsert_;
     std::uint32_t insertsIndex_;

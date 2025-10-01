@@ -19,6 +19,8 @@ public:
         AudioOutputs,
         AudioAuxInputs,
         AudioAuxOutputs,
+        AudioAuxInputSource,
+        AudioAuxOutputDestination,
         EventInputs,
         EventOutputs,
         HasUI,
@@ -46,18 +48,20 @@ protected:
     {
         static RoleNames ret
         {
-            std::make_pair(Role::Name,                 "mcilm_name"),
-            std::make_pair(Role::Bypassed,             "mcilm_bypassed"),
-            std::make_pair(Role::AudioInputs,          "mcilm_audio_inputs"),
-            std::make_pair(Role::AudioOutputs,         "mcilm_audio_outputs"),
-            std::make_pair(Role::AudioAuxInputs,       "mcilm_audio_aux_inputs"),
-            std::make_pair(Role::AudioAuxOutputs,      "mcilm_audio_aux_outputs"),
-            std::make_pair(Role::EventInputs,          "mcilm_event_inputs"),
-            std::make_pair(Role::EventOutputs,         "mcilm_event_outputs"),
-            std::make_pair(Role::HasUI,                "mcilm_has_ui"),
-            std::make_pair(Role::WindowVisible,        "mcilm_window_visible"),
-            std::make_pair(Role::GenericEditorVisible, "mcilm_generic_editor_visible"),
-            std::make_pair(Role::Latency,              "mcilm_latency")
+            std::make_pair(Role::Name,                      "mcilm_name"),
+            std::make_pair(Role::Bypassed,                  "mcilm_bypassed"),
+            std::make_pair(Role::AudioInputs,               "mcilm_audio_inputs"),
+            std::make_pair(Role::AudioOutputs,              "mcilm_audio_outputs"),
+            std::make_pair(Role::AudioAuxInputs,            "mcilm_audio_aux_inputs"),
+            std::make_pair(Role::AudioAuxOutputs,           "mcilm_audio_aux_outputs"),
+            std::make_pair(Role::AudioAuxInputSource,       "mcilm_audio_aux_input_source"),
+            std::make_pair(Role::AudioAuxOutputDestination, "mcilm_audio_aux_output_destination"),
+            std::make_pair(Role::EventInputs,               "mcilm_event_inputs"),
+            std::make_pair(Role::EventOutputs,              "mcilm_event_outputs"),
+            std::make_pair(Role::HasUI,                     "mcilm_has_ui"),
+            std::make_pair(Role::WindowVisible,             "mcilm_window_visible"),
+            std::make_pair(Role::GenericEditorVisible,      "mcilm_generic_editor_visible"),
+            std::make_pair(Role::Latency,                   "mcilm_latency")
         };
         return ret;
     }

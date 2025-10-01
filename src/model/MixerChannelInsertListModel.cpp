@@ -35,6 +35,7 @@ MixerChannelInsertListModel::MixerChannelInsertListModel(
     QObject* parent):
     IMixerChannelInsertListModel(parent),
     inserts_(&inserts),
+    channelListType_(type),
     channelIndex_(channelIndex),
     isPreFaderInsert_(isPreFaderInsert),
     insertsIndex_(insertsIndex),
@@ -117,6 +118,14 @@ QVariant MixerChannelInsertListModel::data(const QModelIndex& index, int role) c
         case Role::AudioAuxOutputs:
         {
             return QVariant::fromValue<QObject*>(&pluginContextUserData.getAudioAuxOutputs());
+        }
+        case Role::AudioAuxInputSource:
+        {
+            return QVariant::fromValue<QObject*>(pluginContextUserData.audioAuxInputSources.get());
+        }
+        case Role::AudioAuxOutputDestination:
+        {
+            return QVariant::fromValue<QObject*>(pluginContextUserData.audioAuxOutputDestinations.get());
         }
         case Role::HasUI:
         {
@@ -234,7 +243,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             );
             auto contextUserData = uPtrContextUserData.get();
             pluginContext.userData = std::move(uPtrContextUserData);
-            auto& plugin = pluginContext.pluginInstance.plugin()->get();
             auto& userData = *static_cast<PluginContextUserData*>(
                 pluginContext.userData.get()
             );
@@ -280,6 +288,16 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             contextUserData->initAuxModels(
                 inserts_->insertInputChannelGroupIndexAt(position),
                 inserts_->insertOutputChannelGroupIndexAt(position)
+            );
+            contextUserData->audioAuxInputSources = std::make_unique<YADAW::Model::AuxInputSourceListModel>(
+                YADAW::Controller::AudioEngine::appAudioEngine().mixer(),
+                channelListType_,
+                channelIndex_, false, !insertsIndex_, position
+            );
+            contextUserData->audioAuxOutputDestinations = std::make_unique<YADAW::Model::AuxOutputDestinationListModel>(
+                YADAW::Controller::AudioEngine::appAudioEngine().mixer(),
+                channelListType_,
+                channelIndex_, false, !insertsIndex_, position
             );
             endInsertRows();
             updateInsertConnections(position + 1);
