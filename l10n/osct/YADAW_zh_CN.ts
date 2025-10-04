@@ -120,37 +120,37 @@
 <context>
     <name>MixerAudioIOPositionItemModel</name>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="318"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="345"/>
         <source>Audio Input Bus</source>
         <translation>音频输入总线</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="319"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="346"/>
         <source>Regular Channel</source>
         <translation>一般轨道</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="320"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="347"/>
         <source>Audio Output Bus</source>
         <translation>音频输出总线</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="358"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="386"/>
         <source>Instrument: %1</source>
         <translation>乐器：%1</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="379"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="407"/>
         <source>Pre-Fader Inserts</source>
         <translation>推子前插入</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="395"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="423"/>
         <source>Post-Fader Inserts</source>
         <translation>推子后插入</translation>
     </message>
     <message>
-        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="420"/>
+        <location filename="../../src/model/MixerAudioIOPositionItemModel.cpp" line="449"/>
         <source>%1: %2</source>
         <comment>Insert Index: Insert Name</comment>
         <translation>%1：%2</translation>
