@@ -296,36 +296,6 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
             }
             return {};
         }
-        case Role::InstrumentAudioAuxInputs:
-        {
-            if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
-            {
-                auto context = mixer_.getInstrumentContext(row);
-                if(context.has_value())
-                {
-                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
-                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
-                    return QVariant::fromValue(&(instrumentContext.getAudioAuxInputs()));
-                }
-            }
-            return {};
-        }
-        case Role::InstrumentAudioAuxOutputs:
-        {
-            if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
-            {
-                auto context = mixer_.getInstrumentContext(row);
-                if(context.has_value())
-                {
-                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
-                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
-                    return QVariant::fromValue(&(instrumentContext.getAudioAuxOutputs()));
-                }
-            }
-            return {};
-        }
         case Role::InstrumentAudioAuxInputSource:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
@@ -1021,6 +991,16 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         }
         if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList)
         {
+            FOR_RANGE(i, position, insertModels_.size())
+            {
+                if(auto context = mixer_.getInstrumentContext(i); context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
+                    instrumentContext.audioAuxInputSources->updateChannelIndex(i);
+                    instrumentContext.audioAuxOutputDestinations->updateChannelIndex(i);
+                }
+            }
             mainInput_.erase(
                 mainInput_.begin() + position,
                 mainInput_.begin() + position + removeCount
@@ -1106,7 +1086,6 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 auto contextUserData = std::make_unique<PluginContextUserData>(
                     pluginContext, pluginInfo.name
                 );
-                contextUserData->initAuxModels(std::nullopt, firstOutput);
                 pluginContext.userData = YADAW::Util::createPMRUniquePtr(
                     std::move(contextUserData)
                 );
@@ -1177,8 +1156,8 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                     Role::InstrumentName,
                     Role::InstrumentAudioInputs,
                     Role::InstrumentAudioOutputs,
-                    Role::InstrumentAudioAuxInputs,
-                    Role::InstrumentAudioAuxOutputs,
+                    Role::InstrumentAudioAuxInputSource,
+                    Role::InstrumentAudioAuxOutputDestination,
                     Role::InstrumentEventInputs,
                     Role::InstrumentEventOutputs,
                     Role::InstrumentHasUI,
@@ -1278,8 +1257,8 @@ bool MixerChannelListModel::removeInstrument(int position)
                 Role::InstrumentName,
                 Role::InstrumentAudioInputs,
                 Role::InstrumentAudioOutputs,
-                Role::InstrumentAudioAuxInputs,
-                Role::InstrumentAudioAuxOutputs,
+                Role::InstrumentAudioAuxInputSource,
+                Role::InstrumentAudioAuxOutputDestination,
                 Role::InstrumentEventInputs,
                 Role::InstrumentEventOutputs,
                 Role::InstrumentHasUI,

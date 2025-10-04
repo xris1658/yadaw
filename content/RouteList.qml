@@ -2,12 +2,15 @@ import QtQml
 import QtQuick
 import QtQuick.Layouts
 
+import YADAW.Models
+
 Item {
     id: root
     height: 300
 
     property bool isInput: true
     property alias model: list.model
+    property IAudioDeviceIOGroupListModel ioListModel: null
     property Window audioIOSelectorWindow: null
 
     QtObject {
@@ -41,7 +44,10 @@ Item {
         delegate: Row {
             spacing: 3
             Label {
-                text: (index + 1) + ". " + adioglm_name
+                text: (aiotlm_channel_index + 1) + ". " + ioListModel.data(
+                    ioListModel.index(aiotlm_channel_index, 0),
+                    IAudioDeviceIOGroupListModel.Name
+                )
                 verticalAlignment: Qt.AlignVCenter
                 width: list.width - comboBoxButton.width - parent.spacing * 2
                 height: comboBoxButton.height
@@ -69,7 +75,10 @@ Item {
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = false;
                         }
                         audioIOSelectorWindow.audioIOSelector.currentIndex = 0;
-                        audioIOSelectorWindow.audioIOSelector.audioChannelConfig = adioglm_channel_config;
+                        audioIOSelectorWindow.audioIOSelector.audioChannelConfig = ioListModel.data(
+                            ioListModel.index(aiotlm_channel_index, 0),
+                            IAudioDeviceIOGroupListModel.ChannelConfig
+                        );
                         audioIOSelectorWindow.showNormal();
                         impl.usingAudioIOSelector = true;
                         impl.usingAudioIOSelectorButton = comboBoxButton;

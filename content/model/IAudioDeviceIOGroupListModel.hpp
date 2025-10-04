@@ -23,6 +23,7 @@ public:
         SpeakerList,
         RoleCount
     };
+    Q_ENUM(Role)
     using GroupType = YADAW::Entity::ChannelConfig::Config;
 public:
     IAudioDeviceIOGroupListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}

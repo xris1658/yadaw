@@ -1,11 +1,15 @@
 import QtQuick
 
+import YADAW.Models
+
 Rectangle {
     id: root
     color: Colors.background
     border.color: Colors.border
     height: 300
 
+    property alias inputListModel: inputRouteList.ioListModel
+    property alias outputListModel: outputRouteList.ioListModel
     property alias inputRouteListModel: inputRouteList.model
     property alias outputRouteListModel: outputRouteList.model
     property Window audioIOSelectorWindow

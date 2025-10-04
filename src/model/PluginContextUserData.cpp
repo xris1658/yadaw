@@ -10,56 +10,6 @@ PluginContextUserData::PluginContextUserData(
     name(name)
 {}
 
-void PluginContextUserData::initAuxModels(
-    std::optional<std::uint32_t> mainAudioInput,
-    std::optional<std::uint32_t> mainAudioOutput)
-{
-    if(mainAudioInput)
-    {
-        audioAuxInputs = std::make_unique<
-            YADAW::Model::AudioDeviceAuxIOGroupListModel
-        >(audioInputs, *mainAudioInput);
-    }
-    if(mainAudioOutput)
-    {
-        audioAuxOutputs = std::make_unique<
-            YADAW::Model::AudioDeviceAuxIOGroupListModel
-        >(audioOutputs, *mainAudioOutput);
-    }
-}
-
-const YADAW::Model::IAudioDeviceIOGroupListModel& PluginContextUserData::getAudioAuxInputs() const
-{
-    if(audioAuxInputs)
-    {
-        return *audioAuxInputs;
-    }
-    return audioInputs;
-}
-
-const YADAW::Model::IAudioDeviceIOGroupListModel& PluginContextUserData::getAudioAuxOutputs() const
-{
-    if(audioAuxOutputs)
-    {
-        return *audioAuxOutputs;
-    }
-    return audioOutputs;
-}
-
-YADAW::Model::IAudioDeviceIOGroupListModel& PluginContextUserData::getAudioAuxInputs()
-{
-    return const_cast<YADAW::Model::IAudioDeviceIOGroupListModel&>(
-        static_cast<const PluginContextUserData&>(*this).getAudioAuxInputs()
-    );
-}
-
-YADAW::Model::IAudioDeviceIOGroupListModel& PluginContextUserData::getAudioAuxOutputs()
-{
-    return const_cast<YADAW::Model::IAudioDeviceIOGroupListModel&>(
-        static_cast<const PluginContextUserData&>(*this).getAudioAuxOutputs()
-    );
-}
-
 namespace Impl
 {
 bool blankFillPluginContext(

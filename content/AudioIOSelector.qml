@@ -353,11 +353,13 @@ QC.Popup {
         impl.initProxyModel(audioHardwareOutputPositionProxyModel);
         impl.initProxyModel(audioGroupChannelProxyModel);
         impl.initProxyModel(audioEffectChannelProxyModel);
+        // TODO: Init aux input/output model once `SortFilterProxyItemModel` is used
     }
     onAudioChannelConfigChanged: {
         audioHardwareInputPositionProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
         audioHardwareOutputPositionProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
         audioGroupChannelProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
         audioEffectChannelProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
+        // TODO: Set value filter of input/output model once `SortFilterProxyItemModel` is used
     }
 }

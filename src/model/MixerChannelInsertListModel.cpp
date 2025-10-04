@@ -111,14 +111,6 @@ QVariant MixerChannelInsertListModel::data(const QModelIndex& index, int role) c
         {
             return QVariant::fromValue<QObject*>(&pluginContextUserData.audioOutputs);
         }
-        case Role::AudioAuxInputs:
-        {
-            return QVariant::fromValue<QObject*>(&pluginContextUserData.getAudioAuxInputs());
-        }
-        case Role::AudioAuxOutputs:
-        {
-            return QVariant::fromValue<QObject*>(&pluginContextUserData.getAudioAuxOutputs());
-        }
         case Role::AudioAuxInputSource:
         {
             return QVariant::fromValue<QObject*>(pluginContextUserData.audioAuxInputSources.get());
@@ -285,10 +277,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             inserts_->insert(
                 node, std::move(mixerContext), position
             );
-            contextUserData->initAuxModels(
-                inserts_->insertInputChannelGroupIndexAt(position),
-                inserts_->insertOutputChannelGroupIndexAt(position)
-            );
             contextUserData->audioAuxInputSources = std::make_unique<YADAW::Model::AuxInputSourceListModel>(
                 YADAW::Controller::AudioEngine::appAudioEngine().mixer(),
                 channelListType_,
@@ -300,6 +288,14 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
                 channelIndex_, false, !insertsIndex_, position
             );
             endInsertRows();
+            FOR_RANGE(i, position + 1, itemCount())
+            {
+                auto& context = inserts_->insertContextAt(i)->get();
+                auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context.get());
+                auto& pluginContextUserData = *static_cast<YADAW::Model::PluginContextUserData*>(pluginContext.userData.get());
+                pluginContextUserData.audioAuxInputSources->updateInsertIndex(i);
+                pluginContextUserData.audioAuxOutputDestinations->updateInsertIndex(i);
+            }
             updateInsertConnections(position + 1);
         }
     }
@@ -322,7 +318,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
     {
         ret = true;
         beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
-        std::vector<YADAW::Audio::Mixer::Context> contexts;
+        std::vector<YADAW::Audio::Mixer::Context> destroyingContexts;
         std::vector<std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC>> multiInputDevices;
         auto contextCount = 0;
         auto multiInputDeviceCount = 0;
@@ -334,14 +330,14 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             auto device = graph.graph().getNodeData(*inserts_->insertNodeAt(i)).process.device();
             multiInputDeviceCount += (device->audioInputGroupCount() > 1);
         }
-        contexts.reserve(contextCount);
+        destroyingContexts.reserve(contextCount);
         multiInputDevices.reserve(multiInputDeviceCount);
         inserts_->detachContexts(
-            [&contexts](YADAW::Audio::Mixer::Context&& context)
+            [&destroyingContexts](YADAW::Audio::Mixer::Context&& context)
             {
                 if(context)
                 {
-                    contexts.emplace_back(std::move(context));
+                    destroyingContexts.emplace_back(std::move(context));
                 }
             },
             position, removeCount
@@ -362,7 +358,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         }
         audioEngine.insertsNodeRemovedCallback(*inserts_);
         multiInputDevices.clear();
-        for(auto& context: contexts)
+        for(auto& context: destroyingContexts)
         {
             auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context.get());
             auto& plugin = pluginContext.pluginInstance.plugin()->get();
@@ -415,6 +411,14 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 );
             }
         }
+        FOR_RANGE(i, position + removeCount, itemCount())
+        {
+            auto& context = inserts_->insertContextAt(i)->get();
+            auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context.get());
+            auto& pluginContextUserData = *static_cast<YADAW::Model::PluginContextUserData*>(pluginContext.userData.get());
+            pluginContextUserData.audioAuxInputSources->updateInsertIndex(i);
+            pluginContextUserData.audioAuxOutputDestinations->updateInsertIndex(i);
+        }
         endRemoveRows();
         updateInsertConnections(position);
     }
@@ -441,6 +445,14 @@ void MixerChannelInsertListModel::setChannelIndex(std::uint32_t channelIndex)
     if(channelIndex_ != channelIndex)
     {
         channelIndex_ = channelIndex;
+        FOR_RANGE0(i, itemCount())
+        {
+            auto& context = inserts_->insertContextAt(i)->get();
+            auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context.get());
+            auto& pluginContextUserData = *static_cast<YADAW::Model::PluginContextUserData*>(pluginContext.userData.get());
+            pluginContextUserData.audioAuxInputSources->updateChannelIndex(channelIndex);
+            pluginContextUserData.audioAuxOutputDestinations->updateChannelIndex(channelIndex);
+        }
         channelIndexChanged();
     }
 }
@@ -560,7 +572,12 @@ void MixerChannelInsertListModel::updateIOConfig(std::uint32_t index)
         dataChanged(
             this->index(index),
             this->index(index),
-            {Role::AudioInputs, Role::AudioOutputs, Role::AudioAuxInputs, Role::AudioAuxOutputs}
+            {
+                Role::AudioInputs,
+                Role::AudioOutputs,
+                Role::AudioAuxInputSource,
+                Role::AudioAuxOutputDestination
+            }
         );
     }
 }

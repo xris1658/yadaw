@@ -272,6 +272,8 @@ Rectangle {
                             onClicked: {
                                 if(root.pluginRouteEditorWindow) {
                                     root.pluginRouteEditorWindow.showNormal();
+                                    root.pluginRouteEditorWindow.pluginRouteEditor.inputListModel = root.instrumentAudioInputs;
+                                    root.pluginRouteEditorWindow.pluginRouteEditor.outputListModel = root.instrumentAudioOutputs;
                                     root.pluginRouteEditorWindow.pluginRouteEditor.inputRouteListModel = root.instrumentAudioAuxInputs;
                                     root.pluginRouteEditorWindow.pluginRouteEditor.outputRouteListModel = root.instrumentAudioAuxOutputs;
                                 }
@@ -481,8 +483,10 @@ Rectangle {
                                     onClicked: {
                                         if(root.pluginRouteEditorWindow) {
                                             root.pluginRouteEditorWindow.show();
-                                            root.pluginRouteEditorWindow.pluginRouteEditor.inputRouteListModel = mcilm_audio_aux_inputs;
-                                            root.pluginRouteEditorWindow.pluginRouteEditor.outputRouteListModel = mcilm_audio_aux_outputs;
+                                            root.pluginRouteEditorWindow.pluginRouteEditor.inputListModel = mcilm_audio_inputs;
+                                            root.pluginRouteEditorWindow.pluginRouteEditor.outputListModel = mcilm_audio_outputs;
+                                            root.pluginRouteEditorWindow.pluginRouteEditor.inputRouteListModel = mcilm_audio_aux_input_source;
+                                            root.pluginRouteEditorWindow.pluginRouteEditor.outputRouteListModel = mcilm_audio_aux_output_destination;
                                         }
                                     }
                                 }

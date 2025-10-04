@@ -1041,6 +1041,8 @@ ApplicationWindow {
     Window {
         id: pluginRouteEditorWindow
         color: Colors.background
+        property string pluginPositionName: "TODO: show plugin position here"
+        title: qsTr("Edit Route: ") + pluginPositionName
         width: 500
         height: 300
         property PluginRouteEditor pluginRouteEditor: pluginRouteEditor

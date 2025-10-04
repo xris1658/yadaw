@@ -237,8 +237,8 @@ Rectangle {
                 instrumentSlotChecked: mclm_instrument_exist? mclm_instrument_window_visible || mclm_instrument_generic_editor_visible: false
                 instrumentAudioInputs: mclm_instrument_audio_inputs
                 instrumentAudioOutputs: mclm_instrument_audio_outputs
-                instrumentAudioAuxInputs: mclm_instrument_audio_aux_inputs
-                instrumentAudioAuxOutputs: mclm_instrument_audio_aux_outputs
+                instrumentAudioAuxInputs: mclm_instrument_audio_aux_input_source
+                instrumentAudioAuxOutputs: mclm_instrument_audio_aux_output_destination
                 showInsertSlot: root.showInsert
                 showSendSlot: root.showSend
                 showFader: root.showFader

@@ -29,8 +29,8 @@ int AuxInputSourceListModel::rowCount(const QModelIndex& parent) const
     {
         auto type = static_cast<YADAW::Audio::Mixer::Mixer::ChannelListType>(channelListType_);
         auto& inserts = (isPreFaderInsert_?
-            mixer_->preFaderInsertsAt(type, insertIndex_):
-            mixer_->postFaderInsertsAt(type, insertIndex_))->get();
+            mixer_->preFaderInsertsAt(type, channelIndex_):
+            mixer_->postFaderInsertsAt(type, channelIndex_))->get();
         auto device = mixer_->graph().graph().getNodeData(
             *(inserts.insertNodeAt(insertIndex_))
         ).process.device();
@@ -53,8 +53,8 @@ QVariant AuxInputSourceListModel::data(const QModelIndex& index, int role) const
             {
                 auto type = static_cast<YADAW::Audio::Mixer::Mixer::ChannelListType>(channelListType_);
                 auto& inserts = (isPreFaderInsert_?
-                    mixer_->preFaderInsertsAt(type, insertIndex_):
-                    mixer_->postFaderInsertsAt(type, insertIndex_))->get();
+                    mixer_->preFaderInsertsAt(type, channelIndex_):
+                    mixer_->postFaderInsertsAt(type, channelIndex_))->get();
                 auto mainIndex = *inserts.insertInputChannelGroupIndexAt(insertIndex_);
                 return row + (row >= mainIndex);
             }

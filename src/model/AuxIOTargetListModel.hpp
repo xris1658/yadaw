@@ -19,6 +19,9 @@ public:
         QObject* parent = nullptr);
     virtual ~AuxIOTargetListModel() override;
 public:
+    void updateChannelIndex(std::uint32_t channelIndex);
+    void updateInsertIndex(std::uint32_t insertIndex);
+public:
     YADAW::Audio::Mixer::Mixer::PluginAuxIOPosition position(std::uint32_t channelGroupIndex) const;
 protected:
     YADAW::Audio::Mixer::Mixer* mixer_;

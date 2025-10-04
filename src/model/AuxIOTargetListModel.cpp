@@ -20,6 +20,16 @@ AuxIOTargetListModel::AuxIOTargetListModel(
 AuxIOTargetListModel::~AuxIOTargetListModel()
 {}
 
+void AuxIOTargetListModel::updateChannelIndex(std::uint32_t channelIndex)
+{
+    channelIndex_ = channelIndex;
+}
+
+void AuxIOTargetListModel::updateInsertIndex(std::uint32_t insertIndex)
+{
+    insertIndex_ = insertIndex;
+}
+
 YADAW::Audio::Mixer::Mixer::PluginAuxIOPosition AuxIOTargetListModel::position(std::uint32_t channelGroupIndex) const
 {
     using YADAW::Audio::Mixer::Mixer;
