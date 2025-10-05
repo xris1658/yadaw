@@ -411,7 +411,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
                 );
             }
         }
-        FOR_RANGE(i, position + removeCount, itemCount())
+        FOR_RANGE(i, position, itemCount())
         {
             auto& context = inserts_->insertContextAt(i)->get();
             auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context.get());
