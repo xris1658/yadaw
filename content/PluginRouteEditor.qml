@@ -2,11 +2,8 @@ import QtQuick
 
 import YADAW.Models
 
-Rectangle {
+Item {
     id: root
-    color: Colors.background
-    border.color: Colors.border
-    height: 300
 
     property alias inputListModel: inputRouteList.ioListModel
     property alias outputListModel: outputRouteList.ioListModel
@@ -14,14 +11,57 @@ Rectangle {
     property alias outputRouteListModel: outputRouteList.model
     property Window audioIOSelectorWindow
 
-    Rectangle {
+    Item {
         id: splitter
-        color: Colors.border
         anchors.horizontalCenter: parent.horizontalCenter
         width: 1
         height: root.height
     }
+    Item {
+        id: auxInputHeader
+        height: auxInputLabel.height
+        Label {
+            id: auxInputLabel
+            text: qsTr("Inputs")
+            leftPadding: height
+            bottomPadding: 3
+            Item {
+                id: auxInputIconPlaceholder
+                width: parent.height
+                height: width
+                AuxInputIcon {
+                    anchors.centerIn: parent
+                    scale: 16 / originalHeight
+                    path.strokeColor: "transparent"
+                    path.fillColor: Colors.secondaryContent
+                }
+            }
+        }
+    }
+    Item {
+        id: auxOutputHeader
+        anchors.left: outputRouteListPlaceholder.left
+        height: auxOutputLabel.height
+        Label {
+            id: auxOutputLabel
+            text: qsTr("Outputs")
+            leftPadding: height
+            bottomPadding: 3
+            Item {
+                id: auxOutputIconPlaceholder
+                width: parent.height
+                height: width
+                AuxOutputIcon {
+                    anchors.centerIn: parent
+                    scale: 16 / originalHeight
+                    path.strokeColor: "transparent"
+                    path.fillColor: Colors.secondaryContent
+                }
+            }
+        }
+    }
     Rectangle {
+        id: inputRouteListPlaceholder
         color: "transparent"
         border.width: 1
         border.color: Colors.border
@@ -30,18 +70,22 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.right: splitter.left
         anchors.leftMargin: 0
-        anchors.topMargin: 0
+        anchors.topMargin: auxInputHeader.height
         anchors.bottomMargin: 0
         anchors.rightMargin: -1 * splitter.width
         RouteList {
             id: inputRouteList
             anchors.fill: parent
-            anchors.margins: 5
+            anchors.leftMargin: 5
+            anchors.rightMargin: 5
+            anchors.topMargin: parent.border.width
+            anchors.bottomMargin: parent.border.width
             audioIOSelectorWindow: root.audioIOSelectorWindow
             isInput: true
         }
     }
     Rectangle {
+        id: outputRouteListPlaceholder
         color: "transparent"
         border.color: Colors.border
         anchors.right: parent.right
@@ -49,13 +93,16 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.left: splitter.right
         anchors.rightMargin: 0
-        anchors.topMargin: 0
+        anchors.topMargin: auxOutputHeader.height
         anchors.bottomMargin: 0
         anchors.leftMargin: -1 * splitter.width
         RouteList {
             id: outputRouteList
             anchors.fill: parent
-            anchors.margins: 5
+            anchors.leftMargin: 5
+            anchors.rightMargin: 5
+            anchors.topMargin: parent.border.width
+            anchors.bottomMargin: parent.border.width
             audioIOSelectorWindow: root.audioIOSelectorWindow
             isInput: false
         }

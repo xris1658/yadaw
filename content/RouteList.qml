@@ -41,6 +41,9 @@ Item {
         id: list
         anchors.fill: parent
         spacing: 5
+        topMargin: 5
+        bottomMargin: 5
+        clip: true
         delegate: Row {
             spacing: 3
             Label {
@@ -49,7 +52,7 @@ Item {
                     IAudioDeviceIOGroupListModel.Name
                 )
                 verticalAlignment: Qt.AlignVCenter
-                width: list.width - comboBoxButton.width - parent.spacing * 2
+                width: list.width - comboBoxButton.width - parent.spacing
                 height: comboBoxButton.height
             }
             ComboBoxButton {
