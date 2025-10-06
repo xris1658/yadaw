@@ -2974,9 +2974,10 @@ void Mixer::updatePluginAuxPosition(
     auto& vecIn = pluginAuxInputs_[type];
     for(auto it = vecIn.begin() + fromChannelIndex; it != vecIn.end(); ++it)
     {
+        auto channelIndex = std::distance(vecIn.begin(), it);
         for(auto& position: it->first)
         {
-            position->second.channelIndex = std::distance(vecIn.begin(), it);
+            position->second.channelIndex = channelIndex;
         }
         for(auto& inserts: it->second)
         {
@@ -2984,7 +2985,7 @@ void Mixer::updatePluginAuxPosition(
             {
                 for(auto& position: insert)
                 {
-                    position->second.channelIndex = std::distance(vecIn.begin(), it);
+                    position->second.channelIndex = channelIndex;
                 }
             }
         }
@@ -2992,9 +2993,10 @@ void Mixer::updatePluginAuxPosition(
     auto& vecOut = pluginAuxOutputs_[type];
     for(auto it = vecOut.begin() + fromChannelIndex; it != vecOut.end(); ++it)
     {
+        auto channelIndex = std::distance(vecOut.begin(), it);
         for(auto& position: it->first)
         {
-            position->second.channelIndex = std::distance(vecIn.begin(), it);
+            position->second.channelIndex = channelIndex;
         }
         for(auto& inserts: it->second)
         {
@@ -3002,7 +3004,7 @@ void Mixer::updatePluginAuxPosition(
             {
                 for(auto& position: insert)
                 {
-                    position->second.channelIndex = std::distance(vecOut.begin(), it);
+                    position->second.channelIndex = channelIndex;
                 }
             }
         }
