@@ -19,6 +19,7 @@ public:
         Target,
         RoleCount
     };
+    Q_ENUM(Role)
 public:
     IAuxIOTargetListModel(QObject* parent = nullptr): QAbstractListModel(parent) {}
     virtual ~IAuxIOTargetListModel() {}

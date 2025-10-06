@@ -17,6 +17,7 @@ Item {
         id: impl
         property bool usingAudioIOSelector: false
         property ComboBoxButton usingAudioIOSelectorButton: null
+        property int index: -1
     }
     Connections {
         id: connectToAudioIOSelector
@@ -25,11 +26,26 @@ Item {
             impl.usingAudioIOSelectorButton.checked = false;
             impl.usingAudioIOSelector = false;
             impl.usingAudioIOSelectorButton = null;
+            if(isInput) {
+                model.setData(
+                    model.index(impl.index, 0),
+                    audioIOSelectorWindow.audioIOSelector.currentPosition,
+                    IAuxIOTargetListModel.Target
+                );
+            }
+            // TODO
         }
         function onResetted() {
             impl.usingAudioIOSelectorButton.checked = false;
             impl.usingAudioIOSelector = false;
             impl.usingAudioIOSelectorButton = null;
+            if(isInput) {
+                model.setData(
+                    model.index(impl.index, 0),
+                    null,
+                    IAuxIOTargetListModel.Target
+                );
+            }
         }
         function onCancelled() {
             impl.usingAudioIOSelectorButton.checked = false;
@@ -58,8 +74,11 @@ Item {
             ComboBoxButton {
                 id: comboBoxButton
                 width: 100
+                text: isInput? (aiotlm_target? aiotlm_target.completeName: undefined):
+                    undefined // TODO: show output count/destination
                 onCheckedChanged: {
                     if(checked) {
+                        impl.index = index;
                         locatePopupWindow(audioIOSelectorWindow, comboBoxButton.height, 0);
                         if(root.isInput) {
                             audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = true;
