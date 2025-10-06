@@ -14,9 +14,15 @@ AuxOutputDestinationListModel::AuxOutputDestinationListModel(
         isPreFaderInsert, insertIndex, parent)
 {
     YADAW::Util::setCppOwnership(*this);
-    destinations_.resize(
-        AuxOutputDestinationListModel::rowCount({})
-    );
+    auto size = AuxOutputDestinationListModel::rowCount({});
+    destinations_.reserve(size);
+    FOR_RANGE0(i, size)
+    {
+        auto channelGroupIndex = AuxOutputDestinationListModel::data({}, Role::ChannelIndex).value<int>();
+        destinations_.emplace_back(
+            std::make_unique<YADAW::Model::AuxOutputDestinationModel>(*this, channelGroupIndex)
+        );
+    }
 }
 
 AuxOutputDestinationListModel::~AuxOutputDestinationListModel()
