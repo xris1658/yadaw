@@ -23,12 +23,13 @@ Item {
         Label {
             id: auxInputLabel
             text: qsTr("Inputs")
-            leftPadding: height
+            leftPadding: height + auxInputIconPlaceholder.anchors.leftMargin
             bottomPadding: 3
             Item {
                 id: auxInputIconPlaceholder
-                width: parent.height
+                width: parent.height - parent.bottomPadding
                 height: width
+                anchors.left: parent.left; anchors.leftMargin: 3
                 AuxInputIcon {
                     anchors.centerIn: parent
                     scale: 16 / originalHeight
@@ -45,12 +46,13 @@ Item {
         Label {
             id: auxOutputLabel
             text: qsTr("Outputs")
-            leftPadding: height
+            leftPadding: height + auxOutputIconPlaceholder.anchors.leftMargin
             bottomPadding: 3
             Item {
                 id: auxOutputIconPlaceholder
-                width: parent.height
+                width: parent.height - parent.bottomPadding
                 height: width
+                anchors.left: parent.left; anchors.leftMargin: 3
                 AuxOutputIcon {
                     anchors.centerIn: parent
                     scale: 16 / originalHeight

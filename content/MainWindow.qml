@@ -1040,19 +1040,20 @@ ApplicationWindow {
     }
     Window {
         id: pluginRouteEditorWindow
+        flags: Qt.Dialog
         color: Colors.background
         property string pluginPositionName: "TODO: show plugin position here"
         title: qsTr("Edit Route: ") + pluginPositionName
         width: 500
         height: 300
         property PluginRouteEditor pluginRouteEditor: pluginRouteEditor
-        property int padding: 10
         PluginRouteEditor {
             id: pluginRouteEditor
-            width: pluginRouteEditorWindow.width - pluginRouteEditorWindow.padding * 2
-            height: pluginRouteEditorWindow.height - pluginRouteEditorWindow.padding * 2
-            x: pluginRouteEditorWindow.padding
-            y: pluginRouteEditorWindow.padding
+            anchors.fill: parent
+            anchors.topMargin: 5
+            anchors.bottomMargin: 10
+            anchors.leftMargin: 10
+            anchors.rightMargin: 10
             audioIOSelectorWindow: audioIOSelectorWindow
         }
     }
