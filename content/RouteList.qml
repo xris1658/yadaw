@@ -82,6 +82,9 @@ Item {
                             ioListModel.index(aiotlm_channel_index, 0),
                             IAudioDeviceIOGroupListModel.ChannelConfig
                         );
+                        if(root.isInput) { // TODO
+                            audioIOSelectorWindow.audioIOSelector.showResetButton = aiotlm_target? true: false;
+                        }
                         audioIOSelectorWindow.showNormal();
                         impl.usingAudioIOSelector = true;
                         impl.usingAudioIOSelectorButton = comboBoxButton;

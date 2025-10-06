@@ -289,6 +289,7 @@ Window {
                             onCheckedChanged: {
                                 if(checked) {
                                     locatePopupWindow(audioIOSelectorWindow, height, 0);
+                                    audioIOSelectorWindow.audioIOSelector.showResetButton = false;
                                     audioIOSelectorWindow.showNormal();
                                 }
                             }

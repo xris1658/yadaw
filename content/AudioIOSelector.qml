@@ -26,6 +26,7 @@ QC.Popup {
     property bool showAudioEffectChannel: true
     property bool showPluginAuxIn: true
     property bool showPluginAuxOut: true
+    property alias showResetButton: resetButton.visible
 
     property int audioChannelConfig: -1
     property alias currentIndex: stackLayout.currentIndex

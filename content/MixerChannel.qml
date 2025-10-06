@@ -177,6 +177,7 @@ Rectangle {
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = true;
                             audioIOSelectorWindow.audioIOSelector.currentIndex = 0;
                             audioIOSelectorWindow.audioIOSelector.audioChannelConfig = mclm_channel_config;
+                            audioIOSelectorWindow.audioIOSelector.showResetButton = mclm_input? true: false;
                             audioIOSelectorWindow.showNormal();
                             impl.usingAudioIOSelector = true;
                             impl.selectingInput = true;
@@ -200,6 +201,7 @@ Rectangle {
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = false;
                             audioIOSelectorWindow.audioIOSelector.currentIndex = 1;
                             audioIOSelectorWindow.audioIOSelector.audioChannelConfig = mclm_channel_config;
+                            audioIOSelectorWindow.audioIOSelector.showResetButton = mclm_output? true: false;
                             audioIOSelectorWindow.showNormal();
                             impl.usingAudioIOSelector = true;
                             impl.selectingOutput = true;
@@ -648,6 +650,7 @@ Rectangle {
                             audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = true;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = true;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = false;
+                            audioIOSelectorWindow.audioIOSelector.showResetButton = false;
                             audioIOSelectorWindow.showNormal();
                             impl.usingAudioIOSelector = true;
                             impl.appendingSend = true;
