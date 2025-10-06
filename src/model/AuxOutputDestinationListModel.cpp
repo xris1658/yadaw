@@ -14,6 +14,9 @@ AuxOutputDestinationListModel::AuxOutputDestinationListModel(
         isPreFaderInsert, insertIndex, parent)
 {
     YADAW::Util::setCppOwnership(*this);
+    destinations_.resize(
+        AuxOutputDestinationListModel::rowCount({})
+    );
 }
 
 AuxOutputDestinationListModel::~AuxOutputDestinationListModel()

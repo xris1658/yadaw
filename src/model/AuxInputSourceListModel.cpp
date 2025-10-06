@@ -16,6 +16,9 @@ AuxInputSourceListModel::AuxInputSourceListModel(
         isPreFaderInsert, insertIndex, parent)
 {
     YADAW::Util::setCppOwnership(*this);
+    sources_.resize(
+        AuxInputSourceListModel::rowCount({}), nullptr
+    );
 }
 
 AuxInputSourceListModel::~AuxInputSourceListModel()
