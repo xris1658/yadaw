@@ -159,7 +159,6 @@ set(CONTENT_QML_FILES
     TableLikeTreeView.qml
     TagIcon.qml
     TapTempoWindow.qml
-    TargetList.qml
     TextField.qml
     ThirdPartySoftware.qml
     TimeIndicator.qml
