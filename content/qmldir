@@ -102,6 +102,7 @@ TableLikeListView 1.0 TableLikeListView.qml
 TableLikeTreeView 1.0 TableLikeTreeView.qml
 TapTempoWindow 1.0 TapTempoWindow.qml
 TagIcon 1.0 TagIcon.qml
+TargetList 1.0 TargetList.qml
 TextField 1.0 TextField.qml
 ThirdPartySoftware 1.0 ThirdPartySoftware.qml
 TimeIndicator 1.0 TimeIndicator.qml

@@ -10,6 +10,7 @@ Item {
     property alias inputRouteListModel: inputRouteList.model
     property alias outputRouteListModel: outputRouteList.model
     property Window audioIOSelectorWindow
+    property Window targetListWindow
 
     onInputListModelChanged: {
         if(inputListModel) {
@@ -142,6 +143,7 @@ Item {
             anchors.topMargin: parent.border.width
             anchors.bottomMargin: parent.border.width
             audioIOSelectorWindow: root.audioIOSelectorWindow
+            targetListWindow: root.targetListWindow
             isInput: false
         }
     }
