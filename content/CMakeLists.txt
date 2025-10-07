@@ -104,6 +104,7 @@ set(CONTENT_QML_FILES
     HeadphoneIcon.qml
     IOIcon.qml
     InfoIcon.qml
+    InputRouteList.qml
     InsertIcon.qml
     ItemDelegate.qml
     KeyEventForwarder.qml
@@ -127,6 +128,7 @@ set(CONTENT_QML_FILES
     Mnemonic.qml
     MnemonicFunctions.js
     NativePopup.qml
+    OutputRouteList.qml
     PianoKeys.qml
     PianoKeysIcon.qml
     PlayIcon.qml
@@ -141,7 +143,6 @@ set(CONTENT_QML_FILES
     ProgressBarLikeSlider.qml
     RemoveIcon.qml
     RenameIcon.qml
-    RouteList.qml
     ScrollBar.qml
     SendButton.qml
     SendIcon.qml

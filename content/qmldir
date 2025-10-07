@@ -49,6 +49,7 @@ GroupIcon 1.0 GroupIcon.qml
 HeadphoneIcon 1.0 HeadphoneIcon.qml
 IOIcon 1.0 IOIcon.qml
 InfoIcon 1.0 InfoIcon.qml
+InputRouteList 1.0 InputRouteList.qml
 InsertIcon 1.0 InsertIcon.qml
 ItemDelegate 1.0 ItemDelegate.qml
 KeyEventForwarder 1.0 KeyEventForwarder.qml
@@ -71,6 +72,7 @@ MixerChannel 1.0 MixerChannel.qml
 MixerInsertSlot 1.0 MixerInsertSlot.qml
 MnemonicFunctions 1.0 MnemonicFunctions.js
 NativePopup 1.0 NativePopup.qml
+OutputRouteList 1.0 OutputRouteList.qml
 PianoKeys 1.0 PianoKeys.qml
 PianoKeysIcon 1.0 PianoKeysIcon.qml
 PlayIcon 1.0 PlayIcon.qml
@@ -85,7 +87,6 @@ ProgressBar 1.0 ProgressBar.qml
 ProgressBarLikeSlider 1.0 ProgressBarLikeSlider.qml
 RemoveIcon 1.0 RemoveIcon.qml
 RenameIcon 1.0 RenameIcon.qml
-RouteList 1.0 RouteList.qml
 ScrollBar 1.0 ScrollBar.qml
 SendButton 1.0 SendButton.qml
 SendIcon 1.0 SendIcon.qml

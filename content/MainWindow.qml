@@ -891,40 +891,6 @@ ApplicationWindow {
         id: tapTempoWindow
     }
     Window {
-        id: targetListWindow
-        width: targetList.width
-        height: targetList.height
-        color: Colors.background
-        flags: Qt.Tool | Qt.FramelessWindowHint
-        readonly property TargetList targetList: targetList
-        signal cancelled()
-        TargetList {
-            id: targetList
-            onAboutToHide: {
-                targetList.visible = false;
-            }
-            onCancelled: {
-                targetListWindow.cancelled();
-                targetListWindow.hide();
-            }
-            onActiveFocusChanged: {
-                if(!activeFocus) {
-                    cancelled();
-                }
-            }
-        }
-        onVisibleChanged: {
-            if(visible) {
-                targetList.open();
-                targetList.forceActiveFocus();
-                requestActivate();
-            }
-            else {
-                targetList.cancelled();
-            }
-        }
-    }
-    Window {
         id: audioIOSelectorWindow
         width: audioIOSelector.width
         height: audioIOSelector.height
@@ -1089,7 +1055,6 @@ ApplicationWindow {
             anchors.leftMargin: 10
             anchors.rightMargin: 10
             audioIOSelectorWindow: audioIOSelectorWindow
-            targetListWindow: targetListWindow
         }
     }
     PluginScanProgressWindow {
