@@ -218,6 +218,16 @@ bool MixerChannelSendListModel::remove(int position, int removeCount)
     return false;
 }
 
+const YADAW::Audio::Mixer::Mixer& MixerChannelSendListModel::mixer() const
+{
+    return *mixer_;
+}
+
+YADAW::Audio::Mixer::Mixer& MixerChannelSendListModel::mixer()
+{
+    return *mixer_;
+}
+
 YADAW::Audio::Mixer::Mixer::ChannelListType MixerChannelSendListModel::channelListType() const
 {
     return channelListType_;
@@ -231,5 +241,9 @@ std::uint32_t MixerChannelSendListModel::channelIndex() const
 void MixerChannelSendListModel::setChannelIndex(std::uint32_t channelIndex)
 {
     channelIndex_ = channelIndex;
+    for(auto& sendPosition: sendPositions_)
+    {
+        sendPosition->nameChanged();
+    }
 }
 }

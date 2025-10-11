@@ -32,6 +32,8 @@ public:
     bool append(bool isPreFader, YADAW::Entity::IAudioIOPosition* position) override;
     bool remove(int position, int removeCount) override;
 public:
+    const YADAW::Audio::Mixer::Mixer& mixer() const;
+          YADAW::Audio::Mixer::Mixer& mixer();
     YADAW::Audio::Mixer::Mixer::ChannelListType channelListType() const;
     std::uint32_t channelIndex() const;
     void setChannelIndex(std::uint32_t channelIndex);

@@ -1,5 +1,7 @@
 #include "SendPosition.hpp"
 
+#include "model/MixerChannelSendListModel.hpp"
+
 namespace YADAW::Entity
 {
 SendPosition::SendPosition(
@@ -19,12 +21,22 @@ IAudioIOPosition::Type SendPosition::getType() const
 
 QString SendPosition::getName() const
 {
-    return {};
+    return getCompleteName(); // TODO?
 }
+
+constexpr char listTypeIndicator[3][2] = {"I", "R", "O"};
 
 QString SendPosition::getCompleteName() const
 {
-    return {};
+    auto type = model_->channelListType();
+    auto channelIndex = model_->channelIndex();
+    auto sendIndex = index_;
+    QString ret;
+    ret.append(listTypeIndicator[type]);
+    ret.append(QString::number(channelIndex + 1));
+    ret.append("Send");
+    ret.append(QString::number(sendIndex + 1));
+    return ret;
 }
 
 const YADAW::Model::MixerChannelSendListModel& SendPosition::getModel() const
@@ -46,8 +58,8 @@ void SendPosition::updateSendIndex(std::uint32_t index)
 SendPosition::operator YADAW::Audio::Mixer::Mixer::Position() const
 {
     return YADAW::Audio::Mixer::Mixer::Position {
-        .type = YADAW::Audio::Mixer::Mixer::Position::Type::Send
-        // TODO
+        .type = YADAW::Audio::Mixer::Mixer::Position::Type::Send,
+        .id = model_->mixer().sendID(model_->channelListType(), model_->channelIndex(), index_).value()
     };
 }
 }
