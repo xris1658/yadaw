@@ -43,7 +43,7 @@ void SendPosition::updateSendIndex(std::uint32_t index)
     nameChanged();
 }
 
-SendPosition::operator Audio::Mixer::Mixer::Position() const
+SendPosition::operator YADAW::Audio::Mixer::Mixer::Position() const
 {
     return YADAW::Audio::Mixer::Mixer::Position {
         .type = YADAW::Audio::Mixer::Mixer::Position::Type::Send

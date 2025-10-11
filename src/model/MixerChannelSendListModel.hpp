@@ -6,6 +6,7 @@
 #include "audio/mixer/Mixer.hpp"
 #include "entity/SendPosition.hpp"
 #include "model/PolarityInverterModel.hpp"
+#include "util/OptionalUtil.hpp"
 
 namespace YADAW::Model
 {

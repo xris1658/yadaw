@@ -1,8 +1,13 @@
 #ifndef YADAW_SRC_ENTITY_SENDPOSITION
 #define YADAW_SRC_ENTITY_SENDPOSITION
 
+#include "audio/mixer/Mixer.hpp"
 #include "entity/IAudioIOPosition.hpp"
-#include "model/MixerChannelSendListModel.hpp"
+
+namespace YADAW::Model
+{
+class MixerChannelSendListModel;
+}
 
 namespace YADAW::Entity
 {
