@@ -431,6 +431,8 @@ set(YADAW_COMMON_SOURCES
     src/entity/PluginFormatSupport.cpp
     src/entity/RegularAudioIOPosition.cpp
     src/entity/RegularAudioIOPosition.hpp
+    src/entity/SendPosition.cpp
+    src/entity/SendPosition.hpp
     src/event/EventBase.cpp
     src/event/EventBase.hpp
     src/event/EventHandler.cpp

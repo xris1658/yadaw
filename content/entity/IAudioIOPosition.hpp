@@ -17,7 +17,8 @@ public:
         Invalid,
         AudioHardwareIOChannel,
         BusAndFXChannel,
-        PluginAuxIO
+        PluginAuxIO,
+        Send
     };
     Q_ENUM(Type);
 public:

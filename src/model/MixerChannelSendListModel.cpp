@@ -24,6 +24,25 @@ int MixerChannelSendListModel::itemCount() const
     return *(mixer_->sendCount(channelListType_, channelIndex_));
 }
 
+OptionalRef<const YADAW::Entity::SendPosition>
+MixerChannelSendListModel::positionAt(std::uint32_t index) const
+{
+    if(index < itemCount())
+    {
+        return *sendPositions_[index];
+    }
+    return std::nullopt;
+}
+
+OptionalRef<YADAW::Entity::SendPosition> MixerChannelSendListModel::positionAt(std::uint32_t index)
+{
+    if(index < itemCount())
+    {
+        return *sendPositions_[index];
+    }
+    return std::nullopt;
+}
+
 int MixerChannelSendListModel::rowCount(const QModelIndex& parent) const
 {
     return itemCount();
@@ -151,6 +170,9 @@ bool MixerChannelSendListModel::append(bool isPreFader, YADAW::Entity::IAudioIOP
     if(ret)
     {
         auto oldItemCount = itemCount() - 1;
+        sendPositions_.emplace_back(
+            std::make_unique<YADAW::Entity::SendPosition>(*this, oldItemCount)
+        );
         beginInsertRows(QModelIndex(), oldItemCount, oldItemCount);
         editingVolume_.emplace_back(false);
         destinations_.emplace_back(position);
@@ -182,10 +204,28 @@ bool MixerChannelSendListModel::remove(int position, int removeCount)
             polarityInverterModels_.begin() + position,
             polarityInverterModels_.begin() + position + removeCount
         );
+        sendPositions_.erase(
+            sendPositions_.begin() + position,
+            sendPositions_.begin() + position + removeCount
+        );
+        FOR_RANGE(i, position, sendPositions_.size())
+        {
+            sendPositions_[i]->updateSendIndex(i);
+        }
         endRemoveRows();
         return true;
     }
     return false;
+}
+
+YADAW::Audio::Mixer::Mixer::ChannelListType MixerChannelSendListModel::channelListType() const
+{
+    return channelListType_;
+}
+
+std::uint32_t MixerChannelSendListModel::channelIndex() const
+{
+    return channelIndex_;
 }
 
 void MixerChannelSendListModel::setChannelIndex(std::uint32_t channelIndex)

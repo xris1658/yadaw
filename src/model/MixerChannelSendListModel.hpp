@@ -4,6 +4,7 @@
 #include "model/IMixerChannelSendListModel.hpp"
 
 #include "audio/mixer/Mixer.hpp"
+#include "entity/SendPosition.hpp"
 #include "model/PolarityInverterModel.hpp"
 
 namespace YADAW::Model
@@ -20,6 +21,8 @@ public:
     ~MixerChannelSendListModel() override;
 public:
     int itemCount() const;
+    OptionalRef<const YADAW::Entity::SendPosition> positionAt(std::uint32_t index) const;
+    OptionalRef<      YADAW::Entity::SendPosition> positionAt(std::uint32_t index);
 public:
     int rowCount(const QModelIndex& parent) const override;
     QVariant data(const QModelIndex& index, int role) const override;
@@ -28,6 +31,8 @@ public:
     bool append(bool isPreFader, YADAW::Entity::IAudioIOPosition* position) override;
     bool remove(int position, int removeCount) override;
 public:
+    YADAW::Audio::Mixer::Mixer::ChannelListType channelListType() const;
+    std::uint32_t channelIndex() const;
     void setChannelIndex(std::uint32_t channelIndex);
 private:
     YADAW::Audio::Mixer::Mixer* mixer_;
@@ -35,6 +40,7 @@ private:
     std::vector<bool> editingVolume_;
     std::vector<YADAW::Entity::IAudioIOPosition*> destinations_;
     std::vector<std::unique_ptr<YADAW::Model::PolarityInverterModel>> polarityInverterModels_;
+    std::vector<std::unique_ptr<YADAW::Entity::SendPosition>> sendPositions_;
     std::uint32_t channelIndex_;
 };
 }
