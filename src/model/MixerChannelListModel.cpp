@@ -10,6 +10,7 @@
 #include "controller/AudioGraphBackendController.hpp"
 #include "controller/ALSABackendController.hpp"
 #include "controller/CoreAudioBackendController.hpp"
+#include "controller/MixerChannelListModelController.hpp"
 #include "controller/PluginController.hpp"
 #include "controller/PluginIOConfigUpdatedCallback.hpp"
 #include "controller/PluginLatencyUpdatedCallback.hpp"
@@ -895,9 +896,32 @@ bool MixerChannelListModel::insert(int position, int count,
             std::inserter(sendModels_, sendModels_.begin() + position), count,
             [this, index = position]() mutable
             {
-                return std::make_unique<MixerChannelSendListModel>(
+                auto ret = std::make_unique<MixerChannelSendListModel>(
                     mixer_, channelListType_, index++
                 );
+                // TODO: Move slots to a dedicated class?
+                QObject::connect(
+                    ret.get(), &MixerChannelSendListModel::rowsInserted,
+                    [sender = ret.get()](const QModelIndex&, int first, int last)
+                    {
+                        YADAW::Controller::sendInserted(*sender, first, last);
+                    }
+                );
+                QObject::connect(
+                    ret.get(), &MixerChannelSendListModel::rowsAboutToBeRemoved,
+                    [sender = ret.get()](const QModelIndex&, int first, int last)
+                    {
+                        YADAW::Controller::sendAboutToBeRemoved(*sender, first, last);
+                    }
+                );
+                QObject::connect(
+                    ret.get(), &MixerChannelSendListModel::destinationAboutToBeChanged,
+                    [sender = ret.get()](int first, int last)
+                    {
+                        YADAW::Controller::sendAboutToBeChanged(*sender, first, last);
+                    }
+                );
+                return ret;
             }
         );
         FOR_RANGE(i, position + count, insertModels_.size())

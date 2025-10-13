@@ -122,4 +122,15 @@ bool AuxInputSourceListModel::setData(const QModelIndex& index,
     }
     return ret;
 }
+
+void AuxInputSourceListModel::inputChanged(
+    std::uint32_t index, YADAW::Entity::IAudioIOPosition* position)
+{
+    if(index < sources_.size())
+    {
+        auto oldPosition = sources_[index];
+        sources_[index] = position;
+        dataChanged(this->index(index), this->index(index), {Role::Target});
+    }
+}
 }

@@ -19,6 +19,8 @@ public:
     int rowCount(const QModelIndex& parent) const override;
     QVariant data(const QModelIndex& index, int role) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;
+public:
+    void inputChanged(std::uint32_t index, YADAW::Entity::IAudioIOPosition* position);
 private:
     std::vector<YADAW::Entity::IAudioIOPosition*> sources_;
 };

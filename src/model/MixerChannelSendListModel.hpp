@@ -37,6 +37,8 @@ public:
     YADAW::Audio::Mixer::Mixer::ChannelListType channelListType() const;
     std::uint32_t channelIndex() const;
     void setChannelIndex(std::uint32_t channelIndex);
+signals:
+    void destinationAboutToBeChanged(int first, int last);
 private:
     YADAW::Audio::Mixer::Mixer* mixer_;
     YADAW::Audio::Mixer::Mixer::ChannelListType channelListType_;

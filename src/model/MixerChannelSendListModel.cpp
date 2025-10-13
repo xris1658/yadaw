@@ -88,12 +88,13 @@ bool MixerChannelSendListModel::setData(
         {
         case Role::Destination:
         {
+            auto ret = false;
             if(auto pPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(value.value<QObject*>()))
             {
                 if(auto type = pPosition->getType(); type == YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel)
                 {
                     const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioIOPosition&>(*pPosition);
-                    return *(
+                    ret = *(
                             mixer_->setSendDestination(
                             channelListType_, channelIndex_, row,
                             static_cast<YADAW::Audio::Mixer::Mixer::Position>(
@@ -105,7 +106,7 @@ bool MixerChannelSendListModel::setData(
                 else if(type == YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO)
                 {
                     const auto& pluginAuxAudioIOPosition = static_cast<const YADAW::Entity::PluginAuxAudioIOPosition&>(*pPosition);
-                    return *(
+                    ret = *(
                         mixer_->setSendDestination(
                             channelListType_, channelIndex_, row,
                             static_cast<YADAW::Audio::Mixer::Mixer::Position>(
@@ -115,19 +116,31 @@ bool MixerChannelSendListModel::setData(
                     );
                 }
             }
+            if(ret)
+            {
+                destinationAboutToBeChanged(row, row);
+                dataChanged(index, index, {Role::Destination});
+            }
+            return ret;
         }
         case Role::Mute:
         {
             mixer_->sendMuteAt(channelListType_, channelIndex_, row)->get().setMute(value.value<bool>());
+            dataChanged(index, index, {Role::Mute});
             return true;
         }
         case Role::IsPreFader:
         {
-            return *(
+            auto ret = *(
                 mixer_->setSendPreFader(
                     channelListType_, channelIndex_, row, value.value<bool>()
                 )
             );
+            if(ret)
+            {
+                dataChanged(index, index, {Role::IsPreFader});
+            }
+            return ret;
         }
         }
     }
