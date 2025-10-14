@@ -1036,7 +1036,11 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             sendModels_.erase(
                 sendModels_.begin() + position,
                 sendModels_.begin() + position + removeCount
-            );
+                );
+            FOR_RANGE(i, position, insertModels_.size())
+            {
+                sendModels_[i]->setChannelIndex(i);
+            }
             updateInstrumentConnections(position);
         }
         endRemoveRows();
