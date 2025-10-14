@@ -98,8 +98,9 @@ void sendInserted(const YADAW::Model::MixerChannelSendListModel& sender, int fir
                     --inputSourceIndex;
                 }
             }
+            auto& sendPosition = sender.positionAt(i)->get();
             pluginContextUserData->audioAuxInputSources->inputChanged(
-                auxInputPosition.channelGroupIndex, pPosition
+                inputSourceIndex, &sendPosition
             );
         }
     }
@@ -151,7 +152,7 @@ void sendAboutToBeRemoved(const YADAW::Model::MixerChannelSendListModel& sender,
                 }
             }
             pluginContextUserData->audioAuxInputSources->inputChanged(
-                auxInputPosition.channelGroupIndex, nullptr
+                inputSourceIndex, nullptr
             );
         }
     }
