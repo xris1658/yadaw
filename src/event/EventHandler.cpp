@@ -942,7 +942,7 @@ bool fillPluginContext(
                 std::max(vst3Plugin.audioInputGroupCount(), vst3Plugin.audioOutputGroupCount()),
                 initPluginArgs.mainOutputChannelGroup.first
             );
-            vst3Plugin.setChannelGroups(
+            ret = vst3Plugin.setChannelGroups(
                 types.data(), vst3Plugin.audioInputGroupCount(),
                 types.data(), vst3Plugin.audioOutputGroupCount()
             );
@@ -961,29 +961,30 @@ bool fillPluginContext(
                 outputBegin, vst3Plugin.audioOutputGroupCount(),
                 initPluginArgs.mainOutputChannelGroup.first
             );
-            vst3Plugin.setChannelGroups(
+            ret = vst3Plugin.setChannelGroups(
                 types.data(), vst3Plugin.audioInputGroupCount(),
                 &*outputBegin, vst3Plugin.audioOutputGroupCount()
             );
         }
-        vst3Plugin.activate();
-        vst3Plugin.startProcessing();
-        auto& pool = YADAW::Controller::appVST3PluginPool();
-        pool.emplace(
-            static_cast<YADAW::Audio::Plugin::VST3Plugin* const>(&plugin),
-            YADAW::Controller::VST3PluginContext {
-                .componentHandler = static_cast<YADAW::Audio::Host::VST3ComponentHandler*>(
-                    context.hostContext.get()
-                )
-            }
-        );
-        engine.vst3PluginPool().updateAndGetOld(
-            std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
-                YADAW::Controller::createPoolVector(pool)
-            ),
-            engine.running()
-        );
-        ret = true;
+        if(ret && vst3Plugin.activate() && vst3Plugin.startProcessing())
+        {
+            auto& pool = YADAW::Controller::appVST3PluginPool();
+            pool.emplace(
+                static_cast<YADAW::Audio::Plugin::VST3Plugin* const>(&plugin),
+                YADAW::Controller::VST3PluginContext {
+                    .componentHandler = static_cast<YADAW::Audio::Host::VST3ComponentHandler*>(
+                        context.hostContext.get()
+                    )
+                }
+            );
+            engine.vst3PluginPool().updateAndGetOld(
+                std::make_unique<YADAW::Controller::VST3PluginPoolVector>(
+                    YADAW::Controller::createPoolVector(pool)
+                ),
+                engine.running()
+            );
+            ret = true;
+        }
     }
     else if(format == YADAW::Audio::Plugin::PluginFormat::CLAP)
     {
