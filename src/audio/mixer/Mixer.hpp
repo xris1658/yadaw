@@ -272,7 +272,7 @@ public:
     std::optional<PluginAuxIOPosition> getAuxInputPosition(IDGen::ID id) const;
     std::optional<PluginAuxIOPosition> getAuxOutputPosition(IDGen::ID id) const;
     std::optional<Position> getAuxInputSource(const PluginAuxIOPosition& position) const;
-    bool setAuxInputSource(const PluginAuxIOPosition& position, Position source) const;
+    bool setAuxInputSource(const PluginAuxIOPosition& position, Position source);
     OptionalRef<const std::vector<Position>> getAuxOutputDestinations(const PluginAuxIOPosition& position) const;
     bool addAuxOutputDestination(const PluginAuxIOPosition& position, Position destination);
     bool removeAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index, std::uint32_t removeCount = 1);

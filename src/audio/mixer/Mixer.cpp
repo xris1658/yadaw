@@ -2678,7 +2678,7 @@ std::optional<Mixer::Position> Mixer::getAuxInputSource(const PluginAuxIOPositio
     return std::nullopt;
 }
 
-bool Mixer::setAuxInputSource(const PluginAuxIOPosition& position, Position source) const
+bool Mixer::setAuxInputSource(const PluginAuxIOPosition& position, Position source)
 {
     return false;
 }
