@@ -63,6 +63,7 @@ Item {
             SplitView.preferredWidth: 125
             height: root.height
             model: outputListModel
+            clip: true
             delegate: ItemDelegate {
                 text: (aiotlm_channel_index + 1) + ". " + outputListModel.data(
                     outputListModel.index(aiotlm_channel_index, 0),
@@ -133,6 +134,10 @@ Item {
                 id: destList
                 anchors.fill: parent
                 anchors.topMargin: buttonsPlaceholder.height
+                clip: true
+                delegate: ItemDelegate {
+                    text: aodlm_destination.completeName
+                }
             }
         }
     }
