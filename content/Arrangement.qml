@@ -88,6 +88,7 @@ SplitView {
                     MouseArea {
                         anchors.fill: parent
                         acceptedButtons: Qt.RightButton
+                        z: -1
                         onClicked: {
                             trackOptions.parent = trackHeader;
                             trackOptions.currentSelection = trackHeader.trackHeaderIndex;
