@@ -80,11 +80,13 @@ Item {
                     id: inputRouteList
                     width: stackLayout.width
                     height: stackLayout.height
+                    audioIOSelectorWindow: root.audioIOSelectorWindow
                 }
                 OutputRouteList {
                     id: outputRouteList
                     width: stackLayout.width
                     height: stackLayout.height
+                    audioIOSelectorWindow: root.audioIOSelectorWindow
                 }
             }
         }
