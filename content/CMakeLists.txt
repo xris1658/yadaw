@@ -138,6 +138,8 @@ set(CONTENT_QML_FILES
     PluginSelector.qml
     PluginSettings.qml
     PluginWindow.qml
+    PostFaderIcon.qml
+    PreFaderIcon.qml
     PreferencesWindow.qml
     ProgressBar.qml
     ProgressBarLikeSlider.qml
