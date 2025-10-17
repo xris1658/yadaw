@@ -70,24 +70,36 @@ int main(int argc, char *argv[])
     // while dragging the window.
     // On Windows, Direct3D 11 is the default backend of the scene graph
     // threaded renderer. When the D3D11 swap chain is created in flip mode
-    // (i.e. with `DXGI_SWAP_EFFECT_FLIP_xxx` as swap effect), swapping frames
-    // takes too much time (about 50ms per swap operation under 60Hz, which is
+    // (i.e. with `DXGI_SWAP_EFFECT_FLIP_xxx` as swap effect) with 2 buffers
+    // (hard coded as `QD3D11SwapChain::BUFFER_COUNT`), swapping frames
+    // takes too much time (50ms at most per swap operation under 60Hz, which is
     // about 3 frames) when dragging a window, causing visible stutters (you can
     // see it in other Qt applications that uses Direct3D 11, like this one:
     // https://github.com/giladreich/QtDirect3D/issues/10).
-    // The enviroment variable `QT_D3D_NO_FLIP` is added BACK* in Qt 6.6.1 to
-    // choose if the backend creates the swap chain in flip mode. Since it's
-    // undocumented, it might not work in future versions of Qt.
-    // Note that bitblt swap chain cannot be created if the flag contains
-    // `DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING`, which is used if vsync is disabled
-    // (by setting `QSG_NO_VSYNC` to 1).
-    // (* This variable was removed in Qt 6.5.0: https://github.com/qt/qtbase/commit/3ee65daa74f36434b5a3d78b509247511d7867e1
-    // And this commit added it back: https://github.com/qt/qtbase/commit/bd76a9a86fbca0b646c59b9a2796d63cdac8373c
-    // )
+    // By tinkering QQuickRenderControl D3D11 Example, I found some solutions to
+    // this (that works on my machine and might not be optimal to others):
+    // - Create the swap chain in bitblt mode and discard back buffers (with
+    //   swap effect `DXGI_SWAP_EFFECT_DISCARD`), and leave the buffer count (2)
+    //   as is. This can be done by setting the environment variable
+    //   `QT_D3D_NO_FLIP`, which is added BACK* in Qt 6.6.1. Since it's
+    //   undocumented, it might not work in future versions of Qt.
+    //   Note that bitblt swap chain cannot be created if the flag contains
+    //   `DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING`, which is used if vsync is disabled
+    //   (by setting `QSG_NO_VSYNC` to 1).
+    //   (This variable was removed in Qt 6.5.0: https://github.com/qt/qtbase/commit/3ee65daa74f36434b5a3d78b509247511d7867e1
+    //   And this commit added it back: https://github.com/qt/qtbase/commit/bd76a9a86fbca0b646c59b9a2796d63cdac8373c
+    //   )
     if(QLibraryInfo::version() >= QVersionNumber(6, 6, 1))
     {
         qputenv("QT_D3D_NO_FLIP", "1");
     }
+    // - Create the swap chain with `DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL` as the
+    //   swap effect, use 3 buffers and leave the mode as is.
+    //   (This method is used in Zed for Windows: https://github.com/zed-industries/zed/blob/main/crates/gpui/src/platform/windows/directx_renderer.rs
+    //   but it is removed in Qt 6.5.0: https://github.com/qt/qtbase/commit/17b542c2d2545924f4d36f6705352e5b2489aa10
+    //   )
+    //   Seems like it takes too long to discard the back buffers in flip mode.
+    // - Create the swap chain with 5 buffers, and leave others as is.
     // As for older Qt versions before Qt 6.6.1, I just avoid using Direct3D by
     // switching to software rendering.
     // TODO: Control the rendering process by using `QQuickRenderControl`
