@@ -68,7 +68,7 @@ RegularAudioIOPosition::operator Audio::Mixer::Mixer::Position() const
         YADAW::Model::MixerChannelListModel::Role::Id
     );
     return YADAW::Audio::Mixer::Mixer::Position {
-        YADAW::Audio::Mixer::Mixer::Position::RegularChannel,
+        YADAW::Audio::Mixer::Mixer::Position::SendAndFXChannel,
         idAsString.toULongLong()
     };
 }

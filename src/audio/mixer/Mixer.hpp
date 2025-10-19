@@ -65,7 +65,8 @@ using DeviceFactoryType = std::unique_ptr<Device>(
 // - `Audio`: An `InputSwitcher` with 2 inputs:
 //            1. Contents of the audio track. Not connected for now,
 //               reserved for future use.
-//            2. A not-owned mute/solo of the The external audio in.
+//            2. A not-owned mute/solo of the external audio in, or meter of
+//               channels, or send faders.
 // - `Instrument`: A not-owned `IAudioDevice` which is the instrument, or null
 //                 if there is no instrument.
 // - `AudioFX`: An owned `YADAW::Audio::Util::Summing`.
@@ -104,7 +105,8 @@ public:
         {
             Invalid,
             AudioHardwareIOChannel,
-            RegularChannel,
+            SendAndFXChannel,
+            AudioChannel,
             Send,
             PluginAuxIO
         };
