@@ -1663,8 +1663,8 @@ Proceed?</source>
     </message>
     <message>
         <location filename="../../content/ThirdPartySoftware.qml" line="172"/>
-        <source>Due to incompatibility with several open-source licenses, ASIO support is not included.</source>
-        <translation>由于与部分开源许可不兼容，此软件不包含 ASIO。</translation>
+        <source>ASIO support will be available in the future.</source>
+        <translation>软件将在以后添加 ASIO 支持。</translation>
     </message>
     <message>
         <location filename="../../content/ThirdPartySoftware.qml" line="184"/>

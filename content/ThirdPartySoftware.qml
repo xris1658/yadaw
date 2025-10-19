@@ -167,9 +167,9 @@ Window {
             }
         }
         Label {
-            id: noASIOSupportText
+            id: wipASIOSupportText
             wrapMode: Text.WordWrap
-            text: qsTr("Due to incompatibility with several open-source licenses, ASIO support is not included.")
+            text: qsTr("ASIO support will be available in the future.")
             width: listRect.width
         }
         Item {
