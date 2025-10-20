@@ -1166,7 +1166,7 @@ std::optional<bool> Mixer::removeSend(
                         shrinkInputGroups(oldSummingAndNode)
                     ).swap(oldSummingAndNode);
                 }
-                else if(destination.type == Position::Type::PluginAuxIO)
+                else if(destination.type == Position::Type::SendAndFXChannel)
                 {
                     auto it = std::lower_bound(
                         channelIdAndIndex_.begin(),
