@@ -625,109 +625,34 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
         auto& idAndIndex = channelIDAndIndex_[type];
         if(destination.type == Position::Type::AudioHardwareIOChannel)
         {
-            auto it = std::lower_bound(
-                idAndIndex.begin(), idAndIndex.end(), destination.id
-            );
-            if(it != idAndIndex.end() && it->id == destination.id)
+            if(auto& dests = channelSendDestinations_[type][channelIndex];
+                std::ranges::find(dests, destination) == dests.end())
             {
-                auto& oldSummingAndNode = audioOutputSummings_[it->index];
-                auto fromNode = isPreFader?
-                    channelMutes_[type][channelIndex].second:
-                    channelFaders_[type][channelIndex].second;
-                if(!YADAW::Util::pathExists(oldSummingAndNode.second, fromNode))
+                auto it = std::lower_bound(
+                    idAndIndex.begin(), idAndIndex.end(), destination.id
+                );
+                if(it != idAndIndex.end() && it->id == destination.id)
                 {
-                    auto newSummingAndNode = appendInputGroup(oldSummingAndNode);
-                    graph_.disconnect(
-                        oldSummingAndNode.second->outEdges().front()
-                    );
-                    graph_.connect(
-                        newSummingAndNode.second,
-                        channelPolarityInverters_[
-                            ChannelListType::AudioHardwareOutputList
-                        ][it->index].second,
-                        0, 0
-                    );
-                    auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
-                        fromNode, newSummingAndNode.second,
-                        0, newSummingAndNode.first->audioInputGroupCount() - 1
-                    );
-                    auto sendPosIt = sendPositions_.emplace(
-                        sendIDGen_(), SendPosition {
-                            .channelListType = type,
-                            .channelIndex = channelIndex,
-                            .sendIndex = sendPosition
-                        }
-                    ).first;
-                    channelSendIDs_[type][channelIndex].emplace(
-                        channelSendIDs_[type][channelIndex].begin() + sendPosition,
-                        sendPosIt
-                    );
-                    FOR_RANGE(i, sendPosition + 1, channelSendIDs_[type][channelIndex].size())
-                    {
-                        ++(channelSendIDs_[type][channelIndex][i]->second.sendIndex);
-                    }
-                    channelSendPolarityInverters_[type][channelIndex].emplace(
-                        channelSendPolarityInverters_[type][channelIndex].begin() + sendPosition,
-                        std::move(polarityInverterAndNode)
-                    );
-                    channelSendMutes_[type][channelIndex].emplace(
-                        channelSendMutes_[type][channelIndex].begin() + sendPosition,
-                        std::move(muteAndNode)
-                    );
-                    channelSendFaders_[type][channelIndex].emplace(
-                        channelSendFaders_[type][channelIndex].begin() + sendPosition,
-                        std::move(faderAndNode)
-                    );
-                    channelSendDestinations_[type][channelIndex].emplace(
-                        channelSendDestinations_[type][channelIndex].begin() + sendPosition,
-                        destination
-                    );
-                    if(batchUpdater_)
-                    {
-                        if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
-                        {
-                            batchUpdater_->addObject(std::move(multiInputWithPDC));
-                        }
-                        batchUpdater_->addObject(std::move(oldSummingAndNode.first));
-                        oldSummingAndNode.first = std::move(newSummingAndNode.first);
-                        std::swap(newSummingAndNode.second, oldSummingAndNode.second);
-                    }
-                    else
-                    {
-                        auto disposingOldSumming = graphWithPDC_.removeNode(oldSummingAndNode.second);
-                        std::swap(newSummingAndNode.first, oldSummingAndNode.first);
-                        std::swap(newSummingAndNode.second, oldSummingAndNode.second);
-                        connectionUpdatedCallback_(*this);
-                    }
-                    return true;
-                }
-                return false;
-            }
-        }
-        else if(destination.type == Position::Type::SendAndFXChannel)
-        {
-            auto it = std::lower_bound(
-                idAndIndex.begin(), idAndIndex.end(),
-                destination.id
-            );
-            if(it != channelIdAndIndex_.end() && it->id == destination.id)
-            {
-                auto channelType = channelInfos_[ChannelListType::RegularList][it->index].channelType;
-                if(channelType == ChannelType::AudioBus || channelType == ChannelType::AudioFX)
-                {
-                    auto& oldSummingAndNode = inputDevices_[it->index];
-                    auto fromNode = isPreFader? channelMutes_[type][channelIndex].second: channelFaders_[type][channelIndex].second;
+                    auto& oldSummingAndNode = audioOutputSummings_[it->index];
+                    auto fromNode = isPreFader?
+                        channelMutes_[type][channelIndex].second:
+                        channelFaders_[type][channelIndex].second;
                     if(!YADAW::Util::pathExists(oldSummingAndNode.second, fromNode))
                     {
-                        auto newSummingAndNode = appendInputGroup(inputDevices_[it->index]);
-                        graph_.disconnect(oldSummingAndNode.second->outEdges().front());
+                        auto newSummingAndNode = appendInputGroup(oldSummingAndNode);
+                        graph_.disconnect(
+                            oldSummingAndNode.second->outEdges().front()
+                        );
                         graph_.connect(
                             newSummingAndNode.second,
-                            channelPolarityInverters_[ChannelListType::RegularList][it->index].second,
+                            channelPolarityInverters_[
+                                ChannelListType::AudioHardwareOutputList
+                            ][it->index].second,
                             0, 0
                         );
                         auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
-                            fromNode, newSummingAndNode.second, 0, newSummingAndNode.first->audioInputGroupCount() - 1
+                            fromNode, newSummingAndNode.second,
+                            0, newSummingAndNode.first->audioInputGroupCount() - 1
                         );
                         auto sendPosIt = sendPositions_.emplace(
                             sendIDGen_(), SendPosition {
@@ -767,16 +692,13 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                                 batchUpdater_->addObject(std::move(multiInputWithPDC));
                             }
                             batchUpdater_->addObject(std::move(oldSummingAndNode.first));
-                            oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                            oldSummingAndNode.first = std::move(newSummingAndNode.first);
                             std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                         }
                         else
                         {
                             auto disposingOldSumming = graphWithPDC_.removeNode(oldSummingAndNode.second);
-                            std::unique_ptr<YADAW::Audio::Util::Summing> oldSumming(
-                                static_cast<YADAW::Audio::Util::Summing*>(oldSummingAndNode.first.release())
-                            );
-                            oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                            std::swap(newSummingAndNode.first, oldSummingAndNode.first);
                             std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                             connectionUpdatedCallback_(*this);
                         }
@@ -784,10 +706,96 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                     }
                     return false;
                 }
-                else if(channelType == ChannelType::Audio)
+            }
+        }
+        else if(destination.type == Position::Type::SendAndFXChannel)
+        {
+            if(auto& dests = channelSendDestinations_[type][channelIndex];
+                std::ranges::find(dests, destination) == dests.end())
+            {
+                auto it = std::lower_bound(
+                    idAndIndex.begin(), idAndIndex.end(),
+                    destination.id
+                );
+                if(it != channelIdAndIndex_.end() && it->id == destination.id)
                 {
-                    // not implemented
-                    return false;
+                    auto channelType = channelInfos_[ChannelListType::RegularList][it->index].channelType;
+                    if(channelType == ChannelType::AudioBus || channelType == ChannelType::AudioFX)
+                    {
+                        auto& oldSummingAndNode = inputDevices_[it->index];
+                        auto fromNode = isPreFader? channelMutes_[type][channelIndex].second: channelFaders_[type][channelIndex].second;
+                        if(!YADAW::Util::pathExists(oldSummingAndNode.second, fromNode))
+                        {
+                            auto newSummingAndNode = appendInputGroup(inputDevices_[it->index]);
+                            graph_.disconnect(oldSummingAndNode.second->outEdges().front());
+                            graph_.connect(
+                                newSummingAndNode.second,
+                                channelPolarityInverters_[ChannelListType::RegularList][it->index].second,
+                                0, 0
+                            );
+                            auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
+                                fromNode, newSummingAndNode.second, 0, newSummingAndNode.first->audioInputGroupCount() - 1
+                            );
+                            auto sendPosIt = sendPositions_.emplace(
+                                sendIDGen_(), SendPosition {
+                                    .channelListType = type,
+                                    .channelIndex = channelIndex,
+                                    .sendIndex = sendPosition
+                                }
+                            ).first;
+                            channelSendIDs_[type][channelIndex].emplace(
+                                channelSendIDs_[type][channelIndex].begin() + sendPosition,
+                                sendPosIt
+                            );
+                            FOR_RANGE(i, sendPosition + 1, channelSendIDs_[type][channelIndex].size())
+                            {
+                                ++(channelSendIDs_[type][channelIndex][i]->second.sendIndex);
+                            }
+                            channelSendPolarityInverters_[type][channelIndex].emplace(
+                                channelSendPolarityInverters_[type][channelIndex].begin() + sendPosition,
+                                std::move(polarityInverterAndNode)
+                            );
+                            channelSendMutes_[type][channelIndex].emplace(
+                                channelSendMutes_[type][channelIndex].begin() + sendPosition,
+                                std::move(muteAndNode)
+                            );
+                            channelSendFaders_[type][channelIndex].emplace(
+                                channelSendFaders_[type][channelIndex].begin() + sendPosition,
+                                std::move(faderAndNode)
+                            );
+                            channelSendDestinations_[type][channelIndex].emplace(
+                                channelSendDestinations_[type][channelIndex].begin() + sendPosition,
+                                destination
+                            );
+                            if(batchUpdater_)
+                            {
+                                if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second))
+                                {
+                                    batchUpdater_->addObject(std::move(multiInputWithPDC));
+                                }
+                                batchUpdater_->addObject(std::move(oldSummingAndNode.first));
+                                oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                                std::swap(newSummingAndNode.second, oldSummingAndNode.second);
+                            }
+                            else
+                            {
+                                auto disposingOldSumming = graphWithPDC_.removeNode(oldSummingAndNode.second);
+                                std::unique_ptr<YADAW::Audio::Util::Summing> oldSumming(
+                                    static_cast<YADAW::Audio::Util::Summing*>(oldSummingAndNode.first.release())
+                                );
+                                oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                                std::swap(newSummingAndNode.second, oldSummingAndNode.second);
+                                connectionUpdatedCallback_(*this);
+                            }
+                            return true;
+                        }
+                        return false;
+                    }
+                    else if(channelType == ChannelType::Audio)
+                    {
+                        // not implemented
+                        return false;
+                    }
                 }
             }
         }
@@ -961,165 +969,204 @@ std::optional<bool> Mixer::setSendDestination(
 {
     if(channelIndex < count(type) && sendIndex < sendCount(type, channelIndex))
     {
-        auto oldDestination = channelSendDestinations_[type][channelIndex][sendIndex];
-        ade::NodeHandle inNode;
-        std::uint32_t prevChannelIndex = 0;
-        std::unique_ptr<YADAW::Audio::Device::IAudioDevice> oldSumming;
-        ade::NodeHandle oldSummingNode;
-        if(oldDestination.type == Position::Type::AudioHardwareIOChannel)
+        auto& dests = channelSendDestinations_[type][channelIndex];
+        auto oldDestination = dests[sendIndex];
+        if(oldDestination == destination)
         {
-            auto it = std::lower_bound(
-                channelIDAndIndex_[ChannelListType::AudioHardwareOutputList].begin(),
-                channelIDAndIndex_[ChannelListType::AudioHardwareOutputList].end(),
-                oldDestination.id
-            );
-            oldSummingNode = audioOutputSummings_[it->index].second;
+            return true;
         }
-        else if(oldDestination.type == Position::Type::SendAndFXChannel)
+        auto ret = false;
+        if(std::ranges::find(dests, destination) == dests.end())
         {
-            auto it = std::lower_bound(
-                channelIDAndIndex_[ChannelListType::RegularList].begin(),
-                channelIDAndIndex_[ChannelListType::RegularList].end(),
-                oldDestination.id
-            );
-            oldSummingNode = inputDevices_[it->index].second;
-        }
-        else if(oldDestination.type == Position::Type::PluginAuxIO)
-        {
-            auto it = pluginAuxInputIDs_.find(oldDestination.id);
-            getAuxInputSource(it->second) = Position {
-                .type = Position::Type::Invalid,
-                .id = IDGen::InvalidId
-            };
-        }
-        if(oldSummingNode != nullptr)
-        {
-            inNode = channelSendPolarityInverters_[type][channelIndex][sendIndex].second->inNodes().front();
-            for(const auto& outEdge: inNode->outEdges())
+            ade::NodeHandle inNode;
+            std::uint32_t prevChannelIndex = 0;
+            std::unique_ptr<YADAW::Audio::Device::IAudioDevice> oldSumming;
+            ade::NodeHandle oldSummingNode;
+            if(oldDestination.type == Position::Type::AudioHardwareIOChannel)
             {
-                if(outEdge->dstNode() == oldSummingNode)
+                auto it = std::lower_bound(
+                    channelIDAndIndex_[ChannelListType::AudioHardwareOutputList].begin(),
+                    channelIDAndIndex_[ChannelListType::AudioHardwareOutputList].end(),
+                    oldDestination.id
+                );
+                oldSummingNode = audioOutputSummings_[it->index].second;
+            }
+            else if(oldDestination.type == Position::Type::SendAndFXChannel)
+            {
+                auto it = std::lower_bound(
+                    channelIDAndIndex_[ChannelListType::RegularList].begin(),
+                    channelIDAndIndex_[ChannelListType::RegularList].end(),
+                    oldDestination.id
+                );
+                oldSummingNode = inputDevices_[it->index].second;
+            }
+            else if(oldDestination.type == Position::Type::AudioChannel)
+            {
+                auto it = std::lower_bound(
+                    channelIDAndIndex_[ChannelListType::RegularList].begin(),
+                    channelIDAndIndex_[ChannelListType::RegularList].end(),
+                    oldDestination.id
+                );
+                auto faderNode = channelSendFaders_[type][channelIndex][sendIndex].second;
+                graph_.disconnect(faderNode->outEdges().front());
+                mainInput_[it->index] = Position {};
+            }
+            else if(oldDestination.type == Position::Type::PluginAuxIO)
+            {
+                auto it = pluginAuxInputIDs_.find(oldDestination.id);
+                getAuxInputSource(it->second) = Position {
+                    .type = Position::Type::Invalid,
+                    .id = IDGen::InvalidId
+                };
+            }
+            if(oldSummingNode != nullptr)
+            {
+                inNode = channelSendPolarityInverters_[type][channelIndex][sendIndex].second->inNodes().front();
+                for(const auto& outEdge: inNode->outEdges())
                 {
-                    prevChannelIndex = graph_.getEdgeData(outEdge).toChannel;
-                    break;
+                    if(outEdge->dstNode() == oldSummingNode)
+                    {
+                        prevChannelIndex = graph_.getEdgeData(outEdge).toChannel;
+                        break;
+                    }
                 }
             }
-        }
-        auto connected = false;
-        if(destination.type == Position::Type::AudioHardwareIOChannel)
-        {
-            auto it = std::lower_bound(
-                channelIDAndIndex_[ChannelListType::AudioHardwareOutputList].begin(),
-                channelIDAndIndex_[ChannelListType::AudioHardwareOutputList].end(),
-                destination.id
-            );
-            if(it != channelIDAndIndex_[ChannelListType::AudioHardwareOutputList].end()
-                && it->id == destination.id)
+            if(destination.type == Position::Type::AudioHardwareIOChannel)
             {
-                auto& oldSummingAndNode = audioOutputSummings_[it->index];
-                if(!YADAW::Util::pathExists(oldSummingAndNode.second, inNode))
+                auto it = std::lower_bound(
+                    channelIDAndIndex_[ChannelListType::AudioHardwareOutputList].begin(),
+                    channelIDAndIndex_[ChannelListType::AudioHardwareOutputList].end(),
+                    destination.id
+                );
+                if(it != channelIDAndIndex_[ChannelListType::AudioHardwareOutputList].end()
+                    && it->id == destination.id)
                 {
-                    auto newSummingAndNode = appendInputGroup(oldSummingAndNode);
-                    graph_.connect(inNode, newSummingAndNode.second, 0, newSummingAndNode.first->audioInputGroupCount() - 1);
-                    oldSumming = std::move(oldSummingAndNode.first);
-                    oldSummingNode = oldSummingAndNode.second;
-                    oldSummingAndNode = std::move(newSummingAndNode);
-                    connected = true;
-                }
-            }
-        }
-        else if(destination.type == Position::Type::SendAndFXChannel)
-        {
-            auto it = std::lower_bound(
-                channelIDAndIndex_[ChannelListType::RegularList].begin(),
-                channelIDAndIndex_[ChannelListType::RegularList].end(),
-                destination.id
-            );
-            if(it != channelIDAndIndex_[ChannelListType::RegularList].end()
-                && it->id == destination.id)
-            {
-                auto type = channelInfo_[it->index].channelType;
-                if(type == ChannelType::AudioBus || type == ChannelType::AudioFX)
-                {
-                    auto& oldSummingAndNode = inputDevices_[it->index];
+                    auto& oldSummingAndNode = audioOutputSummings_[it->index];
                     if(!YADAW::Util::pathExists(oldSummingAndNode.second, inNode))
                     {
                         auto newSummingAndNode = appendInputGroup(oldSummingAndNode);
                         graph_.connect(inNode, newSummingAndNode.second, 0, newSummingAndNode.first->audioInputGroupCount() - 1);
-                        oldSumming.reset(oldSummingAndNode.first.release());
+                        oldSumming = std::move(oldSummingAndNode.first);
                         oldSummingNode = oldSummingAndNode.second;
-                        oldSummingAndNode.first.reset(newSummingAndNode.first.release());
-                        oldSummingAndNode.second = std::move(newSummingAndNode.second);
-                        connected = true;
+                        oldSummingAndNode = std::move(newSummingAndNode);
+                        ret = true;
                     }
                 }
             }
-        }
-        else if(destination.type == Position::Type::PluginAuxIO)
-        {
-            if(auto it = pluginAuxInputIDs_.find(destination.id);
-                it != pluginAuxInputIDs_.end())
+            else if(destination.type == Position::Type::SendAndFXChannel)
             {
-                const auto& pluginAuxIOPosition = it->second;
-                auto toNode = getNodeFromPluginAuxPosition(pluginAuxIOPosition);
-                auto fromNode = channelSendPolarityInverters_[type][channelIndex][sendIndex].second->inNodes().front();
-                const auto& fromChannelGroup = channelSendFaders_[type][channelIndex][sendIndex].first->audioOutputGroupAt(0)->get();
-                const auto& toChannelGroup = graph_.getNodeData(
-                    toNode
-                ).process.device()->audioInputGroupAt(
-                    pluginAuxIOPosition.channelGroupIndex
-                )->get();
-                if(fromChannelGroup.type() == toChannelGroup.type()
-                    && fromChannelGroup.channelCount() == toChannelGroup.channelCount()
-                    && !YADAW::Util::pathExists(toNode, fromNode)
-                )
+                auto it = std::lower_bound(
+                    channelIDAndIndex_[ChannelListType::RegularList].begin(),
+                    channelIDAndIndex_[ChannelListType::RegularList].end(),
+                    destination.id
+                );
+                if(it != channelIDAndIndex_[ChannelListType::RegularList].end()
+                    && it->id == destination.id)
                 {
-                    auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
-                        fromNode, toNode, 0, pluginAuxIOPosition.channelGroupIndex
-                    );
-                    auto sendPosIt = sendPositions_.emplace(
-                        sendIDGen_(), SendPosition {
-                            .channelListType = type,
-                            .channelIndex = channelIndex,
-                            .sendIndex = sendIndex
+                    auto type = channelInfo_[it->index].channelType;
+                    if(type == ChannelType::AudioBus || type == ChannelType::AudioFX)
+                    {
+                        auto& oldSummingAndNode = inputDevices_[it->index];
+                        if(!YADAW::Util::pathExists(oldSummingAndNode.second, inNode))
+                        {
+                            auto newSummingAndNode = appendInputGroup(oldSummingAndNode);
+                            graph_.connect(inNode, newSummingAndNode.second, 0, newSummingAndNode.first->audioInputGroupCount() - 1);
+                            oldSumming.reset(oldSummingAndNode.first.release());
+                            oldSummingNode = oldSummingAndNode.second;
+                            oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                            oldSummingAndNode.second = std::move(newSummingAndNode.second);
+                            ret = true;
                         }
-                    ).first;
-                    getAuxInputSource(pluginAuxIOPosition) = Position {
-                        .type = Position::Type::Send,
-                        .id = sendPosIt->first
-                    };
-                    if(batchUpdater_)
-                    {
-                        batchUpdater_->addNull();
                     }
-                    else
-                    {
-                        connectionUpdatedCallback_(*this);
-                    }
-                    return true;
                 }
             }
-            return false;
-        }
-        if(connected)
-        {
-            if(batchUpdater_)
+            else if(destination.type == Position::Type::AudioChannel)
             {
-                if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingNode))
+                auto it = std::lower_bound(
+                    channelIDAndIndex_[ChannelListType::RegularList].begin(),
+                    channelIDAndIndex_[ChannelListType::RegularList].end(),
+                    destination.id
+                );
+                if(it != channelIDAndIndex_[ChannelListType::RegularList].end()
+                    && it->id == destination.id)
                 {
-                    batchUpdater_->addObject(std::move(multiInputWithPDC));
+                    if(channelInfo_[it->index].channelType == ChannelType::Audio
+                        && mainInput_[it->index].type == Position::Type::Invalid
+                        && channelGroupTypeAndChannelCountAt(type, channelIndex) == channelGroupTypeAndChannelCountAt(ChannelListType::RegularList, it->index))
+                    {
+                        graph_.connect(inNode, inputDevices_[it->index].second, 0, 1);
+                        ret = true;
+                    }
                 }
             }
-            else
+            else if(destination.type == Position::Type::PluginAuxIO)
             {
-                auto disposingOldSumming = graphWithPDC_.removeNode(oldSummingNode);
-                connectionUpdatedCallback_(*this);
+                if(auto it = pluginAuxInputIDs_.find(destination.id);
+                    it != pluginAuxInputIDs_.end())
+                {
+                    const auto& pluginAuxIOPosition = it->second;
+                    auto toNode = getNodeFromPluginAuxPosition(pluginAuxIOPosition);
+                    auto fromNode = channelSendPolarityInverters_[type][channelIndex][sendIndex].second->inNodes().front();
+                    const auto& fromChannelGroup = channelSendFaders_[type][channelIndex][sendIndex].first->audioOutputGroupAt(0)->get();
+                    const auto& toChannelGroup = graph_.getNodeData(
+                        toNode
+                    ).process.device()->audioInputGroupAt(
+                        pluginAuxIOPosition.channelGroupIndex
+                    )->get();
+                    if(fromChannelGroup.type() == toChannelGroup.type()
+                        && fromChannelGroup.channelCount() == toChannelGroup.channelCount()
+                        && !YADAW::Util::pathExists(toNode, fromNode)
+                    )
+                    {
+                        auto [polarityInverterAndNode, muteAndNode, faderAndNode] = createSend(
+                            fromNode, toNode, 0, pluginAuxIOPosition.channelGroupIndex
+                        );
+                        auto sendPosIt = sendPositions_.emplace(
+                            sendIDGen_(), SendPosition {
+                                .channelListType = type,
+                                .channelIndex = channelIndex,
+                                .sendIndex = sendIndex
+                            }
+                        ).first;
+                        getAuxInputSource(pluginAuxIOPosition) = Position {
+                            .type = Position::Type::Send,
+                            .id = sendPosIt->first
+                        };
+                        if(batchUpdater_)
+                        {
+                            batchUpdater_->addNull();
+                        }
+                        else
+                        {
+                            connectionUpdatedCallback_(*this);
+                        }
+                        ret = true;
+                    }
+                }
+                return false;
             }
+            if(ret)
+            {
+                dests[sendIndex] = destination;
+                if(batchUpdater_)
+                {
+                    if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingNode))
+                    {
+                        batchUpdater_->addObject(std::move(multiInputWithPDC));
+                    }
+                }
+                else
+                {
+                    auto disposingOldSumming = graphWithPDC_.removeNode(oldSummingNode);
+                    connectionUpdatedCallback_(*this);
+                }
+            }
+            else if(oldSummingNode != nullptr)
+            {
+                graph_.connect(inNode, oldSummingNode, 0, prevChannelIndex);
+            }
+            return ret;
         }
-        else if(oldSummingNode != nullptr)
-        {
-            graph_.connect(inNode, oldSummingNode, 0, prevChannelIndex);
-        }
-        return connected;
     }
     return std::nullopt;
 }
@@ -1141,10 +1188,7 @@ std::optional<bool> Mixer::removeSend(
             std::vector<Position> destinations; destinations.reserve(removeCount);
             FOR_RANGE(i, sendPosition, sendPosition + removeCount)
             {
-                if(std::find(destinations.begin(), destinations.end(), sendDestinations[i]) != destinations.end())
-                {
-                    destinations.emplace_back(sendDestinations[i]);
-                }
+                destinations.emplace_back(sendDestinations[i]); // FIXME
                 graph_.removeNode(sendFaders[i].second);
                 graph_.removeNode(sendMutes[i].second);
                 graph_.removeNode(sendPolarityInverters[i].second);
@@ -1178,6 +1222,20 @@ std::optional<bool> Mixer::removeSend(
                     std::swap(oldSummingAndNode.second, newSummingAndNode.second);
                     auto ptr = oldSummingAndNode.first.release();
                     oldSummingAndNode.first.reset(newSummingAndNode.first.release());
+                }
+                else if(destination.type == Position::Type::AudioChannel)
+                {
+                    auto it = std::lower_bound(
+                        channelIDAndIndex_[ChannelListType::RegularList].begin(),
+                        channelIDAndIndex_[ChannelListType::RegularList].end(),
+                        destination.id
+                    );
+                    mainInput_[it->index] = Position {};
+                }
+                else if(destination.type == Position::Type::PluginAuxIO)
+                {
+                    auto it = pluginAuxInputIDs_.find(destination.id);
+                    getAuxInputSource(it->second) = Position {};
                 }
             }
             if(batchUpdater_)
@@ -1253,6 +1311,15 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
         && channelInfo_[index].channelType == ChannelType::Audio)
     {
         // Disconnect
+        if(auto oldPosition = mainInput_[index]; oldPosition.type == Position::Type::Send)
+        {
+            auto&& sendPosition = getSendPosition(oldPosition.id).value();
+            removeSend(sendPosition.channelListType, sendPosition.channelIndex, sendPosition.sendIndex);
+        }
+        else if(oldPosition.type == Position::Type::PluginAuxIO)
+        {
+            // not implemented
+        }
         auto toNode = inputDevices_[index].second;
         auto inEdges = toNode->inEdges();
         if(!inEdges.empty())
