@@ -2860,6 +2860,131 @@ OptionalRef<const std::vector<Mixer::Position>> Mixer::getAuxOutputDestinations(
 
 bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Position destination)
 {
+    auto& destinations = getAuxOutputDestinations(position);
+    if(std::ranges::find(destinations, destination) == destinations.end())
+    {
+        auto fromNode = getNodeFromPluginAuxPosition(position);
+        auto device = graph_.getNodeData(fromNode).process.device();
+        auto& fromNodeChannelGroup = device->audioOutputGroupAt(position.channelGroupIndex)->get();
+        if(destination.type == Position::Type::AudioHardwareIOChannel)
+        {
+            auto it = std::lower_bound(
+                audioOutputChannelIdAndIndex_.begin(),
+                audioOutputChannelIdAndIndex_.end(),
+                destination.id, &compareIdAndIndexWithId
+            );
+            if(it != audioOutputChannelIdAndIndex_.end())
+            {
+                auto [destChannelGroupType, destChannelCountInGroup] = *channelGroupTypeAndChannelCountAt(ChannelListType::AudioHardwareOutputList, it->index);
+                if(fromNodeChannelGroup.type() == destChannelGroupType && fromNodeChannelGroup.channelCount() == destChannelCountInGroup
+                    && !YADAW::Util::pathExists(audioOutputSummings_[it->index].second, fromNode))
+                {
+                    auto& oldSummingAndNode = audioOutputSummings_[it->index];
+                    SummingAndNode newSummingAndNode = appendInputGroup(oldSummingAndNode);
+                    graph_.connect(fromNode, newSummingAndNode.second, position.channelGroupIndex, newSummingAndNode.first->audioInputGroupCount() - 1);
+                    audioOutputPreFaderInserts_[it->index]->setInNode(newSummingAndNode.second, 0);
+                    if(batchUpdater_)
+                    {
+                        batchUpdater_->addObject(std::move(oldSummingAndNode.first));
+                    }
+                    else
+                    {
+                        connectionUpdatedCallback_(*this);
+                    }
+                    std::swap(oldSummingAndNode, newSummingAndNode);
+                    return true;
+                }
+            }
+        }
+        else if(destination.type == Position::Type::SendAndFXChannel)
+        {
+            auto it = std::lower_bound(
+                channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
+                destination.id, &compareIdAndIndexWithId
+            );
+            if(it != audioOutputChannelIdAndIndex_.end()
+                && (channelInfo_[it->index].channelType == ChannelType::AudioFX || channelInfo_[it->index].channelType == ChannelType::AudioBus)
+            )
+            {
+                auto [destChannelGroupType, destChannelCountInGroup] = *channelGroupTypeAndChannelCountAt(ChannelListType::RegularList, it->index);
+                if(fromNodeChannelGroup.type() == destChannelGroupType && fromNodeChannelGroup.channelCount() == destChannelCountInGroup
+                    && !YADAW::Util::pathExists(inputDevices_[it->index].second, fromNode))
+                {
+                    auto& oldSummingAndNodeAsDevice = inputDevices_[it->index];
+                    SummingAndNode newSummingAndNode = appendInputGroup(oldSummingAndNodeAsDevice);
+                    graph_.connect(fromNode, newSummingAndNode.second, position.channelGroupIndex, newSummingAndNode.first->audioInputGroupCount() - 1);
+                    preFaderInserts_[it->index]->setInNode(newSummingAndNode.second, 0);
+                    if(batchUpdater_)
+                    {
+                        batchUpdater_->addObject(std::move(oldSummingAndNodeAsDevice.first));
+                    }
+                    else
+                    {
+                        connectionUpdatedCallback_(*this);
+                    }
+                    oldSummingAndNodeAsDevice.first = std::move(newSummingAndNode.first);
+                    std::swap(oldSummingAndNodeAsDevice.second, newSummingAndNode.second);
+                    return true;
+                }
+            }
+        }
+        else if(destination.type == Position::Type::AudioChannel)
+        {
+            auto it = std::lower_bound(
+                channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
+                destination.id, &compareIdAndIndexWithId
+            );
+            if(it != audioOutputChannelIdAndIndex_.end()
+                && channelInfo_[it->index].channelType == ChannelType::Audio
+                && mainInput_[it->index].type == Position::Type::Invalid)
+            {
+                auto [destChannelGroupType, destChannelCountInGroup] = *channelGroupTypeAndChannelCountAt(ChannelListType::RegularList, it->index);
+                if(fromNodeChannelGroup.type() == destChannelGroupType && fromNodeChannelGroup.channelCount() == destChannelCountInGroup
+                    && !YADAW::Util::pathExists(inputDevices_[it->index].second, fromNode))
+                {
+                    graph_.connect(fromNode, inputDevices_[it->index].second, position.channelGroupIndex, 1);
+                    const auto& _po1 = pluginAuxOutputs_[position.channelListType][position.channelIndex];
+                    const auto& _po2 = position.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Instrument?
+                        _po1.first:
+                        _po1.second[position.isPreFaderInsert? 1: 0][position.insertIndex];
+                    mainInput_[it->index] = Position {
+                        .type = Position::Type::PluginAuxIO,
+                        .id = _po2[position.channelGroupIndex]->first
+                    };
+                    return true;
+                }
+            }
+        }
+        else if(destination.type == Position::Type::PluginAuxIO)
+        {
+            auto auxInput = *getAuxInputPosition(destination.id);
+            if(getAuxInputSource(auxInput).type == Position::Type::Invalid)
+            {
+                auto toNode = getNodeFromPluginAuxPosition(auxInput);
+                auto& toNodeChannelGroup = graph_.getNodeData(toNode).process.device()->audioInputGroupAt(auxInput.channelGroupIndex)->get();
+                if(fromNodeChannelGroup.type() == toNodeChannelGroup.type()
+                    && fromNodeChannelGroup.channelCount() == toNodeChannelGroup.channelCount())
+                {
+                    if(auto edgeHandle = graph_.connect(fromNode, toNode, position.channelGroupIndex, auxInput.channelGroupIndex))
+                    {
+                        const auto& _po1 = pluginAuxOutputs_[position.channelListType][position.channelIndex];
+                        const auto& _po2 = position.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Instrument?
+                            _po1.first:
+                            _po1.second[position.isPreFaderInsert? 1: 0][position.insertIndex];
+                        auto& _do1 = pluginAuxInputSources_[auxInput.channelListType][auxInput.channelIndex];
+                        auto& _do2 = auxInput.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Instrument?
+                            _do1.first:
+                            _do1.second[auxInput.isPreFaderInsert? 1: 0][auxInput.insertIndex];
+                        _do2[auxInput.channelGroupIndex] = Position {
+                            .type = Position::Type::PluginAuxIO,
+                            .id = _po2[position.channelGroupIndex]->first
+                        };
+                        return true;
+                    }
+                }
+            }
+        }
+    }
     return false;
 }
 
