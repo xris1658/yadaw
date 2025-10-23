@@ -2863,6 +2863,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
     auto& destinations = getAuxOutputDestinations(position);
     if(std::ranges::find(destinations, destination) == destinations.end())
     {
+        auto ret = false;
         auto fromNode = getNodeFromPluginAuxPosition(position);
         auto device = graph_.getNodeData(fromNode).process.device();
         auto& fromNodeChannelGroup = device->audioOutputGroupAt(position.channelGroupIndex)->get();
@@ -2882,7 +2883,9 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     auto& oldSummingAndNode = audioOutputSummings_[it->index];
                     SummingAndNode newSummingAndNode = appendInputGroup(oldSummingAndNode);
                     graph_.connect(fromNode, newSummingAndNode.second, position.channelGroupIndex, newSummingAndNode.first->audioInputGroupCount() - 1);
-                    audioOutputPreFaderInserts_[it->index]->setInNode(newSummingAndNode.second, 0);
+                    const auto& polarityInverterNode = audioOutputPolarityInverters_[it->index].second;
+                    graph_.disconnect(polarityInverterNode->inEdges().front());
+                    graph_.connect(newSummingAndNode.second, polarityInverterNode, 0, 0);
                     if(batchUpdater_)
                     {
                         batchUpdater_->addObject(std::move(oldSummingAndNode.first));
@@ -2892,7 +2895,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                         connectionUpdatedCallback_(*this);
                     }
                     std::swap(oldSummingAndNode, newSummingAndNode);
-                    return true;
+                    ret = true;
                 }
             }
         }
@@ -2913,6 +2916,9 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     auto& oldSummingAndNodeAsDevice = inputDevices_[it->index];
                     SummingAndNode newSummingAndNode = appendInputGroup(oldSummingAndNodeAsDevice);
                     graph_.connect(fromNode, newSummingAndNode.second, position.channelGroupIndex, newSummingAndNode.first->audioInputGroupCount() - 1);
+                    const auto& polarityInverterNode = polarityInverters_[it->index].second;
+                    graph_.disconnect(polarityInverterNode->inEdges().front());
+                    graph_.connect(newSummingAndNode.second, polarityInverterNode, 0, 0);
                     preFaderInserts_[it->index]->setInNode(newSummingAndNode.second, 0);
                     if(batchUpdater_)
                     {
@@ -2924,7 +2930,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     }
                     oldSummingAndNodeAsDevice.first = std::move(newSummingAndNode.first);
                     std::swap(oldSummingAndNodeAsDevice.second, newSummingAndNode.second);
-                    return true;
+                    ret = true;
                 }
             }
         }
@@ -2951,7 +2957,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                         .type = Position::Type::PluginAuxIO,
                         .id = _po2[position.channelGroupIndex]->first
                     };
-                    return true;
+                    ret = true;
                 }
             }
         }
@@ -2979,10 +2985,14 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                             .type = Position::Type::PluginAuxIO,
                             .id = _po2[position.channelGroupIndex]->first
                         };
-                        return true;
+                        ret = true;
                     }
                 }
             }
+        }
+        if(ret)
+        {
+            destinations.emplace_back(destination);
         }
     }
     return false;
