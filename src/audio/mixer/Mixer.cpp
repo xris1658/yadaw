@@ -3006,11 +3006,152 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
 bool Mixer::removeAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index,
     std::uint32_t removeCount)
 {
+    auto& destinations = getAuxOutputDestinations(position);
+    if(index < destinations.size() && removeCount > 0 && index + removeCount <= destinations.size())
+    {
+        auto fromNode = getNodeFromPluginAuxPosition(position);
+        auto removingDestinations = std::ranges::views::counted(destinations.begin() + index, removeCount);
+        std::vector<Context> removingObjects;
+        removingObjects.reserve(
+            std::ranges::count_if(
+                removingDestinations,
+                [](const auto& destination)
+                {
+                    return destination.type == Position::Type::AudioHardwareIOChannel
+                        || destination.type == Position::Type::SendAndFXChannel;
+                }
+            )
+        );
+        for(const auto& dest: removingDestinations)
+        {
+            if(dest.type == Position::Type::AudioHardwareIOChannel)
+            {
+                auto it = std::lower_bound(
+                    audioOutputChannelIdAndIndex_.begin(),
+                    audioOutputChannelIdAndIndex_.end(),
+                    dest.id, &compareIdAndIndexWithId
+                );
+                auto& oldSummingAndNode = audioOutputSummings_[it->index];
+                for(const auto& inEdge: oldSummingAndNode.second->inEdges())
+                {
+                    if(inEdge->srcNode() == fromNode)
+                    {
+                        if(const auto& edgeData = graph_.getEdgeData(inEdge);
+                            edgeData.fromChannel == position.channelGroupIndex)
+                        {
+                            auto toChannel = edgeData.toChannel;
+                            auto newSummingAndNode = *removeInputGroup(oldSummingAndNode, toChannel);
+                            const auto& polarityInverterNode = audioOutputPolarityInverters_[it->index].second;
+                            graph_.disconnect(polarityInverterNode->inEdges().front());
+                            graph_.connect(newSummingAndNode.second, polarityInverterNode, 0, 0);
+                            graph_.disconnect(inEdge);
+                            removingObjects.emplace_back(
+                                YADAW::Util::createPMRUniquePtr(std::move(oldSummingAndNode.first))
+                            );
+                            if(auto multiInput = graphWithPDC_.removeNode(oldSummingAndNode.second))
+                            {
+                                removingObjects.emplace_back(
+                                    YADAW::Util::createPMRUniquePtr(std::move(multiInput))
+                                );
+                            }
+                            if(batchUpdater_)
+                            {
+                                for(auto& removingObject: removingObjects)
+                                {
+                                    batchUpdater_->addObject(std::move(oldSummingAndNode.first));
+                                }
+                            }
+                            oldSummingAndNode = std::move(newSummingAndNode);
+                            break;
+                        }
+                    }
+                }
+            }
+            else if(dest.type == Position::Type::SendAndFXChannel)
+            {
+                auto it = std::lower_bound(
+                    channelIdAndIndex_.begin(),
+                    channelIdAndIndex_.end(),
+                    dest.id, &compareIdAndIndexWithId
+                );
+                auto& oldSummingAndNodeAsDevice = inputDevices_[it->index];
+                for(const auto& inEdge: oldSummingAndNodeAsDevice.second->inEdges())
+                {
+                    if(inEdge->srcNode() == fromNode)
+                    {
+                        if(const auto& edgeData = graph_.getEdgeData(inEdge);
+                            edgeData.fromChannel == position.channelGroupIndex)
+                        {
+                            auto toChannel = edgeData.toChannel;
+                            auto newSummingAndNode = *removeInputGroup(oldSummingAndNodeAsDevice, toChannel);
+                            const auto& polarityInverterNode = polarityInverters_[it->index].second;
+                            graph_.disconnect(polarityInverterNode->inEdges().front());
+                            graph_.connect(newSummingAndNode.second, polarityInverterNode, 0, 0);
+                            graph_.disconnect(inEdge);
+                            removingObjects.emplace_back(
+                                YADAW::Util::createPMRUniquePtr(std::move(oldSummingAndNodeAsDevice.first))
+                            );
+                            if(auto multiInput = graphWithPDC_.removeNode(oldSummingAndNodeAsDevice.second))
+                            {
+                                removingObjects.emplace_back(
+                                    YADAW::Util::createPMRUniquePtr(std::move(multiInput))
+                                );
+                            }
+                            if(batchUpdater_)
+                            {
+                                for(auto& removingObject: removingObjects)
+                                {
+                                    batchUpdater_->addObject(std::move(oldSummingAndNodeAsDevice.first));
+                                }
+                            }
+                            oldSummingAndNodeAsDevice = std::move(newSummingAndNode);
+                            break;
+                        }
+                    }
+                }
+            }
+            else if(dest.type == Position::Type::AudioChannel)
+            {
+                auto it = std::lower_bound(
+                    channelIdAndIndex_.begin(),
+                    channelIdAndIndex_.end(),
+                    dest.id, &compareIdAndIndexWithId
+                );
+                auto& [input, destNode] = inputDevices_[it->index];
+                auto inEdges = destNode->inEdges();
+                for(const auto& inEdge: inEdges)
+                {
+                    if(graph_.getEdgeData(inEdge).toChannel == 1)
+                    {
+                        graph_.disconnect(inEdge);
+                        break;
+                    }
+                }
+            }
+            else if(dest.type == Position::Type::PluginAuxIO)
+            {
+                auto auxInput = *getAuxInputPosition(dest.id);
+                auto toNode = getNodeFromPluginAuxPosition(auxInput);
+                getAuxInputSource(auxInput) = {};
+            }
+        }
+        if(!batchUpdater_)
+        {
+            connectionUpdatedCallback_(*this);
+        }
+        destinations.erase(
+            destinations.begin() + index,
+            destinations.begin() + index + removeCount
+        );
+        return true;
+    }
     return false;
 }
 
 void Mixer::clearAuxOutputDestinations(const PluginAuxIOPosition& position)
 {
+    auto& destinations = getAuxOutputDestinations(position);
+    removeAuxOutputDestination(position, 0, destinations.size());
 }
 
 std::tuple<Mixer::PolarityInverterAndNode, Mixer::MuteAndNode, Mixer::FaderAndNode> Mixer::createSend(
