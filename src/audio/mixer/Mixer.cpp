@@ -1,13 +1,10 @@
 #include "Mixer.hpp"
 
-#include "audio/mixer/BlankGenerator.hpp"
 #include "audio/util/InputSwitcher.hpp"
 #include "util/Base.hpp"
 
 #include <algorithm>
-#include <complex>
 #include <ranges>
-#include <unordered_map>
 
 namespace YADAW::Audio::Mixer
 {
@@ -2812,16 +2809,77 @@ std::optional<Mixer::Position> Mixer::getAuxInputSource(const PluginAuxIOPositio
 
 bool Mixer::setAuxInputSource(const PluginAuxIOPosition& position, Position source)
 {
+    // TODO
     auto oldSource = getAuxInputSource(position);
+    if(oldSource == source)
+    {
+        return true;
+    }
+    // Disconnect
     if(oldSource.type == Position::Type::Send)
     {
         const auto& sendPosition = sendPositions_.find(oldSource.id)->second;
         removeSend(sendPosition.channelListType, sendPosition.channelIndex, sendPosition.sendIndex);
     }
-    if(source.type == Position::Type::PluginAuxIO)
+    else if(oldSource.type == Position::Type::PluginAuxIO)
     {
-        auto optOutput = getAuxOutputPosition(source.id);
-        // TODO
+        auto auxOutput = *getAuxOutputPosition(source.id);
+        auto& dests = getAuxOutputDestinations(auxOutput);
+        FOR_RANGE0(i, dests.size())
+        {
+            if(const auto& dest = dests[i]; dest.type == Position::Type::PluginAuxIO && dest.id == getAuxInputPositionID(position))
+            {
+                removeAuxOutputDestination(auxOutput, i);
+                break;
+            }
+        }
+    }
+    else if(oldSource.type == Position::Type::Send)
+    {
+        const auto& sendPos = sendPositions_.find(source.id)->second;
+        removeSend(sendPos.channelListType, sendPos.channelIndex, sendPos.sendIndex);
+    }
+    else if(oldSource.type == Position::Type::SendAndFXChannel)
+    {
+        auto channelIndex = std::lower_bound(
+            channelIdAndIndex_.begin(),
+            channelIdAndIndex_.end(),
+            source.id, &compareIdAndIndexWithId
+        )->index;
+        return setMainOutputAt(channelIndex, {});
+    }
+    // Connect
+    if(source.type == Position::Type::Send)
+    {
+        const auto& sendPos = sendPositions_.find(source.id)->second;
+        return setSendDestination(
+            sendPos.channelListType, sendPos.channelIndex, sendPos.sendIndex,
+            Position {.type = Position::Type::PluginAuxIO, .id = getAuxInputPositionID(position)}
+        ).value_or(false);
+    }
+    else if(source.type == Position::Type::PluginAuxIO)
+    {
+        auto auxOutput = *getAuxOutputPosition(source.id);
+        return addAuxOutputDestination(
+            auxOutput,
+            Position {.type = Position::Type::PluginAuxIO, .id = getAuxInputPositionID(position)}
+        );
+    }
+    else if(source.type == Position::Type::SendAndFXChannel)
+    {
+        auto channelIndex = std::lower_bound(
+            channelIdAndIndex_.begin(),
+            channelIdAndIndex_.end(),
+            source.id, &compareIdAndIndexWithId
+        )->index;
+        return setMainOutputAt(
+            channelIndex,
+            Position {.type = Position::Type::PluginAuxIO, .id = getAuxInputPositionID(position)}
+        );
+    }
+    else if(source.type == Position::Type::Invalid)
+    {
+        return true;
     }
     return false;
 }
@@ -3205,6 +3263,26 @@ std::optional<Mixer::PluginAuxIOPosition> Mixer::getAuxOutputPosition(IDGen::ID 
         return {it->second};
     }
     return std::nullopt;
+}
+
+IDGen::ID Mixer::getAuxInputPositionID(const PluginAuxIOPosition& position) const
+{
+    auto& v = pluginAuxInputs_[position.channelListType][position.channelIndex];
+    return (
+        position.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Instrument?
+        v.first[position.channelGroupIndex]:
+        v.second[position.isPreFaderInsert? 1: 0][position.insertIndex][position.channelGroupIndex]
+    )->first;
+}
+
+IDGen::ID Mixer::getAuxOutputPositionID(const PluginAuxIOPosition& position) const
+{
+    auto& v = pluginAuxOutputs_[position.channelListType][position.channelIndex];
+    return (
+        position.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Instrument?
+        v.first[position.channelGroupIndex]:
+        v.second[position.isPreFaderInsert? 1: 0][position.insertIndex][position.channelGroupIndex]
+    )->first;
 }
 
 Mixer::Position& Mixer::getAuxInputSource(const PluginAuxIOPosition& position)
