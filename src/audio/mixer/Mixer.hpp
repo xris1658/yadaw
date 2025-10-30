@@ -141,6 +141,30 @@ public:
     using ConnectionUpdatedCallback = void(const Mixer&);
     using PreInsertChannelCallbackArgs = struct { std::uint32_t position; std::uint32_t count; };
     using PreInsertChannelCallback = void(const Mixer& sender, PreInsertChannelCallbackArgs args);
+    using SendAddedCallback = void(const Mixer& sender, const SendPosition& sendPosition);
+    using SendDestinationChangedCallback = void(const Mixer& sender, const SendPosition& sendPosition);
+    struct SendRemovedCallbackArgs
+    {
+        SendPosition sendPosition;
+        std::uint32_t removeCount;
+    };
+    using SendRemovedCallback = void(const Mixer& sender, SendRemovedCallbackArgs args);
+    using AuxInputChangedCallback = void(const Mixer& sender, const PluginAuxIOPosition& auxInput);
+    struct AuxOutputAddedCallbackArgs
+    {
+        PluginAuxIOPosition auxOutput;
+        std::uint32_t position;
+    };
+    using AuxOutputDestinationChangedCallbackArgs = AuxOutputAddedCallbackArgs;
+    struct AuxOutputRemovedCallbackArgs
+    {
+        PluginAuxIOPosition auxOutput;
+        std::uint32_t position;
+        std::uint32_t removeCount;
+    };
+    using AuxOutputAddedCallback = void(const Mixer& sender, AuxOutputAddedCallbackArgs args);
+    using AuxOutputDestinationChangedCallback = void(const Mixer& sender, AuxOutputDestinationChangedCallbackArgs args);
+    using AuxOutputRemovedCallback = void(const Mixer& sender, AuxOutputRemovedCallbackArgs args);
 private:
     Mixer();
 public:
@@ -264,6 +288,20 @@ public:
     void resetPreInsertAudioInputChannelCallback();
     void resetPreInsertRegularChannelCallback();
     void resetPreInsertAudioOutputChannelCallback();
+    void setSendAddedCallback(std::function<SendAddedCallback>&& callback);
+    void setSendDestinationChangedCallback(std::function<SendDestinationChangedCallback>&& callback);
+    void setSendRemovedCallback(std::function<SendRemovedCallback>&& callback);
+    void resetSendAddedCallback();
+    void resetSendDestinationChangedCallback();
+    void resetSendRemovedCallback();
+    void setAuxInputChangedCallback(std::function<AuxInputChangedCallback>&& callback);
+    void setAuxOutputAddedCallback(std::function<AuxOutputAddedCallback>&& callback);
+    void setAuxOutputDestinationChangedCallback(std::function<AuxOutputDestinationChangedCallback>&& callback);
+    void setAuxOutputRemovedCallback(std::function<AuxOutputRemovedCallback>&& callback);
+    void resetAuxInputChangedCallback();
+    void resetAuxOutputAddedCallback();
+    void resetAuxOutputDestinationChangedCallback();
+    void resetAuxOutputRemovedCallback();
 public:
     OptionalRef<YADAW::Util::BatchUpdater> batchUpdater();
     void setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater);
@@ -529,6 +567,13 @@ private:
     std::function<PreInsertChannelCallback>& preInsertAudioInputChannelCallback_  = preInsertChannelCallback_[AudioHardwareInputList];
     std::function<PreInsertChannelCallback>& preInsertRegularChannelCallback_     = preInsertChannelCallback_[RegularList];
     std::function<PreInsertChannelCallback>& preInsertAudioOutputChannelCallback_ = preInsertChannelCallback_[AudioHardwareOutputList];
+    std::function<SendAddedCallback> sendAddedCallback_;
+    std::function<SendDestinationChangedCallback> sendDestinationChangedCallback_;
+    std::function<SendRemovedCallback> sendRemovedCallback_;
+    std::function<AuxInputChangedCallback> auxInputChangedCallback_;
+    std::function<AuxOutputAddedCallback> auxOutputAddedCallback_;
+    std::function<AuxOutputDestinationChangedCallback> auxOutputDestinationChangedCallback_;
+    std::function<AuxOutputRemovedCallback> auxOutputRemovedCallback_;
     std::function<DeviceFactoryType<VolumeFader>> volumeFaderFactory_;
     std::function<DeviceFactoryType<Meter>> meterFactory_;
 

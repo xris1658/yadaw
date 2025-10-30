@@ -13,6 +13,20 @@ namespace Impl
 void blankConnectionUpdatedCallback(const Mixer&) {}
 
 void blankPreInsertChannelCallback(const Mixer&, Mixer::PreInsertChannelCallbackArgs) {}
+
+void blankSendAddedCallback(const Mixer& sender, const Mixer::SendPosition& sendPosition) {}
+
+void blankSendDestinationChangedCallback(const Mixer& sender, const Mixer::SendPosition& sendPosition) {}
+
+void blankSendRemovedCallback(const Mixer& sender, Mixer::SendRemovedCallbackArgs args) {}
+
+void blankAuxInputChangedCallback(const Mixer& sender, const Mixer::PluginAuxIOPosition& auxInput) {}
+
+void blankAuxOutputAddedCallback(const Mixer& sender, Mixer::AuxOutputAddedCallbackArgs args) {}
+
+void blankAuxOutputDestinationChangedCallback(const Mixer& sender, Mixer::AuxOutputDestinationChangedCallbackArgs args) {}
+
+void blankAuxOutputRemovedCallback(const Mixer& sender, Mixer::AuxOutputRemovedCallbackArgs args) {}
 }
 
 struct InsertPosition
@@ -2728,6 +2742,76 @@ void Mixer::resetPreInsertRegularChannelCallback()
 void Mixer::resetPreInsertAudioOutputChannelCallback()
 {
     preInsertAudioOutputChannelCallback_ = &Impl::blankPreInsertChannelCallback;
+}
+
+void Mixer::setSendAddedCallback(std::function<SendAddedCallback>&& callback)
+{
+    sendAddedCallback_ = std::move(callback);
+}
+
+void Mixer::setSendDestinationChangedCallback(std::function<SendDestinationChangedCallback>&& callback)
+{
+    sendDestinationChangedCallback_ = std::move(callback);
+}
+
+void Mixer::setSendRemovedCallback(std::function<SendRemovedCallback>&& callback)
+{
+    sendRemovedCallback_ = std::move(callback);
+}
+
+void Mixer::resetSendAddedCallback()
+{
+    sendAddedCallback_ = &Impl::blankSendAddedCallback;
+}
+
+void Mixer::resetSendDestinationChangedCallback()
+{
+    sendDestinationChangedCallback_ = &Impl::blankSendDestinationChangedCallback;
+}
+
+void Mixer::resetSendRemovedCallback()
+{
+    sendRemovedCallback_ = &Impl::blankSendRemovedCallback;
+}
+
+void Mixer::setAuxInputChangedCallback(std::function<AuxInputChangedCallback>&& callback)
+{
+    auxInputChangedCallback_ = std::move(callback);
+}
+
+void Mixer::setAuxOutputAddedCallback(std::function<AuxOutputAddedCallback>&& callback)
+{
+    auxOutputAddedCallback_ = std::move(callback);
+}
+
+void Mixer::setAuxOutputDestinationChangedCallback(std::function<AuxOutputDestinationChangedCallback>&& callback)
+{
+    auxOutputDestinationChangedCallback_ = std::move(callback);
+}
+
+void Mixer::setAuxOutputRemovedCallback(std::function<AuxOutputRemovedCallback>&& callback)
+{
+    auxOutputRemovedCallback_ = std::move(callback);
+}
+
+void Mixer::resetAuxInputChangedCallback()
+{
+    auxInputChangedCallback_ = &Impl::blankAuxInputChangedCallback;
+}
+
+void Mixer::resetAuxOutputAddedCallback()
+{
+    auxOutputAddedCallback_ = &Impl::blankAuxOutputAddedCallback;
+}
+
+void Mixer::resetAuxOutputDestinationChangedCallback()
+{
+    auxOutputDestinationChangedCallback_ = &Impl::blankAuxOutputDestinationChangedCallback;
+}
+
+void Mixer::resetAuxOutputRemovedCallback()
+{
+    auxOutputRemovedCallback_ = &Impl::blankAuxOutputRemovedCallback;
 }
 
 OptionalRef<YADAW::Util::BatchUpdater> Mixer::batchUpdater()
