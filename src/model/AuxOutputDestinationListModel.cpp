@@ -67,8 +67,7 @@ QVariant AuxOutputDestinationListModel::data(const QModelIndex& index, int role)
             }
             else
             {
-                auto& preFaderInserts = mixer_->preFaderInsertsAt(type, insertIndex_)->get();
-                auto mainIndex = preFaderInserts.inChannelGroupIndex();
+                auto mainIndex = *(mixer_->getInstrumentMainOutputChannelGroupIndex(channelIndex_));
                 return row + (row >= mainIndex);
             }
         }

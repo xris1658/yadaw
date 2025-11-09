@@ -260,6 +260,7 @@ public:
     ade::NodeHandle getInstrument(std::uint32_t index) const;
     OptionalRef<const Context> getInstrumentContext(std::uint32_t index) const;
     OptionalRef<Context> getInstrumentContext(std::uint32_t index);
+    std::optional<std::uint32_t> getInstrumentMainOutputChannelGroupIndex(std::uint32_t index) const;
     // Set a node as instrument of the channel. Only works if no instrument node
     // is set.
     bool setInstrument(std::uint32_t index,

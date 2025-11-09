@@ -779,15 +779,8 @@ void MixerAudioIOPositionItemModel::initChildren(
                     auto count = static_cast<std::uint32_t>(instrumentAudioOutputs->itemCount());
                     children.reserve(count - 1);
                     positions.reserve(count - 1);
-                    auto insertModel = static_cast<MixerChannelInsertListModel*>(
-                        mixerChannelListModels_[listType]->data(
-                            mixerChannelListModels_[listType]->index(
-                                indices[NodeData::Indent::ChannelIndex]
-                            ),
-                            MixerChannelListModel::Role::Inserts
-                        ).value<QObject*>()
-                    );
-                    auto mainOutput = insertModel->inserts().inChannelGroupIndex();
+                    const auto& mixer = model->mixer();
+                    auto mainOutput = *mixer.getInstrumentMainOutputChannelGroupIndex(indices[NodeData::Indent::ChannelIndex]);
                     FOR_RANGE0(j, mainOutput)
                     {
                         children.emplace_back(

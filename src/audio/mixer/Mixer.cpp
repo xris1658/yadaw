@@ -2489,6 +2489,17 @@ OptionalRef<Context> Mixer::getInstrumentContext(std::uint32_t index)
     return {};
 }
 
+std::optional<std::uint32_t> Mixer::getInstrumentMainOutputChannelGroupIndex(std::uint32_t index) const
+{
+    if(index < count(ChannelListType::RegularList)
+        && channelInfo_[index].channelType == ChannelType::Instrument
+        && instrumentContexts_[index])
+    {
+        return instrumentOutputChannelIndex_[index];
+    }
+    return {};
+}
+
 bool Mixer::setInstrument(
     std::uint32_t index, ade::NodeHandle nodeHandle,
     std::uint32_t outputChannelIndex)
