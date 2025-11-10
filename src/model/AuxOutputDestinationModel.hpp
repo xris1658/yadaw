@@ -15,6 +15,9 @@ public:
         std::uint32_t channelGroupIndex, QObject* parent = nullptr);
     ~AuxOutputDestinationModel();
 public:
+    YADAW::Model::AuxOutputDestinationListModel& getModel() const;
+    std::uint32_t getChannelGroupIndex() const;
+public:
     int rowCount(const QModelIndex& parent) const override;
     QVariant data(const QModelIndex& index, int role) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;

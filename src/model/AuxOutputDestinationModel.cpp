@@ -21,6 +21,16 @@ AuxOutputDestinationModel::~AuxOutputDestinationModel()
 {
 }
 
+YADAW::Model::AuxOutputDestinationListModel& AuxOutputDestinationModel::getModel() const
+{
+    return *model_;
+}
+
+std::uint32_t AuxOutputDestinationModel::getChannelGroupIndex() const
+{
+    return channelGroupIndex_;
+}
+
 int AuxOutputDestinationModel::rowCount(const QModelIndex& parent) const
 {
     return positions_.size();
@@ -85,7 +95,37 @@ bool AuxOutputDestinationModel::setData(const QModelIndex& index, const QVariant
 bool AuxOutputDestinationModel::append(YADAW::Entity::IAudioIOPosition* position)
 {
     auto ret = false;
-    return ret; // TODO
+    YADAW::Audio::Mixer::Mixer::Position dest;
+    if(auto type = position->getType(); type == YADAW::Entity::IAudioIOPosition::Type::AudioHardwareIOChannel)
+    {
+        dest = static_cast<YADAW::Audio::Mixer::Mixer::Position>(
+            static_cast<YADAW::Entity::HardwareAudioIOPosition&>(*position)
+        );
+    }
+    else if(type == YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel)
+    {
+        dest = static_cast<YADAW::Audio::Mixer::Mixer::Position>(
+            static_cast<YADAW::Entity::RegularAudioIOPosition&>(*position)
+        );
+    }
+    else if(type == YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO)
+    {
+        dest = static_cast<YADAW::Audio::Mixer::Mixer::Position>(
+            static_cast<YADAW::Entity::PluginAuxAudioIOPosition&>(*position)
+        );
+    }
+    if(dest.type != YADAW::Audio::Mixer::Mixer::Position::Type::Invalid)
+    {
+        beginInsertRows({}, positions_.size(), positions_.size());
+        ret = model_->mixer_->addAuxOutputDestination(
+            model_->position(channelGroupIndex_), dest
+        );
+        if(ret)
+        {
+            endInsertRows();
+        }
+    }
+    return ret;
 }
 
 bool AuxOutputDestinationModel::remove(int position, int removeCount)
