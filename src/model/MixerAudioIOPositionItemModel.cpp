@@ -655,9 +655,41 @@ MixerAudioIOPositionItemModel::getPosition(const QModelIndex& index) const
     return std::nullopt;
 }
 
-QModelIndex MixerAudioIOPositionItemModel::findIndexByID(const QString& id) const
+QModelIndex MixerAudioIOPositionItemModel::findIndexByID(const QString& idAsString) const
 {
-    return QModelIndex();
+    auto id = idAsString.toULongLong();
+    auto& mixer = mixerChannelListModels_[0]->mixer();
+    auto position = *(isInput_?
+        mixer.getAuxInputPosition(id):
+        mixer.getAuxOutputPosition(id));
+    auto ret = index(position.channelListType, 0, {});
+    ret = index(position.channelIndex, 0, ret);
+    
+    std::uint32_t mainOutput = 0;
+    if(position.inChannelPosition == YADAW::Audio::Mixer::Mixer::PluginAuxIOPosition::Instrument)
+    {
+        ret = index(NodeData::NodeInChannelPosition::Instrument, 0, ret);
+        mainOutput = *(mixer.getInstrumentMainOutputChannelGroupIndex(position.channelIndex));
+    }
+    else
+    {
+        ret = index(
+            position.isPreFaderInsert?
+                NodeData::NodeInChannelPosition::PreFaderInserts:
+                NodeData::NodeInChannelPosition::PostFaderInserts,
+            0, ret
+        );
+        ret = index(position.insertIndex, 0, ret);
+        mainOutput = *(
+            position.isPreFaderInsert?
+                mixer.preFaderInsertsAt(position.channelListType, position.channelIndex):
+                mixer.postFaderInsertsAt(position.channelListType, position.channelIndex)
+        )->get().insertOutputChannelGroupIndexAt(position.insertIndex);
+    }
+    ret = index(
+        position.channelGroupIndex - (position.channelGroupIndex > mainOutput), 0, ret
+    );
+    return ret;
 }
 
 void MixerAudioIOPositionItemModel::initChildren(
