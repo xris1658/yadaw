@@ -224,7 +224,7 @@ void auxOutputInserted(const YADAW::Model::AuxOutputDestinationModel& sender, in
     }
 }
 
-void auxOutputAboutToBeRemoved(const YADAW::Model::AuxOutputDestinationListModel& sender, int first, int last)
+void auxOutputAboutToBeRemoved(const YADAW::Model::AuxOutputDestinationModel& sender, int first, int last)
 {
     using YADAW::Audio::Mixer::Mixer;
     YADAW::Model::MixerChannelListModel* listModels[3] = {
@@ -276,7 +276,7 @@ void auxOutputAboutToBeRemoved(const YADAW::Model::AuxOutputDestinationListModel
     }
 }
 
-void auxOutputAboutToBeChanged(const YADAW::Model::AuxOutputDestinationListModel& sender, int first, int last)
+void auxOutputAboutToBeChanged(const YADAW::Model::AuxOutputDestinationModel& sender, int first, int last)
 {
     auxOutputAboutToBeRemoved(sender, first, last);
 }

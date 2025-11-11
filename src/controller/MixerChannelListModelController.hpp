@@ -18,8 +18,8 @@ void sendInserted(const YADAW::Model::MixerChannelSendListModel& sender, int fir
 void sendAboutToBeRemoved(const YADAW::Model::MixerChannelSendListModel& sender, int first, int last);
 void sendAboutToBeChanged(const YADAW::Model::MixerChannelSendListModel& sender, int first, int last);
 void auxOutputInserted(const YADAW::Model::AuxOutputDestinationModel& sender, int first, int last);
-void auxOutputAboutToBeRemoved(const YADAW::Model::AuxOutputDestinationListModel& sender, int first, int last);
-void auxOutputAboutToBeChanged(const YADAW::Model::AuxOutputDestinationListModel& sender, int first, int last);
+void auxOutputAboutToBeRemoved(const YADAW::Model::AuxOutputDestinationModel& sender, int first, int last);
+void auxOutputAboutToBeChanged(const YADAW::Model::AuxOutputDestinationModel& sender, int first, int last);
 }
 
 #endif // YADAW_SRC_CONTROLLER_MIXERCHANNELLISTMODELCONTROLLER
