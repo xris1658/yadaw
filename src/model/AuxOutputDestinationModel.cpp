@@ -87,6 +87,7 @@ bool AuxOutputDestinationModel::setData(const QModelIndex& index, const QVariant
     }
     if(ret)
     {
+        destinationAboutToBeChanged(row, row);
         dataChanged(index, index, {Role::Destination});
     }
     return ret;

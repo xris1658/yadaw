@@ -7,6 +7,16 @@
 
 namespace YADAW::Controller
 {
+struct MixerChannelListModels
+{
+    YADAW::Model::MixerChannelListModel mixerChannels[3];
+    YADAW::Model::MixerAudioIOPositionItemModel audioInputPositionModel;
+    YADAW::Model::MixerAudioIOPositionItemModel audioOutputPositionModel;
+    MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer);
+};
+
+MixerChannelListModels& appMixerChannelListModels();
+
 YADAW::Model::MixerChannelListModel& appAudioInputMixerChannels();
 YADAW::Model::MixerChannelListModel& appMixerChannels();
 YADAW::Model::MixerChannelListModel& appAudioOutputMixerChannels();

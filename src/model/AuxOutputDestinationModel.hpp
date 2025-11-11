@@ -9,6 +9,7 @@ class AuxOutputDestinationListModel;
 
 class AuxOutputDestinationModel: public IAuxOutputDestinationListModel
 {
+    Q_OBJECT
 public:
     AuxOutputDestinationModel(
         YADAW::Model::AuxOutputDestinationListModel& model,
@@ -24,6 +25,8 @@ public:
 public:
     bool append(YADAW::Entity::IAudioIOPosition* position) override;
     bool remove(int position, int removeCount) override;
+signals:
+    void destinationAboutToBeChanged(int first, int last);
 private:
     YADAW::Model::AuxOutputDestinationListModel* model_;
     std::uint32_t channelGroupIndex_;

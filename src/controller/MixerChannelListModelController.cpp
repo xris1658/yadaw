@@ -1,67 +1,148 @@
 #include "MixerChannelListModelController.hpp"
 
 #include "controller/AudioEngineController.hpp"
+#include "model/MixerChannelInsertListModel.hpp"
 
 namespace YADAW::Controller
 {
+MixerChannelListModels::MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer):
+    mixerChannels {
+        YADAW::Model::MixerChannelListModel(mixer, YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList),
+        YADAW::Model::MixerChannelListModel(mixer, YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList),
+        YADAW::Model::MixerChannelListModel(mixer, YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList),
+    },
+    audioInputPositionModel(mixerChannels[0], mixerChannels[1], mixerChannels[2], true),
+    audioOutputPositionModel(mixerChannels[0], mixerChannels[1], mixerChannels[2], false)
+{
+    for(const auto& model: mixerChannels)
+    {
+        QObject::connect(
+            &model, &YADAW::Model::MixerChannelListModel::rowsInserted,
+            [&sender = model](const QModelIndex& parent, int first, int last)
+            {
+                FOR_RANGE(i, first, last + 1)
+                {
+                    // connect to sends
+                    auto sendListModel = static_cast<YADAW::Model::MixerChannelSendListModel*>(
+                        sender.data(
+                            sender.index(i), YADAW::Model::MixerChannelListModel::Role::Sends
+                        ).value<QObject*>()
+                    );
+                    QObject::connect(
+                        sendListModel, &YADAW::Model::MixerChannelSendListModel::rowsInserted,
+                        [&sender = *sendListModel](const QModelIndex& parent, int first, int last)
+                        {
+                            YADAW::Controller::sendInserted(sender, first, last);
+                        }
+                    );
+                    QObject::connect(
+                        sendListModel, &YADAW::Model::MixerChannelSendListModel::destinationAboutToBeChanged,
+                        [&sender = *sendListModel](int first, int last)
+                        {
+                            YADAW::Controller::sendAboutToBeChanged(sender, first, last);
+                        }
+                    );
+                    QObject::connect(
+                        sendListModel, &YADAW::Model::MixerChannelSendListModel::rowsAboutToBeRemoved,
+                        [&sender = *sendListModel](const QModelIndex& parent, int first, int last)
+                        {
+                            YADAW::Controller::sendAboutToBeRemoved(sender, first, last);
+                        }
+                    );
+                    // connect to aux outputs
+                    auto insertListModel = static_cast<YADAW::Model::MixerChannelInsertListModel*>(
+                        sender.data(
+                            sender.index(i),
+                            YADAW::Model::MixerChannelListModel::Role::Inserts
+                        ).value<QObject*>()
+                    );
+                    QObject::connect(
+                        insertListModel, &YADAW::Model::MixerChannelInsertListModel::rowsInserted,
+                        [&sender = *insertListModel](const QModelIndex& parent, int first, int last)
+                        {
+                            FOR_RANGE(i, first, last + 1)
+                            {
+                                auto insertAuxOutputDestinationList = static_cast<YADAW::Model::AuxOutputDestinationListModel*>(
+                                    sender.data(
+                                        sender.index(i),
+                                        YADAW::Model::MixerChannelInsertListModel::Role::AudioAuxOutputDestination
+                                    ).value<QObject*>()
+                                );
+                                FOR_RANGE0(j, insertAuxOutputDestinationList->rowCount({}))
+                                {
+                                    auto auxOutputDestinations = static_cast<YADAW::Model::AuxOutputDestinationModel*>(
+                                        insertAuxOutputDestinationList->data(
+                                            insertAuxOutputDestinationList->index(j),
+                                            YADAW::Model::AuxOutputDestinationModel::Role::Destination
+                                        ).value<QObject*>()
+                                    );
+                                    QObject::connect(
+                                        auxOutputDestinations, &YADAW::Model::AuxOutputDestinationModel::rowsInserted,
+                                        [&sender = *auxOutputDestinations](const QModelIndex& parent, int first, int last)
+                                        {
+                                            auxOutputInserted(sender, first, last);
+                                        }
+                                    );
+                                    QObject::connect(
+                                        auxOutputDestinations, &YADAW::Model::AuxOutputDestinationModel::destinationAboutToBeChanged,
+                                        [&sender = *auxOutputDestinations](int first, int last)
+                                        {
+                                            auxOutputAboutToBeChanged(sender, first, last);
+                                        }
+                                    );
+                                    QObject::connect(
+                                        auxOutputDestinations, &YADAW::Model::AuxOutputDestinationModel::rowsAboutToBeRemoved,
+                                        [&sender = *auxOutputDestinations](const QModelIndex& parent, int first, int last)
+                                        {
+                                            auxOutputAboutToBeRemoved(sender, first, last);
+                                        }
+                                    );
+                                }
+                            }
+                        }
+                    );
+                }
+            }
+        );
+    }
+}
+
+MixerChannelListModels& appMixerChannelListModels()
+{
+    auto& mixer = YADAW::Controller::AudioEngine::appAudioEngine().mixer();
+    static MixerChannelListModels ret(mixer);
+    return ret;
+}
+
 YADAW::Model::MixerChannelListModel& appAudioInputMixerChannels()
 {
-    static YADAW::Model::MixerChannelListModel ret(
-        YADAW::Controller::AudioEngine::appAudioEngine().mixer(),
-        YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList
-    );
-    return ret;
+    return appMixerChannelListModels().mixerChannels[0];
 }
 
 YADAW::Model::MixerChannelListModel& appMixerChannels()
 {
-    static YADAW::Model::MixerChannelListModel ret(
-        YADAW::Controller::AudioEngine::appAudioEngine().mixer(),
-        YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-    );
-    return ret;
+    return appMixerChannelListModels().mixerChannels[1];
 }
 
 YADAW::Model::MixerChannelListModel& appAudioOutputMixerChannels()
 {
-    static YADAW::Model::MixerChannelListModel ret(
-        YADAW::Controller::AudioEngine::appAudioEngine().mixer(),
-        YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList
-    );
-    return ret;
+    return appMixerChannelListModels().mixerChannels[2];
 }
 
 YADAW::Model::MixerAudioIOPositionItemModel& appMixerAudioInputPositionModel()
 {
-    static YADAW::Model::MixerAudioIOPositionItemModel ret(
-        appAudioInputMixerChannels(),
-        appMixerChannels(),
-        appAudioOutputMixerChannels(),
-        true
-    );
-    return ret;
+    return appMixerChannelListModels().audioInputPositionModel;
 }
 
 YADAW::Model::MixerAudioIOPositionItemModel& appMixerAudioOutputPositionModel()
 {
-    static YADAW::Model::MixerAudioIOPositionItemModel ret(
-        appAudioInputMixerChannels(),
-        appMixerChannels(),
-        appAudioOutputMixerChannels(),
-        false
-    );
-    return ret;
+    return appMixerChannelListModels().audioOutputPositionModel;
 }
 
 void sendInserted(const YADAW::Model::MixerChannelSendListModel& sender, int first, int last)
 {
     using YADAW::Audio::Mixer::Mixer;
-    YADAW::Model::MixerChannelListModel* listModels[3] = {
-        &(appAudioInputMixerChannels()),
-        &(appMixerChannels()),
-        &(appAudioOutputMixerChannels())
-    };
-    auto& mixer = listModels[0]->mixer();
+    auto& mixer = appMixerChannelListModels().mixerChannels[0].mixer();
     FOR_RANGE(i, first, last + 1)
     {
         auto pPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
@@ -109,12 +190,7 @@ void sendInserted(const YADAW::Model::MixerChannelSendListModel& sender, int fir
 void sendAboutToBeRemoved(const YADAW::Model::MixerChannelSendListModel& sender, int first, int last)
 {
     using YADAW::Audio::Mixer::Mixer;
-    YADAW::Model::MixerChannelListModel* listModels[3] = {
-        &(appAudioInputMixerChannels()),
-        &(appMixerChannels()),
-        &(appAudioOutputMixerChannels())
-    };
-    auto& mixer = listModels[0]->mixer();
+    auto& mixer = appMixerChannelListModels().mixerChannels[0].mixer();
     FOR_RANGE(i, first, last + 1)
     {
         auto pPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
@@ -166,12 +242,7 @@ void sendAboutToBeChanged(const YADAW::Model::MixerChannelSendListModel& sender,
 void auxOutputInserted(const YADAW::Model::AuxOutputDestinationModel& sender, int first, int last)
 {
     using YADAW::Audio::Mixer::Mixer;
-    YADAW::Model::MixerChannelListModel* listModels[3] = {
-        &(appAudioInputMixerChannels()),
-        &(appMixerChannels()),
-        &(appAudioOutputMixerChannels())
-    };
-    auto& mixer = listModels[0]->mixer();
+    auto& mixer = appMixerChannelListModels().mixerChannels[0].mixer();
     YADAW::Entity::IAudioIOPosition* auxOutputPosition = nullptr;
     FOR_RANGE(i, first, last + 1)
     {
@@ -227,12 +298,7 @@ void auxOutputInserted(const YADAW::Model::AuxOutputDestinationModel& sender, in
 void auxOutputAboutToBeRemoved(const YADAW::Model::AuxOutputDestinationModel& sender, int first, int last)
 {
     using YADAW::Audio::Mixer::Mixer;
-    YADAW::Model::MixerChannelListModel* listModels[3] = {
-        &(appAudioInputMixerChannels()),
-        &(appMixerChannels()),
-        &(appAudioOutputMixerChannels())
-    };
-    auto& mixer = listModels[0]->mixer();
+    auto& mixer = appMixerChannelListModels().mixerChannels[0].mixer();
     YADAW::Entity::IAudioIOPosition* auxOutputPosition = nullptr;
     FOR_RANGE(i, first, last + 1)
     {
