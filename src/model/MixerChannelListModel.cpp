@@ -843,7 +843,6 @@ bool MixerChannelListModel::insert(int position, int count,
                 ),
                 count, nullptr
             );
-            endInsertRows();
         }
     }
     else if(count == 1)
@@ -876,7 +875,6 @@ bool MixerChannelListModel::insert(int position, int count,
         {
             insertModels_[i]->setChannelIndex(i);
         }
-        endInsertRows();
         dataChanged(index(position + count), index(itemCount() - 1), {Role::NameWithIndex});
         ret = true;
     }
@@ -932,6 +930,7 @@ bool MixerChannelListModel::insert(int position, int count,
             std::inserter(editingVolume_, editingVolume_.begin() + position),
             count, false
         );
+        endInsertRows();
         if(position + count < itemCount())
         {
             dataChanged(
