@@ -105,6 +105,54 @@ MixerChannelListModels::MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer
             }
         );
     }
+    QObject::connect(
+        &mixerChannels[1], &YADAW::Model::MixerChannelListModel::dataChanged,
+        [&sender = mixerChannels[1]](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles)
+        {
+            if(roles.empty() || roles.contains(YADAW::Model::MixerChannelListModel::InstrumentAudioAuxOutputDestination))
+            {
+                FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
+                {
+                    auto auxOutputDestinationList = static_cast<YADAW::Model::AuxOutputDestinationListModel*>(
+                        sender.data(
+                            sender.index(i),
+                            YADAW::Model::MixerChannelListModel::InstrumentAudioAuxOutputDestination
+                        ).value<QObject*>()
+                    );
+                    FOR_RANGE0(j, auxOutputDestinationList? auxOutputDestinationList->rowCount({}): 0)
+                    {
+                        auto auxOutputDestinations = static_cast<YADAW::Model::AuxOutputDestinationModel*>(
+                            auxOutputDestinationList->data(
+                                auxOutputDestinationList->index(j),
+                                YADAW::Model::AuxOutputDestinationModel::Role::Destination
+                            ).value<QObject*>()
+                        );
+                        QObject::connect(
+                            auxOutputDestinations, &YADAW::Model::AuxOutputDestinationModel::rowsInserted,
+                            [&sender = *auxOutputDestinations](const QModelIndex& parent, int first, int last)
+                            {
+                                auxOutputInserted(sender, first, last);
+                            }
+                        );
+                        QObject::connect(
+                            auxOutputDestinations, &YADAW::Model::AuxOutputDestinationModel::destinationAboutToBeChanged,
+                            [&sender = *auxOutputDestinations](int first, int last)
+                            {
+                                auxOutputAboutToBeChanged(sender, first, last);
+                            }
+                        );
+                        QObject::connect(
+                            auxOutputDestinations, &YADAW::Model::AuxOutputDestinationModel::rowsAboutToBeRemoved,
+                            [&sender = *auxOutputDestinations](const QModelIndex& parent, int first, int last)
+                            {
+                                auxOutputAboutToBeRemoved(sender, first, last);
+                            }
+                        );
+                    }
+                }
+            }
+        }
+    );
 }
 
 MixerChannelListModels& appMixerChannelListModels()
