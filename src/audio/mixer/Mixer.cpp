@@ -50,7 +50,14 @@ Mixer::Mixer():
         &Impl::blankPreInsertChannelCallback,
         &Impl::blankPreInsertChannelCallback,
         &Impl::blankPreInsertChannelCallback
-    }
+    },
+    sendAddedCallback_(&Impl::blankSendAddedCallback),
+    sendDestinationChangedCallback_(&Impl::blankSendDestinationChangedCallback),
+    sendRemovedCallback_(&Impl::blankSendRemovedCallback),
+    auxInputChangedCallback_(&Impl::blankAuxInputChangedCallback),
+    auxOutputAddedCallback_(&Impl::blankAuxOutputAddedCallback),
+    auxOutputDestinationChangedCallback_(Impl::blankAuxOutputDestinationChangedCallback),
+    auxOutputRemovedCallback_(&Impl::blankAuxOutputRemovedCallback)
 {}
 
 const YADAW::Audio::Engine::AudioDeviceGraphWithPDC& Mixer::graph() const
