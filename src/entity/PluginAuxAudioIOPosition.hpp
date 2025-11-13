@@ -30,6 +30,9 @@ public:
 public:
     operator YADAW::Audio::Mixer::Mixer::Position() const;
 private:
+    void updateIndex(const QModelIndex& index);
+    void updateIndex(QModelIndex&& index);
+private:
     QModelIndex index_;
 };
 }

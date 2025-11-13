@@ -80,4 +80,16 @@ PluginAuxAudioIOPosition::operator YADAW::Audio::Mixer::Mixer::Position() const
         }
     );
 }
+
+void PluginAuxAudioIOPosition::updateIndex(const QModelIndex& index)
+{
+    index_ = index;
+    nameChanged();
+}
+
+void PluginAuxAudioIOPosition::updateIndex(QModelIndex&& index)
+{
+    index_ = std::move(index);
+    nameChanged();
+}
 }
