@@ -3103,10 +3103,6 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     {
                         batchUpdater_->addObject(std::move(oldSummingAndNode.first));
                     }
-                    else
-                    {
-                        connectionUpdatedCallback_(*this);
-                    }
                     std::swap(oldSummingAndNode, newSummingAndNode);
                     ret = true;
                 }
@@ -3137,10 +3133,6 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     {
                         batchUpdater_->addObject(std::move(oldSummingAndNodeAsDevice.first));
                     }
-                    else
-                    {
-                        connectionUpdatedCallback_(*this);
-                    }
                     oldSummingAndNodeAsDevice.first = std::move(newSummingAndNode.first);
                     std::swap(oldSummingAndNodeAsDevice.second, newSummingAndNode.second);
                     ret = true;
@@ -3166,6 +3158,10 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                         .type = Position::Type::PluginAuxIO,
                         .id = getAuxOutputPositionID(position)
                     };
+                    if(batchUpdater_)
+                    {
+                        batchUpdater_->addNull();
+                    }
                     ret = true;
                 }
             }
@@ -3199,7 +3195,10 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
         }
         if(ret)
         {
-            connectionUpdatedCallback_(*this);
+            if(!batchUpdater_)
+            {
+                connectionUpdatedCallback_(*this);
+            }
             destinations.emplace_back(destination);
             auxOutputAddedCallback_(
                 *this, AuxOutputAddedCallbackArgs {
