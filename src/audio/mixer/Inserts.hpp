@@ -20,6 +20,7 @@ class Inserts
 {
 public:
     using InsertAddedCallback = void(Inserts&, std::uint32_t);
+    using InsertAboutToBeRemovedCallback = void(Inserts&, std::uint32_t, std::uint32_t);
     using InsertRemovedCallback = void(Inserts&, std::uint32_t, std::uint32_t);
     using ConnectionUpdatedCallback = void(const Inserts&);
 public:
@@ -78,6 +79,7 @@ public:
     YADAW::Util::PMRUniquePtr<void>& getInsertCallbackUserData() const;
     void setInsertCallbackUserData(YADAW::Util::PMRUniquePtr<void>&& userData);
     void setInsertAddedCallback(InsertAddedCallback* callback);
+    void setInsertAboutToBeRemovedCallback(InsertAboutToBeRemovedCallback* callback);
     void setInsertRemovedCallback(InsertRemovedCallback* callback);
     void setConnectionUpdatedCallback(ConnectionUpdatedCallback* callback);
 private:
@@ -98,6 +100,7 @@ private:
     YADAW::Util::BatchUpdater* batchUpdater_;
     mutable YADAW::Util::PMRUniquePtr<void> insertCallbackUserData_;
     InsertAddedCallback* insertAddedCallback_;
+    InsertAboutToBeRemovedCallback* insertAboutToBeRemovedCallback_;
     InsertRemovedCallback* insertRemovedCallback_;
 };
 }

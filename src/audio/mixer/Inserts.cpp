@@ -7,6 +7,7 @@ namespace YADAW::Audio::Mixer
 {
 void blankConnectionUpdatedCallback(const Inserts&) {}
 void blankInsertAddedCallback(Inserts& sender, std::uint32_t index) {}
+void blankInsertAboutToBeRemovedCallback(Inserts& sender, std::uint32_t index, std::uint32_t removeCount) {}
 void blankInsertRemovedCallback(Inserts& sender, std::uint32_t index, std::uint32_t removeCount) {}
 
 Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
@@ -22,6 +23,7 @@ Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     batchUpdater_(batchUpdater),
     insertCallbackUserData_(YADAW::Util::createUniquePtr(nullptr)),
     insertAddedCallback_(&blankInsertAddedCallback),
+    insertAboutToBeRemovedCallback_(&blankInsertRemovedCallback),
     insertRemovedCallback_(&blankInsertRemovedCallback)
 {
     auto inDevice = graph_.getNodeData(inNode_).process.device();
@@ -401,6 +403,7 @@ bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
     if(removeCount > 0 && position < insertCount()
         && position + removeCount <= insertCount())
     {
+        insertAboutToBeRemovedCallback_(*this, position, removeCount);
         FOR_RANGE(i, position, position + removeCount)
         {
             setBypassed(i, true);
@@ -565,6 +568,11 @@ void Inserts::setInsertCallbackUserData(YADAW::Util::PMRUniquePtr<void>&& userDa
 void Inserts::setInsertAddedCallback(InsertAddedCallback* callback)
 {
     insertAddedCallback_ = callback;
+}
+
+void Inserts::setInsertAboutToBeRemovedCallback(InsertAboutToBeRemovedCallback* callback)
+{
+    insertAboutToBeRemovedCallback_ = callback;
 }
 
 void Inserts::setInsertRemovedCallback(InsertRemovedCallback* callback)

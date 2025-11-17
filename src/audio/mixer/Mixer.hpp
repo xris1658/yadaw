@@ -325,6 +325,7 @@ private:
     Position& getAuxInputSource(const PluginAuxIOPosition& position);
     std::vector<Position>& getAuxOutputDestinations(const PluginAuxIOPosition& position);
     static void insertAdded(Inserts& sender, std::uint32_t position);
+    static void insertAboutToBeRemoved(Inserts& sender, std::uint32_t position, std::uint32_t removeCount);
     static void insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t removeCount);
     void updatePluginAuxPosition(ChannelListType type, std::uint32_t fromChannelIndex);
     ade::NodeHandle getNodeFromPluginAuxPosition(const PluginAuxIOPosition& position) const;

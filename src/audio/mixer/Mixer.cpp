@@ -3533,6 +3533,25 @@ void Mixer::insertAdded(Inserts& sender, std::uint32_t position)
     }
 }
 
+void Mixer::insertAboutToBeRemoved(Inserts& sender, std::uint32_t position, std::uint32_t removeCount)
+{
+    auto& insertPosition = *static_cast<InsertPosition*>(sender.getInsertCallbackUserData().get());
+    auto& mixer = insertPosition.mixer;
+    auto& vecInput = mixer.pluginAuxInputs_[insertPosition.type][insertPosition.channelIndex].second[insertPosition.insertsIndex];
+    auto& vecOutput = mixer.pluginAuxOutputs_[insertPosition.type][insertPosition.channelIndex].second[insertPosition.insertsIndex];
+    FOR_RANGE(i, position, position + removeCount)
+    {
+        for(auto it: vecInput[i])
+        {
+            mixer.setAuxInputSource(it->second, {});
+        }
+        for(auto it: vecOutput[i])
+        {
+            mixer.clearAuxOutputDestinations(it->second);
+        }
+    }
+}
+
 void Mixer::insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t removeCount)
 {
     auto& insertPosition = *static_cast<InsertPosition*>(sender.getInsertCallbackUserData().get());
