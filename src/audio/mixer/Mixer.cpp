@@ -2898,15 +2898,10 @@ void Mixer::setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater)
 {
     batchUpdater_ = &batchUpdater;
     auto vecs = {
-        std::ranges::ref_view(audioInputPreFaderInserts_),
-        std::ranges::ref_view(audioInputPostFaderInserts_),
-        std::ranges::ref_view(preFaderInserts_),
-        std::ranges::ref_view(postFaderInserts_),
-        std::ranges::ref_view(audioOutputPreFaderInserts_),
-        std::ranges::ref_view(audioOutputPostFaderInserts_)
+        std::ranges::ref_view(channelPreFaderInserts_),
+        std::ranges::ref_view(channelPostFaderInserts_)
     };
-    auto view = std::ranges::views::join(vecs);
-    for(auto& inserts: view)
+    for(auto& inserts: std::ranges::views::join(std::ranges::views::join(vecs)))
     {
         inserts->setBatchUpdater(*batchUpdater_);
     }
@@ -2916,15 +2911,10 @@ void Mixer::resetBatchUpdater()
 {
     batchUpdater_ = nullptr;
     auto vecs = {
-        std::ranges::ref_view(audioInputPreFaderInserts_),
-        std::ranges::ref_view(audioInputPostFaderInserts_),
-        std::ranges::ref_view(preFaderInserts_),
-        std::ranges::ref_view(postFaderInserts_),
-        std::ranges::ref_view(audioOutputPreFaderInserts_),
-        std::ranges::ref_view(audioOutputPostFaderInserts_)
+        std::ranges::ref_view(channelPreFaderInserts_),
+        std::ranges::ref_view(channelPostFaderInserts_)
     };
-    auto view = std::ranges::views::join(vecs);
-    for(auto& inserts: view)
+    for(auto& inserts: std::ranges::views::join(std::ranges::views::join(vecs)))
     {
         inserts->resetBatchUpdater();
     }
