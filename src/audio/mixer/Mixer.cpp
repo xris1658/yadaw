@@ -809,11 +809,6 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                         }
                         return false;
                     }
-                    else if(channelType == ChannelType::Audio)
-                    {
-                        // not implemented
-                        return false;
-                    }
                 }
             }
         }
