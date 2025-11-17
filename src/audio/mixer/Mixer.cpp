@@ -1896,8 +1896,10 @@ bool Mixer::insertAudioInputChannel(std::uint32_t position,
             )
         );
         audioInputPreFaderInserts_[position]->setInsertAddedCallback(&Mixer::insertAdded);
+        audioInputPreFaderInserts_[position]->setInsertAboutToBeRemovedCallback(&Mixer::insertAboutToBeRemoved);
         audioInputPreFaderInserts_[position]->setInsertRemovedCallback(&Mixer::insertRemoved);
         audioInputPostFaderInserts_[position]->setInsertAddedCallback(&Mixer::insertAdded);
+        audioInputPostFaderInserts_[position]->setInsertAboutToBeRemovedCallback(&Mixer::insertAboutToBeRemoved);
         audioInputPostFaderInserts_[position]->setInsertRemovedCallback(&Mixer::insertRemoved);
         updatePluginAuxPosition(
             ChannelListType::AudioHardwareInputList, position + 1
