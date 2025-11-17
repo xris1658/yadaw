@@ -2660,9 +2660,17 @@ std::pair<ade::NodeHandle, Context> Mixer::detachInstrument(std::uint32_t index)
         auto& auxInputIDs = pluginAuxInputs_
             [ChannelListType::RegularList]
             [index].first;
+        for(const auto& it: auxInputIDs)
+        {
+            setAuxInputSource(it->second, {});
+        }
         auto& auxOutputIDs = pluginAuxOutputs_
             [ChannelListType::RegularList]
             [index].first;
+        for(const auto& it: auxOutputIDs)
+        {
+            clearAuxOutputDestinations(it->second);
+        }
         auto& auxInputSources = pluginAuxInputSources_
             [ChannelListType::RegularList]
             [index].first;
