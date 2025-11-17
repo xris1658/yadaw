@@ -720,6 +720,13 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                             std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                             connectionUpdatedCallback_(*this);
                         }
+                        sendAddedCallback_(
+                            *this, SendPosition {
+                                .channelListType = type,
+                                .channelIndex = channelIndex,
+                                .sendIndex = sendPosition
+                            }
+                        );
                         return true;
                     }
                     return false;
@@ -805,6 +812,13 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                                 std::swap(newSummingAndNode.second, oldSummingAndNode.second);
                                 connectionUpdatedCallback_(*this);
                             }
+                            sendAddedCallback_(
+                                *this, SendPosition {
+                                    .channelListType = type,
+                                    .channelIndex = channelIndex,
+                                    .sendIndex = sendPosition
+                                }
+                            );
                             return true;
                         }
                         return false;
@@ -870,6 +884,13 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                             {
                                 connectionUpdatedCallback_(*this);
                             }
+                            sendAddedCallback_(
+                                *this, SendPosition {
+                                    .channelListType = type,
+                                    .channelIndex = channelIndex,
+                                    .sendIndex = sendPosition
+                                }
+                            );
                             return true;
                         }
                     }
@@ -944,6 +965,14 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                     {
                         connectionUpdatedCallback_(*this);
                     }
+                    sendAddedCallback_(
+                        *this, SendPosition {
+                            .channelListType = type,
+                            .channelIndex = channelIndex,
+                            .sendIndex = sendPosition
+                        }
+                    );
+                    auxInputChangedCallback_(*this, pluginAuxIOPosition);
                     return true;
                 }
             }
@@ -1031,6 +1060,7 @@ std::optional<bool> Mixer::setSendDestination(
                     .type = Position::Type::Invalid,
                     .id = IDGen::InvalidId
                 };
+                auxInputChangedCallback_(*this, it->second);
             }
             if(oldSummingNode != nullptr)
             {
@@ -1145,6 +1175,7 @@ std::optional<bool> Mixer::setSendDestination(
                             .type = Position::Type::Send,
                             .id = sendPosIt->first
                         };
+                        auxInputChangedCallback_(*this, pluginAuxIOPosition);
                         if(batchUpdater_)
                         {
                             batchUpdater_->addNull();
@@ -1161,6 +1192,14 @@ std::optional<bool> Mixer::setSendDestination(
             if(ret)
             {
                 dests[sendIndex] = destination;
+                sendDestinationChangedCallback_(
+                    *this,
+                    SendPosition {
+                        .channelListType = type,
+                        .channelIndex = channelIndex,
+                        .sendIndex = sendIndex
+                    }
+                );
                 if(batchUpdater_)
                 {
                     if(auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingNode))
@@ -1249,6 +1288,7 @@ std::optional<bool> Mixer::removeSend(
                 {
                     auto it = pluginAuxInputIDs_.find(destination.id);
                     getAuxInputSource(it->second) = Position {};
+                    auxInputChangedCallback_(*this, it->second);
                 }
             }
             if(batchUpdater_)
@@ -1264,6 +1304,17 @@ std::optional<bool> Mixer::removeSend(
             {
                 connectionUpdatedCallback_(*this);
             }
+            sendRemovedCallback_(
+                *this,
+                SendRemovedCallbackArgs {
+                    .sendPosition = SendPosition {
+                        .channelListType = type,
+                        .channelIndex = channelIndex,
+                        .sendIndex = sendPosition
+                    },
+                    .removeCount = removeCount
+                }
+            );
             FOR_RANGE(i, sendPosition, sendPosition + removeCount)
             {
                 sendPositions_.erase(sendIDs[i]);
@@ -1504,6 +1555,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         .type = Position::Type::Invalid,
                         .id = IDGen::InvalidId
                     };
+                    auxInputChangedCallback_(*this, pluginAuxIOPosition);
                     if(batchUpdater_)
                     {
                         batchUpdater_->addNull();
@@ -1658,6 +1710,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         .type = Position::Type::SendAndFXChannel,
                         .id = channelId_[index]
                     };
+                    auxInputChangedCallback_(*this, pluginAuxIOPosition);
                     if(batchUpdater_)
                     {
                         batchUpdater_->addNull();
@@ -3125,14 +3178,15 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                 {
                     if(auto edgeHandle = graph_.connect(fromNode, toNode, position.channelGroupIndex, auxInput.channelGroupIndex))
                     {
-                        const auto& _po1 = pluginAuxOutputs_[position.channelListType][position.channelIndex];
-                        const auto& _po2 = position.inChannelPosition == PluginAuxIOPosition::InChannelPosition::Instrument?
-                            _po1.first:
-                            _po1.second[position.isPreFaderInsert? 0: 1][position.insertIndex];
                         auxInputSource = Position {
                             .type = Position::Type::PluginAuxIO,
                             .id = getAuxOutputPositionID(position)
                         };
+                        auxInputChangedCallback_(*this, auxInput);
+                        if(batchUpdater_)
+                        {
+                            batchUpdater_->addNull();
+                        }
                         ret = true;
                     }
                 }
@@ -3142,6 +3196,11 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
         {
             connectionUpdatedCallback_(*this);
             destinations.emplace_back(destination);
+            auxOutputAddedCallback_(
+                *this, AuxOutputAddedCallbackArgs {
+                    .auxOutput = position, .position = static_cast<std::uint32_t>(destinations.size() - 1)
+                }
+            );
         }
     }
     return ret;
@@ -3282,6 +3341,7 @@ bool Mixer::removeAuxOutputDestination(const PluginAuxIOPosition& position, std:
                 auto auxInput = *getAuxInputPosition(dest.id);
                 auto toNode = getNodeFromPluginAuxPosition(auxInput);
                 getAuxInputSource(auxInput) = {};
+                auxInputChangedCallback_(*this, auxInput);
             }
         }
         if(!batchUpdater_)
@@ -3291,6 +3351,14 @@ bool Mixer::removeAuxOutputDestination(const PluginAuxIOPosition& position, std:
         destinations.erase(
             destinations.begin() + index,
             destinations.begin() + index + removeCount
+        );
+        auxOutputRemovedCallback_(
+            *this,
+            AuxOutputRemovedCallbackArgs {
+                .auxOutput = position,
+                .position = index,
+                .removeCount = removeCount
+            }
         );
         return true;
     }
