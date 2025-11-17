@@ -1056,10 +1056,7 @@ std::optional<bool> Mixer::setSendDestination(
             else if(oldDestination.type == Position::Type::PluginAuxIO)
             {
                 auto it = pluginAuxInputIDs_.find(oldDestination.id);
-                getAuxInputSource(it->second) = Position {
-                    .type = Position::Type::Invalid,
-                    .id = IDGen::InvalidId
-                };
+                getAuxInputSource(it->second) = Position {};
                 auxInputChangedCallback_(*this, it->second);
             }
             if(oldSummingNode != nullptr)
@@ -1349,6 +1346,7 @@ std::optional<bool> Mixer::removeSend(
     }
     return std::nullopt;
 }
+
 std::optional<bool> Mixer::clearSends(
     ChannelListType type, std::uint32_t channelIndex)
 {
@@ -1551,10 +1549,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 if(graph_.getEdgeData(edgeHandle).toChannel == pluginAuxIOPosition.channelGroupIndex)
                 {
                     graph_.disconnect(edgeHandle);
-                    getAuxInputSource(pluginAuxIOPosition) = Position {
-                        .type = Position::Type::Invalid,
-                        .id = IDGen::InvalidId
-                    };
+                    getAuxInputSource(pluginAuxIOPosition) = Position {};
                     auxInputChangedCallback_(*this, pluginAuxIOPosition);
                     if(batchUpdater_)
                     {
@@ -2434,11 +2429,11 @@ bool Mixer::insertChannels(
         }
         std::fill_n(
             std::inserter(mainInput_, mainInput_.begin() + position), count,
-            Position {Position::Invalid, IDGen::InvalidId}
+            Position {}
         );
         std::fill_n(
             std::inserter(mainOutput_, mainOutput_.begin() + position), count,
-            Position {Position::Invalid, IDGen::InvalidId}
+            Position {}
         );
         auto& vecInput = pluginAuxInputs_[ChannelListType::RegularList];
         using ChannelData = decltype(pluginAuxInputs_)::value_type::value_type;
@@ -2591,7 +2586,7 @@ bool Mixer::setInstrument(
                     [index].first;
                 auxInputSources.resize(
                     device->audioInputGroupCount(),
-                    Position { .type = Position::Type::Invalid }
+                    Position {}
                 );
                 auxOutputDestinations.resize(
                     device->audioOutputGroupCount() - 1
@@ -3210,7 +3205,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
 
 bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index, Position destination)
 {
-    return false;
+    return false; // TODO
 }
 
 bool Mixer::removeAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index,
@@ -3514,7 +3509,7 @@ void Mixer::insertAdded(Inserts& sender, std::uint32_t position)
     auto device = sender.graph().getNodeData(node).process.device();
     auxInputIt->reserve(device->audioInputGroupCount() - 1);
     auxOutputIt->reserve(device->audioOutputGroupCount() - 1);
-    auxInputSourceIt->resize(device->audioInputGroupCount() - 1, Position {.type = Position::Type::Invalid, .id = IDGen::InvalidId});
+    auxInputSourceIt->resize(device->audioInputGroupCount() - 1, Position {});
     auxOutputDestinationsIt->resize(device->audioOutputGroupCount() - 1);
     auto inputIndex = *sender.insertInputChannelGroupIndexAt(position);
     auto outputIndex = *sender.insertOutputChannelGroupIndexAt(position);
