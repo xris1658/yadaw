@@ -438,31 +438,17 @@ void EventHandler::onOpenMainWindow()
     YADAW::UI::mainWindow->setProperty("mixerAudioOutputChannelModel",
         QVariant::fromValue<QObject*>(&audioOutputMixerChannels)
     );
-    static YADAW::Model::HardwareAudioIOPositionModel hardwareAudioInputPositionModel(
-        audioInputMixerChannels
-    );
-    static YADAW::Model::HardwareAudioIOPositionModel hardwareAudioOutputPositionModel(
-        audioOutputMixerChannels
-    );
-    static YADAW::Model::RegularAudioIOPositionModel audioFXIOPositionModel(
-        mixerChannels,
-        YADAW::Model::IMixerChannelListModel::ChannelTypes::ChannelTypeAudioFX
-    );
-    static YADAW::Model::RegularAudioIOPositionModel audioGroupIOPositionModel(
-        mixerChannels,
-        YADAW::Model::IMixerChannelListModel::ChannelTypes::ChannelTypeBus
-    );
     YADAW::UI::mainWindow->setProperty("audioHardwareInputPositionModel",
-        QVariant::fromValue<QObject*>(&hardwareAudioInputPositionModel)
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().hardwareAudioInputPositionModel)
     );
     YADAW::UI::mainWindow->setProperty("audioHardwareOutputPositionModel",
-        QVariant::fromValue<QObject*>(&hardwareAudioOutputPositionModel)
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().hardwareAudioOutputPositionModel)
     );
     YADAW::UI::mainWindow->setProperty("audioGroupChannelModel",
-        QVariant::fromValue<QObject*>(&audioGroupIOPositionModel)
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().audioGroupIOPositionModel)
     );
     YADAW::UI::mainWindow->setProperty("audioEffectChannelModel",
-        QVariant::fromValue<QObject*>(&audioFXIOPositionModel)
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().audioFXIOPositionModel)
     );
     YADAW::UI::mainWindow->setProperty("pluginAuxInModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerAudioInputPositionModel())

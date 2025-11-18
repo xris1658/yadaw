@@ -1,15 +1,21 @@
 #ifndef YADAW_SRC_CONTROLLER_MIXERCHANNELLISTMODELCONTROLLER
 #define YADAW_SRC_CONTROLLER_MIXERCHANNELLISTMODELCONTROLLER
 
+#include "model/HardwareAudioIOPositionModel.hpp"
 #include "model/MixerChannelListModel.hpp"
 #include "model/MixerChannelSendListModel.hpp"
 #include "model/MixerAudioIOPositionItemModel.hpp"
+#include "model/RegularAudioIOPositionModel.hpp"
 
 namespace YADAW::Controller
 {
 struct MixerChannelListModels
 {
     YADAW::Model::MixerChannelListModel mixerChannels[3];
+    YADAW::Model::HardwareAudioIOPositionModel hardwareAudioInputPositionModel;
+    YADAW::Model::HardwareAudioIOPositionModel hardwareAudioOutputPositionModel;
+    YADAW::Model::RegularAudioIOPositionModel audioFXIOPositionModel;
+    YADAW::Model::RegularAudioIOPositionModel audioGroupIOPositionModel;
     YADAW::Model::MixerAudioIOPositionItemModel audioInputPositionModel;
     YADAW::Model::MixerAudioIOPositionItemModel audioOutputPositionModel;
     MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer);

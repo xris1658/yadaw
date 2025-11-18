@@ -11,6 +11,10 @@ MixerChannelListModels::MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer
         YADAW::Model::MixerChannelListModel(mixer, YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList),
         YADAW::Model::MixerChannelListModel(mixer, YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList),
     },
+    hardwareAudioInputPositionModel(mixerChannels[0]),
+    hardwareAudioOutputPositionModel(mixerChannels[2]),
+    audioFXIOPositionModel(mixerChannels[1], YADAW::Model::MixerChannelListModel::ChannelTypes::ChannelTypeAudioFX),
+    audioGroupIOPositionModel(mixerChannels[1], YADAW::Model::MixerChannelListModel::ChannelTypes::ChannelTypeBus),
     audioInputPositionModel(mixerChannels[0], mixerChannels[1], mixerChannels[2], true),
     audioOutputPositionModel(mixerChannels[0], mixerChannels[1], mixerChannels[2], false)
 {
