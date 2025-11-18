@@ -360,16 +360,15 @@ void EventHandler::onOpenMainWindow()
             YADAW::Model::IAudioBusConfigurationModel::Role::Name
         ).value<QString>();
     }
-    auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
-    auto& mixerChannels = YADAW::Controller::appMixerChannels();
-    auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
+    auto& mixerChannelListModels = YADAW::Controller::appMixerChannelListModels();
     // TODO: Pass the process sequence into the audio callback
     engine.updateProcessSequence();
     auto& vst3PluginPool = YADAW::Controller::appVST3PluginPool();
     YADAW::Audio::Host::CLAPHost::setMainThreadId(std::this_thread::get_id());
-    mixerChannels.setFillPluginContextCallback(fillPluginContext);
-    audioInputMixerChannels.setFillPluginContextCallback(fillPluginContext);
-    audioOutputMixerChannels.setFillPluginContextCallback(fillPluginContext);
+    for(auto& channel: mixerChannelListModels.mixerChannels)
+    {
+        channel.setFillPluginContextCallback(fillPluginContext);
+    }
     // Start the audio backend
 #if __APPLE__
 #else
@@ -433,10 +432,14 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appALSAOutputDeviceListModel()));
 #endif
     YADAW::UI::mainWindow->setProperty("mixerAudioInputChannelModel",
-        QVariant::fromValue<QObject*>(&audioInputMixerChannels)
+        QVariant::fromValue<QObject*>(
+            &mixerChannelListModels.mixerChannels[YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList]
+        )
     );
     YADAW::UI::mainWindow->setProperty("mixerAudioOutputChannelModel",
-        QVariant::fromValue<QObject*>(&audioOutputMixerChannels)
+        QVariant::fromValue<QObject*>(
+            &mixerChannelListModels.mixerChannels[YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList]
+        )
     );
     YADAW::UI::mainWindow->setProperty("audioHardwareInputPositionModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().hardwareAudioInputPositionModel)
@@ -451,10 +454,10 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().audioFXIOPositionModel)
     );
     YADAW::UI::mainWindow->setProperty("pluginAuxInModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerAudioInputPositionModel())
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().audioInputPositionModel)
     );
     YADAW::UI::mainWindow->setProperty("pluginAuxOutModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerAudioOutputPositionModel())
+        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().audioOutputPositionModel)
     );
     QObject::connect(
         &appAudioBusInputConfigurationModel,
@@ -463,7 +466,7 @@ void EventHandler::onOpenMainWindow()
         {
             if(roles.contains(YADAW::Model::AudioBusConfigurationModel::Role::Name))
             {
-                auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
+                auto& audioInputMixerChannels = YADAW::Controller::appMixerChannelListModels().mixerChannels[YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList];
                 FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
                 {
                     audioInputMixerChannels.setData(
@@ -485,7 +488,7 @@ void EventHandler::onOpenMainWindow()
         {
             if(roles.contains(YADAW::Model::AudioBusConfigurationModel::Role::Name))
             {
-                auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
+                auto& audioOutputMixerChannels = YADAW::Controller::appMixerChannelListModels().mixerChannels[YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList];
                 FOR_RANGE(i, topLeft.row(), bottomRight.row() + 1)
                 {
                     audioOutputMixerChannels.setData(
@@ -505,7 +508,7 @@ void EventHandler::onOpenMainWindow()
         &YADAW::Model::AudioBusConfigurationModel::rowsInserted,
         [](const QModelIndex& parent, int first, int last)
         {
-            auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
+            auto& audioInputMixerChannels = YADAW::Controller::appMixerChannelListModels().mixerChannels[YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList];
             audioInputMixerChannels.insert(
                 first, 1,
                 YADAW::Model::IMixerChannelListModel::ChannelTypes::ChannelTypeAudioHardwareInput,
@@ -531,7 +534,7 @@ void EventHandler::onOpenMainWindow()
         &YADAW::Model::AudioBusConfigurationModel::rowsInserted,
         [](const QModelIndex& parent, int first, int last)
         {
-            auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
+            auto& audioOutputMixerChannels = YADAW::Controller::appMixerChannelListModels().mixerChannels[YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList];
             audioOutputMixerChannels.insert(
                 first, 1,
                 YADAW::Model::IMixerChannelListModel::ChannelTypes::ChannelTypeAudioHardwareOutput,
@@ -555,7 +558,7 @@ void EventHandler::onOpenMainWindow()
         &YADAW::Model::AudioBusConfigurationModel::rowsAboutToBeRemoved,
         [](const QModelIndex& parent, int first, int last)
         {
-            auto& audioInputMixerChannels = YADAW::Controller::appAudioInputMixerChannels();
+            auto& audioInputMixerChannels = YADAW::Controller::appMixerChannelListModels().mixerChannels[YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList];
             audioInputMixerChannels.remove(first, last - first + 1);
         }
     );
@@ -564,13 +567,13 @@ void EventHandler::onOpenMainWindow()
         &YADAW::Model::AudioBusConfigurationModel::rowsAboutToBeRemoved,
         [](const QModelIndex& parent, int first, int last)
         {
-            auto& audioOutputMixerChannels = YADAW::Controller::appAudioOutputMixerChannels();
+            auto& audioOutputMixerChannels = YADAW::Controller::appMixerChannelListModels().mixerChannels[YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList];
             audioOutputMixerChannels.remove(first, last - first + 1);
         }
     );
     YADAW::UI::mainWindow->setProperty(
         "mixerChannelModel",
-        QVariant::fromValue<QObject*>(&mixerChannels)
+        QVariant::fromValue<QObject*>(&mixerChannelListModels.mixerChannels[YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList])
     );
 
     YADAW::UI::mainWindow->setProperty("audioInputBusConfigurationModel",
@@ -692,9 +695,11 @@ void EventHandler::onMainWindowClosing()
     audioEngine.setRunning(false);
     YADAW::Controller::appALSABackend().uninitialize();
 #endif
-    YADAW::Controller::appAudioInputMixerChannels().clear();
-    YADAW::Controller::appMixerChannels().clear();
-    YADAW::Controller::appAudioOutputMixerChannels().clear();
+    auto& models = YADAW::Controller::appMixerChannelListModels();
+    for(auto& model: models.mixerChannels)
+    {
+        model.clear();
+    }
     auto& graphWithPDC = audioEngine.mixer().graph();
     auto& graph = graphWithPDC.graph();
     audioEngine.uninitialize();
