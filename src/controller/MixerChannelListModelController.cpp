@@ -117,7 +117,6 @@ MixerChannelListModels::MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer
     audioInputPositionModel(mixerChannels[0], mixerChannels[1], mixerChannels[2], true),
     audioOutputPositionModel(mixerChannels[0], mixerChannels[1], mixerChannels[2], false)
 {
-    mixer.setAuxInputChangedCallback(&mixerAuxInputChanged);
     for(const auto& model: mixerChannels)
     {
         QObject::connect(
