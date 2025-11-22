@@ -14,14 +14,23 @@ MixerChannelSendListModel::MixerChannelSendListModel(
     mixer_(&mixer),
     channelListType_(type),
     channelIndex_(channelIndex)
-{}
+{
+    QObject::connect(
+        this, &MixerChannelSendListModel::appended,
+        this, &MixerChannelSendListModel::onAppended
+    );
+    QObject::connect(
+        this, &MixerChannelSendListModel::removed,
+        this, &MixerChannelSendListModel::onRemoved
+    );
+}
 
 MixerChannelSendListModel::~MixerChannelSendListModel()
 {}
 
 int MixerChannelSendListModel::itemCount() const
 {
-    return *(mixer_->sendCount(channelListType_, channelIndex_));
+    return destinations_.size();
 }
 
 OptionalRef<const YADAW::Entity::SendPosition>
@@ -88,40 +97,41 @@ bool MixerChannelSendListModel::setData(
         {
         case Role::Destination:
         {
-            auto ret = false;
             if(auto pPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(value.value<QObject*>()))
             {
-                if(auto type = pPosition->getType(); type == YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel)
+                position_ = pPosition;
+                if(auto type = pPosition->getType(); type == YADAW::Entity::IAudioIOPosition::Type::AudioHardwareIOChannel)
+                {
+                    const auto& hardwareAudioIOPosition = static_cast<const YADAW::Entity::HardwareAudioIOPosition&>(*pPosition);
+                    return mixer_->setSendDestination(
+                        channelListType_, channelIndex_, row,
+                        static_cast<YADAW::Audio::Mixer::Mixer::Position>(
+                            hardwareAudioIOPosition
+                        )
+                    ).value_or(false);
+                }
+                else if(type == YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel)
                 {
                     const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioIOPosition&>(*pPosition);
-                    ret = *(
-                            mixer_->setSendDestination(
-                            channelListType_, channelIndex_, row,
-                            static_cast<YADAW::Audio::Mixer::Mixer::Position>(
-                                regularAudioIOPosition
-                            )
+                    return mixer_->setSendDestination(
+                        channelListType_, channelIndex_, row,
+                        static_cast<YADAW::Audio::Mixer::Mixer::Position>(
+                            regularAudioIOPosition
                         )
-                    );
+                    ).value_or(false);
                 }
                 else if(type == YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO)
                 {
                     const auto& pluginAuxAudioIOPosition = static_cast<const YADAW::Entity::PluginAuxAudioIOPosition&>(*pPosition);
-                    ret = *(
-                        mixer_->setSendDestination(
-                            channelListType_, channelIndex_, row,
-                            static_cast<YADAW::Audio::Mixer::Mixer::Position>(
-                                pluginAuxAudioIOPosition
-                            )
+                    return mixer_->setSendDestination(
+                        channelListType_, channelIndex_, row,
+                        static_cast<YADAW::Audio::Mixer::Mixer::Position>(
+                        pluginAuxAudioIOPosition
                         )
-                    );
+                    ).value_or(false);
                 }
             }
-            if(ret)
-            {
-                destinationAboutToBeChanged(row, row);
-                dataChanged(index, index, {Role::Destination});
-            }
-            return ret;
+            return false;
         }
         case Role::Mute:
         {
@@ -149,15 +159,15 @@ bool MixerChannelSendListModel::setData(
 
 bool MixerChannelSendListModel::append(bool isPreFader, YADAW::Entity::IAudioIOPosition* position)
 {
-    auto ret = false;
     if(position)
     {
+        position_ = position;
         switch(position->getType())
         {
         case YADAW::Entity::IAudioIOPosition::Type::AudioHardwareIOChannel:
         {
             const auto& hardwareAudioIOPosition = static_cast<const YADAW::Entity::HardwareAudioIOPosition&>(*position);
-            ret = *mixer_->appendSend(
+            return *mixer_->appendSend(
                 channelListType_, channelIndex_, isPreFader, hardwareAudioIOPosition
             );
             break;
@@ -165,68 +175,27 @@ bool MixerChannelSendListModel::append(bool isPreFader, YADAW::Entity::IAudioIOP
         case YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel:
         {
             const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioIOPosition&>(*position);
-            ret = *mixer_->appendSend(
+            return *mixer_->appendSend(
                 channelListType_, channelIndex_, isPreFader, regularAudioIOPosition
             );
-            break;
         }
         case YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO:
         {
             const auto& pluginAuxAudioIOPosition = static_cast<const YADAW::Entity::PluginAuxAudioIOPosition&>(*position);
-            ret = *mixer_->appendSend(
+            return *mixer_->appendSend(
                 channelListType_, channelIndex_, isPreFader, pluginAuxAudioIOPosition
             );
-            break;
         }
         }
     }
-    if(ret)
-    {
-        auto oldItemCount = itemCount() - 1;
-        sendPositions_.emplace_back(
-            std::make_unique<YADAW::Entity::SendPosition>(*this, oldItemCount)
-        );
-        beginInsertRows(QModelIndex(), oldItemCount, oldItemCount);
-        editingVolume_.emplace_back(false);
-        destinations_.emplace_back(position);
-        polarityInverterModels_.emplace_back(
-            std::make_unique<YADAW::Model::PolarityInverterModel>(
-                mixer_->sendPolarityInverterAt(channelListType_, channelIndex_, oldItemCount)->get()
-            )
-        );
-        endInsertRows();
-    }
-    return ret;
+    return false;
 }
 
 bool MixerChannelSendListModel::remove(int position, int removeCount)
 {
     if(position >= 0 && removeCount > 0 && position + removeCount <= itemCount())
     {
-        beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
-        mixer_->removeSend(channelListType_, channelIndex_, position, removeCount);
-        editingVolume_.erase(
-            editingVolume_.begin() + position,
-            editingVolume_.begin() + position + removeCount
-        );
-        destinations_.erase(
-            destinations_.begin() + position,
-            destinations_.begin() + position + removeCount
-        );
-        polarityInverterModels_.erase(
-            polarityInverterModels_.begin() + position,
-            polarityInverterModels_.begin() + position + removeCount
-        );
-        sendPositions_.erase(
-            sendPositions_.begin() + position,
-            sendPositions_.begin() + position + removeCount
-        );
-        FOR_RANGE(i, position, sendPositions_.size())
-        {
-            sendPositions_[i]->updateSendIndex(i);
-        }
-        endRemoveRows();
-        return true;
+        return mixer_->removeSend(channelListType_, channelIndex_, position, removeCount).value_or(false);
     }
     return false;
 }
@@ -258,5 +227,59 @@ void MixerChannelSendListModel::setChannelIndex(std::uint32_t channelIndex)
     {
         sendPosition->nameChanged();
     }
+}
+
+void MixerChannelSendListModel::onAppended()
+{
+    auto oldItemCount = itemCount();
+    sendPositions_.emplace_back(
+        std::make_unique<YADAW::Entity::SendPosition>(*this, oldItemCount)
+    );
+    beginInsertRows(QModelIndex(), oldItemCount, oldItemCount);
+    editingVolume_.emplace_back(false);
+    destinations_.emplace_back(position_);
+    polarityInverterModels_.emplace_back(
+        std::make_unique<YADAW::Model::PolarityInverterModel>(
+            mixer_->sendPolarityInverterAt(channelListType_, channelIndex_, oldItemCount)->get()
+        )
+    );
+    endInsertRows();
+}
+
+void MixerChannelSendListModel::onDestinationChanged(int index)
+{
+    if(index >= 0 && index < destinations_.size())
+    {
+        destinations_[index] = position_;
+        dataChanged(this->index(index), this->index(index), {Role::Destination});
+    }
+}
+
+void MixerChannelSendListModel::onRemoved(int first, int last)
+{
+    auto position = first;
+    auto removeCount = last - first + 1;
+    beginRemoveRows(QModelIndex(), first, last);
+    editingVolume_.erase(
+        editingVolume_.begin() + position,
+        editingVolume_.begin() + last + 1
+    );
+    destinations_.erase(
+        destinations_.begin() + position,
+        destinations_.begin() + last
+    );
+    polarityInverterModels_.erase(
+        polarityInverterModels_.begin() + position,
+        polarityInverterModels_.begin() + last
+    );
+    sendPositions_.erase(
+        sendPositions_.begin() + position,
+        sendPositions_.begin() + last
+    );
+    FOR_RANGE(i, position, sendPositions_.size())
+    {
+        sendPositions_[i]->updateSendIndex(i);
+    }
+    endRemoveRows();
 }
 }

@@ -38,7 +38,13 @@ public:
     std::uint32_t channelIndex() const;
     void setChannelIndex(std::uint32_t channelIndex);
 signals:
-    void destinationAboutToBeChanged(int first, int last);
+    void appended();
+    void destinationChanged(int index);
+    void removed(int first, int last);
+private slots:
+    void onAppended();
+    void onDestinationChanged(int index);
+    void onRemoved(int first, int last);
 private:
     YADAW::Audio::Mixer::Mixer* mixer_;
     YADAW::Audio::Mixer::Mixer::ChannelListType channelListType_;
@@ -47,6 +53,7 @@ private:
     std::vector<std::unique_ptr<YADAW::Model::PolarityInverterModel>> polarityInverterModels_;
     std::vector<std::unique_ptr<YADAW::Entity::SendPosition>> sendPositions_;
     std::uint32_t channelIndex_;
+    YADAW::Entity::IAudioIOPosition* position_ = nullptr;
 };
 }
 

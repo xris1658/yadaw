@@ -80,6 +80,37 @@ using DeviceFactoryType = std::unique_ptr<Device>(
 // There's a few DAW mixer which has polarity inverters in send controls.
 // Polarity inverters in sends are useful in some scenarios, so I ended up
 // adding one.
+//
+// Managing Connections
+// It's easy to connect/disconnect things since `Mixer` is a managed graph.
+// The complicated part is showing "the other side(s)" on both ends.
+// I've made some conventions on managing connections that functions should obey
+// for now:
+// - Always do the actual connection/disconnection (i.e. calling `connect` and
+//   `disconnect`) from the source node side. If the relevant callbacks are set,
+//   the source node side is solely responsible for invoking those callbacks.
+//   For example:
+//   - Call `addAuxOutputDestination` if `setAuxInputSource` to
+//     `Position::PluginAuxIO`.
+//   - Call `removeSend` if `setAuxInputSource` to `Position::Invalid` and the
+//     previous input source is `Position::Send`.
+// - When connecting things, always call the callback associated to the source
+//   (if any) BEFORE invoking the callback associated to the destination (if any).
+//   "Plug the source with a new wire before plugging the destination."
+//   For example:
+//   - When `setAuxInputSource` to `Position::PluginAuxIO`, call
+//     `AuxOutputAddedCallback`, then `AuxInputChangedCallback`.
+// - When disconnecting things, always call the callback associated to the source
+//   (if any) AFTER invoking the callback associated to the SOURCE (if any).
+//   "Unplug the source after unplugging the destination."
+//   For example:
+//   - When `setAuxInputSource` to `Position::Invalid` and the previous input
+//     source is `Position::Send`, call `AuxInputChangedCallback`, then
+//     `AuxOutputRemovedCallback`.
+// - If setting the destination of an aux output or send, split the entire
+//   operation as two steps, the first being disconnecting, and the second being
+//   connecting.
+//   - Even if some callbacks might seem redundant, DO NOT omit those callbacks!
 class Mixer
 {
 public:

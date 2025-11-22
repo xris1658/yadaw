@@ -1301,17 +1301,6 @@ std::optional<bool> Mixer::removeSend(
             {
                 connectionUpdatedCallback_(*this);
             }
-            sendRemovedCallback_(
-                *this,
-                SendRemovedCallbackArgs {
-                    .sendPosition = SendPosition {
-                        .channelListType = type,
-                        .channelIndex = channelIndex,
-                        .sendIndex = sendPosition
-                    },
-                    .removeCount = removeCount
-                }
-            );
             FOR_RANGE(i, sendPosition, sendPosition + removeCount)
             {
                 sendPositions_.erase(sendIDs[i]);
@@ -1339,6 +1328,17 @@ std::optional<bool> Mixer::removeSend(
             sendPolarityInverters.erase(
                 sendPolarityInverters.begin() + sendPosition,
                 sendPolarityInverters.begin() + sendPosition + removeCount
+            );
+            sendRemovedCallback_(
+                *this,
+                SendRemovedCallbackArgs {
+                    .sendPosition = SendPosition {
+                        .channelListType = type,
+                        .channelIndex = channelIndex,
+                        .sendIndex = sendPosition
+                    },
+                    .removeCount = removeCount
+                }
             );
             return true;
         }
