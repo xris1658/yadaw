@@ -2760,7 +2760,7 @@ std::optional<IDGen::ID> Mixer::instrumentAuxOutputID(
             [ChannelListType::RegularList]
             [channelIndex].first[
                 channelGroupIndex - (
-                    channelGroupIndex > preFaderInserts_[channelIndex]->outChannelGroupIndex()
+                    channelGroupIndex > getInstrumentMainOutputChannelGroupIndex(channelIndex)
                 )
             ]->first;
     }
