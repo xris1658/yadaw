@@ -1401,6 +1401,12 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
             auto&& sendPosition = getSendPosition(oldPosition.id).value();
             removeSend(sendPosition.channelListType, sendPosition.channelIndex, sendPosition.sendIndex);
         }
+        else if(oldPosition.type == Position::Type::SendAndFXChannel)
+        {
+            // TODO: Not sure about what to do since I've not decided the way
+            //       of setting the main input to send/FX channel
+            //       (see TODO below)
+        }
         else if(oldPosition.type == Position::Type::PluginAuxIO)
         {
             auto auxOutput = *getAuxOutputPosition(oldPosition.id);
@@ -1443,7 +1449,8 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
         }
         else if(position.type == Position::Type::SendAndFXChannel)
         {
-            // not implemented
+            // TODO: What should we do here? Add a send from the channel,
+            //       or set main output of the channel?
         }
         else if(position.type == Position::Type::PluginAuxIO)
         {
