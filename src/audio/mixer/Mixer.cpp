@@ -3117,6 +3117,11 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                         batchUpdater_->addObject(std::move(oldSummingAndNode.first));
                     }
                     std::swap(oldSummingAndNode, newSummingAndNode);
+                    auxOutputAddedCallback_(
+                        *this, AuxOutputAddedCallbackArgs {
+                            .auxOutput = position, .position = static_cast<std::uint32_t>(destinations.size() - 1)
+                        }
+                    );
                     ret = true;
                 }
             }
@@ -3148,6 +3153,11 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     }
                     oldSummingAndNodeAsDevice.first = std::move(newSummingAndNode.first);
                     std::swap(oldSummingAndNodeAsDevice.second, newSummingAndNode.second);
+                    auxOutputAddedCallback_(
+                        *this, AuxOutputAddedCallbackArgs {
+                            .auxOutput = position, .position = static_cast<std::uint32_t>(destinations.size() - 1)
+                        }
+                    );
                     ret = true;
                 }
             }
@@ -3175,6 +3185,12 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     {
                         batchUpdater_->addNull();
                     }
+                    auxOutputAddedCallback_(
+                        *this, AuxOutputAddedCallbackArgs {
+                            .auxOutput = position, .position = static_cast<std::uint32_t>(destinations.size() - 1)
+                        }
+                    );
+                    // TODO: Need a `MainInputChangedCallback` here
                     ret = true;
                 }
             }
@@ -3196,11 +3212,16 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                             .type = Position::Type::PluginAuxIO,
                             .id = getAuxOutputPositionID(position)
                         };
-                        auxInputChangedCallback_(*this, auxInput);
                         if(batchUpdater_)
                         {
                             batchUpdater_->addNull();
                         }
+                        auxOutputAddedCallback_(
+                            *this, AuxOutputAddedCallbackArgs {
+                                .auxOutput = position, .position = static_cast<std::uint32_t>(destinations.size() - 1)
+                            }
+                        );
+                        auxInputChangedCallback_(*this, auxInput);
                         ret = true;
                     }
                 }
@@ -3213,11 +3234,6 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                 connectionUpdatedCallback_(*this);
             }
             destinations.emplace_back(destination);
-            auxOutputAddedCallback_(
-                *this, AuxOutputAddedCallbackArgs {
-                    .auxOutput = position, .position = static_cast<std::uint32_t>(destinations.size() - 1)
-                }
-            );
         }
     }
     return ret;
