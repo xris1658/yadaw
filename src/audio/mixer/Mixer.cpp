@@ -2756,18 +2756,13 @@ std::optional<IDGen::ID> Mixer::instrumentAuxOutputID(
         && inputDevices_[channelIndex].second != nullptr
         && channelGroupIndex < graph_.getNodeData(inputDevices_[channelIndex].second).process.device()->audioOutputGroupCount())
     {
-        if(channelGroupIndex > preFaderInserts_[channelIndex]->outChannelGroupIndex())
-        {
-            return pluginAuxOutputs_
-                [ChannelListType::RegularList]
-                [channelIndex].first[channelGroupIndex]->first;
-        }
-        if(channelGroupIndex <= preFaderInserts_[channelIndex]->outChannelGroupIndex())
-        {
-            return pluginAuxOutputs_
-                [ChannelListType::RegularList]
-                [channelIndex].first[channelGroupIndex - 1]->first;
-        }
+        return pluginAuxOutputs_
+            [ChannelListType::RegularList]
+            [channelIndex].first[
+                channelGroupIndex - (
+                    channelGroupIndex > preFaderInserts_[channelIndex]->outChannelGroupIndex()
+                )
+            ]->first;
     }
     return std::nullopt;
 }
@@ -3300,7 +3295,9 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
                         swapSummingAndNodeUnchecked(oldDestOldSumming, audioOutputSummings_[channelIndex]);
                         auto piNode = audioOutputPolarityInverters_[channelIndex].second;
                         graph_.disconnect(piNode->inEdges().front());
-                        graph_.connect(audioOutputSummings_[channelIndex].second, piNode, 0, 0);
+                        auto oldDestNewSummingEdge = graph_.connect(audioOutputSummings_[channelIndex].second, piNode, 0, 0);
+                        assert(oldDestNewSummingEdge != nullptr);
+                        assert(oldDestOldSumming.first);
                         break;
                     }
                 }
@@ -3326,7 +3323,9 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
                         swapSummingAndNodeUnchecked(oldDestOldSumming, inputDevices_[channelIndex]);
                         auto piNode = polarityInverters_[channelIndex].second;
                         graph_.disconnect(piNode->inEdges().front());
-                        graph_.connect(inputDevices_[channelIndex].second, piNode, 0, 0);
+                        auto oldDestNewSummingEdge = graph_.connect(inputDevices_[channelIndex].second, piNode, 0, 0);
+                        assert(oldDestNewSummingEdge != nullptr);
+                        assert(oldDestOldSumming.first);
                         break;
                     }
                 }
