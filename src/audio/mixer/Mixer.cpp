@@ -42,6 +42,29 @@ bool compareIdAndIndexWithId(const Mixer::IDAndIndex& idAndIndex, IDGen::ID id)
     return idAndIndex.id < id;
 }
 
+template<typename T1, typename T2>
+void swapSummingAndNodeUnchecked(
+    std::pair<std::unique_ptr<T1>, ade::NodeHandle>& lhs,
+    std::pair<std::unique_ptr<T2>, ade::NodeHandle>& rhs
+)
+{
+    if constexpr(std::is_same_v<T1, T2>)
+    {
+        std::swap(lhs, rhs);
+    }
+    if constexpr(std::is_base_of_v<T1, T2>)
+    {
+        using Base = T1; using Derived = T2;
+        Base* lptr = lhs.first.release();
+        lhs.first.reset(rhs.first.release());
+        rhs.first.reset(static_cast<Derived*>(lptr));
+    }
+    else if constexpr(std::is_base_of_v<T2, T1>)
+    {
+        swapSummingAndNodeUnchecked(rhs, lhs);
+    }
+}
+
 Mixer::Mixer():
     graph_(),
     graphWithPDC_(graph_),
@@ -3202,7 +3225,283 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
 
 bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index, Position destination)
 {
-    return false; // TODO
+    auto& dests = getAuxOutputDestinations(position);
+    auto oldDestination = dests[index];
+    if(oldDestination == destination)
+    {
+        return true;
+    }
+    auto ret = false;
+    auto excludeOldDests = {
+        std::ranges::subrange(dests.begin(),             dests.begin() + index),
+        std::ranges::subrange(dests.begin() + index + 1, dests.end())
+    };
+    if(auto excludeOldDestRange = std::ranges::join_view(excludeOldDests);
+        std::ranges::find(excludeOldDestRange, destination) == excludeOldDestRange.end())
+    {
+        auto fromNode = getNodeFromPluginAuxPosition(position);
+        SummingAndNode oldDestOldSumming;
+        std::uint32_t oldChannelGroupIndex = UINT32_MAX;
+        SummingAndNode newDestOldSumming;
+        if(oldDestination.type == Position::Type::AudioHardwareIOChannel)
+        {
+            auto channelIndex = std::lower_bound(
+                audioOutputChannelIdAndIndex_.begin(),
+                audioOutputChannelIdAndIndex_.end(),
+                oldDestination.id,
+                &compareIdAndIndexWithId
+            )->index;
+            for(const auto& edge: oldDestOldSumming.second->inEdges())
+            {
+                if(edge->srcNode() == getNodeFromPluginAuxPosition(position))
+                {
+                    if(const auto& edgeData = graph_.getEdgeData(edge);
+                        edgeData.fromChannel == position.channelGroupIndex)
+                    {
+                        oldChannelGroupIndex = edgeData.toChannel;
+                        oldDestOldSumming = *removeInputGroup(audioOutputSummings_[channelIndex], edgeData.toChannel);
+                        swapSummingAndNodeUnchecked(oldDestOldSumming, audioOutputSummings_[channelIndex]);
+                        auto piNode = audioOutputPolarityInverters_[channelIndex].second;
+                        graph_.disconnect(piNode->inEdges().front());
+                        graph_.connect(audioOutputSummings_[channelIndex].second, piNode, 0, 0);
+                        break;
+                    }
+                }
+            }
+        }
+        else if(oldDestination.type == Position::Type::SendAndFXChannel)
+        {
+            auto channelIndex = std::lower_bound(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                oldDestination.id,
+                &compareIdAndIndexWithId
+            )->index;
+            for(const auto& edge: oldDestOldSumming.second->inEdges())
+            {
+                if(edge->srcNode() == getNodeFromPluginAuxPosition(position))
+                {
+                    if(const auto& edgeData = graph_.getEdgeData(edge);
+                        edgeData.fromChannel == position.channelGroupIndex)
+                    {
+                        oldChannelGroupIndex = edgeData.toChannel;
+                        oldDestOldSumming = *removeInputGroup(inputDevices_[channelIndex], edgeData.toChannel);
+                        swapSummingAndNodeUnchecked(oldDestOldSumming, inputDevices_[channelIndex]);
+                        auto piNode = polarityInverters_[channelIndex].second;
+                        graph_.disconnect(piNode->inEdges().front());
+                        graph_.connect(inputDevices_[channelIndex].second, piNode, 0, 0);
+                        break;
+                    }
+                }
+            }
+        }
+        else if(oldDestination.type == Position::Type::AudioChannel)
+        {
+            auto channelIndex = std::lower_bound(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                oldDestination.id,
+                &compareIdAndIndexWithId
+            )->index;setMainInputAt
+            (channelIndex, {});
+        }
+        else if(oldDestination.type == Position::Type::PluginAuxIO)
+        {
+            auto auxInput = *getAuxInputPosition(oldDestination.id);
+            auto auxInputNode = getNodeFromPluginAuxPosition(auxInput);
+            for(const auto& edge: auxInputNode->inEdges())
+            {
+                if(edge->srcNode() == getNodeFromPluginAuxPosition(position))
+                {
+                    if(const auto& edgeData = graph_.getEdgeData(edge);
+                        edgeData.toChannel == auxInput.channelGroupIndex
+                        && edgeData.fromChannel == position.channelGroupIndex
+                    )
+                    {
+                        graph_.disconnect(edge);
+                        break;
+                    }
+                }
+            }
+        }
+        if(destination.type == Position::Type::AudioHardwareIOChannel)
+        {
+            auto channelIndex = std::lower_bound(
+                audioOutputChannelIdAndIndex_.begin(),
+                audioOutputChannelIdAndIndex_.end(),
+                destination.id, &compareIdAndIndexWithId
+            )->index;
+            auto& newDestSumming = audioOutputSummings_[channelIndex];
+            const auto& srcChannelGroup = graph_.getNodeData(
+                fromNode
+            ).process.device()->audioOutputGroupAt(position.channelGroupIndex)->get();
+            if(
+                auto [destChannelGroupType, destChannelCountInGroup] = *channelGroupTypeAndChannelCountAt(
+                    ChannelListType::AudioHardwareOutputList, channelIndex
+                );
+                destChannelGroupType == srcChannelGroup.type()
+                && destChannelCountInGroup == srcChannelGroup.channelCount()
+                && !YADAW::Util::pathExists(newDestSumming.second, fromNode))
+            {
+                newDestOldSumming = appendInputGroup(newDestSumming);
+                graph_.disconnect(
+                    audioOutputPolarityInverters_[channelIndex].second->inEdges().front()
+                );
+                graph_.connect(
+                    fromNode, newDestOldSumming.second,
+                    position.channelGroupIndex,
+                    newDestOldSumming.first->audioInputGroupCount() - 1
+                );
+                swapSummingAndNodeUnchecked(newDestSumming, newDestOldSumming);
+                auto multiInput = graphWithPDC_.removeNode(newDestOldSumming.second);
+                if(batchUpdater_)
+                {
+                    if(multiInput)
+                    {
+                        batchUpdater_->addObject(std::move(multiInput));
+                    }
+                    batchUpdater_->addObject(std::move(newDestOldSumming.first));
+                }
+                dests[index] = destination;
+                ret = true;
+            }
+        }
+        else if(destination.type == Position::Type::SendAndFXChannel)
+        {
+            auto channelIndex = std::lower_bound(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                destination.id, &compareIdAndIndexWithId
+            )->index;
+            if(auto channelType = channelInfo_[channelIndex].channelType;
+                channelType == ChannelType::AudioFX || channelType == ChannelType::AudioBus)
+            {
+                auto& newDestSumming = inputDevices_[channelIndex];
+                const auto& srcChannelGroup = graph_.getNodeData(
+                    fromNode
+                ).process.device()->audioOutputGroupAt(position.channelGroupIndex)->get();
+                if(
+                    auto [destChannelGroupType, destChannelCountInGroup] = *channelGroupTypeAndChannelCountAt(
+                        ChannelListType::RegularList, channelIndex
+                    );
+                    destChannelGroupType == srcChannelGroup.type()
+                    && destChannelCountInGroup == srcChannelGroup.channelCount()
+                    && !YADAW::Util::pathExists(newDestSumming.second, fromNode))
+                {
+                    auto newDestNewSumming = appendInputGroup(newDestSumming);
+                    auto piNode = polarityInverters_[channelIndex].second;
+                    graph_.disconnect(piNode->inEdges().front());
+                    graph_.connect(newDestNewSumming.second, piNode, 0, 0);
+                    graph_.connect(
+                        fromNode, newDestNewSumming.second,
+                        position.channelGroupIndex,
+                        newDestNewSumming.first->audioInputGroupCount() - 1
+                    );
+                    swapSummingAndNodeUnchecked(newDestSumming, newDestNewSumming);
+                    dests[index] = destination;
+                    ret = true;
+                }
+            }
+        }
+        else if(destination.type == Position::Type::AudioChannel)
+        {
+            auto channelIndex = std::lower_bound(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                destination.id, &compareIdAndIndexWithId
+            )->index;
+            auto oldInput = mainInputAt(channelIndex)->get();
+            if(oldInput.type != Position::Type::Invalid)
+            {
+                setMainInputAt(channelIndex, {});
+                if(graph_.connect(
+                    fromNode, inputDevices_[channelIndex].second,
+                    position.channelGroupIndex, 1
+                ))
+                {
+                    mainInput_[channelIndex] = Position {
+                        .type = Position::Type::PluginAuxIO,
+                        .id = getAuxOutputPositionID(position)
+                    };
+                    ret = true;
+                }
+                else
+                {
+                    setMainInputAt(channelIndex, oldInput);
+                }
+            }
+        }
+        else if(destination.type == Position::Type::PluginAuxIO)
+        {
+            if(auto optAuxInput = getAuxInputPosition(destination.id))
+            {
+                const auto& auxInput = *optAuxInput;
+                if(auto& source = getAuxInputSource(auxInput);
+                    source.type == Position::Type::Invalid)
+                {
+                    ret = graph_.connect(
+                        fromNode,
+                        getNodeFromPluginAuxPosition(auxInput),
+                        position.channelGroupIndex,
+                        auxInput.channelGroupIndex
+                    ).has_value();
+                    if(ret)
+                    {
+                        source = Position {
+                            .type = Position::Type::PluginAuxIO,
+                            .id = getAuxOutputPositionID(position)
+                        };
+                    }
+                }
+            }
+        }
+        if(ret)
+        {
+            if(batchUpdater_)
+            {
+                if(oldDestOldSumming.second != nullptr)
+                {
+                    if(auto oldDestOldMultiInput = graphWithPDC_.removeNode(oldDestOldSumming.second))
+                    {
+                        batchUpdater_->addObject(std::move(oldDestOldMultiInput));
+                    }
+                    batchUpdater_->addObject(std::move(oldDestOldSumming.first));
+                }
+                if(newDestOldSumming.second != nullptr)
+                {
+                    if(auto newDestOldMultiInput = graphWithPDC_.removeNode(newDestOldSumming.second))
+                    {
+                        batchUpdater_->addObject(std::move(newDestOldMultiInput));
+                    }
+                    batchUpdater_->addObject(std::move(newDestOldSumming.first));
+                }
+            }
+        }
+        else
+        {
+            std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> oldMultiInputs[2] = {nullptr, nullptr};
+            if(oldDestOldSumming.second != nullptr)
+            {
+                oldMultiInputs[0] = graphWithPDC_.removeNode(oldDestOldSumming.second);
+            }
+            if(newDestOldSumming.second != nullptr)
+            {
+                oldMultiInputs[1] = graphWithPDC_.removeNode(newDestOldSumming.second);
+            }
+            connectionUpdatedCallback_(*this);
+        }
+    }
+    if(ret)
+    {
+        auxOutputDestinationChangedCallback_(
+            *this,
+            AuxOutputDestinationChangedCallbackArgs {
+                .auxOutput = position,
+                .position = index
+            }
+        );
+    }
+    return ret;
 }
 
 bool Mixer::removeAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index,
