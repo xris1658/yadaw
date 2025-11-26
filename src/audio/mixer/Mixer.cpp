@@ -1403,7 +1403,17 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
         }
         else if(oldPosition.type == Position::Type::PluginAuxIO)
         {
-            // not implemented
+            auto auxOutput = *getAuxOutputPosition(oldPosition.id);
+            auto& dests = getAuxOutputDestinations(auxOutput);
+            FOR_RANGE0(i, dests.size())
+            {
+                const auto& dest = dests[i];
+                if(dest.type == Position::Type::AudioChannel && dest.id == channelId_[index])
+                {
+                    removeAuxOutputDestination(auxOutput, i);
+                    break;
+                }
+            }
         }
         auto toNode = inputDevices_[index].second;
         auto inEdges = toNode->inEdges();
@@ -1437,7 +1447,11 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
         }
         else if(position.type == Position::Type::PluginAuxIO)
         {
-            // not implemented
+            auto auxOutput = *getAuxOutputPosition(position.id);
+            ret = addAuxOutputDestination(
+                auxOutput, Position {
+                    .type = Position::AudioChannel, .id = channelId_[index]
+            });
         }
         if(ret)
         {
