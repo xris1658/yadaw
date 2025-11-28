@@ -15,6 +15,18 @@ AuxOutputDestinationModel::AuxOutputDestinationModel(
     model_(&model), channelGroupIndex_(channelGroupIndex)
 {
     YADAW::Util::setCppOwnership(*this);
+    QObject::connect(
+        this, &AuxOutputDestinationModel::added,
+        this, &AuxOutputDestinationModel::onAdded
+    );
+    QObject::connect(
+        this, &AuxOutputDestinationModel::destinationChanged,
+        this, &AuxOutputDestinationModel::onDestinationChanged
+    );
+    QObject::connect(
+        this, &AuxOutputDestinationModel::removed,
+        this, &AuxOutputDestinationModel::onRemoved
+    );
 }
 
 AuxOutputDestinationModel::~AuxOutputDestinationModel()
@@ -54,9 +66,8 @@ bool AuxOutputDestinationModel::setData(const QModelIndex& index, const QVariant
     using YADAW::Entity::HardwareAudioIOPosition;
     using YADAW::Entity::PluginAuxAudioIOPosition;
     using YADAW::Entity::RegularAudioIOPosition;
-    auto ret = false;
-    auto row = index.row();
-    if(row >= 0 && row < positions_.size())
+
+    if(auto row = index.row(); row >= 0 && row < positions_.size())
     {
         auto obj = value.value<QObject*>();
         if(auto pPosition = dynamic_cast<IAudioIOPosition*>(obj))
@@ -81,21 +92,15 @@ bool AuxOutputDestinationModel::setData(const QModelIndex& index, const QVariant
             }
             if(dest.type != Mixer::Position::Type::Invalid)
             {
-                ret = model_->mixer_->setAuxOutputDestination(self, row, dest);
+                return model_->mixer_->setAuxOutputDestination(self, row, dest);
             }
         }
     }
-    if(ret)
-    {
-        destinationAboutToBeChanged(row, row);
-        dataChanged(index, index, {Role::Destination});
-    }
-    return ret;
+    return false;
 }
 
 bool AuxOutputDestinationModel::append(YADAW::Entity::IAudioIOPosition* position)
 {
-    auto ret = false;
     YADAW::Audio::Mixer::Mixer::Position dest;
     if(auto type = position->getType(); type == YADAW::Entity::IAudioIOPosition::Type::AudioHardwareIOChannel)
     {
@@ -117,16 +122,11 @@ bool AuxOutputDestinationModel::append(YADAW::Entity::IAudioIOPosition* position
     }
     if(dest.type != YADAW::Audio::Mixer::Mixer::Position::Type::Invalid)
     {
-        beginInsertRows({}, positions_.size(), positions_.size());
-        ret = model_->mixer_->addAuxOutputDestination(
+        return model_->mixer_->addAuxOutputDestination(
             model_->position(channelGroupIndex_), dest
         );
-        if(ret)
-        {
-            endInsertRows();
-        }
     }
-    return ret;
+    return false;
 }
 
 bool AuxOutputDestinationModel::remove(int position, int removeCount)
@@ -143,5 +143,35 @@ bool AuxOutputDestinationModel::remove(int position, int removeCount)
         }
     }
     return false;
+}
+
+void AuxOutputDestinationModel::onAdded(int index, YADAW::Entity::IAudioIOPosition* position)
+{
+    if(index >= 0 && index <= positions_.size())
+    {
+        beginInsertRows(QModelIndex(), index, index);
+        positions_.emplace(positions_.begin() + index, position);
+        endInsertRows();
+    }
+}
+
+void AuxOutputDestinationModel::onDestinationChanged(
+    int index, YADAW::Entity::IAudioIOPosition* position)
+{
+    if(index >= 0 && index <= positions_.size())
+    {
+        positions_[index] = position;
+        dataChanged(this->index(index), this->index(index), {Role::Destination});
+    }
+}
+
+void AuxOutputDestinationModel::onRemoved(int first, int last)
+{
+    if(first >= 0 && last < positions_.size() && first <= last)
+    {
+        beginRemoveRows(QModelIndex(), first, last);
+        positions_.erase(positions_.begin() + first, positions_.begin() + last + 1);
+        endRemoveRows();
+    }
 }
 }

@@ -26,7 +26,13 @@ public:
     bool append(YADAW::Entity::IAudioIOPosition* position) override;
     bool remove(int position, int removeCount) override;
 signals:
-    void destinationAboutToBeChanged(int first, int last);
+    void added(int index, YADAW::Entity::IAudioIOPosition* position);
+    void destinationChanged(int index, YADAW::Entity::IAudioIOPosition* position);
+    void removed(int first, int last);
+private slots:
+    void onAdded(int index, YADAW::Entity::IAudioIOPosition* position);
+    void onDestinationChanged(int index, YADAW::Entity::IAudioIOPosition* position);
+    void onRemoved(int first, int last);
 private:
     YADAW::Model::AuxOutputDestinationListModel* model_;
     std::uint32_t channelGroupIndex_;
