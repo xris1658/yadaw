@@ -16,22 +16,31 @@ Item {
         property bool usingPopup: false
         property ComboBoxButton usingPopupButton: null
         property int index: -1
+        property bool adding: false
     }
     Connections {
         id: connectToAudioIOSelector
         target: impl.usingPopup? audioIOSelectorWindow: null
         function onAccepted() {
-            impl.usingPopupButton.checked = false;
+            if(impl.usingPopupButton) {
+                impl.usingPopupButton.checked = false;
+            }
             impl.usingPopup = false;
             impl.usingPopupButton = null;
-            model.setData(
-                model.index(impl.index, 0),
-                audioIOSelectorWindow.audioIOSelector.currentPosition,
+            let target = model.data(
+                model.index(list.currentIndex, 0),
                 IAuxIOTargetListModel.Target
             );
+            if(impl.adding) {
+                target.append(
+                    audioIOSelectorWindow.audioIOSelector.currentPosition
+                );
+            }
         }
         function onResetted() {
-            impl.usingPopupButton.checked = false;
+            if(impl.usingPopupButton) {
+                impl.usingPopupButton.checked = false;
+            }
             impl.usingPopup = false;
             impl.usingPopupButton = null;
             model.setData(
@@ -41,7 +50,9 @@ Item {
             );
         }
         function onCancelled() {
-            impl.usingPopupButton.checked = false;
+            if(impl.usingPopupButton) {
+                impl.usingPopupButton.checked = false;
+            }
             impl.usingPopup = false;
             impl.usingPopupButton = null;
         }
@@ -70,11 +81,10 @@ Item {
                     IAudioDeviceIOGroupListModel.Name
                 )
                 width: list.width
-                checkable: true
-                checked: list.currentIndex === index
+                highlighted: list.currentIndex === index
                 onClicked: {
                     list.currentIndex = index;
-                    destList.model = aiotlm_target
+                    destList.model = aiotlm_target;
                 }
             }
         }
@@ -95,14 +105,35 @@ Item {
                     Button {
                         id: addButton
                         text: qsTr("&Add...")
+                        enabled: list.currentIndex != -1
+                        onClicked: {
+                            locatePopupWindow(audioIOSelectorWindow, addButton.height, 0);
+                            audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = false;
+                            audioIOSelectorWindow.audioIOSelector.showAudioHardwareOutput = true;
+                            audioIOSelectorWindow.audioIOSelector.showAudioGroupChannel = true;
+                            audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = true;
+                            audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = true;
+                            audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = false;
+                            audioIOSelectorWindow.audioIOSelector.currentIndex = 0;
+                            audioIOSelectorWindow.audioIOSelector.audioChannelConfig = outputListModel.data(
+                                outputListModel.index(list.currentIndex, 0),
+                                IAudioDeviceIOGroupListModel.ChannelConfig
+                            );
+                            audioIOSelectorWindow.audioIOSelector.showResetButton = false;
+                            audioIOSelectorWindow.showNormal();
+                            impl.usingPopup = true;
+                            impl.adding = true;
+                        }
                     }
                     Button {
                         id: locateButton
                         text: qsTr("&Locate")
+                        enabled: list.currentIndex != -1
                     }
                     Button {
                         id: disconnectButton
                         text: qsTr("&Disconnect")
+                        enabled: list.currentIndex != -1
                     }
                 }
                 Button {
