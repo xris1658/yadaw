@@ -668,15 +668,18 @@ QModelIndex MixerAudioIOPositionItemModel::findIndexByID(const QString& idAsStri
     std::uint32_t mainOutput = 0;
     if(position.inChannelPosition == YADAW::Audio::Mixer::Mixer::PluginAuxIOPosition::Instrument)
     {
-        ret = index(NodeData::NodeInChannelPosition::Instrument, 0, ret);
+        ret = index(0, 0, ret);
         mainOutput = *(mixer.getInstrumentMainOutputChannelGroupIndex(position.channelIndex));
     }
     else
     {
+        assert(position.isPreFaderInsert);
+        auto& model = *mixerChannelListModels_[position.channelListType];
         ret = index(
-            position.isPreFaderInsert?
-                NodeData::NodeInChannelPosition::PreFaderInserts:
-                NodeData::NodeInChannelPosition::PostFaderInserts,
+            model.data(
+                model.index(position.channelIndex),
+                MixerChannelListModel::Role::InstrumentExist
+            ).value<bool>(),
             0, ret
         );
         ret = index(position.insertIndex, 0, ret);
