@@ -63,12 +63,17 @@ void RegularAudioIOPosition::updateIndex(std::uint32_t index)
 RegularAudioIOPosition::operator Audio::Mixer::Mixer::Position() const
 {
     auto& mixerChannelListModel = model_->getModel();
+    auto channelType = mixerChannelListModel.valueOfFilter(
+        YADAW::Model::MixerChannelListModel::Role::ChannelType
+    ).value<int>();
     auto idAsString = mixerChannelListModel.data(
         mixerChannelListModel.index(getIndex()),
         YADAW::Model::MixerChannelListModel::Role::Id
     );
     return YADAW::Audio::Mixer::Mixer::Position {
-        YADAW::Audio::Mixer::Mixer::Position::SendAndFXChannel,
+        channelType == YADAW::Model::MixerChannelListModel::ChannelTypes::ChannelTypeAudio?
+            YADAW::Audio::Mixer::Mixer::Position::AudioChannel:
+            YADAW::Audio::Mixer::Mixer::Position::SendAndFXChannel,
         idAsString.toULongLong()
     };
 }

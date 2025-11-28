@@ -16,6 +16,7 @@ struct MixerChannelListModels
     YADAW::Model::HardwareAudioIOPositionModel hardwareAudioOutputPositionModel;
     YADAW::Model::RegularAudioIOPositionModel audioFXIOPositionModel;
     YADAW::Model::RegularAudioIOPositionModel audioGroupIOPositionModel;
+    YADAW::Model::RegularAudioIOPositionModel audioIOPositionModel;
     YADAW::Model::MixerAudioIOPositionItemModel audioInputPositionModel;
     YADAW::Model::MixerAudioIOPositionItemModel audioOutputPositionModel;
     MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer);

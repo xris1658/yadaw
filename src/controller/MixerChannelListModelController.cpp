@@ -175,6 +175,7 @@ MixerChannelListModels::MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer
     hardwareAudioOutputPositionModel(mixerChannels[2]),
     audioFXIOPositionModel(mixerChannels[1], YADAW::Model::MixerChannelListModel::ChannelTypes::ChannelTypeAudioFX),
     audioGroupIOPositionModel(mixerChannels[1], YADAW::Model::MixerChannelListModel::ChannelTypes::ChannelTypeBus),
+    audioIOPositionModel(mixerChannels[1], YADAW::Model::MixerChannelListModel::ChannelTypes::ChannelTypeAudio),
     audioInputPositionModel(mixerChannels[0], mixerChannels[1], mixerChannels[2], true),
     audioOutputPositionModel(mixerChannels[0], mixerChannels[1], mixerChannels[2], false)
 {
