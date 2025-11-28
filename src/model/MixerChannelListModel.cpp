@@ -512,7 +512,11 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                     }
                     case YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO:
                     {
-                        // not implemented
+                        const auto& auxOutputPosition = static_cast<const YADAW::Entity::PluginAuxAudioIOPosition&>(*pPosition);
+                        ret = mixer_.setMainInputAt(
+                            row,
+                            static_cast<YADAW::Audio::Mixer::Mixer::Position>(auxOutputPosition)
+                        );
                         break;
                     }
                     }
