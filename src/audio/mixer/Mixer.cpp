@@ -3133,6 +3133,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                         batchUpdater_->addObject(std::move(oldSummingAndNode.first));
                     }
                     std::swap(oldSummingAndNode, newSummingAndNode);
+                    destinations.emplace_back(destination);
                     auxOutputAddedCallback_(
                         *this, AuxOutputAddedCallbackArgs {
                             .auxOutput = position, .position = static_cast<std::uint32_t>(destinations.size() - 1)
@@ -3169,6 +3170,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     }
                     oldSummingAndNodeAsDevice.first = std::move(newSummingAndNode.first);
                     std::swap(oldSummingAndNodeAsDevice.second, newSummingAndNode.second);
+                    destinations.emplace_back(destination);
                     auxOutputAddedCallback_(
                         *this, AuxOutputAddedCallbackArgs {
                             .auxOutput = position, .position = static_cast<std::uint32_t>(destinations.size() - 1)
@@ -3201,6 +3203,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     {
                         batchUpdater_->addNull();
                     }
+                    destinations.emplace_back(destination);
                     auxOutputAddedCallback_(
                         *this, AuxOutputAddedCallbackArgs {
                             .auxOutput = position, .position = static_cast<std::uint32_t>(destinations.size() - 1)
@@ -3232,6 +3235,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                         {
                             batchUpdater_->addNull();
                         }
+                        destinations.emplace_back(destination);
                         auxOutputAddedCallback_(
                             *this, AuxOutputAddedCallbackArgs {
                                 .auxOutput = position, .position = static_cast<std::uint32_t>(destinations.size() - 1)
@@ -3249,7 +3253,6 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
             {
                 connectionUpdatedCallback_(*this);
             }
-            destinations.emplace_back(destination);
         }
     }
     return ret;
