@@ -3184,7 +3184,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                 channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
                 destination.id, &compareIdAndIndexWithId
             );
-            if(it != audioOutputChannelIdAndIndex_.end()
+            if(it != channelIdAndIndex_.end()
                 && channelInfo_[it->index].channelType == ChannelType::Audio
                 && mainInput_[it->index].type == Position::Type::Invalid)
             {
