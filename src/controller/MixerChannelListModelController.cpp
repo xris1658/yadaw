@@ -150,6 +150,7 @@ void mixerAuxInputChanged(const YADAW::Audio::Mixer::Mixer& sender,
                 YADAW::Model::MixerChannelListModel::Role::InstrumentAudioAuxInputSource
             ).value<QObject*>()
         );
+        modelRowIndex = auxInput.channelGroupIndex;
     }
     else
     {
@@ -160,6 +161,9 @@ void mixerAuxInputChanged(const YADAW::Audio::Mixer::Mixer& sender,
             insertListModel->data(
                 insertListModel->index(auxInput.insertIndex), YADAW::Model::MixerChannelInsertListModel::Role::AudioAuxInputSource
             ).value<QObject*>()
+        );
+        modelRowIndex = auxInput.channelGroupIndex - (
+            auxInput.channelGroupIndex > insertListModel->inserts().insertInputChannelGroupIndexAt(auxInput.insertIndex)
         );
     }
     auxInputSourceListModel->inputChanged(modelRowIndex, outputAsPosition);
@@ -175,13 +179,23 @@ void mixerAuxOutputAdded(const YADAW::Audio::Mixer::Mixer& sender,
     );
     auto& models = appMixerChannelListModels();
     auto& model = models.mixerChannels[args.auxOutput.channelListType];
-    YADAW::Model::AuxOutputDestinationModel* auxOutputDestinationList = nullptr;
+    YADAW::Model::AuxOutputDestinationModel* auxOutputDestination = nullptr;
     if(args.auxOutput.inChannelPosition == Mixer::PluginAuxIOPosition::InChannelPosition::Instrument)
     {
-        auxOutputDestinationList = static_cast<YADAW::Model::AuxOutputDestinationModel*>(
+        auto auxOutputDestinationList = static_cast<YADAW::Model::AuxOutputDestinationListModel*>(
             model.data(
                 model.index(args.auxOutput.channelIndex),
                 YADAW::Model::MixerChannelListModel::Role::InstrumentAudioAuxOutputDestination
+            ).value<QObject*>()
+        );
+        auxOutputDestination = static_cast<YADAW::Model::AuxOutputDestinationModel*>(
+            auxOutputDestinationList->data(
+                auxOutputDestinationList->index(
+                    args.auxOutput.channelGroupIndex - (
+                        args.auxOutput.channelGroupIndex > sender.getInstrumentMainOutputChannelGroupIndex(args.auxOutput.channelIndex)
+                    )
+                ),
+                YADAW::Model::AuxOutputDestinationListModel::Role::Target
             ).value<QObject*>()
         );
     }
@@ -193,14 +207,24 @@ void mixerAuxOutputAdded(const YADAW::Audio::Mixer::Mixer& sender,
                 YADAW::Model::MixerChannelListModel::Role::Inserts
             ).value<QObject*>()
         );
-        auxOutputDestinationList = static_cast<YADAW::Model::AuxOutputDestinationModel*>(
+        auto auxOutputDestinationList = static_cast<YADAW::Model::AuxOutputDestinationModel*>(
             insertListModel->data(
                 insertListModel->index(args.auxOutput.insertIndex),
                 YADAW::Model::MixerChannelInsertListModel::Role::AudioAuxOutputDestination
             ).value<QObject*>()
         );
+        auxOutputDestination = static_cast<YADAW::Model::AuxOutputDestinationModel*>(
+            auxOutputDestinationList->data(
+                auxOutputDestinationList->index(
+                    args.auxOutput.channelGroupIndex - (
+                        args.auxOutput.channelGroupIndex > insertListModel->inserts().insertOutputChannelGroupIndexAt(args.auxOutput.insertIndex)
+                    )
+                ),
+                YADAW::Model::AuxOutputDestinationListModel::Role::Target
+            ).value<QObject*>()
+        );
     }
-    assert(auxOutputDestinationList);
+    assert(auxOutputDestination);
     auto& dest = destinations.back();
     YADAW::Entity::IAudioIOPosition* destAsPosition = nullptr;
     if(dest.type == Mixer::Position::Type::AudioHardwareIOChannel)
@@ -276,7 +300,7 @@ void mixerAuxOutputAdded(const YADAW::Audio::Mixer::Mixer& sender,
         );
     }
     assert(destAsPosition);
-    auxOutputDestinationList->added(destinations.size() - 1, destAsPosition);
+    auxOutputDestination->added(destinations.size() - 1, destAsPosition);
 }
 
 MixerChannelListModels::MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer):
