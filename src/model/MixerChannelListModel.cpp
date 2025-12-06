@@ -832,6 +832,13 @@ bool MixerChannelListModel::insert(int position, int count,
             }
             FOR_RANGE(i, position + count, insertModels_.size())
             {
+                if(auto context = mixer_.getInstrumentContext(i); context.has_value())
+                {
+                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
+                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
+                    instrumentContext.audioAuxInputSources->updateChannelIndex(i);
+                    instrumentContext.audioAuxOutputDestinations->updateChannelIndex(i);
+                }
                 insertModels_[i]->setChannelIndex(i);
             }
             updateInstrumentConnections(position + count);
