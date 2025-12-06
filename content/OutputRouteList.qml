@@ -82,9 +82,9 @@ Item {
                 )
                 width: list.width
                 highlighted: list.currentIndex === index
+                property var model: aiotlm_target
                 onClicked: {
                     list.currentIndex = index;
-                    destList.model = aiotlm_target;
                 }
             }
         }
@@ -166,7 +166,9 @@ Item {
                 anchors.fill: parent
                 anchors.topMargin: buttonsPlaceholder.height
                 clip: true
+                model: list.currentItem? list.currentItem.model: null
                 delegate: ItemDelegate {
+                    width: parent.width
                     text: aodlm_destination.completeName
                 }
             }
