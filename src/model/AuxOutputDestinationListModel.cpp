@@ -18,7 +18,9 @@ AuxOutputDestinationListModel::AuxOutputDestinationListModel(
     destinations_.reserve(size);
     FOR_RANGE0(i, size)
     {
-        auto channelGroupIndex = AuxOutputDestinationListModel::data({}, Role::ChannelIndex).value<int>();
+        auto channelGroupIndex = AuxOutputDestinationListModel::data(
+            AuxOutputDestinationListModel::index(i), Role::ChannelIndex
+        ).value<int>();
         destinations_.emplace_back(
             std::make_unique<YADAW::Model::AuxOutputDestinationModel>(*this, channelGroupIndex)
         );
