@@ -3672,6 +3672,20 @@ bool Mixer::removeAuxOutputDestination(const PluginAuxIOPosition& position, std:
             {
                 auto auxInput = *getAuxInputPosition(dest.id);
                 auto toNode = getNodeFromPluginAuxPosition(auxInput);
+                auto inEdges = toNode->inEdges();
+                for(const auto& inEdge: inEdges)
+                {
+                    if(inEdge->srcNode() == fromNode)
+                    {
+                        if(const auto& edgeData = graph_.getEdgeData(inEdge);
+                            edgeData.fromChannel == position.channelGroupIndex
+                            && edgeData.toChannel == auxInput.channelGroupIndex)
+                        {
+                            graph_.disconnect(inEdge);
+                            break;
+                        }
+                    }
+                }
                 getAuxInputSource(auxInput) = {};
                 auxInputChangedCallback_(*this, auxInput);
             }
