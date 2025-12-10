@@ -52,12 +52,13 @@ void swapSummingAndNodeUnchecked(
     {
         std::swap(lhs, rhs);
     }
-    if constexpr(std::is_base_of_v<T1, T2>)
+    else if constexpr(std::is_base_of_v<T1, T2>)
     {
         using Base = T1; using Derived = T2;
         Base* lptr = lhs.first.release();
         lhs.first.reset(rhs.first.release());
         rhs.first.reset(static_cast<Derived*>(lptr));
+        std::swap(lhs.second, rhs.second);
     }
     else if constexpr(std::is_base_of_v<T2, T1>)
     {
