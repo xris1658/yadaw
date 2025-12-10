@@ -3110,6 +3110,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
         auto fromNode = getNodeFromPluginAuxPosition(position);
         auto device = graph_.getNodeData(fromNode).process.device();
         auto& fromNodeChannelGroup = device->audioOutputGroupAt(position.channelGroupIndex)->get();
+        SummingAndNode disposingSummingAndNode;
         if(destination.type == Position::Type::AudioHardwareIOChannel)
         {
             auto it = std::lower_bound(
@@ -3124,7 +3125,8 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     && !YADAW::Util::pathExists(audioOutputSummings_[it->index].second, fromNode))
                 {
                     auto& oldSummingAndNode = audioOutputSummings_[it->index];
-                    SummingAndNode newSummingAndNode = appendInputGroup(oldSummingAndNode);
+                    auto& newSummingAndNode = disposingSummingAndNode;
+                    newSummingAndNode = appendInputGroup(oldSummingAndNode);
                     graph_.connect(fromNode, newSummingAndNode.second, position.channelGroupIndex, newSummingAndNode.first->audioInputGroupCount() - 1);
                     const auto& polarityInverterNode = audioOutputPolarityInverters_[it->index].second;
                     graph_.disconnect(polarityInverterNode->inEdges().front());
@@ -3133,6 +3135,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     {
                         batchUpdater_->addObject(std::move(oldSummingAndNode.first));
                     }
+                    graph_.removeNode(oldSummingAndNode.second);
                     std::swap(oldSummingAndNode, newSummingAndNode);
                     destinations.emplace_back(destination);
                     auxOutputAddedCallback_(
@@ -3159,7 +3162,8 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     && !YADAW::Util::pathExists(inputDevices_[it->index].second, fromNode))
                 {
                     auto& oldSummingAndNodeAsDevice = inputDevices_[it->index];
-                    SummingAndNode newSummingAndNode = appendInputGroup(oldSummingAndNodeAsDevice);
+                    auto& newSummingAndNode = disposingSummingAndNode;
+                    newSummingAndNode = appendInputGroup(oldSummingAndNodeAsDevice);
                     graph_.connect(fromNode, newSummingAndNode.second, position.channelGroupIndex, newSummingAndNode.first->audioInputGroupCount() - 1);
                     const auto& polarityInverterNode = polarityInverters_[it->index].second;
                     graph_.disconnect(polarityInverterNode->inEdges().front());
@@ -3169,8 +3173,8 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                     {
                         batchUpdater_->addObject(std::move(oldSummingAndNodeAsDevice.first));
                     }
-                    oldSummingAndNodeAsDevice.first = std::move(newSummingAndNode.first);
-                    std::swap(oldSummingAndNodeAsDevice.second, newSummingAndNode.second);
+                    graph_.removeNode(oldSummingAndNodeAsDevice.second);
+                    swapSummingAndNodeUnchecked(oldSummingAndNodeAsDevice, newSummingAndNode);
                     destinations.emplace_back(destination);
                     auxOutputAddedCallback_(
                         *this, AuxOutputAddedCallbackArgs {
