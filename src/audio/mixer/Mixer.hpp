@@ -152,6 +152,11 @@ public:
         {
             return !(lhs == rhs);
         }
+        friend bool operator<(const Position& lhs, const Position& rhs)
+        {
+            return std::tie(lhs.type, lhs.id)
+                <  std::tie(rhs.type, rhs.id);
+        }
     };
     struct PluginAuxIOPosition
     {
@@ -534,6 +539,7 @@ private:
     Vec<Vec<FaderAndNode>>            channelSendFaders_           [3];
     Vec<Vec<PolarityInverterAndNode>> channelSendPolarityInverters_[3];
     Vec<Vec<Position>>                channelSendDestinations_     [3];
+    Vec<std::set<Position>>           channelMultiIOTargets_       [3];
 
     IDGen                                              &audioInputChannelIdGen_           = channelIDGen_                [AudioHardwareInputList];
     Vec<IDGen::ID>                                     &audioInputChannelId_              = channelIDs_                  [AudioHardwareInputList];
@@ -550,6 +556,7 @@ private:
     Vec<Vec<FaderAndNode>>                             &audioInputSendFaders_             = channelSendFaders_           [AudioHardwareInputList];
     Vec<Vec<PolarityInverterAndNode>>                  &audioInputSendPolarityInverters_  = channelSendPolarityInverters_[AudioHardwareInputList];
     Vec<Vec<Position>>                                 &audioInputSendDestinations_       = channelSendDestinations_     [AudioHardwareInputList];
+    Vec<std::set<Position>>                            &audioInputDestinations_           = channelMultiIOTargets_       [AudioHardwareInputList];
 
     IDGen                                              &channelIdGen_                     = channelIDGen_                [RegularList];
     Vec<IDGen::ID>                                     &channelId_                        = channelIDs_                  [RegularList];
@@ -566,6 +573,7 @@ private:
     Vec<Vec<FaderAndNode>>                             &sendFaders_                       = channelSendFaders_           [RegularList];
     Vec<Vec<PolarityInverterAndNode>>                  &sendPolarityInverters_            = channelSendPolarityInverters_[RegularList];
     Vec<Vec<Position>>                                 &sendDestinations_                 = channelSendDestinations_     [RegularList];
+    Vec<std::set<Position>>                            &regularChannelInputSources_       = channelMultiIOTargets_       [RegularList];
 
     IDGen                                              &audioOutputChannelIdGen_          = channelIDGen_                [AudioHardwareOutputList];
     Vec<IDGen::ID>                                     &audioOutputChannelId_             = channelIDs_                  [AudioHardwareOutputList];
@@ -582,6 +590,7 @@ private:
     Vec<Vec<FaderAndNode>>                             &audioOutputSendFaders_            = channelSendFaders_           [AudioHardwareOutputList];
     Vec<Vec<PolarityInverterAndNode>>                  &audioOutputSendPolarityInverters_ = channelSendPolarityInverters_[AudioHardwareOutputList];
     Vec<Vec<Position>>                                 &audioOutputSendDestinations_      = channelSendDestinations_     [AudioHardwareOutputList];
+    Vec<std::set<Position>>                            &audioOutputSources_               = channelMultiIOTargets_       [AudioHardwareOutputList];
     // Regular channels
     Vec<DeviceAndNode> inputDevices_;
     Vec<std::uint32_t> instrumentOutputChannelIndex_;
