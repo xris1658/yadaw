@@ -1241,8 +1241,8 @@ std::optional<bool> Mixer::setSendDestination(
                         oldSummingNode = oldSummingAndNode.second;
                         oldSummingAndNode = std::move(newSummingAndNode);
                         audioOutputSources_[it->index].emplace(
-                            .type = Position::Type::Send,
-                            .id = channelSendIDs_[type][channelIndex][sendIndex]->first
+                            Position::Type::Send,
+                            channelSendIDs_[type][channelIndex][sendIndex]->first
                         );
                         ret = true;
                     }
@@ -1258,8 +1258,8 @@ std::optional<bool> Mixer::setSendDestination(
                 if(it != channelIDAndIndex_[ChannelListType::RegularList].end()
                     && it->id == destination.id)
                 {
-                    auto type = channelInfo_[it->index].channelType;
-                    if(type == ChannelType::AudioBus || type == ChannelType::AudioFX)
+                    auto destChannelType = channelInfo_[it->index].channelType;
+                    if(destChannelType == ChannelType::AudioBus || destChannelType == ChannelType::AudioFX)
                     {
                         auto& oldSummingAndNode = inputDevices_[it->index];
                         if(!YADAW::Util::pathExists(oldSummingAndNode.second, inNode))
@@ -1271,8 +1271,8 @@ std::optional<bool> Mixer::setSendDestination(
                             oldSummingAndNode.first.reset(newSummingAndNode.first.release());
                             oldSummingAndNode.second = std::move(newSummingAndNode.second);
                             regularChannelInputSources_[it->index].emplace(
-                                .type = Position::Type::Send,
-                                .id = channelSendIDs_[type][channelIndex][sendIndex]->first
+                                Position::Type::Send,
+                                channelSendIDs_[type][channelIndex][sendIndex]->first
                             );
                             ret = true;
                         }
