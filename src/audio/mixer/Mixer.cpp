@@ -3293,7 +3293,7 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
             )->index;
             for(const auto& edge: oldDestOldSumming.second->inEdges())
             {
-                if(edge->srcNode() == getNodeFromPluginAuxPosition(position))
+                if(edge->srcNode() == fromNode)
                 {
                     if(const auto& edgeData = graph_.getEdgeData(edge);
                         edgeData.fromChannel == position.channelGroupIndex)
@@ -3321,7 +3321,7 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
             )->index;
             for(const auto& edge: oldDestOldSumming.second->inEdges())
             {
-                if(edge->srcNode() == getNodeFromPluginAuxPosition(position))
+                if(edge->srcNode() == fromNode)
                 {
                     if(const auto& edgeData = graph_.getEdgeData(edge);
                         edgeData.fromChannel == position.channelGroupIndex)
@@ -3355,7 +3355,7 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
             auto auxInputNode = getNodeFromPluginAuxPosition(auxInput);
             for(const auto& edge: auxInputNode->inEdges())
             {
-                if(edge->srcNode() == getNodeFromPluginAuxPosition(position))
+                if(edge->srcNode() == fromNode)
                 {
                     if(const auto& edgeData = graph_.getEdgeData(edge);
                         edgeData.toChannel == auxInput.channelGroupIndex
