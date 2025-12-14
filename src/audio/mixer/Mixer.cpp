@@ -1165,6 +1165,7 @@ std::optional<bool> Mixer::setSendDestination(
             std::uint32_t prevChannelIndex = 0;
             std::unique_ptr<YADAW::Audio::Device::IAudioDevice> oldSumming;
             ade::NodeHandle oldSummingNode;
+            // Disconnect
             if(oldDestination.type == Position::Type::AudioHardwareIOChannel)
             {
                 auto it = std::lower_bound(
@@ -1220,6 +1221,7 @@ std::optional<bool> Mixer::setSendDestination(
                     }
                 }
             }
+            // Connect
             if(destination.type == Position::Type::AudioHardwareIOChannel)
             {
                 auto it = std::lower_bound(
@@ -3457,6 +3459,7 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
         SummingAndNode oldDestOldSumming;
         std::uint32_t oldChannelGroupIndex = UINT32_MAX;
         SummingAndNode newDestOldSumming;
+        // Disconnect
         if(oldDestination.type == Position::Type::AudioHardwareIOChannel)
         {
             auto channelIndex = std::lower_bound(
@@ -3550,6 +3553,7 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
                 }
             }
         }
+        // Connect
         if(destination.type == Position::Type::AudioHardwareIOChannel)
         {
             auto channelIndex = std::lower_bound(
