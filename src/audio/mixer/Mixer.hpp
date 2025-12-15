@@ -139,7 +139,8 @@ public:
             FXAndGroupChannelInput,
             AudioChannelInput,
             Send,
-            PluginAuxIO
+            PluginAuxIO,
+            RegularChannelOutput
         };
         Type type = Type::Invalid;
         IDGen::ID id = IDGen::InvalidId;

@@ -500,7 +500,7 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
                 FOR_RANGE0(j, destinations.size())
                 {
                     const auto& position = *destinations.begin();
-                    if(position.type == Position::Type::FXAndGroupChannelInput /*FIXME*/)
+                    if(position.type == Position::Type::RegularChannelOutput)
                     {
                         auto channelIndex = std::lower_bound(
                             channelIdAndIndex_.begin(),
@@ -562,7 +562,7 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
                 FOR_RANGE0(j, destinations.size())
                 {
                     const auto& position = *destinations.begin();
-                    if(position.type == Position::Type::FXAndGroupChannelInput /*FIXME*/)
+                    if(position.type == Position::Type::RegularChannelOutput)
                     {
                         auto channelIndex = std::lower_bound(
                             channelIdAndIndex_.begin(),
@@ -1698,6 +1698,10 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 disconnectingOldSumming = std::move(oldSumming);
                 oldSumming = std::move(newSumming);
                 oldSummingNode = newSummingNode;
+                audioOutputSources_[it->index].erase(Position {
+                    .type = Position::Type::RegularChannelOutput,
+                    .id = channelId_[index]
+                });
             }
         }
         else if(oldPosition.type == Position::Type::FXAndGroupChannelInput)
@@ -1739,6 +1743,10 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     disconnectingOldSumming = std::move(oldSumming);
                     oldSumming = std::move(newSumming);
                     oldSummingNode = newSummingNode;
+                    regularChannelInputSources_[it->index].erase(Position {
+                        .type = Position::Type::RegularChannelOutput,
+                        .id = channelId_[index]
+                    });
                 }
             }
         }
@@ -1819,6 +1827,10 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     }
                     oldSumming = std::move(newSumming);
                     oldSummingNode = newSummingNode;
+                    audioOutputSources_[outputChannelIndex].emplace(
+                        Position::Type::RegularChannelOutput,
+                        channelId_[index]
+                    );
                     ret = true;
                 }
             }
@@ -1873,6 +1885,10 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         }
                         oldSumming = std::move(newSumming);
                         oldSummingNode = newSummingNode;
+                        regularChannelInputSources_[outputChannelIndex].emplace(
+                            Position::Type::RegularChannelOutput,
+                            channelId_[index]
+                        );
                         ret = true;
                     }
                 }
