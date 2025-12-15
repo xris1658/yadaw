@@ -552,6 +552,56 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
                     channelMeters_[type][i].second->outNodes().front()
                 );
             }
+            FOR_RANGE(i, index, last)
+            {
+                nodesToRemove.emplace_back(channelPolarityInverters_[type][i].second);
+                nodesToRemove.emplace_back(channelMutes_[type][i].second);
+                nodesToRemove.emplace_back(channelFaders_[type][i].second);
+                nodesToRemove.emplace_back(channelMeters_[type][i].second);
+                auto& destinations = audioOutputSources_[i];
+                FOR_RANGE0(j, destinations.size())
+                {
+                    const auto& position = *destinations.begin();
+                    if(position.type == Position::Type::FXAndGroupChannelInput /*FIXME*/)
+                    {
+                        auto channelIndex = std::lower_bound(
+                            channelIdAndIndex_.begin(),
+                            channelIdAndIndex_.end(),
+                            position.id, &compareIdAndIndexWithId
+                        )->index;
+                        setMainOutputAt(channelIndex, {});
+                    }
+                    if(position.type == Position::Type::Send)
+                    {
+                        if(auto it = sendPositions_.find(position.id); it != sendPositions_.end())
+                        {
+                            const auto& sendPosition = it->second;
+                            removeSend(
+                                sendPosition.channelListType,
+                                sendPosition.channelIndex,
+                                sendPosition.sendIndex
+                            );
+                        }
+                    }
+                    else if(position.type == Position::Type::PluginAuxIO)
+                    {
+                        if(auto optAuxOutput = getAuxOutputPosition(position.id))
+                        {
+                            const auto& auxOutput = *optAuxOutput;
+                            const auto& destinations = getAuxOutputDestinations(auxOutput);
+                            FOR_RANGE0(j, destinations.size())
+                            {
+                                if(const auto& destination = destinations[j];
+                                    destination.type == Position::Type::FXAndGroupChannelInput)
+                                {
+                                    removeAuxOutputDestination(auxOutput, j);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         channelPreFaderInserts_[type].erase(
             channelPreFaderInserts_[type].begin() + index,
@@ -561,56 +611,6 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
             channelPostFaderInserts_[type].begin() + index,
             channelPostFaderInserts_[type].begin() + last
         );
-        FOR_RANGE(i, index, last)
-        {
-            nodesToRemove.emplace_back(channelPolarityInverters_[type][i].second);
-            nodesToRemove.emplace_back(channelMutes_[type][i].second);
-            nodesToRemove.emplace_back(channelFaders_[type][i].second);
-            nodesToRemove.emplace_back(channelMeters_[type][i].second);
-            auto& destinations = audioOutputSources_[i];
-            FOR_RANGE0(j, destinations.size())
-            {
-                const auto& position = *destinations.begin();
-                if(position.type == Position::Type::FXAndGroupChannelInput /*FIXME*/)
-                {
-                    auto channelIndex = std::lower_bound(
-                        channelIdAndIndex_.begin(),
-                        channelIdAndIndex_.end(),
-                        position.id, &compareIdAndIndexWithId
-                    )->index;
-                    setMainOutputAt(channelIndex, {});
-                }
-                if(position.type == Position::Type::Send)
-                {
-                    if(auto it = sendPositions_.find(position.id); it != sendPositions_.end())
-                    {
-                        const auto& sendPosition = it->second;
-                        removeSend(
-                            sendPosition.channelListType,
-                            sendPosition.channelIndex,
-                            sendPosition.sendIndex
-                        );
-                    }
-                }
-                else if(position.type == Position::Type::PluginAuxIO)
-                {
-                    if(auto optAuxOutput = getAuxOutputPosition(position.id))
-                    {
-                        const auto& auxOutput = *optAuxOutput;
-                        const auto& destinations = getAuxOutputDestinations(auxOutput);
-                        FOR_RANGE0(j, destinations.size())
-                        {
-                            if(const auto& destination = destinations[j];
-                                destination.type == Position::Type::FXAndGroupChannelInput)
-                            {
-                                removeAuxOutputDestination(auxOutput, j);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
         FOR_RANGE(i, index, last)
         {
             clearSends(type, i);
