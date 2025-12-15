@@ -136,8 +136,8 @@ public:
         {
             Invalid,
             AudioHardwareIOChannel,
-            SendAndFXChannel,
-            AudioChannel,
+            FXAndGroupChannelInput,
+            AudioChannelInput,
             Send,
             PluginAuxIO
         };

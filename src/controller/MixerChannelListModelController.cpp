@@ -85,7 +85,7 @@ void mixerAuxInputChanged(const YADAW::Audio::Mixer::Mixer& sender,
             ).value<QObject*>()
         );
     }
-    else if(output.type == Mixer::Position::Type::SendAndFXChannel)
+    else if(output.type == Mixer::Position::Type::FXAndGroupChannelInput)
     {
         auto channelIndex = *sender.getChannelIndexOfId(
             Mixer::ChannelListType::RegularList, output.id
@@ -239,7 +239,7 @@ void mixerAuxOutputAdded(const YADAW::Audio::Mixer::Mixer& sender,
             ).value<QObject*>()
         );
     }
-    else if(dest.type == Mixer::Position::Type::SendAndFXChannel)
+    else if(dest.type == Mixer::Position::Type::FXAndGroupChannelInput)
     {
         auto channelIndex = *sender.getChannelIndexOfId(
             Mixer::ChannelListType::RegularList, dest.id
@@ -270,7 +270,7 @@ void mixerAuxOutputAdded(const YADAW::Audio::Mixer::Mixer& sender,
             );
         }
     }
-    else if(dest.type == Mixer::Position::Type::AudioChannel)
+    else if(dest.type == Mixer::Position::Type::AudioChannelInput)
     {
         auto channelIndex = *sender.getChannelIndexOfId(
             Mixer::ChannelListType::RegularList, dest.id

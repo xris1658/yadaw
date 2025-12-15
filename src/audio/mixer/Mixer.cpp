@@ -461,7 +461,7 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
                 FOR_RANGE0(j, destinations.size())
                 {
                     const auto& position = *destinations.begin();
-                    if(position.type == Position::Type::AudioChannel)
+                    if(position.type == Position::Type::AudioChannelInput)
                     {
                         auto channelIndex = std::lower_bound(
                             channelIdAndIndex_.begin(),
@@ -500,7 +500,7 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
                 FOR_RANGE0(j, destinations.size())
                 {
                     const auto& position = *destinations.begin();
-                    if(position.type == Position::Type::SendAndFXChannel /*FIXME*/)
+                    if(position.type == Position::Type::FXAndGroupChannelInput /*FIXME*/)
                     {
                         auto channelIndex = std::lower_bound(
                             channelIdAndIndex_.begin(),
@@ -530,7 +530,7 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
                             FOR_RANGE0(j, destinations.size())
                             {
                                 if(const auto& destination = destinations[j];
-                                    destination.type == Position::Type::SendAndFXChannel)
+                                    destination.type == Position::Type::FXAndGroupChannelInput)
                                 {
                                     removeAuxOutputDestination(auxOutput, j);
                                     break;
@@ -571,7 +571,7 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
             FOR_RANGE0(j, destinations.size())
             {
                 const auto& position = *destinations.begin();
-                if(position.type == Position::Type::SendAndFXChannel /*FIXME*/)
+                if(position.type == Position::Type::FXAndGroupChannelInput /*FIXME*/)
                 {
                     auto channelIndex = std::lower_bound(
                         channelIdAndIndex_.begin(),
@@ -601,7 +601,7 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
                         FOR_RANGE0(j, destinations.size())
                         {
                             if(const auto& destination = destinations[j];
-                                destination.type == Position::Type::SendAndFXChannel)
+                                destination.type == Position::Type::FXAndGroupChannelInput)
                             {
                                 removeAuxOutputDestination(auxOutput, j);
                                 break;
@@ -871,7 +871,7 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                 }
             }
         }
-        else if(destination.type == Position::Type::SendAndFXChannel)
+        else if(destination.type == Position::Type::FXAndGroupChannelInput)
         {
             if(auto& dests = channelSendDestinations_[type][channelIndex];
                 std::ranges::find(dests, destination) == dests.end())
@@ -967,7 +967,7 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                 }
             }
         }
-        else if(destination.type == Position::Type::AudioChannel)
+        else if(destination.type == Position::Type::AudioChannelInput)
         {
             auto it = std::lower_bound(
                 idAndIndex.begin(), idAndIndex.end(),
@@ -1179,7 +1179,7 @@ std::optional<bool> Mixer::setSendDestination(
                     .id = channelSendIDs_[type][channelIndex][sendIndex]->first
                 });
             }
-            else if(oldDestination.type == Position::Type::SendAndFXChannel)
+            else if(oldDestination.type == Position::Type::FXAndGroupChannelInput)
             {
                 auto it = std::lower_bound(
                     channelIDAndIndex_[ChannelListType::RegularList].begin(),
@@ -1192,7 +1192,7 @@ std::optional<bool> Mixer::setSendDestination(
                     .id = channelSendIDs_[type][channelIndex][sendIndex]->first
                 });
             }
-            else if(oldDestination.type == Position::Type::AudioChannel)
+            else if(oldDestination.type == Position::Type::AudioChannelInput)
             {
                 auto it = std::lower_bound(
                     channelIDAndIndex_[ChannelListType::RegularList].begin(),
@@ -1248,7 +1248,7 @@ std::optional<bool> Mixer::setSendDestination(
                     }
                 }
             }
-            else if(destination.type == Position::Type::SendAndFXChannel)
+            else if(destination.type == Position::Type::FXAndGroupChannelInput)
             {
                 auto it = std::lower_bound(
                     channelIDAndIndex_[ChannelListType::RegularList].begin(),
@@ -1279,7 +1279,7 @@ std::optional<bool> Mixer::setSendDestination(
                     }
                 }
             }
-            else if(destination.type == Position::Type::AudioChannel)
+            else if(destination.type == Position::Type::AudioChannelInput)
             {
                 auto it = std::lower_bound(
                     channelIDAndIndex_[ChannelListType::RegularList].begin(),
@@ -1422,7 +1422,7 @@ std::optional<bool> Mixer::removeSend(
                         .id = sendIDs[i + sendPosition]->first
                     });
                 }
-                else if(destination.type == Position::Type::SendAndFXChannel)
+                else if(destination.type == Position::Type::FXAndGroupChannelInput)
                 {
                     auto it = std::lower_bound(
                         channelIdAndIndex_.begin(),
@@ -1439,7 +1439,7 @@ std::optional<bool> Mixer::removeSend(
                         .id = sendIDs[i + sendPosition]->first
                     });
                 }
-                else if(destination.type == Position::Type::AudioChannel)
+                else if(destination.type == Position::Type::AudioChannelInput)
                 {
                     auto it = std::lower_bound(
                         channelIDAndIndex_[ChannelListType::RegularList].begin(),
@@ -1553,11 +1553,11 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
                 oldPosition.id, &compareIdAndIndexWithId
             )->index;
             audioInputDestinations_[channelIndex].erase(Position {
-                .type = Position::Type::AudioChannel,
+                .type = Position::Type::AudioChannelInput,
                 .id = channelId_[index]
             });
         }
-        else if(oldPosition.type == Position::Type::SendAndFXChannel)
+        else if(oldPosition.type == Position::Type::FXAndGroupChannelInput)
         {
             // TODO: Not sure about what to do since I've not decided the way
             //       of setting the main input to send/FX channel
@@ -1570,7 +1570,7 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
             FOR_RANGE0(i, dests.size())
             {
                 const auto& dest = dests[i];
-                if(dest.type == Position::Type::AudioChannel && dest.id == channelId_[index])
+                if(dest.type == Position::Type::AudioChannelInput && dest.id == channelId_[index])
                 {
                     removeAuxOutputDestination(auxOutput, i);
                     break;
@@ -1603,10 +1603,10 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
                 ret = graph_.connect(fromNode, toNode, 0, 1).has_value();
             }
             audioInputDestinations_[it->index].emplace(
-                Position::Type::AudioChannel, index
+                Position::Type::AudioChannelInput, index
             );
         }
-        else if(position.type == Position::Type::SendAndFXChannel)
+        else if(position.type == Position::Type::FXAndGroupChannelInput)
         {
             // TODO: What should we do here? Add a send from the channel,
             //       or set main output of the channel?
@@ -1616,7 +1616,7 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
             auto auxOutput = *getAuxOutputPosition(position.id);
             ret = addAuxOutputDestination(
                 auxOutput, Position {
-                    .type = Position::AudioChannel, .id = channelId_[index]
+                    .type = Position::AudioChannelInput, .id = channelId_[index]
             });
         }
         if(ret)
@@ -1700,7 +1700,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 oldSummingNode = newSummingNode;
             }
         }
-        else if(oldPosition.type == Position::Type::SendAndFXChannel)
+        else if(oldPosition.type == Position::Type::FXAndGroupChannelInput)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -1823,7 +1823,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                 }
             }
         }
-        else if(position.type == Position::Type::SendAndFXChannel)
+        else if(position.type == Position::Type::FXAndGroupChannelInput)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -1905,7 +1905,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         fromNode, node, 0, pluginAuxIOPosition.channelGroupIndex
                     );
                     getAuxInputSource(pluginAuxIOPosition) = Position {
-                        .type = Position::Type::SendAndFXChannel,
+                        .type = Position::Type::FXAndGroupChannelInput,
                         .id = channelId_[index]
                     };
                     auxInputChangedCallback_(*this, pluginAuxIOPosition);
@@ -3191,7 +3191,7 @@ bool Mixer::setAuxInputSource(const PluginAuxIOPosition& position, Position sour
         const auto& sendPos = sendPositions_.find(source.id)->second;
         removeSend(sendPos.channelListType, sendPos.channelIndex, sendPos.sendIndex);
     }
-    else if(oldSource.type == Position::Type::SendAndFXChannel)
+    else if(oldSource.type == Position::Type::FXAndGroupChannelInput)
     {
         auto channelIndex = std::lower_bound(
             channelIdAndIndex_.begin(),
@@ -3217,7 +3217,7 @@ bool Mixer::setAuxInputSource(const PluginAuxIOPosition& position, Position sour
             Position {.type = Position::Type::PluginAuxIO, .id = getAuxInputPositionID(position)}
         );
     }
-    else if(source.type == Position::Type::SendAndFXChannel)
+    else if(source.type == Position::Type::FXAndGroupChannelInput)
     {
         auto channelIndex = std::lower_bound(
             channelIdAndIndex_.begin(),
@@ -3318,7 +3318,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                 }
             }
         }
-        else if(destination.type == Position::Type::SendAndFXChannel)
+        else if(destination.type == Position::Type::FXAndGroupChannelInput)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
@@ -3360,7 +3360,7 @@ bool Mixer::addAuxOutputDestination(const PluginAuxIOPosition& position, Positio
                 }
             }
         }
-        else if(destination.type == Position::Type::AudioChannel)
+        else if(destination.type == Position::Type::AudioChannelInput)
         {
             auto it = std::lower_bound(
                 channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
@@ -3492,7 +3492,7 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
                 }
             }
         }
-        else if(oldDestination.type == Position::Type::SendAndFXChannel)
+        else if(oldDestination.type == Position::Type::FXAndGroupChannelInput)
         {
             auto channelIndex = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -3524,7 +3524,7 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
                 }
             }
         }
-        else if(oldDestination.type == Position::Type::AudioChannel)
+        else if(oldDestination.type == Position::Type::AudioChannelInput)
         {
             auto channelIndex = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -3600,7 +3600,7 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
                 ret = true;
             }
         }
-        else if(destination.type == Position::Type::SendAndFXChannel)
+        else if(destination.type == Position::Type::FXAndGroupChannelInput)
         {
             auto channelIndex = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -3641,7 +3641,7 @@ bool Mixer::setAuxOutputDestination(const PluginAuxIOPosition& position, std::ui
                 }
             }
         }
-        else if(destination.type == Position::Type::AudioChannel)
+        else if(destination.type == Position::Type::AudioChannelInput)
         {
             auto channelIndex = std::lower_bound(
                 channelIdAndIndex_.begin(),
@@ -3758,7 +3758,7 @@ bool Mixer::removeAuxOutputDestination(const PluginAuxIOPosition& position, std:
                 [](const auto& destination)
                 {
                     return destination.type == Position::Type::AudioHardwareIOChannel
-                        || destination.type == Position::Type::SendAndFXChannel;
+                        || destination.type == Position::Type::FXAndGroupChannelInput;
                 }
             )
         );
@@ -3813,7 +3813,7 @@ bool Mixer::removeAuxOutputDestination(const PluginAuxIOPosition& position, std:
                     }
                 }
             }
-            else if(dest.type == Position::Type::SendAndFXChannel)
+            else if(dest.type == Position::Type::FXAndGroupChannelInput)
             {
                 auto it = std::lower_bound(
                     channelIdAndIndex_.begin(),
@@ -3862,7 +3862,7 @@ bool Mixer::removeAuxOutputDestination(const PluginAuxIOPosition& position, std:
                     }
                 }
             }
-            else if(dest.type == Position::Type::AudioChannel)
+            else if(dest.type == Position::Type::AudioChannelInput)
             {
                 auto it = std::lower_bound(
                     channelIdAndIndex_.begin(),

@@ -72,8 +72,8 @@ RegularAudioIOPosition::operator Audio::Mixer::Mixer::Position() const
     );
     return YADAW::Audio::Mixer::Mixer::Position {
         channelType == YADAW::Model::MixerChannelListModel::ChannelTypes::ChannelTypeAudio?
-            YADAW::Audio::Mixer::Mixer::Position::AudioChannel:
-            YADAW::Audio::Mixer::Mixer::Position::SendAndFXChannel,
+            YADAW::Audio::Mixer::Mixer::Position::AudioChannelInput:
+            YADAW::Audio::Mixer::Mixer::Position::FXAndGroupChannelInput,
         idAsString.toULongLong()
     };
 }
