@@ -20,6 +20,8 @@ struct MixerChannelListModels
     YADAW::Model::MixerAudioIOPositionItemModel audioInputPositionModel;
     YADAW::Model::MixerAudioIOPositionItemModel audioOutputPositionModel;
     MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer);
+    const YADAW::Audio::Mixer::Mixer& mixer() const;
+          YADAW::Audio::Mixer::Mixer& mixer();
 };
 
 MixerChannelListModels& appMixerChannelListModels();
