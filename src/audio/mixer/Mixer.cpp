@@ -14,6 +14,10 @@ void blankConnectionUpdatedCallback(const Mixer&) {}
 
 void blankPreInsertChannelCallback(const Mixer&, Mixer::PreInsertChannelCallbackArgs) {}
 
+void blankMainInputChangedCallback(const Mixer&, std::uint32_t) {}
+
+void blankMainOutputChangedCallback(const Mixer&, std::uint32_t) {}
+
 void blankSendAddedCallback(const Mixer& sender, const Mixer::SendPosition& sendPosition) {}
 
 void blankSendDestinationChangedCallback(const Mixer& sender, const Mixer::SendPosition& sendPosition) {}
@@ -75,6 +79,8 @@ Mixer::Mixer():
         &Impl::blankPreInsertChannelCallback,
         &Impl::blankPreInsertChannelCallback
     },
+    mainInputChangedCallback_(&Impl::blankMainInputChangedCallback),
+    mainOutputChangedCallback_(&Impl::blankMainOutputChangedCallback),
     sendAddedCallback_(&Impl::blankSendAddedCallback),
     sendDestinationChangedCallback_(&Impl::blankSendDestinationChangedCallback),
     sendRemovedCallback_(&Impl::blankSendRemovedCallback),
@@ -1624,6 +1630,7 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
         }
         if(ret)
         {
+            mainInputChangedCallback_(*this, index);
             if(batchUpdater_)
             {
                 batchUpdater_->addNull();
@@ -1958,6 +1965,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
     }
     if(ret)
     {
+        mainOutputChangedCallback_(*this, index);
         oldPosition = position;
     }
     return ret;
@@ -3039,6 +3047,26 @@ void Mixer::resetPreInsertRegularChannelCallback()
 void Mixer::resetPreInsertAudioOutputChannelCallback()
 {
     preInsertAudioOutputChannelCallback_ = &Impl::blankPreInsertChannelCallback;
+}
+
+void Mixer::setMainInputChangedCallback(std::function<MainIOChangedCallback>&& callback)
+{
+    mainInputChangedCallback_ = std::move(callback);
+}
+
+void Mixer::setMainOutputChangedCallback(std::function<MainIOChangedCallback>&& callback)
+{
+    mainOutputChangedCallback_ = std::move(callback);
+}
+
+void Mixer::resetMainInputChangedCallback()
+{
+    mainInputChangedCallback_ = &Impl::blankMainInputChangedCallback;
+}
+
+void Mixer::resetMainOutputChangedCallback()
+{
+    mainOutputChangedCallback_ = &Impl::blankMainOutputChangedCallback;
 }
 
 void Mixer::setSendAddedCallback(std::function<SendAddedCallback>&& callback)

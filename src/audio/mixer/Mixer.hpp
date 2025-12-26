@@ -178,6 +178,7 @@ public:
     using ConnectionUpdatedCallback = void(const Mixer&);
     using PreInsertChannelCallbackArgs = struct { std::uint32_t position; std::uint32_t count; };
     using PreInsertChannelCallback = void(const Mixer& sender, PreInsertChannelCallbackArgs args);
+    using MainIOChangedCallback = void(const Mixer& sender, std::uint32_t regularChannelIndex);
     using SendAddedCallback = void(const Mixer& sender, const SendPosition& sendPosition);
     using SendDestinationChangedCallback = void(const Mixer& sender, const SendPosition& sendPosition);
     struct SendRemovedCallbackArgs
@@ -326,6 +327,10 @@ public:
     void resetPreInsertAudioInputChannelCallback();
     void resetPreInsertRegularChannelCallback();
     void resetPreInsertAudioOutputChannelCallback();
+    void setMainInputChangedCallback(std::function<MainIOChangedCallback>&& callback);
+    void setMainOutputChangedCallback(std::function<MainIOChangedCallback>&& callback);
+    void resetMainInputChangedCallback();
+    void resetMainOutputChangedCallback();
     void setSendAddedCallback(std::function<SendAddedCallback>&& callback);
     void setSendDestinationChangedCallback(std::function<SendDestinationChangedCallback>&& callback);
     void setSendRemovedCallback(std::function<SendRemovedCallback>&& callback);
@@ -610,6 +615,8 @@ private:
     std::function<PreInsertChannelCallback>& preInsertAudioInputChannelCallback_  = preInsertChannelCallback_[AudioHardwareInputList];
     std::function<PreInsertChannelCallback>& preInsertRegularChannelCallback_     = preInsertChannelCallback_[RegularList];
     std::function<PreInsertChannelCallback>& preInsertAudioOutputChannelCallback_ = preInsertChannelCallback_[AudioHardwareOutputList];
+    std::function<MainIOChangedCallback> mainInputChangedCallback_;
+    std::function<MainIOChangedCallback> mainOutputChangedCallback_;
     std::function<SendAddedCallback> sendAddedCallback_;
     std::function<SendDestinationChangedCallback> sendDestinationChangedCallback_;
     std::function<SendRemovedCallback> sendRemovedCallback_;
