@@ -72,6 +72,11 @@ public:
     void updateInstrumentIOConfig(std::uint32_t index);
 signals:
     void instrumentAboutToBeRemoved(std::uint32_t index);
+    void mainInputChanged(std::uint32_t index, YADAW::Entity::IAudioIOPosition* position);
+    void mainOutputChanged(std::uint32_t index, YADAW::Entity::IAudioIOPosition* position);
+private slots:
+    void onMainInputChanged(std::uint32_t index, YADAW::Entity::IAudioIOPosition* position);
+    void onMainOutputChanged(std::uint32_t index, YADAW::Entity::IAudioIOPosition* position);
 private:
     void updateInstrumentConnections(std::uint32_t from);
 private:
@@ -85,8 +90,6 @@ private:
     std::vector<bool> editingVolume_;
     mutable std::vector<std::unique_ptr<YADAW::Model::PolarityInverterModel>> polarityInverterModels_;
     YADAW::Audio::Mixer::Mixer::ChannelListType channelListType_;
-    std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToInputPositions_;
-    std::map<YADAW::Entity::IAudioIOPosition*, std::pair<std::uint32_t, QMetaObject::Connection>> connectToOutputPositions_;
     FillPluginContextCallback* fillPluginContextCallback_;
 };
 }

@@ -5,6 +5,167 @@
 
 namespace YADAW::Controller
 {
+void mixerMainInputChanged(const YADAW::Audio::Mixer::Mixer& sender,
+    std::uint32_t regularChannelIndex)
+{
+    using YADAW::Audio::Mixer::Mixer;
+    auto& models = appMixerChannelListModels();
+    auto& model = models.mixerChannels[Mixer::ChannelListType::RegularList];
+    auto& output = sender.mainInputAt(regularChannelIndex)->get();
+    YADAW::Entity::IAudioIOPosition* outputAsPosition = nullptr;
+    if(output.type == Mixer::Position::Type::AudioHardwareIOChannel)
+    {
+        auto channelIndex = *sender.getChannelIndexOfId(
+            Mixer::ChannelListType::AudioHardwareInputList, output.id
+        );
+        outputAsPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
+            models.hardwareAudioInputPositionModel.data(
+                models.hardwareAudioInputPositionModel.index(channelIndex),
+                YADAW::Model::HardwareAudioIOPositionModel::Role::Position
+            ).value<QObject*>()
+        );
+    }
+    else if(output.type == Mixer::Position::Type::FXAndGroupChannelInput)
+    {
+        auto channelIndex = *sender.getChannelIndexOfId(
+            Mixer::ChannelListType::RegularList, output.id
+        );
+        if(auto channelType = sender.channelInfoAt(
+                Mixer::ChannelListType::RegularList, channelIndex
+            )->get().channelType;
+            channelType == Mixer::ChannelType::AudioFX)
+        {
+            outputAsPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
+                models.audioFXIOPositionModel.data(
+                    models.audioFXIOPositionModel.index(
+                        models.audioFXIOPositionModel.findIndexByID(QString::number(output.id))
+                    ),
+                    YADAW::Model::RegularAudioIOPositionModel::Role::Position
+                ).value<QObject*>()
+            );
+        }
+        else if(channelType == Mixer::ChannelType::AudioBus)
+        {
+            outputAsPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
+                models.audioGroupIOPositionModel.data(
+                    models.audioGroupIOPositionModel.index(
+                        models.audioGroupIOPositionModel.findIndexByID(QString::number(output.id))
+                    ),
+                    YADAW::Model::RegularAudioIOPositionModel::Role::Position
+                ).value<QObject*>()
+            );
+        }
+    }
+    else if(output.type == Mixer::Position::Type::Send)
+    {
+        auto sendPosition = *sender.getSendPosition(output.id);
+        auto& model = models.mixerChannels[sendPosition.channelListType];
+        auto& sendModel = *static_cast<YADAW::Model::MixerChannelSendListModel*>(
+            model.data(
+                model.index(sendPosition.channelIndex),
+                YADAW::Model::MixerChannelListModel::Role::Sends
+            ).value<QObject*>()
+        );
+        outputAsPosition = &static_cast<YADAW::Entity::SendPosition&>(
+            sendModel.positionAt(sendPosition.sendIndex)->get()
+        );
+    }
+    else if(output.type == Mixer::Position::Type::PluginAuxIO)
+    {
+        outputAsPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
+            models.audioOutputPositionModel.data(
+                models.audioOutputPositionModel.findIndexByID(QString::number(output.id)),
+                YADAW::Model::MixerAudioIOPositionItemModel::Role::Position
+            ).value<QObject*>()
+        );
+    }
+    model.mainInputChanged(regularChannelIndex, outputAsPosition);
+}
+
+void mixerMainOutputChanged(const YADAW::Audio::Mixer::Mixer& sender,
+    std::uint32_t regularChannelIndex)
+{
+    using YADAW::Audio::Mixer::Mixer;
+    auto& models = appMixerChannelListModels();
+    auto& model = models.mixerChannels[Mixer::ChannelListType::RegularList];
+    auto& dest = sender.mainOutputAt(regularChannelIndex)->get();
+    YADAW::Entity::IAudioIOPosition* destAsPosition = nullptr;
+    if(dest.type == Mixer::Position::Type::AudioHardwareIOChannel)
+    {
+        auto channelIndex = *sender.getChannelIndexOfId(
+            Mixer::ChannelListType::AudioHardwareOutputList, dest.id
+        );
+        destAsPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
+            models.hardwareAudioOutputPositionModel.data(
+                models.hardwareAudioOutputPositionModel.index(channelIndex),
+                YADAW::Model::HardwareAudioIOPositionModel::Role::Position
+            ).value<QObject*>()
+        );
+    }
+    else if(dest.type == Mixer::Position::Type::FXAndGroupChannelInput)
+    {
+        auto channelIndex = *sender.getChannelIndexOfId(
+            Mixer::ChannelListType::RegularList, dest.id
+        );
+        if(auto channelType = sender.channelInfoAt(
+                Mixer::ChannelListType::RegularList, channelIndex
+            )->get().channelType;
+            channelType == Mixer::ChannelType::AudioFX)
+        {
+            destAsPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
+                models.audioFXIOPositionModel.data(
+                    models.audioFXIOPositionModel.index(
+                        models.audioFXIOPositionModel.findIndexByID(QString::number(dest.id))
+                    ),
+                    YADAW::Model::RegularAudioIOPositionModel::Role::Position
+                ).value<QObject*>()
+            );
+        }
+        else if(channelType == Mixer::ChannelType::AudioBus)
+        {
+            destAsPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
+                models.audioGroupIOPositionModel.data(
+                    models.audioGroupIOPositionModel.index(
+                        models.audioGroupIOPositionModel.findIndexByID(QString::number(dest.id))
+                    ),
+                    YADAW::Model::RegularAudioIOPositionModel::Role::Position
+                ).value<QObject*>()
+            );
+        }
+    }
+    else if(dest.type == Mixer::Position::Type::AudioChannelInput)
+    {
+        auto channelIndex = *sender.getChannelIndexOfId(
+            Mixer::ChannelListType::RegularList, dest.id
+        );
+        if(auto channelType = sender.channelInfoAt(
+                Mixer::ChannelListType::RegularList, channelIndex
+            )->get().channelType;
+            channelType == Mixer::ChannelType::Audio)
+        {
+            destAsPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
+                models.audioFXIOPositionModel.data(
+                    models.audioFXIOPositionModel.index(
+                        models.audioFXIOPositionModel.findIndexByID(QString::number(dest.id))
+                    ),
+                    YADAW::Model::RegularAudioIOPositionModel::Role::Position
+                ).value<QObject*>()
+            );
+        }
+    }
+    else if(dest.type == Mixer::Position::Type::PluginAuxIO)
+    {
+        destAsPosition = static_cast<YADAW::Entity::IAudioIOPosition*>(
+            models.audioInputPositionModel.data(
+                models.audioInputPositionModel.findIndexByID(QString::number(dest.id)),
+                YADAW::Model::MixerAudioIOPositionItemModel::Role::Position
+            ).value<QObject*>()
+        );
+    }
+    assert(destAsPosition);
+    model.mainOutputChanged(regularChannelIndex, destAsPosition);
+}
+
 void mixerSendAdded(const YADAW::Audio::Mixer::Mixer& sender,
     const YADAW::Audio::Mixer::Mixer::SendPosition& sendPosition)
 {
@@ -373,6 +534,8 @@ MixerChannelListModels::MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer
     audioInputPositionModel(mixerChannels[0], mixerChannels[1], mixerChannels[2], true),
     audioOutputPositionModel(mixerChannels[0], mixerChannels[1], mixerChannels[2], false)
 {
+    mixer.setMainInputChangedCallback(&mixerMainInputChanged);
+    mixer.setMainOutputChangedCallback(&mixerMainOutputChanged);
     mixer.setSendAddedCallback(&mixerSendAdded);
     mixer.setSendDestinationChangedCallback(&mixerSendDestinationChanged);
     mixer.setSendRemovedCallback(&mixerSendRemoved);

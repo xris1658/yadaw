@@ -111,6 +111,14 @@ MixerChannelListModel::MixerChannelListModel(
     else if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList)
     {
         mixer_.setPreInsertRegularChannelCallback(std::move(callback));
+        QObject::connect(
+            this, &MixerChannelListModel::mainInputChanged,
+            this, &MixerChannelListModel::onMainInputChanged
+        );
+        QObject::connect(
+            this, &MixerChannelListModel::mainOutputChanged,
+            this, &MixerChannelListModel::onMainOutputChanged
+        );
     }
     else if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList)
     {
@@ -521,51 +529,6 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                     }
                     }
                 }
-                if(ret)
-                {
-                    if(pPosition) // FIXME: Handle plugin aux input
-                    {
-                        auto& [refCount, connection] = connectToInputPositions_[pPosition];
-                        if(!connection)
-                        {
-                            connection = QObject::connect(
-                                pPosition, &QObject::destroyed,
-                                this,
-                                [this](QObject* obj) mutable
-                                {
-                                    FOR_RANGE0(i, mainInput_.size())
-                                    {
-                                        if(mainInput_[i] == obj)
-                                        {
-                                            setData(
-                                                this->index(i),
-                                                QVariant::fromValue<QObject*>(nullptr),
-                                                Role::Input
-                                            );
-                                        }
-                                    }
-                                }
-                            );
-                        }
-                        ++refCount;
-                    }
-                    else
-                    {
-                        auto oldPosition = mainInput_[row];
-                        auto it = connectToInputPositions_.find(oldPosition);
-                        if(it != connectToInputPositions_.end())
-                        {
-                            auto& [refCount, connection] = it->second;
-                            if(--refCount == 0)
-                            {
-                                QObject::disconnect(connection);
-                                connectToInputPositions_.erase(it);
-                            }
-                        }
-                    }
-                    mainInput_[row] = pPosition;
-                    dataChanged(this->index(row), this->index(row), {Role::Input});
-                }
             }
             return ret;
         }
@@ -616,52 +579,6 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                         break;
                     }
                     }
-                }
-                if(ret)
-                {
-                    if(pPosition)
-                    {
-                        auto& [refCount, connection] = connectToOutputPositions_[pPosition];
-                        if(!connection)
-                        {
-                            // output destination is about to be removed
-                            connection = QObject::connect(
-                                pPosition, &QObject::destroyed,
-                                this,
-                                [this](QObject* obj) mutable
-                                {
-                                    FOR_RANGE0(i, mainOutput_.size())
-                                    {
-                                        if(mainOutput_[i] == obj)
-                                        {
-                                            setData(
-                                                this->index(i),
-                                                QVariant::fromValue<QObject*>(nullptr),
-                                                IMixerChannelListModel::Role::Output
-                                            );
-                                        }
-                                    }
-                                }
-                            );
-                        }
-                        ++refCount;
-                    }
-                    else
-                    {
-                        auto oldPosition = mainOutput_[row];
-                        auto it = connectToOutputPositions_.find(oldPosition);
-                        if(it != connectToOutputPositions_.end())
-                        {
-                            auto& [refCount, connection] = it->second;
-                            if(--refCount == 0)
-                            {
-                                QObject::disconnect(connection);
-                                connectToOutputPositions_.erase(it);
-                            }
-                        }
-                    }
-                    mainOutput_[row] = pPosition;
-                    dataChanged(this->index(row), this->index(row), {Role::Output});
                 }
             }
             return ret;
@@ -1550,6 +1467,32 @@ void MixerChannelListModel::updateInstrumentIOConfig(std::uint32_t index)
         setData(this->index(index), QVariant::fromValue<bool>(instrumentIsBypassed),
             IMixerChannelListModel::Role::InstrumentBypassed
         );
+    }
+}
+
+void MixerChannelListModel::onMainInputChanged(
+    std::uint32_t index, YADAW::Entity::IAudioIOPosition* position)
+{
+    if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
+        && index <= mainInput_.size()
+        && mixer_.channelInfoAt(channelListType_, index)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Audio)
+    {
+        mainInput_[index] = position;
+        dataChanged(
+            this->index(index), this->index(index),
+            {Role::Input, Role::MonitorExist, Role::Monitor}
+        );
+    }
+}
+
+void MixerChannelListModel::onMainOutputChanged(
+    std::uint32_t index, YADAW::Entity::IAudioIOPosition* position)
+{
+    if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
+        && index <= mainOutput_.size())
+    {
+        mainOutput_[index] = position;
+        dataChanged(this->index(index), this->index(index), {Role::Output});
     }
 }
 
