@@ -170,6 +170,10 @@ Item {
                 delegate: ItemDelegate {
                     width: parent.width
                     text: aodlm_destination.completeName
+                    highlighted: destList.currentIndex === index
+                    onClicked: {
+                        destList.currentIndex = index;
+                    }
                 }
             }
         }
