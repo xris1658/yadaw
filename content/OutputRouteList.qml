@@ -133,7 +133,14 @@ Item {
                     Button {
                         id: disconnectButton
                         text: qsTr("&Disconnect")
-                        enabled: list.currentIndex != -1
+                        enabled: list.currentIndex != -1 && destList.currentIndex != -1
+                        onClicked: {
+                            let target = model.data(
+                                model.index(list.currentIndex, 0),
+                                IAuxIOTargetListModel.Target
+                            );
+                            target.remove(destList.index);
+                        }
                     }
                 }
                 Button {

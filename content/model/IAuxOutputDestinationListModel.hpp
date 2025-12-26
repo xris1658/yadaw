@@ -26,7 +26,7 @@ public:
     int columnCount(const QModelIndex&) const override final { return columnCount(); }
 public:
     Q_INVOKABLE virtual bool append(YADAW::Entity::IAudioIOPosition* position) = 0;
-    Q_INVOKABLE virtual bool remove(int position, int removeCount) = 0;
+    Q_INVOKABLE virtual bool remove(int position, int removeCount = 1) = 0;
 protected:
     RoleNames roleNames() const override
     {
