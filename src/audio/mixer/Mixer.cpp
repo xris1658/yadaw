@@ -554,10 +554,6 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
             }
             FOR_RANGE(i, index, last)
             {
-                nodesToRemove.emplace_back(channelPolarityInverters_[type][i].second);
-                nodesToRemove.emplace_back(channelMutes_[type][i].second);
-                nodesToRemove.emplace_back(channelFaders_[type][i].second);
-                nodesToRemove.emplace_back(channelMeters_[type][i].second);
                 auto& destinations = audioOutputSources_[i];
                 FOR_RANGE0(j, destinations.size())
                 {
@@ -602,6 +598,13 @@ bool Mixer::remove(ChannelListType type, std::uint32_t index, std::uint32_t remo
                     }
                 }
             }
+        }
+        FOR_RANGE(i, index, last)
+        {
+            nodesToRemove.emplace_back(channelPolarityInverters_[type][i].second);
+            nodesToRemove.emplace_back(channelMutes_[type][i].second);
+            nodesToRemove.emplace_back(channelFaders_[type][i].second);
+            nodesToRemove.emplace_back(channelMeters_[type][i].second);
         }
         channelPreFaderInserts_[type].erase(
             channelPreFaderInserts_[type].begin() + index,
