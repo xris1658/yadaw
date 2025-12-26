@@ -134,13 +134,7 @@ bool AuxOutputDestinationModel::remove(int position, int removeCount)
     if(removeCount > 0 && position >= 0 && position < positions_.size() && position + removeCount <= positions_.size())
     {
         auto self = model_->position(channelGroupIndex_);
-        if(model_->mixer_->removeAuxOutputDestination(self, position, removeCount))
-        {
-            beginRemoveRows(QModelIndex(), position, position + removeCount - 1);
-            positions_.erase(positions_.begin() + position, positions_.begin() + position + removeCount);
-            endRemoveRows();
-            return true;
-        }
+        return model_->mixer_->removeAuxOutputDestination(self, position, removeCount);
     }
     return false;
 }
