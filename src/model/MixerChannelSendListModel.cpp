@@ -2,7 +2,7 @@
 
 #include "entity/HardwareAudioIOPosition.hpp"
 #include "entity/PluginAuxAudioIOPosition.hpp"
-#include "entity/RegularAudioIOPosition.hpp"
+#include "entity/RegularAudioInputPosition.hpp"
 #include "util/Base.hpp"
 
 namespace YADAW::Model
@@ -110,9 +110,9 @@ bool MixerChannelSendListModel::setData(
                         )
                     ).value_or(false);
                 }
-                else if(type == YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel)
+                else if(type == YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannelInput)
                 {
-                    const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioIOPosition&>(*pPosition);
+                    const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioInputPosition&>(*pPosition);
                     return mixer_->setSendDestination(
                         channelListType_, channelIndex_, row,
                         static_cast<YADAW::Audio::Mixer::Mixer::Position>(
@@ -172,9 +172,9 @@ bool MixerChannelSendListModel::append(bool isPreFader, YADAW::Entity::IAudioIOP
             );
             break;
         }
-        case YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel:
+        case YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannelInput:
         {
-            const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioIOPosition&>(*position);
+            const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioInputPosition&>(*position);
             return *mixer_->appendSend(
                 channelListType_, channelIndex_, isPreFader, regularAudioIOPosition
             );

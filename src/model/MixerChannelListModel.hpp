@@ -5,13 +5,17 @@
 
 #include "audio/mixer/Mixer.hpp"
 #include "controller/PluginContext.hpp"
+#include "entity/HardwareAudioIOPosition.hpp"
 #include "entity/IAudioIOPosition.hpp"
+#include "entity/RegularAudioInputPosition.hpp"
+#include "entity/RegularAudioOutputPosition.hpp"
 #include "model/AudioDeviceIOGroupListModel.hpp"
 #include "model/PluginContextUserData.hpp"
 #include "model/PolarityInverterModel.hpp"
 
 #include <memory>
 #include <vector>
+
 
 namespace YADAW::Model
 {
@@ -83,6 +87,16 @@ private:
     YADAW::Audio::Mixer::Mixer& mixer_;
     std::vector<std::unique_ptr<YADAW::Model::MixerChannelInsertListModel>> insertModels_;
     std::vector<std::unique_ptr<YADAW::Model::MixerChannelSendListModel>> sendModels_;
+    std::variant<
+        std::monostate,
+        std::vector<std::unique_ptr<YADAW::Entity::RegularAudioInputPosition>>,
+        std::vector<std::unique_ptr<YADAW::Entity::HardwareAudioIOPosition>>
+    > inputPositions_;
+    std::variant<
+        std::vector<std::unique_ptr<YADAW::Entity::HardwareAudioIOPosition>>,
+        std::vector<std::unique_ptr<YADAW::Entity::RegularAudioOutputPosition>>,
+        std::monostate
+    > outputPositions_;
     // Only used if listType_ == ListType::Regular: {
     std::vector<YADAW::Entity::IAudioIOPosition*> mainInput_;
     std::vector<YADAW::Entity::IAudioIOPosition*> mainOutput_;

@@ -110,6 +110,7 @@ Item {
                             locatePopupWindow(audioIOSelectorWindow, addButton.height, 0);
                             audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = false;
                             audioIOSelectorWindow.audioIOSelector.showAudioHardwareOutput = true;
+                            audioIOSelectorWindow.audioIOSelector.showAudioChannel = true;
                             audioIOSelectorWindow.audioIOSelector.showAudioGroupChannel = true;
                             audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = true;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = true;

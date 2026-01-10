@@ -16,7 +16,9 @@ public:
     {
         Invalid,
         AudioHardwareIOChannel,
-        BusAndFXChannel,
+        BusAndFXChannelInput,
+        AudioChannelInput,
+        RegularChannelOut,
         PluginAuxIO,
         Send
     };

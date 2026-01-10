@@ -8,20 +8,15 @@ import YADAW.Models
 QC.Popup {
     id: root
 
-    readonly property alias audioHardwareInputPositionProxyModel: audioHardwareInputPositionProxyModel
-    readonly property alias audioHardwareOutputPositionProxyModel: audioHardwareOutputPositionProxyModel
-    readonly property alias audioGroupChannelProxyModel: audioGroupChannelProxyModel
-    readonly property alias audioEffectChannelProxyModel: audioEffectChannelProxyModel
-
-    property alias audioHardwareInputPositionModel: audioHardwareInputPositionProxyModel.sourceModel
-    property alias audioHardwareOutputPositionModel: audioHardwareOutputPositionProxyModel.sourceModel
-    property alias audioGroupChannelModel: audioGroupChannelProxyModel.sourceModel
-    property alias audioEffectChannelModel: audioEffectChannelProxyModel.sourceModel
+    property alias audioHardwareInputChannelListModel: audioHardwareInputPositionProxyModel.sourceModel
+    property alias regularChannelListModel: audioChannelProxyModel.sourceModel
+    property alias audioHardwareOutputChannelListModel: audioHardwareOutputPositionProxyModel.sourceModel
     property alias pluginAuxInModel: pluginAuxInTreeView.model
     property alias pluginAuxOutModel: pluginAuxOutTreeView.model
 
     property bool showAudioHardwareInput: true
     property bool showAudioHardwareOutput: true
+    property bool showAudioChannel: true
     property bool showAudioGroupChannel: true
     property bool showAudioEffectChannel: true
     property bool showPluginAuxIn: true
@@ -35,8 +30,9 @@ QC.Popup {
     readonly property var audioIOTypes: [
        IAudioIOPosition.AudioHardwareIOChannel,
        IAudioIOPosition.AudioHardwareIOChannel,
-       IAudioIOPosition.BusAndFXChannel,
-       IAudioIOPosition.BusAndFXChannel,
+       IAudioIOPosition.AudioChannelInput,
+       IAudioIOPosition.BusAndFXChannelInput,
+       IAudioIOPosition.BusAndFXChannelInput,
        IAudioIOPosition.PluginAuxIO,
        IAudioIOPosition.PluginAuxIO
     ]
@@ -55,7 +51,7 @@ QC.Popup {
         id: impl
         property int contentWidth: 350
         function initProxyModel(proxyModel) {
-            proxyModel.setFilter(IAudioIOPositionModel.Name, true, Qt.CaseInsensitive);
+            proxyModel.setFilter(IMixerChannelListModel.NameWithIndex, true, Qt.CaseInsensitive);
         }
     }
 
@@ -68,27 +64,52 @@ QC.Popup {
         filterString: searchTextField.text
     }
     SortFilterProxyListModel {
+        id: audioChannelProxyModel
+        filterString: searchTextField.text
+        Component.onCompleted: {
+            setValueOfFilter(
+                IMixerChannelListModel.ChannelType,
+                IMixerChannelListModel.ChannelTypeAudio
+            );
+        }
+    }
+    SortFilterProxyListModel {
         id: audioGroupChannelProxyModel
         filterString: searchTextField.text
+        sourceModel: regularChannelListModel
+        Component.onCompleted: {
+            setValueOfFilter(
+                IMixerChannelListModel.ChannelType,
+                IMixerChannelListModel.ChannelTypeBus
+            );
+        }
     }
     SortFilterProxyListModel {
         id: audioEffectChannelProxyModel
         filterString: searchTextField.text
+        sourceModel: regularChannelListModel
+        Component.onCompleted: {
+            setValueOfFilter(
+                IMixerChannelListModel.ChannelType,
+                IMixerChannelListModel.ChannelTypeAudioFX
+            );
+        }
     }
 
     Component {
         id: audioIOPositionComponent
         ItemDelegate {
             width: parent.width
-            text: aiopm_position.completeName
+            property var position: ListView.view === audioHardwareInputListView? mclm_output: mclm_input
+            text: position? position.completeName: ""
             highlighted: ListView.view.currentIndex === index
             onClicked: {
                 ListView.view.currentIndex = index;
-                root.currentPosition = aiopm_position;
+                root.currentPosition = position;
             }
             onDoubleClicked: {
                 ListView.view.currentIndex = index;
-                root.currentPosition = aiopm_position;
+                root.currentPosition = position;
                 root.accepted();
             }
         }
@@ -96,10 +117,11 @@ QC.Popup {
     Component {
         id: audioIOPositionTreeComponent
         ItemDelegate {
-            property bool expanded: tmtlm_expanded
-            property int hasChildren: tmtlm_has_children
-            property int depth: tmtlm_indent
-            width: ListView.view.treeView.width
+            required property TreeView treeView
+            required property bool isTreeNode
+            required property bool expanded
+            required property int hasChildren
+            required property int depth
             leftPadding: depth * height + indicator.width
             text: aiopim_position? aiopim_position.completeName + " (" + aiopim_tree_name + ")": aiopim_tree_name
             Label {
@@ -114,7 +136,7 @@ QC.Popup {
             }
             onClicked: {
                 if(hasChildren) {
-                    ListView.view.treeView.toggleExpanded(index);
+                    treeView.toggleExpanded(index);
                 }
                 else if(aiopim_position) {
                     root.currentPosition = aiopim_position;
@@ -145,6 +167,9 @@ QC.Popup {
             id: searchTextField
             placeholderText: "<i>" + qsTr("Search (Ctrl+F)") + "</i>"
             width: impl.contentWidth
+            onTextChanged: {
+                console.log(text);
+            }
         }
         Rectangle {
             width: impl.contentWidth
@@ -188,6 +213,11 @@ QC.Popup {
                                     append({
                                         "name": qsTr("Audio Output Bus"),
                                         "iconSource": "IOIcon.qml",
+                                        "show": true
+                                    });
+                                    append({
+                                        "name": qsTr("Audio Channel"),
+                                        "iconSource": "AudioIcon.qml",
                                         "show": true
                                     });
                                     append({
@@ -250,6 +280,7 @@ QC.Popup {
                             onCurrentIndexChanged: {
                                 audioHardwareInputListView.currentIndex = -1;
                                 audioHardwareOutputListView.currentIndex = -1;
+                                audioChannelListView.currentIndex = -1;
                                 audioGroupChannelListView.currentIndex = -1;
                                 audioEffectChannelListView.currentIndex = -1;
                                 // pluginAuxInListView.currentIndex = -1;
@@ -274,6 +305,12 @@ QC.Popup {
                         delegate: audioIOPositionComponent
                     }
                     ListView {
+                        id: audioChannelListView
+                        clip: true
+                        model: audioChannelProxyModel
+                        delegate: audioIOPositionComponent
+                    }
+                    ListView {
                         id: audioGroupChannelListView
                         clip: true
                         model: audioGroupChannelProxyModel
@@ -285,15 +322,21 @@ QC.Popup {
                         model: audioEffectChannelProxyModel
                         delegate: audioIOPositionComponent
                     }
-                    TreeViewAsListView {
+                    TreeView {
                         id: pluginAuxInTreeView
                         clip: true
-                        listView.delegate: audioIOPositionTreeComponent
+                        columnWidthProvider: function (column) {
+                            return pluginAuxInTreeView.width;
+                        }
+                        delegate: audioIOPositionTreeComponent
                     }
-                    TreeViewAsListView {
+                    TreeView {
                         id: pluginAuxOutTreeView
                         clip: true
-                        listView.delegate: audioIOPositionTreeComponent
+                        columnWidthProvider: function (column) {
+                            return pluginAuxOutTreeView.width;
+                        }
+                        delegate: audioIOPositionTreeComponent
                     }
                     onCurrentIndexChanged: {
                         root.currentPosition = null;
@@ -337,30 +380,35 @@ QC.Popup {
     onShowAudioHardwareOutputChanged: {
         leftListModel.setProperty(1, "show", showAudioHardwareOutput);
     }
+    onShowAudioChannelChanged: {
+        leftListModel.setProperty(2, "show", showAudioChannel);
+    }
     onShowAudioGroupChannelChanged: {
-        leftListModel.setProperty(2, "show", showAudioGroupChannel);
+        leftListModel.setProperty(3, "show", showAudioGroupChannel);
     }
     onShowAudioEffectChannelChanged: {
-        leftListModel.setProperty(3, "show", showAudioEffectChannel);
+        leftListModel.setProperty(4, "show", showAudioEffectChannel);
     }
     onShowPluginAuxInChanged: {
-        leftListModel.setProperty(4, "show", showPluginAuxIn);
+        leftListModel.setProperty(5, "show", showPluginAuxIn);
     }
     onShowPluginAuxOutChanged: {
-        leftListModel.setProperty(5, "show", showPluginAuxOut);
+        leftListModel.setProperty(6, "show", showPluginAuxOut);
     }
     Component.onCompleted: {
         impl.initProxyModel(audioHardwareInputPositionProxyModel);
         impl.initProxyModel(audioHardwareOutputPositionProxyModel);
+        impl.initProxyModel(audioChannelProxyModel);
         impl.initProxyModel(audioGroupChannelProxyModel);
         impl.initProxyModel(audioEffectChannelProxyModel);
         // TODO: Init aux input/output model once `SortFilterProxyItemModel` is used
     }
     onAudioChannelConfigChanged: {
-        audioHardwareInputPositionProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
-        audioHardwareOutputPositionProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
-        audioGroupChannelProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
-        audioEffectChannelProxyModel.setValueOfFilter(IAudioIOPositionModel.ChannelConfig, audioChannelConfig);
+        audioHardwareInputPositionProxyModel.setValueOfFilter(IMixerChannelListModel.ChannelConfig, audioChannelConfig);
+        audioHardwareOutputPositionProxyModel.setValueOfFilter(IMixerChannelListModel.ChannelConfig, audioChannelConfig);
+        audioChannelProxyModel.setValueOfFilter(IMixerChannelListModel.ChannelConfig, audioChannelConfig);
+        audioGroupChannelProxyModel.setValueOfFilter(IMixerChannelListModel.ChannelConfig, audioChannelConfig);
+        audioEffectChannelProxyModel.setValueOfFilter(IMixerChannelListModel.ChannelConfig, audioChannelConfig);
         // TODO: Set value filter of input/output model once `SortFilterProxyItemModel` is used
     }
 }

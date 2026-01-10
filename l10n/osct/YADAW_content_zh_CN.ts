@@ -580,7 +580,12 @@ Proceed?</source>
         <translation>音频输出总线</translation>
     </message>
     <message>
-        <location filename="../../content/AudioIOSelector.qml" line="193"/>
+        <location filename="../../content/AudioIOSelector.qml" line="204"/>
+        <source>Audio Channel</source>
+        <translation>音频轨道</translation>
+    </message>
+    <message>
+        <location filename="../../content/AudioIOSelector.qml" line="209"/>
         <source>Audio Group Channel</source>
         <translation>音频编组轨道</translation>
     </message>

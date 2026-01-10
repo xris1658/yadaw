@@ -429,8 +429,10 @@ set(YADAW_COMMON_SOURCES
     src/entity/PluginAuxAudioIOPosition.cpp
     src/entity/PluginAuxAudioIOPosition.hpp
     src/entity/PluginFormatSupport.cpp
-    src/entity/RegularAudioIOPosition.cpp
-    src/entity/RegularAudioIOPosition.hpp
+    src/entity/RegularAudioInputPosition.cpp
+    src/entity/RegularAudioInputPosition.hpp
+    src/entity/RegularAudioOutputPosition.cpp
+    src/entity/RegularAudioOutputPosition.hpp
     src/entity/SendPosition.cpp
     src/entity/SendPosition.hpp
     src/event/EventBase.cpp
@@ -474,8 +476,6 @@ set(YADAW_COMMON_SOURCES
     src/model/FileTreeModel.cpp
     src/model/FileTreeModel.hpp
     src/model/FilterRoleModel.cpp
-    src/model/HardwareAudioIOPositionModel.cpp
-    src/model/HardwareAudioIOPositionModel.hpp
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
     src/model/MessageDialogButtonBoxModel.cpp
@@ -505,8 +505,6 @@ set(YADAW_COMMON_SOURCES
     src/model/PolarityInverterModel.hpp
     src/model/QuickMenuEventFilterModel.cpp
     src/model/QuickMenuEventFilterModel.hpp
-    src/model/RegularAudioIOPositionModel.cpp
-    src/model/RegularAudioIOPositionModel.hpp
     src/model/SortOrderModel.cpp
     src/model/SortFilterProxyListModel.cpp
     src/model/SpeakerListModel.cpp

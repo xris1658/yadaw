@@ -3,7 +3,8 @@
 
 #include "audio/mixer/Mixer.hpp"
 #include "entity/IAudioIOPosition.hpp"
-#include "model/HardwareAudioIOPositionModel.hpp"
+
+#include <QModelIndex>
 
 namespace YADAW::Model
 {

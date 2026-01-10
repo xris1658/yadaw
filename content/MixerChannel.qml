@@ -119,11 +119,11 @@ Rectangle {
         target: impl.usingAudioIOSelector? audioIOSelectorWindow: null
         function onAccepted() {
             if(impl.selectingInput) {
-                mclm_input = audioIOSelectorWindow.audioIOSelector.currentPosition;
+                mclm_input_source = audioIOSelectorWindow.audioIOSelector.currentPosition;
                 impl.selectingInput = false;
             }
             if(impl.selectingOutput) {
-                mclm_output = audioIOSelectorWindow.audioIOSelector.currentPosition;
+                mclm_output_destination = audioIOSelectorWindow.audioIOSelector.currentPosition;
                 impl.selectingOutput = false;
             }
             if(impl.appendingSend) {
@@ -133,11 +133,11 @@ Rectangle {
         }
         function onResetted() {
             if(impl.selectingInput) {
-                mclm_input = null;
+                mclm_input_source = null;
                 impl.selectingInput = false;
             }
             if(impl.selectingOutput) {
-                mclm_output = null;
+                mclm_output_destination = null;
                 impl.selectingOutput = false;
             }
         }
@@ -165,19 +165,20 @@ Rectangle {
                     enabled: root.inputAvailable
                     opacity: enabled? 1: 0
                     width: ioPlaceholder.width - impl.padding * 2
-                    text: mclm_input? mclm_input.completeName: undefined
+                    text: mclm_input_source? mclm_input_source.completeName: undefined
                     onCheckedChanged: {
                         if(checked) {
                             locatePopupWindow(audioIOSelectorWindow, height + impl.padding, 0 - impl.padding);
                             audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = true;
                             audioIOSelectorWindow.audioIOSelector.showAudioHardwareOutput = false;
+                            audioIOSelectorWindow.audioIOSelector.showAudioChannel = false;
                             audioIOSelectorWindow.audioIOSelector.showAudioGroupChannel = false;
                             audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = false;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = false;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = true;
                             audioIOSelectorWindow.audioIOSelector.currentIndex = 0;
                             audioIOSelectorWindow.audioIOSelector.audioChannelConfig = mclm_channel_config;
-                            audioIOSelectorWindow.audioIOSelector.showResetButton = mclm_input? true: false;
+                            audioIOSelectorWindow.audioIOSelector.showResetButton = mclm_input_source? true: false;
                             audioIOSelectorWindow.showNormal();
                             impl.usingAudioIOSelector = true;
                             impl.selectingInput = true;
@@ -189,19 +190,20 @@ Rectangle {
                     enabled: root.outputAvailable
                     opacity: enabled? 1: 0
                     width: ioPlaceholder.width - impl.padding * 2
-                    text: mclm_output? mclm_output.completeName: undefined
+                    text: mclm_output_destination? mclm_output_destination.completeName: undefined
                     onCheckedChanged: {
                         if(checked) {
                             locatePopupWindow(audioIOSelectorWindow, height + impl.padding, 0 - impl.padding);
                             audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = false;
                             audioIOSelectorWindow.audioIOSelector.showAudioHardwareOutput = true;
+                            audioIOSelectorWindow.audioIOSelector.showAudioChannel = true;
                             audioIOSelectorWindow.audioIOSelector.showAudioGroupChannel = true;
                             audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = true;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = true;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = false;
                             audioIOSelectorWindow.audioIOSelector.currentIndex = 1;
                             audioIOSelectorWindow.audioIOSelector.audioChannelConfig = mclm_channel_config;
-                            audioIOSelectorWindow.audioIOSelector.showResetButton = mclm_output? true: false;
+                            audioIOSelectorWindow.audioIOSelector.showResetButton = mclm_output_destination? true: false;
                             audioIOSelectorWindow.showNormal();
                             impl.usingAudioIOSelector = true;
                             impl.selectingOutput = true;
@@ -646,6 +648,7 @@ Rectangle {
                             locatePopupWindow(audioIOSelectorWindow, height + impl.padding, 0 - impl.padding);
                             audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = false;
                             audioIOSelectorWindow.audioIOSelector.showAudioHardwareOutput = true;
+                            audioIOSelectorWindow.audioIOSelector.showAudioChannel = true;
                             audioIOSelectorWindow.audioIOSelector.showAudioGroupChannel = true;
                             audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = true;
                             audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = true;
@@ -721,7 +724,7 @@ Rectangle {
                         width: (controlButtonPlaceholder.width - impl.padding * 5) / 4
                         topPadding: 1
                         bottomPadding: 1
-                        enabled: mclm_monitor_exist && mclm_input
+                        enabled: mclm_monitor_exist && mclm_input_source
                         opacity: mclm_monitor_exist? 1: 0
                         checkable: true
                         checked: mclm_monitor_exist? mclm_monitor: false

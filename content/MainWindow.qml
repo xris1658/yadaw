@@ -35,10 +35,6 @@ ApplicationWindow {
     property alias alsaInputDeviceList: preferencesWindow.alsaInputDeviceList
     property alias alsaOutputDeviceList: preferencesWindow.alsaOutputDeviceList
 
-    property alias audioHardwareInputPositionModel: audioIOSelector.audioHardwareInputPositionModel
-    property alias audioHardwareOutputPositionModel: audioIOSelector.audioHardwareOutputPositionModel
-    property alias audioGroupChannelModel: audioIOSelector.audioGroupChannelModel
-    property alias audioEffectChannelModel: audioIOSelector.audioEffectChannelModel
     property alias pluginAuxInModel: audioIOSelector.pluginAuxInModel
     property alias pluginAuxOutModel: audioIOSelector.pluginAuxOutModel
 
@@ -902,6 +898,9 @@ ApplicationWindow {
         signal resetted()
         AudioIOSelector {
             id: audioIOSelector
+            audioHardwareInputChannelListModel: root.mixerAudioInputChannelModel
+            regularChannelListModel: root.mixerChannelModel
+            audioHardwareOutputChannelListModel: root.mixerAudioOutputChannelModel
             onAboutToHide: { // Handle closing on pressing Esc correctly
                 audioIOSelectorWindow.hide();
             }

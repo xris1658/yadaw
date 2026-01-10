@@ -77,6 +77,7 @@ Item {
                         locatePopupWindow(audioIOSelectorWindow, comboBoxButton.height, 0);
                         audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = true;
                         audioIOSelectorWindow.audioIOSelector.showAudioHardwareOutput = false;
+                        audioIOSelectorWindow.audioIOSelector.showAudioChannel = false;
                         audioIOSelectorWindow.audioIOSelector.showAudioGroupChannel = false;
                         audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = false;
                         audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = false;

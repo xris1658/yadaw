@@ -21,10 +21,8 @@
 #include "controller/PluginWindowController.hpp"
 #include "entity/ChannelConfigHelper.hpp"
 #include "event/EventBase.hpp"
-#include "model/HardwareAudioIOPositionModel.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
 #include "model/MixerChannelListModel.hpp"
-#include "model/RegularAudioIOPositionModel.hpp"
 #include "model/QuickMenuEventFilterModel.hpp"
 #include "native/Native.hpp"
 #include "native/Shell.hpp"
@@ -440,18 +438,6 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(
             &mixerChannelListModels.mixerChannels[YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList]
         )
-    );
-    YADAW::UI::mainWindow->setProperty("audioHardwareInputPositionModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().hardwareAudioInputPositionModel)
-    );
-    YADAW::UI::mainWindow->setProperty("audioHardwareOutputPositionModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().hardwareAudioOutputPositionModel)
-    );
-    YADAW::UI::mainWindow->setProperty("audioGroupChannelModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().audioGroupIOPositionModel)
-    );
-    YADAW::UI::mainWindow->setProperty("audioEffectChannelModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().audioFXIOPositionModel)
     );
     YADAW::UI::mainWindow->setProperty("pluginAuxInModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().audioInputPositionModel)

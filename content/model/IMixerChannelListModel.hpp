@@ -41,9 +41,11 @@ public:
         ChannelCount,
         InputExist,
         Input, // YADAW::Entity::AudioIOPosition
+        InputSource, // YADAW::Entity::AudioIOPosition
         InputType, // MediaTypes
         OutputExist,
         Output, // YADAW::Entity::AudioIOPosition
+        OutputDestination, // YADAW::Entity::AudioIOPosition
         OutputType, // MediaTypes
         InstrumentExist,
         InstrumentBypassed,
@@ -114,9 +116,11 @@ protected:
             std::make_pair(ChannelCount,                        "mclm_channel_count"),
             std::make_pair(InputExist,                          "mclm_input_exist"),
             std::make_pair(Input,                               "mclm_input"),
+            std::make_pair(InputSource,                         "mclm_input_source"),
             std::make_pair(InputType,                           "mclm_input_type"),
             std::make_pair(OutputExist,                         "mclm_output_exist"),
             std::make_pair(Output,                              "mclm_output"),
+            std::make_pair(OutputDestination,                   "mclm_output_destination"),
             std::make_pair(OutputType,                          "mclm_output_type"),
             std::make_pair(InstrumentExist,                     "mclm_instrument_exist"),
             std::make_pair(InstrumentBypassed,                  "mclm_instrument_bypassed"),

@@ -6,7 +6,7 @@
 
 namespace YADAW::Model
 {
-class HardwareAudioIOPositionModel;
+class MixerChannelListModel;
 }
 
 namespace YADAW::Entity
@@ -14,10 +14,10 @@ namespace YADAW::Entity
 class HardwareAudioIOPosition: public IAudioIOPosition
 {
     Q_OBJECT
-    friend class YADAW::Model::HardwareAudioIOPositionModel;
+    friend class YADAW::Model::MixerChannelListModel;
 private:
     HardwareAudioIOPosition(
-        YADAW::Model::HardwareAudioIOPositionModel& model,
+        YADAW::Model::MixerChannelListModel& model,
         std::uint32_t index,
         QObject* parent = nullptr
     );
@@ -28,14 +28,14 @@ public:
     QString getName() const override;
     QString getCompleteName() const override;
 public:
-    const YADAW::Model::HardwareAudioIOPositionModel& getModel() const;
+    const YADAW::Model::MixerChannelListModel& getModel() const;
     std::uint32_t getIndex() const;
 private:
     void updateIndex(std::uint32_t index);
 public:
     operator YADAW::Audio::Mixer::Mixer::Position() const;
 private:
-    YADAW::Model::HardwareAudioIOPositionModel* model_;
+    YADAW::Model::MixerChannelListModel* model_;
     std::uint32_t index_;
 };
 }

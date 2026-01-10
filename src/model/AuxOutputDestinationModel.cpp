@@ -2,7 +2,7 @@
 
 #include "entity/HardwareAudioIOPosition.hpp"
 #include "entity/PluginAuxAudioIOPosition.hpp"
-#include "entity/RegularAudioIOPosition.hpp"
+#include "entity/RegularAudioInputPosition.hpp"
 #include "model/AuxOutputDestinationListModel.hpp"
 #include "util/QmlUtil.hpp"
 
@@ -65,7 +65,7 @@ bool AuxOutputDestinationModel::setData(const QModelIndex& index, const QVariant
     using YADAW::Entity::IAudioIOPosition;
     using YADAW::Entity::HardwareAudioIOPosition;
     using YADAW::Entity::PluginAuxAudioIOPosition;
-    using YADAW::Entity::RegularAudioIOPosition;
+    using YADAW::Entity::RegularAudioInputPosition;
 
     if(auto row = index.row(); row >= 0 && row < positions_.size())
     {
@@ -80,9 +80,9 @@ bool AuxOutputDestinationModel::setData(const QModelIndex& index, const QVariant
                 auto audioHardwareIOPosition = static_cast<HardwareAudioIOPosition*>(pPosition);
                 dest = static_cast<Mixer::Position>(*audioHardwareIOPosition);
             }
-            else if(type == IAudioIOPosition::Type::BusAndFXChannel)
+            else if(type == IAudioIOPosition::Type::BusAndFXChannelInput)
             {
-                auto busAndFXPosition = static_cast<RegularAudioIOPosition*>(pPosition);
+                auto busAndFXPosition = static_cast<RegularAudioInputPosition*>(pPosition);
                 dest = static_cast<Mixer::Position>(*busAndFXPosition);
             }
             else if(type == IAudioIOPosition::Type::PluginAuxIO)
@@ -108,10 +108,10 @@ bool AuxOutputDestinationModel::append(YADAW::Entity::IAudioIOPosition* position
             static_cast<YADAW::Entity::HardwareAudioIOPosition&>(*position)
         );
     }
-    else if(type == YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannel)
+    else if(type == YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannelInput)
     {
         dest = static_cast<YADAW::Audio::Mixer::Mixer::Position>(
-            static_cast<YADAW::Entity::RegularAudioIOPosition&>(*position)
+            static_cast<YADAW::Entity::RegularAudioInputPosition&>(*position)
         );
     }
     else if(type == YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO)

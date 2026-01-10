@@ -2,7 +2,7 @@
 
 #include "entity/HardwareAudioIOPosition.hpp"
 #include "entity/PluginAuxAudioIOPosition.hpp"
-#include "entity/RegularAudioIOPosition.hpp"
+#include "entity/RegularAudioInputPosition.hpp"
 #include "util/QmlUtil.hpp"
 
 namespace YADAW::Model
@@ -80,7 +80,7 @@ bool AuxInputSourceListModel::setData(const QModelIndex& index,
     using YADAW::Entity::IAudioIOPosition;
     using YADAW::Entity::HardwareAudioIOPosition;
     using YADAW::Entity::PluginAuxAudioIOPosition;
-    using YADAW::Entity::RegularAudioIOPosition;
+    using YADAW::Entity::RegularAudioInputPosition;
     auto ret = false;
     auto row = index.row();
     if(row >= 0 && row < rowCount(QModelIndex()) && role == Role::Target)
@@ -95,9 +95,9 @@ bool AuxInputSourceListModel::setData(const QModelIndex& index,
                 auto audioHardwareIOPosition = static_cast<HardwareAudioIOPosition*>(pPosition);
                 source = static_cast<Mixer::Position>(*audioHardwareIOPosition);
             }
-            else if(type == IAudioIOPosition::Type::BusAndFXChannel)
+            else if(type == IAudioIOPosition::Type::BusAndFXChannelInput)
             {
-                auto busAndFXPosition = static_cast<RegularAudioIOPosition*>(pPosition);
+                auto busAndFXPosition = static_cast<RegularAudioInputPosition*>(pPosition);
                 source = static_cast<Mixer::Position>(*busAndFXPosition);
             }
             else if(type == IAudioIOPosition::Type::PluginAuxIO)
