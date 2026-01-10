@@ -63,7 +63,7 @@ MixerChannelListModel::MixerChannelListModel(
             auto index = i++;
             return std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
                 mixer_.preFaderInsertsAt(channelListType_, index)->get(),
-                channelListType_, true, index, 0
+                channelListType_, index, true, 0
             );
         }
     );
