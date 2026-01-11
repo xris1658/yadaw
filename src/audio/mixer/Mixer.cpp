@@ -1630,6 +1630,7 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
         }
         if(ret)
         {
+            mainInput_[index] = position;
             mainInputChangedCallback_(*this, index);
             if(batchUpdater_)
             {
@@ -1639,7 +1640,6 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
             {
                 connectionUpdatedCallback_(*this);
             }
-            mainInput_[index] = position;
         }
         return ret;
     }
@@ -1965,8 +1965,8 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
     }
     if(ret)
     {
-        mainOutputChangedCallback_(*this, index);
         oldPosition = position;
+        mainOutputChangedCallback_(*this, index);
     }
     return ret;
 }
