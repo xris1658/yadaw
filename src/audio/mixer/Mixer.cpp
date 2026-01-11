@@ -1610,6 +1610,9 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
             {
                 const auto& fromNode = audioInputPostFaderInserts_[it->index]->outNode();
                 ret = graph_.connect(fromNode, toNode, 0, 1).has_value();
+                if(ret)
+                {
+                }
             }
             audioInputDestinations_[it->index].emplace(
                 Position::Type::AudioChannelInput, index
