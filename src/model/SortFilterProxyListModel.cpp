@@ -183,12 +183,14 @@ int SortFilterProxyListModel::mapFromSource(int sourceIndex) const
 
 bool SortFilterProxyListModel::insertSortOrder(int role, Qt::SortOrder sortOrder, int position)
 {
-    return sortOrderModel_.insert(role, sortOrder, position);
+    return sourceModel_ && sourceModel_->isComparable(role)
+        && sortOrderModel_.insert(role, sortOrder, position);
 }
 
 bool SortFilterProxyListModel::appendSortOrder(int role, Qt::SortOrder sortOrder)
 {
-    return sortOrderModel_.append(role, sortOrder);
+    return sourceModel_ && sourceModel_->isComparable(role)
+        && sortOrderModel_.append(role, sortOrder);
 }
 
 int SortFilterProxyListModel::getSortIndexOfRole(int role) const
@@ -208,7 +210,8 @@ void SortFilterProxyListModel::clearSortOrder()
 
 bool SortFilterProxyListModel::setFilter(int role, bool filterEnabled, Qt::CaseSensitivity caseSensitivity)
 {
-    return filterRoleModel_.setFilterRole(role, filterEnabled, caseSensitivity);
+    return sourceModel_ && sourceModel_->isSearchable(role)
+        && filterRoleModel_.setFilterRole(role, filterEnabled, caseSensitivity);
 }
 
 void SortFilterProxyListModel::clearFilter()
@@ -224,9 +227,13 @@ QVariant SortFilterProxyListModel::valueOfFilter(int role) const
 
 bool SortFilterProxyListModel::setValueOfFilter(int role, const QVariant& value)
 {
-    valuesOfFilter_[role] = value;
-    doFilter();
-    return true;
+    if(sourceModel_ && sourceModel_->isFilterable(role))
+    {
+        valuesOfFilter_[role] = value;
+        doFilter();
+        return true;
+    }
+    return false;
 }
 
 void SortFilterProxyListModel::clearValueOfFilter(int role)
