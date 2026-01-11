@@ -1041,6 +1041,7 @@ std::optional<bool> Mixer::insertSend(ChannelListType type, std::uint32_t channe
                                     .sendIndex = sendPosition
                                 }
                             );
+                            mainInputChangedCallback_(*this, it->index);
                             return true;
                         }
                     }
@@ -1456,6 +1457,7 @@ std::optional<bool> Mixer::removeSend(
                         destination.id
                     );
                     mainInput_[it->index] = Position {};
+                    mainInputChangedCallback_(*this, it->index);
                 }
                 else if(destination.type == Position::Type::PluginAuxIO)
                 {
