@@ -655,6 +655,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                         break;
                     }
                     case YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannelInput:
+                    case YADAW::Entity::IAudioIOPosition::Type::AudioChannelInput:
                     {
                         const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioInputPosition&>(*pPosition);
                         ret = mixer_.setMainOutputAt(

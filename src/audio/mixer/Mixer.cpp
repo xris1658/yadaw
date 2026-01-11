@@ -1615,10 +1615,16 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
                 Position::Type::AudioChannelInput, index
             );
         }
-        else if(position.type == Position::Type::FXAndGroupChannelInput)
+        else if(position.type == Position::Type::RegularChannelOutput)
         {
-            // TODO: What should we do here? Add a send from the channel,
-            //       or set main output of the channel?
+            auto it = std::lower_bound(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                position.id,
+                &compareIdAndIndexWithId
+            );
+            const auto& fromNode = postFaderInserts_[it->index]->outNode();
+            ret = graph_.connect(fromNode, toNode, 0, 1).has_value();
         }
         else if(position.type == Position::Type::PluginAuxIO)
         {
@@ -1902,6 +1908,24 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         ret = true;
                     }
                 }
+            }
+        }
+        else if(position.type == Position::Type::AudioChannelInput)
+        {
+            auto it = std::lower_bound(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                position.id,
+                &compareIdAndIndexWithId
+            );
+            if(it != channelIdAndIndex_.end() && it->id == position.id)
+            {
+                return setMainInputAt(
+                    it->index, Position {
+                        .type = Position::Type::RegularChannelOutput,
+                        .id = *idAt(ChannelListType::RegularList, index)
+                    }
+                );
             }
         }
         else if(position.type == Position::Type::PluginAuxIO)
