@@ -173,6 +173,7 @@ bool MixerChannelSendListModel::append(bool isPreFader, YADAW::Entity::IAudioIOP
             break;
         }
         case YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannelInput:
+        case YADAW::Entity::IAudioIOPosition::Type::AudioChannelInput:
         {
             const auto& regularAudioIOPosition = static_cast<const YADAW::Entity::RegularAudioInputPosition&>(*position);
             return *mixer_->appendSend(
