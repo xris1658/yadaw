@@ -4360,4 +4360,156 @@ ade::NodeHandle Mixer::getNodeFromPluginAuxPosition(const PluginAuxIOPosition& p
     }
     return {};
 }
+
+Mixer::DisconnectTask::DisconnectTask(Mixer& mixer, const ade::EdgeHandle& edgeHandle):
+    graph_(mixer.graph_), fromNode_(edgeHandle->srcNode()), toNode_(edgeHandle->dstNode())
+{
+    auto edgeData = mixer.graph_.getEdgeData(edgeHandle);
+    fromChannel_ = edgeData.fromChannel;
+    toChannel_ = edgeData.toChannel;
+    graph_.disconnect(edgeHandle);
+}
+
+void Mixer::DisconnectTask::setShouldCommit(bool shouldCommit)
+{
+    shouldCommit_ = shouldCommit;
+}
+
+Mixer::DisconnectTask::~DisconnectTask()
+{
+    if(!shouldCommit_)
+    {
+        graph_.connect(fromNode_, toNode_, fromChannel_, toChannel_);
+    }
+}
+
+std::optional<Mixer::DisconnectTask> Mixer::disconnectTask(
+    Mixer::Position source, Mixer::Position dest)
+{
+    assert(source.type != Position::Type::AudioChannelInput
+        && source.type != Position::Type::FXAndGroupChannelInput);
+    if(source.type == Position::Type::AudioHardwareIOChannel)
+    {
+        assert(dest.type != Mixer::Position::Type::AudioHardwareIOChannel
+            && dest.type != Mixer::Position::Type::FXAndGroupChannelInput);
+        auto itSrc = std::lower_bound(
+            audioInputChannelIdAndIndex_.begin(),
+            audioInputChannelIdAndIndex_.end(),
+            source.id, &compareIdAndIndexWithId
+        );
+        assert(itSrc != audioInputChannelIdAndIndex_.end());
+        auto srcNode = audioInputMeters_[itSrc->index].second;
+        if(dest.type == Position::Type::AudioChannelInput)
+        {
+            auto itDest = std::lower_bound(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                dest.id, &compareIdAndIndexWithId
+            );
+            if(itDest != channelIdAndIndex_.end())
+            {
+                auto destNode = inputDevices_[itDest->index].second;
+                return DisconnectTask(*this, destNode->inEdges().front());
+            }
+        }
+        else if(dest.type == Position::Type::PluginAuxIO)
+        {
+            if(auto optAuxIn = getAuxInputPosition(dest.id); optAuxIn)
+            {
+                const auto& auxIn = *optAuxIn;
+                auto destNode = getNodeFromPluginAuxPosition(auxIn);
+                for(const auto& inEdge: destNode->inEdges())
+                {
+                    if(graph_.getEdgeData(inEdge).toChannel == auxIn.channelGroupIndex)
+                    return DisconnectTask(*this, inEdge);
+                }
+            }
+        }
+    }
+    else if(source.type == Position::Type::RegularChannelOutput)
+    {
+        auto itSrc = std::lower_bound(
+            channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
+            source.id, &compareIdAndIndexWithId
+        );
+        assert(itSrc != channelIdAndIndex_.end());
+        auto srcNode = meters_[itSrc->index].second;
+        return DisconnectTask(*this, srcNode->outEdges().front());
+    }
+    else if(source.type == Position::Type::Send)
+    {
+        assert(dest.type != Position::Type::Send
+            && dest.type != Position::Type::RegularChannelOutput);
+        if(auto optSend = getSendPosition(source.id))
+        {
+            auto srcNode = channelSendFaders_
+                [optSend->channelListType]
+                [optSend->channelIndex]
+                [optSend->sendIndex].second;
+            return DisconnectTask(*this, srcNode->outEdges().front());
+        }
+    }
+    else if(source.type == Position::Type::PluginAuxIO)
+    {
+        if(auto optAuxOut = getAuxOutputPosition(source.id))
+        {
+            const auto& auxOut = *optAuxOut;
+            auto srcNode = getNodeFromPluginAuxPosition(auxOut);
+            ade::NodeHandle destNode;
+            std::optional<std::uint32_t> toChannel;
+            if(dest.type == Position::Type::AudioChannelInput
+                || dest.type == Position::Type::FXAndGroupChannelInput)
+            {
+                auto itDest = std::lower_bound(
+                    channelIdAndIndex_.begin(),
+                    channelIdAndIndex_.end(),
+                    dest.id, &compareIdAndIndexWithId
+                );
+                if(itDest != channelIdAndIndex_.end())
+                {
+                    destNode = inputDevices_[itDest->index].second;
+                    if(dest.type == Position::Type::AudioChannelInput)
+                    {
+                        toChannel.emplace(1);
+                    }
+                }
+            }
+            else if(dest.type == Position::Type::AudioHardwareIOChannel)
+            {
+                auto itDest = std::lower_bound(
+                    audioOutputChannelIdAndIndex_.begin(),
+                    audioOutputChannelIdAndIndex_.end(),
+                    dest.id, &compareIdAndIndexWithId
+                );
+                if(itDest != audioOutputChannelIdAndIndex_.end())
+                {
+                    destNode = audioOutputSummings_[itDest->index].second;
+                }
+            }
+            else if(dest.type == Position::Type::PluginAuxIO)
+            {
+                if(auto optAuxIn = getAuxInputPosition(dest.id); optAuxIn)
+                {
+                    const auto& auxIn = *optAuxIn;
+                    destNode = getNodeFromPluginAuxPosition(auxIn);
+                    toChannel.emplace(auxIn.channelGroupIndex);
+                }
+            }
+            if(destNode != nullptr)
+            {
+                for(const auto& outEdge: srcNode->outEdges())
+                {
+                    const auto& edgeData = graph_.getEdgeData(outEdge);
+                    if(outEdge->dstNode() == destNode
+                        && edgeData.fromChannel == auxOut.channelGroupIndex
+                        && edgeData.toChannel == toChannel.value_or(edgeData.toChannel))
+                    {
+                        return DisconnectTask(*this, outEdge);
+                    }
+                }
+            }
+        }
+    }
+    return std::nullopt;
+}
 }

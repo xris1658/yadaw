@@ -498,6 +498,40 @@ private:
         }
         return {std::move(newSumming), std::move(newSummingNode)};
     }
+    class DisconnectTask
+    {
+    public:
+        DisconnectTask(Mixer& mixer, const ade::EdgeHandle& edgeHandle);
+        void setShouldCommit(bool shouldCommit);
+        ~DisconnectTask();
+    private:
+        YADAW::Audio::Engine::AudioDeviceGraphBase& graph_;
+        ade::NodeHandle fromNode_;
+        ade::NodeHandle toNode_;
+        std::uint32_t fromChannel_;
+        std::uint32_t toChannel_;
+        bool shouldCommit_ = false;
+    };
+    std::optional<DisconnectTask> disconnectTask(Mixer::Position source, Mixer::Position dest);
+    template<typename... Args>
+    void batchUpdateIfNeeded(Args&&... args)
+    {
+        if(batchUpdater_)
+        {
+            if constexpr(sizeof...(args) == 0)
+            {
+                batchUpdater_->addNull();
+            }
+            else
+            {
+                ((batchUpdater_->addObject(std::forward<Args>(args))), ...);
+            }
+        }
+        else
+        {
+            connectionUpdatedCallback_(*this);
+        }
+    }
 public:
     struct IDAndIndex
     {
