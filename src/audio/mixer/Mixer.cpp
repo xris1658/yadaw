@@ -4383,7 +4383,7 @@ Mixer::DisconnectTask::~DisconnectTask()
     }
 }
 
-std::optional<Mixer::DisconnectTask> Mixer::disconnectTask(
+std::optional<Mixer::DisconnectTask> Mixer::createDisconnectTask(
     Mixer::Position source, Mixer::Position dest)
 {
     assert(source.type != Position::Type::AudioChannelInput

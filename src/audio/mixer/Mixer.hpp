@@ -512,7 +512,7 @@ private:
         std::uint32_t toChannel_;
         bool shouldCommit_ = false;
     };
-    std::optional<DisconnectTask> disconnectTask(Mixer::Position source, Mixer::Position dest);
+    std::optional<DisconnectTask> createDisconnectTask(Mixer::Position source, Mixer::Position dest);
     template<typename... Args>
     void batchUpdateIfNeeded(Args&&... args)
     {
