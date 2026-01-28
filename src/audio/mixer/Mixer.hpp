@@ -372,6 +372,8 @@ private:
     void updatePluginAuxPosition(ChannelListType type, std::uint32_t fromChannelIndex);
     ade::NodeHandle getNodeFromPluginAuxPosition(const PluginAuxIOPosition& position) const;
 private:
+    bool connectAudioHardwareInputToVacantInput(std::uint32_t channelIndex, Position destination);
+private:
     using PolarityInverterAndNode = std::pair<
         std::unique_ptr<YADAW::Audio::Mixer::PolarityInverter>,
         ade::NodeHandle
