@@ -4423,6 +4423,7 @@ bool Mixer::connectAudioHardwareInputToVacantInput(
             }
         }
     }
+    return false;
 }
 
 Mixer::DisconnectTask::DisconnectTask(Mixer& mixer, const ade::EdgeHandle& edgeHandle):
