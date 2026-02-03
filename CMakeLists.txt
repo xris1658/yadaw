@@ -574,6 +574,8 @@ set(YADAW_COMMON_SOURCES
     src/util/LockFreeQueue.hpp
     src/util/OptionalUtil.hpp
     src/util/PolymorphicDeleter.hpp
+    src/util/RollbackableOperation.cpp
+    src/util/RollbackableOperation.hpp
     src/util/QStringUtil.hpp
     src/util/QmlUtil.hpp
     src/util/QuadraticFunction.cpp
