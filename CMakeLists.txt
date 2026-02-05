@@ -793,6 +793,8 @@ add_executable(PluginDirectoryScanTest
 add_executable(PluginScanTest
                src/audio/base/Automation.cpp
                src/audio/base/Automation.hpp
+               src/audio/host/CLAPEventList.cpp
+               src/audio/host/CLAPEventList.hpp
                src/audio/host/CLAPHost.cpp
                src/audio/host/CLAPHost.hpp
                src/audio/host/CLAPTimerSupport.cpp
@@ -860,6 +862,8 @@ add_executable(PluginScanTest
                src/concurrent/AtomicMutex.hpp
                src/controller/LibraryPluginMap.cpp
                src/controller/LibraryPluginMap.hpp
+               src/controller/LibraryPluginPool.cpp
+               src/controller/LibraryPluginPool.hpp
                src/controller/PluginController.cpp
                src/controller/PluginController.hpp
                src/dao/DAOBase.cpp
