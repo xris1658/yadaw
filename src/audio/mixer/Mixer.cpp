@@ -4424,6 +4424,10 @@ bool Mixer::connectAudioHardwareInputToVacantInput(
     return false;
 }
 
+Mixer::DisconnectTask::DisconnectTask(): graph_(nullptr)
+{
+}
+
 Mixer::DisconnectTask::DisconnectTask(Mixer& mixer, const ade::EdgeHandle& edgeHandle):
     graph_(&(mixer.graph_)),
     fromNode_(edgeHandle->srcNode()), toNode_(edgeHandle->dstNode())
