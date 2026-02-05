@@ -1590,11 +1590,9 @@ bool Mixer::setMainInputAt(std::uint32_t index, Position position)
                 .id = channelId_[index]
             });
         }
-        else if(oldPosition.type == Position::Type::FXAndGroupChannelInput)
+        else if(oldPosition.type == Position::Type::RegularChannelOutput)
         {
-            // TODO: Not sure about what to do since I've not decided the way
-            //       of setting the main input to send/FX channel
-            //       (see TODO below)
+            // TODO
         }
         else if(oldPosition.type == Position::Type::PluginAuxIO)
         {
