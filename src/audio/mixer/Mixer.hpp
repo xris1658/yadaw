@@ -503,11 +503,13 @@ private:
     class DisconnectTask
     {
     public:
+        DisconnectTask();
         DisconnectTask(Mixer& mixer, const ade::EdgeHandle& edgeHandle);
+        DisconnectTask(DisconnectTask&& rhs) noexcept;
         void setShouldCommit(bool shouldCommit);
         ~DisconnectTask();
     private:
-        YADAW::Audio::Engine::AudioDeviceGraphBase& graph_;
+        YADAW::Audio::Engine::AudioDeviceGraphBase* graph_ = nullptr;
         ade::NodeHandle fromNode_;
         ade::NodeHandle toNode_;
         std::uint32_t fromChannel_;

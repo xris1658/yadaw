@@ -4426,12 +4426,21 @@ bool Mixer::connectAudioHardwareInputToVacantInput(
 }
 
 Mixer::DisconnectTask::DisconnectTask(Mixer& mixer, const ade::EdgeHandle& edgeHandle):
-    graph_(mixer.graph_), fromNode_(edgeHandle->srcNode()), toNode_(edgeHandle->dstNode())
+    graph_(&(mixer.graph_)),
+    fromNode_(edgeHandle->srcNode()), toNode_(edgeHandle->dstNode())
 {
-    auto edgeData = mixer.graph_.getEdgeData(edgeHandle);
+    auto edgeData =graph_->getEdgeData(edgeHandle);
     fromChannel_ = edgeData.fromChannel;
     toChannel_ = edgeData.toChannel;
-    graph_.disconnect(edgeHandle);
+    graph_->disconnect(edgeHandle);
+}
+
+Mixer::DisconnectTask::DisconnectTask(DisconnectTask&& rhs) noexcept:
+    graph_(rhs.graph_), fromNode_(rhs.fromNode_), toNode_(rhs.toNode_),
+    fromChannel_(rhs.fromChannel_), toChannel_(rhs.toChannel_),
+    shouldCommit_(rhs.shouldCommit_)
+{
+    rhs.graph_ = nullptr;
 }
 
 void Mixer::DisconnectTask::setShouldCommit(bool shouldCommit)
@@ -4441,9 +4450,9 @@ void Mixer::DisconnectTask::setShouldCommit(bool shouldCommit)
 
 Mixer::DisconnectTask::~DisconnectTask()
 {
-    if(!shouldCommit_)
+    if(graph_ && !shouldCommit_)
     {
-        graph_.connect(fromNode_, toNode_, fromChannel_, toChannel_);
+        graph_->connect(fromNode_, toNode_, fromChannel_, toChannel_);
     }
 }
 
