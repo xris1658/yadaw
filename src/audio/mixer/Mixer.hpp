@@ -17,6 +17,7 @@
 #include "util/AutoIncrementID.hpp"
 #include "util/BatchUpdater.hpp"
 #include "util/OptionalUtil.hpp"
+#include "util/RollbackableOperation.hpp"
 
 #include <QColor>
 
@@ -268,6 +269,8 @@ public:
     std::optional<bool> setSendDestination(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex, Position destination);
     std::optional<bool> removeSend(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
     std::optional<bool> clearSends(ChannelListType type, std::uint32_t channelIndex);
+private:
+    YADAW::Util::RollbackableOperation coRemoveSend(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
 public:
     OptionalRef<const Position> mainInputAt(std::uint32_t index) const;
     bool setMainInputAt(std::uint32_t index, Position position);
@@ -371,6 +374,7 @@ private:
     static void insertRemoved(Inserts& sender, std::uint32_t position, std::uint32_t removeCount);
     void updatePluginAuxPosition(ChannelListType type, std::uint32_t fromChannelIndex);
     ade::NodeHandle getNodeFromPluginAuxPosition(const PluginAuxIOPosition& position) const;
+    YADAW::Util::RollbackableOperation coRemoveAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index, std::uint32_t removeCount = 1);
 private:
     bool connectAudioHardwareInputToVacantInput(std::uint32_t channelIndex, Position destination);
 private:
