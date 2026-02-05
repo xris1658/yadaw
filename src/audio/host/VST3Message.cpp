@@ -2,6 +2,8 @@
 
 #include "audio/util/VST3Helper.hpp"
 
+#include <atomic>
+
 namespace YADAW::Audio::Host
 {
 using namespace Steinberg;
