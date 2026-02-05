@@ -228,7 +228,7 @@ void EventHandler::onOpenMainWindow()
     if(!errors.empty())
     {
         auto errorString = errors.front();
-        for(auto it = errorString.begin() + 1; it != errorString.end(); ++it)
+        for(auto it = errors.begin() + 1; it != errors.end(); ++it)
         {
             errorString.append(u'\n');
             errorString.append(*it);
