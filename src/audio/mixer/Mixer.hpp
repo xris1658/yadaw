@@ -102,11 +102,11 @@ using DeviceFactoryType = std::unique_ptr<Device>(
 //   - When `setAuxInputSource` to `Position::PluginAuxIO`, call
 //     `AuxOutputAddedCallback`, then `AuxInputChangedCallback`.
 // - When disconnecting things, always call the callback associated to the source
-//   (if any) AFTER invoking the callback associated to the SOURCE (if any).
+//   (if any) AFTER invoking the callback associated to the destination (if any).
 //   "Unplug the source after unplugging the destination."
 //   For example:
 //   - When `setAuxInputSource` to `Position::Invalid` and the previous input
-//     source is `Position::Send`, call `AuxInputChangedCallback`, then
+//     source is `Position::PluginAuxIO`, call `AuxInputChangedCallback`, then
 //     `AuxOutputRemovedCallback`.
 // - If setting the destination of an aux output or send, split the entire
 //   operation as two steps, the first being disconnecting, and the second being
@@ -403,6 +403,10 @@ private:
         ade::NodeHandle
     >;
 private:
+    // Create new summing with more inputs base on the old summing.
+    // This function only replicates incoming connections, but does NOT
+    // replicate outgoing connections. You have to "move" those connections
+    // manually.
     template<typename T>
     SummingAndNode appendInputGroup(
         std::pair<std::unique_ptr<T>, ade::NodeHandle>& oldSummingAndNode,
@@ -432,6 +436,10 @@ private:
         }
         return {std::move(newSumming), std::move(newSummingNode)};
     }
+    // Create new summing with less inputs base on the old summing.
+    // This function only replicates incoming connections, but does NOT
+    // replicate outgoing connections. You have to "move" those connections
+    // manually.
     template<typename T>
     std::optional<SummingAndNode> removeInputGroup(
         std::pair<std::unique_ptr<T>, ade::NodeHandle>& oldSummingAndNode,
@@ -479,6 +487,10 @@ private:
         ade::NodeHandle fromNode, ade::NodeHandle toNode,
         std::uint32_t fromChannel, std::uint32_t toChannel
     );
+    // Create new summing base on input edges of old summing.
+    // This function only replicates incoming connections, but does NOT
+    // replicate outgoing connections. You have to "move" those connections
+    // manually.
     template<typename T>
     SummingAndNode shrinkInputGroups(
         std::pair<std::unique_ptr<T>, ade::NodeHandle>& oldSummingAndNode)
@@ -504,6 +516,7 @@ private:
         }
         return {std::move(newSumming), std::move(newSummingNode)};
     }
+    // Rollbackable disconnection. Only disconnects things, and do nothing else.
     class DisconnectTask
     {
     public:
