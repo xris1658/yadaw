@@ -2055,6 +2055,162 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
     return ret;
 }
 
+YADAW::Util::RollbackableOperation Mixer::coUnsetMainInput(std::uint32_t index)
+{
+    bool shouldCommit = false;
+    auto oldInputSource = mainInput_[index];
+    auto optTask = createDisconnectTask(
+        oldInputSource,
+        Position {
+            .type = Position::Type::AudioChannelInput,
+            .id = channelId_[index]
+        }
+    );
+    co_yield shouldCommit;
+    if(optTask)
+    {
+        optTask->setShouldCommit(shouldCommit);
+        optTask.reset();
+    }
+    if(shouldCommit)
+    {
+        if(oldInputSource.type == Position::Type::AudioHardwareIOChannel)
+        {
+            auto destIndex = std::lower_bound(
+                audioInputChannelIdAndIndex_.begin(),
+                audioInputChannelIdAndIndex_.end(),
+                oldInputSource.id, &compareIdAndIndexWithId
+            )->index;
+            audioInputDestinations_[destIndex].erase(
+                Position {
+                    .type = Position::Type::AudioChannelInput,
+                    .id = channelId_[index]
+                }
+            );
+        }
+        else if(oldInputSource.type == Position::Type::RegularChannelOutput)
+        {
+            auto destIndex = std::lower_bound(
+                channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
+                oldInputSource.id, &compareIdAndIndexWithId
+            )->index;
+            mainOutput_[destIndex] = {};
+            mainOutputChangedCallback_(*this, destIndex);
+        }
+        else if(oldInputSource.type == Position::Type::Send)
+        {
+            auto sendPosition = *getSendPosition(oldInputSource.id);
+            coRemoveSend(
+                sendPosition.channelListType,
+                sendPosition.channelIndex,
+                sendPosition.sendIndex
+            ).commit();
+        }
+        else if(oldInputSource.type == Position::Type::PluginAuxIO)
+        {
+            auto auxOutput = *getAuxOutputPosition(oldInputSource.id);
+            auto& auxOutputDests = getAuxOutputDestinations(auxOutput);
+            if(auto it = std::ranges::find(
+                auxOutputDests,
+                    Position {
+                        .type = Position::Type::AudioChannelInput,
+                        .id = channelId_[index]
+                    }
+                ); it != auxOutputDests.end()
+            )
+            {
+                coRemoveAuxOutputDestination(
+                    auxOutput, it - auxOutputDests.begin()
+                ).commit();
+            }
+        }
+    }
+}
+
+YADAW::Util::RollbackableOperation Mixer::coUnsetMainOutput(std::uint32_t index)
+{
+    bool shouldCommit = false;
+    auto oldOutputDest = mainOutput_[index];
+    auto optTask = createDisconnectTask(
+        Position {
+            .type = Position::Type::RegularChannelOutput,
+            .id = channelId_[index]
+        },
+        oldOutputDest
+    );
+    co_yield shouldCommit;
+    if(optTask)
+    {
+        optTask->setShouldCommit(shouldCommit);
+        optTask.reset();
+    }
+    if(shouldCommit)
+    {
+        if(oldOutputDest.type == Position::Type::AudioChannelInput)
+        {
+            auto destIndex = std::lower_bound(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                oldOutputDest.id, &compareIdAndIndexWithId
+            )->index;
+            mainInput_[destIndex] = {};
+            mainInputChangedCallback_(*this, destIndex);
+            batchUpdateIfNeeded();
+        }
+        else if(oldOutputDest.type == Position::Type::FXAndGroupChannelInput)
+        {
+            auto destIndex = std::lower_bound(
+                channelIdAndIndex_.begin(),
+                channelIdAndIndex_.end(),
+                oldOutputDest.id, &compareIdAndIndexWithId
+            )->index;
+            auto& oldSummingAndNode = inputDevices_[destIndex];
+            auto newSummingAndNode = shrinkInputGroups(oldSummingAndNode);
+            auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second);
+            graph_.connect(
+                newSummingAndNode.second, polarityInverters_[destIndex].second, 0, 0
+            );
+            swapSummingAndNodeUnchecked(oldSummingAndNode, newSummingAndNode);
+            batchUpdateIfNeeded(
+                std::move(multiInputWithPDC), std::move(newSummingAndNode.first)
+            );
+            regularChannelInputSources_[destIndex].erase(Position {
+                .type = Position::Type::RegularChannelOutput,
+                .id = channelId_[index]
+            });
+        }
+        else if(oldOutputDest.type == Position::Type::AudioHardwareIOChannel)
+        {
+            auto destIndex = std::lower_bound(
+                audioOutputChannelIdAndIndex_.begin(),
+                audioOutputChannelIdAndIndex_.end(),
+                oldOutputDest.id, &compareIdAndIndexWithId
+            )->index;
+            auto& oldSummingAndNode = audioOutputSummings_[destIndex];
+            auto newSummingAndNode = shrinkInputGroups(oldSummingAndNode);
+            auto multiInputWithPDC = graphWithPDC_.removeNode(oldSummingAndNode.second);
+            graph_.connect(
+                newSummingAndNode.second, audioOutputPolarityInverters_[destIndex].second, 0, 0
+            );
+            swapSummingAndNodeUnchecked(oldSummingAndNode, newSummingAndNode);
+            batchUpdateIfNeeded(
+                std::move(multiInputWithPDC), std::move(newSummingAndNode.first)
+            );
+            audioOutputSources_[destIndex].erase(Position {
+                .type = Position::Type::RegularChannelOutput,
+                .id = channelId_[index]
+            });
+        }
+        else if(oldOutputDest.type == Position::Type::PluginAuxIO)
+        {
+            auto auxInput = *getAuxInputPosition(oldOutputDest.id);
+            getAuxInputSource(auxInput) = {};
+            auxInputChangedCallback_(*this, auxInput);
+            batchUpdateIfNeeded();
+        }
+    }
+}
+
 bool Mixer::appendAudioInputChannel(
     const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex)
 {
