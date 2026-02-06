@@ -276,6 +276,9 @@ public:
     bool setMainInputAt(std::uint32_t index, Position position);
     OptionalRef<const Position> mainOutputAt(std::uint32_t index) const;
     bool setMainOutputAt(std::uint32_t index, Position position);
+private:
+    YADAW::Util::RollbackableOperation coUnsetMainInput (std::uint32_t index);
+    YADAW::Util::RollbackableOperation coUnsetMainOutput(std::uint32_t index);
 public:
     bool appendAudioInputChannel(
         const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
