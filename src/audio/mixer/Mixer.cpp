@@ -2055,78 +2055,6 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
     return ret;
 }
 
-YADAW::Util::RollbackableOperation Mixer::coUnsetMainInput(std::uint32_t index)
-{
-    bool shouldCommit = false;
-    auto oldInputSource = mainInput_[index];
-    auto optTask = createDisconnectTask(
-        oldInputSource,
-        Position {
-            .type = Position::Type::AudioChannelInput,
-            .id = channelId_[index]
-        }
-    );
-    co_yield shouldCommit;
-    if(optTask)
-    {
-        optTask->setShouldCommit(shouldCommit);
-        optTask.reset();
-    }
-    if(shouldCommit)
-    {
-        if(oldInputSource.type == Position::Type::AudioHardwareIOChannel)
-        {
-            auto destIndex = std::lower_bound(
-                audioInputChannelIdAndIndex_.begin(),
-                audioInputChannelIdAndIndex_.end(),
-                oldInputSource.id, &compareIdAndIndexWithId
-            )->index;
-            audioInputDestinations_[destIndex].erase(
-                Position {
-                    .type = Position::Type::AudioChannelInput,
-                    .id = channelId_[index]
-                }
-            );
-        }
-        else if(oldInputSource.type == Position::Type::RegularChannelOutput)
-        {
-            auto destIndex = std::lower_bound(
-                channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
-                oldInputSource.id, &compareIdAndIndexWithId
-            )->index;
-            mainOutput_[destIndex] = {};
-            mainOutputChangedCallback_(*this, destIndex);
-        }
-        else if(oldInputSource.type == Position::Type::Send)
-        {
-            auto sendPosition = *getSendPosition(oldInputSource.id);
-            coRemoveSend(
-                sendPosition.channelListType,
-                sendPosition.channelIndex,
-                sendPosition.sendIndex
-            ).commit();
-        }
-        else if(oldInputSource.type == Position::Type::PluginAuxIO)
-        {
-            auto auxOutput = *getAuxOutputPosition(oldInputSource.id);
-            auto& auxOutputDests = getAuxOutputDestinations(auxOutput);
-            if(auto it = std::ranges::find(
-                auxOutputDests,
-                    Position {
-                        .type = Position::Type::AudioChannelInput,
-                        .id = channelId_[index]
-                    }
-                ); it != auxOutputDests.end()
-            )
-            {
-                coRemoveAuxOutputDestination(
-                    auxOutput, it - auxOutputDests.begin()
-                ).commit();
-            }
-        }
-    }
-}
-
 YADAW::Util::RollbackableOperation Mixer::coUnsetMainOutput(std::uint32_t index)
 {
     bool shouldCommit = false;
@@ -4605,6 +4533,83 @@ ade::NodeHandle Mixer::getNodeFromPluginAuxPosition(const PluginAuxIOPosition& p
         return inputDevices_[position.channelIndex].second;
     }
     return {};
+}
+
+YADAW::Util::RollbackableOperation Mixer::coUnsetInput(
+    const std::variant<std::uint32_t, PluginAuxIOPosition>& input)
+{
+    bool shouldCommit = false;
+    Position inputAsPosition;
+    Position oldInputSource;
+    if(input.index() == 0)
+    {
+        auto index = std::get<0>(input);
+        oldInputSource = mainInput_[index];
+        inputAsPosition = Position {
+            .type = Position::Type::AudioChannelInput,
+            .id = channelId_[index]
+        };
+    }
+    else  //if(input.index() == 1)
+    {
+        const auto& auxInput = std::get<1>(input);
+        oldInputSource = getAuxInputSource(auxInput);
+        inputAsPosition = Position {
+            .type = Position::Type::PluginAuxIO,
+            .id = getAuxInputPositionID(auxInput)
+        };
+    }
+    auto optTask = createDisconnectTask(oldInputSource, inputAsPosition);
+    co_yield shouldCommit;
+    if(optTask)
+    {
+        optTask->setShouldCommit(shouldCommit);
+        optTask.reset();
+    }
+    if(shouldCommit)
+    {
+        if(oldInputSource.type == Position::Type::AudioHardwareIOChannel)
+        {
+            auto destIndex = std::lower_bound(
+                audioInputChannelIdAndIndex_.begin(),
+                audioInputChannelIdAndIndex_.end(),
+                oldInputSource.id, &compareIdAndIndexWithId
+            )->index;
+            audioInputDestinations_[destIndex].erase(inputAsPosition);
+        }
+        else if(oldInputSource.type == Position::Type::RegularChannelOutput)
+        {
+            auto destIndex = std::lower_bound(
+                channelIdAndIndex_.begin(), channelIdAndIndex_.end(),
+                oldInputSource.id, &compareIdAndIndexWithId
+            )->index;
+            mainOutput_[destIndex] = {};
+            mainOutputChangedCallback_(*this, destIndex);
+        }
+        else if(oldInputSource.type == Position::Type::Send)
+        {
+            auto sendPosition = *getSendPosition(oldInputSource.id);
+            coRemoveSend(
+                sendPosition.channelListType,
+                sendPosition.channelIndex,
+                sendPosition.sendIndex
+            ).commit();
+        }
+        else if(oldInputSource.type == Position::Type::PluginAuxIO)
+        {
+            auto auxOutput = *getAuxOutputPosition(oldInputSource.id);
+            auto& auxOutputDests = getAuxOutputDestinations(auxOutput);
+            if(auto it = std::ranges::find(
+                auxOutputDests, inputAsPosition
+                ); it != auxOutputDests.end()
+            )
+            {
+                coRemoveAuxOutputDestination(
+                    auxOutput, it - auxOutputDests.begin()
+                ).commit();
+            }
+        }
+    }
 }
 
 bool Mixer::connectAudioHardwareInputToVacantInput(
