@@ -277,7 +277,6 @@ public:
     OptionalRef<const Position> mainOutputAt(std::uint32_t index) const;
     bool setMainOutputAt(std::uint32_t index, Position position);
 private:
-    YADAW::Util::RollbackableOperation coUnsetMainInput (std::uint32_t index);
     YADAW::Util::RollbackableOperation coUnsetMainOutput(std::uint32_t index);
 public:
     bool appendAudioInputChannel(
@@ -379,6 +378,7 @@ private:
     ade::NodeHandle getNodeFromPluginAuxPosition(const PluginAuxIOPosition& position) const;
     YADAW::Util::RollbackableOperation coRemoveAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index, std::uint32_t removeCount = 1);
 private:
+    YADAW::Util::RollbackableOperation coUnsetInput(const std::variant<std::uint32_t, PluginAuxIOPosition>& input);
     bool connectAudioHardwareInputToVacantInput(std::uint32_t channelIndex, Position destination);
 private:
     using PolarityInverterAndNode = std::pair<
