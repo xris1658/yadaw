@@ -3401,11 +3401,6 @@ bool Mixer::setAuxInputSource(const PluginAuxIOPosition& position, Position sour
             }
         }
     }
-    else if(oldSource.type == Position::Type::Send)
-    {
-        const auto& sendPos = sendPositions_.find(source.id)->second;
-        removeSend(sendPos.channelListType, sendPos.channelIndex, sendPos.sendIndex);
-    }
     else if(oldSource.type == Position::Type::FXAndGroupChannelInput)
     {
         auto channelIndex = std::lower_bound(
