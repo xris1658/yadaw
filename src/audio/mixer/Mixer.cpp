@@ -2136,6 +2136,8 @@ YADAW::Util::RollbackableOperation Mixer::coUnsetMainOutput(std::uint32_t index)
             auxInputChangedCallback_(*this, auxInput);
             batchUpdateIfNeeded();
         }
+        mainOutput_[index] = {};
+        mainOutputChangedCallback_(*this, index);
     }
 }
 
@@ -4603,6 +4605,18 @@ YADAW::Util::RollbackableOperation Mixer::coUnsetInput(
                     auxOutput, it - auxOutputDests.begin()
                 ).commit();
             }
+        }
+        if(input.index() == 0)
+        {
+            auto channelIndex = std::get<0>(input);
+            mainInput_[channelIndex] = {};
+            mainInputChangedCallback_(*this, channelIndex);
+        }
+        else // if(input.index() == 1)
+        {
+            const auto& auxInput = std::get<1>(input);
+            getAuxInputSource(auxInput) = {};
+            auxInputChangedCallback_(*this, auxInput);
         }
     }
 }
