@@ -1737,120 +1737,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
     {
         std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> disconnectingOldMultiInput;
         std::unique_ptr<YADAW::Audio::Device::IAudioDevice> disconnectingOldSumming;
-        // Disconnect
-        if(oldPosition.type == Position::Type::AudioHardwareIOChannel)
-        {
-            auto it = std::lower_bound(
-                audioOutputChannelIdAndIndex_.begin(),
-                audioOutputChannelIdAndIndex_.end(),
-                oldPosition.id,
-                &compareIdAndIndexWithId
-            );
-            if(it != audioOutputChannelIdAndIndex_.end() && it->id == oldPosition.id)
-            {
-                auto fromNode = postFaderInserts_[index]->outNode();
-                auto& oldSummingAndNode = audioOutputSummings_[it->index];
-                auto& [oldSumming, oldSummingNode] = oldSummingAndNode;
-                auto inEdges = oldSummingNode->inEdges();
-                auto toChannel = graph_.getEdgeData(
-                    *std::find_if(
-                        inEdges.begin(), inEdges.end(),
-                        [&fromNode](const ade::EdgeHandle& inEdge)
-                        {
-                            return inEdge->srcNode() == fromNode;
-                        }
-                    )
-                ).toChannel;
-                auto [newSumming, newSummingNode] = removeInputGroup(oldSummingAndNode, toChannel).value();
-                graph_.disconnect(
-                        oldSummingNode->outEdges().front()
-                );
-                graph_.connect(
-                    newSummingNode,
-                    audioOutputPolarityInverters_[it->index].second,
-                    0, 0
-                );
-                disconnectingOldMultiInput = graphWithPDC_.removeNode(oldSummingNode);
-                disconnectingOldSumming = std::move(oldSumming);
-                oldSumming = std::move(newSumming);
-                oldSummingNode = newSummingNode;
-                audioOutputSources_[it->index].erase(Position {
-                    .type = Position::Type::RegularChannelOutput,
-                    .id = channelId_[index]
-                });
-            }
-        }
-        else if(oldPosition.type == Position::Type::FXAndGroupChannelInput)
-        {
-            auto it = std::lower_bound(
-                channelIdAndIndex_.begin(),
-                channelIdAndIndex_.end(),
-                oldPosition.id,
-                &compareIdAndIndexWithId
-            );
-            if(it != channelIdAndIndex_.end() && it->id == oldPosition.id)
-            {
-                auto oldType = channelInfo_[it->index].channelType;
-                if(oldType == ChannelType::AudioBus || oldType == ChannelType::AudioFX)
-                {
-                    auto fromNode = postFaderInserts_[index]->outNode();
-                    auto& oldSummingAndNode = inputDevices_[it->index];
-                    auto& [oldSumming, oldSummingNode] = oldSummingAndNode;
-                    auto inEdges = oldSummingNode->inEdges();
-                    auto toChannel = graph_.getEdgeData(
-                        *std::find_if(
-                            inEdges.begin(), inEdges.end(),
-                            [&fromNode](const ade::EdgeHandle& inEdge)
-                            {
-                                return inEdge->srcNode() == fromNode;
-                            }
-                        )
-                    ).toChannel;
-                    auto [newSumming, newSummingNode] = removeInputGroup(oldSummingAndNode, toChannel).value();
-                    graph_.disconnect(
-                        oldSummingNode->outEdges().front()
-                    );
-                    graph_.connect(
-                        newSummingNode,
-                        polarityInverters_[it->index].second,
-                        0, 0
-                    );
-                    disconnectingOldMultiInput = graphWithPDC_.removeNode(oldSummingNode);
-                    disconnectingOldSumming = std::move(oldSumming);
-                    oldSumming = std::move(newSumming);
-                    oldSummingNode = newSummingNode;
-                    regularChannelInputSources_[it->index].erase(Position {
-                        .type = Position::Type::RegularChannelOutput,
-                        .id = channelId_[index]
-                    });
-                }
-            }
-        }
-        else if(oldPosition.type == Position::Type::PluginAuxIO)
-        {
-            auto it = pluginAuxInputIDs_.find(oldPosition.id);
-            const auto& pluginAuxIOPosition = it->second;
-            auto node = getNodeFromPluginAuxPosition(pluginAuxIOPosition);
-            for(const auto& edgeHandle: node->inEdges())
-            {
-                if(graph_.getEdgeData(edgeHandle).toChannel == pluginAuxIOPosition.channelGroupIndex)
-                {
-                    graph_.disconnect(edgeHandle);
-                    getAuxInputSource(pluginAuxIOPosition) = Position {};
-                    auxInputChangedCallback_(*this, pluginAuxIOPosition);
-                    if(batchUpdater_)
-                    {
-                        batchUpdater_->addNull();
-                    }
-                    else
-                    {
-                        connectionUpdatedCallback_(*this);
-                    }
-                    // TODO
-                    break;
-                }
-            }
-        }
+        auto unsetMainOutput = coUnsetMainOutput(index);
         // Connect
         std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> disconnectingNewMultiInput;
         std::unique_ptr<YADAW::Audio::Device::IAudioDevice> disconnectingNewSumming;
@@ -1880,34 +1767,37 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     auto [newSumming, newSummingNode] = appendInputGroup(
                         oldSummingAndNode
                     );
-                    graph_.connect(
+                    ret = graph_.connect(
                         fromNode, newSummingNode, 0, newSumming->audioInputGroupCount() - 1
-                    );
-                    graph_.disconnect(audioOutputPolarityInverters_[it->index].second->inEdges().front());
-                    graph_.connect(newSummingNode, audioOutputPolarityInverters_[it->index].second, 0, 0);
-                    disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
-                    disconnectingNewSumming = std::move(oldSumming);
-                    if(batchUpdater_)
+                    ).has_value();
+                    unsetMainOutput.resume(ret);
+                    if(ret)
                     {
-                        batchUpdater_->addObject(
-                            std::move(disconnectingOldSumming)
+                        graph_.disconnect(audioOutputPolarityInverters_[it->index].second->inEdges().front());
+                        graph_.connect(newSummingNode, audioOutputPolarityInverters_[it->index].second, 0, 0);
+                        disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
+                        disconnectingNewSumming = std::move(oldSumming);
+                        if(batchUpdater_)
+                        {
+                            batchUpdater_->addObject(
+                                std::move(disconnectingOldSumming)
+                            );
+                        }
+                        else
+                        {
+                            connectionUpdatedCallback_(*this);
+                            disconnectingOldSumming.reset();
+                            disconnectingOldMultiInput.reset();
+                            disconnectingNewSumming.reset();
+                            disconnectingNewMultiInput.reset();
+                        }
+                        oldSumming = std::move(newSumming);
+                        oldSummingNode = newSummingNode;
+                        audioOutputSources_[outputChannelIndex].emplace(
+                            Position::Type::RegularChannelOutput,
+                            channelId_[index]
                         );
                     }
-                    else
-                    {
-                        connectionUpdatedCallback_(*this);
-                        disconnectingOldSumming.reset();
-                        disconnectingOldMultiInput.reset();
-                        disconnectingNewSumming.reset();
-                        disconnectingNewMultiInput.reset();
-                    }
-                    oldSumming = std::move(newSumming);
-                    oldSummingNode = newSummingNode;
-                    audioOutputSources_[outputChannelIndex].emplace(
-                        Position::Type::RegularChannelOutput,
-                        channelId_[index]
-                    );
-                    ret = true;
                 }
             }
         }
@@ -1937,35 +1827,38 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         auto [newSumming, newSummingNode] = appendInputGroup(
                             oldSummingAndNode
                         );
-                        graph_.connect(
+                        ret = graph_.connect(
                             fromNode, newSummingNode, 0, newSumming->audioInputGroupCount() - 1
-                        );
-                        graph_.disconnect(polarityInverters_[it->index].second->inEdges().front());
-                        graph_.connect(newSummingNode, polarityInverters_[it->index].second, 0, 0);
-                        disconnectingNewSumming = std::move(oldSumming);
-                        if(batchUpdater_)
+                        ).has_value();
+                        unsetMainOutput.resume(ret);
+                        if(ret)
                         {
-                            batchUpdater_->addObject(std::move(disconnectingOldSumming));
-                            batchUpdater_->addObject(std::move(disconnectingNewSumming));
-                            batchUpdater_->addObject(std::move(disconnectingOldMultiInput));
-                            batchUpdater_->addObject(std::move(disconnectingNewMultiInput));
+                            graph_.disconnect(polarityInverters_[it->index].second->inEdges().front());
+                            graph_.connect(newSummingNode, polarityInverters_[it->index].second, 0, 0);
+                            disconnectingNewSumming = std::move(oldSumming);
+                            if(batchUpdater_)
+                            {
+                                batchUpdater_->addObject(std::move(disconnectingOldSumming));
+                                batchUpdater_->addObject(std::move(disconnectingNewSumming));
+                                batchUpdater_->addObject(std::move(disconnectingOldMultiInput));
+                                batchUpdater_->addObject(std::move(disconnectingNewMultiInput));
+                            }
+                            else
+                            {
+                                disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
+                                connectionUpdatedCallback_(*this);
+                                disconnectingOldSumming.reset();
+                                disconnectingNewSumming.reset();
+                                disconnectingOldMultiInput.reset();
+                                disconnectingNewMultiInput.reset();
+                            }
+                            oldSumming = std::move(newSumming);
+                            oldSummingNode = newSummingNode;
+                            regularChannelInputSources_[outputChannelIndex].emplace(
+                                Position::Type::RegularChannelOutput,
+                                channelId_[index]
+                            );
                         }
-                        else
-                        {
-                            disconnectingNewMultiInput = graphWithPDC_.removeNode(oldSummingNode);
-                            connectionUpdatedCallback_(*this);
-                            disconnectingOldSumming.reset();
-                            disconnectingNewSumming.reset();
-                            disconnectingOldMultiInput.reset();
-                            disconnectingNewMultiInput.reset();
-                        }
-                        oldSumming = std::move(newSumming);
-                        oldSummingNode = newSummingNode;
-                        regularChannelInputSources_[outputChannelIndex].emplace(
-                            Position::Type::RegularChannelOutput,
-                            channelId_[index]
-                        );
-                        ret = true;
                     }
                 }
             }
@@ -1980,12 +1873,20 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
             );
             if(it != channelIdAndIndex_.end() && it->id == position.id)
             {
-                return setMainInputAt(
-                    it->index, Position {
+                auto unsetMainInput = coUnsetInput(it->index);
+                ret = graph_.connect(
+                    meters_[index].second, inputDevices_[it->index].second, 0, 1
+                ).has_value();
+                unsetMainInput.resume(ret);
+                unsetMainOutput.resume(ret);
+                if(ret)
+                {
+                    mainInput_[it->index] = Position {
                         .type = Position::Type::RegularChannelOutput,
-                        .id = *idAt(ChannelListType::RegularList, index)
-                    }
-                );
+                        .id = channelId_[index]
+                    };
+                    mainInputChangedCallback_(*this, it->index);
+                }
             }
         }
         else if(position.type == Position::Type::PluginAuxIO)
@@ -1993,27 +1894,16 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
             if(auto it = pluginAuxInputIDs_.find(position.id); it != pluginAuxInputIDs_.end())
             {
                 const auto& pluginAuxIOPosition = it->second;
-                auto node = getNodeFromPluginAuxPosition(pluginAuxIOPosition);
-                auto device = graph_.getNodeData(node).process.device();
-                const auto& destChannelGroup = device->audioInputGroupAt(pluginAuxIOPosition.channelGroupIndex)->get();
-                auto inEdges = node->inEdges();
+                auto unsetAuxInput = coUnsetInput(pluginAuxIOPosition);
                 auto fromNode = postFaderInserts_[index]->outNode();
-                if(
-                    destChannelGroup.type() == channelGroup.type()
-                    && destChannelGroup.channelCount() == channelGroup.channelCount()
-                    && std::none_of(
-                        inEdges.begin(), inEdges.end(),
-                        [this, channelGroupIndex = pluginAuxIOPosition.channelGroupIndex](const ade::EdgeHandle& edge)
-                        {
-                            return graph_.getEdgeData(edge).toChannel == channelGroupIndex;
-                        }
-                    )
-                    && !YADAW::Util::pathExists(node, fromNode)
-                )
+                auto node = getNodeFromPluginAuxPosition(pluginAuxIOPosition);
+                ret = graph_.connect(
+                    fromNode, node, 0, pluginAuxIOPosition.channelGroupIndex
+                ).has_value();
+                unsetAuxInput.resume(ret);
+                unsetMainOutput.resume(ret);
+                if(ret)
                 {
-                    graph_.connect(
-                        fromNode, node, 0, pluginAuxIOPosition.channelGroupIndex
-                    );
                     getAuxInputSource(pluginAuxIOPosition) = Position {
                         .type = Position::Type::RegularChannelOutput,
                         .id = channelId_[index]
@@ -2027,12 +1917,12 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     {
                         connectionUpdatedCallback_(*this);
                     }
-                    ret = true;
                 }
             }
         }
         else if(position.type == Position::Type::Invalid)
         {
+            unsetMainOutput.commit();
             if(batchUpdater_)
             {
                 batchUpdater_->addObject(std::move(disconnectingOldMultiInput));
