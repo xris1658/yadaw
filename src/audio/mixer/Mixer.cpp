@@ -1886,6 +1886,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         .id = channelId_[index]
                     };
                     mainInputChangedCallback_(*this, it->index);
+                    batchUpdateIfNeeded();
                 }
             }
         }
