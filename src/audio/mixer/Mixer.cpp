@@ -2015,7 +2015,7 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                         fromNode, node, 0, pluginAuxIOPosition.channelGroupIndex
                     );
                     getAuxInputSource(pluginAuxIOPosition) = Position {
-                        .type = Position::Type::FXAndGroupChannelInput,
+                        .type = Position::Type::RegularChannelOutput,
                         .id = channelId_[index]
                     };
                     auxInputChangedCallback_(*this, pluginAuxIOPosition);
