@@ -1029,11 +1029,6 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             editingVolume_.begin() + position,
             editingVolume_.begin() + position + removeCount
         );
-        FOR_RANGE(i, position, position + removeCount)
-        {
-            insertModels_[i]->clear();
-            removeInstrument(i); // TODO
-        }
         if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList)
         {
             FOR_RANGE0(i, mixer_.count(channelListType_))
@@ -1062,6 +1057,11 @@ bool MixerChannelListModel::remove(int position, int removeCount)
                     IMixerChannelListModel::Role::OutputDestination
                 );
             }
+        }
+        FOR_RANGE(i, position, position + removeCount)
+        {
+            insertModels_[i]->clear();
+            removeInstrument(i); // TODO
         }
         mixer_.remove(channelListType_, position, removeCount);
         insertModels_.erase(
