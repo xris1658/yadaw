@@ -2359,8 +2359,10 @@ bool Mixer::insertAudioOutputChannel(std::uint32_t position,
             )
         );
         audioOutputPreFaderInserts_[position]->setInsertAddedCallback(&Mixer::insertAdded);
+        audioOutputPreFaderInserts_[position]->setInsertAboutToBeRemovedCallback(&Mixer::insertAboutToBeRemoved);
         audioOutputPreFaderInserts_[position]->setInsertRemovedCallback(&Mixer::insertRemoved);
         audioOutputPostFaderInserts_[position]->setInsertAddedCallback(&Mixer::insertAdded);
+        audioOutputPostFaderInserts_[position]->setInsertAboutToBeRemovedCallback(&Mixer::insertAboutToBeRemoved);
         audioOutputPostFaderInserts_[position]->setInsertRemovedCallback(&Mixer::insertRemoved);
         updatePluginAuxPosition(
             ChannelListType::AudioHardwareOutputList, position + 1
@@ -2781,8 +2783,10 @@ bool Mixer::insertChannels(
                 )
             );
             preFaderInserts_[i]->setInsertAddedCallback(&Mixer::insertAdded);
+            preFaderInserts_[i]->setInsertAboutToBeRemovedCallback(&Mixer::insertAboutToBeRemoved);
             preFaderInserts_[i]->setInsertRemovedCallback(&Mixer::insertRemoved);
             postFaderInserts_[i]->setInsertAddedCallback(&Mixer::insertAdded);
+            postFaderInserts_[i]->setInsertAboutToBeRemovedCallback(&Mixer::insertAboutToBeRemoved);
             postFaderInserts_[i]->setInsertRemovedCallback(&Mixer::insertRemoved);
         }
         updatePluginAuxPosition(
