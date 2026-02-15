@@ -244,6 +244,7 @@ int main(int argc, char *argv[])
         }
         YADAW::Controller::currentTranslationIndex = 0;
     }
+#if 0
     if(YADAW::Native::isDebuggerPresent())
     {
         YADAW::UI::createMessageDialog();
@@ -271,6 +272,7 @@ int main(int argc, char *argv[])
             YADAW::UI::getMessageDialogResult();
         }
     }
+#endif
     auto& timer = YADAW::UI::idleProcessTimer();
     engine.loadFromModule("Main", "Events");
     YADAW::Event::EventHandler eh(YADAW::Event::eventSender, YADAW::Event::eventReceiver);
