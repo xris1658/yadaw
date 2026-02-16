@@ -332,6 +332,9 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         }
         destroyingContexts.reserve(contextCount);
         multiInputDevices.reserve(multiInputDeviceCount);
+        auto coRemove = inserts_->coRemove(position, removeCount);
+        auto& promise = coRemove.promise();
+        assert(promise.stateId == YADAW::Audio::Mixer::Inserts::CoRemoveState::AboutToBeRemoved);
         inserts_->detachContexts(
             [&destroyingContexts](YADAW::Audio::Mixer::Context&& context)
             {
@@ -348,7 +351,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
         {
             nodes.emplace_back(*inserts_->insertNodeAt(i));
         }
-        inserts_->remove(position, removeCount);
+        coRemove.resume();
         for(auto node: nodes)
         {
             if(auto multiInputDevice = graph.removeNode(node))
