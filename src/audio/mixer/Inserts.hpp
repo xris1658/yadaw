@@ -6,6 +6,7 @@
 #include "audio/mixer/Common.hpp"
 #include "util/BatchUpdater.hpp"
 #include "util/PolymorphicDeleter.hpp"
+#include "util/StatefulCoroutine.hpp"
 
 #include <concepts>
 #include <cstdint>
@@ -68,6 +69,13 @@ public:
         return false;
     }
     bool remove(std::uint32_t position, std::uint32_t removeCount = 1);
+    enum CoRemoveState: YADAW::Util::StateID
+    {
+        Initial = YADAW::Util::InitialState,
+        AboutToBeRemoved,
+        Finished = YADAW::Util::FinishedState
+    };
+    YADAW::Util::StatefulCoroutine<bool> coRemove(std::uint32_t position, std::uint32_t removeCount = 1);
     void clear();
     void setBypassed(std::uint32_t position, bool bypassed);
     bool move(std::uint32_t position, std::uint32_t count, Inserts& rhs, std::uint32_t destPosition);
