@@ -400,10 +400,22 @@ bool Inserts::append(const ade::NodeHandle& nodeHandle, Context&& context)
 
 bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
 {
+    auto coRemove = this->coRemove(position, removeCount);
+    if(coRemove.promise().stateId == CoRemoveState::AboutToBeRemoved)
+    {
+        coRemove.resume();
+    }
+    return coRemove.promise().ret;
+}
+
+YADAW::Util::StatefulCoroutine<bool> Inserts::coRemove(
+    std::uint32_t position, std::uint32_t removeCount)
+{
     if(removeCount > 0 && position < insertCount()
         && position + removeCount <= insertCount())
     {
         insertAboutToBeRemovedCallback_(*this, position, removeCount);
+        co_yield CoRemoveState::AboutToBeRemoved;
         FOR_RANGE(i, position, position + removeCount)
         {
             setBypassed(i, true);
@@ -431,9 +443,9 @@ bool Inserts::remove(std::uint32_t position, std::uint32_t removeCount)
         channelGroupIndices_.erase(channelGroupIndices_.begin() + position,
             channelGroupIndices_.begin() + position + removeCount);
         insertRemovedCallback_(*this, position, removeCount);
-        return true;
+        co_return true;
     }
-    return false;
+    co_return false;
 }
 
 void Inserts::clear()
