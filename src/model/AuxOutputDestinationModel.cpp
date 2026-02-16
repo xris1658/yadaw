@@ -80,7 +80,8 @@ bool AuxOutputDestinationModel::setData(const QModelIndex& index, const QVariant
                 auto audioHardwareIOPosition = static_cast<HardwareAudioIOPosition*>(pPosition);
                 dest = static_cast<Mixer::Position>(*audioHardwareIOPosition);
             }
-            else if(type == IAudioIOPosition::Type::BusAndFXChannelInput)
+            else if(type == IAudioIOPosition::Type::BusAndFXChannelInput
+                || type == IAudioIOPosition::Type::AudioChannelInput)
             {
                 auto busAndFXPosition = static_cast<RegularAudioInputPosition*>(pPosition);
                 dest = static_cast<Mixer::Position>(*busAndFXPosition);
@@ -108,7 +109,8 @@ bool AuxOutputDestinationModel::append(YADAW::Entity::IAudioIOPosition* position
             static_cast<YADAW::Entity::HardwareAudioIOPosition&>(*position)
         );
     }
-    else if(type == YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannelInput)
+    else if(type == YADAW::Entity::IAudioIOPosition::Type::BusAndFXChannelInput
+        || type == YADAW::Entity::IAudioIOPosition::Type::AudioChannelInput)
     {
         dest = static_cast<YADAW::Audio::Mixer::Mixer::Position>(
             static_cast<YADAW::Entity::RegularAudioInputPosition&>(*position)
