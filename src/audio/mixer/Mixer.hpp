@@ -278,6 +278,7 @@ public:
     bool setMainOutputAt(std::uint32_t index, Position position);
 private:
     YADAW::Util::RollbackableOperation coUnsetMainOutput(std::uint32_t index);
+    YADAW::Util::RollbackableOperation coRemoveAudioHardwareInputChannelOutput(std::uint32_t index, Position destination);
 public:
     bool appendAudioInputChannel(
         const ade::NodeHandle& inNode, std::uint32_t channelGroupIndex);
