@@ -12,7 +12,7 @@ Major changes:
 - [ ] [WIP] Beyond stereo: add multiple speaker arrangement support
 - [ ] Mixer structure
   - [ ] Insert groups
-  - [ ] [WIP] Send support
+  - [ ] [Renovating] Send support
   - [ ] [WIP] Sidechain support
   - [x] PDC supoort
   - ...

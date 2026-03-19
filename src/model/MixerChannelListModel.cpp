@@ -20,7 +20,6 @@
 #include "entity/PluginAuxAudioIOPosition.hpp"
 #include "event/EventBase.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
-#include "model/MixerChannelSendListModel.hpp"
 #include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
 #include "util/QmlUtil.hpp"
@@ -119,7 +118,6 @@ MixerChannelListModel::MixerChannelListModel(
         );
     }
     insertModels_.reserve(count);
-    sendModels_.reserve(count);
     polarityInverterModels_.reserve(count);
     editingVolume_.resize(count, false);
     std::generate_n(
@@ -130,15 +128,6 @@ MixerChannelListModel::MixerChannelListModel(
             return std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
                 mixer_.preFaderInsertsAt(channelListType_, index)->get(),
                 channelListType_, index, true, 0
-            );
-        }
-    );
-    std::generate_n(
-        std::back_inserter(sendModels_), count,
-        [this, i = 0U]() mutable
-        {
-            return std::make_unique<YADAW::Model::MixerChannelSendListModel>(
-                mixer_, channelListType_, i++
             );
         }
     );
@@ -489,10 +478,6 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         case Role::Inserts:
         {
             return QVariant::fromValue<QObject*>(insertModels_[row].get());
-        }
-        case Role::Sends:
-        {
-            return QVariant::fromValue<QObject*>(sendModels_[row].get());
         }
         case Role::Mute:
         {
@@ -977,20 +962,6 @@ bool MixerChannelListModel::insert(int position, int count,
                 );
             }
         );
-        std::generate_n(
-            std::inserter(sendModels_, sendModels_.begin() + position), count,
-            [this, index = position]() mutable
-            {
-                auto ret = std::make_unique<MixerChannelSendListModel>(
-                    mixer_, channelListType_, index++
-                );
-                return ret;
-            }
-        );
-        FOR_RANGE(i, position + count, insertModels_.size())
-        {
-            sendModels_[i]->setChannelIndex(i);
-        }
         std::fill_n(
             std::inserter(editingVolume_, editingVolume_.begin() + position),
             count, false
@@ -1075,7 +1046,6 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         FOR_RANGE(i, position, insertModels_.size())
         {
             insertModels_[i]->setChannelIndex(i);
-            sendModels_[i]->setChannelIndex(i);
         }
         if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList)
         {
@@ -1096,10 +1066,6 @@ bool MixerChannelListModel::remove(int position, int removeCount)
             mainOutput_.erase(
                 mainOutput_.begin() + position,
                 mainOutput_.begin() + position + removeCount
-            );
-            sendModels_.erase(
-                sendModels_.begin() + position,
-                sendModels_.begin() + position + removeCount
             );
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList)
             {
@@ -1136,10 +1102,6 @@ bool MixerChannelListModel::remove(int position, int removeCount)
                 {
                     inputs[i]->updateIndex(i);
                 }
-            }
-            FOR_RANGE(i, position, insertModels_.size())
-            {
-                sendModels_[i]->setChannelIndex(i);
             }
             updateInstrumentConnections(position);
         }

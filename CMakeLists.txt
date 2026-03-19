@@ -433,8 +433,6 @@ set(YADAW_COMMON_SOURCES
     src/entity/RegularAudioInputPosition.hpp
     src/entity/RegularAudioOutputPosition.cpp
     src/entity/RegularAudioOutputPosition.hpp
-    src/entity/SendPosition.cpp
-    src/entity/SendPosition.hpp
     src/event/EventBase.cpp
     src/event/EventBase.hpp
     src/event/EventHandler.cpp
@@ -485,8 +483,6 @@ set(YADAW_COMMON_SOURCES
     src/model/MixerChannelInsertListModel.hpp
     src/model/MixerChannelListModel.cpp
     src/model/MixerChannelListModel.hpp
-    src/model/MixerChannelSendListModel.cpp
-    src/model/MixerChannelSendListModel.hpp
     src/model/ModelInitializer.cpp
     src/model/ModelInitializer.hpp
     src/model/ParameterValueAndTextListModel.cpp

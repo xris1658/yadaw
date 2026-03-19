@@ -127,7 +127,6 @@ Rectangle {
                 impl.selectingOutput = false;
             }
             if(impl.appendingSend) {
-                mclm_sends.append(true, audioIOSelectorWindow.audioIOSelector.currentPosition);
                 impl.appendingSend = false;
             }
         }
