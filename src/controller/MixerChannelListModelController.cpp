@@ -92,20 +92,6 @@ YADAW::Entity::IAudioIOPosition* getOutputPosition(
             ).value<QObject*>()
         );
     }
-    else if(output.type == Mixer::Position::Type::Send)
-    {
-        auto sendPosition = *mixer.getSendPosition(output.id);
-        auto& model = models.mixerChannels[sendPosition.channelListType];
-        auto& sendModel = *static_cast<YADAW::Model::MixerChannelSendListModel*>(
-            model.data(
-                model.index(sendPosition.channelIndex),
-                YADAW::Model::MixerChannelListModel::Role::Sends
-            ).value<QObject*>()
-        );
-        ret = &static_cast<YADAW::Entity::SendPosition&>(
-            sendModel.positionAt(sendPosition.sendIndex)->get()
-        );
-    }
     else if(output.type == Mixer::Position::Type::PluginAuxIO)
     {
         ret = static_cast<YADAW::Entity::IAudioIOPosition*>(
@@ -139,68 +125,6 @@ void mixerMainOutputChanged(const YADAW::Audio::Mixer::Mixer& sender,
     auto destAsPosition = getInputPosition(models, dest);
     model.mainOutputChanged(regularChannelIndex, destAsPosition);
 }
-
-void mixerSendAdded(const YADAW::Audio::Mixer::Mixer& sender,
-    const YADAW::Audio::Mixer::Mixer::SendPosition& sendPosition)
-{
-    using YADAW::Audio::Mixer::Mixer;
-    assert(
-        sender.sendCount(
-            sendPosition.channelListType,
-            sendPosition.channelIndex
-        ).value_or(0) == sendPosition.sendIndex + 1
-        &&
-        "Is inserting sends not implemented?"
-    );
-    auto& models = appMixerChannelListModels();
-    auto& model = models.mixerChannels[sendPosition.channelListType];
-    auto sendModel = static_cast<YADAW::Model::MixerChannelSendListModel*>(
-        model.data(
-            model.index(sendPosition.channelIndex),
-            YADAW::Model::MixerChannelListModel::Role::Sends
-        ).value<QObject*>()
-    );
-    sendModel->appended();
-}
-
-void mixerSendDestinationChanged(const YADAW::Audio::Mixer::Mixer& sender,
-    const YADAW::Audio::Mixer::Mixer::SendPosition& sendPosition)
-{
-    using YADAW::Audio::Mixer::Mixer;
-    assert(
-        sender.sendCount(
-            sendPosition.channelListType,
-            sendPosition.channelIndex
-        ).value_or(0) == sendPosition.sendIndex + 1
-        &&
-        "Is inserting sends not implemented?"
-    );
-    auto& models = appMixerChannelListModels();
-    auto& model = models.mixerChannels[sendPosition.channelListType];
-    auto sendModel = static_cast<YADAW::Model::MixerChannelSendListModel*>(
-        model.data(
-            model.index(sendPosition.channelIndex),
-            YADAW::Model::MixerChannelListModel::Role::Sends
-        ).value<QObject*>()
-    );
-    sendModel->destinationChanged(sendPosition.sendIndex);
-}
-
-void mixerSendRemoved(const YADAW::Audio::Mixer::Mixer& sender,
-    YADAW::Audio::Mixer::Mixer::SendRemovedCallbackArgs args)
-{
-    using YADAW::Audio::Mixer::Mixer;
-    auto& models = appMixerChannelListModels();
-    auto& model = models.mixerChannels[args.sendPosition.channelListType];
-    auto sendModel = static_cast<YADAW::Model::MixerChannelSendListModel*>(
-        model.data(
-            model.index(args.sendPosition.channelIndex),
-            YADAW::Model::MixerChannelListModel::Role::Sends
-        ).value<QObject*>()
-    );
-    sendModel->removed(args.sendPosition.sendIndex, args.sendPosition.sendIndex + args.removeCount - 1);
-}
-
 void mixerAuxInputChanged(const YADAW::Audio::Mixer::Mixer& sender,
     const YADAW::Audio::Mixer::Mixer::PluginAuxIOPosition& auxInput)
 {
@@ -429,9 +353,6 @@ MixerChannelListModels::MixerChannelListModels(YADAW::Audio::Mixer::Mixer& mixer
 {
     mixer.setMainInputChangedCallback(&mixerMainInputChanged);
     mixer.setMainOutputChangedCallback(&mixerMainOutputChanged);
-    mixer.setSendAddedCallback(&mixerSendAdded);
-    mixer.setSendDestinationChangedCallback(&mixerSendDestinationChanged);
-    mixer.setSendRemovedCallback(&mixerSendRemoved);
     mixer.setAuxInputChangedCallback(&mixerAuxInputChanged);
     mixer.setAuxOutputAddedCallback(&mixerAuxOutputAdded);
     mixer.setAuxOutputDestinationChangedCallback(&mixerAuxOutputDestinationChanged);

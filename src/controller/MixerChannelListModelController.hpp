@@ -2,7 +2,6 @@
 #define YADAW_SRC_CONTROLLER_MIXERCHANNELLISTMODELCONTROLLER
 
 #include "model/MixerChannelListModel.hpp"
-#include "model/MixerChannelSendListModel.hpp"
 #include "model/MixerAudioIOPositionItemModel.hpp"
 
 namespace YADAW::Controller

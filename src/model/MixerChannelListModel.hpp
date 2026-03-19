@@ -21,8 +21,6 @@ namespace YADAW::Model
 {
 class MixerChannelInsertListModel;
 
-class MixerChannelSendListModel;
-
 struct InstrumentContextUserData;
 
 class MixerChannelListModel: public IMixerChannelListModel
@@ -86,7 +84,6 @@ private:
 private:
     YADAW::Audio::Mixer::Mixer& mixer_;
     std::vector<std::unique_ptr<YADAW::Model::MixerChannelInsertListModel>> insertModels_;
-    std::vector<std::unique_ptr<YADAW::Model::MixerChannelSendListModel>> sendModels_;
     std::variant<
         std::monostate,
         std::vector<std::unique_ptr<YADAW::Entity::RegularAudioInputPosition>>,

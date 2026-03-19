@@ -234,16 +234,6 @@ public: // TODO: Add API with `ChannelListType` to remove redundant codes
     OptionalRef<      YADAW::Audio::Mixer::Inserts> preFaderInsertsAt(ChannelListType type, std::uint32_t index);
     OptionalRef<const YADAW::Audio::Mixer::Inserts> postFaderInsertsAt(ChannelListType type, std::uint32_t index) const;
     OptionalRef<      YADAW::Audio::Mixer::Inserts> postFaderInsertsAt(ChannelListType type, std::uint32_t index);
-    std::optional<const std::uint32_t> sendCount(ChannelListType type, std::uint32_t index) const;
-    std::optional<const bool> sendIsPreFader(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    std::optional<const Position> sendDestination(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    std::optional<const IDGen::ID> sendID(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<const VolumeFader> sendFaderAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<      VolumeFader> sendFaderAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex);
-    OptionalRef<const YADAW::Audio::Util::Mute> sendMuteAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<      YADAW::Audio::Util::Mute> sendMuteAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex);
-    OptionalRef<const PolarityInverter> sendPolarityInverterAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex) const;
-    OptionalRef<      PolarityInverter> sendPolarityInverterAt(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex);
     OptionalRef<const ChannelInfo> channelInfoAt(ChannelListType type, std::uint32_t index) const;
     OptionalRef<      ChannelInfo> channelInfoAt(ChannelListType type, std::uint32_t index);
     OptionalRef<const VolumeFader> volumeFaderAt(ChannelListType type, std::uint32_t index) const;
@@ -262,15 +252,6 @@ public:
     bool remove(ChannelListType type, std::uint32_t index, std::uint32_t removeCount = 1);
     void clear(ChannelListType type);
     void clear();
-public:
-    std::optional<bool> appendSend(ChannelListType type, std::uint32_t channelIndex, bool isPreFader, Position destination);
-    std::optional<bool> insertSend(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendPosition, bool isPreFader, Position destination);
-    std::optional<bool> setSendPreFader(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex, bool preFader);
-    std::optional<bool> setSendDestination(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendIndex, Position destination);
-    std::optional<bool> removeSend(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
-    std::optional<bool> clearSends(ChannelListType type, std::uint32_t channelIndex);
-private:
-    YADAW::Util::RollbackableOperation coRemoveSend(ChannelListType type, std::uint32_t channelIndex, std::uint32_t sendPosition, std::uint32_t removeCount = 1);
 public:
     OptionalRef<const Position> mainInputAt(std::uint32_t index) const;
     bool setMainInputAt(std::uint32_t index, Position position);
@@ -337,12 +318,6 @@ public:
     void setMainOutputChangedCallback(std::function<MainIOChangedCallback>&& callback);
     void resetMainInputChangedCallback();
     void resetMainOutputChangedCallback();
-    void setSendAddedCallback(std::function<SendAddedCallback>&& callback);
-    void setSendDestinationChangedCallback(std::function<SendDestinationChangedCallback>&& callback);
-    void setSendRemovedCallback(std::function<SendRemovedCallback>&& callback);
-    void resetSendAddedCallback();
-    void resetSendDestinationChangedCallback();
-    void resetSendRemovedCallback();
     void setAuxInputChangedCallback(std::function<AuxInputChangedCallback>&& callback);
     void setAuxOutputAddedCallback(std::function<AuxOutputAddedCallback>&& callback);
     void setAuxOutputDestinationChangedCallback(std::function<AuxOutputDestinationChangedCallback>&& callback);
@@ -355,8 +330,6 @@ public:
     OptionalRef<YADAW::Util::BatchUpdater> batchUpdater();
     void setBatchUpdater(YADAW::Util::BatchUpdater& batchUpdater);
     void resetBatchUpdater();
-public:
-    std::optional<SendPosition> getSendPosition(IDGen::ID id) const;
 public:
     std::optional<PluginAuxIOPosition> getAuxInputPosition(IDGen::ID id) const;
     std::optional<PluginAuxIOPosition> getAuxOutputPosition(IDGen::ID id) const;
@@ -380,7 +353,6 @@ private:
     YADAW::Util::RollbackableOperation coRemoveAuxOutputDestination(const PluginAuxIOPosition& position, std::uint32_t index, std::uint32_t removeCount = 1);
 private:
     YADAW::Util::RollbackableOperation coUnsetInput(const std::variant<std::uint32_t, PluginAuxIOPosition>& input);
-    bool connectAudioHardwareInputToVacantInput(std::uint32_t channelIndex, Position destination);
 private:
     using PolarityInverterAndNode = std::pair<
         std::unique_ptr<YADAW::Audio::Mixer::PolarityInverter>,
@@ -582,12 +554,6 @@ private:
         YADAW::Audio::Engine::Extension::NameTag,
         YADAW::Audio::Engine::Extension::UpstreamLatency> graph_;
     YADAW::Audio::Engine::AudioDeviceGraphWithPDC graphWithPDC_;
-    using SendPositions = std::map<IDGen::ID, SendPosition>;
-    using SendPosIt = SendPositions::iterator;
-    SendPositions sendPositions_;
-    template<typename T>
-    using SendContainer = std::array<std::vector<std::vector<T>>, 3>;
-    using SendCollection = SendContainer<SendPosIt>;
 
     IDGen                             channelIDGen_                [3];
     Vec<IDGen::ID>                    channelIDs_                  [3];
@@ -599,11 +565,6 @@ private:
     Vec<std::unique_ptr<Inserts>>     channelPostFaderInserts_     [3];
     Vec<MeterAndNode>                 channelMeters_               [3];
     Vec<ChannelInfo>                  channelInfos_                [3];
-    Vec<Vec<SendPosIt>>               channelSendIDs_              [3];
-    Vec<Vec<MuteAndNode>>             channelSendMutes_            [3];
-    Vec<Vec<FaderAndNode>>            channelSendFaders_           [3];
-    Vec<Vec<PolarityInverterAndNode>> channelSendPolarityInverters_[3];
-    Vec<Vec<Position>>                channelSendDestinations_     [3];
     Vec<std::set<Position>>           channelMultiIOTargets_       [3];
 
     IDGen                                              &audioInputChannelIdGen_           = channelIDGen_                [AudioHardwareInputList];
@@ -616,11 +577,6 @@ private:
     Vec<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> &audioInputPostFaderInserts_       = channelPostFaderInserts_     [AudioHardwareInputList];
     Vec<MeterAndNode>                                  &audioInputMeters_                 = channelMeters_               [AudioHardwareInputList];
     Vec<ChannelInfo>                                   &audioInputChannelInfo_            = channelInfos_                [AudioHardwareInputList];
-    Vec<Vec<SendPosIt>>                                &audioInputSendIDs_                = channelSendIDs_              [AudioHardwareInputList];
-    Vec<Vec<MuteAndNode>>                              &audioInputSendMutes_              = channelSendMutes_            [AudioHardwareInputList];
-    Vec<Vec<FaderAndNode>>                             &audioInputSendFaders_             = channelSendFaders_           [AudioHardwareInputList];
-    Vec<Vec<PolarityInverterAndNode>>                  &audioInputSendPolarityInverters_  = channelSendPolarityInverters_[AudioHardwareInputList];
-    Vec<Vec<Position>>                                 &audioInputSendDestinations_       = channelSendDestinations_     [AudioHardwareInputList];
     Vec<std::set<Position>>                            &audioInputDestinations_           = channelMultiIOTargets_       [AudioHardwareInputList];
 
     IDGen                                              &channelIdGen_                     = channelIDGen_                [RegularList];
@@ -633,11 +589,6 @@ private:
     Vec<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> &postFaderInserts_                 = channelPostFaderInserts_     [RegularList];
     Vec<MeterAndNode>                                  &meters_                           = channelMeters_               [RegularList];
     Vec<ChannelInfo>                                   &channelInfo_                      = channelInfos_                [RegularList];
-    Vec<Vec<SendPosIt>>                                &sendIDs_                          = channelSendIDs_              [RegularList];
-    Vec<Vec<MuteAndNode>>                              &sendMutes_                        = channelSendMutes_            [RegularList];
-    Vec<Vec<FaderAndNode>>                             &sendFaders_                       = channelSendFaders_           [RegularList];
-    Vec<Vec<PolarityInverterAndNode>>                  &sendPolarityInverters_            = channelSendPolarityInverters_[RegularList];
-    Vec<Vec<Position>>                                 &sendDestinations_                 = channelSendDestinations_     [RegularList];
     Vec<std::set<Position>>                            &regularChannelInputSources_       = channelMultiIOTargets_       [RegularList];
 
     IDGen                                              &audioOutputChannelIdGen_          = channelIDGen_                [AudioHardwareOutputList];
@@ -650,11 +601,6 @@ private:
     Vec<std::unique_ptr<YADAW::Audio::Mixer::Inserts>> &audioOutputPostFaderInserts_      = channelPostFaderInserts_     [AudioHardwareOutputList];
     Vec<MeterAndNode>                                  &audioOutputMeters_                = channelMeters_               [AudioHardwareOutputList];
     Vec<ChannelInfo>                                   &audioOutputChannelInfo_           = channelInfos_                [AudioHardwareOutputList];
-    Vec<Vec<SendPosIt>>                                &audioOutputSendIDs_               = channelSendIDs_              [AudioHardwareOutputList];
-    Vec<Vec<MuteAndNode>>                              &audioOutputSendMutes_             = channelSendMutes_            [AudioHardwareOutputList];
-    Vec<Vec<FaderAndNode>>                             &audioOutputSendFaders_            = channelSendFaders_           [AudioHardwareOutputList];
-    Vec<Vec<PolarityInverterAndNode>>                  &audioOutputSendPolarityInverters_ = channelSendPolarityInverters_[AudioHardwareOutputList];
-    Vec<Vec<Position>>                                 &audioOutputSendDestinations_      = channelSendDestinations_     [AudioHardwareOutputList];
     Vec<std::set<Position>>                            &audioOutputSources_               = channelMultiIOTargets_       [AudioHardwareOutputList];
     // Regular channels
     Vec<DeviceAndNode> inputDevices_;
@@ -676,9 +622,6 @@ private:
     std::function<PreInsertChannelCallback>& preInsertAudioOutputChannelCallback_ = preInsertChannelCallback_[AudioHardwareOutputList];
     std::function<MainIOChangedCallback> mainInputChangedCallback_;
     std::function<MainIOChangedCallback> mainOutputChangedCallback_;
-    std::function<SendAddedCallback> sendAddedCallback_;
-    std::function<SendDestinationChangedCallback> sendDestinationChangedCallback_;
-    std::function<SendRemovedCallback> sendRemovedCallback_;
     std::function<AuxInputChangedCallback> auxInputChangedCallback_;
     std::function<AuxOutputAddedCallback> auxOutputAddedCallback_;
     std::function<AuxOutputDestinationChangedCallback> auxOutputDestinationChangedCallback_;
@@ -710,7 +653,6 @@ private:
     PluginAuxInputSources pluginAuxInputSources_;
     PluginAuxOutputDestinations pluginAuxOutputDestinations_;
     YADAW::Util::BatchUpdater* batchUpdater_ = nullptr;
-    IDGen sendIDGen_;
 };
 }
 
