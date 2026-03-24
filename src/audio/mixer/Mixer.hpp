@@ -51,14 +51,6 @@ using DeviceFactoryType = std::unique_ptr<Device>(
 // +------------+   +-------------------+   +-------------------+   +------+     +-------+     +--------------------+   +-------+   +-------------+
 // | Input Node |-->| Polarity Inverter |-->| Pre-Fader Inserts |-->| Mute |--+->| Fader |--+->| Post-Fader Inserts |-->| Meter |-->| Output Node |
 // +------------+   +-------------------+   +-------------------+   +------+  |  +-------+  |  +--------------------+   +-------+   +-------------+
-//                                                                            |             |
-//                                                                            |             |  +------+   +------------------+
-//                                                                            |             +->| Send |-->| Destination Node |
-//                                                                            |                +------+   +------------------+
-//                                                                            |
-//                                                                            |  +------+   +------------------+
-//                                                                            +->| Send |-->| Destination Node |
-//                                                                               +------+   +------------------+
 //
 // `Mixer` owns faders, meters and input/output devices of regular channels.
 // Input devices:
