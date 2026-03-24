@@ -18,12 +18,6 @@ void blankMainInputChangedCallback(const Mixer&, std::uint32_t) {}
 
 void blankMainOutputChangedCallback(const Mixer&, std::uint32_t) {}
 
-void blankSendAddedCallback(const Mixer& sender, const Mixer::SendPosition& sendPosition) {}
-
-void blankSendDestinationChangedCallback(const Mixer& sender, const Mixer::SendPosition& sendPosition) {}
-
-void blankSendRemovedCallback(const Mixer& sender, Mixer::SendRemovedCallbackArgs args) {}
-
 void blankAuxInputChangedCallback(const Mixer& sender, const Mixer::PluginAuxIOPosition& auxInput) {}
 
 void blankAuxOutputAddedCallback(const Mixer& sender, Mixer::AuxOutputAddedCallbackArgs args) {}
