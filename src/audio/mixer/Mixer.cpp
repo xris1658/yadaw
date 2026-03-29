@@ -721,7 +721,9 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
     {
         std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> disconnectingOldMultiInput;
         std::unique_ptr<YADAW::Audio::Device::IAudioDevice> disconnectingOldSumming;
-        auto unsetMainOutput = coUnsetMainOutput(index);
+        auto unsetMainOutput = mainOutput_[index].type == Position::Type::Invalid?
+            YADAW::Util::RollbackableOperation():
+            coUnsetMainOutput(index);
         // Connect
         std::unique_ptr<YADAW::Audio::Engine::MultiInputDeviceWithPDC> disconnectingNewMultiInput;
         std::unique_ptr<YADAW::Audio::Device::IAudioDevice> disconnectingNewSumming;
@@ -754,7 +756,10 @@ bool Mixer::setMainOutputAt(std::uint32_t index, Position position)
                     ret = graph_.connect(
                         fromNode, newSummingNode, 0, newSumming->audioInputGroupCount() - 1
                     ).has_value();
-                    unsetMainOutput.resume(ret);
+                    if(unsetMainOutput)
+                    {
+                        unsetMainOutput.resume(ret);
+                    }
                     if(ret)
                     {
                         graph_.disconnect(audioOutputPolarityInverters_[it->index].second->inEdges().front());
