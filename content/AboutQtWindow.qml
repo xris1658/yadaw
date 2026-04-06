@@ -61,14 +61,14 @@ Window {
                     <p>Qt licensed under GNU (L)GPL is appropriate for the
                     development of Qt&nbsp;applications provided you can comply with the terms
                     and conditions of the respective licenses.</p>
-                    <p>Please see <a href=\"http://%2/\">%2</a>
+                    <p>Please see <a href=\"http://%1/\">%1</a>
                     for an overview of Qt licensing.</p>
-                    <p>Copyright (C) %1 The Qt Company Ltd and other
+                    <p>Copyright (C) The Qt Company Ltd and other
                     contributors.</p>
                     <p>Qt and the Qt logo are trademarks of The Qt Company Ltd.</p>
                     <p>Qt is The Qt Company Ltd product developed as an open source
-                    project. See <a href=\"http://%3/\">%3</a> for more information.</p>"
-                   .arg(Global.qtCopyrightYear).arg("qt.io/licensing").arg("qt.io")
+                    project. See <a href=\"http://%2/\">%2</a> for more information.</p>"
+                   .arg("qt.io/licensing").arg("qt.io")
                 color: Colors.content
                 width: root.width - content.spacing * 3 - icon.width
                 wrapMode: Text.WordWrap

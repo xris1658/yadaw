@@ -9,7 +9,6 @@ QtObject {
     property int qtMajorVersion: 0
     property int qtMinorVersion: 0
     property int qtMicroVersion: 0
-    property string qtCopyrightYear: "Unknown"
     property string fileBrowserName: qsTr("File Browser")
     property INativePopupEventFilterModel nativePopupEventFilterModel: null
     property INativePopupEventFilterModel quickMenuBarEventFilterModel: null
