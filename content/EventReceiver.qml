@@ -19,10 +19,6 @@ QtObject {
         Global.qtMinorVersion = minorVersion;
         Global.qtMicroVersion = microVersion;
     }
-    signal setQtCopyrightYear(copyrightYear: string)
-    onSetQtCopyrightYear: (copyrightYear) => {
-        Global.qtCopyrightYear = copyrightYear;
-    }
     signal setFileBrowserName(name: string)
     onSetFileBrowserName: (name) => {
         Global.fileBrowserName = name;
