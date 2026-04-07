@@ -119,8 +119,6 @@ void EventHandler::connectToEventReceiver(QObject* receiver)
         receiver, SIGNAL(mainWindowClosingAccepted()));
     QObject::connect(this, SIGNAL(setQtVersion(int, int, int)),
         receiver, SIGNAL(setQtVersion(int, int, int)));
-    QObject::connect(this, SIGNAL(setQtCopyrightYear(QString)),
-        receiver, SIGNAL(setQtCopyrightYear(QString)));
     QObject::connect(this, SIGNAL(setFileBrowserName(QString)),
         receiver, SIGNAL(setFileBrowserName(QString)));
     QObject::connect(this, SIGNAL(setSplashScreenText(QString)),
