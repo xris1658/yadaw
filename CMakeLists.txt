@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(ENABLE_PRECOMPILE "Enable precompile" ON)
 
 # Prerequisites and dependencies
-find_package(Qt6 6.5 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
+find_package(Qt6 6.8 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 
 find_package(ade CONFIG REQUIRED)
 if(WIN32)

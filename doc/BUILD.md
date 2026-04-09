@@ -16,9 +16,8 @@ possible, I'd consider add ARM support in the future.
   While installing with Visual Studio Installer, check "Desktop devleopment with
   C++" and "Universal Windows Platform development" in "Workloads -> Desktop &
   Mobile", and "English" in "Language packs".
-- Install [Qt](https://www.qt.io/download-open-source) 6.5.1, 6.6.1 or newer
-  versions ([why not Qt 6.5.2 or 6.5.3?](https://bugreports.qt.io/browse/QTBUG-117852)).
-  While installing, check "MSVC 2019 64-bit" and "Qt Debug Information Files".
+- Install [Qt](https://www.qt.io/download-open-source) 6.8 or later. While installing, check "MSVC 2019 64-bit" and
+  "Qt Debug Information Files".
   After the installation, add the directory containing the Qt executable (<Qt
   install directory>\<version>\msvc2019_64\bin) to the system environment
   variable `Path`.
