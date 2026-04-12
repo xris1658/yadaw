@@ -7,6 +7,7 @@
 #include "audio/engine/extension/Buffer.hpp"
 #include "audio/engine/extension/NameTag.hpp"
 #include "audio/engine/extension/UpstreamLatency.hpp"
+#include "audio/mixer/BlankGenerator.hpp"
 #include "audio/mixer/Common.hpp"
 #include "audio/mixer/Inserts.hpp"
 #include "audio/mixer/Meter.hpp"
@@ -47,11 +48,12 @@ using DeviceFactoryType = std::unique_ptr<Device>(
     std::uint32_t channelCountInGroup
 );
 
-// Struct of a channel:
-// +------------+   +-------------------+   +-------------------+   +------+     +-------+     +--------------------+   +-------+   +-------------+
-// | Input Node |-->| Polarity Inverter |-->| Pre-Fader Inserts |-->| Mute |--+->| Fader |--+->| Post-Fader Inserts |-->| Meter |-->| Output Node |
-// +------------+   +-------------------+   +-------------------+   +------+  |  +-------+  |  +--------------------+   +-------+   +-------------+
-//
+// Structure of a channel
+//                                         +-                                             -+
+// +------------+   +-------------------+  |   +---------------+   +--------------------+  |  +------+   +-------+   +-------+   +-------------+
+// | Input Node |-->| Polarity Inverter |--+-->| Insert Groups |-->| Intermediate Nodes |--+->| Mute |-->| Fader |-->| Meter |-->| Output Node |
+// +------------+   +-------------------+  |   +---------------+   +--------------------+  |  +------+   +-------+   +-------+   +-------------+
+//                                         +-                                             -+
 // `Mixer` owns faders, meters and input/output devices of regular channels.
 // Input devices:
 // - `AudioHardwareInput`: A not-owned `YADAW::Audio::Device::IBus`.
@@ -60,22 +62,43 @@ using DeviceFactoryType = std::unique_ptr<Device>(
 //               reserved for future use.
 //            2. A not-owned mute/solo of the external audio in, or meter of
 //               channels, or send faders.
-// - `Instrument`: A not-owned `IAudioDevice` which is the instrument, or null
-//                 if there is no instrument.
+// - `Instrument`: A not-owned `IAudioDevice` which is the instrument, or
+//                 an owned `BlankGenerator` if there is no instrument, shared
+//                 among instrument tracks with no instrument and same channel
+//                 config.
 // - `AudioFX`: An owned `YADAW::Audio::Util::Summing`.
 // - `AudioBus`: An owned `YADAW::Audio::Util::Summing`.
 // - `AudioHardwareOutput`: An owned `YADAW::Audio::Util::Summing`.
 //
-// Struct of a send:
+// * Structure of a send
+//
 // +-------------------+   +------+   +-------+
 // | Polarity Inverter |-->| Mute |-->| Fader |
 // +-------------------+   +------+   +-------+
+//
 // There's a few DAW mixer which has polarity inverters in send controls.
 // Polarity inverters in sends are useful in some scenarios, so I ended up
 // adding one.
 //
-// Managing Connections
-// It's easy to connect/disconnect things since `Mixer` is a managed graph.
+// * Insert Groups
+// Instead of having two insert groups in one track like most DAWs, one being
+// pre-fader and the other being post-fader:
+//
+// +-------------------+     +------+   +-------+     +--------------------+
+// | Pre-Fader Inserts |--+->| Mute |-->| Fader |--+->| Post-Fader Inserts |
+// +-------------------+  |  +------+   +-------+  |  +--------------------+
+//                        |                        |
+//                        |  +-------+             |  +-------+
+//                        +->| Sends |             +->| Sends |
+//                           +-------+                +-------+
+//
+// I'd like to have arbitrary counts of inserts (even zero) in one track, with
+// both gaps between adjacent insert group (or more?) available as send sources.
+// The general idea is to make connections flexible, while keeping a relatively
+// standard mixer structure, making the mixer user-friendly for both sides.
+//
+// * Managing Connections
+// It's easy to connect/disconnect things since `Mixer` uses a managed graph.
 // The complicated part is showing "the other side(s)" on both ends.
 // I've made some conventions on managing connections that functions should obey
 // for now:
@@ -536,10 +559,11 @@ private:
     Vec<IDGen::ID>                    channelIDs_                  [3];
     Vec<IDAndIndex>                   channelIDAndIndex_           [3];
     Vec<PolarityInverterAndNode>      channelPolarityInverters_    [3];
-    Vec<std::unique_ptr<Inserts>>     channelPreFaderInserts_      [3];
+    Vec<Vec<std::unique_ptr<Inserts>>> channelInsertGroups_        [3];
+    Vec<std::unique_ptr<Inserts>>     channelPreFaderInserts_      [3]; // TODO: Remove this
     Vec<MuteAndNode>                  channelMutes_                [3];
     Vec<FaderAndNode>                 channelFaders_               [3];
-    Vec<std::unique_ptr<Inserts>>     channelPostFaderInserts_     [3];
+    Vec<std::unique_ptr<Inserts>>     channelPostFaderInserts_     [3]; // TODO: Remove this
     Vec<MeterAndNode>                 channelMeters_               [3];
     Vec<ChannelInfo>                  channelInfos_                [3];
     Vec<std::set<Position>>           channelMultiIOTargets_       [3];
@@ -630,6 +654,10 @@ private:
     PluginAuxInputSources pluginAuxInputSources_;
     PluginAuxOutputDestinations pluginAuxOutputDestinations_;
     YADAW::Util::BatchUpdater* batchUpdater_ = nullptr;
+    Vec<
+        std::pair<YADAW::Audio::Base::ChannelGroupType, std::uint32_t>,
+        DeviceAndNode<YADAW::Audio::Mixer::BlankGenerator>
+    > blankGenerators_;
 };
 }
 
