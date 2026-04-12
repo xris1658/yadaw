@@ -346,30 +346,15 @@ private:
 private:
     YADAW::Util::RollbackableOperation coUnsetInput(const std::variant<std::uint32_t, PluginAuxIOPosition>& input);
 private:
-    using PolarityInverterAndNode = std::pair<
-        std::unique_ptr<YADAW::Audio::Mixer::PolarityInverter>,
-        ade::NodeHandle
-    >;
-    using MeterAndNode = std::pair<
-        std::unique_ptr<YADAW::Audio::Mixer::Meter>,
-        ade::NodeHandle
-    >;
-    using FaderAndNode = std::pair<
-        std::unique_ptr<YADAW::Audio::Mixer::VolumeFader>,
-        ade::NodeHandle
-    >;
-    using SummingAndNode = std::pair<
-        std::unique_ptr<YADAW::Audio::Util::Summing>,
-        ade::NodeHandle
-    >;
-    using MuteAndNode = std::pair<
-        std::unique_ptr<YADAW::Audio::Util::Mute>,
-        ade::NodeHandle
-    >;
-    using DeviceAndNode = std::pair<
-        std::unique_ptr<YADAW::Audio::Device::IAudioDevice>,
-        ade::NodeHandle
-    >;
+    template<typename T = YADAW::Audio::Device::IAudioDevice>
+        requires std::derived_from<T, YADAW::Audio::Device::IAudioDevice>
+        || std::is_same_v<YADAW::Audio::Device::IAudioDevice, T>
+    using DeviceAndNode = std::pair<std::unique_ptr<T>, ade::NodeHandle>;
+    using PolarityInverterAndNode = DeviceAndNode<YADAW::Audio::Mixer::PolarityInverter>;
+    using MeterAndNode            = DeviceAndNode<YADAW::Audio::Mixer::Meter>;
+    using FaderAndNode            = DeviceAndNode<YADAW::Audio::Mixer::VolumeFader>;
+    using SummingAndNode          = DeviceAndNode<YADAW::Audio::Util::Summing>;
+    using MuteAndNode             = DeviceAndNode<YADAW::Audio::Util::Mute>;
 private:
     // Create new summing with more inputs base on the old summing.
     // This function only replicates incoming connections, but does NOT
@@ -595,12 +580,12 @@ private:
     Vec<ChannelInfo>                                   &audioOutputChannelInfo_           = channelInfos_                [AudioHardwareOutputList];
     Vec<std::set<Position>>                            &audioOutputSources_               = channelMultiIOTargets_       [AudioHardwareOutputList];
     // Regular channels
-    Vec<DeviceAndNode> inputDevices_;
-    Vec<std::uint32_t> instrumentOutputChannelIndex_;
-    Vec<Context>       instrumentContexts_;
-    Vec<bool>          instrumentBypassed_;
-    Vec<Position>      mainInput_;
-    Vec<Position>      mainOutput_;
+    Vec<DeviceAndNode<>> inputDevices_;
+    Vec<std::uint32_t>   instrumentOutputChannelIndex_;
+    Vec<Context>         instrumentContexts_;
+    Vec<bool>            instrumentBypassed_;
+    Vec<Position>        mainInput_;
+    Vec<Position>        mainOutput_;
     // Audio hardware output channels
     Vec<SummingAndNode> audioOutputSummings_;
 
