@@ -1419,7 +1419,7 @@ bool Mixer::insertChannels(
     YADAW::Audio::Base::ChannelGroupType channelGroupType,
     std::uint32_t channelCountInGroup)
 {
-    std::vector<DeviceAndNode> inputDevicesAndNode;
+    std::vector<DeviceAndNode<>> inputDevicesAndNode;
     std::vector<FaderAndNode> fadersAndNode;
     std::vector<MeterAndNode> metersAndNode;
     std::vector<MuteAndNode> mutesAndNode;
