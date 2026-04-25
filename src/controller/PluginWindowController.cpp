@@ -53,8 +53,8 @@ void createPluginWindow()
     gui->attachToWindow(pluginFrame);
     if(!gui->resizableByUser())
     {
-        YADAW::Native::setWindowResizable(*pluginFrame, false);
-        YADAW::Native::setWindowResizable(*pluginWindow, false);
+        YADAW::Native::setWindowResizableByUser(*pluginFrame, false);
+        YADAW::Native::setWindowResizableByUser(*pluginWindow, false);
     }
     // Embed the plugin frame to its outer window (See `PluginWindow.qml`)
     // This process has to be done AFTER `IPluginGUI::attachToWindow`, or the
