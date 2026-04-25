@@ -28,12 +28,10 @@ public:
     const QWindow* window() const override;
     bool detachWithWindow() override;
     bool resizableByUser() const override;
+    bool adjustSize(QSize& size) override;
+    bool resize(const QSize& size) override;
 public:
-    void resizeViewCalled();
-private:
-    void connect();
-    void disconnect();
-    void onWindowSizeChanged();
+    YADAW::Audio::Host::VST3PlugFrame& frame();
 private:
     Steinberg::IPlugView* plugView_ = nullptr;
     Steinberg::IPlugViewContentScaleSupport* plugViewContentScaleSupport_ = nullptr;

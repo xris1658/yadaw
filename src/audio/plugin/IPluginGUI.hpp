@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_PLUGIN_IPLUGINGUI
 #define YADAW_SRC_AUDIO_PLUGIN_IPLUGINGUI
 
+#include <QSize>
 #include <QWindow>
 
 namespace YADAW::Audio::Plugin
@@ -15,6 +16,8 @@ public:
     virtual const QWindow* window() const = 0;
     virtual bool detachWithWindow() = 0;
     virtual bool resizableByUser() const = 0;
+    virtual bool adjustSize(QSize& size) = 0;
+    virtual bool resize(const QSize& size) = 0;
 };
 }
 

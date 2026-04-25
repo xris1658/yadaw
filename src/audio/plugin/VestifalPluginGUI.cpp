@@ -60,4 +60,14 @@ bool VestifalPluginGUI::resizableByUser() const
 {
     return false; // TODO
 }
+
+bool VestifalPluginGUI::adjustSize(QSize& size)
+{
+    return false; // TODO
+}
+
+bool VestifalPluginGUI::resize(const QSize& size)
+{
+    return false; // TODO
+}
 }

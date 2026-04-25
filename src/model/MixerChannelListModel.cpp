@@ -1258,8 +1258,6 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
             );
         }
     }
-    YADAW::Controller::pluginWindows.pluginWindow = nullptr;
-    YADAW::Controller::pluginWindows.genericEditorWindow = nullptr;
     return ret;
 }
 

@@ -78,8 +78,10 @@ void createPluginWindows(PluginContext& context)
     {
         createPluginWindow();
         context.editor = pluginWindows.pluginWindow;
+        pluginWindows.pluginWindow = nullptr;
     }
     createGenericPluginEditor();
     context.genericEditor = pluginWindows.genericEditorWindow;
+    pluginWindows.genericEditorWindow = nullptr;
 }
 }

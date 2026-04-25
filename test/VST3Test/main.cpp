@@ -5,6 +5,7 @@
 #include "audio/util/VST3Helper.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/Window.hpp"
+#include "ui/ResizeEventFilter.hpp"
 #include "ui/Runtime.hpp"
 
 #include "test/common/DisableStreamBuffer.hpp"
@@ -23,10 +24,13 @@ struct PluginRuntime
     std::unique_ptr<YADAW::Audio::Plugin::VST3Plugin> plugin;
     std::atomic_flag runAudioThread;
     std::thread audioThread;
+    YADAW::UI::ResizeEventFilter* resizeEventFilter = nullptr;
+    QMetaObject::Connection connectToREF;
     void finish()
     {
         if(auto gui = plugin->pluginGUI())
         {
+            QObject::disconnect(connectToREF);
             gui->detachWithWindow();
         }
         runAudioThread.clear();
@@ -135,7 +139,27 @@ void testPlugin(QWindow& pluginWindow)
                 auto gui = plugin.pluginGUI();
                 if(gui)
                 {
+                    runtime.connectToREF = QObject::connect(
+                        runtime.resizeEventFilter, &YADAW::UI::ResizeEventFilter::aboutToResize,
+                        [gui](YADAW::UI::ResizeEventFilter::DragPosition dragPosition, QRect* rect)
+                        {
+                            auto size = rect->size();
+                            gui->adjustSize(size);
+                            YADAW::UI::ResizeEventFilter::adjustRect(
+                                *rect, dragPosition, size
+                            );
+                            gui->resize(size);
+                        }
+                    );
                     gui->attachToWindow(&pluginWindow);
+                    gui->frame().setResizeInitiatedFromPluginCallback(
+                        [&pluginWindow, gui](const QSize& size) -> bool
+                        {
+                            pluginWindow.resize(size);
+                            gui->resize(size);
+                            return true;
+                        }
+                    );
                     pluginWindow.show();
                     pluginWindow.setFlags(
                         Qt::WindowType::Dialog |
@@ -219,6 +243,9 @@ int main(int argc, char* argv[])
     efds.start(timer);
 #endif
     QWindow pluginWindow;
+    pluginWindow.create();
+    YADAW::UI::ResizeEventFilter resizeEventFilter(pluginWindow);
+    runtime.resizeEventFilter = &resizeEventFilter;
     std::setlocale(LC_ALL, "en_US.UTF-8");
     int argIndex = 1;
     YADAW::Native::Library library;

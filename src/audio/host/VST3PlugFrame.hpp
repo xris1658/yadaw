@@ -3,6 +3,10 @@
 
 #include <pluginterfaces/gui/iplugview.h>
 
+#include <QSize>
+
+#include <functional>
+
 namespace YADAW::Audio::Plugin
 {
 class VST3PluginGUI;
@@ -25,8 +29,12 @@ public:
 public:
     Steinberg::tresult resizeView(Steinberg::IPlugView* view,
         Steinberg::ViewRect* newSize) override;
+    using ResizeInitiatedFromPluginCallback = bool(const QSize& size);
+    void setResizeInitiatedFromPluginCallback(std::function<ResizeInitiatedFromPluginCallback>&& callback);
+    void resetResizeInitiatedFromPluginCallback();
 private:
     YADAW::Audio::Plugin::VST3PluginGUI* gui_;
+    std::function<ResizeInitiatedFromPluginCallback> resizeInitiatedFromPluginCallback_;
 };
 }
 
