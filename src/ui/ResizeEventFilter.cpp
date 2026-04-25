@@ -240,6 +240,32 @@ bool ResizeEventFilter::resizing() const
     return resizing_;
 }
 
+
+void ResizeEventFilter::adjustRect(QRect& rect, ResizeEventFilter::DragPosition position, QSize newSize)
+{
+    using YADAW::UI::ResizeEventFilter;
+    // Why +1/-1: https://doc.qt.io/qt-6/qrect.html#coordinates
+    switch(position)
+    {
+    case ResizeEventFilter::DragPosition::TopLeft:
+        rect.setTopLeft(QPoint(rect.right() - newSize.width(), rect.bottom() - newSize.height()));
+        return;
+    case ResizeEventFilter::DragPosition::Top:
+    case ResizeEventFilter::DragPosition::TopRight:
+        rect.setTopRight(QPoint(rect.left() + newSize.width() - 1, rect.bottom() - newSize.height()));
+        return;
+    case ResizeEventFilter::DragPosition::Left:
+    case ResizeEventFilter::DragPosition::BottomLeft:
+        rect.setBottomLeft(QPoint(rect.right() - newSize.width(), rect.top() + newSize.height() - 1));
+        return;
+    case ResizeEventFilter::DragPosition::Right:
+    case ResizeEventFilter::DragPosition::Bottom:
+    case ResizeEventFilter::DragPosition::BottomRight:
+        rect.setBottomRight(QPoint(rect.left() + newSize.width() - 1, rect.top() + newSize.height() - 1));
+        return;
+    }
+}
+
 bool ResizeEventFilter::nativeEventFilter(
     const QByteArray& eventType, void* message, qintptr* result)
 {
@@ -350,27 +376,5 @@ bool ResizeEventFilter::nativeEventFilter(
     }
 #endif
     return false;
-}
-
-void adjustRect(QRect& rect, ResizeEventFilter::DragPosition position, QSize newSize)
-{
-    using YADAW::UI::ResizeEventFilter;
-    // See `QRect::right()` and `QRect::bottom()`
-    if(position == ResizeEventFilter::DragPosition::TopLeft)
-    {
-        rect.setTopLeft(QPoint(rect.right() - newSize.width(), rect.bottom() - newSize.height()));
-    }
-    else if(position == ResizeEventFilter::DragPosition::Top || position == ResizeEventFilter::DragPosition::TopRight)
-    {
-        rect.setTopRight(QPoint(rect.left() + newSize.width() - 1, rect.bottom() - newSize.height()));
-    }
-    else if(position == ResizeEventFilter::DragPosition::Left || position == ResizeEventFilter::DragPosition::BottomLeft)
-    {
-        rect.setBottomLeft(QPoint(rect.right() - newSize.width(), rect.top() + newSize.height() - 1));
-    }
-    else
-    {
-        rect.setBottomRight(QPoint(rect.left() + newSize.width() - 1, rect.top() + newSize.height() - 1));
-    }
 }
 }

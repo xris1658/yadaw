@@ -55,6 +55,8 @@ signals:
     // Emitted if `SupportsStartStopResize`
     void endResize();
 public:
+    static void adjustRect(QRect& rect, DragPosition position, QSize newSize);
+public:
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
 #if __linux__
 private:
@@ -75,8 +77,6 @@ private:
     int lastResponseType_ = XCB_GE_GENERIC + 1;
 #endif
 };
-
-void adjustRect(QRect& rect, ResizeEventFilter::DragPosition position, QSize newSize);
 }
 
 #endif // YADAW_SRC_UI_RESIZEEVENTFILTER
