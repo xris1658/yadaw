@@ -151,7 +151,7 @@ void testPlugin(QWindow& pluginWindow)
                             (rect.height() - pluginWindow.height()) / 2
                         );
                     }
-                    YADAW::Native::setWindowResizable(pluginWindow, gui->resizableByUser());
+                    YADAW::Native::setWindowResizableByUser(pluginWindow, gui->resizableByUser());
                 }
                 runtime.audioThread = std::thread([&plugin, sampleRate, bufferSize]()
                 {
