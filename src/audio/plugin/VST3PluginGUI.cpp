@@ -38,7 +38,9 @@ bool VST3PluginGUI::attachToWindow(QWindow* window)
         return false;
     }
     window_ = window;
+#ifndef __APPLE__
     auto devicePixelRatio = window->devicePixelRatio();
+#endif
     if(plugViewContentScaleSupport_)
     {
         plugViewContentScaleSupport_->setContentScaleFactor(devicePixelRatio);
@@ -49,17 +51,16 @@ bool VST3PluginGUI::attachToWindow(QWindow* window)
     ) == Steinberg::kResultOk;
     if(ret)
     {
-        if(!resizeViewCalled_)
-        {
-            Steinberg::ViewRect rect;
-            plugView_->getSize(&rect);
-            window_->resize(
-                rect.getWidth() / devicePixelRatio,
-                rect.getHeight() / devicePixelRatio
-            );
-        }
-        resizeViewCalled_ = false;
-        connect();
+        Steinberg::ViewRect rect;
+        plugView_->getSize(&rect);
+        window_->resize(
+#if __APPLE__
+            rect.getWidth(), rect.getHeight()
+#else
+            rect.getWidth() / devicePixelRatio,
+            rect.getHeight() / devicePixelRatio
+#endif
+        );
     }
     else
     {
@@ -84,7 +85,6 @@ bool VST3PluginGUI::detachWithWindow()
     {
         return true;
     }
-    disconnect();
     auto detachResult = plugView_->removed();
     if(detachResult == Steinberg::kResultOk)
     {
@@ -102,67 +102,60 @@ bool VST3PluginGUI::resizableByUser() const
     return false;
 }
 
-void VST3PluginGUI::resizeViewCalled()
+bool VST3PluginGUI::adjustSize(QSize& size)
 {
-    resizeViewCalled_ = true;
+    if(plugView_)
+    {
+#ifndef __APPLE__
+        auto devicePixelRatio = window_->devicePixelRatio();
+#endif
+        Steinberg::ViewRect rect(0, 0,
+#if __APPLE__
+            size.width(), size.height()
+#else
+            size.width() * devicePixelRatio,
+            size.height() * devicePixelRatio
+#endif
+        );
+        auto ret = plugView_->checkSizeConstraint(&rect);
+        if(ret == Steinberg::kResultOk)
+        {
+            size = QSize(
+#if __APPLE__
+                rect.getWidth(), rect.getHeight()
+#else
+                rect.getWidth() / devicePixelRatio,
+                rect.getHeight() / devicePixelRatio
+#endif
+            );
+            return true;
+        }
+    }
+    return false;
 }
 
-void VST3PluginGUI::connect()
+bool VST3PluginGUI::resize(const QSize& size)
 {
-    if(!isConnected_)
+    if(plugView_)
     {
-        connections_[0] = QObject::connect(
-            window_, &QWindow::widthChanged,
-            [this](int)
-            {
-                onWindowSizeChanged();
-            }
+#ifndef __APPLE__
+        auto devicePixelRatio = window_->devicePixelRatio();
+#endif
+        Steinberg::ViewRect rect(0, 0,
+#if __APPLE__
+            size.width(), size.height()
+#else
+            size.width() * devicePixelRatio,
+            size.height() * devicePixelRatio
+#endif
         );
-        connections_[1] = QObject::connect(
-            window_, &QWindow::heightChanged,
-            [this](int)
-            {
-                onWindowSizeChanged();
-            }
-        );
-        isConnected_ = true;
+        return plugView_->onSize(&rect) == Steinberg::kResultOk;
     }
+    return false;
 }
 
-void VST3PluginGUI::disconnect()
+YADAW::Audio::Host::VST3PlugFrame& VST3PluginGUI::frame()
 {
-    if(isConnected_)
-    {
-        QObject::disconnect(connections_[0]);
-        QObject::disconnect(connections_[1]);
-        isConnected_ = false;
-    }
-}
-
-void VST3PluginGUI::onWindowSizeChanged()
-{
-    if(resizeViewCalled_)
-    {
-        resizeViewCalled_ = false;
-        return;
-    }
-    auto devicePixelRatio = window_->devicePixelRatio();
-    // https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical+Documentation/Workflow+Diagrams/Resize+View+Call+Sequence.html#initiated-from-host
-    Steinberg::ViewRect oldRect;
-    plugView_->getSize(&oldRect);
-    Steinberg::ViewRect windowRect;
-    windowRect.left = 0;
-    windowRect.top = 0;
-    windowRect.right = window_->width() * devicePixelRatio;
-    windowRect.bottom = window_->height() * devicePixelRatio;
-    if(plugView_->checkSizeConstraint(&windowRect) == Steinberg::kResultOk)
-    {
-        Steinberg::ViewRect* rects[2] = {&oldRect, &windowRect};
-        auto* rect = rects[plugView_->onSize(&windowRect) == Steinberg::kResultOk];
-        window_->resize(
-            std::round(rect->getWidth() / devicePixelRatio),
-            std::round(rect->getHeight() / devicePixelRatio)
-        );
-    }
+    return frame_;
 }
 }

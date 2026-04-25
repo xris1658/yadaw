@@ -271,10 +271,15 @@ bool CLAPHost::doRequestResize(std::uint32_t width, std::uint32_t height)
     auto gui = plugin_->pluginGUI();
     gui->requestResizeCalled();
     auto window = gui->window();
+#ifndef __APPLE
     auto devicePixelRatio = window->devicePixelRatio();
+#endif
     window->resize(
-        std::round(width / devicePixelRatio),
-        std::round(height / devicePixelRatio)
+#if __APPLE__
+        width, height
+#else
+        width / devicePixelRatio, height / devicePixelRatio
+#endif
     );
     return true;
 }

@@ -26,15 +26,14 @@ public:
     QWindow* window() override;
     bool detachWithWindow() override;
     bool resizableByUser() const override;
+    bool adjustSize(QSize& size) override;
+    bool resize(const QSize& size) override;
     void requestResizeCalled();
 public:
     void fetchResizeHints();
     clap_gui_resize_hints resizeHints() const;
 private:
-    void connect();
-    void disconnect();
     const clap_plugin_gui* gui();
-    void onWindowSizeChanged();
 public:
 
 private:

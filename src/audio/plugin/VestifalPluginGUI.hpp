@@ -18,6 +18,9 @@ public:
     const QWindow* window() const override;
     bool detachWithWindow() override;
     bool resizableByUser() const override;
+    bool adjustSize(QSize& size) override;
+    bool resize(const QSize& size) override;
+
 private:
     AEffect* effect_;
     QWindow* window_ = nullptr;

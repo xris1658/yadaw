@@ -46,28 +46,33 @@ Steinberg::uint32 VST3PlugFrame::release()
 
 Steinberg::tresult VST3PlugFrame::resizeView(Steinberg::IPlugView* view, Steinberg::ViewRect* newSize)
 {
-    // https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical+Documentation/Workflow+Diagrams/Resize+View+Call+Sequence.html#initiated-from-plug-in
     if(auto window = gui_->window())
     {
-        gui_->resizeViewCalled();
-        auto devicePixelRatio = window->devicePixelRatio();
-        Steinberg::ViewRect oldSize;
-        if(auto result = view->getSize(&oldSize); result != Steinberg::kResultOk)
+        if(resizeInitiatedFromPluginCallback_)
         {
-            return result;
+#ifndef __APPLE__
+            auto devicePixelRatio = window->devicePixelRatio();
+#endif
+            return resizeInitiatedFromPluginCallback_(QSize(
+#if __APPLE__
+                newSize->getWidth(), newSize->getHeight()
+#else
+                newSize->getWidth() / devicePixelRatio,
+                newSize->getHeight() / devicePixelRatio
+#endif
+            ))? Steinberg::kResultOk: Steinberg::kResultFalse;
         }
-        window->resize(
-            std::round(newSize->getWidth() / devicePixelRatio),
-            std::round(newSize->getHeight() / devicePixelRatio)
-        );
-        if(auto result = view->onSize(newSize); result != Steinberg::kResultOk)
-        {
-            view->onSize(&oldSize);
-            return result;
-        }
-        view->getSize(newSize);
-        return Steinberg::kResultOk;
     }
     return Steinberg::kInvalidArgument;
+}
+
+void VST3PlugFrame::setResizeInitiatedFromPluginCallback(std::function<ResizeInitiatedFromPluginCallback>&& callback)
+{
+    resizeInitiatedFromPluginCallback_ = std::move(callback);
+}
+
+void VST3PlugFrame::resetResizeInitiatedFromPluginCallback()
+{
+    resizeInitiatedFromPluginCallback_ = {};
 }
 }

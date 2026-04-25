@@ -308,6 +308,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/plugin/PluginFormatSupport.hpp
     src/audio/plugin/PluginText.cpp
     src/audio/plugin/PluginText.hpp
+    src/audio/plugin/PluginWindow.cpp
+    src/audio/plugin/PluginWindow.hpp
     src/audio/plugin/VST3AudioChannelGroup.cpp
     src/audio/plugin/VST3AudioChannelGroup.hpp
     src/audio/plugin/VST3EventBusInfo.cpp
@@ -1026,6 +1028,8 @@ add_executable(VST3Test
                src/ui/Runtime.hpp
                src/ui/UI.cpp
                src/ui/UI.hpp
+               src/ui/ResizeEventFilter.cpp
+               src/ui/ResizeEventFilter.hpp
                src/util/QuadraticFunction.cpp
                src/util/QuadraticFunction.hpp
                src/util/Util.cpp

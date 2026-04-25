@@ -299,8 +299,6 @@ bool YADAW::Model::MixerChannelInsertListModel::insert(int position, int pluginI
             updateInsertConnections(position + 1);
         }
     }
-    YADAW::Controller::pluginWindows.pluginWindow = nullptr;
-    YADAW::Controller::pluginWindows.genericEditorWindow = nullptr;
     return ret;
 }
 
