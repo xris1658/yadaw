@@ -109,12 +109,12 @@ void setNetWmState(xcb_window_t window, xcb_connection_t* connection,
     );
 }
 
-bool isWindowResizable(QWindow& window)
+bool isWindowResizeableByUser(QWindow& window)
 {
     return false;
 }
 
-void setWindowResizable(QWindow& window, bool resizable)
+void setWindowResizeableByUser(QWindow& window, bool resizable)
 {
     auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
     if(x11Interface)
