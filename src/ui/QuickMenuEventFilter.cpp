@@ -1,6 +1,7 @@
 #include "QuickMenuEventFilter.hpp"
 
 #include "util/Base.hpp"
+#include "util/BoolFlag.hpp"
 #include "util/IntegerRange.hpp"
 
 #include <QKeySequence>
@@ -276,15 +277,6 @@ void QuickMenuEventFilter::installMenuBarItemEventFilter()
 }
 
 static const char menuItemClassPrefix[] = "MenuItem_QMLTYPE_";
-
-class BoolFlag
-{
-public:
-    BoolFlag(bool& flag): flag_(flag) { flag_ = true; }
-    ~BoolFlag() { flag_ = false; }
-private:
-    bool& flag_;
-};
 
 bool QuickMenuEventFilter::eventFilter(QObject* watched, QEvent* event)
 {
@@ -592,7 +584,7 @@ bool QuickMenuEventFilter::eventFilter(QObject* watched, QEvent* event)
             && !filteringMenuBarEvents_
         )
         {
-            BoolFlag flag(filteringMenuBarEvents_);
+            YADAW::Util::BoolFlag flag(filteringMenuBarEvents_);
             if(QCoreApplication::sendEvent(watched, event))
             {
                 if(auto menu = quickItem->property("menu").value<QObject*>())

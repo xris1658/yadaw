@@ -551,6 +551,7 @@ set(YADAW_COMMON_SOURCES
     src/util/Base.hpp
     src/util/BatchUpdater.cpp
     src/util/BatchUpdater.hpp
+    src/util/BoolFlag.hpp
     src/util/ButlerThread.cpp
     src/util/ButlerThread.hpp
     src/util/CDeleter.hpp
