@@ -3019,7 +3019,7 @@ void Mixer::clearAuxOutputDestinations(const PluginAuxIOPosition& position)
     removeAuxOutputDestination(position, 0, destinations.size());
 }
 
-std::tuple<Mixer::PolarityInverterAndNode, Mixer::MuteAndNode, Mixer::FaderAndNode> Mixer::createSend(
+std::tuple<PolarityInverterAndNode, MuteAndNode, FaderAndNode> Mixer::createSend(
     ade::NodeHandle fromNode, ade::NodeHandle toNode,
     std::uint32_t fromChannel, std::uint32_t toChannel)
 {

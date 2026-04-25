@@ -369,16 +369,6 @@ private:
 private:
     YADAW::Util::RollbackableOperation coUnsetInput(const std::variant<std::uint32_t, PluginAuxIOPosition>& input);
 private:
-    template<typename T = YADAW::Audio::Device::IAudioDevice>
-        requires std::derived_from<T, YADAW::Audio::Device::IAudioDevice>
-        || std::is_same_v<YADAW::Audio::Device::IAudioDevice, T>
-    using DeviceAndNode = std::pair<std::unique_ptr<T>, ade::NodeHandle>;
-    using PolarityInverterAndNode = DeviceAndNode<YADAW::Audio::Mixer::PolarityInverter>;
-    using MeterAndNode            = DeviceAndNode<YADAW::Audio::Mixer::Meter>;
-    using FaderAndNode            = DeviceAndNode<YADAW::Audio::Mixer::VolumeFader>;
-    using SummingAndNode          = DeviceAndNode<YADAW::Audio::Util::Summing>;
-    using MuteAndNode             = DeviceAndNode<YADAW::Audio::Util::Mute>;
-private:
     // Create new summing with more inputs base on the old summing.
     // This function only replicates incoming connections, but does NOT
     // replicate outgoing connections. You have to "move" those connections
