@@ -81,7 +81,7 @@ ResizeEventFilter::~ResizeEventFilter()
 ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags()
 {
 #if _WIN32
-    return FeatureSupportFlag::SupportsStartStopResize
+    return FeatureSupportFlag::SupportsStartAndEndResize
         |  FeatureSupportFlag::SupportsAboutToResize
         |  FeatureSupportFlag::SupportsDragPosition
         |  FeatureSupportFlag::SupportsResized
@@ -119,7 +119,7 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
     // - Emits `stopResizing()` on receiving the `XCB_FOCUS_IN` event;
     if(desktopNativeEventFilter == &ResizeEventFilter::nativeEventFilterOnGNOME)
     {
-        return FeatureSupportFlag::SupportsStartStopResize
+        return FeatureSupportFlag::SupportsStartAndEndResize
             |  FeatureSupportFlag::SupportsAboutToResize
             |  FeatureSupportFlag::SupportsResized;
     }

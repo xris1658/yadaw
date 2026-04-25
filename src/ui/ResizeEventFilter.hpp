@@ -29,7 +29,7 @@ public:
     };
     enum FeatureSupportFlag: std::uint64_t
     {
-        SupportsStartStopResize       = 1 << 0,
+        SupportsStartAndEndResize     = 1 << 0,
         SupportsAboutToResize         = 1 << 1,
         SupportsDragPosition          = 1 << 2,
         SupportsResized               = 1 << 3,
@@ -41,10 +41,10 @@ public:
     ~ResizeEventFilter() override;
 public:
     static FeatureSupportFlags getNativeSupportFlags();
-    // Valid if `SupportsStartStopResize`; always return false otherwise
+    // Valid if `SupportsStartAndEndResize`; always return false otherwise
     bool resizing() const;
 signals:
-    // Emitted if `SupportsStartStopResize`
+    // Emitted if `SupportsStartAndEndResize`
     void startResize();
     // Emitted if `SupportsAboutToResize`
     // - `dragPosition` is valid if `SupportsDragPosition`
@@ -52,7 +52,7 @@ signals:
     void aboutToResize(DragPosition dragPosition, QRect* rect);
     // Emitted if `SupportsResized`
     void resized(QRect rect);
-    // Emitted if `SupportsStartStopResize`
+    // Emitted if `SupportsStartAndEndResize`
     void endResize();
 public:
     static void adjustRect(QRect& rect, DragPosition position, QSize newSize);
