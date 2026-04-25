@@ -19,22 +19,49 @@
 
 #if _WIN32
 
-#include <mutex>
-
-QMargins clientMargins;
-
-std::once_flag getMarginsFlag;
-
-void getMargins()
+RECT rectFromQRect(const QRect& rect)
 {
-    clientMargins.setLeft(
-        GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXFIXEDFRAME) + GetSystemMetrics(SM_CXBORDER)
+    return RECT {
+        .left   = rect.left(),
+        .top    = rect.top (),
+        .right  = rect.left() + rect.width(), // Why not `rect.right()` : https://doc.qt.io/qt-6/qrect.html#coordinates
+        .bottom = rect.top () + rect.height() // Why noy 'rect.bottom()`: https://doc.qt.io/qt-6/qrect.html#coordinates
+    };
+}
+
+QRect rectToQRect(const RECT& rect)
+{
+    // Why not `QRect::QRect(const QPoint& topLeft, const QPoint& bottomRight)`:
+    // https://doc.qt.io/qt-6/qrect.html#coordinates
+    return QRect(
+        rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top
     );
-    clientMargins.setRight(clientMargins.left());
-    clientMargins.setBottom(
-        GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYBORDER)
-    );
-    clientMargins.setTop(clientMargins.bottom() + GetSystemMetrics(SM_CYCAPTION));
+}
+
+QRect windowRectFromClient(const QRect& clientRect, HWND window)
+{
+    auto style = GetWindowLongPtrW(window, GWL_STYLE);
+    auto exStyle = GetWindowLongPtrW(window, GWL_EXSTYLE);
+    auto crect = rectFromQRect(clientRect);
+    AdjustWindowRectEx(&crect, style, FALSE, exStyle);
+    return rectToQRect(crect);
+}
+
+QRect clientRectFromWindow(const QRect& windowRect, HWND window)
+{
+    auto style = GetWindowLongPtrW(window, GWL_STYLE);
+    auto exStyle = GetWindowLongPtrW(window, GWL_EXSTYLE);
+    auto wrect = rectFromQRect(windowRect);
+    RECT extendedRect = wrect;
+    // Inverse of `AdjustWindowRectEx`: https://stackoverflow.com/questions/11584042/inverse-of-adjustwindowrectex
+    // `extendedRect` always contains `wrect`...
+    AdjustWindowRectEx(&extendedRect, style, FALSE, exStyle);
+    // ... but what should this return if `wrect` is too small?
+    wrect.left   += wrect.left   - extendedRect.left;
+    wrect.right  += wrect.right  - extendedRect.right;
+    wrect.top    += wrect.top    - extendedRect.top;
+    wrect.bottom += wrect.bottom - extendedRect.bottom;
+    return rectToQRect(wrect);
 }
 #endif
 
@@ -311,12 +338,11 @@ bool ResizeEventFilter::nativeEventFilter(
         {
             if(isSignalConnected(aboutToResizeSignal))
             {
-                std::call_once(getMarginsFlag, &getMargins);
                 auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
                 QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
-                rect = rect.marginsRemoved(clientMargins);
+                rect = clientRectFromWindow(rect, msg->hwnd);
                 aboutToResize(position_, &rect);
-                rect = rect.marginsAdded(clientMargins);
+                rect = windowRectFromClient(rect, msg->hwnd);
                 nativeRect->x = rect.left();
                 nativeRect->y = rect.top();
                 nativeRect->cx = rect.width();
@@ -334,7 +360,7 @@ bool ResizeEventFilter::nativeEventFilter(
             {
                 auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
                 QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
-                rect = rect.marginsRemoved(clientMargins);
+                rect = clientRectFromWindow(rect, msg->hwnd);
                 resized(rect);
             }
         }
@@ -347,15 +373,14 @@ bool ResizeEventFilter::nativeEventFilter(
         {
             if(isSignalConnected(aboutToResizeSignal))
             {
-                std::call_once(getMarginsFlag, &getMargins);
                 position_ = positions[msg->wParam - WMSZ_LEFT];
                 auto nativeRect = reinterpret_cast<RECT*>(msg->lParam);
                 QRect rect(nativeRect->left, nativeRect->top,
                     nativeRect->right - nativeRect->left, nativeRect->bottom - nativeRect->top
                 );
-                rect = rect.marginsRemoved(clientMargins);
+                rect = clientRectFromWindow(rect, msg->hwnd);
                 aboutToResize(position_, &rect);
-                rect = rect.marginsAdded(clientMargins);
+                rect = windowRectFromClient(rect, msg->hwnd);
                 nativeRect->left = rect.left();
                 nativeRect->top = rect.top();
                 nativeRect->right = rect.width();
