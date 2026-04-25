@@ -26,13 +26,13 @@ void getWindowsIs11()
     isWindows11 = (build >= 21996);
 }
 
-bool isWindowResizable(QWindow& window)
+bool isWindowResizableByUser(QWindow& window)
 {
     auto hwnd = reinterpret_cast<HWND>(window.winId());
     return GetWindowLongPtrW(hwnd, GWL_STYLE) & WS_THICKFRAME;
 }
 
-void setWindowResizable(QWindow& window, bool resizable)
+void setWindowResizableByUser(QWindow& window, bool resizable)
 {
     auto hwnd = reinterpret_cast<HWND>(window.winId());
     auto style = GetWindowLongPtrW(hwnd, GWL_STYLE);

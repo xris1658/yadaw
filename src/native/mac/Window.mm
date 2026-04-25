@@ -14,12 +14,12 @@ void showWindowWithoutActivating(QWindow& window)
     window.setVisible(true);
 }
 
-bool isWindowResizable(QWindow& window)
+bool isWindowResizeableByUser(QWindow& window)
 {
     return true;
 }
 
-void setWindowResizable(QWindow& window, bool resizable)
+void setWindowResizeableByUser(QWindow& window, bool resizable)
 {
     // TODO
 }

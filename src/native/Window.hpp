@@ -13,9 +13,9 @@ namespace YADAW::Native
 //    event, which closes the popup and leaves the click event not handled.
 void showWindowWithoutActivating(QWindow& window);
 
-bool isWindowResizable(QWindow& window);
+bool isWindowResizableByUser(QWindow& window);
 
-void setWindowResizable(QWindow& window, bool resizable);
+void setWindowResizableByUser(QWindow& window, bool resizable);
 
 // Enters fullscreen. If the window was maximized, this function tries setting
 // window state from maximized to fullscreen without showing the intermediate
