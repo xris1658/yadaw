@@ -61,8 +61,6 @@ using LibraryPluginMap = std::map<
     >,
     Impl::CompareLibrary
 >;
-
-LibraryPluginMap& appLibraryPluginMap();
 }
 
 #endif // YADAW_SRC_CONTROLLER_LIBRARYPLUGINMAP
