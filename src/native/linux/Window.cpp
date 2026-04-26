@@ -2,6 +2,8 @@
 
 #include "native/Window.hpp"
 
+#include <QGuiApplication>
+
 #include <X11/Xutil.h>
 
 #include <xcb/xcb.h>
@@ -109,12 +111,12 @@ void setNetWmState(xcb_window_t window, xcb_connection_t* connection,
     );
 }
 
-bool isWindowResizeableByUser(QWindow& window)
+bool isWindowResizableByUser(QWindow& window)
 {
     return false;
 }
 
-void setWindowResizeableByUser(QWindow& window, bool resizable)
+void setWindowResizableByUser(QWindow& window, bool resizable)
 {
     auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
     if(x11Interface)
