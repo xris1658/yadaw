@@ -116,7 +116,7 @@ bool isWindowResizableByUser(QWindow& window)
     return false;
 }
 
-void setWindowResizableByUser(QWindow& window, bool resizable)
+    void setWindowResizableByUser(QWindow& window, bool resizable)
 {
     auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
     if(x11Interface)
@@ -130,11 +130,21 @@ void setWindowResizableByUser(QWindow& window, bool resizable)
         else
         {
             xcb_size_hints_t hints;
-            auto getGeometryCookie = xcb_get_geometry(connection, windowHandle);
-            auto geometry = xcb_get_geometry_reply(connection, getGeometryCookie, nullptr);
-            xcb_icccm_size_hints_set_min_size(&hints, geometry->width, geometry->height);
-            xcb_icccm_size_hints_set_max_size(&hints, geometry->width, geometry->height);
-            free(geometry);
+            // Sometimes `xcb_get_geometry` return old results if it is called
+            // immediately after a `QWindow::resize()`. This causes a lot of
+            // trouble while showing a plugin window which is not resizable by
+            // user. Since I don't retrieve window size from non-native code
+            // by calling `xcb_get_geometry`, I'll just retrieve window size
+            // from Qt instead.
+            // (For those who're wondering, yes, I've tried calling `xcb_flush`
+            // here, but the window size was still inconsistent.)
+            auto geometry = window.size()
+#if !__APPLE__
+            * window.devicePixelRatio()
+#endif
+            ;
+            xcb_icccm_size_hints_set_min_size(&hints, geometry.width(), geometry.height());
+            xcb_icccm_size_hints_set_max_size(&hints, geometry.width(), geometry.height());
             xcb_icccm_set_wm_size_hints(connection, windowHandle, XCB_ATOM_WM_NORMAL_HINTS, &hints);
         }
     }
