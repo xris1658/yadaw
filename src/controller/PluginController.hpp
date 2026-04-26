@@ -44,15 +44,6 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path);
 
 void savePluginScanResult(const PluginScanResult& result);
 
-std::optional<
-    std::pair<
-        YADAW::Controller::LibraryPluginMap::iterator,
-        PluginAndProcess
-    >
-> createPlugin(
-    const QString& path, YADAW::DAO::PluginFormat format,
-    const std::vector<char>& uid);
-
 using FillPluginContextCallback = bool(PluginContext& context);
 
 struct CLAPHostContext
