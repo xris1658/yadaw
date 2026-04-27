@@ -97,12 +97,14 @@ T.ComboBox {
         width: root.width
         height: enabled? root.implicitHeight: 0
         enabled: root.enabledRole?
-            (Array.isArray(root.model)?
-                 modelData[root.enabledRole]:
-                 model[root.enabledRole])
+            (Array.isArray(root.model)
+                || (root.model[0] != null)?
+                modelData[root.enabledRole]:
+                model[root.enabledRole])
             : true
         text: root.textRole?
-            (Array.isArray(root.model)?
+            (Array.isArray(root.model)      // Is the model is an array...
+                || (root.model[0] != null)? // or can we traverse the model as an array?
                 modelData[root.textRole]:
                 model[root.textRole])
             : modelData
