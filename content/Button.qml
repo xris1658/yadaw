@@ -37,7 +37,7 @@ T.Button {
         anchors.rightMargin: root.rightInset
         border.color: root.enabled? Colors.controlBorder:
             Colors.disabledControlBorder
-        border.width: root.activeFocus? root.maxBorderWidth: 1
+        border.width: root.flat? 0: root.activeFocus? root.maxBorderWidth: 1
         color: (!root.enabled)?
             Colors.background:
             root.checked?
@@ -50,7 +50,7 @@ T.Button {
                     Colors.pressedControlBackground:
                     root.hovered?
                         Colors.mouseOverControlBackground:
-                        Colors.controlBackground
+                        root.flat? "transparent": Colors.controlBackground
     }
 
     contentItem: Label {
