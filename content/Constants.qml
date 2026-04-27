@@ -46,38 +46,37 @@ QtObject {
     readonly property string duplicateTextWithMnemonic: qsTr("&Duplicate")
     readonly property string renameText:                qsTr("Rename")
     readonly property string renameTextWithMnemonic:    qsTr("Rena&me")
-    readonly property ChannelConfig channelConfig: ChannelConfig {}
 
-    readonly property ListModel channelConfigProperties: ListModel {
-        ListElement {
-            type: ChannelConfig.Mono
-            name: qsTr("Mono")
+    readonly property var channelConfigProperties: [
+        {
+            "type": ChannelConfig.Mono,
+            "name": qsTr("Mono")
+        },
+        {
+            "type": ChannelConfig.Stereo,
+            "name": qsTr("Stereo")
+        },
+        {
+            "type": ChannelConfig.LRC,
+            "name": qsTr("LRC")
+        },
+        {
+            "type": ChannelConfig.Quad,
+            "name": qsTr("Quad")
+        },
+        {
+            "type": ChannelConfig.C51,
+            "name": qsTr("5.1")
+        },
+        {
+            "type": ChannelConfig.C61,
+            "name": qsTr("6.1")
+        },
+        {
+            "type": ChannelConfig.C71,
+            "name": qsTr("7.1")
         }
-        ListElement {
-            type: ChannelConfig.Stereo
-            name: qsTr("Stereo")
-        }
-        ListElement {
-            type: ChannelConfig.LRC
-            name: qsTr("LRC")
-        }
-        ListElement {
-            type: ChannelConfig.Quad
-            name: qsTr("Quad")
-        }
-        ListElement {
-            type: ChannelConfig.C51
-            name: qsTr("5.1")
-        }
-        ListElement {
-            type: ChannelConfig.C61
-            name: qsTr("6.1")
-        }
-        ListElement {
-            type: ChannelConfig.C71
-            name: qsTr("7.1")
-        }
-    }
+    ]
 
     readonly property ListModel dynamicKeyName: ListModel {
         ListElement {
