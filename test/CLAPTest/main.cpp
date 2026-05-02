@@ -142,7 +142,7 @@ void testPlugin(QWindow& pluginWindow)
                         (rect.height() - pluginWindow.height()) / 2
                     );
                 }
-                YADAW::Native::setWindowResizable(pluginWindow, gui->resizableByUser());
+                YADAW::Native::setWindowResizableByUser(pluginWindow, gui->resizableByUser());
             }
             std::vector<std::uint32_t> inputCounts;
             auto inputGroupCount = plugin.audioInputGroupCount();
