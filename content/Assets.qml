@@ -419,33 +419,33 @@ Rectangle {
                     id: tracksLeftColumn
                     width: leftColumn.width
                     height: contentHeight
-                    model: ListModel {
-                        ListElement {
-                            name: qsTr("All Tracks")
-                            type: IMixerChannelListModel.ChannelTypeAudio
+                    model: [
+                        {
+                            "name": qsTr("All Tracks"),
+                            "type": IMixerChannelListModel.ChannelTypeAudio,
+                        },
+                        {
+                            "name": qsTr("Audio Tracks"),
+                            "type": IMixerChannelListModel.ChannelTypeAudio,
+                        },
+                        {
+                            "name": qsTr("Instrument Tracks"),
+                            "type": IMixerChannelListModel.ChannelTypeInstrument,
+                        },
+                        {
+                            "name": qsTr("Audio Effect Tracks"),
+                            "type": IMixerChannelListModel.ChannelTypeAudioFX,
+                        },
+                        {
+                            "name": qsTr("Audio Group Tracks"),
+                            "type": IMixerChannelListModel.ChannelTypeBus,
                         }
-                        ListElement {
-                            name: qsTr("Audio Tracks")
-                            type: IMixerChannelListModel.ChannelTypeAudio
-                        }
-                        ListElement {
-                            name: qsTr("Instrument Tracks")
-                            type: IMixerChannelListModel.ChannelTypeInstrument
-                        }
-                        ListElement {
-                            name: qsTr("Audio Effect Tracks")
-                            type: IMixerChannelListModel.ChannelTypeAudioFX
-                        }
-                        ListElement {
-                            name: qsTr("Audio Group Tracks")
-                            type: IMixerChannelListModel.ChannelTypeBus
-                        }
-                    }
+                    ]
                     delegate: ItemDelegate {
                         id: trackItemDelegate
                         width: parent.width
                         height: implicitHeight
-                        text: name
+                        text: modelData.name
                         leftPadding: 2
                         rightPadding: 2
                         topPadding: 2
