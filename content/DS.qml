@@ -254,6 +254,7 @@ MainWindow {
         EventReceiver.mainWindow = mainWindow;
         EventReceiver.setQtVersion(6, 5, 1);
         mainWindowReady();
+        Global.enableMenuPopup = false;
     }
 
     pluginListModel: IPluginListModel {
