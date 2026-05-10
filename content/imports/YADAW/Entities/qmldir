@@ -2,4 +2,5 @@ module YADAW.Entities
 
 AudioBackendSupport 1.0 AudioBackendSupport.qml
 ChannelConfig 1.0 ChannelConfig.qml
+IAudioIOPosition 1.0 IAudioIOPosition.qml
 PluginFormatSupport 1.0 PluginFormatSupport.qml
