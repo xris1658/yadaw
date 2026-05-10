@@ -1,6 +1,8 @@
 module YADAW.Models
 
 FilterRoleModel 1.0 FilterRoleModel.qml
+IAudioDeviceIOGroupListModel 1.0 IAudioDeviceIOGroupListModel.qml
+IAudioDeviceListModel 1.0 IAudioDeviceListModel.qml
 IMixerChannelListModel 1.0 IMixerChannelListModel.qml
 IPluginListModel 1.0 IPluginListModel.qml
 INativePopupEventFilterModel 1.0 INativePopupEventFilterModel.qml
@@ -8,3 +10,4 @@ ISortFilterListModel 1.0 ISortFilterListModel.qml
 MessageDialogButtonBoxModel 1.0 MessageDialogButtonBoxModel.qml
 SortFilterProxyListModel 1.0 SortFilterProxyListModel.qml
 SortOrderModel 1.0 SortOrderModel.qml
+TreeModelToListModel 1.0 TreeModelToListModel.qml

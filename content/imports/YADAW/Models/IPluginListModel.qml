@@ -1,6 +1,6 @@
 import QtQml.Models
 
-ListModel {
+ISortFilterListModel {
     enum Role {
         Id,
         Path,
