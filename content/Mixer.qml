@@ -42,7 +42,7 @@ Rectangle {
                 id: ioButton
                 checkable: true
                 checked: true
-                border.width: 0
+                flat: true
                 width: 16
                 height: 16
                 IOIcon {
@@ -55,7 +55,7 @@ Rectangle {
                 id: insertButton
                 checkable: true
                 checked: true
-                border.width: 0
+                flat: true
                 width: 16
                 height: 16
                 enabled: showSend | showFader
@@ -83,7 +83,7 @@ Rectangle {
                 id: faderButton
                 checkable: true
                 checked: true
-                border.width: 0
+                flat: true
                 width: 16
                 height: 16
                 enabled: showInsert | showSend
@@ -98,7 +98,7 @@ Rectangle {
                 checkable: true
                 enabled: inputModel.hasMute || outputModel.hasMute || channelsModel.hasMute
                 checked: enabled
-                border.width: 0
+                flat: true
                 width: 16
                 height: 16
                 text: "M"
@@ -117,7 +117,7 @@ Rectangle {
             Button {
                 id: showInputBusButton
                 checkable: true
-                border.width: 0
+                flat: true
                 width: 16
                 height: 16
                 ShowLeftPaneIcon {
@@ -129,7 +129,7 @@ Rectangle {
             Button {
                 id: showOutputBusButton
                 checkable: true
-                border.width: 0
+                flat: true
                 width: 16
                 height: 16
                 ShowLeftPaneIcon {

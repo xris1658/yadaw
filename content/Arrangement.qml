@@ -306,7 +306,7 @@ SplitView {
                     Button {
                         anchors.fill: parent
                         text: "\u25bc"
-                        border.width: 0
+                        flat: true
                         Menu {
                             id: timelineOptions
                             x: parent.width - width
@@ -371,7 +371,7 @@ SplitView {
                     Button {
                         anchors.fill: parent
                         text: "\u25bc"
-                        border.width: 0
+                        flat: true
                         Menu {
                             id: contentAreaZoomOptions
                             x: parent.width - width
