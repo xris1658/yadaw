@@ -67,7 +67,7 @@ Button {
         anchors.leftMargin: root.maxBorderWidth
         Button {
             id: sendFromButton
-            border.width: 0
+            flat: true
             topPadding: 1
             bottomPadding: 1
             contentItem: Label {
@@ -77,7 +77,7 @@ Button {
         }
         Button {
             id: sendFaderButton
-            border.width: 0
+            flat: true
             topPadding: 1
             bottomPadding: 1
             width: (root.width - root.maxBorderWidth * 2 - sendFromButton.width - sendPolarityInverterButton.width) * 0.6
@@ -90,7 +90,7 @@ Button {
         }
         Button {
             id: sendPanningButton
-            border.width: 0
+            flat: true
             topPadding: 1
             bottomPadding: 1
             width: root.width - root.maxBorderWidth * 2 - sendFromButton.width - sendFaderButton.width - sendPolarityInverterButton.width
@@ -103,7 +103,7 @@ Button {
         }
         Button {
             id: sendPolarityInverterButton
-            border.width: 0
+            flat: true
             checkable: true
             topPadding: 1
             bottomPadding: 1

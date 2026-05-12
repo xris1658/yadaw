@@ -28,7 +28,7 @@ GridLayout {
         Layout.preferredWidth: vbarPlaceholder.width
         Layout.preferredHeight: timelinePlaceholder.height
         text: "\u25bc"
-        border.width: 0
+        flat: true
     }
     SplitView {
         id: pianoKeysPlaceholder
@@ -156,7 +156,7 @@ GridLayout {
         Layout.fillWidth: false
         Layout.preferredWidth: vbarPlaceholder.width
         Layout.preferredHeight: hbar.height
-        border.width: 0
+        flat: true
         text: "\u25bc"
     }
 }
