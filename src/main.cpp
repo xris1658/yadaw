@@ -17,11 +17,9 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QGuiApplication>
-#include <QLibraryInfo>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
 #include <QTranslator>
-#include <QVersionNumber>
 
 int main(int argc, char *argv[])
 {
@@ -183,7 +181,6 @@ int main(int argc, char *argv[])
             messageDialog->setTitle(YADAW::Base::ProductName);
             messageDialog->setModality(Qt::WindowModality::ApplicationModal);
             messageDialog->setVisible(true);
-            qDebug("focusMessageDialogButton");
             YADAW::UI::focusMessageDialogButton(0);
             messageDialog->showNormal();
             YADAW::UI::getMessageDialogResult();
