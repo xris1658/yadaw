@@ -62,6 +62,24 @@ T.Menu {
             }
         }
     }
+    function openAt(adjacentParentRect: rect, orientation: int) {
+        let globalPoint = root.parent.mapToGlobal(adjacentParentRect.x, adjacentParentRect.y);
+        nativePopup.locate(Qt.rect(globalPoint.x, globalPoint.y, adjacentParentRect.width, adjacentParentRect.height), orientation);
+        nativePopup.showWithoutActivating();
+        nativePopup.width = root.implicitWidth;
+        nativePopup.height = Math.min(
+            nativePopup.screen.desktopAvailableHeight,
+            root.implicitHeight
+        );
+        parent = nativePopup.contentItem;
+        x = 0;
+        y = 0;
+        let quickMenuBarEventFilterModel = Global.nativePopupEventFilterModel;
+        if(quickMenuBarEventFilterModel && !opened) {
+            quickMenuBarEventFilterModel.append(nativePopup, true);
+            open();
+        }
+    }
     Component.onCompleted: {
         for(let i = 0; i < root.count; ++i) {
             let item = root.itemAt(i);
