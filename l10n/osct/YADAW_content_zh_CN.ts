@@ -951,16 +951,6 @@ Proceed?</source>
         <source>Appearance</source>
         <translation>外观</translation>
     </message>
-    <message>
-        <location filename="../../content/GeneralSettings.qml" line="53"/>
-        <source>System text rendering</source>
-        <translation>系统文字渲染</translation>
-    </message>
-    <message>
-        <location filename="../../content/GeneralSettings.qml" line="73"/>
-        <source>Enable while debugging</source>
-        <translation>调试时也启用</translation>
-    </message>
 </context>
 <context>
     <name>Global</name>

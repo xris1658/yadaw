@@ -5,8 +5,6 @@ Item {
     id: root
     width: firstColumnWidth + secondColumnWidth + grid.columnSpacing * 3
 
-    property alias systemFontRendering: systemFontRenderingSwitch.checked
-    property alias systemFontRenderingWhileDebugging: enableSystemRenderingWhileDebuggingCheckBox.checked
     property alias translationModel: translationComboBox.model
     property alias currentTranslationIndex: translationComboBox.currentIndex
     property int firstColumnWidth
@@ -48,29 +46,15 @@ Item {
             width: secondColumnWidth
             height: 5
         }
+        Item {
+            width: firstColumnWidth
+            height: swBackendIndicator.height
+        }
         Label {
-            width: firstColumnWidth
-            text: qsTr("System text rendering")
-            horizontalAlignment: Label.AlignRight
-        }
-        Item {
+            id: swBackendIndicator
             width: secondColumnWidth
-            height: systemFontRenderingSwitch.height
-            Switch {
-                id: systemFontRenderingSwitch
-                checked: false
-            }
-        }
-        Item {
-            visible: systemFontRenderingSwitch.checked
-            width: firstColumnWidth
-            height: enableSystemRenderingWhileDebuggingCheckBox.height
-        }
-        CheckBox {
-            visible: systemFontRenderingSwitch.checked
-            width: secondColumnWidth
-            id: enableSystemRenderingWhileDebuggingCheckBox
-            text: qsTr("Enable while debugging")
+            wrapMode: Label.WordWrap
+            text: "YADAW uses the software backend, which uses system text rendering by default."
         }
     }
 }

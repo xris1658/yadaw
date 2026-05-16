@@ -65,9 +65,9 @@ int main(int argc, char *argv[])
         },
         Qt::DirectConnection
     );
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::Software);
-    YADAW::Controller::initializeApplicationConfig();
-    auto config = YADAW::Controller::loadConfig();
+    // When software rendering is used, font rendering is forced to use system
+    // font rendering:
+    // https://doc.qt.io/qt-6/qtquick-visualcanvas-adaptations-software.html#rendering-text
     // Qt on Windows uses DirectWrite as the default font engine since
     // Qt 6.8, while older versions of Qt uses GDI. DirectWrite supports
     // some advanced font features like variable fonts, but YADAW does not
@@ -78,8 +78,6 @@ int main(int argc, char *argv[])
     // DirectWrite (since text in other applications that use DirectWrite
     // like Settings will get blurry if DirectWrite support is enabled),
     // making the text looks unsmooth and not antialiased.
-    // TODO: Might have to change this option and let user select font
-    //       backends if needed?
     // If you are looking for some temporary solution since you encountered
     // this issue, you can either append
     // -platform windows:fontengine=gdi
@@ -89,14 +87,11 @@ int main(int argc, char *argv[])
     // WindowsArguments = fontengine=gdi
     //
     // to the application directory.
-    auto systemFontRendering = config["general"]["system-font-rendering"].as<bool>();
-    if(systemFontRendering)
-    {
-        if((!YADAW::Native::isDebuggerPresent()) || config["general"]["system-font-rendering-while-debugging"].as<bool>())
-        {
-            QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
-        }
-    }
+    // TODO: Might have to change this option and let user select font backends
+    //       if needed?
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::Software);
+    YADAW::Controller::initializeApplicationConfig();
+    auto config = YADAW::Controller::loadConfig();
     QDir dir(YADAW::UI::defaultFontDir());
     if(dir.exists())
     {

@@ -15,8 +15,6 @@ Window {
         property int secondColumnWidth: stackLayout.width - firstColumnWidth - stackLayout.anchors.rightMargin
     }
 
-    property alias systemFontRendering: generalSettings.systemFontRendering
-    property alias systemFontRenderingWhileDebugging: generalSettings.systemFontRenderingWhileDebugging
     property alias translationModel: generalSettings.translationModel
     property alias currentTranslationIndex: generalSettings.currentTranslationIndex
 
