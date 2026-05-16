@@ -38,7 +38,6 @@ T.MenuBarItem {
         color: root.enabled? Colors.content: Colors.disabledContent
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        elide: Text.ElideRight
     }
     QtObject {
         id: impl
