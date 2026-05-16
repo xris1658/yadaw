@@ -382,10 +382,6 @@ void EventHandler::onOpenMainWindow()
     auto& appPluginListModel = YADAW::Controller::appPluginListModel();
     YADAW::UI::mainWindow->setProperty("pluginListModel",
         QVariant::fromValue<QObject*>(&appPluginListModel));
-    YADAW::UI::mainWindow->setProperty("systemFontRendering",
-        QVariant::fromValue<bool>(YADAW::Controller::GeneralSettingsController::systemFontRendering()));
-    YADAW::UI::mainWindow->setProperty("systemFontRenderingWhileDebugging",
-        QVariant::fromValue<bool>(YADAW::Controller::GeneralSettingsController::systemFontRenderingWhileDebugging()));
     YADAW::UI::mainWindow->setProperty("translationModel",
         QVariant::fromValue<QObject*>(&YADAW::Controller::appLocalizationListModel()));
     YADAW::UI::mainWindow->setProperty("currentTranslationIndex",
@@ -589,10 +585,6 @@ void EventHandler::onOpenMainWindow()
     QObject::connect(YADAW::Event::eventSender, SIGNAL(audioGraphOutputDeviceIndexChanged(int)),
         this, SLOT(onAudioGraphOutputDeviceIndexChanged(int)));
 #endif
-    QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRendering(bool)),
-        this, SLOT(onSetSystemFontRendering(bool)));
-    QObject::connect(YADAW::Event::eventSender, SIGNAL(setSystemFontRenderingWhileDebugging(bool)),
-        this, SLOT(onSetSystemFontRenderingWhileDebugging(bool)));
     QObject::connect(YADAW::Event::eventSender, SIGNAL(setTranslationIndex(int)),
         this, SLOT(onSetTranslationIndex(int)));
 #if __linux__
@@ -747,16 +739,6 @@ void EventHandler::onStartPluginScan()
         pluginScanComplete();
         YADAW::Controller::appPluginListModel().update();
     }).detach();
-}
-
-void EventHandler::onSetSystemFontRendering(bool enabled)
-{
-    YADAW::Controller::GeneralSettingsController::setSystemFontRendering(enabled);
-}
-
-void EventHandler::onSetSystemFontRenderingWhileDebugging(bool enabled)
-{
-    YADAW::Controller::GeneralSettingsController::setSystemFontRenderingWhileDebugging(enabled);
 }
 
 void EventHandler::onSetTranslationIndex(int index)

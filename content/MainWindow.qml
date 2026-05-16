@@ -20,8 +20,6 @@ ApplicationWindow {
 
     property alias translationModel: preferencesWindow.translationModel
     property alias currentTranslationIndex: preferencesWindow.currentTranslationIndex
-    property alias systemFontRendering: preferencesWindow.systemFontRendering
-    property alias systemFontRenderingWhileDebugging: preferencesWindow.systemFontRenderingWhileDebugging
     property alias currentAudioBackend: preferencesWindow.currentAudioBackend
     property alias audioInputBusConfigurationModel: preferencesWindow.audioInputBusConfigurationModel
     property alias audioOutputBusConfigurationModel: preferencesWindow.audioOutputBusConfigurationModel
@@ -867,20 +865,6 @@ ApplicationWindow {
         id: preferencesWindow
         onStartPluginScan: {
             EventSender.startPluginScan();
-        }
-        onSystemFontRenderingChanged: {
-            if(opened) {
-                EventSender.setSystemFontRendering(systemFontRendering);
-                restartMessageDialog.focusButton(0);
-                restartMessageDialog.showNormal();
-            }
-        }
-        onSystemFontRenderingWhileDebuggingChanged: {
-            if(opened) {
-                EventSender.setSystemFontRenderingWhileDebugging(systemFontRenderingWhileDebugging);
-                restartMessageDialog.focusButton(0);
-                restartMessageDialog.showNormal();
-            }
         }
     }
     TapTempoWindow {
