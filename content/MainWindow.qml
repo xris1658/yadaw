@@ -771,11 +771,16 @@ ApplicationWindow {
             SplitView.preferredWidth: assets.preferredWidth
             orientation: Qt.Vertical
             visible: showAssetsButton.checked
+            onResizingChanged: {
+                if(!resizing) {
+                    assetsPlaceholder.ratio = assetsPlaceholder.height / height;
+                }
+            }
             Item {
                 id: assetsPlaceholder
                 width: parent.width
-                SplitView.preferredHeight: Math.max(SplitView.minimumHeight, contents.height * 0.7)
-                SplitView.preferredHeight: Math.floor(Math.max(SplitView.minimumHeight, contents.height * 0.7))
+                property double ratio: 0.7
+                SplitView.preferredHeight: Math.floor(Math.max(SplitView.minimumHeight, contents.height * ratio))
                 Assets {
                     id: assets
                     anchors.fill: parent
