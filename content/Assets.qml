@@ -209,17 +209,6 @@ Rectangle {
                         topPadding: 2
                         bottomPadding: 2
                         highlighted: rightLayout.currentIndex === 0 && directoryList.currentIndex === index
-                        background: Rectangle {
-                            width: control.width
-                            height: control.height
-                            anchors.topMargin: root.topInset
-                            anchors.bottomMargin: root.bottomInset
-                            anchors.leftMargin: root.leftInset
-                            anchors.rightMargin: root.rightInset
-                            color: (!control.enabled)? Colors.background:
-                                control.highlighted? Colors.highlightControlBackground:
-                                control.hovered? Colors.mouseOverControlBackground: Colors.background
-                        }
                         MouseArea {
                             id: mouseArea
                             anchors.fill: parent
@@ -287,17 +276,6 @@ Rectangle {
                         width: parent.width
                         text: qsTr("Add...")
                         rightPadding: 2
-                        background: Rectangle {
-                            width: addLocation.width
-                            height: addLocation.height
-                            anchors.topMargin: root.topInset
-                            anchors.bottomMargin: root.bottomInset
-                            anchors.leftMargin: root.leftInset
-                            anchors.rightMargin: root.rightInset
-                            color: (!addLocation.enabled)? Colors.background:
-                                addLocation.highlighted? Colors.highlightControlBackground:
-                                addLocation.hovered? Colors.mouseOverControlBackground: Colors.background
-                        }
                         FolderDialog {
                             id: folderDialog
                             onAccepted: {
@@ -365,17 +343,6 @@ Rectangle {
                         topPadding: 2
                         bottomPadding: 2
                         highlighted: rightLayout.currentIndex === 1 && categoriesLeftColumn.currentIndex === index
-                        background: Rectangle {
-                            width: pluginItemDelegate.width
-                            height: pluginItemDelegate.height
-                            anchors.topMargin: root.topInset
-                            anchors.bottomMargin: root.bottomInset
-                            anchors.leftMargin: root.leftInset
-                            anchors.rightMargin: root.rightInset
-                            color: (!pluginItemDelegate.enabled)? Colors.background:
-                                pluginItemDelegate.highlighted? Colors.highlightControlBackground:
-                                pluginItemDelegate.hovered? Colors.mouseOverControlBackground: Colors.background
-                        }
                         // Only the icon is smoothed; the text is not affected.
                         Item {
                             id: enableLayerForIcons
