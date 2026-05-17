@@ -384,6 +384,8 @@ Window {
     Shortcut {
         context: Qt.WindowShortcut
         sequence: "Esc"
+        enabled: (!(audioIOSelectorWindow && audioIOSelectorWindow.visible))
+            && (!(pluginSelectorWindow && pluginSelectorWindow.visible))
         onActivated: {
             cancelButton.clicked();
         }
