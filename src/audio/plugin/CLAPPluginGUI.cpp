@@ -33,7 +33,7 @@ bool CLAPPluginGUI::attachToWindow(QWindow* window)
         if(auto resizeResult = gui_->get_size(plugin_, &width, &height))
         {
             window->resize(
-#if __APPLE
+#if __APPLE__
                 width, height
 #else
                 width / devicePixelRatio, height / devicePixelRatio
