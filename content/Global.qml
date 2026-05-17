@@ -12,7 +12,8 @@ QtObject {
     property string fileBrowserName: qsTr("File Browser")
     property INativePopupEventFilterModel nativePopupEventFilterModel: null
     property INativePopupEventFilterModel quickMenuBarEventFilterModel: null
-    property bool enableMenuPopup: qtMinorVersion < 8 || SystemInformation.productType != "macos"
+    property bool enableMenuPopup: true
+    property bool enableMenuBarMenuPopup: SystemInformation.productType != "macos"
     function messageDialog(message: string, title: string, icon: int, modal: bool) {
         let component = Qt.createComponent("./MessageDialog.qml");
         if(component.status === Component.Ready) {

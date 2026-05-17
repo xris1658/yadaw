@@ -130,7 +130,7 @@ T.MenuItem {
     }
     Connections {
         target: subMenu
-        enabled: Global.enableMenuPopup
+        enabled: menu && menu.isMenuBarMenu? Global.enableMenuBarMenuPopup: Global.enableMenuPopup
         property bool opened: false
         function onOpened() {
             subMenu.isSubMenu = true;
