@@ -46,47 +46,51 @@ T.MenuBarItem {
     Connections {
         id: connectToMenu
         target: menu
-        enabled: Global.enableMenuPopup
+        enabled: true
         property bool opened: false
         function onOpened() {
             menu.isMenuBarMenu = true;
-            let nativePopup = menu.nativePopup;
-            if(nativePopup) {
-                let globalPoint = root.mapToGlobal(0, 0);
-                nativePopup.locate(
-                    Qt.rect(
-                        globalPoint.x, globalPoint.y, root.width, root.height
-                    ),
-                    Qt.Vertical
-                );
-                nativePopup.showWithoutActivating();
-                nativePopup.width = menu.implicitWidth;
-                nativePopup.height = Math.min(
-                    nativePopup.screen.desktopAvailableHeight,
-                    menu.implicitHeight
-                );
-                menu.parent = nativePopup.contentItem;
-                menu.x = 0;
-                menu.y = 0;
-                let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
-                if(quickMenuBarEventFilterModel && !opened) {
-                    quickMenuBarEventFilterModel.append(nativePopup, true);
-                    opened = true;
+            if(Global.enableMenuBarMenuPopup) {
+                let nativePopup = menu.nativePopup;
+                if(nativePopup) {
+                    let globalPoint = root.mapToGlobal(0, 0);
+                    nativePopup.locate(
+                        Qt.rect(
+                            globalPoint.x, globalPoint.y, root.width, root.height
+                        ),
+                        Qt.Vertical
+                    );
+                    nativePopup.showWithoutActivating();
+                    nativePopup.width = menu.implicitWidth;
+                    nativePopup.height = Math.min(
+                        nativePopup.screen.desktopAvailableHeight,
+                        menu.implicitHeight
+                    );
+                    menu.parent = nativePopup.contentItem;
+                    menu.x = 0;
+                    menu.y = 0;
+                    let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
+                    if(quickMenuBarEventFilterModel && !opened) {
+                        quickMenuBarEventFilterModel.append(nativePopup, true);
+                        opened = true;
+                    }
                 }
             }
         }
         function onClosed() {
-            let nativePopup = menu.nativePopup;
-            if(nativePopup) {
-                menu.parent = root;
-                let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
-                if(quickMenuBarEventFilterModel) {
-                    quickMenuBarEventFilterModel.remove(nativePopup);
+            if(Global.enableMenuBarMenuPopup) {
+                let nativePopup = menu.nativePopup;
+                if(nativePopup) {
+                    menu.parent = root;
+                    let quickMenuBarEventFilterModel = Global.quickMenuBarEventFilterModel;
+                    if(quickMenuBarEventFilterModel) {
+                        quickMenuBarEventFilterModel.remove(nativePopup);
+                    }
                 }
+                impl.menuOpenedWithClick = false;
+                opened = false;
             }
             menu.isMenuBarMenu = false;
-            impl.menuOpenedWithClick = false;
-            opened = false;
         }
     }
     Connections {
