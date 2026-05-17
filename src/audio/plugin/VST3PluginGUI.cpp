@@ -40,11 +40,11 @@ bool VST3PluginGUI::attachToWindow(QWindow* window)
     window_ = window;
 #ifndef __APPLE__
     auto devicePixelRatio = window->devicePixelRatio();
-#endif
     if(plugViewContentScaleSupport_)
     {
         plugViewContentScaleSupport_->setContentScaleFactor(devicePixelRatio);
     }
+#endif
     auto ret = plugView_->attached(
         reinterpret_cast<void*>(window->winId()),
         YADAW::Native::ViewType
