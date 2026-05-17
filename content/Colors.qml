@@ -21,7 +21,8 @@ QtObject {
     readonly property color link: "#0080FF"
     readonly property color visitedLink: "#C080C0"
     readonly property color menuBarBackground: "#000000"
-    readonly property color highlightMenuBarBackground: "#333333"
+    readonly property color highlightMenuBarBackground: "#255096"
+    readonly property color highlightMenuItemBackground: "#255096"
     readonly property color scrollBarBackground: controlBackground
     readonly property color scrollBarHandle: "#505050"
     readonly property color scrollBarHandleHighlight: Colors.highlightControlBackground
