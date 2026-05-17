@@ -775,6 +775,7 @@ ApplicationWindow {
                 id: assetsPlaceholder
                 width: parent.width
                 SplitView.preferredHeight: Math.max(SplitView.minimumHeight, contents.height * 0.7)
+                SplitView.preferredHeight: Math.floor(Math.max(SplitView.minimumHeight, contents.height * 0.7))
                 Assets {
                     id: assets
                     anchors.fill: parent
