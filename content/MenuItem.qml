@@ -21,7 +21,7 @@ T.MenuItem {
     implicitHeight: contentItem.height + topPadding + bottomPadding
 
     background: Rectangle {
-        color: (root.enabled && root.highlighted)? Colors.mouseOverControlBackground: Colors.controlBackground
+        color: (root.enabled && root.highlighted)? Colors.highlightMenuItemBackground: Colors.controlBackground
     }
     contentItem: Item {
         implicitWidth: contentText.contentWidth + contentShortcut.contentWidth + root.minimumSpaceBetweenTextAndShortcut

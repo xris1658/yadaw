@@ -111,11 +111,6 @@ T.ComboBox {
         clip: true
         visible: ((!enabled) && hideDisabledItem)? false: true
         highlighted: root.highlightedIndex === index
-        background: Rectangle {
-            color: (menuItem.enabled && menuItem.highlighted)?
-                Colors.mouseOverControlBackground:
-                Colors.controlBackground
-        }
         contentItem: Label {
             id: contentText
             leftPadding: 5
