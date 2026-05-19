@@ -138,11 +138,7 @@ bool isWindowResizableByUser(QWindow& window)
             // from Qt instead.
             // (For those who're wondering, yes, I've tried calling `xcb_flush`
             // here, but the window size was still inconsistent.)
-            auto geometry = window.size()
-#if !__APPLE__
-            * window.devicePixelRatio()
-#endif
-            ;
+            auto geometry = window.size() * window.devicePixelRatio();
             xcb_icccm_size_hints_set_min_size(&hints, geometry.width(), geometry.height());
             xcb_icccm_size_hints_set_max_size(&hints, geometry.width(), geometry.height());
             xcb_icccm_set_wm_size_hints(connection, windowHandle, XCB_ATOM_WM_NORMAL_HINTS, &hints);
