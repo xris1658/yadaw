@@ -238,11 +238,6 @@ SplitView {
                     id: connectToMenu
                     target: trackHeaderBlankOptions
                     enabled: Global.enableMenuPopup
-                    property bool opened: false
-                    property bool menuOpenedWithClick: false
-                    function onOpened() {
-                        opened = true;
-                    }
                     function onClosed() {
                         let menu = target;
                         let nativePopup = menu.nativePopup;
@@ -253,8 +248,6 @@ SplitView {
                                 quickMenuBarEventFilterModel.remove(nativePopup);
                             }
                         }
-                        opened = false;
-                        menu.isMenuBarMenu = false;
                     }
                 }
                 onClicked: {

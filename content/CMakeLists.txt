@@ -1,7 +1,5 @@
 qt_add_library(content STATIC)
 
-# If Qt 6.5.3 is used, then the application crashes while a Singleton object is
-# sending a signal. See https://bugreports.qt.io/browse/QTBUG-117852
 set_source_files_properties(Colors.qml
                             Constants.qml
                             EventReceiver.qml
@@ -201,8 +199,6 @@ qt_add_qml_module(content
                     images/Splashscreen.png
                     images/Main-icon.ico
                     images/qtlogo-64.png)
-
-
 
 if(APPLE)
     set(RESOURCE_PATH ${CMAKE_CURRENT_BINARY_DIR}/../YADAW.app/Contents/Resources)
