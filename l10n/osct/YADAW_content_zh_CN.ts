@@ -121,7 +121,7 @@
     <message>
         <location filename="../../content/AddTrackWindow.qml" line="328"/>
         <source>Co&amp;unt</source>
-        <translation>数量(&U)</translation>
+        <translation>数量(&amp;U)</translation>
     </message>
     <message>
         <location filename="../../content/AddTrackWindow.qml" line="207"/>
