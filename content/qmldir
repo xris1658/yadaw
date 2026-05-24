@@ -71,6 +71,7 @@ Mixer 1.0 Mixer.qml
 MixerChannel 1.0 MixerChannel.qml
 MixerInsertSlot 1.0 MixerInsertSlot.qml
 MnemonicFunctions 1.0 MnemonicFunctions.js
+MnemonicLabel 1.0 MnemonicLabel.qml
 NativePopup 1.0 NativePopup.qml
 OutputRouteList 1.0 OutputRouteList.qml
 PianoKeys 1.0 PianoKeys.qml

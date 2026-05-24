@@ -124,6 +124,7 @@ set(CONTENT_QML_FILES
     MixerInsertSlot.qml
     Mnemonic.qml
     MnemonicFunctions.js
+    MnemonicLabel.qml
     NativePopup.qml
     OutputRouteList.qml
     PianoKeys.qml

@@ -164,22 +164,24 @@ Window {
                         rowSpacing: gridContainer.rowSpacing
                         verticalItemAlignment: Grid.AlignVCenter
                         horizontalItemAlignment: Grid.AlignHCenter
-                        Label {
+                        MnemonicLabel {
                             width: gridContainer.firstColumnWidth
-                            text: qsTr("Name") + ":"
-                            horizontalAlignment: Label.AlignRight
+                            text: qsTr("&Name") + ":"
+                            label.horizontalAlignment: Label.AlignRight
+                            mnemonicTarget: nameField
                         }
                         TextField {
                             id: nameField
                             width: gridContainer.secondColumnWidth
                             placeholderText: trackTypeTabBar.itemAt(root.trackType).text
                         }
-                        Label {
+                        MnemonicLabel {
                             id: channelConfigLabel
                             width: gridContainer.firstColumnWidth
-                            text: qsTr("Channel Config") + ":"
-                            horizontalAlignment: Label.AlignRight
+                            text: qsTr("C&hannel Config") + ":"
+                            label.horizontalAlignment: Label.AlignRight
                             visible: true
+                            mnemonicTarget: channelConfigComboBox
                         }
                         ComboBox {
                             id: channelConfigComboBox
@@ -199,12 +201,13 @@ Window {
                                 );
                             }
                         }
-                        Label {
+                        MnemonicLabel {
                             id: instrumentText
                             width: gridContainer.firstColumnWidth
-                            text: qsTr("Instrument") + ":"
+                            text: qsTr("&Instrument") + ":"
                             visible: root.trackType === AddTrackWindow.TrackType.Instrument
-                            horizontalAlignment: Text.AlignRight
+                            label.horizontalAlignment: Text.AlignRight
+                            mnemonicTarget: instrumentComboBox
                         }
                         ComboBoxButton {
                             id: instrumentComboBox
@@ -224,15 +227,15 @@ Window {
                                 pluginSelectorWindow.showNormal();
                             }
                         }
-                        Label {
+                        MnemonicLabel {
                             id: audioEffectText
                             width: gridContainer.firstColumnWidth
-                            text: qsTr("Audio Effect") + ":"
+                            text: qsTr("Audio &Effect") + ":"
                             visible: root.trackType === AddTrackWindow.TrackType.AudioEffect
                             Component.onCompleted: {
                                 leftPadding = width - implicitWidth;
                             }
-                            horizontalAlignment: Text.AlignRight
+                            label.horizontalAlignment: Text.AlignRight
                         }
                         ComboBoxButton {
                             id: audioEffectComboBox
@@ -255,7 +258,7 @@ Window {
                         CheckBox {
                             id: midiInputCheckBox
                             width: gridContainer.firstColumnWidth
-                            text: qsTr("MIDI Input") + ":"
+                            text: qsTr("&MIDI Input") + ":" // FIXME: Make mnemonic keys work on `CheckBox`es
                             checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.Instrument
                             Component.onCompleted: {
@@ -272,7 +275,7 @@ Window {
                         CheckBox {
                             id: audioInputCheckBox
                             width: gridContainer.firstColumnWidth
-                            text: qsTr("Audio Input") + ":"
+                            text: qsTr("Audio &Input") + ":"
                             checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.Audio
                             Component.onCompleted: {
@@ -297,7 +300,7 @@ Window {
                         CheckBox {
                             id: audioOutputCheckBox
                             width: gridContainer.firstColumnWidth
-                            text: qsTr("Audio Output") + ":"
+                            text: qsTr("Audio &Output") + ":"
                             checked: true
                             visible: root.trackType === AddTrackWindow.TrackType.Audio
                                 || root.trackType === AddTrackWindow.TrackType.Instrument
@@ -315,10 +318,11 @@ Window {
                             // model: audioOutputModel
                             // textRole: "abcm_name"
                         }
-                        Label {
+                        MnemonicLabel {
                             width: gridContainer.firstColumnWidth
-                            text: qsTr("Count") + ":"
-                            horizontalAlignment: Label.AlignRight
+                            text: qsTr("Co&unt") + ":"
+                            label.horizontalAlignment: Label.AlignRight
+                            mnemonicTarget: countField
                         }
                         SpinBox {
                             id: countField
