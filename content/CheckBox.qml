@@ -5,6 +5,10 @@ import QtQuick.Templates as T
 T.CheckBox {
     id: root
 
+    property int mnemonicTextLook: Mnemonic.MnemonicEnabled
+    property string mnemonicRegex: Constants.mnemonicRegex
+    property string mnemonicRegexReplaceWith: Constants.mnemonicRegexReplaceWith
+
     implicitWidth: indicator.width + spacing + contentItem.contentWidth + leftPadding + rightPadding
     implicitHeight: contentItem.height + topPadding + bottomPadding
 
