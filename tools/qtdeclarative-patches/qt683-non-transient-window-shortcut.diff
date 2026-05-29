@@ -1,0 +1,41 @@
+diff --git a/src/quicktemplates/qquickshortcutcontext.cpp b/src/quicktemplates/qquickshortcutcontext.cpp
+index c7c09d5..1db4d89 100644
+--- a/src/quicktemplates/qquickshortcutcontext.cpp
++++ b/src/quicktemplates/qquickshortcutcontext.cpp
+@@ -49,6 +49,27 @@ static bool isBlockedByPopup(QQuickItem *item)
+     return false;
+ }
+ 
++// This function is pretty much the same as `QWindow::isActive()` except that
++// transient parent and child are not taken in account.
++static bool isWindowActive(QWindow* window)
++{
++    if(!window->handle())
++        return false;
++
++    QWindow *focus = QGuiApplication::focusWindow();
++
++    if (!focus)
++        return false;
++
++    if (focus == window)
++        return true;
++
++    if (QWindow *p = window->parent(QWindow::ExcludeTransients))
++        return p->isActive();
++    else
++        return window->isAncestorOf(focus, QWindow::ExcludeTransients);
++}
++
+ bool QQuickShortcutContext::matcher(QObject *obj, Qt::ShortcutContext context)
+ {
+     QQuickItem *item = nullptr;
+@@ -86,7 +107,7 @@ bool QQuickShortcutContext::matcher(QObject *obj, Qt::ShortcutContext context)
+             obj = renderWindow;
+         qCDebug(lcContextMatcher) << "obj" << obj << "item" << item << "focusWindow" << QGuiApplication::focusWindow()
+             << "!isBlockedByPopup(item)" << !isBlockedByPopup(item);
+-        return obj && qobject_cast<QWindow*>(obj)->isActive() && !isBlockedByPopup(item);
++        return obj && isWindowActive(qobject_cast<QWindow*>(obj)) && !isBlockedByPopup(item);
+     default:
+         return false;
+     }
