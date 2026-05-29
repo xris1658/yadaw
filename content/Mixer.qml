@@ -69,7 +69,7 @@ Rectangle {
                 id: sendButton
                 checkable: true
                 checked: false
-                border.width: 0
+                flat: true
                 width: 16
                 height: 16
                 enabled: showInsert | showFader
