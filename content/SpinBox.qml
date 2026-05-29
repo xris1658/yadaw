@@ -70,6 +70,7 @@ T.SpinBox {
             anchors.verticalCenter: parent.verticalCenter
             Button {
                 id: upButton
+                flat: true
                 width: height * 1.5
                 height: parent.height / 2
                 anchors.right: parent.right
@@ -90,7 +91,7 @@ T.SpinBox {
             }
             Button {
                 id: downButton
-                border.width: 0
+                flat: true
                 width: height * 1.5
                 height: parent.height / 2
                 anchors.right: parent.right
