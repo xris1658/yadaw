@@ -326,10 +326,27 @@ Rectangle {
                     }
                 }
             }
+            Connections {
+                id: connectToMenu
+                target: mixerChannelBlankAreaOptions
+                enabled: Global.enableMenuPopup
+                function onClosed() {
+                    let menu = target;
+                    let nativePopup = menu.nativePopup;
+                    if(nativePopup) {
+                        menu.parent = mixerChannelBlankArea;
+                        let quickMenuBarEventFilterModel = Global.nativePopupEventFilterModel;
+                        if(quickMenuBarEventFilterModel) {
+                            quickMenuBarEventFilterModel.remove(nativePopup);
+                        }
+                    }
+                }
+            }
             onClicked: {
-                mixerChannelBlankAreaOptions.x = mouseX;
-                mixerChannelBlankAreaOptions.y = mouseY;
-                mixerChannelBlankAreaOptions.open();
+                if(mixerChannelBlankAreaOptions.opened) {
+                    mixerChannelBlankAreaOptions.close();
+                }
+                mixerChannelBlankAreaOptions.openAt(Qt.rect(mouseX, mouseY, 0, 0), Qt.Vertical);
             }
         }
     }
