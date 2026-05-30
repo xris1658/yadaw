@@ -100,7 +100,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<double*>(interleavedBuffer)[j * buffer.channelCount + i];
+                            static_cast<double*>(interleavedBuffer)[j * buffer.channelCount + channelIndex];
                     }
                     break;
                 }
@@ -109,7 +109,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<YADAW::Util::DoubleRE*>(interleavedBuffer)[j * buffer.channelCount + i];
+                            static_cast<YADAW::Util::DoubleRE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex];
                     }
                     break;
                 }
@@ -118,7 +118,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<float*>(interleavedBuffer)[j * buffer.channelCount + i];
+                            static_cast<float*>(interleavedBuffer)[j * buffer.channelCount + channelIndex];
                     }
                     break;
                 }
@@ -127,7 +127,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<YADAW::Util::FloatRE*>(interleavedBuffer)[j * buffer.channelCount + i];
+                            static_cast<YADAW::Util::FloatRE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex];
                     }
                     break;
                 }
@@ -136,7 +136,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + i]
+                            static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             / static_cast<float>(1LL << 31);
                     }
                     break;
@@ -146,7 +146,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + i]
+                            static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             / static_cast<float>(1LL << 31);
                     }
                     break;
@@ -156,7 +156,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + i]
+                            static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             / static_cast<float>(1LL << 23);
                     }
                     break;
@@ -166,7 +166,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + i]
+                            static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             / static_cast<float>(1LL << 23);
                     }
                     break;
@@ -176,7 +176,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + i]
+                            static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             / static_cast<float>(1LL << 19);
                     }
                     break;
@@ -186,7 +186,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + i]
+                            static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             / static_cast<float>(1LL << 23);
                     }
                     break;
@@ -196,7 +196,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<std::int16_t*>(interleavedBuffer)[j * buffer.channelCount + i]
+                            static_cast<std::int16_t*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             / static_cast<float>(1LL << 15);
                     }
                     break;
@@ -206,7 +206,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<YADAW::Util::Int16RE*>(interleavedBuffer)[j * buffer.channelCount + i]
+                            static_cast<YADAW::Util::Int16RE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             / static_cast<float>(1LL << 15);
                     }
                     break;
@@ -216,7 +216,7 @@ void processInputs(
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
                         audioProcessData.outputs[0][i][j] =
-                            static_cast<std::int8_t*>(interleavedBuffer)[j * buffer.channelCount + i]
+                            static_cast<std::int8_t*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             / static_cast<float>(1LL << 7);
                     }
                     break;
@@ -390,7 +390,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<double*>(interleavedBuffer)[j * buffer.channelCount + i] =
+                        static_cast<double*>(interleavedBuffer)[j * buffer.channelCount + channelIndex] =
                             audioProcessData.inputs[0][i][j];
                     }
                     break;
@@ -399,7 +399,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<YADAW::Util::FloatRE*>(interleavedBuffer)[j * buffer.channelCount + i]
+                        static_cast<YADAW::Util::FloatRE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             = audioProcessData.inputs[0][i][j];
                     }
                     break;
@@ -408,7 +408,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<float*>(interleavedBuffer)[j * buffer.channelCount + i] =
+                        static_cast<float*>(interleavedBuffer)[j * buffer.channelCount + channelIndex] =
                             audioProcessData.inputs[0][i][j];
                     }
                     break;
@@ -417,7 +417,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<YADAW::Util::FloatRE*>(interleavedBuffer)[j * buffer.channelCount + i]
+                        static_cast<YADAW::Util::FloatRE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             = audioProcessData.inputs[0][i][j];
                     }
                     break;
@@ -426,7 +426,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + i] =
+                        static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + channelIndex] =
                             audioProcessData.inputs[0][i][j] * static_cast<float>(1LL << 31);
                     }
                     break;
@@ -435,7 +435,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + i]
+                        static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex]
                             = audioProcessData.inputs[0][i][j] * static_cast<float>(1LL << 31);
                     }
                     break;
@@ -444,7 +444,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + i] =
+                        static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + channelIndex] =
                             audioProcessData.inputs[0][i][j] * static_cast<float>(1LL << 23);
                     }
                     break;
@@ -453,7 +453,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + i] =
+                        static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex] =
                             audioProcessData.inputs[0][i][j] * static_cast<float>(1LL << 23);
                     }
                     break;
@@ -462,7 +462,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + i] =
+                        static_cast<std::int32_t*>(interleavedBuffer)[j * buffer.channelCount + channelIndex] =
                             audioProcessData.inputs[0][i][j] * static_cast<float>(1LL << 19);
                     }
                     break;
@@ -471,7 +471,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + i] =
+                        static_cast<YADAW::Util::Int32RE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex] =
                             audioProcessData.inputs[0][i][j] * static_cast<float>(1LL << 19);
                     }
                     break;
@@ -480,7 +480,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<std::int16_t*>(interleavedBuffer)[j * buffer.channelCount + i] =
+                        static_cast<std::int16_t*>(interleavedBuffer)[j * buffer.channelCount + channelIndex] =
                             audioProcessData.inputs[0][i][j] * static_cast<float>(1LL << 15);
                     }
                     break;
@@ -489,7 +489,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<YADAW::Util::Int16RE*>(interleavedBuffer)[j * buffer.channelCount + i] =
+                        static_cast<YADAW::Util::Int16RE*>(interleavedBuffer)[j * buffer.channelCount + channelIndex] =
                             audioProcessData.inputs[0][i][j] * static_cast<float>(1LL << 15);
                     }
                     break;
@@ -498,7 +498,7 @@ void processOutputs(
                 {
                     FOR_RANGE0(j, audioProcessData.singleBufferSize)
                     {
-                        static_cast<std::int8_t*>(interleavedBuffer)[j * buffer.channelCount + i] =
+                        static_cast<std::int8_t*>(interleavedBuffer)[j * buffer.channelCount + channelIndex] =
                             audioProcessData.inputs[0][i][j] * static_cast<float>(1LL << 7);
                     }
                     break;
