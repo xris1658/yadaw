@@ -253,7 +253,6 @@ ApplicationWindow {
             MenuSeparator {}
             Action {
                 text: qsTr("&Project Properties...")
-                shortcut: "Alt+3"
             }
             MenuSeparator {}
             Action {
@@ -332,11 +331,11 @@ ApplicationWindow {
             }
             Action {
                 text: qsTr("Set Loop In Here")
-                shortcut: "Alt+I"
+                shortcut: "Ctrl+["
             }
             Action {
                 text: qsTr("Set Loop Out Here")
-                shortcut: "Alt+O"
+                shortcut: "Ctrl+]"
             }
         }
         Menu {
