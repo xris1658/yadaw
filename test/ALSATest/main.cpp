@@ -18,7 +18,7 @@
 
 YADAW::Audio::Backend::ALSABusConfiguration* alsaBusConfiguration = nullptr;
 
-std::vector<std::vector<std::vector<ade::NodeHandle>>> topologicalSortResult;
+decltype(std::declval<YADAW::Audio::Engine::AudioDeviceGraphBase>().topologicalSortWithPrev()) topologicalSortResult;
 std::vector<std::vector<std::vector<YADAW::Audio::Engine::AudioDeviceGraphBase::NodeData>>> topoNodes;
 std::vector<
     std::vector<
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
     auto swgNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(sineWaveGenerator));
     // graph.connect(inputNode, outputNode, 0, 0);
     graph.connect(swgNode, outputNode, 0, 0);
-    topologicalSortResult = graph.topologicalSort();
+    topologicalSortResult = graph.topologicalSortWithPrev();
     topoNodes.reserve(topologicalSortResult.size());
     topoEntities.reserve(topologicalSortResult.size());
     for(auto& row: topologicalSortResult)
@@ -149,7 +149,7 @@ int main(int argc, char** argv)
         auto& entityRow = topoEntities.emplace_back();
         dataRow.reserve(row.size());
         entityRow.reserve(row.size());
-        for(auto& cell: row)
+        for(auto& [cell, prev]: row)
         {
             auto& cellRow = dataRow.emplace_back();
             auto& entityCell = entityRow.emplace_back();
