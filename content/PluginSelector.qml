@@ -61,10 +61,23 @@ QC.Popup {
             width: impl.contentWidth
             Keys.onDownPressed: (event) => {
                 if(pluginList.listView.count !== 0) {
-                    pluginList.listView.forceActiveFocus();
                     if(pluginList.listView.currentIndex == -1) {
                         pluginList.listView.currentIndex = 0;
+                    } else if(pluginList.listView.currentIndex + 1 < pluginList.listView.count) {
+                        ++pluginList.listView.currentIndex;
                     }
+                }
+            }
+            Keys.onUpPressed: (event) => {
+                if(pluginList.listView.count !== 0) {
+                    if(pluginList.listView.currentIndex >= 1) {
+                        --pluginList.listView.currentIndex;
+                    }
+                }
+            }
+            onAccepted: {
+                if(pluginList.listView.count !== 0 && pluginList.listView.currentIndex != -1) {
+                    root.accepted();
                 }
             }
         }
@@ -404,6 +417,7 @@ QC.Popup {
                             }
                         }
                         onClicked: {
+                            console.log("onClicked");
                             pluginList.listView.currentIndex = index;
                         }
                         onDoubleClicked: {
@@ -435,15 +449,6 @@ QC.Popup {
                     }
                     listView.onModelChanged: {
                         listView.currentIndex = -1;
-                    }
-                    listView.Keys.onUpPressed: (event) => {
-                        if(listView.currentIndex == 0) {
-                            searchTextField.forceActiveFocus();
-                            listView.currentIndex = -1;
-                        }
-                        else {
-                            event.accepted = false;
-                        }
                     }
                     listView.onCurrentIndexChanged: {
                         if(listView.highlightItem !== null) {
