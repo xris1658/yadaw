@@ -915,6 +915,41 @@ bool fillPluginContext(
                 &*outputBegin, vst3Plugin.audioOutputGroupCount()
             );
         }
+        if(!ret)
+        {
+            if(initPluginArgs.mainInputChannelGroup.first == YADAW::Audio::Base::ChannelGroupType::eInvalid
+                || [&]()
+                {
+                    FOR_RANGE0(i, vst3Plugin.audioInputGroupCount())
+                    {
+                        if(auto optChannelGroup = vst3Plugin.audioInputGroupAt(i); optChannelGroup.has_value())
+                        {
+                            auto& channelGroup = optChannelGroup->get();
+                            if(channelGroup.isMain()
+                                && channelGroup.type() == initPluginArgs.mainInputChannelGroup.first)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }()
+            )
+            {
+                FOR_RANGE0(i, vst3Plugin.audioOutputGroupCount())
+                {
+                    if(auto optChannelGroup = vst3Plugin.audioOutputGroupAt(i); optChannelGroup.has_value())
+                    {
+                        auto& channelGroup = optChannelGroup->get();
+                        if(channelGroup.isMain() && channelGroup.type() == initPluginArgs.mainOutputChannelGroup.first)
+                        {
+                            ret = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         if(ret && vst3Plugin.activate() && vst3Plugin.startProcessing())
         {
             auto& pool = YADAW::Controller::appVST3PluginPool();
