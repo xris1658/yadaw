@@ -5,6 +5,7 @@
 #include <optional>
 #include <vector>
 
+// TODO: Move this to `YADAW::Util`
 namespace YADAW::Model::Impl
 {
 template<typename T>

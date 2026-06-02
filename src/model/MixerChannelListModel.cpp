@@ -1138,7 +1138,7 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
         && mixer_.channelInfoAt(channelListType_, position)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument
     )
     {
-        removeInstrument(position);
+        removeInstrument(position); // TODO: Only do this if new instrument can be added into the channel
         const auto& pluginInfo = YADAW::DAO::selectPluginById(pluginId);
         YADAW::Controller::InitPluginArgs initPluginArgs;
         initPluginArgs.mainInputChannelGroup.first = YADAW::Audio::Base::ChannelGroupType::eInvalid;

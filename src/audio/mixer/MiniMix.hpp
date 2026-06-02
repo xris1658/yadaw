@@ -10,6 +10,30 @@
 
 namespace YADAW::Audio::Mixer
 {
+/* `MiniMix` is, as its name indicates, a mini mixer that appears as an
+ * instrument or an audio effect.
+ * Structure of an audio effect `MiniMix`, appearing like an audio effect in
+ * `Inserts`:
+ * +------------+     +-------------------+   +--------+   +------+   +-------+     +---------+
+ * | Input Node |--+->| Polarity Inverter |-->| Insert |-->| Mute |-->| Fader |--+->| Summing |
+ * +------------+  |  +-------------------+   +--------+   +------+   +-------+  |  +---------+
+ *                 |                                                             |
+ *                 |  +-------------------+   +--------+   +------+   +-------+  |
+ *                 +->| Polarity Inverter |-->| Insert |-->| Mute |-->| Fader |--+
+ *                    +-------------------+   +--------+   +------+   +-------+
+ * Structure of an instrument MiniMix:
+ * +------------+   +-------------------+   +--------+   +------+   +-------+     +---------+
+ * | Instrument |-->| Polarity Inverter |-->| Insert |-->| Mute |-->| Fader |--+->| Summing |
+ * +------------+   +-------------------+   +--------+   +------+   +-------+  |  +---------+
+ *                                                                             |
+ * +------------+   +-------------------+   +--------+   +------+   +-------+  |
+ * | Instrument |-->| Polarity Inverter |-->| Insert |-->| Mute |-->| Fader |--+
+ * +------------+   +-------------------+   +--------+   +------+   +-------+
+ * `MiniMix` is NOT derived from `IAudioDevice` since we need to interact with
+ * the nodes inside. The design goal for now is to add aux input/output-related
+ * functions (kind of like what `Mixer` does) so that we don't need to interact
+ * with nodes directly.
+ */
 class MiniMix
 {
 public:

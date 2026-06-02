@@ -17,6 +17,9 @@ namespace YADAW::Audio::Mixer
 template<typename Func>
 concept IsDetachContextCallback = std::invocable<Func, Context&&>;
 
+// TODO: Figure out how to add `NodeSet` into the insert slot.
+//       (Since `NodeSet` is not derived from `IAudioDevice`, we have to change
+//       how we manage nodes.)
 class Inserts
 {
 public:
