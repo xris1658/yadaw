@@ -11,24 +11,23 @@ namespace YADAW::Audio::Plugin
 class PluginWindow: public QWindow
 {
 public:
-    PluginWindow(
-        YADAW::Audio::Plugin::IPluginGUI& pluginGUI,
-        QWindow* parent = nullptr);
+    PluginWindow();
     ~PluginWindow();
 public:
     QWindow& pluginFrame();
     QWindow* topBar();
     void setTopBar(QWindow* bar);
 public:
+    void setGUI(YADAW::Audio::Plugin::IPluginGUI& pluginGUI);
+    void resetGUI();
+public:
     void resizeFromPlugin(const QSize& size);
 private slots:
-    void onStartResize();
     void onAboutToResize(
         YADAW::UI::ResizeEventFilter::DragPosition dragPosition,
         QRect* rect
     );
     void onResized(QRect rect);
-    void onEndResize();
 private:
     QWindow pluginFrame_;
     YADAW::UI::ResizeEventFilter resizeEventFilter_;

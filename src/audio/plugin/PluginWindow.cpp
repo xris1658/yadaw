@@ -6,23 +6,25 @@ namespace YADAW::Audio::Plugin
 {
 using YADAW::UI::ResizeEventFilter;
 
-PluginWindow::PluginWindow(
-        YADAW::Audio::Plugin::IPluginGUI& pluginGUI,
-        QWindow* parent):
-    QWindow(parent),
+PluginWindow::PluginWindow():
+    QWindow(),
     pluginFrame_(this),
-    resizeEventFilter_(*this),
-    pluginGUI_(&pluginGUI)
+    resizeEventFilter_(*this)
 {
-    pluginGUI_->attachToWindow(&pluginFrame_);
-    YADAW::Native::setWindowResizableByUser(
-        *this, pluginGUI_->resizableByUser()
+    pluginFrame_.show();
+    QObject::connect(
+        &resizeEventFilter_, &YADAW::UI::ResizeEventFilter::aboutToResize,
+        this, &PluginWindow::onAboutToResize
+    );
+    QObject::connect(
+        &resizeEventFilter_, &YADAW::UI::ResizeEventFilter::resized,
+        this, &PluginWindow::onResized
     );
 }
 
 PluginWindow::~PluginWindow()
 {
-    pluginGUI_->detachWithWindow();
+    resetGUI();
 }
 
 QWindow& PluginWindow::pluginFrame()
@@ -55,19 +57,38 @@ void PluginWindow::setTopBar(QWindow* bar)
     }
 }
 
+void PluginWindow::setGUI(YADAW::Audio::Plugin::IPluginGUI& pluginGUI)
+{
+    resizeOps_ = Repositioning;
+    if(pluginGUI_)
+    {
+        pluginGUI_->detachWithWindow();
+    }
+    pluginGUI.attachToWindow(&pluginFrame_);
+    auto size = pluginFrame_.size().grownBy(QMargins(0, 0, 0, pluginFrame_.y()));
+    resize(size);
+    pluginGUI_ = &pluginGUI;
+    resizeOps_ = 0;
+}
+
+void PluginWindow::resetGUI()
+{
+    if(pluginGUI_)
+    {
+        pluginGUI_->detachWithWindow();
+    }
+    pluginGUI_ = nullptr;
+}
+
 void PluginWindow::resizeFromPlugin(const QSize& size)
 {
     resizeOps_ |= ResizeOp::ResizingFromPlugin;
     resize(size.width(), size.height() + pluginFrame_.y());
-    resizeOps_ ^= ResizeOp::ResizingFromPlugin;
-}
-
-void PluginWindow::onStartResize()
-{
-    if(resizeOps_ == 0)
+    if(topBar_)
     {
-        // TODO
+        topBar_->setWidth(size.width());
     }
+    resizeOps_ ^= ResizeOp::ResizingFromPlugin;
 }
 
 void PluginWindow::onAboutToResize(YADAW::UI::ResizeEventFilter::DragPosition dragPosition, QRect* rect)
@@ -77,11 +98,13 @@ void PluginWindow::onAboutToResize(YADAW::UI::ResizeEventFilter::DragPosition dr
         if((ResizeEventFilter::getNativeSupportFlags()
             & ResizeEventFilter::FeatureSupportFlag::SupportsAdjustOnAboutToResize))
         {
-            assert(YADAW::Native::isWindowResizableByUser(*this));
-            auto size = rect->size();
-            if(auto adjustSizeResult = pluginGUI_->adjustSize(size))
+            if(YADAW::Native::isWindowResizableByUser(*this))
             {
-                YADAW::UI::ResizeEventFilter::adjustRect(*rect, dragPosition, size);
+                auto size = rect->size();
+                if(pluginGUI_ && pluginGUI_->adjustSize(size))
+                {
+                    YADAW::UI::ResizeEventFilter::adjustRect(*rect, dragPosition, size);
+                }
             }
         }
     }
@@ -96,18 +119,14 @@ void PluginWindow::onResized(QRect rect)
         {
             auto frameSize = rect.size();
             frameSize.setHeight(
-                frameSize.height() - (topBar_? topBar_->height(): 0)
+                frameSize.height() - pluginFrame_.y()
             );
             pluginFrame_.resize(frameSize);
+            if((resizeOps_ & ResizeOp::Repositioning) && pluginGUI_)
+            {
+                pluginGUI_->resize(frameSize);
+            }
         }
-    }
-}
-
-void PluginWindow::onEndResize()
-{
-    if(resizeOps_ == 0)
-    {
-        // TODO
     }
 }
 }
