@@ -58,6 +58,10 @@ public:
     static void adjustRect(QRect& rect, DragPosition position, QSize newSize);
 public:
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
+#if _WIN32
+    void windowPosChanging(MSG* msg, qintptr* result);
+    void windowPosChanged(MSG* msg);
+#endif
 #if __linux__
 private:
     using DesktopNativeEventFilter = bool(ResizeEventFilter::*)(xcb_generic_event_t* event);
@@ -72,6 +76,7 @@ private:
     bool resizing_ = false;
 #if _WIN32
     bool prevIsCaptureChanged_ = false;
+    bool moveWindowCalled_ = false;
 #elif __linux__
     static DesktopNativeEventFilter desktopNativeEventFilter;
     int lastResponseType_ = XCB_GE_GENERIC + 1;

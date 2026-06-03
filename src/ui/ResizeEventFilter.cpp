@@ -334,34 +334,39 @@ bool ResizeEventFilter::nativeEventFilter(
             resizing_ = true;
             startResize();
         }
-        else if(msg->message == WM_WINDOWPOSCHANGING && resizing_ && !prevIsCaptureChanged_)
+        else if(msg->message == WM_WINDOWPOSCHANGING)
         {
-            if(isSignalConnected(aboutToResizeSignal))
+            if(resizing_ && !prevIsCaptureChanged_ && isSignalConnected(aboutToResizeSignal))
             {
-                auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
-                QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
-                rect = clientRectFromWindow(rect, msg->hwnd);
-                aboutToResize(position_, &rect);
-                rect = windowRectFromClient(rect, msg->hwnd);
-                nativeRect->x = rect.left();
-                nativeRect->y = rect.top();
-                nativeRect->cx = rect.width();
-                nativeRect->cy = rect.height();
-                *result = 0;
+                windowPosChanging(msg, result);
                 ret = true;
             }
-        }
-        else if(msg->message == WM_WINDOWPOSCHANGED && resizing_)
-        {
-            static auto resizedSignal = QMetaMethod::fromSignal(
-                &ResizeEventFilter::resized
-            );
-            if(isSignalConnected(resizedSignal))
+            else if(!resizing_) // `MoveWindow` called
             {
-                auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
-                QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
-                rect = clientRectFromWindow(rect, msg->hwnd);
-                resized(rect);
+                moveWindowCalled_ = true;
+                if(isSignalConnected(aboutToResizeSignal))
+                {
+                    windowPosChanging(msg, result);
+                    ret = true;
+                }
+            }
+        }
+        else if(msg->message == WM_WINDOWPOSCHANGED)
+        {
+            if(resizing_)
+            {
+                static auto resizedSignal = QMetaMethod::fromSignal(
+                    &ResizeEventFilter::resized
+                );
+                if(isSignalConnected(resizedSignal))
+                {
+                    windowPosChanged(msg);
+                }
+            }
+            else if(moveWindowCalled_)
+            {
+                moveWindowCalled_ = false;
+                windowPosChanged(msg);
             }
         }
         else if(msg->message == WM_EXITSIZEMOVE && resizing_)
@@ -402,4 +407,28 @@ bool ResizeEventFilter::nativeEventFilter(
 #endif
     return false;
 }
+
+#if _WIN32
+void ResizeEventFilter::windowPosChanging(MSG* msg, qintptr* result)
+{
+    auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
+    QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
+    rect = clientRectFromWindow(rect, msg->hwnd);
+    aboutToResize(position_, &rect);
+    rect = windowRectFromClient(rect, msg->hwnd);
+    nativeRect->x = rect.left();
+    nativeRect->y = rect.top();
+    nativeRect->cx = rect.width();
+    nativeRect->cy = rect.height();
+    *result = 0;
+}
+
+void ResizeEventFilter::windowPosChanged(MSG* msg)
+{
+    auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
+    QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
+    rect = clientRectFromWindow(rect, msg->hwnd);
+    resized(rect);
+}
+#endif
 }
