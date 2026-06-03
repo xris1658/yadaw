@@ -625,6 +625,8 @@ add_executable(CLAPTest
                src/audio/plugin/CLAPPluginGUI.hpp
                src/audio/plugin/CLAPPluginParameter.cpp
                src/audio/plugin/CLAPPluginParameter.hpp
+               src/audio/plugin/PluginWindow.cpp
+               src/audio/plugin/PluginWindow.hpp
                src/audio/util/CLAPHelper.cpp
                src/audio/util/CLAPHelper.hpp
                src/native/CLAPNative.hpp
@@ -652,6 +654,8 @@ add_executable(CLAPTest
                src/native/win/Library.cpp
                src/native/win/Native.cpp
                src/native/win/Window.cpp
+               src/ui/ResizeEventFilter.cpp
+               src/ui/ResizeEventFilter.hpp
                src/ui/UI.cpp
                src/ui/UI.hpp
                src/ui/Runtime.cpp
@@ -964,6 +968,8 @@ add_executable(VST3Test
                src/audio/host/VST3PlugFrame.hpp
                src/audio/host/VST3RunLoop.cpp
                src/audio/host/VST3RunLoop.hpp
+               src/audio/plugin/PluginWindow.cpp
+               src/audio/plugin/PluginWindow.hpp
                src/audio/plugin/VST3AudioChannelGroup.cpp
                src/audio/plugin/VST3AudioChannelGroup.hpp
                src/audio/plugin/VST3EventBusInfo.cpp

@@ -1,5 +1,6 @@
 #include "audio/host/EventFileDescriptorSupport.hpp"
 #include "audio/host/VST3ComponentHandler.hpp"
+#include "audio/plugin/PluginWindow.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "audio/util/AudioProcessDataPointerContainer.hpp"
 #include "audio/util/VST3Helper.hpp"
@@ -25,14 +26,8 @@ struct PluginRuntime
     std::atomic_flag runAudioThread;
     std::thread audioThread;
     YADAW::UI::ResizeEventFilter* resizeEventFilter = nullptr;
-    QMetaObject::Connection connectToREF;
     void finish()
     {
-        if(auto gui = plugin->pluginGUI())
-        {
-            QObject::disconnect(connectToREF);
-            gui->detachWithWindow();
-        }
         runAudioThread.clear();
         audioThread.join();
         plugin->stopProcessing();
@@ -57,7 +52,7 @@ std::unique_ptr<YADAW::Audio::Plugin::VST3Plugin> createPlugin(YADAW::Native::Li
     return std::make_unique<YADAW::Audio::Plugin::VST3Plugin>(init, factory, exit, library.handle());
 }
 
-YADAW::Native::Library createPluginFromArgs(int& argIndex, char* argv[], QWindow& pluginWindow)
+YADAW::Native::Library createPluginFromArgs(int& argIndex, char* argv[], YADAW::Audio::Plugin::PluginWindow& pluginWindow)
 {
     Steinberg::TUID tuid;
     YADAW::Native::Library library;
@@ -122,7 +117,7 @@ void latencyChanged(YADAW::Audio::Plugin::VST3Plugin& plugin)
     std::printf("New latency: %" PRIu32 "\n", plugin.latencyInSamples());
 }
 
-void testPlugin(QWindow& pluginWindow)
+void testPlugin(YADAW::Audio::Plugin::PluginWindow& pluginWindow)
 {
     auto& plugin = *runtime.plugin;
     auto sampleRate = 48000;
@@ -139,19 +134,7 @@ void testPlugin(QWindow& pluginWindow)
                 auto gui = plugin.pluginGUI();
                 if(gui)
                 {
-                    runtime.connectToREF = QObject::connect(
-                        runtime.resizeEventFilter, &YADAW::UI::ResizeEventFilter::aboutToResize,
-                        [gui](YADAW::UI::ResizeEventFilter::DragPosition dragPosition, QRect* rect)
-                        {
-                            auto size = rect->size();
-                            gui->adjustSize(size);
-                            YADAW::UI::ResizeEventFilter::adjustRect(
-                                *rect, dragPosition, size
-                            );
-                            gui->resize(size);
-                        }
-                    );
-                    gui->attachToWindow(&pluginWindow);
+                    pluginWindow.setGUI(*gui);
                     gui->frame().setResizeInitiatedFromPluginCallback(
                         [&pluginWindow, gui](const QSize& size) -> bool
                         {
@@ -242,8 +225,7 @@ int main(int argc, char* argv[])
     auto& timer = YADAW::UI::idleProcessTimer();
     efds.start(timer);
 #endif
-    QWindow pluginWindow;
-    pluginWindow.create();
+    YADAW::Audio::Plugin::PluginWindow pluginWindow;
     YADAW::UI::ResizeEventFilter resizeEventFilter(pluginWindow);
     runtime.resizeEventFilter = &resizeEventFilter;
     std::setlocale(LC_ALL, "en_US.UTF-8");
@@ -254,6 +236,7 @@ int main(int argc, char* argv[])
         &closeWindowEventFilter, &CloseWindowEventFilter::aboutToClose,
         [&]() mutable
         {
+            pluginWindow.resetGUI();
             runtime.finish();
             if(argIndex == argc)
             {

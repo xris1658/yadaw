@@ -2,6 +2,7 @@
 #include "audio/host/CLAPEventList.hpp"
 #include "audio/host/CLAPHost.hpp"
 #include "audio/plugin/CLAPPlugin.hpp"
+#include "audio/plugin/PluginWindow.hpp"
 #include "audio/util/AudioProcessDataPointerContainer.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/Library.hpp"
@@ -27,6 +28,7 @@ struct PluginRuntime
     std::unique_ptr<YADAW::Audio::Plugin::CLAPPlugin> plugin;
     std::atomic_flag runAudioThread;
     std::thread audioThread;
+    YADAW::UI::ResizeEventFilter* resizeEventFilter = nullptr;
     YADAW::Audio::Host::CLAPHost& createHost()
     {
         auto ptr = new(&host) YADAW::Audio::Host::CLAPHost(*plugin);
@@ -34,10 +36,6 @@ struct PluginRuntime
     }
     void finish()
     {
-        if(auto gui = plugin->pluginGUI())
-        {
-            gui->detachWithWindow();
-        }
         runAudioThread.clear();
         audioThread.join();
         plugin->deactivate();
@@ -51,6 +49,14 @@ struct PluginRuntime
 
 PluginRuntime runtime;
 
+YADAW::Audio::Plugin::PluginWindow* thePluginWindow = nullptr;
+
+bool resizeWindowFromPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, const QSize& size)
+{
+    thePluginWindow->resizeFromPlugin(size);
+    return true;
+}
+
 std::unique_ptr<YADAW::Audio::Plugin::CLAPPlugin> createPlugin(YADAW::Native::Library& library)
 {
     if(auto entry = library.getExport<const clap_plugin_entry*>("clap_entry"))
@@ -60,7 +66,7 @@ std::unique_ptr<YADAW::Audio::Plugin::CLAPPlugin> createPlugin(YADAW::Native::Li
     return nullptr;
 }
 
-YADAW::Native::Library createPluginFromArgs(int& argIndex, char* argv[], QWindow& pluginWindow)
+YADAW::Native::Library createPluginFromArgs(int& argIndex, char* argv[], YADAW::Audio::Plugin::PluginWindow& pluginWindow)
 {
     const char* uid = nullptr;
     YADAW::Native::Library library;
@@ -111,7 +117,7 @@ void latencyChanged(YADAW::Audio::Plugin::CLAPPlugin& plugin)
     std::printf("New latency: %" PRIu32 "\n", plugin.latencyInSamples());
 }
 
-void testPlugin(QWindow& pluginWindow)
+void testPlugin(YADAW::Audio::Plugin::PluginWindow& pluginWindow)
 {
     auto& plugin = *runtime.plugin;
     auto sampleRate = 48000;
@@ -124,9 +130,10 @@ void testPlugin(QWindow& pluginWindow)
         {
             pluginWindow.show();
             auto gui = plugin.pluginGUI();
+            plugin.host().setRequestResizeCallback(&resizeWindowFromPlugin);
             if(gui)
             {
-                gui->attachToWindow(&pluginWindow);
+                pluginWindow.setGUI(*gui);
                 pluginWindow.show();
                 pluginWindow.setFlags(
                     Qt::WindowType::Dialog |
@@ -226,7 +233,10 @@ int main(int argc, char* argv[])
     auto& timer = YADAW::UI::idleProcessTimer();
     efds.start(timer);
 #endif
-    QWindow pluginWindow;
+    YADAW::Audio::Plugin::PluginWindow pluginWindow;
+    thePluginWindow = &pluginWindow;
+    YADAW::UI::ResizeEventFilter resizeEventFilter(pluginWindow);
+    runtime.resizeEventFilter = &resizeEventFilter;
     std::setlocale(LC_ALL, "en_US.UTF-8");
     int argIndex = 1;
     YADAW::Native::Library library;
@@ -235,6 +245,7 @@ int main(int argc, char* argv[])
         &closeWindowEventFilter, &CloseWindowEventFilter::aboutToClose,
         [&]() mutable
         {
+            pluginWindow.resetGUI();
             runtime.finish();
             if(argIndex == argc)
             {
