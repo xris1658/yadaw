@@ -1,6 +1,8 @@
 #ifndef YADAW_SRC_AUDIO_HOST_CLAPHOST
 #define YADAW_SRC_AUDIO_HOST_CLAPHOST
 
+#include <QSize>
+
 #include <clap/host.h>
 #include <clap/ext/gui.h>
 #include <clap/ext/latency.h>
@@ -30,6 +32,7 @@ public:
     using ParameterValueChangedCallback = void(YADAW::Audio::Plugin::CLAPPlugin&);
     using ParameterTextChangedCallback = void(YADAW::Audio::Plugin::CLAPPlugin&);
     using ParameterInfoChangedCallback = void(YADAW::Audio::Plugin::CLAPPlugin&);
+    using RequestResizeCallback = bool(YADAW::Audio::Plugin::CLAPPlugin&, const QSize&);
 public:
     CLAPHost(YADAW::Audio::Plugin::CLAPPlugin& plugin);
 public:
@@ -95,10 +98,12 @@ public:
     void setParameterValueChangedCallback(ParameterValueChangedCallback* callback);
     void setParameterTextChangedCallback(ParameterTextChangedCallback* callback);
     void setParameterInfoChangedCallback(ParameterInfoChangedCallback* callback);
+    void setRequestResizeCallback(RequestResizeCallback* callback);
     void resetLatencyChangedCallback();
     void resetParameterValueChangedCallback();
     void resetParameterTextChangedCallback();
     void resetParameterInfoChangedCallback();
+    void resetRequestResizeCallback();
 private:
     static std::thread::id mainThreadId_;
     static std::set<std::thread::id> audioThreadIds_;
@@ -107,6 +112,7 @@ private:
     ParameterValueChangedCallback* parameterValueChangedCallback_;
     ParameterTextChangedCallback* parameterTextChangedCallback_;
     ParameterInfoChangedCallback* parameterInfoChangedCallback_;
+    RequestResizeCallback* requestResizeCallback_;
     clap_host host_;
     clap_host_gui gui_;
     clap_host_latency latency_;

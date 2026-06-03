@@ -28,7 +28,6 @@ public:
     bool resizableByUser() const override;
     bool adjustSize(QSize& size) override;
     bool resize(const QSize& size) override;
-    void requestResizeCalled();
 public:
     void fetchResizeHints();
     clap_gui_resize_hints resizeHints() const;

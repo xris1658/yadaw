@@ -102,11 +102,6 @@ bool CLAPPluginGUI::resize(const QSize& size)
     return gui_ && gui_->set_size(plugin_, size.width(), size.height());
 }
 
-void CLAPPluginGUI::requestResizeCalled()
-{
-    requestResizeCalled_ = true;
-}
-
 void CLAPPluginGUI::fetchResizeHints()
 {
     gui_->get_resize_hints(plugin_, &resizeHints_);

@@ -37,10 +37,6 @@ private:
     Steinberg::IPlugViewContentScaleSupport* plugViewContentScaleSupport_ = nullptr;
     QWindow* window_ = nullptr;
     YADAW::Audio::Host::VST3PlugFrame frame_;
-    QMetaObject::Connection connections_[2];
-    bool isConnected_ = false;
-    bool inCallback_ = false;
-    bool resizeViewCalled_ = false;
 };
 }
 

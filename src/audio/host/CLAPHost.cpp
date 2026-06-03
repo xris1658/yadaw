@@ -12,6 +12,8 @@ void blankParameterTextChangedCallback(YADAW::Audio::Plugin::CLAPPlugin&) {}
 
 void blankParameterInfoChangedCallback(YADAW::Audio::Plugin::CLAPPlugin&) {}
 
+bool blankRequestResizeCallback(YADAW::Audio::Plugin::CLAPPlugin&, const QSize&) { return false; }
+
 namespace YADAW::Audio::Host
 {
 CLAPHost* getHost(const clap_host* host)
@@ -28,6 +30,7 @@ CLAPHost::CLAPHost(YADAW::Audio::Plugin::CLAPPlugin& plugin):
     parameterValueChangedCallback_(&blankParameterValueChangedCallback),
     parameterTextChangedCallback_(&blankParameterTextChangedCallback),
     parameterInfoChangedCallback_(&blankParameterInfoChangedCallback),
+    requestResizeCallback_(&blankRequestResizeCallback),
     host_
     {
         {
@@ -269,19 +272,17 @@ void CLAPHost::doResizeHintsChanged()
 bool CLAPHost::doRequestResize(std::uint32_t width, std::uint32_t height)
 {
     auto gui = plugin_->pluginGUI();
-    gui->requestResizeCalled();
-    auto window = gui->window();
-#ifndef __APPLE
-    auto devicePixelRatio = window->devicePixelRatio();
+#ifndef __APPLE__
+    auto ratio = gui->window()->devicePixelRatio();
 #endif
-    window->resize(
+    return requestResizeCallback_(
+        *plugin_,
 #if __APPLE__
-        width, height
+        QSize(width, height),
 #else
-        width / devicePixelRatio, height / devicePixelRatio
+        QSize(width / ratio, height / ratio)
 #endif
     );
-    return true;
 }
 
 bool CLAPHost::doRequestShow()
@@ -455,6 +456,11 @@ void CLAPHost::setParameterInfoChangedCallback(
     parameterInfoChangedCallback_ = callback;
 }
 
+void CLAPHost::setRequestResizeCallback(RequestResizeCallback* callback)
+{
+    requestResizeCallback_ = callback;
+}
+
 void CLAPHost::resetLatencyChangedCallback()
 {
     latencyChangedCallback_ = &blankLatencyChangedCallback;
@@ -473,5 +479,10 @@ void CLAPHost::resetParameterTextChangedCallback()
 void CLAPHost::resetParameterInfoChangedCallback()
 {
     parameterInfoChangedCallback_ = &blankParameterInfoChangedCallback;
+}
+
+void CLAPHost::resetRequestResizeCallback()
+{
+    requestResizeCallback_ = &blankRequestResizeCallback;
 }
 }
