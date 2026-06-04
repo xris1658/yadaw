@@ -20,6 +20,9 @@ PluginWindow::PluginWindow():
         &resizeEventFilter_, &YADAW::UI::ResizeEventFilter::resized,
         this, &PluginWindow::onResized
     );
+    QObject::connect(
+        this, &QWindow::visibleChanged, this, &PluginWindow::onVisibleChanged
+    );
 }
 
 PluginWindow::~PluginWindow()
@@ -41,6 +44,7 @@ void PluginWindow::setTopBar(QWindow* bar)
 {
     if(bar == nullptr && topBar_ != nullptr)
     {
+        QObject::disconnect(topBar_, &QWindow::heightChanged, this, nullptr);
         resizeOps_ |= ResizeOp::Repositioning;
         pluginFrame_.setPosition(0, 0);
         setHeight(height() - topBar_->height());
@@ -49,6 +53,14 @@ void PluginWindow::setTopBar(QWindow* bar)
     }
     else if(bar != nullptr && bar != topBar_)
     {
+        if(topBar_)
+        {
+            QObject::disconnect(topBar_, &QWindow::heightChanged, this, nullptr);
+        }
+        QObject::connect(bar, &QWindow::heightChanged, this, &PluginWindow::onTopBarHeightChanged);
+        bar->setParent(this);
+        bar->setVisible(isVisible());
+        bar->setWidth(width());
         resizeOps_ |= ResizeOp::Repositioning;
         pluginFrame_.setPosition(0, bar->height());
         setHeight(height() + bar->height());
@@ -67,6 +79,7 @@ void PluginWindow::setGUI(YADAW::Audio::Plugin::IPluginGUI& pluginGUI)
     pluginGUI.attachToWindow(&pluginFrame_);
     auto size = pluginFrame_.size().grownBy(QMargins(0, 0, 0, pluginFrame_.y()));
     resize(size);
+    YADAW::Native::setWindowResizableByUser(*this, pluginGUI.resizableByUser());
     pluginGUI_ = &pluginGUI;
     resizeOps_ = 0;
 }
@@ -126,7 +139,27 @@ void PluginWindow::onResized(QRect rect)
             {
                 pluginGUI_->resize(frameSize);
             }
+            if(topBar_)
+            {
+                topBar_->setWidth(frameSize.width());
+            }
         }
+    }
+}
+
+void PluginWindow::onTopBarHeightChanged(int height)
+{
+    resizeOps_ ^= ResizeOp::Repositioning;
+    setHeight(height + pluginFrame_.height());
+    resizeOps_ ^= ResizeOp::Repositioning;
+}
+
+void PluginWindow::onVisibleChanged(bool visible)
+{
+    pluginFrame_.setVisible(visible);
+    if(topBar_)
+    {
+        topBar_->setVisible(visible);
     }
 }
 }

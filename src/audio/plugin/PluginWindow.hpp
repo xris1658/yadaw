@@ -28,6 +28,8 @@ private slots:
         QRect* rect
     );
     void onResized(QRect rect);
+    void onTopBarHeightChanged(int height);
+    void onVisibleChanged(bool visible);
 private:
     QWindow pluginFrame_;
     YADAW::UI::ResizeEventFilter resizeEventFilter_;
