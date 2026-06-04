@@ -144,8 +144,11 @@ void PluginWindow::onAboutToResize(YADAW::UI::ResizeEventFilter::DragPosition dr
             if(YADAW::Native::isWindowResizableByUser(*this))
             {
                 auto size = rect->size();
+                auto& height = size.rheight();
+                height -= pluginFrame_.y();
                 if(pluginGUI_ && pluginGUI_->adjustSize(size))
                 {
+                    height += pluginFrame_.y();
                     YADAW::UI::ResizeEventFilter::adjustRect(*rect, dragPosition, size);
                 }
             }
