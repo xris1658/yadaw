@@ -62,6 +62,7 @@ void createPluginWindows(PluginContext& context)
     {
         context.editor = new YADAW::Audio::Plugin::PluginWindow();
         YADAW::UI::qmlApplicationEngine->loadFromModule("content", "PluginWindowTopBarFrame");
+        context.editor->setTransientParent(YADAW::UI::mainWindow);
         context.editor->setGUI(*pluginGUI);
         context.editor->setTopBar(pluginWindows.pluginWindowTopBarFrame);
         context.editor->setCanClose(false);

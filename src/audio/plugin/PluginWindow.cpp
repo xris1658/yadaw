@@ -23,6 +23,12 @@ PluginWindow::PluginWindow():
     QObject::connect(
         this, &QWindow::visibleChanged, this, &PluginWindow::onVisibleChanged
     );
+    setFlags(
+        Qt::WindowType::Dialog
+      | Qt::WindowType::CustomizeWindowHint
+      | Qt::WindowType::WindowTitleHint
+      | Qt::WindowType::WindowCloseButtonHint
+    );
 }
 
 PluginWindow::~PluginWindow()
