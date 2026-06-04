@@ -78,7 +78,7 @@ void PluginWindow::setTopBar(QWindow* bar)
 
 void PluginWindow::setGUI(YADAW::Audio::Plugin::IPluginGUI& pluginGUI)
 {
-    resizeOps_ = Repositioning;
+    resizeOps_ ^= Repositioning;
     if(pluginGUI_)
     {
         pluginGUI_->detachWithWindow();
@@ -88,7 +88,7 @@ void PluginWindow::setGUI(YADAW::Audio::Plugin::IPluginGUI& pluginGUI)
     resize(size);
     YADAW::Native::setWindowResizableByUser(*this, pluginGUI.resizableByUser());
     pluginGUI_ = &pluginGUI;
-    resizeOps_ = 0;
+    resizeOps_ ^= Repositioning;
 }
 
 void PluginWindow::resetGUI()
@@ -165,7 +165,7 @@ void PluginWindow::onResized(QRect rect)
                 frameSize.height() - pluginFrame_.y()
             );
             pluginFrame_.resize(frameSize);
-            if((resizeOps_ & ResizeOp::Repositioning) && pluginGUI_)
+            if((resizeOps_ & ResizeOp::Repositioning) == 0 && pluginGUI_)
             {
                 pluginGUI_->resize(frameSize);
             }
