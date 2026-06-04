@@ -44,7 +44,7 @@ private:
         Repositioning = 1 << 0,
         ResizingFromPlugin = 1 << 1
     };
-    std::underlying_type_t<ResizeOp> resizeOps_;
+    std::underlying_type_t<ResizeOp> resizeOps_ = 0;
     bool canClose_ = true;
 };
 }
