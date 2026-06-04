@@ -3,6 +3,7 @@
 
 #include "audio/engine/AudioDeviceProcess.hpp"
 #include "audio/engine/AudioDeviceGraphBase.hpp"
+#include "audio/plugin/PluginWindow.hpp"
 #include "controller/LibraryPluginPool.hpp"
 #include "controller/PluginPositionMap.hpp"
 #include "util/PolymorphicDeleter.hpp"
@@ -23,7 +24,7 @@ struct PluginContext
     YADAW::Util::PMRUniquePtr<void> hostContext;
     LibraryPluginPool::Instance pluginInstance;
     YADAW::Audio::Engine::AudioDeviceProcess process;
-    QWindow* editor = nullptr;
+    YADAW::Audio::Plugin::PluginWindow* editor = nullptr;
     QWindow* genericEditor = nullptr;
     PluginPosition position;
     ade::NodeHandle node;

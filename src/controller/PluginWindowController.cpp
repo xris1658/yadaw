@@ -11,7 +11,11 @@
 
 namespace YADAW::Controller
 {
-YADAW::Audio::Plugin::IAudioPlugin* pluginNeedsWindow = nullptr;
+struct PluginWindows
+{
+    QWindow* pluginWindowTopBarFrame = nullptr;
+    QWindow* genericEditorWindow = nullptr;
+};
 
 PluginWindows pluginWindows;
 
@@ -29,9 +33,9 @@ void connectEngine()
                 [](QObject *obj, const QUrl &objUrl)
                 {
                     const auto& fileName = objUrl.fileName();
-                    if(fileName == "PluginWindow.qml")
+                    if(fileName == "PluginWindowTopBarFrame.qml")
                     {
-                        pluginWindows.pluginWindow = qobject_cast<QWindow*>(obj);
+                        pluginWindows.pluginWindowTopBarFrame = qobject_cast<QQuickWindow*>(obj);
                     }
                     else if(fileName == "GenericPluginEditor.qml")
                     {
@@ -41,26 +45,6 @@ void connectEngine()
             );
         }
     );
-}
-
-void createPluginWindow()
-{
-    connectEngine();
-    YADAW::UI::qmlApplicationEngine->loadFromModule("content", "PluginWindow");
-    auto pluginWindow = pluginWindows.pluginWindow;
-    auto pluginFrame = pluginWindow->property("pluginFrame").value<QWindow*>();
-    auto gui = pluginNeedsWindow->gui();
-    gui->attachToWindow(pluginFrame);
-    if(!gui->resizableByUser())
-    {
-        YADAW::Native::setWindowResizableByUser(*pluginFrame, false);
-        YADAW::Native::setWindowResizableByUser(*pluginWindow, false);
-    }
-    // Embed the plugin frame to its outer window (See `PluginWindow.qml`)
-    // This process has to be done AFTER `IPluginGUI::attachToWindow`, or the
-    // initial size of the GUI would be incorrect.
-    pluginFrame->setParent(pluginWindow);
-    pluginWindow->setTransientParent(YADAW::UI::mainWindow);
 }
 
 void createGenericPluginEditor()
@@ -73,12 +57,15 @@ void createGenericPluginEditor()
 void createPluginWindows(PluginContext& context)
 {
     connectEngine();
-    pluginNeedsWindow = &(context.pluginInstance.plugin()->get());
-    if(pluginNeedsWindow->gui())
+    auto pluginNeedsWindow = &(context.pluginInstance.plugin()->get());
+    if(auto pluginGUI = pluginNeedsWindow->gui())
     {
-        createPluginWindow();
-        context.editor = pluginWindows.pluginWindow;
-        pluginWindows.pluginWindow = nullptr;
+        context.editor = new YADAW::Audio::Plugin::PluginWindow();
+        YADAW::UI::qmlApplicationEngine->loadFromModule("content", "PluginWindowTopBarFrame");
+        context.editor->setGUI(*pluginGUI);
+        context.editor->setTopBar(pluginWindows.pluginWindowTopBarFrame);
+        context.editor->setCanClose(false);
+        pluginWindows.pluginWindowTopBarFrame = nullptr;
     }
     createGenericPluginEditor();
     context.genericEditor = pluginWindows.genericEditorWindow;

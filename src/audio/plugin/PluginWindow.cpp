@@ -27,6 +27,7 @@ PluginWindow::PluginWindow():
 
 PluginWindow::~PluginWindow()
 {
+    canClose_ = true;
     resetGUI();
 }
 
@@ -102,6 +103,29 @@ void PluginWindow::resizeFromPlugin(const QSize& size)
         topBar_->setWidth(size.width());
     }
     resizeOps_ ^= ResizeOp::ResizingFromPlugin;
+}
+
+bool PluginWindow::canClose() const
+{
+    return canClose_;
+}
+
+void PluginWindow::setCanClose(bool arg)
+{
+    canClose_ = arg;
+}
+
+void PluginWindow::closeEvent(QCloseEvent* closeEvent)
+{
+    if(canClose_)
+    {
+        closeEvent->accept();
+    }
+    else
+    {
+        closeEvent->ignore();
+        hide();
+    }
 }
 
 void PluginWindow::onAboutToResize(YADAW::UI::ResizeEventFilter::DragPosition dragPosition, QRect* rect)

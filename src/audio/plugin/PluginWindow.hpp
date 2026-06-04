@@ -22,6 +22,10 @@ public:
     void resetGUI();
 public:
     void resizeFromPlugin(const QSize& size);
+    bool canClose() const;
+    void setCanClose(bool arg);
+protected:
+    void closeEvent(QCloseEvent* closeEvent) override;
 private slots:
     void onAboutToResize(
         YADAW::UI::ResizeEventFilter::DragPosition dragPosition,
@@ -41,6 +45,7 @@ private:
         ResizingFromPlugin = 1 << 1
     };
     std::underlying_type_t<ResizeOp> resizeOps_;
+    bool canClose_ = true;
 };
 }
 

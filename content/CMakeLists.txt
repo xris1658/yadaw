@@ -135,7 +135,8 @@ set(CONTENT_QML_FILES
     PluginScanProgressWindow.qml
     PluginSelector.qml
     PluginSettings.qml
-    PluginWindow.qml
+    PluginWindowTopBar.qml
+    PluginWindowTopBarFrame.qml
     PostFaderIcon.qml
     PreFaderIcon.qml
     PreferencesWindow.qml

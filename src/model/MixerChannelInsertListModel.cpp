@@ -366,8 +366,8 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             YADAW::Controller::appPluginContexts().erase(&pluginContext);
             if(auto window = pluginContext.editor)
             {
-                plugin.gui()->detachWithWindow();
-                window->setProperty("destroyingPlugin", QVariant::fromValue(true));
+                window->resetGUI();
+                window->setCanClose(true);
                 delete window;
             }
             auto genericEditor = pluginContext.genericEditor;

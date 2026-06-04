@@ -1290,8 +1290,8 @@ bool MixerChannelListModel::removeInstrument(int position)
         YADAW::Controller::appPluginContexts().erase(&context);
         if(auto window = context.editor)
         {
-            context.pluginInstance.plugin()->get().gui()->detachWithWindow();
-            window->setProperty("destroyingPlugin", QVariant::fromValue(true));
+            window->resetGUI();
+            window->setCanClose(true);
             delete window;
         }
         auto genericEditor = context.genericEditor;

@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_CONTROLLER_PLUGINWINDOWCONTROLLER
 #define YADAW_SRC_CONTROLLER_PLUGINWINDOWCONTROLLER
 
-#include "audio/plugin/IAudioPlugin.hpp"
+#include "audio/plugin/PluginWindow.hpp"
 #include "controller/PluginContext.hpp"
 
 #include <QWindow>
@@ -10,18 +10,6 @@
 
 namespace YADAW::Controller
 {
-struct PluginWindows
-{
-    QWindow* pluginWindow = nullptr;
-    QWindow* genericEditorWindow = nullptr;
-};
-
-extern YADAW::Audio::Plugin::IAudioPlugin* pluginNeedsWindow;
-
-void createPluginWindow();
-
-void createGenericPluginEditor();
-
 void createPluginWindows(PluginContext& context);
 }
 
