@@ -369,10 +369,14 @@ bool ResizeEventFilter::nativeEventFilter(
                 windowPosChanged(msg);
             }
         }
-        else if(msg->message == WM_EXITSIZEMOVE && resizing_)
+        else if(msg->message == WM_EXITSIZEMOVE)
         {
-            endResize();
-            resizing_ = false;
+            position_ = DragPosition::Invalid;
+            if(resizing_)
+            {
+                endResize();
+                resizing_ = false;
+            }
         }
         else if(msg->message == WM_SIZING && resizing_) // Only if the resize is initiated
         {

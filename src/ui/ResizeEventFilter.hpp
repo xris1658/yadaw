@@ -25,7 +25,8 @@ public:
         Right,
         BottomLeft,
         Bottom,
-        BottomRight
+        BottomRight,
+        Invalid = 0x7f
     };
     enum FeatureSupportFlag: std::uint64_t
     {
@@ -71,7 +72,7 @@ private:
 #endif
 private:
     WindowAndId windowAndId_;
-    DragPosition position_;
+    DragPosition position_ = DragPosition::Invalid;
     bool aboutToStartResize_ = false;
     bool resizing_ = false;
 #if _WIN32
