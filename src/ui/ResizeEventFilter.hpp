@@ -78,6 +78,7 @@ private:
 #if _WIN32
     bool prevIsCaptureChanged_ = false;
     bool moveWindowCalled_ = false;
+    bool posChangingWithoutResize_ = false;
 #elif __linux__
     static DesktopNativeEventFilter desktopNativeEventFilter;
     int lastResponseType_ = XCB_GE_GENERIC + 1;

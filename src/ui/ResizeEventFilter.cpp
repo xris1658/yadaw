@@ -366,7 +366,6 @@ bool ResizeEventFilter::nativeEventFilter(
             else if(moveWindowCalled_)
             {
                 moveWindowCalled_ = false;
-                windowPosChanged(msg);
             }
         }
         else if(msg->message == WM_EXITSIZEMOVE)
@@ -413,9 +412,20 @@ bool ResizeEventFilter::nativeEventFilter(
 }
 
 #if _WIN32
+// Since all functions that changes window geometry (i.e. resizes or moves the
+// window) call `QWindow::setGeometry` that calls Windows function `MoveWindow`
+// which sends `WM_WINDOWPOSCHANGING` and `WM_WINDOWPOSCHANGED`, we'd better not
+// emit `aboutToResize` and `resized` when moving the window.
 void ResizeEventFilter::windowPosChanging(MSG* msg, qintptr* result)
 {
+    RECT oldNativeRect; GetWindowRect(msg->hwnd, &oldNativeRect);
     auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
+    if(oldNativeRect.right - oldNativeRect.left == nativeRect->cx
+        && oldNativeRect.bottom - oldNativeRect.top == nativeRect->cy)
+    {
+        posChangingWithoutResize_ = true;
+        return;
+    }
     QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
     rect = clientRectFromWindow(rect, msg->hwnd);
     aboutToResize(position_, &rect);
@@ -429,10 +439,15 @@ void ResizeEventFilter::windowPosChanging(MSG* msg, qintptr* result)
 
 void ResizeEventFilter::windowPosChanged(MSG* msg)
 {
-    auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
-    QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
-    rect = clientRectFromWindow(rect, msg->hwnd);
-    resized(rect);
+    if(!posChangingWithoutResize_)
+    {
+        auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
+        QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
+        rect = clientRectFromWindow(rect, msg->hwnd);
+        resized(rect);
+        moveWindowCalled_ = false;
+    }
+    posChangingWithoutResize_ = false;
 }
 #endif
 }
