@@ -105,10 +105,6 @@ void PluginWindow::resizeFromPlugin(const QSize& size)
 {
     resizeOps_ |= ResizeOp::ResizingFromPlugin;
     resize(size.width(), size.height() + pluginFrame_.y());
-    if(topBar_)
-    {
-        topBar_->setWidth(size.width());
-    }
     resizeOps_ ^= ResizeOp::ResizingFromPlugin;
 }
 
