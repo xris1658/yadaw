@@ -23,6 +23,9 @@ PluginWindow::PluginWindow():
     QObject::connect(
         this, &QWindow::visibleChanged, this, &PluginWindow::onVisibleChanged
     );
+    QObject::connect(
+        this, &QWindow::windowTitleChanged, this, &PluginWindow::onWindowTitleChanged
+    );
     setFlags(
         Qt::WindowType::Dialog
       | Qt::WindowType::CustomizeWindowHint
@@ -74,6 +77,7 @@ void PluginWindow::setTopBar(QWindow* bar)
         setHeight(height() + bar->height());
         topBar_ = bar;
         resizeOps_ ^= ResizeOp::Repositioning;
+        updateTopBarTitle();
     }
 }
 
@@ -191,5 +195,21 @@ void PluginWindow::onVisibleChanged(bool visible)
     {
         topBar_->setVisible(visible);
     }
+}
+
+void PluginWindow::onWindowTitleChanged(const QString& title)
+{
+    auto frameTitle = QString(title); frameTitle.append(" plugin frame");
+    pluginFrame_.setTitle(frameTitle);
+    if(topBar_)
+    {
+        updateTopBarTitle();
+    }
+}
+
+void PluginWindow::updateTopBarTitle()
+{
+    auto topBarTitle = QString(title()); topBarTitle.append(" top bar");
+    topBar_->setTitle(topBarTitle);
 }
 }

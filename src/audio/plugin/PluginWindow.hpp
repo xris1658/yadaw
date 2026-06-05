@@ -34,6 +34,9 @@ private slots:
     void onResized(QRect rect);
     void onTopBarHeightChanged(int height);
     void onVisibleChanged(bool visible);
+    void onWindowTitleChanged(const QString& title);
+private:
+    void updateTopBarTitle();
 private:
     QWindow pluginFrame_;
     YADAW::UI::ResizeEventFilter resizeEventFilter_;
