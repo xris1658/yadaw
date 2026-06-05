@@ -158,7 +158,7 @@ void PluginWindow::onAboutToResize(YADAW::UI::ResizeEventFilter::DragPosition dr
 
 void PluginWindow::onResized(QRect rect)
 {
-    if(resizeOps_ == 0)
+    if((resizeOps_ & ResizeOp::Repositioning) == 0)
     {
         if((ResizeEventFilter::getNativeSupportFlags()
             & ResizeEventFilter::FeatureSupportFlag::SupportsAdjustOnAboutToResize))
@@ -168,7 +168,7 @@ void PluginWindow::onResized(QRect rect)
                 frameSize.height() - pluginFrame_.y()
             );
             pluginFrame_.resize(frameSize);
-            if((resizeOps_ & ResizeOp::Repositioning) == 0 && pluginGUI_)
+            if(pluginGUI_)
             {
                 pluginGUI_->resize(frameSize);
             }
