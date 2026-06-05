@@ -35,6 +35,7 @@ PluginWindow::~PluginWindow()
 {
     canClose_ = true;
     resetGUI();
+    close();
 }
 
 QWindow& PluginWindow::pluginFrame()
