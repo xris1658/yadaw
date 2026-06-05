@@ -2,6 +2,8 @@
 
 #include "native/Window.hpp"
 
+#include <QCloseEvent>
+
 namespace YADAW::Audio::Plugin
 {
 using YADAW::UI::ResizeEventFilter;

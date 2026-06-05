@@ -136,20 +136,14 @@ void testPlugin(YADAW::Audio::Plugin::PluginWindow& pluginWindow)
                 {
                     pluginWindow.setGUI(*gui);
                     gui->frame().setResizeInitiatedFromPluginCallback(
-                        [&pluginWindow, gui](const QSize& size) -> bool
+                        [&pluginWindow, gui](QWindow& window, const QSize& size) -> bool
                         {
-                            pluginWindow.resize(size);
+                            pluginWindow.resizeFromPlugin(size);
                             gui->resize(size);
                             return true;
                         }
                     );
                     pluginWindow.show();
-                    pluginWindow.setFlags(
-                        Qt::WindowType::Dialog |
-                        Qt::WindowType::CustomizeWindowHint |
-                        Qt::WindowType::WindowTitleHint |
-                        Qt::WindowType::WindowCloseButtonHint
-                    );
                     if(auto* screen = pluginWindow.screen())
                     {
                         auto rect = screen->availableVirtualGeometry();

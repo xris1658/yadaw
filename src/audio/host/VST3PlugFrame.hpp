@@ -7,6 +7,8 @@
 
 #include <functional>
 
+class QWindow;
+
 namespace YADAW::Audio::Plugin
 {
 class VST3PluginGUI;
