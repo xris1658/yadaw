@@ -310,19 +310,17 @@ bool ResizeEventFilter::nativeEventFilter(
     if(eventType == "windows_generic_MSG")
     {
         bool ret = false;
-        static auto aboutToResizeSignal = QMetaMethod::fromSignal(
-            &ResizeEventFilter::aboutToResize
-        );
         auto msg = static_cast<MSG*>(message);
         if(msg->hwnd != reinterpret_cast<HWND>(windowAndId_.winId))
         {
-            ret = false;
+            return false;
         }
-        else if(msg->message == WM_NCLBUTTONDOWN
+        if(msg->message == WM_NCLBUTTONDOWN
             && (msg->wParam >= HTLEFT && msg->wParam <= HTBOTTOMRIGHT))
         {
             position_ = positions[msg->wParam - HTLEFT];
             aboutToStartResize_ = true;
+            ret = false;
         }
         else if(msg->message == WM_SYSCOMMAND && msg->wParam == SC_SIZE)
         {
@@ -330,71 +328,96 @@ bool ResizeEventFilter::nativeEventFilter(
         }
         else if(msg->message == WM_ENTERSIZEMOVE && aboutToStartResize_)
         {
+            state_ = State::InteractiveResizeReady;
             aboutToStartResize_ = false;
             resizing_ = true;
             startResize();
+            ret = false;
         }
+        // Since all Qt functions that changes window geometry (i.e. resizes or
+        // moves the window) call `QWindow::setGeometry` that calls Windows
+        // function `MoveWindow` which sends `WM_WINDOWPOSCHANGING` and
+        // `WM_WINDOWPOSCHANGED`, we'd better not emit `aboutToResize` and
+        // `resized` when moving the window.
         else if(msg->message == WM_WINDOWPOSCHANGING)
         {
-            if(resizing_ && !prevIsCaptureChanged_ && isSignalConnected(aboutToResizeSignal))
+            if(state_ == State::InteractiveResizeReady && !prevIsCaptureChanged_)
             {
+                state_ = State::InteractiveResizing;
                 windowPosChanging(msg, result);
+                *result = 0;
                 ret = true;
             }
-            else if(!resizing_) // `MoveWindow` called
+            else if(state_ == State::InteractiveResizing)
             {
-                moveWindowCalled_ = true;
-                if(isSignalConnected(aboutToResizeSignal))
+                std::fprintf(stderr, "InteractiveResizing\n");
+            }
+            else if(state_ == State::Exited)
+            {
+                auto windowPos = reinterpret_cast<WINDOWPOS*>(msg->lParam);
+                if(windowPos->flags & SWP_NOSIZE)
                 {
-                    windowPosChanging(msg, result);
-                    ret = true;
+                    state_ = State::ProgrammaticNotResizing;
+                    ret = false;
+                }
+                else
+                {
+                    RECT oldNativeRect; GetWindowRect(msg->hwnd, &oldNativeRect);
+                    if(oldNativeRect.right - oldNativeRect.left == windowPos->cx
+                        && oldNativeRect.bottom - oldNativeRect.top == windowPos->cy)
+                    {
+                        state_ = State::ProgrammaticNotResizing;
+                        ret = false;
+                    }
+                    else
+                    {
+                        state_ = State::ProgrammaticResizing;
+                        windowPosChanging(msg, result);
+                        *result = 0;
+                        ret = true;
+                    }
                 }
             }
         }
         else if(msg->message == WM_WINDOWPOSCHANGED)
         {
-            if(resizing_)
+            if(state_ == State::InteractiveResizing)
             {
-                static auto resizedSignal = QMetaMethod::fromSignal(
-                    &ResizeEventFilter::resized
-                );
-                if(isSignalConnected(resizedSignal))
-                {
-                    windowPosChanged(msg);
-                }
+                windowPosChanged(msg);
+                state_ = State::InteractiveResizeReady;
+                ret = true;
             }
-            else if(moveWindowCalled_)
+            else if(state_ == State::ProgrammaticResizing)
             {
-                moveWindowCalled_ = false;
+                windowPosChanged(msg);
+                state_ = State::Exited;
+                ret = true;
+            }
+            else if(state_ == State::ProgrammaticNotResizing)
+            {
+                state_ = State::Exited;
+                *result = 1;
+                ret = false;
+            }
+            else
+            {
+                ret = false;
             }
         }
         else if(msg->message == WM_EXITSIZEMOVE)
         {
             position_ = DragPosition::Invalid;
-            if(resizing_)
+            if(state_ == State::InteractiveResizeReady)
             {
                 endResize();
                 resizing_ = false;
-            }
-        }
-        else if(msg->message == WM_SIZING && resizing_) // Only if the resize is initiated
-        {
-            if(isSignalConnected(aboutToResizeSignal))
-            {
-                position_ = positions[msg->wParam - WMSZ_LEFT];
-                auto nativeRect = reinterpret_cast<RECT*>(msg->lParam);
-                QRect rect(nativeRect->left, nativeRect->top,
-                    nativeRect->right - nativeRect->left, nativeRect->bottom - nativeRect->top
-                );
-                rect = clientRectFromWindow(rect, msg->hwnd);
-                aboutToResize(position_, &rect);
-                rect = windowRectFromClient(rect, msg->hwnd);
-                nativeRect->left = rect.left();
-                nativeRect->top = rect.top();
-                nativeRect->right = rect.width();
-                nativeRect->bottom = rect.height();
+                state_ = State::Exited;
                 *result = 0;
                 ret = true;
+            }
+            else
+            {
+                //
             }
         }
         prevIsCaptureChanged_ = msg->message == WM_CAPTURECHANGED;
@@ -412,20 +435,9 @@ bool ResizeEventFilter::nativeEventFilter(
 }
 
 #if _WIN32
-// Since all functions that changes window geometry (i.e. resizes or moves the
-// window) call `QWindow::setGeometry` that calls Windows function `MoveWindow`
-// which sends `WM_WINDOWPOSCHANGING` and `WM_WINDOWPOSCHANGED`, we'd better not
-// emit `aboutToResize` and `resized` when moving the window.
 void ResizeEventFilter::windowPosChanging(MSG* msg, qintptr* result)
 {
-    RECT oldNativeRect; GetWindowRect(msg->hwnd, &oldNativeRect);
     auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
-    if(oldNativeRect.right - oldNativeRect.left == nativeRect->cx
-        && oldNativeRect.bottom - oldNativeRect.top == nativeRect->cy)
-    {
-        posChangingWithoutResize_ = true;
-        return;
-    }
     QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
     rect = clientRectFromWindow(rect, msg->hwnd);
     aboutToResize(position_, &rect);
@@ -439,15 +451,11 @@ void ResizeEventFilter::windowPosChanging(MSG* msg, qintptr* result)
 
 void ResizeEventFilter::windowPosChanged(MSG* msg)
 {
-    if(!posChangingWithoutResize_)
-    {
-        auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
-        QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
-        rect = clientRectFromWindow(rect, msg->hwnd);
-        resized(rect);
-        moveWindowCalled_ = false;
-    }
-    posChangingWithoutResize_ = false;
+    auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
+    QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
+    rect = clientRectFromWindow(rect, msg->hwnd);
+    auto size = rect.size();
+    resized(rect);
 }
 #endif
 }

@@ -76,9 +76,16 @@ private:
     bool aboutToStartResize_ = false;
     bool resizing_ = false;
 #if _WIN32
+    enum State: std::uint8_t
+    {
+        Exited,
+        InteractiveResizeReady,
+        InteractiveResizing,
+        ProgrammaticResizing,
+        ProgrammaticNotResizing
+    };
+    State state_ = Exited;
     bool prevIsCaptureChanged_ = false;
-    bool moveWindowCalled_ = false;
-    bool posChangingWithoutResize_ = false;
 #elif __linux__
     static DesktopNativeEventFilter desktopNativeEventFilter;
     int lastResponseType_ = XCB_GE_GENERIC + 1;
