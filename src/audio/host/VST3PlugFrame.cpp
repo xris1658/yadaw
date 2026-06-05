@@ -53,14 +53,22 @@ Steinberg::tresult VST3PlugFrame::resizeView(Steinberg::IPlugView* view, Steinbe
 #ifndef __APPLE__
             auto devicePixelRatio = window->devicePixelRatio();
 #endif
-            return resizeInitiatedFromPluginCallback_(QSize(
+            if(auto size = QSize(
 #if __APPLE__
                 newSize->getWidth(), newSize->getHeight()
 #else
                 newSize->getWidth() / devicePixelRatio,
                 newSize->getHeight() / devicePixelRatio
 #endif
-            ))? Steinberg::kResultOk: Steinberg::kResultFalse;
+            ); resizeInitiatedFromPluginCallback_(*(gui_->window()), size))
+            {
+                gui_->resize(size);
+                return Steinberg::kResultOk;
+            }
+            else
+            {
+                return Steinberg::kResultFalse;
+            }
         }
     }
     return Steinberg::kInvalidArgument;

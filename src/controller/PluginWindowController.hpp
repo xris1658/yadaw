@@ -11,6 +11,10 @@
 namespace YADAW::Controller
 {
 void createPluginWindows(PluginContext& context);
+
+bool resizeFromVST3Plugin(QWindow& window, const QSize& size);
+
+bool requestResizeFromCLAPPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, const QSize& size);
 }
 
 #endif // YADAW_SRC_CONTROLLER_PLUGINWINDOWCONTROLLER

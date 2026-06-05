@@ -29,7 +29,7 @@ public:
 public:
     Steinberg::tresult resizeView(Steinberg::IPlugView* view,
         Steinberg::ViewRect* newSize) override;
-    using ResizeInitiatedFromPluginCallback = bool(const QSize& size);
+    using ResizeInitiatedFromPluginCallback = bool(QWindow& window, const QSize& size);
     void setResizeInitiatedFromPluginCallback(std::function<ResizeInitiatedFromPluginCallback>&& callback);
     void resetResizeInitiatedFromPluginCallback();
 private:
