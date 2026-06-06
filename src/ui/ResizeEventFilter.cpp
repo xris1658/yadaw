@@ -579,7 +579,7 @@ bool ResizeEventFilter::nativeEventFilter(
             {
                 windowPosChanged(msg);
                 state_ = State::Exited;
-                ret = true;
+                ret = false;
             }
             else if(state_ == State::ProgrammaticNotResizing)
             {
