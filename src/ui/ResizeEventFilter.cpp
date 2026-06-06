@@ -511,27 +511,34 @@ bool ResizeEventFilter::nativeEventFilter(
             std::fprintf(stderr, "[DEBUG] 0x%04X\n", LOWORD(msg->message));
         }
 #endif
-        if(msg->message == WM_NCLBUTTONDOWN
-            && (msg->wParam >= HTLEFT && msg->wParam <= HTBOTTOMRIGHT))
+        if(msg->message == WM_NCLBUTTONDOWN)
         {
-            position_ = positions[msg->wParam - HTLEFT];
-            aboutToStartResize_ = true;
-            ret = false;
+            ncLButtonDownMessage_ = msg->wParam;
         }
         else if(msg->message == WM_SYSCOMMAND && msg->wParam == SC_SIZE)
         {
             // TODO: App Menu -> Size
         }
-        else if(msg->message == WM_ENTERSIZEMOVE && aboutToStartResize_)
+        else if(msg->message == WM_ENTERSIZEMOVE)
         {
-            state_ = State::InteractiveResizeReady;
+            if(ncLButtonDownMessage_ >= HTLEFT && ncLButtonDownMessage_ <= HTBOTTOMRIGHT)
+            {
+                position_ = positions[ncLButtonDownMessage_ - HTLEFT];
+                state_ = State::InteractiveResizeReady;
 #if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
-            std::fprintf(stderr, "[DEBUG] State moved to InteractiveResizeReady\n");
+                std::fprintf(stderr, "[DEBUG] State moved to InteractiveResizeReady on pressing the window border\n");
 #endif
-            aboutToStartResize_ = false;
-            resizing_ = true;
-            startResize();
-            ret = false;
+                resizing_ = true;
+                startResize();
+                ret = false;
+            }
+            else
+            {
+                state_ = State::InteractiveNotResizing;
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
+                std::fprintf(stderr, "[DEBUG] State moved to InteractiveNotResizing\n");
+#endif
+            }
         }
         // Since all Qt functions that changes window geometry (i.e. resizes or
         // moves the window) call `QWindow::setGeometry` that calls Windows
@@ -585,6 +592,10 @@ bool ResizeEventFilter::nativeEventFilter(
                     }
                 }
             }
+            else if(state_ == State::InteractiveNotResizing)
+            {
+                ret = false;
+            }
         }
         else if(msg->message == WM_WINDOWPOSCHANGED)
         {
@@ -634,9 +645,12 @@ bool ResizeEventFilter::nativeEventFilter(
                 *result = 0;
                 ret = true;
             }
-            else
+            else if(state_ == State::InteractiveNotResizing)
             {
-                //
+                state_ = State::Exited;
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
+                std::fprintf(stderr, "[DEBUG] State moved to Exited from InteractiveNotResizing\n");
+#endif
             }
         }
         prevIsCaptureChanged_ = msg->message == WM_CAPTURECHANGED;

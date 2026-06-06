@@ -73,7 +73,7 @@ private:
 private:
     WindowAndId windowAndId_;
     DragPosition position_ = DragPosition::Invalid;
-    bool aboutToStartResize_ = false;
+    WPARAM ncLButtonDownMessage_ = 0;
     bool resizing_ = false;
 #if _WIN32
     enum State: std::uint8_t
@@ -82,7 +82,8 @@ private:
         InteractiveResizeReady,
         InteractiveResizing,
         ProgrammaticResizing,
-        ProgrammaticNotResizing
+        ProgrammaticNotResizing,
+        InteractiveNotResizing
     };
     State state_ = Exited;
     bool prevIsCaptureChanged_ = false;
