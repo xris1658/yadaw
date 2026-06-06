@@ -6,7 +6,6 @@
 #include "audio/util/VST3Helper.hpp"
 #include "dao/PluginTable.hpp"
 #include "native/Window.hpp"
-#include "ui/ResizeEventFilter.hpp"
 #include "ui/Runtime.hpp"
 
 #include "test/common/DisableStreamBuffer.hpp"
@@ -25,7 +24,6 @@ struct PluginRuntime
     std::unique_ptr<YADAW::Audio::Plugin::VST3Plugin> plugin;
     std::atomic_flag runAudioThread;
     std::thread audioThread;
-    YADAW::UI::ResizeEventFilter* resizeEventFilter = nullptr;
     void finish()
     {
         runAudioThread.clear();
@@ -220,8 +218,6 @@ int main(int argc, char* argv[])
     efds.start(timer);
 #endif
     YADAW::Audio::Plugin::PluginWindow pluginWindow;
-    YADAW::UI::ResizeEventFilter resizeEventFilter(pluginWindow);
-    runtime.resizeEventFilter = &resizeEventFilter;
     std::setlocale(LC_ALL, "en_US.UTF-8");
     int argIndex = 1;
     YADAW::Native::Library library;
