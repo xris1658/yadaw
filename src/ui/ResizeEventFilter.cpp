@@ -533,16 +533,12 @@ bool ResizeEventFilter::nativeEventFilter(
         // `resized` when moving the window.
         else if(msg->message == WM_WINDOWPOSCHANGING)
         {
-            if(state_ == State::InteractiveResizeReady && !prevIsCaptureChanged_)
+            if((state_ == State::InteractiveResizeReady || state_ == State::InteractiveResizing) && !prevIsCaptureChanged_)
             {
                 state_ = State::InteractiveResizing;
                 windowPosChanging(msg, result);
                 *result = 0;
                 ret = true;
-            }
-            else if(state_ == State::InteractiveResizing)
-            {
-                std::fprintf(stderr, "InteractiveResizing\n");
             }
             else if(state_ == State::Exited)
             {
