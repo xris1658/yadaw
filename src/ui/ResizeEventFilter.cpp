@@ -17,6 +17,10 @@
 #include <cinttypes>
 #endif
 
+// Macros that control the debug messages, uncomment these on demand
+// #define YADAW_DEBUG_RESIZE_EVENT_FILTER_MESSAGES 1
+// #define YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES   1
+
 #if _WIN32
 #if YADAW_DEBUG_RESIZE_EVENT_FILTER_MESSAGES
 std::map<UINT, const char*> messages {
