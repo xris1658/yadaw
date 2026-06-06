@@ -73,9 +73,9 @@ private:
 private:
     WindowAndId windowAndId_;
     DragPosition position_ = DragPosition::Invalid;
-    WPARAM ncLButtonDownMessage_ = 0;
     bool resizing_ = false;
 #if _WIN32
+    WPARAM ncLButtonDownMessage_ = 0;
     enum State: std::uint8_t
     {
         Exited,
