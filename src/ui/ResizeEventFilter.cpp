@@ -18,7 +18,7 @@
 #endif
 
 #if _WIN32
-#if YADAW_DEBUG_RESIZE_EVENT_FILTER
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_MESSAGES
 std::map<UINT, const char*> messages {
     {WM_NULL, "WM_NULL"},
     {WM_CREATE, "WM_CREATE"},
@@ -482,7 +482,7 @@ bool ResizeEventFilter::nativeEventFilter(
         {
             return false;
         }
-#if YADAW_DEBUG_RESIZE_EVENT_FILTER
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_MESSAGES
         auto it = messages.find(LOWORD(msg->message));
         if(it != messages.end())
         {
@@ -521,6 +521,9 @@ bool ResizeEventFilter::nativeEventFilter(
         else if(msg->message == WM_ENTERSIZEMOVE && aboutToStartResize_)
         {
             state_ = State::InteractiveResizeReady;
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
+            std::fprintf(stderr, "[DEBUG] State moved to InteractiveResizeReady\n");
+#endif
             aboutToStartResize_ = false;
             resizing_ = true;
             startResize();
@@ -536,6 +539,9 @@ bool ResizeEventFilter::nativeEventFilter(
             if((state_ == State::InteractiveResizeReady || state_ == State::InteractiveResizing) && !prevIsCaptureChanged_)
             {
                 state_ = State::InteractiveResizing;
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
+                std::fprintf(stderr, "[DEBUG] State moved to InteractiveResizing\n");
+#endif
                 windowPosChanging(msg, result);
                 *result = 0;
                 ret = true;
@@ -546,6 +552,9 @@ bool ResizeEventFilter::nativeEventFilter(
                 if(windowPos->flags & SWP_NOSIZE)
                 {
                     state_ = State::ProgrammaticNotResizing;
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
+                    std::fprintf(stderr, "[DEBUG] State moved to ProgrammaticNotResizing\n");
+#endif
                     ret = false;
                 }
                 else
@@ -555,11 +564,17 @@ bool ResizeEventFilter::nativeEventFilter(
                         && oldNativeRect.bottom - oldNativeRect.top == windowPos->cy)
                     {
                         state_ = State::ProgrammaticNotResizing;
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
+                        std::fprintf(stderr, "[DEBUG] State moved to ProgrammaticNotResizing\n");
+#endif
                         ret = false;
                     }
                     else
                     {
                         state_ = State::ProgrammaticResizing;
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
+                        std::fprintf(stderr, "[DEBUG] State moved to ProgrammaticResizing\n");
+#endif
                         windowPosChanging(msg, result);
                         *result = 0;
                         ret = true;
@@ -573,17 +588,26 @@ bool ResizeEventFilter::nativeEventFilter(
             {
                 windowPosChanged(msg);
                 state_ = State::InteractiveResizeReady;
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
+                std::fprintf(stderr, "[DEBUG] State moved to InteractiveResizeReady\n");
+#endif
                 ret = true;
             }
             else if(state_ == State::ProgrammaticResizing)
             {
                 windowPosChanged(msg);
                 state_ = State::Exited;
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
+                std::fprintf(stderr, "[DEBUG] State moved to Exited\n");
+#endif
                 ret = false;
             }
             else if(state_ == State::ProgrammaticNotResizing)
             {
                 state_ = State::Exited;
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
+                std::fprintf(stderr, "[DEBUG] State moved to Exited\n");
+#endif
                 *result = 1;
                 ret = false;
             }
@@ -600,6 +624,9 @@ bool ResizeEventFilter::nativeEventFilter(
                 endResize();
                 resizing_ = false;
                 state_ = State::Exited;
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
+                std::fprintf(stderr, "[DEBUG] State moved to Exited\n");
+#endif
                 *result = 0;
                 ret = true;
             }
@@ -610,7 +637,7 @@ bool ResizeEventFilter::nativeEventFilter(
         }
         prevIsCaptureChanged_ = msg->message == WM_CAPTURECHANGED;
 
-#if YADAW_DEBUG_RESIZE_EVENT_FILTER
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_MESSAGES
         if(msg->message == WM_WINDOWPOSCHANGING)
         {
             printWindowPos(msg);
@@ -655,7 +682,7 @@ void ResizeEventFilter::windowPosChanged(MSG* msg)
 #endif
 }
 #if _WIN32
-#if YADAW_DEBUG_RESIZE_EVENT_FILTER
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_MESSAGES
 constexpr const char* swp[] = {
     "SWP_NOSIZE",
     "SWP_NOMOVE",
