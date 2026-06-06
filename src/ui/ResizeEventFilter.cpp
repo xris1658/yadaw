@@ -557,7 +557,7 @@ bool ResizeEventFilter::nativeEventFilter(
                 {
                     state_ = State::ProgrammaticNotResizing;
 #if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
-                    std::fprintf(stderr, "[DEBUG] State moved to ProgrammaticNotResizing\n");
+                    std::fprintf(stderr, "[DEBUG] State moved to ProgrammaticNotResizing, seems like `MoveWindow` called but `SWP_NORESIZE` is set\n");
 #endif
                     ret = false;
                 }
@@ -569,7 +569,7 @@ bool ResizeEventFilter::nativeEventFilter(
                     {
                         state_ = State::ProgrammaticNotResizing;
 #if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
-                        std::fprintf(stderr, "[DEBUG] State moved to ProgrammaticNotResizing\n");
+                        std::fprintf(stderr, "[DEBUG] State moved to ProgrammaticNotResizing, seems like `MoveWindow` called but window size has not changed\n");
 #endif
                         ret = false;
                     }
@@ -593,7 +593,7 @@ bool ResizeEventFilter::nativeEventFilter(
                 windowPosChanged(msg);
                 state_ = State::InteractiveResizeReady;
 #if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
-                std::fprintf(stderr, "[DEBUG] State moved to InteractiveResizeReady\n");
+                std::fprintf(stderr, "[DEBUG] State moved to InteractiveResizeReady on `WM_WINDOWPOSCHANGED`\n");
 #endif
                 ret = true;
             }
@@ -602,7 +602,7 @@ bool ResizeEventFilter::nativeEventFilter(
                 windowPosChanged(msg);
                 state_ = State::Exited;
 #if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
-                std::fprintf(stderr, "[DEBUG] State moved to Exited\n");
+                std::fprintf(stderr, "[DEBUG] State moved to Exited from ProgrammaticResizing\n");
 #endif
                 ret = false;
             }
@@ -610,7 +610,7 @@ bool ResizeEventFilter::nativeEventFilter(
             {
                 state_ = State::Exited;
 #if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
-                std::fprintf(stderr, "[DEBUG] State moved to Exited\n");
+                std::fprintf(stderr, "[DEBUG] State moved to Exited from ProgrammaticNotResizing\n");
 #endif
                 *result = 1;
                 ret = false;
@@ -629,7 +629,7 @@ bool ResizeEventFilter::nativeEventFilter(
                 resizing_ = false;
                 state_ = State::Exited;
 #if YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES
-                std::fprintf(stderr, "[DEBUG] State moved to Exited\n");
+                std::fprintf(stderr, "[DEBUG] State moved to Exited from InteractiveResizeReady\n");
 #endif
                 *result = 0;
                 ret = true;
@@ -723,7 +723,7 @@ void printWindowPos(MSG* msg)
     {
         if(windowPos->flags & (1 << i))
         {
-            std::fprintf(stderr, "%s%s", leftParen? " | ": "(", swp[i]);
+            std::fprintf(stderr, "%s%s", leftParen? " | ": " (", swp[i]);
             leftParen = true;
         }
     }
