@@ -292,6 +292,10 @@ ApplicationWindow {
                 editable: true
                 model: ["123456", "123456", "123456"]
             }
+            SpinBox {
+                width: 100
+                from: 1; to: 50; value: 25
+            }
         }
         Row {
             spacing: 5
