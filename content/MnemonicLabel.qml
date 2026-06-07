@@ -17,8 +17,8 @@ T.Control {
     bottomPadding: label.bottomPadding
     leftPadding: label.leftPadding
     rightPadding: label.rightPadding
-    width: implicitContentWidth + leftPdding + rightPadding
-    height: implicitContentHeight + topPadding + bottomPadding
+    implicitWidth: implicitContentWidth + leftPadding + rightPadding
+    implicitHeight: implicitContentHeight + topPadding + bottomPadding
     topInset: 0
     bottomInset: height
     leftInset: 0
@@ -45,8 +45,6 @@ T.Control {
         width: 0
         height: 0
         text: root.text
-        contentItem: Item {}
-        background: {}
         focus: false
         activeFocusOnTab: false
         enabled: Constants.isMnemonicSupported
