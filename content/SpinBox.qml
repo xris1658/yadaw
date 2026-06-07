@@ -5,7 +5,7 @@ import QtQuick.Templates as T
 T.SpinBox {
     id: root
 
-    topPadding: 3
+    topPadding: 3 // TODO: Use paddings
     bottomPadding: 3
     leftPadding: 5
     rightPadding: 5
@@ -25,7 +25,7 @@ T.SpinBox {
     down.indicator: downButton
     down.pressed: downButton.pressed
 
-    background: Rectangle {
+    background: Item {
         id: background
         width: root.width
         height: root.height
@@ -33,89 +33,70 @@ T.SpinBox {
         anchors.bottomMargin: root.bottomInset
         anchors.leftMargin: root.leftInset
         anchors.rightMargin: root.rightInset
-        border.color: root.enabled? Colors.controlBorder:
-            Colors.disabledControlBorder
-        border.width: root.activeFocus? 2: 1
-        color: (!root.enabled)?
-            Colors.background:
-            root.checked?
-                root.down?
-                    Colors.pressedCheckedButtonBackground:
-                    root.hovered?
-                        Colors.mouseOverCheckedButtonBackground:
-                        Colors.checkedButtonBackground:
-                root.down?
-                    Colors.pressedControlBackground:
-                    root.hovered?
-                        Colors.mouseOverControlBackground:
-                        Colors.controlBackground
     }
     contentItem: TextField {
         id: contentItem
         anchors.fill: parent
+        anchors.rightMargin: root.rightInset + upDownPlaceholder.width - 1
         padding: 0
+        z: 2
         leftInset: root.leftInset
-        rightInset: root.rightInset
+        rightInset: 0
         topInset: root.topInset
         bottomInset: root.bottomInset
         text: root.textFromValue(root.value, root.locale)
         validator: root.validator
         readOnly: !root.editable
         inputMethodHints: root.inputMethodHints
-        Item {
-            width: height
-            height: parent.height - anchors.rightMargin * 2
-            anchors.right: parent.right
-            anchors.rightMargin: 2
-            anchors.verticalCenter: parent.verticalCenter
-            Button {
-                id: upButton
-                flat: true
-                width: height * 1.5
-                height: parent.height / 2
-                anchors.right: parent.right
-                anchors.top: parent.top
-                text: "\u25b4"
-                enabled: root.value < root.to
-                background: Rectangle {
-                    color: parent.down?
-                        Colors.pressedControlBackground:
-                        parent.hovered && parent.enabled?
-                            Colors.mouseOverControlBackground:
-                            Colors.controlBackground
-                }
-                focusPolicy: Qt.NoFocus
-                onClicked: {
-                    root.increase();
-                }
-            }
-            Button {
-                id: downButton
-                flat: true
-                width: height * 1.5
-                height: parent.height / 2
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                text: "\u25be"
-                enabled: root.value > root.from
-                background: Rectangle {
-                    color: parent.down?
-                        Colors.pressedControlBackground:
-                        parent.hovered && parent.enabled?
-                            Colors.mouseOverControlBackground:
-                            Colors.controlBackground
-                }
-                focusPolicy: Qt.NoFocus
-                onClicked: {
-                    root.decrease();
-                }
-            }
-        }
         Keys.onUpPressed: {
             root.increase();
         }
         Keys.onDownPressed: {
             root.decrease();
+        }
+    }
+    Rectangle {
+        id: upDownPlaceholder
+        width: height
+        anchors.right: parent.right
+        anchors.rightMargin: anchors.rightInset
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        color: root.enabled? Colors.controlBackground: Colors.background
+        border.color: root.enabled? Colors.controlBorder: Colors.disabledControlBorder
+        z: 1
+        Button {
+            id: upButton
+            flat: true
+            anchors.fill: parent
+            anchors.margins: 1
+            anchors.bottomMargin: parent.height / 2
+            text: "\u25b4"
+            enabled: root.enabled && root.value < root.to
+            focusPolicy: Qt.NoFocus
+            onClicked: {
+                root.increase();
+                root.forceActiveFocus();
+            }
+        }
+        Button {
+            id: downButton
+            flat: true
+            anchors.fill: parent
+            anchors.margins: 1
+            anchors.topMargin: parent.height / 2
+            text: "\u25be"
+            enabled: root.enabled && root.value > root.from
+            focusPolicy: Qt.NoFocus
+            onClicked: {
+                root.decrease();
+                root.forceActiveFocus();
+            }
+        }
+    }
+    onActiveFocusChanged: {
+        if(activeFocus) {
+            contentItem.forceActiveFocus;
         }
     }
 }
