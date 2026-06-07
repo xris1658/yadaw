@@ -41,8 +41,6 @@ private:
     QWindow* window_ = nullptr;
     clap_window clapWindow_ = {};
     clap_gui_resize_hints resizeHints_;
-    QMetaObject::Connection connections_[2];
-    bool requestResizeCalled_ = false;
 };
 
 }
