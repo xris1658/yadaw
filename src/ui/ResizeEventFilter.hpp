@@ -6,7 +6,10 @@
 #include <QAbstractNativeEventFilter>
 #include <QObject>
 
-#if __linux__
+#if _WIN32
+#define NOMINMAX
+#include <windows.h>
+#elif __linux__
 #include <xcb/xcb.h>
 #endif
 

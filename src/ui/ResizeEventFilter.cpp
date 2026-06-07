@@ -1,13 +1,10 @@
 #include "ResizeEventFilter.hpp"
-#include "ResizeEventFilter.hpp"
-#include "ResizeEventFilter.hpp"
 
 #include <QCoreApplication>
 #include <QGuiApplication>
 #include <QMetaMethod>
 
 #if _WIN32
-#include <Windows.h>
 #include <uxtheme.h>
 #include <vsstyle.h>
 #include <vssym32.h>
