@@ -38,6 +38,7 @@ Project {
         QT_LOGGING_RULES: "qt.qml.connections=false"
         QT_ENABLE_HIGHDPI_SCALING: "0"
         QSG_RENDER_LOOP: "basic"
+        QT_QUICK_BACKEND: "software"
         /* Useful for debugging
        QSG_VISUALIZE=batches
        QSG_VISUALIZE=clip
@@ -56,7 +57,7 @@ Project {
 
     qdsVersion: "3.9"
 
-    quickVersion: "6.2"
+    quickVersion: "6.8"
 
     /* If any modules the project imports require widgets (e.g. QtCharts), widgetApp must be true */
     widgetApp: true
