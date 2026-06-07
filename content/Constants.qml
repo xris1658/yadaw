@@ -7,9 +7,9 @@ import YADAW.Entities
 
 QtObject {
     readonly property string okText:                    qsTr("OK")
-    readonly property string okTextWithMnemonic:        qsTr("&OK")
+    readonly property string okTextWithMnemonic:        qsTr("&OK") // FIXME: Remove this to match Windows button text
     readonly property string cancelText:                qsTr("Cancel")
-    readonly property string cancelTextWithMnemonic:    qsTr("&Cancel")
+    readonly property string cancelTextWithMnemonic:    qsTr("&Cancel") // FIXME: Remove this to match Windows button text
     readonly property string applyText:                 qsTr("Apply")
     readonly property string applyTextWithMnemonic:     qsTr("&Apply")
     readonly property string closeText:                 qsTr("Close")
