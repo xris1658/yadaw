@@ -6,9 +6,8 @@ Button {
 
     checkable: true
     mnemonicTextLook: Mnemonic.MnemonicDisabled
-    rightPadding: indicator.width
 
-    implicitWidth: label.contentWidth + leftPadding + rightPadding
+    implicitWidth: label.contentWidth + indicator.width + leftPadding + rightPadding
     implicitHeight: label.contentHeight + topPadding + bottomPadding
 
     background: Rectangle {
@@ -41,7 +40,7 @@ Button {
         color: root.enabled? Colors.content: Colors.disabledContent
         anchors.fill: root
         anchors.leftMargin: root.leftPadding
-        anchors.rightMargin: root.rightPadding
+        anchors.rightMargin: indicator.width
         anchors.topMargin: root.topPadding
         anchors.bottomMargin: root.bottomPadding
         horizontalAlignment: Text.AlignLeft
@@ -52,11 +51,10 @@ Button {
     Label {
         id: indicator
         height: root.height - root.topInset - root.bottomInset
-        width: height
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        anchors.rightMargin: root.rightInset
+        anchors.rightMargin: root.rightPadding
         anchors.topMargin: root.topInset
         anchors.bottomMargin: root.bottomInset
         text: "\u25bc"
