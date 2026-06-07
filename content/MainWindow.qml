@@ -972,6 +972,7 @@ ApplicationWindow {
         audioInputList: root.audioInputBusConfigurationModel
         audioOutputList: root.audioOutputBusConfigurationModel
         pluginSelectorWindow: pluginSelectorWindow
+        audioIOSelectorWindow: audioIOSelectorWindow
         function openWindow(position: int, type: int) {
             addTrackWindow.trackType = type;
             addTrackWindow.position = position;

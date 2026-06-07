@@ -68,6 +68,34 @@ Window {
         property int spacing: 5
     }
     Connections {
+        id: connectToAudioIOSelector
+        target: audioIOSelectorWindow
+        function onCancelled() {
+            audioInputComboBoxButton.checked = false;
+            audioOutputComboBoxButton.checked = false;
+        }
+        function onAccepted() {
+            if(audioInputComboBoxButton.checked) {
+                // TODO
+            }
+            else if(audioOutputComboBoxButton.checked) {
+                // TODO
+            }
+            audioInputComboBoxButton.checked = false;
+            audioOutputComboBoxButton.checked = false;
+        }
+        function onResetted() {
+            if(audioInputComboBoxButton.checked) {
+                // TODO
+            }
+            else if(audioOutputComboBoxButton.checked) {
+                // TODo
+            }
+            audioInputComboBoxButton.checked = false;
+            audioOutputComboBoxButton.checked = false;
+        }
+    }
+    Connections {
         id: connectToPluginSelector
         target: pluginSelectorWindow
         function onCancelled() {
@@ -293,6 +321,15 @@ Window {
                                 if(checked) {
                                     locatePopupWindow(audioIOSelectorWindow, height, 0);
                                     audioIOSelectorWindow.audioIOSelector.showResetButton = false;
+                                    audioIOSelectorWindow.transientParent = root;
+                                    audioIOSelectorWindow.audioIOSelector.audioChannelConfig = channelConfigComboBox.currentValue;
+                                    audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = true;
+                                    audioIOSelectorWindow.audioIOSelector.showAudioHardwareOutput = false;
+                                    audioIOSelectorWindow.audioIOSelector.showAudioChannel = false;
+                                    audioIOSelectorWindow.audioIOSelector.showAudioGroupChannel = false;
+                                    audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = false;
+                                    audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = false;
+                                    audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = true;
                                     audioIOSelectorWindow.showNormal();
                                 }
                             }
@@ -317,6 +354,23 @@ Window {
                             enabled: audioOutputCheckBox.checked
                             // model: audioOutputModel
                             // textRole: "abcm_name"
+                            onCheckedChanged: {
+                                if(checked) {
+                                    locatePopupWindow(audioIOSelectorWindow, height, 0);
+                                    audioIOSelectorWindow.transientParent = root;
+                                    audioIOSelectorWindow.audioIOSelector.showResetButton = false;
+                                    audioIOSelectorWindow.transientParent = root;
+                                    audioIOSelectorWindow.audioIOSelector.audioChannelConfig = channelConfigComboBox.currentValue;
+                                    audioIOSelectorWindow.audioIOSelector.showAudioHardwareInput = false;
+                                    audioIOSelectorWindow.audioIOSelector.showAudioHardwareOutput = true;
+                                    audioIOSelectorWindow.audioIOSelector.showAudioChannel = true;
+                                    audioIOSelectorWindow.audioIOSelector.showAudioGroupChannel = true;
+                                    audioIOSelectorWindow.audioIOSelector.showAudioEffectChannel = true;
+                                    audioIOSelectorWindow.audioIOSelector.showPluginAuxIn = true;
+                                    audioIOSelectorWindow.audioIOSelector.showPluginAuxOut = false;
+                                    audioIOSelectorWindow.showNormal();
+                                }
+                            }
                         }
                         MnemonicLabel {
                             width: gridContainer.firstColumnWidth
