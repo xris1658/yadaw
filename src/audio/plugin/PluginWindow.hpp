@@ -10,6 +10,7 @@ namespace YADAW::Audio::Plugin
 {
 class PluginWindow: public QWindow
 {
+    Q_OBJECT
 public:
     PluginWindow();
     ~PluginWindow();
@@ -22,8 +23,8 @@ public:
     void resetGUI();
 public:
     void resizeFromPlugin(const QSize& size);
-    bool canClose() const;
-    void setCanClose(bool arg);
+signals:
+    void aboutToClose(bool& canClose);
 protected:
     void closeEvent(QCloseEvent* closeEvent) override;
 private slots:

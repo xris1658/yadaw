@@ -367,7 +367,7 @@ bool MixerChannelInsertListModel::remove(int position, int removeCount)
             if(auto window = pluginContext.editor)
             {
                 window->resetGUI();
-                window->setCanClose(true);
+                window->setProperty("canClose", QVariant::fromValue<bool>(true));
                 delete window;
             }
             auto genericEditor = pluginContext.genericEditor;

@@ -80,7 +80,24 @@ void createPluginWindows(PluginContext& context)
         context.editor->setTransientParent(YADAW::UI::mainWindow);
         context.editor->setGUI(*pluginGUI);
         context.editor->setTopBar(pluginWindows.pluginWindowTopBarFrame);
-        context.editor->setCanClose(false);
+        context.editor->setProperty("canClose", QVariant::fromValue<bool>(false));
+#ifndef NDEBUG
+        {
+            auto vCanClose = context.editor->property("canClose");
+            assert(vCanClose.isValid() && vCanClose.value<bool>() == false);
+        }
+#endif
+        QObject::connect(
+            context.editor, &YADAW::Audio::Plugin::PluginWindow::aboutToClose,
+            [window = context.editor](bool& canClose)
+            {
+                canClose = window->property("close").value<bool>();
+                if(!canClose)
+                {
+                    window->hide();
+                }
+            }
+        );
         pluginWindows.pluginWindowTopBarFrame = nullptr;
     }
     createGenericPluginEditor();

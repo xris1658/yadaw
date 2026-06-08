@@ -9,7 +9,6 @@
 #include "ui/Runtime.hpp"
 
 #include "test/common/DisableStreamBuffer.hpp"
-#include "test/common/CloseWindowEventFilter.hpp"
 
 #include <QGuiApplication>
 #include <QScreen>
@@ -221,20 +220,19 @@ int main(int argc, char* argv[])
     std::setlocale(LC_ALL, "en_US.UTF-8");
     int argIndex = 1;
     YADAW::Native::Library library;
-    CloseWindowEventFilter closeWindowEventFilter;
     QObject::connect(
-        &closeWindowEventFilter, &CloseWindowEventFilter::aboutToClose,
-        [&]() mutable
+        &pluginWindow, &YADAW::Audio::Plugin::PluginWindow::aboutToClose,
+        [&](bool& canClose) mutable
         {
             pluginWindow.resetGUI();
             runtime.finish();
             if(argIndex == argc)
             {
-                closeWindowEventFilter.setClose(true);
+                canClose = true;
             }
             else
             {
-                closeWindowEventFilter.setClose(false);
+                canClose = false;
                 pluginWindow.hide();
                 library = createPluginFromArgs(argIndex, argv, pluginWindow);
                 testPlugin(pluginWindow);
@@ -243,7 +241,6 @@ int main(int argc, char* argv[])
     );
     library = createPluginFromArgs(argIndex, argv, pluginWindow);
     testPlugin(pluginWindow);
-    closeWindowEventFilter.setWindow(pluginWindow);
     auto ret = application.exec();
 #if __linux__
     efds.stop();

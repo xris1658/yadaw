@@ -114,27 +114,11 @@ void PluginWindow::resizeFromPlugin(const QSize& size)
     resizeOps_ ^= ResizeOp::ResizingFromPlugin;
 }
 
-bool PluginWindow::canClose() const
-{
-    return canClose_;
-}
-
-void PluginWindow::setCanClose(bool arg)
-{
-    canClose_ = arg;
-}
-
 void PluginWindow::closeEvent(QCloseEvent* closeEvent)
 {
-    if(canClose_)
-    {
-        closeEvent->accept();
-    }
-    else
-    {
-        closeEvent->ignore();
-        hide();
-    }
+    bool canClose = true;
+    aboutToClose(canClose);
+    closeEvent->setAccepted(canClose);
 }
 
 void PluginWindow::onAboutToResize(YADAW::UI::ResizeEventFilter::DragPosition dragPosition, QRect* rect)

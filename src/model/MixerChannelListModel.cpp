@@ -1291,7 +1291,7 @@ bool MixerChannelListModel::removeInstrument(int position)
         if(auto window = context.editor)
         {
             window->resetGUI();
-            window->setCanClose(true);
+            window->setProperty("canClose", QVariant::fromValue<bool>(true));
             delete window;
         }
         auto genericEditor = context.genericEditor;
