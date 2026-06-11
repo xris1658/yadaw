@@ -146,6 +146,11 @@ bool isWindowResizableByUser(QWindow& window)
     }
 }
 
+bool isWindowMaximized(QWindow& window)
+{
+    return window.visibility() == QWindow::Visibility::Maximized;
+}
+
 void enterFullscreen(QWindow& window)
 {
     if(window.visibility() == QWindow::Visibility::Maximized)

@@ -17,6 +17,8 @@ bool isWindowResizableByUser(QWindow& window);
 
 void setWindowResizableByUser(QWindow& window, bool resizable);
 
+bool isWindowMaximized(QWindow& window);
+
 // Enters fullscreen. If the window was maximized, this function tries setting
 // window state from maximized to fullscreen without showing the intermediate
 // normal visibility.

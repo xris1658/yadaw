@@ -772,15 +772,17 @@ void EventHandler::onAudioGraphOutputDeviceIndexChanged(int index)
 #endif
 }
 
+bool fullscreen = false;
+
 void EventHandler::onToggleMainWindowFullscreen()
 {
-    auto visibility = YADAW::UI::mainWindow->visibility();
-    if(visibility != QWindow::Visibility::FullScreen)
+    if(!fullscreen)
     {
         YADAW::UI::mainWindow->setProperty("previouslyMaximized",
-            QVariant::fromValue<bool>(visibility == QWindow::Visibility::Maximized)
+            QVariant::fromValue<bool>(YADAW::Native::isWindowMaximized(*YADAW::UI::mainWindow))
         );
         YADAW::Native::enterFullscreen(*YADAW::UI::mainWindow);
+        fullscreen = true;
     }
     else
     {
@@ -788,6 +790,7 @@ void EventHandler::onToggleMainWindowFullscreen()
             *YADAW::UI::mainWindow,
             YADAW::UI::mainWindow->property("previouslyMaximized").value<bool>()
         );
+        fullscreen = false;
     }
 }
 

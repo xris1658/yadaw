@@ -24,6 +24,11 @@ void setWindowResizableByUser(QWindow& window, bool resizable)
     // TODO
 }
 
+bool isWindowMaximized(QWindow& window)
+{
+    return window.visibility() == QWindow::Visibility::Maximized;
+}
+
 void toggleNSWindowFullscreen(WId winId)
 {
     auto nsview = reinterpret_cast<NSView*>(winId);

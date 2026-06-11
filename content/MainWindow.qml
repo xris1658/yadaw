@@ -63,9 +63,6 @@ ApplicationWindow {
     property bool previouslyMaximized: false
 
     onVisibilityChanged: {
-        if(root.visibility != Window.FullScreen) {
-            previouslyMaximized = root.visibility == Window.Maximized;
-        }
         actionFullScreen.checked = root.visibility == Window.FullScreen;
     }
 
@@ -343,7 +340,6 @@ ApplicationWindow {
 
             Action {
                 id: actionFullScreen
-                property bool previouslyMaximized: false
                 text: qsTr("&Fullscreen")
                 shortcut: "F11"
                 checkable: true

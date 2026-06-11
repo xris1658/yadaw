@@ -1,11 +1,7 @@
 #if _WIN32
 
-#include "native/Library.hpp"
+#include "native/Native.hpp"
 #include "native/Window.hpp"
-
-#include <dwmapi.h>
-
-#include <mutex>
 
 namespace YADAW::Native
 {
@@ -14,16 +10,6 @@ void showWindowWithoutActivating(QWindow& window)
     window.setFlag(Qt::WindowType::WindowDoesNotAcceptFocus, true);
     window.showNormal();
     window.setVisible(true);
-}
-
-bool isWindows11 = false;
-
-std::once_flag getWindowsVersionFlag;
-
-void getWindowsIs11()
-{
-    auto build = YADAW::Native::getWindowsVersion().buildVersion;
-    isWindows11 = (build >= 21996);
 }
 
 bool isWindowResizableByUser(QWindow& window)
@@ -48,30 +34,28 @@ void setWindowResizableByUser(QWindow& window, bool resizable)
     }
 }
 
+bool isWindowMaximized(QWindow& window)
+{
+    return GetWindowLongPtrW(reinterpret_cast<HWND>(window.winId()), GWL_STYLE) & WS_MAXIMIZE;
+}
+
 void enterFullscreen(QWindow& window)
 {
-    if(window.visibility() == QWindow::Visibility::Maximized)
+    if(isWindowMaximized(window))
     {
         auto hwnd = reinterpret_cast<HWND>(window.winId());
-        // https://devblogs.microsoft.com/oldnewthing/20121003-00/?p=6423
-        BOOL disableAnimation = TRUE;
-        DwmSetWindowAttribute(
-            hwnd, DWMWA_TRANSITIONS_FORCEDISABLED,
-            &disableAnimation, sizeof(disableAnimation)
+        auto screen = window.screen();
+        auto g = screen->size();
+        auto dpi = GetDpiForWindow(hwnd);
+        auto w = g.width() * dpi / USER_DEFAULT_SCREEN_DPI;
+        auto h = g.height() * dpi / USER_DEFAULT_SCREEN_DPI;
+        SetWindowLongPtrW(
+            hwnd, GWL_STYLE,
+            WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU | WS_MAXIMIZE
         );
-        const UINT swpf = SWP_FRAMECHANGED | SWP_NOACTIVATE;
-        auto oldGeometry = window.geometry();
-        // We only pass the new sizing and positioning flags to the window, without
-        // actually setting the window geometry.
-        SetWindowPos(hwnd, HWND_TOP,
-            oldGeometry.left(), oldGeometry.top(),
-            oldGeometry.width(), oldGeometry.height(),
-            swpf
+        SetWindowPos(
+            hwnd, HWND_TOP, 0, 0, w, h, SWP_NOACTIVATE | SWP_FRAMECHANGED
         );
-        // This `setGeometry` is necessary to make `exitFullscreen`
-        // work without the intermediate normal visibility.
-        window.setGeometry(oldGeometry);
-        window.showFullScreen();
     }
     else
     {
@@ -83,21 +67,22 @@ void exitFullscreen(QWindow& window, bool previouslyMaximized)
 {
     if(previouslyMaximized)
     {
-        std::call_once(getWindowsVersionFlag, &getWindowsIs11);
         auto hwnd = reinterpret_cast<HWND>(window.winId());
-        ShowWindow(hwnd, SW_SHOWNOACTIVATE);
-        // We only pass the new sizing and positioning flags to the window, without
-        // actually setting the window geometry.
-        if(isWindows11)
-        {
-            window.showMinimized();
-        }
-        window.showMaximized();
-        https://devblogs.microsoft.com/oldnewthing/20121003-00/?p=6423
-        BOOL disableAnimation = FALSE;
-        DwmSetWindowAttribute(
-            hwnd, DWMWA_TRANSITIONS_FORCEDISABLED,
-            &disableAnimation, sizeof(disableAnimation)
+        constexpr auto style =
+              WS_POPUP
+            | WS_VISIBLE
+            | WS_MAXIMIZE
+            | WS_SYSMENU
+            | WS_THICKFRAME
+            | WS_CAPTION
+            | WS_CLIPSIBLINGS
+            | WS_CLIPCHILDREN
+            | WS_THICKFRAME
+            | WS_MAXIMIZEBOX
+            | WS_MINIMIZEBOX;
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(
+            hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_FRAMECHANGED
         );
     }
     else
