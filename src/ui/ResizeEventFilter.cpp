@@ -206,16 +206,16 @@ QRect rectToQRect(const RECT& rect)
     );
 }
 
-QRect windowRectFromClient(const QRect& clientRect, HWND window)
+QRect windowRectFromClient(const QRect& clientRect, HWND window, UINT dpi)
 {
     auto style = GetWindowLongPtrW(window, GWL_STYLE);
     auto exStyle = GetWindowLongPtrW(window, GWL_EXSTYLE);
     auto crect = rectFromQRect(clientRect);
-    AdjustWindowRectEx(&crect, style, FALSE, exStyle);
+    AdjustWindowRectExForDpi(&crect, style, FALSE, exStyle, dpi);
     return rectToQRect(crect);
 }
 
-QRect clientRectFromWindow(const QRect& windowRect, HWND window)
+QRect clientRectFromWindow(const QRect& windowRect, HWND window, UINT dpi)
 {
     auto style = GetWindowLongPtrW(window, GWL_STYLE);
     auto exStyle = GetWindowLongPtrW(window, GWL_EXSTYLE);
@@ -223,13 +223,35 @@ QRect clientRectFromWindow(const QRect& windowRect, HWND window)
     RECT extendedRect = wrect;
     // Inverse of `AdjustWindowRectEx`: https://stackoverflow.com/questions/11584042/inverse-of-adjustwindowrectex
     // `extendedRect` always contains `wrect`...
-    AdjustWindowRectEx(&extendedRect, style, FALSE, exStyle);
+    AdjustWindowRectExForDpi(&extendedRect, style, FALSE, exStyle, dpi);
     // ... but what should this return if `wrect` is too small?
     wrect.left   += wrect.left   - extendedRect.left;
     wrect.right  += wrect.right  - extendedRect.right;
     wrect.top    += wrect.top    - extendedRect.top;
     wrect.bottom += wrect.bottom - extendedRect.bottom;
     return rectToQRect(wrect);
+}
+
+QRect diRectFromPhysicalRect(const QRect& physicalRect, UINT dpi)
+{
+    int rect[4]; auto& [x, y, w, h] = rect;
+    physicalRect.getRect(&x, &y, &w, &h);
+    x *= USER_DEFAULT_SCREEN_DPI; x /= dpi;
+    y *= USER_DEFAULT_SCREEN_DPI; y /= dpi;
+    w *= USER_DEFAULT_SCREEN_DPI; w /= dpi;
+    h *= USER_DEFAULT_SCREEN_DPI; h /= dpi;
+    return QRect(x, y, w, h);
+}
+
+QRect diRectToPhysicalRect(const QRect& diRect, UINT dpi)
+{
+    int rect[4]; auto& [x, y, w, h] = rect;
+    diRect.getRect(&x, &y, &w, &h);
+    x *= dpi; x /= USER_DEFAULT_SCREEN_DPI;
+    y *= dpi; y /= USER_DEFAULT_SCREEN_DPI;
+    w *= dpi; w /= USER_DEFAULT_SCREEN_DPI;
+    h *= dpi; h /= USER_DEFAULT_SCREEN_DPI;
+    return QRect(x, y, w, h);
 }
 #endif
 
@@ -277,10 +299,10 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
 {
 #if _WIN32
     return FeatureSupportFlag::SupportsStartAndEndResize
-        |  FeatureSupportFlag::SupportsAboutToResize
-        |  FeatureSupportFlag::SupportsDragPosition
-        |  FeatureSupportFlag::SupportsResized
-        |  FeatureSupportFlag::SupportsAdjustOnAboutToResize;
+         | FeatureSupportFlag::SupportsAboutToResize
+         | FeatureSupportFlag::SupportsDragPosition
+         | FeatureSupportFlag::SupportsResized
+         | FeatureSupportFlag::SupportsAdjustOnAboutToResize;
 #elif __linux__
     // On KDE:
     // - No events are sent on starting/ending resizing.
@@ -676,9 +698,10 @@ void ResizeEventFilter::windowPosChanging(MSG* msg, qintptr* result)
 {
     auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
     QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
-    rect = clientRectFromWindow(rect, msg->hwnd);
+    auto dpi = GetDpiForWindow(msg->hwnd);
+    rect = diRectFromPhysicalRect(clientRectFromWindow(rect, msg->hwnd, dpi), dpi);
     aboutToResize(position_, &rect);
-    rect = windowRectFromClient(rect, msg->hwnd);
+    rect = windowRectFromClient(diRectToPhysicalRect(rect, dpi), msg->hwnd, dpi);
     nativeRect->x = rect.left();
     nativeRect->y = rect.top();
     nativeRect->cx = rect.width();
@@ -690,8 +713,8 @@ void ResizeEventFilter::windowPosChanged(MSG* msg)
 {
     auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
     QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
-    rect = clientRectFromWindow(rect, msg->hwnd);
-    auto size = rect.size();
+    auto dpi = GetDpiForWindow(msg->hwnd);
+    rect = diRectFromPhysicalRect(clientRectFromWindow(rect, msg->hwnd, dpi), dpi);
     resized(rect);
 }
 #endif
