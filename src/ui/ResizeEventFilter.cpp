@@ -302,7 +302,8 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
          | FeatureSupportFlag::SupportsAboutToResize
          | FeatureSupportFlag::SupportsDragPosition
          | FeatureSupportFlag::SupportsResized
-         | FeatureSupportFlag::SupportsAdjustOnAboutToResize;
+         | FeatureSupportFlag::SupportsAdjustOnAboutToResize
+         | FeatureSupportFlag::UsesPhysicalSize;
 #elif __linux__
     // On KDE:
     // - No events are sent on starting/ending resizing.
@@ -699,9 +700,9 @@ void ResizeEventFilter::windowPosChanging(MSG* msg, qintptr* result)
     auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
     QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
     auto dpi = GetDpiForWindow(msg->hwnd);
-    rect = diRectFromPhysicalRect(clientRectFromWindow(rect, msg->hwnd, dpi), dpi);
+    rect = clientRectFromWindow(rect, msg->hwnd, dpi);
     aboutToResize(position_, &rect);
-    rect = windowRectFromClient(diRectToPhysicalRect(rect, dpi), msg->hwnd, dpi);
+    rect = windowRectFromClient(rect, msg->hwnd, dpi);
     nativeRect->x = rect.left();
     nativeRect->y = rect.top();
     nativeRect->cx = rect.width();
@@ -714,7 +715,7 @@ void ResizeEventFilter::windowPosChanged(MSG* msg)
     auto nativeRect = reinterpret_cast<WINDOWPOS*>(msg->lParam);
     QRect rect(nativeRect->x, nativeRect->y, nativeRect->cx, nativeRect->cy);
     auto dpi = GetDpiForWindow(msg->hwnd);
-    rect = diRectFromPhysicalRect(clientRectFromWindow(rect, msg->hwnd, dpi), dpi);
+    rect = clientRectFromWindow(rect, msg->hwnd, dpi);
     resized(rect);
 }
 #endif

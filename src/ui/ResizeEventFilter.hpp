@@ -37,7 +37,8 @@ public:
         SupportsAboutToResize         = 1 << 1,
         SupportsDragPosition          = 1 << 2,
         SupportsResized               = 1 << 3,
-        SupportsAdjustOnAboutToResize = 1 << 4
+        SupportsAdjustOnAboutToResize = 1 << 4,
+        UsesPhysicalSize              = 1 << 5
     };
     using FeatureSupportFlags = std::underlying_type_t<FeatureSupportFlag>;
 public:
