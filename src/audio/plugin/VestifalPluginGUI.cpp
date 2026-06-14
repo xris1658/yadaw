@@ -18,6 +18,11 @@ VestifalPluginGUI::~VestifalPluginGUI()
     }
 }
 
+bool VestifalPluginGUI::usePhysicalPixelSize() const // TODO
+{
+    return true;
+}
+
 bool VestifalPluginGUI::attachToWindow(QWindow* window)
 {
     if(!window_)

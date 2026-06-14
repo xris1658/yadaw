@@ -31,6 +31,14 @@ VST3PluginGUI::~VST3PluginGUI()
     }
 }
 
+bool VST3PluginGUI::usePhysicalPixelSize() const // TODO
+{
+#if defined(_WIN32)
+    return true;
+#endif
+    return false;
+}
+
 bool VST3PluginGUI::attachToWindow(QWindow* window)
 {
     if(window_)

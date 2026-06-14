@@ -13,6 +13,7 @@ public:
     VestifalPluginGUI(const VestifalPluginGUI&) = delete;
     ~VestifalPluginGUI() override;
 public:
+    bool usePhysicalPixelSize() const override;
     bool attachToWindow(QWindow* window) override;
     QWindow* window() override;
     const QWindow* window() const override;

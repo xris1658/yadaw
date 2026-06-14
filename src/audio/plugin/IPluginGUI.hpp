@@ -11,6 +11,7 @@ class IPluginGUI
 public:
     virtual ~IPluginGUI() {}
 public:
+    virtual bool usePhysicalPixelSize() const = 0;
     virtual bool attachToWindow(QWindow* window) = 0;
     virtual QWindow* window() = 0;
     virtual const QWindow* window() const = 0;

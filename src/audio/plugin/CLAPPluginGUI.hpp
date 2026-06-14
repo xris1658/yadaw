@@ -21,6 +21,7 @@ public:
     CLAPPluginGUI& operator=(CLAPPluginGUI&& rhs) noexcept = default;
     ~CLAPPluginGUI() override;
 public:
+    bool usePhysicalPixelSize() const override;
     bool attachToWindow(QWindow* window) override;
     const QWindow* window() const override;
     QWindow* window() override;

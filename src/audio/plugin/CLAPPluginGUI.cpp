@@ -17,6 +17,16 @@ CLAPPluginGUI::~CLAPPluginGUI()
     plugin_ = nullptr;
 }
 
+bool CLAPPluginGUI::usePhysicalPixelSize() const
+{
+#if defined(_WIN32) || defined(__linux__)
+    return true;
+#elif defined(__APPLE__)
+    return false;
+#endif
+    return false;
+}
+
 bool CLAPPluginGUI::attachToWindow(QWindow* window)
 {
     if((!window_) && gui_->create(plugin_, YADAW::Native::windowAPI, false))

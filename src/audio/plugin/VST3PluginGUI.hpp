@@ -23,6 +23,7 @@ public:
     VST3PluginGUI& operator=(VST3PluginGUI&&) noexcept = default;
     ~VST3PluginGUI() override;
 public:
+    bool usePhysicalPixelSize() const override;
     bool attachToWindow(QWindow* window) override;
     QWindow* window() override;
     const QWindow* window() const override;
