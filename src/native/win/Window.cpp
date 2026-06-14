@@ -44,17 +44,22 @@ void enterFullscreen(QWindow& window)
     if(isWindowMaximized(window))
     {
         auto hwnd = reinterpret_cast<HWND>(window.winId());
-        auto screen = window.screen();
-        auto g = screen->size();
-        auto dpi = GetDpiForWindow(hwnd);
-        auto w = g.width() * dpi / USER_DEFAULT_SCREEN_DPI;
-        auto h = g.height() * dpi / USER_DEFAULT_SCREEN_DPI;
+        auto monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+        MONITORINFO monitorInfo {
+            .cbSize = sizeof(MONITORINFO)
+        };
+        GetMonitorInfoW(monitor, &monitorInfo);
+        auto monitorRect = monitorInfo.rcMonitor;
         SetWindowLongPtrW(
             hwnd, GWL_STYLE,
             WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU | WS_MAXIMIZE
         );
         SetWindowPos(
-            hwnd, HWND_TOP, 0, 0, w, h, SWP_NOACTIVATE | SWP_FRAMECHANGED
+            hwnd, HWND_TOP,
+            monitorRect.left, monitorRect.top,
+            monitorRect.right - monitorRect.left,
+            monitorRect.bottom - monitorRect.top,
+            SWP_NOACTIVATE | SWP_FRAMECHANGED
         );
     }
     else
