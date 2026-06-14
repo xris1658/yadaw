@@ -24,8 +24,8 @@ bool isWindowMaximized(QWindow& window);
 // normal visibility.
 // Since it relies on private `QPlatformWindow` implementations, this function
 // might not work correctly on several Qt versions.
-// TODO: Test on multiple platforms (specifically, Windows 10/11) with window
-//       animations enabled, and see if the behavior is right.
+// TODO: Test on multiple platforms with window animations enabled/disabled and
+//       multiple scaling. Currently tested on Windows 10/11.
 void enterFullscreen(QWindow& window);
 
 // Exits fullscreen. If the window was maximized before full screen, this
@@ -33,8 +33,8 @@ void enterFullscreen(QWindow& window);
 // showing the intermediate normal visibility.
 // Since it relies on private `QPlatformWindow` implementations, this function
 // might not work correctly on several Qt versions.
-// TODO: Test on multiple platforms (specifically, Windows 10/11) with window
-//       animations enabled, and see if the behavior is right.
+// TODO: Test on multiple platforms with window animations enabled/disabled and
+//       multiple scaling. Currently tested on Windows 10/11.
 void exitFullscreen(QWindow& window, bool previouslyMaximized);
 }
 
