@@ -12,6 +12,29 @@ void showWindowWithoutActivating(QWindow& window)
     window.setVisible(true);
 }
 
+QRect getPhysicalGeometry(QWindow& window)
+{
+    auto hwnd = reinterpret_cast<HWND>(window.winId());
+    if(auto parent = window.parent())
+    {
+        auto parentGeometry = getPhysicalGeometry(*parent);
+        RECT rect1; GetWindowRect(hwnd, &rect1);
+        auto x = rect1.left - parentGeometry.left();
+        auto y = rect1.top  - parentGeometry.top ();
+        return QRect(rect1.left - parentGeometry.left(), rect1.top - parentGeometry.top(), rect1.right, rect1.bottom);
+    }
+    else
+    {
+        RECT rect1, rect2;
+        GetClientRect(hwnd, &rect1);
+        auto width = rect1.right;
+        auto height = rect1.bottom;
+        AdjustWindowRectExForDpi(rect1, GetWindowLongPtrW(hwnd, GWL_STYLE), FALSE, GetWindowLongPtrW(hwnd, GWL_EXSTYLE), GetDpiForWindow(hwnd));
+        GetWindowRect(hwnd, &rect2);
+        return QRect(rect2.left - rect1.left, rect2.top - rect1.top, width, height);
+    }
+}
+
 bool isWindowResizableByUser(QWindow& window)
 {
     auto hwnd = reinterpret_cast<HWND>(window.winId());
