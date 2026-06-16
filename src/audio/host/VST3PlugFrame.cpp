@@ -50,17 +50,8 @@ Steinberg::tresult VST3PlugFrame::resizeView(Steinberg::IPlugView* view, Steinbe
     {
         if(resizeInitiatedFromPluginCallback_)
         {
-#ifndef __APPLE__
-            auto devicePixelRatio = window->devicePixelRatio();
-#endif
-            if(auto size = QSize(
-#if __APPLE__
-                newSize->getWidth(), newSize->getHeight()
-#else
-                newSize->getWidth() / devicePixelRatio,
-                newSize->getHeight() / devicePixelRatio
-#endif
-            ); resizeInitiatedFromPluginCallback_(*(gui_->window()), size))
+            if(auto size = QSize(newSize->getWidth(), newSize->getHeight());
+                resizeInitiatedFromPluginCallback_(*gui_, size))
             {
                 gui_->resize(size);
                 return Steinberg::kResultOk;

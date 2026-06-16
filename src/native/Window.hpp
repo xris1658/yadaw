@@ -15,6 +15,16 @@ void showWindowWithoutActivating(QWindow& window);
 
 #if _WIN32
 QRect getPhysicalGeometry(QWindow& window);
+
+QRect getPhysicalFrameGeometry(QWindow& window);
+
+bool setPhysicalGeometry(QWindow& window, const QRect& physicalGeometry);
+
+bool setPhysicalSize(QWindow& window, const QSize& physicalSize);
+
+bool setPhysicalPosition(QWindow& window, const QPoint& physicalPosition);
+
+bool setPhysicalFramePosition(QWindow& window, const QPoint& physicalPosition);
 #endif
 
 bool isWindowResizableByUser(QWindow& window);

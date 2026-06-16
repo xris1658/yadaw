@@ -31,7 +31,7 @@ public:
 public:
     Steinberg::tresult resizeView(Steinberg::IPlugView* view,
         Steinberg::ViewRect* newSize) override;
-    using ResizeInitiatedFromPluginCallback = bool(QWindow& window, const QSize& size);
+    using ResizeInitiatedFromPluginCallback = bool(YADAW::Audio::Plugin::VST3PluginGUI& gui, const QSize& size);
     void setResizeInitiatedFromPluginCallback(std::function<ResizeInitiatedFromPluginCallback>&& callback);
     void resetResizeInitiatedFromPluginCallback();
 private:
