@@ -12,6 +12,8 @@
 
 #include <mutex>
 
+
+
 namespace YADAW::Native
 {
 
@@ -31,17 +33,40 @@ void showWindowWithoutActivating(QWindow& window)
     window.setVisible(true);
 }
 
+QRect getPhysicalGeometry(QWindow& window)
+{
+    if(auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>())
+    {
+        auto windowHandle = static_cast<xcb_window_t>(window.winId());
+        auto connection = x11Interface->connection();
+        auto cookie = xcb_get_geometry(connection, windowHandle);
+        xcb_generic_error_t* pError = nullptr;
+        if(auto reply = xcb_get_geometry_reply(connection, cookie, &pError))
+        {
+            auto ret = QRect(reply->x, reply->y, reply->width, reply->height);
+            free(reply);
+            return ret;
+        }
+        else if(pError)
+        {
+            free(pError);
+        }
+    }
+    return {};
+}
 
 xcb_atom_t stateAtom;
 xcb_atom_t fullscreenAtom;
 xcb_atom_t fillWidthAtom;
 xcb_atom_t fillHeightAtom;
+xcb_atom_t frameMarginsAtom;
 const char stateText[] = "_NET_WM_STATE";
 const char fullscreenText[] = "_NET_WM_STATE_FULLSCREEN";
 const char fillWidthText[] = "_NET_WM_STATE_MAXIMIZED_HORZ";
 const char fillHeightText[] = "_NET_WM_STATE_MAXIMIZED_VERT";
 const char resizeText[] = "_NET_WM_ACTION_RESIZE";
 const char changeStateText[] = "WM_CHANGE_STATE";
+const char frameMarginsText[] = "_NET_FRAME_EXTENTS";
 
 std::once_flag initializeAtomFlag;
 
@@ -68,6 +93,123 @@ void initializeAtoms(xcb_connection_t* connection)
     reply = xcb_intern_atom_reply(connection, fillHeightCookie, nullptr);
     fillHeightAtom = reply->atom;
     free(reply);
+    auto frameMarginCookie = xcb_intern_atom(connection, false,
+        strlen(frameMarginsText), frameMarginsText);
+    reply = xcb_intern_atom_reply(connection, frameMarginCookie, nullptr);
+    frameMarginsAtom = reply->atom;
+    free(reply);
+}
+
+QMargins getPhysicalFrameMargin(QWindow& window)
+{
+    if(auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>())
+    {
+        auto windowHandle = static_cast<xcb_window_t>(window.winId());
+        auto connection = x11Interface->connection();
+        // Mostly copied from `QXcbWindow::frameMargins()` (qtbase/src/plugins/platforms/xcb/qxcbwindow.cpp)
+        auto getPropertyCookie = xcb_get_property(
+            connection, false, windowHandle, frameMarginsAtom, XCB_ATOM_CARDINAL, 0, 4
+        );
+        xcb_generic_error_t* pError = nullptr;
+        if(auto propertyReply = xcb_get_property_reply(connection, getPropertyCookie, &pError);
+            propertyReply && propertyReply->type == XCB_ATOM_CARDINAL && propertyReply->format == 32 && propertyReply->value_len == 4)
+        {
+            auto* data = reinterpret_cast<std::uint32_t*>(xcb_get_property_value(propertyReply));
+            QMargins ret(data[0], data[2], data[1], data[3]);
+            free(propertyReply);
+            return ret;
+        }
+        else if(pError)
+        {
+            free(pError);
+        }
+    }
+    return {};
+}
+
+QRect getPhysicalFrameGeometry(QWindow& window)
+{
+    return getPhysicalGeometry(window).marginsAdded(getPhysicalFrameMargin(window));
+}
+
+enum SetPhysicalGeometryFlag: std::uint8_t
+{
+    PhysicalSize     = 1 << 0,
+    PhysicalPosition = 1 << 1
+};
+
+using SetPhysicalGeometryFlags = std::underlying_type_t<SetPhysicalGeometryFlag>;
+
+constexpr std::int32_t coordMax = std::numeric_limits<std::uint16_t>::max();
+
+bool setPhysicalGeometry(QWindow& window, const QRect& physicalGeometry, SetPhysicalGeometryFlags mask)
+{
+    if(auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>())
+    {
+        auto windowHandle = static_cast<xcb_window_t>(window.winId());
+        auto connection = x11Interface->connection();
+        std::int32_t values[4] = {
+            static_cast<std::int32_t>(std::clamp(physicalGeometry.x(),      -coordMax, coordMax)),
+            static_cast<std::int32_t>(std::clamp(physicalGeometry.y(),      -coordMax, coordMax)),
+            static_cast<std::int32_t>(std::clamp(physicalGeometry.width(),  1,         coordMax)),
+            static_cast<std::int32_t>(std::clamp(physicalGeometry.height(), 1,         coordMax))
+        };
+        xcb_generic_error_t* pError = nullptr;
+        xcb_void_cookie_t configureWindowCookie;
+        if(mask == (SetPhysicalGeometryFlag::PhysicalSize | SetPhysicalGeometryFlag::PhysicalPosition))
+        {
+            configureWindowCookie = xcb_configure_window_checked(connection, windowHandle, mask, &values);
+        }
+        else if(mask == SetPhysicalGeometryFlag::PhysicalPosition)
+        {
+            configureWindowCookie = xcb_configure_window_checked(connection, windowHandle, mask, &values);
+        }
+        else if(mask == SetPhysicalGeometryFlag::PhysicalSize)
+        {
+            configureWindowCookie = xcb_configure_window_checked(connection, windowHandle, mask, &values + 2);
+        }
+        if(mask != 0)
+        {
+            pError = xcb_request_check(connection, configureWindowCookie);
+            if(!pError)
+            {
+                return true;
+            }
+            else
+            {
+                free(pError);
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
+bool setPhysicalGeometry(QWindow& window, const QRect& physicalGeometry)
+{
+    return setPhysicalGeometry(
+        window, physicalGeometry, SetPhysicalGeometryFlag::PhysicalPosition | SetPhysicalGeometryFlag::PhysicalSize
+    );
+}
+
+bool setPhysicalSize(QWindow& window, const QSize& physicalSize)
+{
+    return setPhysicalGeometry(
+        window, QRect(QPoint(0, 0), physicalSize), SetPhysicalGeometryFlag::PhysicalSize
+    );
+}
+
+bool setPhysicalPosition(QWindow& window, const QPoint& physicalPosition)
+{
+    return setPhysicalGeometry(
+        window, QRect(physicalPosition, QSize(0, 0)), SetPhysicalGeometryFlag::PhysicalPosition
+    );
+}
+
+bool setPhysicalFramePosition(QWindow& window, const QPoint& physicalPosition)
+{
+    auto frameMargin = getPhysicalFrameMargin(window);
+    return setPhysicalPosition(window, physicalPosition - QPoint(frameMargin.left(), frameMargin.top()));
 }
 
 xcb_screen_t* getScreenOfWindow(xcb_window_t window, xcb_connection_t* connection)
