@@ -66,6 +66,17 @@ bool VestifalPluginGUI::resizableByUser() const
     return false; // TODO
 }
 
+QSize VestifalPluginGUI::size() const
+{
+    VestifalRectangle* rectangle = nullptr;
+    runDispatcher(effect_, EffectOpcode::effectGetRect, 0, 0, &rectangle);
+    if(rectangle)
+    {
+        return QSize(rectangle->right - rectangle->left, rectangle->bottom - rectangle->top);
+    }
+    return QSize();
+}
+
 bool VestifalPluginGUI::adjustSize(QSize& size)
 {
     return false; // TODO

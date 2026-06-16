@@ -57,20 +57,7 @@ bool VST3PluginGUI::attachToWindow(QWindow* window)
         reinterpret_cast<void*>(window->winId()),
         YADAW::Native::ViewType
     ) == Steinberg::kResultOk;
-    if(ret)
-    {
-        Steinberg::ViewRect rect;
-        plugView_->getSize(&rect);
-        window_->resize(
-#if __APPLE__
-            rect.getWidth(), rect.getHeight()
-#else
-            rect.getWidth() / devicePixelRatio,
-            rect.getHeight() / devicePixelRatio
-#endif
-        );
-    }
-    else
+    if(!ret)
     {
         window_ = nullptr;
     }
@@ -110,31 +97,28 @@ bool VST3PluginGUI::resizableByUser() const
     return false;
 }
 
+QSize VST3PluginGUI::size() const
+{
+    if(plugView_)
+    {
+        Steinberg::ViewRect rect; plugView_->getSize(&rect);
+        return QSize(rect.getWidth(), rect.getHeight());
+    }
+    return QSize();
+}
+
 bool VST3PluginGUI::adjustSize(QSize& size)
 {
     if(plugView_)
     {
-#ifndef __APPLE__
-        auto devicePixelRatio = window_->devicePixelRatio();
-#endif
         Steinberg::ViewRect rect(0, 0,
-#if __APPLE__
             size.width(), size.height()
-#else
-            size.width() * devicePixelRatio,
-            size.height() * devicePixelRatio
-#endif
         );
         auto ret = plugView_->checkSizeConstraint(&rect);
         if(ret == Steinberg::kResultOk)
         {
             size = QSize(
-#if __APPLE__
                 rect.getWidth(), rect.getHeight()
-#else
-                rect.getWidth() / devicePixelRatio,
-                rect.getHeight() / devicePixelRatio
-#endif
             );
             return true;
         }
@@ -146,16 +130,8 @@ bool VST3PluginGUI::resize(const QSize& size)
 {
     if(plugView_)
     {
-#ifndef __APPLE__
-        auto devicePixelRatio = window_->devicePixelRatio();
-#endif
         Steinberg::ViewRect rect(0, 0,
-#if __APPLE__
             size.width(), size.height()
-#else
-            size.width() * devicePixelRatio,
-            size.height() * devicePixelRatio
-#endif
         );
         return plugView_->onSize(&rect) == Steinberg::kResultOk;
     }

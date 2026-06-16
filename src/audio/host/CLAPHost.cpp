@@ -272,17 +272,7 @@ void CLAPHost::doResizeHintsChanged()
 bool CLAPHost::doRequestResize(std::uint32_t width, std::uint32_t height)
 {
     auto gui = plugin_->pluginGUI();
-#ifndef __APPLE__
-    auto ratio = gui->window()->devicePixelRatio();
-#endif
-    return requestResizeCallback_(
-        *plugin_,
-#if __APPLE__
-        QSize(width, height),
-#else
-        QSize(width / ratio, height / ratio)
-#endif
-    );
+    return requestResizeCallback_(*plugin_, QSize(width, height));
 }
 
 bool CLAPHost::doRequestShow()

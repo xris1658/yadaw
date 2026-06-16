@@ -105,11 +105,15 @@ void createPluginWindows(PluginContext& context)
     pluginWindows.genericEditorWindow = nullptr;
 }
 
-bool resizeFromVST3Plugin(QWindow& window, const QSize& size)
+bool resizeFromVST3Plugin(YADAW::Audio::Plugin::VST3PluginGUI& gui, const QSize& size)
 {
-    auto pluginWindow = static_cast<YADAW::Audio::Plugin::PluginWindow*>(window.parent());
-    pluginWindow->resizeFromPlugin(size);
-    return true;
+    if(auto window = gui.window())
+    {
+        auto pluginWindow = static_cast<YADAW::Audio::Plugin::PluginWindow*>(window->parent());
+        pluginWindow->resizeFromPlugin(size);
+        return true;
+    }
+    return false;
 }
 
 bool requestResizeFromCLAPPlugin(YADAW::Audio::Plugin::CLAPPlugin& plugin, const QSize& size)

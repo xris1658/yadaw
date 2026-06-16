@@ -37,19 +37,6 @@ bool CLAPPluginGUI::attachToWindow(QWindow* window)
         auto devicePixelRatio = window->devicePixelRatio();
         gui_->set_scale(plugin_, devicePixelRatio);
 #endif
-        std::uint32_t width;
-        std::uint32_t height;
-
-        if(auto resizeResult = gui_->get_size(plugin_, &width, &height))
-        {
-            window->resize(
-#if __APPLE__
-                width, height
-#else
-                width / devicePixelRatio, height / devicePixelRatio
-#endif
-            );
-        }
         clapWindow_.api = YADAW::Native::windowAPI;
         YADAW::Native::setWindow(clapWindow_, window);
         if(gui_->set_parent(plugin_, &clapWindow_))
@@ -105,6 +92,19 @@ bool CLAPPluginGUI::adjustSize(QSize& size)
         }
     }
     return false;
+}
+
+QSize CLAPPluginGUI::size() const
+{
+    if(gui_)
+    {
+        uint32_t width, height;
+        if(gui_->get_size(plugin_, &width, &height))
+        {
+            return QSize(width, height);
+        }
+    }
+    return QSize();
 }
 
 bool CLAPPluginGUI::resize(const QSize& size)
