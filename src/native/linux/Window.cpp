@@ -273,7 +273,26 @@ void setNetWmState(xcb_window_t window, xcb_connection_t* connection,
 
 bool isWindowResizableByUser(QWindow& window)
 {
-    return false;
+    auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
+    if(x11Interface)
+    {
+        auto windowHandle = static_cast<xcb_window_t>(window.winId());
+        auto connection = x11Interface->connection();
+        auto cookie = xcb_icccm_get_wm_size_hints(connection, windowHandle, XCB_ATOM_WM_NORMAL_HINTS);
+        xcb_size_hints_t hints;
+        xcb_generic_error_t* pError = nullptr;
+        auto reply = xcb_icccm_get_wm_size_hints_reply(connection, cookie, &hints, &pError);
+        if(pError)
+        {
+            free(pError);
+        }
+        else if(reply)
+        {
+            return !((hints.flags & (XCB_ICCCM_SIZE_HINT_P_MIN_SIZE | XCB_ICCCM_SIZE_HINT_P_MAX_SIZE))
+                && hints.min_width != hints.max_width || hints.min_height != hints.max_height);
+        }
+    }
+    return true;
 }
 
     void setWindowResizableByUser(QWindow& window, bool resizable)
