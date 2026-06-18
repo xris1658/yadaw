@@ -158,15 +158,24 @@ bool setPhysicalGeometry(QWindow& window, const QRect& physicalGeometry, SetPhys
         xcb_void_cookie_t configureWindowCookie;
         if(mask == (SetPhysicalGeometryFlag::PhysicalSize | SetPhysicalGeometryFlag::PhysicalPosition))
         {
-            configureWindowCookie = xcb_configure_window_checked(connection, windowHandle, mask, &values);
+            configureWindowCookie = xcb_configure_window_checked(
+                connection, windowHandle,
+                XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values
+            );
         }
         else if(mask == SetPhysicalGeometryFlag::PhysicalPosition)
         {
-            configureWindowCookie = xcb_configure_window_checked(connection, windowHandle, mask, &values);
+            configureWindowCookie = xcb_configure_window_checked(
+                connection, windowHandle,
+                XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, values
+            );
         }
         else if(mask == SetPhysicalGeometryFlag::PhysicalSize)
         {
-            configureWindowCookie = xcb_configure_window_checked(connection, windowHandle, mask, &values + 2);
+            configureWindowCookie = xcb_configure_window_checked(
+                connection, windowHandle,
+                XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values + 2
+            );
         }
         if(mask != 0)
         {
