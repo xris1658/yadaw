@@ -16,6 +16,25 @@
 
 namespace YADAW::Native
 {
+xcb_screen_t* getScreenOfWindow(xcb_window_t window, xcb_connection_t* connection)
+{
+    xcb_screen_t* ret = nullptr;
+    auto geometryCookie = xcb_get_geometry_unchecked(connection, window);
+    auto geometryReply = xcb_get_geometry_reply(connection, geometryCookie, nullptr);
+    for(auto it = xcb_setup_roots_iterator(xcb_get_setup(connection));
+        it.rem != 0;
+        xcb_screen_next(&it))
+    {
+        auto screen = it.data;
+        if(screen->root == geometryReply->root)
+        {
+            ret = screen;
+            break;
+        }
+    }
+    free(geometryReply);
+    return ret;
+}
 
 void showWindowWithoutActivating(QWindow& window)
 {
@@ -35,6 +54,7 @@ void showWindowWithoutActivating(QWindow& window)
 
 QRect getPhysicalGeometry(QWindow& window)
 {
+    QRect ret;
     if(auto x11Interface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>())
     {
         auto windowHandle = static_cast<xcb_window_t>(window.winId());
@@ -43,7 +63,16 @@ QRect getPhysicalGeometry(QWindow& window)
         xcb_generic_error_t* pError = nullptr;
         if(auto reply = xcb_get_geometry_reply(connection, cookie, &pError))
         {
-            auto ret = QRect(reply->x, reply->y, reply->width, reply->height);
+            auto tcCookie = xcb_translate_coordinates(connection, windowHandle, reply->root, reply->x, reply->y);
+            if(auto tcReply = xcb_translate_coordinates_reply(connection, tcCookie, &pError))
+            {
+                ret.setRect(tcReply->dst_x, tcReply->dst_y, reply->width, reply->height);
+                free(tcReply);
+            }
+            else if(pError)
+            {
+                free(pError);
+            }
             free(reply);
             return ret;
         }
@@ -219,26 +248,6 @@ bool setPhysicalFramePosition(QWindow& window, const QPoint& physicalPosition)
 {
     auto frameMargin = getPhysicalFrameMargin(window);
     return setPhysicalPosition(window, physicalPosition - QPoint(frameMargin.left(), frameMargin.top()));
-}
-
-xcb_screen_t* getScreenOfWindow(xcb_window_t window, xcb_connection_t* connection)
-{
-    xcb_screen_t* ret = nullptr;
-    auto geometryCookie = xcb_get_geometry_unchecked(connection, window);
-    auto geometryReply = xcb_get_geometry_reply(connection, geometryCookie, nullptr);
-    for(auto it = xcb_setup_roots_iterator(xcb_get_setup(connection));
-        it.rem != 0;
-        xcb_screen_next(&it))
-    {
-        auto screen = it.data;
-        if(screen->root == geometryReply->root)
-        {
-            ret = screen;
-            break;
-        }
-    }
-    free(geometryReply);
-    return ret;
 }
 
 void setNetWmState(xcb_window_t window, xcb_connection_t* connection,
