@@ -33,7 +33,7 @@ VST3PluginGUI::~VST3PluginGUI()
 
 bool VST3PluginGUI::usePhysicalPixelSize() const // TODO
 {
-#if defined(_WIN32)
+#if _WIN32 || __linux__
     return true;
 #endif
     return false;
