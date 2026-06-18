@@ -271,7 +271,15 @@ ResizeEventFilter::ResizeEventFilter(QWindow& window):
     auto desktop = std::getenv("XDG_SESSION_DESKTOP");
     if(std::strstr(desktop, "KDE"))
     {
-        desktopNativeEventFilter = &ResizeEventFilter::nativeEventFilterOnKDE;
+        auto sessionVersion = std::getenv("KDE_SESSION_VERSION");
+        if(std::strstr(sessionVersion, "5"))
+        {
+            desktopNativeEventFilter = &ResizeEventFilter::nativeEventFilterOnKDE5;
+        }
+        else if(std::strstr(sessionVersion, "6"))
+        {
+            desktopNativeEventFilter = &ResizeEventFilter::nativeEventFilterOnKDE6;
+        }
     }
     else if(std::strstr(desktop, "GNOME"))
     {
@@ -305,7 +313,7 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
          | FeatureSupportFlag::SupportsAdjustOnAboutToResize
          | FeatureSupportFlag::UsesPhysicalSize;
 #elif __linux__
-    // On KDE:
+    // On KDE 5:
     // - No events are sent on starting/ending resizing.
     // - Two `XCB_CONFIGURE_NOTIFY` events are sent while resizing a
     //   window. Both events store the new window size.
@@ -316,10 +324,23 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
     // - Emits `aboutToResize()` on receiving the first `XCB_CONFIGURE_NOTIFY`
     //   event;
     // - Emits `resized()` on receiving the second `XCB_CONFIGURE_NOTIFY`.
-    if(desktopNativeEventFilter == &ResizeEventFilter::nativeEventFilterOnKDE)
+    if(desktopNativeEventFilter == &ResizeEventFilter::nativeEventFilterOnKDE5)
     {
         return FeatureSupportFlag::SupportsAboutToResize
-            |  FeatureSupportFlag::SupportsResized;
+            |  FeatureSupportFlag::SupportsResized
+            |  FeatureSupportFlag::UsesPhysicalSize;
+    }
+    // On KDE 5:
+    // - No events are sent on starting/ending resizing.
+    // - One `XCB_CONFIGURE_NOTIFY` event is sent while resizing a window.
+    //   This event store the new window size.
+    //
+    // `ResizeEventFilter`:
+    // - Emits `resized()` on receiving the second `XCB_CONFIGURE_NOTIFY`.
+    if(desktopNativeEventFilter == &ResizeEventFilter::nativeEventFilterOnKDE6)
+    {
+        return FeatureSupportFlag::SupportsResized
+            |  FeatureSupportFlag::UsesPhysicalSize;
     }
     // On GNOME:
     // - An `XCB_FOCUS_OUT` event is sent on starting resizing, and an
@@ -347,8 +368,9 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
 }
 
 #if __linux__
-bool ResizeEventFilter::nativeEventFilterOnKDE(xcb_generic_event_t* event)
-{    static auto aboutToResizeSignal = QMetaMethod::fromSignal(
+bool ResizeEventFilter::nativeEventFilterOnKDE5(xcb_generic_event_t* event)
+{
+    static auto aboutToResizeSignal = QMetaMethod::fromSignal(
         &ResizeEventFilter::aboutToResize
     );
     auto responseType = event->response_type & 0x7F;
@@ -372,6 +394,35 @@ bool ResizeEventFilter::nativeEventFilterOnKDE(xcb_generic_event_t* event)
             {
                 resized(geometry);
             }
+        }
+    }
+    return false;
+}
+
+bool ResizeEventFilter::nativeEventFilterOnKDE6(xcb_generic_event_t* event)
+{
+    static auto aboutToResizeSignal = QMetaMethod::fromSignal(
+        &ResizeEventFilter::aboutToResize
+    );
+    auto responseType = event->response_type & 0x7F;
+    if(responseType == XCB_CONFIGURE_NOTIFY)
+    {
+        auto configureNotifyEvent = reinterpret_cast<xcb_configure_notify_event_t*>(event);
+        std::fprintf(
+            stderr, "[DEBUG] ResizeEventFilter: event: %" PRIx32"; window: %" PRIx32"; above_sibling:  %" PRIx32"\n",
+            configureNotifyEvent->event, configureNotifyEvent->window, configureNotifyEvent->above_sibling
+        );
+        std::fprintf(
+            stderr, "[DEBUG] ResizeEventFilter: (%" PRId16", %" PRId16"), %" PRIu16" x %" PRIu16"\n",
+            configureNotifyEvent->x, configureNotifyEvent->y, configureNotifyEvent->width, configureNotifyEvent->height
+        );
+        if(configureNotifyEvent->event == windowAndId_.winId || configureNotifyEvent->window == windowAndId_.winId)
+        {
+            QRect newGeometry(
+                configureNotifyEvent->x, configureNotifyEvent->y,
+                configureNotifyEvent->width, configureNotifyEvent->height
+            );
+            resized(newGeometry);
         }
     }
     return false;

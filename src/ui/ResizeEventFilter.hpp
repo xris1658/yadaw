@@ -70,7 +70,8 @@ public:
 #if __linux__
 private:
     using DesktopNativeEventFilter = bool(ResizeEventFilter::*)(xcb_generic_event_t* event);
-    bool nativeEventFilterOnKDE(xcb_generic_event_t* event);
+    bool nativeEventFilterOnKDE5(xcb_generic_event_t* event);
+    bool nativeEventFilterOnKDE6(xcb_generic_event_t* event);
     bool nativeEventFilterOnGNOME(xcb_generic_event_t* event);
     bool nativeEventFilterOnUnknown(xcb_generic_event_t* event);
 #endif
