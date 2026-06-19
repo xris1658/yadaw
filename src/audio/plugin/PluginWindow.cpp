@@ -203,7 +203,7 @@ void PluginWindow::onResized(QRect rect)
     if((resizeOps_ & ResizeOp::Repositioning) == 0)
     {
         auto nativeSupportFlags = ResizeEventFilter::getNativeSupportFlags();
-        if((nativeSupportFlags & ResizeEventFilter::FeatureSupportFlag::SupportsAdjustOnAboutToResize))
+        if(nativeSupportFlags & ResizeEventFilter::FeatureSupportFlag::SupportsAdjustOnAboutToResize)
         {
             auto frameSize = rect.size();
             if(nativeSupportFlags & ResizeEventFilter::FeatureSupportFlag::UsesPhysicalSize)
