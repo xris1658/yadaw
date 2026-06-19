@@ -408,6 +408,7 @@ bool ResizeEventFilter::nativeEventFilterOnKDE6(xcb_generic_event_t* event)
     if(responseType == XCB_CONFIGURE_NOTIFY)
     {
         auto configureNotifyEvent = reinterpret_cast<xcb_configure_notify_event_t*>(event);
+#if YADAW_DEBUG_RESIZE_EVENT_FILTER_MESSAGES
         std::fprintf(
             stderr, "[DEBUG] ResizeEventFilter: event: %" PRIx32"; window: %" PRIx32"; above_sibling:  %" PRIx32"\n",
             configureNotifyEvent->event, configureNotifyEvent->window, configureNotifyEvent->above_sibling
@@ -416,6 +417,7 @@ bool ResizeEventFilter::nativeEventFilterOnKDE6(xcb_generic_event_t* event)
             stderr, "[DEBUG] ResizeEventFilter: (%" PRId16", %" PRId16"), %" PRIu16" x %" PRIu16"\n",
             configureNotifyEvent->x, configureNotifyEvent->y, configureNotifyEvent->width, configureNotifyEvent->height
         );
+#endif
         if(configureNotifyEvent->event == windowAndId_.winId || configureNotifyEvent->window == windowAndId_.winId)
         {
             QRect newGeometry(
