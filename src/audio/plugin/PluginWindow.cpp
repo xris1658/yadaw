@@ -262,7 +262,6 @@ void PluginWindow::onResized(QRect rect)
                 {
                     if(pluginGUI_->usePhysicalPixelSize())
                     {
-                        auto oldGeo = YADAW::Native::getPhysicalGeometry(*this);
                         auto& height = size.rheight();
                         auto pluginFrameGeometry = YADAW::Native::getPhysicalGeometry(pluginFrame_);
                         height -= pluginFrameGeometry.y();
