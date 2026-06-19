@@ -251,6 +251,55 @@ void PluginWindow::onResized(QRect rect)
                 }
             }
         }
+        else
+        {
+            auto size = rect.size();
+            if(pluginGUI_ && YADAW::Native::isWindowResizableByUser(*this))
+            {
+                if(nativeSupportFlags & ResizeEventFilter::FeatureSupportFlag::UsesPhysicalSize)
+                {
+                    if(pluginGUI_->usePhysicalPixelSize())
+                    {
+                        auto oldGeo = YADAW::Native::getPhysicalGeometry(*this);
+                        auto& height = size.rheight();
+                        auto pluginFrameGeometry = YADAW::Native::getPhysicalGeometry(pluginFrame_);
+                        height -= pluginFrameGeometry.y();
+                        if(pluginGUI_->adjustSize(size))
+                        {
+                            pluginGUI_->resize(size);
+                            YADAW::Native::setPhysicalSize(pluginFrame_, size);
+                            if(topBar_)
+                            {
+                                auto topBarGeometry = YADAW::Native::getPhysicalGeometry(*topBar_);
+                                YADAW::Native::setPhysicalSize(*topBar_, QSize(size.width(), topBarGeometry.height()));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // TODO
+                    }
+                }
+                else
+                {
+                    if(!pluginGUI_->usePhysicalPixelSize())
+                    {
+                        auto& height = size.rheight();
+                        height -= pluginFrame_.y();
+                        if(pluginGUI_->adjustSize(size))
+                        {
+                            pluginGUI_->resize(size);
+                            pluginFrame_.resize(size);
+                            topBar_->setWidth(size.width());
+                        }
+                    }
+                    else
+                    {
+                        // TODO
+                    }
+                }
+            }
+        }
     }
 }
 
