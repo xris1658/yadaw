@@ -78,8 +78,10 @@ void createPluginWindows(PluginContext& context)
         context.editor = new YADAW::Audio::Plugin::PluginWindow();
         YADAW::UI::qmlApplicationEngine->loadFromModule("content", "PluginWindowTopBarFrame");
         context.editor->setTransientParent(YADAW::UI::mainWindow);
-        context.editor->setGUI(*pluginGUI);
         context.editor->setTopBar(pluginWindows.pluginWindowTopBarFrame);
+        context.editor->setGUI(*pluginGUI);
+        auto size = pluginGUI->size();
+        context.editor->resizeFromPlugin(size);
         context.editor->setProperty("canClose", QVariant::fromValue<bool>(false));
 #ifndef NDEBUG
         {
