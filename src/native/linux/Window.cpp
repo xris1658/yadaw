@@ -63,25 +63,33 @@ QRect getPhysicalGeometry(QWindow& window)
         xcb_generic_error_t* pError = nullptr;
         if(auto reply = xcb_get_geometry_reply(connection, cookie, &pError))
         {
-            auto tcCookie = xcb_translate_coordinates(connection, windowHandle, reply->root, reply->x, reply->y);
-            if(auto tcReply = xcb_translate_coordinates_reply(connection, tcCookie, &pError))
+            xcb_window_t parentWindowHandle;
+            if(window.parent(QWindow::AncestorMode::ExcludeTransients))
             {
-                ret.setRect(tcReply->dst_x, tcReply->dst_y, reply->width, reply->height);
-                free(tcReply);
+                ret.setRect(reply->x, reply->y, reply->width, reply->height);
             }
-            else if(pError)
+            else
             {
-                free(pError);
+                parentWindowHandle = reply->root;
+                auto tcCookie = xcb_translate_coordinates(connection, windowHandle, parentWindowHandle, reply->x, reply->y);
+                if(auto tcReply = xcb_translate_coordinates_reply(connection, tcCookie, &pError))
+                {
+                    ret.setRect(tcReply->dst_x, tcReply->dst_y, reply->width, reply->height);
+                    free(tcReply);
+                }
+                else if(pError)
+                {
+                    free(pError);
+                }
             }
             free(reply);
-            return ret;
         }
         else if(pError)
         {
             free(pError);
         }
     }
-    return {};
+    return ret;
 }
 
 xcb_atom_t stateAtom;
