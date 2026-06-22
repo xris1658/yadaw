@@ -124,6 +124,7 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/winrt/Forward.hpp
     src/native/win/winrt/QStringFromHString.cpp
     src/native/win/winrt/QStringFromHString.hpp
+    src/ui/win/ResizeEventFilter.cpp
 )
 
 set(MAC_NATIVE_SOURCES
@@ -186,6 +187,7 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/VST3Native.cpp
     src/native/linux/VestifalNative.cpp
     src/native/linux/Window.cpp
+    src/ui/linux/ResizeEventFilter.cpp
 )
 
 if(WIN32)
