@@ -14,6 +14,17 @@ void showWindowWithoutActivating(QWindow& window)
     window.setVisible(true);
 }
 
+QRect getPhysicalGeometry(QWindow& window) { return {}; }
+
+QRect getPhysicalFrameGeometry(QWindow& window) { return {}; }
+
+bool setPhysicalGeometry(QWindow& window, const QRect& physicalGeometry) { return {}; }
+
+bool setPhysicalSize(QWindow& window, const QSize& physicalSize) { return {}; }
+
+bool setPhysicalPosition(QWindow& window, const QPoint& physicalPosition) { return {}; }
+
+
 bool isWindowResizableByUser(QWindow& window)
 {
     return true;

@@ -13,7 +13,6 @@ namespace YADAW::Native
 //    event, which closes the popup and leaves the click event not handled.
 void showWindowWithoutActivating(QWindow& window);
 
-#if _WIN32 || __linux__
 QRect getPhysicalGeometry(QWindow& window);
 
 QRect getPhysicalFrameGeometry(QWindow& window);
@@ -25,7 +24,6 @@ bool setPhysicalSize(QWindow& window, const QSize& physicalSize);
 bool setPhysicalPosition(QWindow& window, const QPoint& physicalPosition);
 
 bool setPhysicalFramePosition(QWindow& window, const QPoint& physicalPosition);
-#endif
 
 bool isWindowResizableByUser(QWindow& window);
 
