@@ -8,16 +8,6 @@
 
 namespace YADAW::UI
 {
-ResizeEventFilter::~ResizeEventFilter()
-{
-    if(resizing_)
-    {
-        resized(windowAndId_.window->geometry());
-        endResize();
-    }
-    QCoreApplication::instance()->removeNativeEventFilter(this);
-}
-
 bool ResizeEventFilter::resizing() const
 {
     return resizing_;

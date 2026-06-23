@@ -50,6 +50,16 @@ ResizeEventFilter::ResizeEventFilter(QWindow& window):
     QCoreApplication::instance()->installNativeEventFilter(this);
 }
 
+ResizeEventFilter::~ResizeEventFilter()
+{
+    if(resizing_)
+    {
+        resized(windowAndId_.window->geometry());
+        endResize();
+    }
+    QCoreApplication::instance()->removeNativeEventFilter(this);
+}
+
 ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags()
 {
     // On KDE 5:
