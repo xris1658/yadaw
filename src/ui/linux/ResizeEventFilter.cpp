@@ -1,3 +1,5 @@
+#if __linux__
+
 #include "ui/ResizeEventFilter.hpp"
 
 #include <QCoreApplication>
@@ -16,13 +18,10 @@
 
 namespace YADAW::UI
 {
-#if __linux__
     ResizeEventFilter::DesktopNativeEventFilter ResizeEventFilter::desktopNativeEventFilter;
-#endif
 ResizeEventFilter::ResizeEventFilter(QWindow& window):
     windowAndId_(window)
 {
-#if __linux__
     // Since different DEs have their own event patterns on resizing a window,
     // we have to check the pattern and interpret those events by myself
     // (e.g. by running `xev` and monitoring events on resizing the window).
@@ -48,13 +47,11 @@ ResizeEventFilter::ResizeEventFilter(QWindow& window):
     {
         desktopNativeEventFilter = &ResizeEventFilter::nativeEventFilterOnUnknown;
     }
-#endif
     QCoreApplication::instance()->installNativeEventFilter(this);
 }
 
 ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags()
 {
-#if __linux__
     // On KDE 5:
     // - No events are sent on starting/ending resizing.
     // - Two `XCB_CONFIGURE_NOTIFY` events are sent while resizing a
@@ -106,10 +103,8 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
     }
     // TODO: Add status and events sent of other DEs
     return 0;
-#endif
 }
 
-#if __linux__
 bool ResizeEventFilter::nativeEventFilterOnKDE5(xcb_generic_event_t* event)
 {
     static auto aboutToResizeSignal = QMetaMethod::fromSignal(
@@ -246,19 +241,18 @@ bool ResizeEventFilter::nativeEventFilterOnUnknown(xcb_generic_event_t* event)
     }
     return false;
 }
-#endif
 
 bool ResizeEventFilter::nativeEventFilter(
     const QByteArray& eventType, void* message, qintptr* result)
 {
-#if __linux__
     if(eventType == "xcb_generic_event_t")
     {
         auto event = static_cast<xcb_generic_event_t*>(message);
         auto func = desktopNativeEventFilter;
         (this->*func)(event);
     }
-#endif
     return false;
 }
 }
+
+#endif
