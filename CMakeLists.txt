@@ -152,6 +152,7 @@ set(MAC_NATIVE_SOURCES
     src/native/mac/VST3Native.cpp
     src/native/mac/VestifalNative.cpp
     src/native/mac/Window.mm
+    src/ui/mac/ResizeEventFilter.mm
 )
 
 set(LINUX_NATIVE_SOURCES

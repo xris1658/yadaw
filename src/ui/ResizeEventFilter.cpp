@@ -8,6 +8,11 @@
 
 namespace YADAW::UI
 {
+QWindow* ResizeEventFilter::window() const
+{
+    return windowAndId_.window;
+}
+
 bool ResizeEventFilter::resizing() const
 {
     return resizing_;
@@ -21,6 +26,7 @@ void ResizeEventFilter::adjustRect(QRect& rect, ResizeEventFilter::DragPosition 
     switch(position)
     {
     case ResizeEventFilter::DragPosition::TopLeft:
+    case ResizeEventFilter::DragPosition::Invalid:
         rect.setTopLeft(QPoint(rect.right() - newSize.width(), rect.bottom() - newSize.height()));
         return;
     case ResizeEventFilter::DragPosition::Top:

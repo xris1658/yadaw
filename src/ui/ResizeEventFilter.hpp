@@ -9,13 +9,18 @@
 #if _WIN32
 #define NOMINMAX
 #include <windows.h>
+#elif __APPLE__
+#include "util/PolymorphicDeleter.hpp"
 #elif __linux__
 #include <xcb/xcb.h>
 #endif
 
 namespace YADAW::UI
 {
-class ResizeEventFilter: public QObject, public QAbstractNativeEventFilter
+class ResizeEventFilter: public QObject
+#if _WIN32 || __linux__
+    , public QAbstractNativeEventFilter
+#endif
 {
     Q_OBJECT
 public:
@@ -46,6 +51,7 @@ public:
     ~ResizeEventFilter() override;
 public:
     static FeatureSupportFlags getNativeSupportFlags();
+    QWindow* window() const;
     // Valid if `SupportsStartAndEndResize`; always return false otherwise
     bool resizing() const;
 signals:
@@ -61,8 +67,10 @@ signals:
     void endResize();
 public:
     static void adjustRect(QRect& rect, DragPosition position, QSize newSize);
+#if _WIN32 || __linux__
 public:
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
+#endif
 #if _WIN32
     void windowPosChanging(MSG* msg, qintptr* result);
     void windowPosChanged(MSG* msg);
@@ -76,7 +84,7 @@ private:
     bool nativeEventFilterOnUnknown(xcb_generic_event_t* event);
 #endif
 private:
-    WindowAndId windowAndId_;
+    mutable WindowAndId windowAndId_;
     DragPosition position_ = DragPosition::Invalid;
     bool resizing_ = false;
 #if _WIN32
@@ -92,6 +100,8 @@ private:
     };
     State state_ = Exited;
     bool prevIsCaptureChanged_ = false;
+#elif __APPLE__
+    void* delegate_;
 #elif __linux__
     static DesktopNativeEventFilter desktopNativeEventFilter;
     int lastResponseType_ = XCB_GE_GENERIC + 1;
