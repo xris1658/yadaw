@@ -686,6 +686,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                     if(auto editor = pluginContext.editor)
                     {
                         editor->setVisible(value.value<bool>());
+                        dataChanged(index, index, {Role::InstrumentWindowVisible});
                         return true;
                     }
                 }
@@ -703,6 +704,7 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                     auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
                     auto genericEditor = pluginContext.genericEditor;
                     genericEditor->setVisible(value.value<bool>());
+                    dataChanged(index, index, {Role::InstrumentGenericEditorVisible});
                     return true;
                 }
             }
