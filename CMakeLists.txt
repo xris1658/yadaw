@@ -597,7 +597,6 @@ set(YADAW_COMMON_SOURCES
     src/util/VectorTypes.hpp
     src/util/VectorUtil.hpp
     src/util/YAMLCppUtil.hpp
-    src/util/ZeckendorfLogarithm.hpp
 )
 
 qt_add_executable(YADAW

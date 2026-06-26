@@ -306,8 +306,6 @@ add_executable(ThreadAffinityTest
                ThreadAffinityTest/main.cpp
 )
 
-add_executable(ZeckendorfLogarithmTest ZeckendorfLogarithmTest/main.cpp)
-
 target_link_libraries(AudioDeviceGraphTest PRIVATE ade Qt6::Core)
 
 target_link_libraries(AudioDeviceGraphWithPDCTest PRIVATE ade Qt6::Core)
