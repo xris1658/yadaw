@@ -85,13 +85,15 @@ void PluginWindow::setTopBar(QWindow* bar)
 
 void PluginWindow::setGUI(YADAW::Audio::Plugin::IPluginGUI& pluginGUI)
 {
-    resizeOps_ ^= Repositioning;
     if(pluginGUI_)
     {
         pluginGUI_->detachWithWindow();
     }
     pluginGUI_ = &pluginGUI;
     pluginGUI.attachToWindow(&pluginFrame_);
+    // Some plugins might invoke `resizeFromPlugin` with the `attachToWindow` call above,
+    // in which case we should resize all the child windows accordingly.
+    resizeOps_ ^= Repositioning;
     auto pluginFrameSize = pluginGUI_->size();
     if(pluginGUI.usePhysicalPixelSize())
     {
