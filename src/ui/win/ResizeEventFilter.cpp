@@ -1,6 +1,7 @@
 #if _WIN32
 
 #include "ui/ResizeEventFilter.hpp"
+#include "ui/win/Messages.hpp"
 
 #include <QCoreApplication>
 #include <QGuiApplication>
@@ -15,7 +16,7 @@
 // #define YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES   1
 
 #if YADAW_DEBUG_RESIZE_EVENT_FILTER_MESSAGES
-std::map<UINT, const char*> messages(winMessages);
+std::map<UINT, const char*> messages(YADAW::UI::winMessages);
 
 void printWindowPos(MSG* msg);
 

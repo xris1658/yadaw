@@ -11,7 +11,7 @@
 
 namespace YADAW::UI
 {
-constexpr std::initializer_list<std::pair<UINT, const char*>> winMessages {
+constexpr std::initializer_list<std::pair<const UINT, const char*>> winMessages {
     {WM_NULL, "WM_NULL"},
     {WM_CREATE, "WM_CREATE"},
     {WM_DESTROY, "WM_DESTROY"},
