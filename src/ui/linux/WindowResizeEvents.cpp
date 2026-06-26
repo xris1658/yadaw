@@ -1,6 +1,6 @@
 #if __linux__
 
-#include "ui/ResizeEventFilter.hpp"
+#include "ui/WindowResizeEvents.hpp"
 
 #include <QCoreApplication>
 #include <QGuiApplication>
@@ -13,13 +13,13 @@
 #endif
 
 // Macros that control the debug messages, uncomment these on demand
-// #define YADAW_DEBUG_RESIZE_EVENT_FILTER_MESSAGES 1
-// #define YADAW_DEBUG_RESIZE_EVENT_FILTER_STATES   1
+// #define YADAW_DEBUG_WINDOW_RESIZE_EVENTS_MESSAGES 1
+// #define YADAW_DEBUG_WINDOW_RESIZE_EVENTS_STATES   1
 
 namespace YADAW::UI
 {
-    ResizeEventFilter::DesktopNativeEventFilter ResizeEventFilter::desktopNativeEventFilter;
-ResizeEventFilter::ResizeEventFilter(QWindow& window):
+    WindowResizeEvents::DesktopNativeEventFilter WindowResizeEvents::desktopNativeEventFilter;
+WindowResizeEvents::WindowResizeEvents(QWindow& window):
     windowAndId_(window)
 {
     // Since different DEs have their own event patterns on resizing a window,
@@ -32,25 +32,25 @@ ResizeEventFilter::ResizeEventFilter(QWindow& window):
         auto sessionVersion = std::getenv("KDE_SESSION_VERSION");
         if(std::strstr(sessionVersion, "5"))
         {
-            desktopNativeEventFilter = &ResizeEventFilter::nativeEventFilterOnKDE5;
+            desktopNativeEventFilter = &WindowResizeEvents::nativeEventFilterOnKDE5;
         }
         else if(std::strstr(sessionVersion, "6"))
         {
-            desktopNativeEventFilter = &ResizeEventFilter::nativeEventFilterOnKDE6;
+            desktopNativeEventFilter = &WindowResizeEvents::nativeEventFilterOnKDE6;
         }
     }
     else if(std::strstr(desktop, "GNOME"))
     {
-        desktopNativeEventFilter = &ResizeEventFilter::nativeEventFilterOnGNOME;
+        desktopNativeEventFilter = &WindowResizeEvents::nativeEventFilterOnGNOME;
     }
     else
     {
-        desktopNativeEventFilter = &ResizeEventFilter::nativeEventFilterOnUnknown;
+        desktopNativeEventFilter = &WindowResizeEvents::nativeEventFilterOnUnknown;
     }
     QCoreApplication::instance()->installNativeEventFilter(this);
 }
 
-ResizeEventFilter::~ResizeEventFilter()
+WindowResizeEvents::~WindowResizeEvents()
 {
     if(resizing_)
     {
@@ -60,7 +60,7 @@ ResizeEventFilter::~ResizeEventFilter()
     QCoreApplication::instance()->removeNativeEventFilter(this);
 }
 
-ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags()
+WindowResizeEvents::FeatureSupportFlags WindowResizeEvents::getNativeSupportFlags()
 {
     // On KDE 5:
     // - No events are sent on starting/ending resizing.
@@ -69,11 +69,11 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
     //   `QWindow::geometry()` returns the old size on receiving the first one.
     //   (This might change if Qt updates their implementations.)
     //
-    // `ResizeEventFilter`:
+    // `WindowResizeEvents`:
     // - Emits `aboutToResize()` on receiving the first `XCB_CONFIGURE_NOTIFY`
     //   event;
     // - Emits `resized()` on receiving the second `XCB_CONFIGURE_NOTIFY`.
-    if(desktopNativeEventFilter == &ResizeEventFilter::nativeEventFilterOnKDE5)
+    if(desktopNativeEventFilter == &WindowResizeEvents::nativeEventFilterOnKDE5)
     {
         return FeatureSupportFlag::SupportsAboutToResize
             |  FeatureSupportFlag::SupportsResized
@@ -84,9 +84,9 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
     // - One `XCB_CONFIGURE_NOTIFY` event is sent while resizing a window.
     //   This event store the new window size.
     //
-    // `ResizeEventFilter`:
+    // `WindowResizeEvents`:
     // - Emits `resized()` on receiving the second `XCB_CONFIGURE_NOTIFY`.
-    if(desktopNativeEventFilter == &ResizeEventFilter::nativeEventFilterOnKDE6)
+    if(desktopNativeEventFilter == &WindowResizeEvents::nativeEventFilterOnKDE6)
     {
         return FeatureSupportFlag::SupportsResized
             |  FeatureSupportFlag::UsesPhysicalSize;
@@ -99,13 +99,13 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
     //   `QWindow::geometry()` returns the old size on receiving this event.
     //   (This might change if Qt updates their implementations.)
     //
-    // `ResizeEventFilter`:
+    // `WindowResizeEvents`:
     // - Emits `startResizing()` on receiving the first `XCB_CONFIGURE_NOTIFY`
     //   event after the `XCB_FOCUS_OUT` event;
     // - Emits `aboutToResize()` on receiving the event. Of course,
     //   `aboutToResize()` is emitted AFTER `startResizing()`.
     // - Emits `stopResizing()` on receiving the `XCB_FOCUS_IN` event;
-    if(desktopNativeEventFilter == &ResizeEventFilter::nativeEventFilterOnGNOME)
+    if(desktopNativeEventFilter == &WindowResizeEvents::nativeEventFilterOnGNOME)
     {
         return FeatureSupportFlag::SupportsStartAndEndResize
             |  FeatureSupportFlag::SupportsAboutToResize
@@ -115,10 +115,10 @@ ResizeEventFilter::FeatureSupportFlags ResizeEventFilter::getNativeSupportFlags(
     return 0;
 }
 
-bool ResizeEventFilter::nativeEventFilterOnKDE5(xcb_generic_event_t* event)
+bool WindowResizeEvents::nativeEventFilterOnKDE5(xcb_generic_event_t* event)
 {
     static auto aboutToResizeSignal = QMetaMethod::fromSignal(
-        &ResizeEventFilter::aboutToResize
+        &WindowResizeEvents::aboutToResize
     );
     auto responseType = event->response_type & 0x7F;
     if(responseType == XCB_CONFIGURE_NOTIFY)
@@ -135,7 +135,7 @@ bool ResizeEventFilter::nativeEventFilterOnKDE5(xcb_generic_event_t* event)
                     configureNotifyEvent->x, configureNotifyEvent->y,
                     configureNotifyEvent->width, configureNotifyEvent->height
                 );
-                aboutToResize(ResizeEventFilter::DragPosition::BottomRight, &newGeometry);
+                aboutToResize(WindowResizeEvents::DragPosition::BottomRight, &newGeometry);
             }
             else
             {
@@ -146,22 +146,22 @@ bool ResizeEventFilter::nativeEventFilterOnKDE5(xcb_generic_event_t* event)
     return false;
 }
 
-bool ResizeEventFilter::nativeEventFilterOnKDE6(xcb_generic_event_t* event)
+bool WindowResizeEvents::nativeEventFilterOnKDE6(xcb_generic_event_t* event)
 {
     static auto aboutToResizeSignal = QMetaMethod::fromSignal(
-        &ResizeEventFilter::aboutToResize
+        &WindowResizeEvents::aboutToResize
     );
     auto responseType = event->response_type & 0x7F;
     if(responseType == XCB_CONFIGURE_NOTIFY)
     {
         auto configureNotifyEvent = reinterpret_cast<xcb_configure_notify_event_t*>(event);
-#if YADAW_DEBUG_RESIZE_EVENT_FILTER_MESSAGES
+#if YADAW_DEBUG_WINDOW_RESIZE_EVENTS_MESSAGES
         std::fprintf(
-            stderr, "[DEBUG] ResizeEventFilter: event: %" PRIx32"; window: %" PRIx32"; above_sibling:  %" PRIx32"\n",
+            stderr, "[DEBUG] WindowResizeEvents: event: %" PRIx32"; window: %" PRIx32"; above_sibling:  %" PRIx32"\n",
             configureNotifyEvent->event, configureNotifyEvent->window, configureNotifyEvent->above_sibling
         );
         std::fprintf(
-            stderr, "[DEBUG] ResizeEventFilter: (%" PRId16", %" PRId16"), %" PRIu16" x %" PRIu16"\n",
+            stderr, "[DEBUG] WindowResizeEvents: (%" PRId16", %" PRId16"), %" PRIu16" x %" PRIu16"\n",
             configureNotifyEvent->x, configureNotifyEvent->y, configureNotifyEvent->width, configureNotifyEvent->height
         );
 #endif
@@ -177,10 +177,10 @@ bool ResizeEventFilter::nativeEventFilterOnKDE6(xcb_generic_event_t* event)
     return false;
 }
 
-bool ResizeEventFilter::nativeEventFilterOnGNOME(xcb_generic_event_t* event)
+bool WindowResizeEvents::nativeEventFilterOnGNOME(xcb_generic_event_t* event)
 {
     static auto aboutToResizeSignal = QMetaMethod::fromSignal(
-        &ResizeEventFilter::aboutToResize
+        &WindowResizeEvents::aboutToResize
     );
     auto responseType = event->response_type & 0x7F;
     if(responseType == XCB_CONFIGURE_NOTIFY)
@@ -208,7 +208,7 @@ bool ResizeEventFilter::nativeEventFilterOnGNOME(xcb_generic_event_t* event)
                 configureNotifyEvent->x, configureNotifyEvent->y,
                 configureNotifyEvent->width, configureNotifyEvent->height
             );
-            aboutToResize(ResizeEventFilter::DragPosition::BottomRight, &newGeometry);
+            aboutToResize(WindowResizeEvents::DragPosition::BottomRight, &newGeometry);
         }
     }
     else if(resizing_)
@@ -230,7 +230,7 @@ bool ResizeEventFilter::nativeEventFilterOnGNOME(xcb_generic_event_t* event)
     return false;
 }
 
-bool ResizeEventFilter::nativeEventFilterOnUnknown(xcb_generic_event_t* event)
+bool WindowResizeEvents::nativeEventFilterOnUnknown(xcb_generic_event_t* event)
 {
     auto responseType = event->response_type & 0x7F;
     if(responseType == XCB_CONFIGURE_NOTIFY)
@@ -242,7 +242,7 @@ bool ResizeEventFilter::nativeEventFilterOnUnknown(xcb_generic_event_t* event)
                 configureNotifyEvent->x, configureNotifyEvent->y,
                 configureNotifyEvent->width, configureNotifyEvent->height
             );
-            aboutToResize(ResizeEventFilter::DragPosition::BottomRight, &newGeometry);
+            aboutToResize(WindowResizeEvents::DragPosition::BottomRight, &newGeometry);
         }
     }
     else if(responseType == XCB_EXPOSE && lastResponseType_ == XCB_CONFIGURE_NOTIFY)
@@ -252,7 +252,7 @@ bool ResizeEventFilter::nativeEventFilterOnUnknown(xcb_generic_event_t* event)
     return false;
 }
 
-bool ResizeEventFilter::nativeEventFilter(
+bool WindowResizeEvents::nativeEventFilter(
     const QByteArray& eventType, void* message, qintptr* result)
 {
     if(eventType == "xcb_generic_event_t")

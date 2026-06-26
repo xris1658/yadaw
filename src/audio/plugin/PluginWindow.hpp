@@ -2,7 +2,7 @@
 #define YADAW_SRC_AUDIO_PLUGIN_PLUGINWINDOW
 
 #include "audio/plugin/IPluginGUI.hpp"
-#include "ui/ResizeEventFilter.hpp"
+#include "ui/WindowResizeEvents.hpp"
 
 #include <QWindow>
 
@@ -29,7 +29,7 @@ protected:
     void closeEvent(QCloseEvent* closeEvent) override;
 private slots:
     void onAboutToResize(
-        YADAW::UI::ResizeEventFilter::DragPosition dragPosition,
+        YADAW::UI::WindowResizeEvents::DragPosition dragPosition,
         QRect* rect
     );
     void onResized(QRect rect);
@@ -40,7 +40,7 @@ private:
     void updateTopBarTitle();
 private:
     QWindow pluginFrame_;
-    YADAW::UI::ResizeEventFilter resizeEventFilter_;
+    YADAW::UI::WindowResizeEvents windowResizeEvents_;
     QWindow* topBar_ = nullptr;
     YADAW::Audio::Plugin::IPluginGUI* pluginGUI_ = nullptr;
     enum ResizeOp: std::uint8_t

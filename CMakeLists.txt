@@ -124,7 +124,7 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/winrt/Forward.hpp
     src/native/win/winrt/QStringFromHString.cpp
     src/native/win/winrt/QStringFromHString.hpp
-    src/ui/win/ResizeEventFilter.cpp
+    src/ui/win/WindowResizeEvents.cpp
 )
 
 set(MAC_NATIVE_SOURCES
@@ -152,7 +152,7 @@ set(MAC_NATIVE_SOURCES
     src/native/mac/VST3Native.cpp
     src/native/mac/VestifalNative.cpp
     src/native/mac/Window.mm
-    src/ui/mac/ResizeEventFilter.mm
+    src/ui/mac/WindowResizeEvents.mm
 )
 
 set(LINUX_NATIVE_SOURCES
@@ -188,7 +188,7 @@ set(LINUX_NATIVE_SOURCES
     src/native/linux/VST3Native.cpp
     src/native/linux/VestifalNative.cpp
     src/native/linux/Window.cpp
-    src/ui/linux/ResizeEventFilter.cpp
+    src/ui/linux/WindowResizeEvents.cpp
 )
 
 if(WIN32)
@@ -540,14 +540,14 @@ set(YADAW_COMMON_SOURCES
     src/ui/QuickMenuEventFilter.hpp
     src/ui/RawMouseEventFilter.cpp
     src/ui/RawMouseEventFilter.hpp
-    src/ui/ResizeEventFilter.cpp
-    src/ui/ResizeEventFilter.hpp
     src/ui/Runtime.cpp
     src/ui/Runtime.hpp
     src/ui/UI.cpp
     src/ui/UI.hpp
     src/ui/WindowAndId.hpp
     src/ui/WindowAndConnection.hpp
+    src/ui/WindowResizeEvents.cpp
+    src/ui/WindowResizeEvents.hpp
     src/util/ADEUtil.cpp
     src/util/ADEUtil.hpp
     src/util/Algorithm.hpp
@@ -657,12 +657,12 @@ add_executable(CLAPTest
                src/native/win/Library.cpp
                src/native/win/Native.cpp
                src/native/win/Window.cpp
-               src/ui/ResizeEventFilter.cpp
-               src/ui/ResizeEventFilter.hpp
                src/ui/UI.cpp
                src/ui/UI.hpp
                src/ui/Runtime.cpp
                src/ui/Runtime.hpp
+               src/ui/WindowResizeEvents.cpp
+               src/ui/WindowResizeEvents.hpp
                src/util/Util.cpp
                src/util/Util.hpp
                test/CLAPTest/main.cpp
@@ -1035,8 +1035,8 @@ add_executable(VST3Test
                src/ui/Runtime.hpp
                src/ui/UI.cpp
                src/ui/UI.hpp
-               src/ui/ResizeEventFilter.cpp
-               src/ui/ResizeEventFilter.hpp
+               src/ui/WindowResizeEvents.cpp
+               src/ui/WindowResizeEvents.hpp
                src/util/QuadraticFunction.cpp
                src/util/QuadraticFunction.hpp
                src/util/Util.cpp

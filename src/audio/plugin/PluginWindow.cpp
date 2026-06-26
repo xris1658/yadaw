@@ -6,20 +6,20 @@
 
 namespace YADAW::Audio::Plugin
 {
-using YADAW::UI::ResizeEventFilter;
+using YADAW::UI::WindowResizeEvents;
 
 PluginWindow::PluginWindow():
     QWindow(),
     pluginFrame_(this),
-    resizeEventFilter_(*this)
+    windowResizeEvents_(*this)
 {
     pluginFrame_.show();
     QObject::connect(
-        &resizeEventFilter_, &YADAW::UI::ResizeEventFilter::aboutToResize,
+        &windowResizeEvents_, &YADAW::UI::WindowResizeEvents::aboutToResize,
         this, &PluginWindow::onAboutToResize
     );
     QObject::connect(
-        &resizeEventFilter_, &YADAW::UI::ResizeEventFilter::resized,
+        &windowResizeEvents_, &YADAW::UI::WindowResizeEvents::resized,
         this, &PluginWindow::onResized
     );
     QObject::connect(
@@ -148,18 +148,18 @@ void PluginWindow::closeEvent(QCloseEvent* closeEvent)
     closeEvent->setAccepted(canClose);
 }
 
-void PluginWindow::onAboutToResize(YADAW::UI::ResizeEventFilter::DragPosition dragPosition, QRect* rect)
+void PluginWindow::onAboutToResize(YADAW::UI::WindowResizeEvents::DragPosition dragPosition, QRect* rect)
 {
-    using YADAW::UI::ResizeEventFilter;
+    using YADAW::UI::WindowResizeEvents;
     if(resizeOps_ == 0)
     {
-        auto nativeSupportFlags = ResizeEventFilter::getNativeSupportFlags();
-        if(nativeSupportFlags & ResizeEventFilter::FeatureSupportFlag::SupportsAdjustOnAboutToResize)
+        auto nativeSupportFlags = WindowResizeEvents::getNativeSupportFlags();
+        if(nativeSupportFlags & WindowResizeEvents::FeatureSupportFlag::SupportsAdjustOnAboutToResize)
         {
             if(pluginGUI_ && YADAW::Native::isWindowResizableByUser(*this))
             {
                 auto size = rect->size();
-                if(nativeSupportFlags & ResizeEventFilter::FeatureSupportFlag::UsesPhysicalSize)
+                if(nativeSupportFlags & WindowResizeEvents::FeatureSupportFlag::UsesPhysicalSize)
                 {
                     if(pluginGUI_->usePhysicalPixelSize())
                     {
@@ -169,7 +169,7 @@ void PluginWindow::onAboutToResize(YADAW::UI::ResizeEventFilter::DragPosition dr
                         if(pluginGUI_->adjustSize(size))
                         {
                             height += pluginFrameGeometry.y();
-                            ResizeEventFilter::adjustRect(*rect, dragPosition, size);
+                            WindowResizeEvents::adjustRect(*rect, dragPosition, size);
                         }
                     }
                     else
@@ -186,7 +186,7 @@ void PluginWindow::onAboutToResize(YADAW::UI::ResizeEventFilter::DragPosition dr
                         if(pluginGUI_->adjustSize(size))
                         {
                             height += pluginFrame_.y();
-                            ResizeEventFilter::adjustRect(*rect, dragPosition, size);
+                            WindowResizeEvents::adjustRect(*rect, dragPosition, size);
                         }
                     }
                     else
@@ -201,14 +201,14 @@ void PluginWindow::onAboutToResize(YADAW::UI::ResizeEventFilter::DragPosition dr
 
 void PluginWindow::onResized(QRect rect)
 {
-    using YADAW::UI::ResizeEventFilter;
+    using YADAW::UI::WindowResizeEvents;
     if((resizeOps_ & ResizeOp::Repositioning) == 0)
     {
-        auto nativeSupportFlags = ResizeEventFilter::getNativeSupportFlags();
-        if(nativeSupportFlags & ResizeEventFilter::FeatureSupportFlag::SupportsAdjustOnAboutToResize)
+        auto nativeSupportFlags = WindowResizeEvents::getNativeSupportFlags();
+        if(nativeSupportFlags & WindowResizeEvents::FeatureSupportFlag::SupportsAdjustOnAboutToResize)
         {
             auto frameSize = rect.size();
-            if(nativeSupportFlags & ResizeEventFilter::FeatureSupportFlag::UsesPhysicalSize)
+            if(nativeSupportFlags & WindowResizeEvents::FeatureSupportFlag::UsesPhysicalSize)
             {
                 auto pluginFrameGeometry = YADAW::Native::getPhysicalGeometry(pluginFrame_);
                 frameSize.setHeight(frameSize.height() - pluginFrameGeometry.y());
@@ -232,7 +232,7 @@ void PluginWindow::onResized(QRect rect)
             }
             else
             {
-                if(!(nativeSupportFlags & ResizeEventFilter::FeatureSupportFlag::UsesPhysicalSize))
+                if(!(nativeSupportFlags & WindowResizeEvents::FeatureSupportFlag::UsesPhysicalSize))
                 {
                     frameSize.setHeight(
                         frameSize.height() - pluginFrame_.y()
@@ -258,7 +258,7 @@ void PluginWindow::onResized(QRect rect)
             auto size = rect.size();
             if(pluginGUI_ && YADAW::Native::isWindowResizableByUser(*this))
             {
-                if(nativeSupportFlags & ResizeEventFilter::FeatureSupportFlag::UsesPhysicalSize)
+                if(nativeSupportFlags & WindowResizeEvents::FeatureSupportFlag::UsesPhysicalSize)
                 {
                     if(pluginGUI_->usePhysicalPixelSize())
                     {
@@ -307,9 +307,9 @@ void PluginWindow::onResized(QRect rect)
 
 void PluginWindow::onTopBarHeightChanged(int height)
 {
-    using YADAW::UI::ResizeEventFilter;
+    using YADAW::UI::WindowResizeEvents;
     resizeOps_ ^= ResizeOp::Repositioning;
-    if(ResizeEventFilter::getNativeSupportFlags() & ResizeEventFilter::FeatureSupportFlag::UsesPhysicalSize)
+    if(WindowResizeEvents::getNativeSupportFlags() & WindowResizeEvents::FeatureSupportFlag::UsesPhysicalSize)
     {
         auto physicalHeight = YADAW::Native::getPhysicalGeometry(*topBar_).height();
         auto newSize = YADAW::Native::getPhysicalGeometry(*this).size();

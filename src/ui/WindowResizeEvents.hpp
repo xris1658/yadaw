@@ -1,5 +1,5 @@
-#ifndef YADAW_SRC_UI_RESIZEEVENTFILTER
-#define YADAW_SRC_UI_RESIZEEVENTFILTER
+#ifndef YADAW_SRC_UI_WINDOWRESIZEEVENTS
+#define YADAW_SRC_UI_WINDOWRESIZEEVENTS
 
 #include "WindowAndId.hpp"
 
@@ -17,7 +17,7 @@
 
 namespace YADAW::UI
 {
-class ResizeEventFilter: public QObject
+class WindowResizeEvents: public QObject
 #if _WIN32 || __linux__
     , public QAbstractNativeEventFilter
 #endif
@@ -47,8 +47,8 @@ public:
     };
     using FeatureSupportFlags = std::underlying_type_t<FeatureSupportFlag>;
 public:
-    ResizeEventFilter(QWindow& window);
-    ~ResizeEventFilter() override;
+    WindowResizeEvents(QWindow& window);
+    ~WindowResizeEvents() override;
 public:
     static FeatureSupportFlags getNativeSupportFlags();
     QWindow* window() const;
@@ -77,7 +77,7 @@ public:
 #endif
 #if __linux__
 private:
-    using DesktopNativeEventFilter = bool(ResizeEventFilter::*)(xcb_generic_event_t* event);
+    using DesktopNativeEventFilter = bool(WindowResizeEvents::*)(xcb_generic_event_t* event);
     bool nativeEventFilterOnKDE5(xcb_generic_event_t* event);
     bool nativeEventFilterOnKDE6(xcb_generic_event_t* event);
     bool nativeEventFilterOnGNOME(xcb_generic_event_t* event);
@@ -109,4 +109,4 @@ private:
 };
 }
 
-#endif // YADAW_SRC_UI_RESIZEEVENTFILTER
+#endif // YADAW_SRC_UI_WINDOWRESIZEEVENTS
