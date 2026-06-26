@@ -70,7 +70,7 @@ MixerChannelListModel::MixerChannelListModel(
         inputs.reserve(count);
         std::generate_n(
             std::back_inserter(inputs), count,
-            [this, i = 0U] mutable -> std::decay_t<decltype(inputs)>::value_type
+            [this, i = 0U]() mutable -> std::decay_t<decltype(inputs)>::value_type
             {
                 auto index = i++;
                 if(auto channelType = mixer_.channelInfoAt(
@@ -93,7 +93,7 @@ MixerChannelListModel::MixerChannelListModel(
         outputs.reserve(count);
         std::generate_n(
             std::back_inserter(outputs), count,
-            [this, i = 0U] mutable -> std::decay_t<decltype(outputs)>::value_type
+            [this, i = 0U]() mutable -> std::decay_t<decltype(outputs)>::value_type
             {
                 auto index = i++;
                 return std::unique_ptr<YADAW::Entity::RegularAudioOutputPosition>(
@@ -108,7 +108,7 @@ MixerChannelListModel::MixerChannelListModel(
         inputs.reserve(count);
         std::generate_n(
             std::back_inserter(inputs), count,
-            [this, i = 0U] mutable -> std::decay_t<decltype(inputs)>::value_type
+            [this, i = 0U]() mutable -> std::decay_t<decltype(inputs)>::value_type
             {
                 auto index = i++;
                 return std::unique_ptr<YADAW::Entity::HardwareAudioIOPosition>(
