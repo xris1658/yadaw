@@ -27,12 +27,26 @@ bool setPhysicalPosition(QWindow& window, const QPoint& physicalPosition) { retu
 
 bool isWindowResizableByUser(QWindow& window)
 {
-    return true;
+    auto nsview = reinterpret_cast<NSView*>(window.winId());
+    auto nswindow = [nsview window];
+    auto styleMask = [nswindow styleMask];
+    return styleMask & NSWindowStyleMaskResizable;
 }
 
 void setWindowResizableByUser(QWindow& window, bool resizable)
 {
-    // TODO
+    auto nsview = reinterpret_cast<NSView*>(window.winId());
+    auto nswindow = [nsview window];
+    auto styleMask = [nswindow styleMask];
+    if(resizable)
+    {
+        styleMask |= NSWindowStyleMaskResizable;
+    }
+    else
+    {
+        styleMask &= ~NSWindowStyleMaskResizable;
+    }
+    [nswindow setStyleMask: styleMask];
 }
 
 bool isWindowMaximized(QWindow& window)
