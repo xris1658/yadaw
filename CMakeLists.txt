@@ -663,6 +663,9 @@ add_executable(CLAPTest
                src/ui/Runtime.hpp
                src/ui/WindowResizeEvents.cpp
                src/ui/WindowResizeEvents.hpp
+               src/ui/win/WindowResizeEvents.cpp
+               src/ui/linux/WindowResizeEvents.cpp
+               src/ui/mac/WindowResizeEvents.mm
                src/util/Util.cpp
                src/util/Util.hpp
                test/CLAPTest/main.cpp
@@ -1036,6 +1039,9 @@ add_executable(VST3Test
                src/ui/UI.cpp
                src/ui/UI.hpp
                src/ui/WindowResizeEvents.cpp
+               src/ui/win/WindowResizeEvents.cpp
+               src/ui/linux/WindowResizeEvents.cpp
+               src/ui/mac/WindowResizeEvents.mm
                src/ui/WindowResizeEvents.hpp
                src/util/QuadraticFunction.cpp
                src/util/QuadraticFunction.hpp

@@ -27,7 +27,6 @@ struct PluginRuntime
     std::unique_ptr<YADAW::Audio::Plugin::CLAPPlugin> plugin;
     std::atomic_flag runAudioThread;
     std::thread audioThread;
-    YADAW::UI::WindowResizeEvents* resizeEventFilter = nullptr;
     YADAW::Audio::Host::CLAPHost& createHost()
     {
         auto ptr = new(&host) YADAW::Audio::Host::CLAPHost(*plugin);
@@ -234,8 +233,6 @@ int main(int argc, char* argv[])
 #endif
     YADAW::Audio::Plugin::PluginWindow pluginWindow;
     thePluginWindow = &pluginWindow;
-    YADAW::UI::WindowResizeEvents resizeEventFilter(pluginWindow);
-    runtime.resizeEventFilter = &resizeEventFilter;
     std::setlocale(LC_ALL, "en_US.UTF-8");
     int argIndex = 1;
     YADAW::Native::Library library;

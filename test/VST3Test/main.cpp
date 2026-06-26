@@ -133,10 +133,10 @@ void testPlugin(YADAW::Audio::Plugin::PluginWindow& pluginWindow)
                 {
                     pluginWindow.setGUI(*gui);
                     gui->frame().setResizeInitiatedFromPluginCallback(
-                        [&pluginWindow, gui](QWindow& window, const QSize& size) -> bool
+                        [&pluginWindow](YADAW::Audio::Plugin::VST3PluginGUI& gui, const QSize& size) -> bool
                         {
                             pluginWindow.resizeFromPlugin(size);
-                            gui->resize(size);
+                            gui.resize(size);
                             return true;
                         }
                     );
