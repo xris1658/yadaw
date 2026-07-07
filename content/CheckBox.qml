@@ -53,9 +53,6 @@ T.CheckBox {
                 (parent.width - 2 * parent.padding) / width
             anchors.centerIn: parent
             visible: root.checkState === Qt.Checked
-            layer.enabled: true
-            layer.smooth: true
-            layer.samples: 2
             ShapePath {
                 strokeWidth: 1
                 strokeColor: fillColor

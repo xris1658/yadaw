@@ -348,9 +348,6 @@ Rectangle {
                             id: enableLayerForIcons
                             width: height
                             height: parent.height
-                            layer.enabled: true
-                            layer.smooth: true
-                            layer.textureSize: Qt.size(width * 2, height * 2)
                             Loader {
                                 id: loader
                                 onLoaded: {
@@ -482,9 +479,6 @@ Rectangle {
                                 id: formatIcons
                                 anchors.centerIn: parent
                                 currentIndex: plm_format
-                                layer.enabled: true
-                                layer.smooth: true
-                                layer.textureSize: Qt.size(width * 2, height * 2)
                                 PluginIcon {
                                     scale: 16 / originalHeight
                                     path.fillColor: Colors.secondaryContent
@@ -515,9 +509,6 @@ Rectangle {
                                 id: typeIcons
                                 anchors.centerIn: parent
                                 currentIndex: plm_type
-                                layer.enabled: true
-                                layer.smooth: true
-                                layer.textureSize: Qt.size(width * 2, height * 2)
                                 PluginIcon {
                                     scale: 16 / originalHeight
                                     path.fillColor: Colors.secondaryContent

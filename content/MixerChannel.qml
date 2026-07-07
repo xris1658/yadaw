@@ -747,9 +747,6 @@ Rectangle {
                             anchors.centerIn: parent
                             width: 16
                             height: 16
-                            layer.enabled: true
-                            layer.smooth: true
-                            layer.textureSize: Qt.size(width * 2, height * 2)
                             HeadphoneIcon {
                                 path.fillColor: monitorButton.contentItem.color
                                 path.strokeWidth: 0

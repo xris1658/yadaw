@@ -508,9 +508,6 @@ ApplicationWindow {
                 checkable: true
                 border.width: 0
                 radius: 5
-                layer.enabled: true
-                layer.smooth: true
-                layer.samples: 4
                 PlayIcon {
                     id: playIcon
                     anchors.centerIn: parent
@@ -555,9 +552,6 @@ ApplicationWindow {
                 checkable: true
                 border.width: 0
                 radius: 5
-                layer.enabled: true
-                layer.smooth: true
-                layer.samples: 4
                 LoopIcon {
                     id: loopIcon
                     anchors.centerIn: parent
@@ -593,9 +587,6 @@ ApplicationWindow {
                 checkable: true
                 border.width: 0
                 radius: 5
-                layer.enabled: true
-                layer.smooth: true
-                layer.samples: 4
                 MetronomeIcon {
                     anchors.centerIn: parent
                     scale: 20 / originalHeight
@@ -610,9 +601,6 @@ ApplicationWindow {
                 checkable: true
                 border.width: 0
                 radius: 5
-                layer.enabled: true
-                layer.smooth: true
-                layer.samples: 4
                 FollowIcon {
                     anchors.centerIn: parent
                     scale: loopIcon.width * loopIcon.scale / originalHeight
@@ -627,9 +615,6 @@ ApplicationWindow {
                 checkable: true
                 border.width: 0
                 radius: 5
-                layer.enabled: true
-                layer.smooth: true
-                layer.samples: 4
                 PianoKeysIcon {
                     anchors.centerIn: parent
                     scale: loopIcon.width * loopIcon.scale / originalHeight

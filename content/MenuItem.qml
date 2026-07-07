@@ -65,8 +65,6 @@ T.MenuItem {
             width: 8
             height: 8
             anchors.centerIn: parent
-            layer.enabled: true
-            layer.samples: 4
             antialiasing: true
             smooth: true
             ShapePath {
@@ -109,9 +107,6 @@ T.MenuItem {
                     (parent.width - 2) / width
                 anchors.centerIn: parent
                 visible: root.checked
-                layer.enabled: true
-                layer.smooth: true
-                layer.samples: 2
                 ShapePath {
                     strokeWidth: 1
                     strokeColor: fillColor
