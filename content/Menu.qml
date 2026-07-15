@@ -24,8 +24,14 @@ T.Menu {
         id: bg
         implicitWidth: 100
         implicitHeight: 10
-        color: "transparent"
+        // Workaround of visible white gap on high DPI displays.
+        // Qt .
+        // Guess it's that items in `Menu` cannot fully cover the entire content area
+        // due to some differences of rounding while Qt automatically converts between
+        // native pixels and device-independent pixels.
+        color: Colors.controlBackground
         border.color: Colors.controlBorder
+        border.width: 4
     }
     contentItem: ListView {
         id: listView
