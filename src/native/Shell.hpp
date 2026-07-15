@@ -5,6 +5,8 @@
 
 namespace YADAW::Native
 {
+void openSpecialCharacterInput();
+
 QString getFileBrowserName();
 
 void locateFileInExplorer(const QString& path);

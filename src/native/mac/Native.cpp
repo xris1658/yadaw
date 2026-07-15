@@ -25,10 +25,6 @@ const QString& programFilesFolder()
     return ret;
 }
 
-void openSpecialCharacterInput()
-{
-}
-
 int getProcessCPUCoreCount()
 {
     return 16;

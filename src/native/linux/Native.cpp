@@ -25,32 +25,6 @@ const QString& appDataFolder()
     return ret;
 }
 
-void openSpecialCharacterInput()
-{
-    std::vector<QString> listOfCharMap;
-    if(auto desktop = YADAW::Native::getDesktop())
-    {
-        if(std::strstr(desktop, "KDE"))
-        {
-            listOfCharMap.emplace_back("kcharselect");
-            listOfCharMap.emplace_back("gucharmap");
-        }
-        else
-        {
-            listOfCharMap.emplace_back("gucharmap");
-            listOfCharMap.emplace_back("kcharselect");
-        }
-    }
-    QProcess process;
-    for(const auto& charmap: listOfCharMap)
-    {
-        if(QProcess::startDetached(charmap))
-        {
-            break;
-        }
-    }
-}
-
 bool isDebuggerPresent()
 {
     const auto pid = getpid();
@@ -117,26 +91,6 @@ const std::vector<QString>& defaultPluginDirectoryList()
         }
     );
     return ret;
-}
-
-QString getFileBrowserName()
-{
-    if(auto desktop = YADAW::Native::getDesktop())
-    {
-        if(std::strstr(desktop, "KDE"))
-        {
-            return "Plasma";
-        }
-        if(std::strstr(desktop, "GNOME"))
-        {
-            return "Nautilus";
-        }
-        if(std::strstr(desktop, "XFCE"))
-        {
-            return "Thunar";
-        }
-    }
-    return "";
 }
 
 void mySegFaultHandler()

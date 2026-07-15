@@ -114,11 +114,6 @@ const QString& localAppDataFolder()
     return Impl::getKnownFolderAsWCharArray<FOLDERID_LocalAppData>();
 }
 
-void openSpecialCharacterInput()
-{
-    ShellExecuteW(nullptr, L"open", L"charmap.exe", nullptr, nullptr, SW_NORMAL);
-}
-
 bool isDebuggerPresent()
 {
     return IsDebuggerPresent();

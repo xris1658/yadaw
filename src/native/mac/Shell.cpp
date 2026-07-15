@@ -10,6 +10,10 @@
 
 namespace YADAW::Native
 {
+void openSpecialCharacterInput()
+{
+}
+
 QString fileBrowserName;
 
 std::once_flag getFileBrowserNameFlag;

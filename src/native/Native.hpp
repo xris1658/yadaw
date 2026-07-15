@@ -43,8 +43,6 @@ const QString& appDataFolder();
 // Usually <System Driver>\Program Files
 const QString& programFilesFolder();
 
-void openSpecialCharacterInput();
-
 constexpr YADAW::Util::Endian SystemEndian =
     Q_BYTE_ORDER == Q_LITTLE_ENDIAN?
         YADAW::Util::Endian::LittleEndian:

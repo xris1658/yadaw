@@ -5,11 +5,17 @@
 #include "native/Library.hpp"
 
 #include <windows.h>
+#include <shellapi.h>
 
 #include <mutex>
 
 namespace YADAW::Native
 {
+void openSpecialCharacterInput()
+{
+    ShellExecuteW(nullptr, L"open", L"charmap.exe", nullptr, nullptr, SW_NORMAL);
+}
+
 QString fileBrowserName;
 
 std::once_flag getFileBrowserNameFlag;
