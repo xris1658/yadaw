@@ -158,7 +158,27 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                             factory3->getFactoryInfo(&factoryInfo);
                             vendor = factoryInfo.vendor;
                         }
-                        auto version = QString::fromUtf16(classInfoW.version);
+                        // Some plugins converts ASCII sequence to UTF-16 BE on LE systems.
+                        // If all characters in the version string looks like 0x??00,
+                        // then convert those to UTF-16 LE so that version strings show correctly
+                        // in the plugin database.
+                        // (On second thought, I can just use the version string from `factory2`
+                        // if it exists and if we can confirm what encoding that string uses.
+                        // Could we just assume that `version` only contains ASCII characters
+                        // and call it a day?)
+                        auto span = std::span(classInfoW.version, std::size(classInfoW.version));
+                        auto versionLength = std::ranges::find(span, 0x00) - span.begin();
+                        span = std::span(classInfoW.version, versionLength);
+                        if(std::ranges::all_of(span, [](char16_t v) { return (v & 0x00FF) == 0; }))
+                        {
+                            std::ranges::for_each(span, [](char16_t& v)
+                            {
+                                v = std::bit_cast<char16_t>(
+                                    static_cast<std::uint16_t>(std::bit_cast<std::uint16_t>(v) >> 8U)
+                                );
+                            });
+                        }
+                        auto version = QString::fromUtf16(classInfoW.version, versionLength);
                         YADAW::DAO::PluginInfo pluginInfo(path, uid, name, vendor, version,
                             YADAW::DAO::PluginFormatVST3, -1);
                         if(isInstrument)
