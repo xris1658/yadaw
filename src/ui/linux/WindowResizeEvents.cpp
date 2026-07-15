@@ -1,5 +1,6 @@
 #if __linux__
 
+#include "native/Shell.hpp"
 #include "ui/WindowResizeEvents.hpp"
 
 #include <QCoreApplication>
@@ -26,22 +27,24 @@ WindowResizeEvents::WindowResizeEvents(QWindow& window):
     // we have to check the pattern and interpret those events by myself
     // (e.g. by running `xev` and monitoring events on resizing the window).
     // I haven't taken Wayland into account for now. Sorry about that.
-    auto desktop = std::getenv("XDG_SESSION_DESKTOP");
-    if(std::strstr(desktop, "KDE"))
+    if(auto desktop = YADAW::Native::getDesktop())
     {
-        auto sessionVersion = std::getenv("KDE_SESSION_VERSION");
-        if(std::strstr(sessionVersion, "5"))
+        if(std::strstr(desktop, "KDE"))
         {
-            desktopNativeEventFilter = &WindowResizeEvents::nativeEventFilterOnKDE5;
+            auto sessionVersion = std::getenv("KDE_SESSION_VERSION");
+            if(std::strstr(sessionVersion, "5"))
+            {
+                desktopNativeEventFilter = &WindowResizeEvents::nativeEventFilterOnKDE5;
+            }
+            else if(std::strstr(sessionVersion, "6"))
+            {
+                desktopNativeEventFilter = &WindowResizeEvents::nativeEventFilterOnKDE6;
+            }
         }
-        else if(std::strstr(sessionVersion, "6"))
+        else if(std::strstr(desktop, "GNOME"))
         {
-            desktopNativeEventFilter = &WindowResizeEvents::nativeEventFilterOnKDE6;
+            desktopNativeEventFilter = &WindowResizeEvents::nativeEventFilterOnGNOME;
         }
-    }
-    else if(std::strstr(desktop, "GNOME"))
-    {
-        desktopNativeEventFilter = &WindowResizeEvents::nativeEventFilterOnGNOME;
     }
     else
     {

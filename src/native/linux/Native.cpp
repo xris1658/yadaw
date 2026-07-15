@@ -1,6 +1,7 @@
 #if __linux__
 
 #include "native/Native.hpp"
+#include "native/Shell.hpp"
 #include "util/Base.hpp"
 
 #include <QProcess>
@@ -27,16 +28,18 @@ const QString& appDataFolder()
 void openSpecialCharacterInput()
 {
     std::vector<QString> listOfCharMap;
-    auto desktop = std::getenv("XDG_CURRENT_DESKTOP");
-    if(std::strstr(desktop, "KDE"))
+    if(auto desktop = YADAW::Native::getDesktop())
     {
-        listOfCharMap.emplace_back("kcharselect");
-        listOfCharMap.emplace_back("gucharmap");
-    }
-    else
-    {
-        listOfCharMap.emplace_back("gucharmap");
-        listOfCharMap.emplace_back("kcharselect");
+        if(std::strstr(desktop, "KDE"))
+        {
+            listOfCharMap.emplace_back("kcharselect");
+            listOfCharMap.emplace_back("gucharmap");
+        }
+        else
+        {
+            listOfCharMap.emplace_back("gucharmap");
+            listOfCharMap.emplace_back("kcharselect");
+        }
     }
     QProcess process;
     for(const auto& charmap: listOfCharMap)
@@ -118,18 +121,20 @@ const std::vector<QString>& defaultPluginDirectoryList()
 
 QString getFileBrowserName()
 {
-    auto desktop = std::getenv("XDG_CURRENT_DESKTOP");
-    if(std::strstr(desktop, "KDE"))
+    if(auto desktop = YADAW::Native::getDesktop())
     {
-        return "Plasma";
-    }
-    if(std::strstr(desktop, "GNOME"))
-    {
-        return "Nautilus";
-    }
-    if(std::strstr(desktop, "XFCE"))
-    {
-        return "Thunar";
+        if(std::strstr(desktop, "KDE"))
+        {
+            return "Plasma";
+        }
+        if(std::strstr(desktop, "GNOME"))
+        {
+            return "Nautilus";
+        }
+        if(std::strstr(desktop, "XFCE"))
+        {
+            return "Thunar";
+        }
     }
     return "";
 }
