@@ -29,6 +29,8 @@ public slots:
     void onMainWindowClosing();
     void onLocateFileInExplorer(const QString& path);
     void onStartPluginScan();
+    void onSetSystemFontRendering(bool enabled);
+    void onSetSystemFontRenderingWhileDebugging(bool enabled);
     void onSetTranslationIndex(int index);
     void onCurrentAudioBackendChanged();
     void onAudioGraphOutputDeviceIndexChanged(int index);

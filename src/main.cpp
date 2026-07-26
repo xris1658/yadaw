@@ -101,6 +101,35 @@ int main(int argc, char *argv[])
     );
     YADAW::Controller::initializeApplicationConfig();
     auto config = YADAW::Controller::loadConfig();
+    // Qt on Windows uses DirectWrite as the default font engine since
+    // Qt 6.8, while older versions of Qt uses GDI. DirectWrite supports
+    // some advanced font features like variable fonts, but YADAW does not
+    // use those features for now (maybe it is necessary while working on
+    // localizations with variable fonts, but I'm not very sure).
+    // I initially added this feature to let MacType improve the font
+    // rendering, but my configuration of MacType does not handle
+    // DirectWrite (since text in other applications that use DirectWrite
+    // like Settings will get blurry if DirectWrite support is enabled),
+    // making the text looks unsmooth and not antialiased.
+    // TODO: Might have to change this option and let user select font
+    //       backends if needed?
+    // If you are looking for some temporary solution since you encountered
+    // this issue, you can either append
+    // -platform windows:fontengine=gdi
+    // to the program argument, or add a file called qt.conf with content:
+    //
+    // [Platforms]
+    // WindowsArguments = fontengine=gdi
+    //
+    // to the application directory.
+    auto systemFontRendering = config["general"]["system-font-rendering"].as<bool>();
+    if(systemFontRendering)
+    {
+        if((!YADAW::Native::isDebuggerPresent()) || config["general"]["system-font-rendering-while-debugging"].as<bool>())
+        {
+            QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
+        }
+    }
     QDir dir(YADAW::UI::defaultFontDir());
     if(dir.exists())
     {

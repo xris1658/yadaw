@@ -32,6 +32,7 @@ MainWindow {
         }
     }
     currentTranslationIndex: 0
+    systemFontRendering: false
     audioGraphInputDeviceList: ListModel {
         ListElement {
             adlm_id: 0

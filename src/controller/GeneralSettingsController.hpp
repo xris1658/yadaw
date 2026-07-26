@@ -8,6 +8,10 @@ namespace YADAW::Controller
 class GeneralSettingsController
 {
 public:
+    static bool systemFontRendering();
+    static bool systemFontRenderingWhileDebugging();
+    static void setSystemFontRendering(bool enabled);
+    static void setSystemFontRenderingWhileDebugging(bool enabled);
     static void setTranslation(const QString& name);
 };
 }
