@@ -809,122 +809,61 @@ Rectangle {
                                 hovered?
                                     Colors.mouseOverControlBackground:
                                     Colors.controlBackground
-                    NativePopup {
-                        id: invertPolarityNativePopup
-                        width: invertPolarityMenu.width
-                        height: Math.min(invertPolarityMenu.implicitHeight, screen.desktopAvailableHeight)
-                        Menu {
-                            id: invertPolarityMenu
-                            width: Math.max(invertPolarityButton.width, implicitWidth)
-                            height: parent.height
-                            visible: invertPolarityNativePopup.visible
-                            onVisibleChanged: {
-                                if(!visible) {
-                                    invertPolarityNativePopup.hide();
-                                }
+                    Menu {
+                        id: invertPolarityMenu
+                        width: Math.max(invertPolarityButton.width, implicitWidth)
+                        MenuItem {
+                            text: qsTr("Invert all")
+                            minimumSpaceBetweenTextAndShortcut: 0
+                            onClicked: {
+                                mclm_polarity_inverter.invertAll();
                             }
+                        }
+                        MenuItem {
+                            text: qsTr("Invert none")
+                            minimumSpaceBetweenTextAndShortcut: 0
+                            onClicked: {
+                                mclm_polarity_inverter.revertAll();
+                            }
+                        }
+                        MenuItem {
+                            text: qsTr("Toggle all")
+                            minimumSpaceBetweenTextAndShortcut: 0
+                            onClicked: {
+                                mclm_polarity_inverter.toggleAll();
+                            }
+                        }
+                        MenuSeparator {}
+                        Repeater {
+                            model: mclm_polarity_inverter
                             MenuItem {
-                                text: qsTr("Invert all")
+                                checkable: true
+                                checked: pim_inverted
+                                text: pim_channel_name
                                 minimumSpaceBetweenTextAndShortcut: 0
-                                onClicked: {
-                                    mclm_polarity_inverter.invertAll();
-                                }
-                            }
-                            MenuItem {
-                                text: qsTr("Invert none")
-                                minimumSpaceBetweenTextAndShortcut: 0
-                                onClicked: {
-                                    mclm_polarity_inverter.revertAll();
-                                }
-                            }
-                            MenuItem {
-                                text: qsTr("Toggle all")
-                                minimumSpaceBetweenTextAndShortcut: 0
-                                onClicked: {
-                                    mclm_polarity_inverter.toggleAll();
-                                }
-                            }
-                            MenuSeparator {}
-                            Repeater {
-                                model: mclm_polarity_inverter
-                                MenuItem {
-                                    checkable: true
-                                    checked: pim_inverted
-                                    text: pim_channel_name
-                                    minimumSpaceBetweenTextAndShortcut: 0
-                                    onCheckedChanged: {
-                                        pim_inverted = checked;
-                                    }
+                                onCheckedChanged: {
+                                    pim_inverted = checked;
                                 }
                             }
                         }
-                        Connections {
-                            target: visible? EventReceiver.mainWindow.keyEventForwarder: null
-                            function onKeysPressed(event: var) {
-                                let accepted = false;
-                                if(event.key == Qt.Key_Up
-                                    || event.key == Qt.Key_Backtab
-                                    || ((event.key == Qt.Key_Tab && event.modifiers == Qt.ShiftModifier))) {
-                                    if(invertPolarityMenu.currentIndex <= 0) {
-                                        invertPolarityMenu.currentIndex = invertPolarityMenu.count - 1;
-                                    }
-                                    else {
-                                        --invertPolarityMenu.currentIndex;
-                                    }
-                                    accepted = true;
-                                }
-                                else if(event.key == Qt.Key_Down
-                                    || ((event.key == Qt.Key_Tab && event.modifiers == Qt.NoModifier))) {
-                                    if(invertPolarityMenu.currentIndex == -1 || invertPolarityMenu.currentIndex == invertPolarityMenu.count - 1) {
-                                        invertPolarityMenu.currentIndex = 0;
-                                    }
-                                    else {
-                                        ++invertPolarityMenu.currentIndex;
-                                    }
-                                    accepted = true;
-                                }
-                                else if(event.key == Qt.Key_Return) {
-                                    if(invertPolarityMenu.currentIndex != -1) {
-                                        invertPolarityMenu.itemAt(invertPolarityMenu.currentIndex).clicked();
-                                        accepted = true;
-                                    }
-                                }
-                                else if(event.key == Qt.Key_Escape) {
-                                    invertPolarityNativePopup.hide();
-                                    accepted = true;
-                                }
-                                event.accepted = accepted;
-                            }
-                        }
-                        onVisibleChanged: {
-                            if(!visible) {
-                                let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
-                                if(nativePopupEventFilterModel) {
-                                    nativePopupEventFilterModel.remove(invertPolarityNativePopup);
-                                }
-                                invertPolarityButton.checked = false;
-                            }
-                        }
-                        onMousePressedOutside: {
-                            hide();
+                        onClosed: {
+                            invertPolarityButton.checked = false;
                         }
                     }
                     onCheckedChanged: {
                         if(checked) {
-                            let globalPoint = mapToGlobal(0, 0);
-                            invertPolarityNativePopup.locate(
-                                Qt.rect(
-                                    globalPoint.x, globalPoint.y, width, height
-                                ),
-                                Qt.Vertical
+                            let globalButtonPos = mapToGlobal(0, 0);
+                            let buttonGlobalRect = Qt.rect(
+                                globalButtonPos.x, globalButtonPos.y,
+                                width, height
                             );
-                            invertPolarityNativePopup.showWithoutActivating();
-                            let nativePopupEventFilterModel = Global.nativePopupEventFilterModel;
-                            nativePopupEventFilterModel.append(invertPolarityNativePopup, false);
-                            EventReceiver.mainWindow.keyEventForwarder.startForwarding(invertPolarityButton);
-                        }
-                        else {
-                            EventReceiver.mainWindow.keyEventForwarder.endForwarding();
+                            let globalPoint = invertPolarityMenu.globalPosition(
+                                buttonGlobalRect, Qt.Vertical
+                            );
+                            let menuPoint = mapFromGlobal(globalPoint.x, globalPoint.y);
+                            invertPolarityMenu.x = menuPoint.x;
+                            invertPolarityMenu.y = menuPoint.y;
+                            invertPolarityMenu.open();
                         }
                     }
                 }

@@ -77,12 +77,6 @@ ApplicationWindow {
         title: "YADAW"
     }
 
-    onActiveChanged: {
-        if(!active) {
-            nativePopupEventFilterModel.clear();
-        }
-    }
-
     onCurrentTranslationIndexChanged: {
         if(opened) {
             EventSender.setTranslationIndex(currentTranslationIndex);

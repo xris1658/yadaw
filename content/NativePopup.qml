@@ -53,9 +53,4 @@ Window {
             y = posY;
         }
     }
-    // See YADAW::UI::showWindowWithoutActivating()
-    function showWithoutActivating() {
-        EventReceiver.mainWindow.nativePopupToShow = root;
-        EventSender.showNativePopup();
-    }
 }

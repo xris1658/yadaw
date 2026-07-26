@@ -33,7 +33,6 @@ public slots:
     void onCurrentAudioBackendChanged();
     void onAudioGraphOutputDeviceIndexChanged(int index);
     void onToggleMainWindowFullscreen();
-    void onShowNativePopup();
     void onPrepareBatchUpdate();
     void onCommitBatchUpdate();
 private:

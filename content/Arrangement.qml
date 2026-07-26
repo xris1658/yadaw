@@ -1,5 +1,6 @@
 import QtQml
 import QtQuick
+import QtQuick.Controls as QC
 
 import YADAW.Models
 
@@ -180,7 +181,7 @@ SplitView {
                     }
                 }
             }
-            MouseArea {
+            Item {
                 id: trackHeaderListBlankArea
                 anchors.top: trackHeaderListView.contentItem.bottom
                 anchors.topMargin: -1 * trackHeaderListView.footerHeight
@@ -189,8 +190,7 @@ SplitView {
                 )
                 anchors.left: parent.left
                 anchors.right: parent.right
-                acceptedButtons: Qt.RightButton
-                Menu {
+                QC.ContextMenu.menu: Menu {
                     id: trackHeaderBlankOptions
                     title: qsTr("Track Header Blank Area Options")
                     Menu {
@@ -233,28 +233,6 @@ SplitView {
                         checkable: true
                         checked: false
                     }
-                }
-                Connections {
-                    id: connectToMenu
-                    target: trackHeaderBlankOptions
-                    enabled: Global.enableMenuPopup
-                    function onClosed() {
-                        let menu = target;
-                        let nativePopup = menu.nativePopup;
-                        if(nativePopup) {
-                            menu.parent = trackHeaderListBlankArea;
-                            let quickMenuBarEventFilterModel = Global.nativePopupEventFilterModel;
-                            if(quickMenuBarEventFilterModel) {
-                                quickMenuBarEventFilterModel.remove(nativePopup);
-                            }
-                        }
-                    }
-                }
-                onClicked: {
-                    if(trackHeaderBlankOptions.opened) {
-                        trackHeaderBlankOptions.close();
-                    }
-                    trackHeaderBlankOptions.openAt(Qt.rect(mouseX, mouseY, 0, 0), Qt.Vertical);
                 }
             }
         }

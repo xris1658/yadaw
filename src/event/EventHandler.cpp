@@ -103,8 +103,6 @@ void EventHandler::connectToEventSender(QObject* sender)
         this, SLOT(onStartPluginScan()));
     QObject::connect(sender, SIGNAL(toggleMainWindowFullscreen()),
         this, SLOT(onToggleMainWindowFullscreen()));
-    QObject::connect(sender, SIGNAL(showNativePopup()),
-        this, SLOT(onShowNativePopup()));
     QObject::connect(sender, SIGNAL(prepareBatchUpdate()),
         this, SLOT(onPrepareBatchUpdate()));
     QObject::connect(sender, SIGNAL(commitBatchUpdate()),
@@ -615,23 +613,6 @@ void EventHandler::onOpenMainWindow()
         }
     );
     YADAW::UI::mainWindow->setProperty(
-        "nativePopupEventFilterModel",
-        QVariant::fromValue<QObject*>(
-            YADAW::Model::QuickMenuEventFilterModel::create(
-                *YADAW::UI::mainWindow
-            )
-        )
-    );
-    YADAW::UI::mainWindow->setProperty(
-        "quickMenuBarEventFilterModel",
-        QVariant::fromValue<QObject*>(
-            YADAW::Model::QuickMenuEventFilterModel::create(
-                *YADAW::UI::mainWindow,
-                *(YADAW::UI::mainWindow->property("menuBar").value<QObject*>())
-            )
-        )
-    );
-    YADAW::UI::mainWindow->setProperty(
         "debugMode",
         QVariant::fromValue<bool>(
             YADAW::Native::isDebuggerPresent()
@@ -791,17 +772,6 @@ void EventHandler::onToggleMainWindowFullscreen()
             YADAW::UI::mainWindow->property("previouslyMaximized").value<bool>()
         );
         fullscreen = false;
-    }
-}
-
-void EventHandler::onShowNativePopup()
-{
-    auto nativePopup = qobject_cast<QWindow*>(
-        YADAW::UI::mainWindow->property("nativePopupToShow").value<QObject*>()
-    );
-    if(nativePopup)
-    {
-        YADAW::Native::showWindowWithoutActivating(*nativePopup);
     }
 }
 

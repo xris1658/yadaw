@@ -1,5 +1,6 @@
 import QtQml
 import QtQuick
+import QtQuick.Controls as QC
 
 import YADAW.Models
 
@@ -284,7 +285,7 @@ Rectangle {
             width: channels.footerWidth
             height: parent.height
         }
-        MouseArea {
+        Item {
             id: mixerChannelBlankArea
             anchors.left: channels.contentItem.right
             anchors.leftMargin: -1 * channels.footerWidth
@@ -293,8 +294,7 @@ Rectangle {
             )
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            acceptedButtons: Qt.RightButton
-            Menu {
+            QC.ContextMenu.menu: Menu {
                 id: mixerChannelBlankAreaOptions
                 title: qsTr("Mixer Channel Blank Area Options")
                 Menu {
@@ -325,28 +325,6 @@ Rectangle {
                         }
                     }
                 }
-            }
-            Connections {
-                id: connectToMenu
-                target: mixerChannelBlankAreaOptions
-                enabled: Global.enableMenuPopup
-                function onClosed() {
-                    let menu = target;
-                    let nativePopup = menu.nativePopup;
-                    if(nativePopup) {
-                        menu.parent = mixerChannelBlankArea;
-                        let quickMenuBarEventFilterModel = Global.nativePopupEventFilterModel;
-                        if(quickMenuBarEventFilterModel) {
-                            quickMenuBarEventFilterModel.remove(nativePopup);
-                        }
-                    }
-                }
-            }
-            onClicked: {
-                if(mixerChannelBlankAreaOptions.opened) {
-                    mixerChannelBlankAreaOptions.close();
-                }
-                mixerChannelBlankAreaOptions.openAt(Qt.rect(mouseX, mouseY, 0, 0), Qt.Vertical);
             }
         }
     }
