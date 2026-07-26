@@ -1,8 +1,19 @@
+From efc5fc773f961f423c66f51a90b1a11e37b2936d Mon Sep 17 00:00:00 2001
+From: xris1658 <chris1658@foxmail.com>
+Date: Mon, 13 Jul 2026 16:21:42 +0800
+Subject: [PATCH] AbstractButton: Use dedicated mnemonics shortcut context
+
+---
+ src/quicktemplates/qquickabstractbutton.cpp   |  2 +-
+ src/quicktemplates/qquickshortcutcontext.cpp  | 68 ++++++++++++++++++-
+ .../qquickshortcutcontext_p_p.h               |  1 +
+ 3 files changed, 69 insertions(+), 2 deletions(-)
+
 diff --git a/src/quicktemplates/qquickabstractbutton.cpp b/src/quicktemplates/qquickabstractbutton.cpp
-index f6e23b2..1282375 100644
+index 709508483f..84cebca906 100644
 --- a/src/quicktemplates/qquickabstractbutton.cpp
 +++ b/src/quicktemplates/qquickabstractbutton.cpp
-@@ -308,7 +308,7 @@ void QQuickAbstractButtonPrivate::grabShortcut()
+@@ -315,7 +315,7 @@ void QQuickAbstractButtonPrivate::grabShortcut()
      if (shortcut.isEmpty())
          return;
  
@@ -12,15 +23,15 @@ index f6e23b2..1282375 100644
      if (!q->isEnabled())
          QGuiApplicationPrivate::instance()->shortcutMap.setShortcutEnabled(false, shortcutId, q);
 diff --git a/src/quicktemplates/qquickshortcutcontext.cpp b/src/quicktemplates/qquickshortcutcontext.cpp
-index c7c09d5..0fe5041 100644
+index 4b64c5192f..7a0d1d451c 100644
 --- a/src/quicktemplates/qquickshortcutcontext.cpp
 +++ b/src/quicktemplates/qquickshortcutcontext.cpp
-@@ -49,6 +49,72 @@ static bool isBlockedByPopup(QQuickItem *item)
+@@ -50,6 +50,72 @@ static bool isBlockedByPopup(QQuickItem *item)
      return false;
  }
  
 +// This function is pretty much the same as `QWindow::isActive()` except that
-+// you can set whether transient parent and child are taken into account.
++// you can set whether transient parent and child are taken in account.
 +static bool isWindowActive(QWindow* window, QWindow::AncestorMode ancestorMode = QWindow::IncludeTransients)
 +{
 +    if(!window->handle())
@@ -87,21 +98,21 @@ index c7c09d5..0fe5041 100644
 +
  bool QQuickShortcutContext::matcher(QObject *obj, Qt::ShortcutContext context)
  {
-     QQuickItem *item = nullptr;
-@@ -86,7 +152,7 @@ bool QQuickShortcutContext::matcher(QObject *obj, Qt::ShortcutContext context)
-             obj = renderWindow;
-         qCDebug(lcContextMatcher) << "obj" << obj << "item" << item << "focusWindow" << QGuiApplication::focusWindow()
-             << "!isBlockedByPopup(item)" << !isBlockedByPopup(item);
+     if ((context != Qt::ApplicationShortcut) && (context != Qt::WindowShortcut))
+@@ -101,7 +167,7 @@ bool QQuickShortcutContext::matcher(QObject *obj, Qt::ShortcutContext context)
+         qCDebug(lcContextMatcher) << "obj" << obj << "item" << item << "focusWindow"
+                                   << QGuiApplication::focusWindow()
+                                   << "!isBlockedByPopup(item)" << !isBlockedByPopup(item);
 -        return obj && qobject_cast<QWindow*>(obj)->isActive() && !isBlockedByPopup(item);
 +        return obj && isWindowActive(qobject_cast<QWindow*>(obj), QWindow::IncludeTransients) && !isBlockedByPopup(item);
-     default:
-         return false;
      }
+ }
+ 
 diff --git a/src/quicktemplates/qquickshortcutcontext_p_p.h b/src/quicktemplates/qquickshortcutcontext_p_p.h
-index 4dcd96d..63696b3 100644
+index 56c6eac76a..f070fb580d 100644
 --- a/src/quicktemplates/qquickshortcutcontext_p_p.h
 +++ b/src/quicktemplates/qquickshortcutcontext_p_p.h
-@@ -24,6 +24,7 @@ class QObject;
+@@ -25,6 +25,7 @@ class QObject;
  
  struct Q_QUICKTEMPLATES2_EXPORT QQuickShortcutContext
  {
@@ -109,3 +120,6 @@ index 4dcd96d..63696b3 100644
      static bool matcher(QObject *object, Qt::ShortcutContext context);
  };
  
+-- 
+2.45.2.windows.1
+
