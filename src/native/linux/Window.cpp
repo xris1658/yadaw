@@ -321,8 +321,9 @@ bool isWindowResizableByUser(QWindow& window)
             // immediately after a `QWindow::resize()`. This causes a lot of
             // trouble while showing a plugin window which is not resizable by
             // user. Since I don't retrieve window size from non-native code
-            // by calling `xcb_get_geometry`, I'll just retrieve window size
-            // from Qt instead.
+            // by calling `xcb_get_geometry` (not until implementing
+            // `getPhysicalGeometry`), I'll just retrieve window size from Qt
+            // instead.
             // (For those who're wondering, yes, I've tried calling `xcb_flush`
             // here, but the window size was still inconsistent.)
             auto geometry = window.size() * window.devicePixelRatio();
