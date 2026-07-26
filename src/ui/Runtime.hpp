@@ -3,6 +3,10 @@
 
 #include <QTimer>
 
+#if _WIN32
+#include "ui/win/D3DFlipSwitcher.hpp"
+#endif
+
 class QQmlApplicationEngine;
 class QQuickWindow;
 
@@ -14,5 +18,9 @@ extern QQmlApplicationEngine* qmlApplicationEngine;
 extern QQuickWindow* mainWindow;
 
 QTimer& idleProcessTimer();
+
+#if _WIN32
+YADAW::UI::D3DFlipSwitcher& d3dFlipSwitcher();
+#endif
 }
 #endif // YADAW_SRC_UI_RUNTIME

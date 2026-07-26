@@ -13,6 +13,10 @@
 #include "ui/Runtime.hpp"
 #include "ui/UI.hpp"
 
+#if _WIN32
+#include <QQuickGraphicsConfiguration>
+#endif
+
 #include <QDir>
 #include <QFont>
 #include <QFontDatabase>
@@ -29,6 +33,31 @@ int main(int argc, char *argv[])
     YADAW::UI::qmlApplicationEngine = &engine;
     YADAW::Entity::initializeEntity();
     YADAW::Model::initializeModel();
+#if _WIN32
+    YADAW::UI::D3DFlipSwitcher* d3dFlipSwitcher = nullptr;
+    // [*] Force enable PreMulAlpha on D3D11 swap chain so that
+    //     DirectComposition is used.
+    //     This is the 3rd of a 3-part workaround of `QQuickWindow` with D3D11
+    //     RHI failing [the smooth resize test by Raph Levien](https://raphlinus.github.io/rust/gui/2019/06/21/smooth-resize-test.html).
+    //     This workaround is almost blatantly copied from [xi-editor/xi-win #21 also by Raph Levien](https://github.com/xi-editor/xi-win/pull/21).
+    //     See part 1 in src/ui/win/D3DFlipSwitcher.hpp and part 2 in tools/d3d11-rhi-changes
+    if(auto quickBackend = std::getenv("QT_QUICK_BACKEND");
+        !quickBackend || std::strcmp(quickBackend, "rhi") == 0)
+    {
+        if(auto rhiBackend = std::getenv("QSG_RHI_BACKEND");
+            !rhiBackend || std::strcmp(rhiBackend, "d3d11") == 0)
+        {
+            auto defaultFormat = QSurfaceFormat::defaultFormat();
+            if(defaultFormat.alphaBufferSize() <= 0)
+            {
+                defaultFormat.setAlphaBufferSize(8);
+                QSurfaceFormat::setDefaultFormat(defaultFormat);
+                d3dFlipSwitcher = &YADAW::UI::d3dFlipSwitcher();
+                app.installNativeEventFilter(d3dFlipSwitcher);
+            }
+        }
+    }
+#endif
     const QString eventsName("Events.qml");
     const QString splashScreenName("SplashScreen.qml");
     QObject* splashScreen = nullptr;
@@ -59,35 +88,17 @@ int main(int argc, char *argv[])
             else if(fileName == mainWindowName)
             {
                 YADAW::UI::mainWindow = qobject_cast<QQuickWindow*>(obj);
+#if _WIN32
+                auto& d3dFlipSwitcher = YADAW::UI::d3dFlipSwitcher();
+                d3dFlipSwitcher.addWindow(*YADAW::UI::mainWindow);
+                auto gc = YADAW::UI::mainWindow->graphicsConfiguration();
+                gc.setDebugLayer(true);
+                YADAW::UI::mainWindow->setGraphicsConfiguration(gc);
+#endif
             }
         },
         Qt::DirectConnection
     );
-    // When software rendering is used, font rendering is forced to use system
-    // font rendering:
-    // https://doc.qt.io/qt-6/qtquick-visualcanvas-adaptations-software.html#rendering-text
-    // Qt on Windows uses DirectWrite as the default font engine since
-    // Qt 6.8, while older versions of Qt uses GDI. DirectWrite supports
-    // some advanced font features like variable fonts, but YADAW does not
-    // use those features for now (maybe it is necessary while working on
-    // localizations with variable fonts, but I'm not very sure).
-    // I initially added this feature to let MacType improve the font
-    // rendering, but my configuration of MacType does not handle
-    // DirectWrite (since text in other applications that use DirectWrite
-    // like Settings will get blurry if DirectWrite support is enabled),
-    // making the text looks unsmooth and not antialiased.
-    // If you are looking for some temporary solution since you encountered
-    // this issue, you can either append
-    // -platform windows:fontengine=gdi
-    // to the program argument, or add a file called qt.conf with content:
-    //
-    // [Platforms]
-    // WindowsArguments = fontengine=gdi
-    //
-    // to the application directory.
-    // TODO: Might have to change this option and let user select font backends
-    //       if needed?
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::Software);
     YADAW::Controller::initializeApplicationConfig();
     auto config = YADAW::Controller::loadConfig();
     QDir dir(YADAW::UI::defaultFontDir());
@@ -230,5 +241,11 @@ int main(int argc, char *argv[])
     // engine.load(url);
     // eventHandler.setQtVersion(QString(qVersion()));
     auto ret = app.exec();
+#if _WIN32
+    if(d3dFlipSwitcher)
+    {
+        app.removeNativeEventFilter(d3dFlipSwitcher);
+    }
+#endif
     return ret;
 }

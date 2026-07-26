@@ -23,4 +23,12 @@ QTimer& idleProcessTimer()
     );
     return timer;
 }
+
+#if _WIN32
+YADAW::UI::D3DFlipSwitcher& d3dFlipSwitcher()
+{
+    static YADAW::UI::D3DFlipSwitcher ret;
+    return ret;
+}
+#endif
 }

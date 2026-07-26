@@ -17,6 +17,12 @@ option(ENABLE_PRECOMPILE "Enable precompile" ON)
 
 # Prerequisites and dependencies
 find_package(Qt6 6.9 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
+if(WIN32 AND Qt6_FOUND)
+    # also find GuiPrivate for Qt versions since 6.10.1
+    if(Qt6_VERSION VERSION_GREATER_EQUAL 6.10.1)
+        find_package(Qt6 6.9 COMPONENTS GuiPrivate)
+    endif()
+endif()
 
 find_package(ade CONFIG REQUIRED)
 if(WIN32)
@@ -124,6 +130,8 @@ set(WIN32_NATIVE_SOURCES
     src/native/win/winrt/Forward.hpp
     src/native/win/winrt/QStringFromHString.cpp
     src/native/win/winrt/QStringFromHString.hpp
+    src/ui/win/D3DFlipSwitcher.cpp
+    src/ui/win/D3DFlipSwitcher.hpp
     src/ui/win/WindowResizeEvents.cpp
 )
 
@@ -1066,7 +1074,7 @@ if(${CMAKE_BUILD_TYPE} STREQUAL Release OR ${CMAKE_BUILD_TYPE} STREQUAL MinSizeR
 endif()
 
 if(WIN32)
-    set(NATIVE_LIBRARY version ole32 user32 windowsapp avrt dwmapi)
+    set(NATIVE_LIBRARY version ole32 user32 windowsapp avrt dwmapi Qt6::GuiPrivate)
     if(MINGW)
         set(NATIVE_LIBRARY ${NATIVE_LIBRARY}
             ksguid # KSDATAFORMAT_xxx
