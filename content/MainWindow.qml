@@ -104,12 +104,10 @@ ApplicationWindow {
         opened = true;
         visible = true;
         // Qt 6.7.0+ workaround
-        if(Global.qtMajorVersion == 6 && Global.qtMinorVersion >= 7) {
-            pluginSelectorWindow.showMinimized();
-            pluginSelectorWindow.hide();
-            audioIOSelectorWindow.showMinimized();
-            audioIOSelectorWindow.hide();
-        }
+        pluginSelectorWindow.showMinimized();
+        pluginSelectorWindow.hide();
+        audioIOSelectorWindow.showMinimized();
+        audioIOSelectorWindow.hide();
     }
 
     Component.onCompleted: {
