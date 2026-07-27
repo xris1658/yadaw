@@ -10,8 +10,6 @@ QtObject {
     property int qtMinorVersion: 0
     property int qtMicroVersion: 0
     property string fileBrowserName: qsTr("File Browser")
-    property INativePopupEventFilterModel nativePopupEventFilterModel: null
-    property INativePopupEventFilterModel quickMenuBarEventFilterModel: null
     property bool enableMenuBarMenuPopup: SystemInformation.productType != "macos"
     function messageDialog(message: string, title: string, icon: int, modal: bool) {
         let component = Qt.createComponent("./MessageDialog.qml");

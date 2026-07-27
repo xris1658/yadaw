@@ -23,7 +23,6 @@
 #include "event/EventBase.hpp"
 #include "model/MixerChannelInsertListModel.hpp"
 #include "model/MixerChannelListModel.hpp"
-#include "model/QuickMenuEventFilterModel.hpp"
 #include "native/Native.hpp"
 #include "native/Shell.hpp"
 #include "native/Window.hpp"

@@ -16,7 +16,6 @@
 #include "model/ILocalizationListModel.hpp"
 #include "model/IMixerChannelInsertListModel.hpp"
 #include "model/IMixerChannelListModel.hpp"
-#include "model/INativePopupEventFilterModel.hpp"
 #include "model/IParameterValueAndTextListModel.hpp"
 #include "model/IPluginCategoryListModel.hpp"
 #include "model/IPluginDirectoryListModel.hpp"
@@ -55,7 +54,6 @@ void initializeModel()
     QML_REGISTER_UNCREATABLE_TYPE(ILocalizationListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IMixerChannelInsertListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IMixerChannelListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
-    QML_REGISTER_UNCREATABLE_TYPE(INativePopupEventFilterModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IParameterValueAndTextListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IPluginCategoryListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IPluginDirectoryListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
