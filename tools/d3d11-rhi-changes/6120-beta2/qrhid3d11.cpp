@@ -5368,6 +5368,7 @@ bool QD3D11SwapChain::createOrResize()
     //     See part 1 in src/ui/win/D3DFlipSwitcher.hpp and part 3 in src/main.cpp
     //     You need to replace qtbase/src/gui/rhi/qrhid3d11.cpp with this file
     //     and build Qt on your own.
+    //     TODO: See part 2 and 3
     rhiD->useLegacySwapchainModel = qEnvironmentVariableIntValue("QT_D3D_NO_FLIP");
 
     if (!rhiD->useLegacySwapchainModel) {

@@ -42,6 +42,8 @@ bool D3DFlipSwitcher::nativeEventFilter(
                 it->second.fillRhiIfNeeded();
                 if(it->second.swapChain)
                 {
+                    // FIXME: Move functions manipulating the swap chain to the
+                    //        render thread
                     it->second.swapChain->destroy();
                     _putenv_s("QT_D3D_NO_FLIP", msg->message == WM_ENTERSIZEMOVE? "1": "0");
                     it->second.swapChain->createOrResize();
