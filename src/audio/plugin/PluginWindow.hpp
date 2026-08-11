@@ -46,7 +46,9 @@ private:
     enum ResizeOp: std::uint8_t
     {
         Repositioning = 1 << 0,
-        ResizingFromPlugin = 1 << 1
+        ResizingFromPlugin = 1 << 1,
+        FromWithinSetGUI = 1 << 2,
+        ResizeCalledFromWithinSetGUI = 1 << 3
     };
     std::underlying_type_t<ResizeOp> resizeOps_ = 0;
     bool canClose_ = true;

@@ -90,26 +90,39 @@ void PluginWindow::setGUI(YADAW::Audio::Plugin::IPluginGUI& pluginGUI)
         pluginGUI_->detachWithWindow();
     }
     pluginGUI_ = &pluginGUI;
+    resizeOps_ ^= ResizeOp::FromWithinSetGUI;
     pluginGUI.attachToWindow(&pluginFrame_);
+    resizeOps_ ^= ResizeOp::FromWithinSetGUI;
     // Some plugins might invoke `resizeFromPlugin` with the `attachToWindow` call above,
     // in which case we should resize all the child windows accordingly.
     resizeOps_ ^= Repositioning;
-    auto pluginFrameSize = pluginGUI_->size();
-    if(pluginGUI.usePhysicalPixelSize())
+    if(resizeOps_ & ResizeOp::ResizeCalledFromWithinSetGUI)
     {
-        auto topBarHeight = topBar_? YADAW::Native::getPhysicalGeometry(*topBar_).height(): 0;
-        YADAW::Native::setPhysicalGeometry(
-            pluginFrame_, QRect(QPoint(0, topBarHeight), pluginFrameSize)
-        );
-        YADAW::Native::setPhysicalSize(
-            *this, QSize(pluginFrameSize.width(), pluginFrameSize.height() + topBarHeight)
-        );
+        resizeOps_ ^= ResizeOp::ResizeCalledFromWithinSetGUI;
     }
     else
     {
-        auto topBarHeight = topBar_? topBar_->height(): 0;
-        pluginFrame_.setGeometry(QRect(QPoint(0, topBarHeight), pluginFrameSize));
-        resize(pluginFrameSize.width(), pluginFrameSize.height() + topBarHeight);
+        auto pluginFrameSize = pluginGUI_->size();
+        if(pluginGUI.usePhysicalPixelSize())
+        {
+            auto topBarHeight = topBar_? YADAW::Native::getPhysicalGeometry(*topBar_).height(): 0;
+            YADAW::Native::setPhysicalGeometry(
+                pluginFrame_, QRect(QPoint(0, topBarHeight), pluginFrameSize)
+            );
+            YADAW::Native::setPhysicalSize(
+                *topBar_, QSize(pluginFrameSize.width(), topBarHeight)
+            );
+            YADAW::Native::setPhysicalSize(
+                *this, QSize(pluginFrameSize.width(), pluginFrameSize.height() + topBarHeight)
+            );
+        }
+        else
+        {
+            auto topBarHeight = topBar_? topBar_->height(): 0;
+            pluginFrame_.setGeometry(QRect(QPoint(0, topBarHeight), pluginFrameSize));
+            topBar_->resize(pluginFrameSize.width(), topBarHeight);
+            resize(pluginFrameSize.width(), pluginFrameSize.height() + topBarHeight);
+        }
     }
     YADAW::Native::setWindowResizableByUser(*this, pluginGUI.resizableByUser());
     resizeOps_ ^= Repositioning;
@@ -202,6 +215,10 @@ void PluginWindow::onAboutToResize(YADAW::UI::WindowResizeEvents::DragPosition d
 void PluginWindow::onResized(QRect rect)
 {
     using YADAW::UI::WindowResizeEvents;
+    if(resizeOps_ & ResizeOp::FromWithinSetGUI)
+    {
+        resizeOps_ ^= ResizeOp::ResizeCalledFromWithinSetGUI;
+    }
     if((resizeOps_ & ResizeOp::Repositioning) == 0)
     {
         auto nativeSupportFlags = WindowResizeEvents::getNativeSupportFlags();
