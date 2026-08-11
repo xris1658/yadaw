@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
     YADAW::UI::qmlApplicationEngine = &engine;
     YADAW::Entity::initializeEntity();
     YADAW::Model::initializeModel();
+    // QQuickWindow::setSceneGraphBackend("d3d11-tsrt-adaptation");
 #if _WIN32
     YADAW::UI::D3DFlipSwitcher* d3dFlipSwitcher = nullptr;
     // [*] Force enable PreMulAlpha on D3D11 swap chain so that

@@ -18,10 +18,12 @@ option(ENABLE_PRECOMPILE "Enable precompile" ON)
 # Prerequisites and dependencies
 find_package(Qt6 6.9 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 if(WIN32 AND Qt6_FOUND)
+    find_package(Qt6 6.9 COMPONENTS QuickPrivate)
     # also find GuiPrivate for Qt versions since 6.10.1
     if(Qt6_VERSION VERSION_GREATER_EQUAL 6.10.1)
         find_package(Qt6 6.9 COMPONENTS GuiPrivate)
     endif()
+    add_subdirectory(tools/d3d11-tsrt-adaptation)
 endif()
 
 find_package(ade CONFIG REQUIRED)
