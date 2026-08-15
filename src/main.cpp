@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     YADAW::UI::qmlApplicationEngine = &engine;
     YADAW::Entity::initializeEntity();
     YADAW::Model::initializeModel();
-#if _WIN32
+#if _WIN32 && defined(YADAW_BUILD_MODIFIED_QRHID3D11)
     YADAW::UI::D3DFlipSwitcher* d3dFlipSwitcher = nullptr;
     // [*] Force enable PreMulAlpha on D3D11 swap chain so that
     //     DirectComposition is used.
@@ -93,9 +93,6 @@ int main(int argc, char *argv[])
 #if _WIN32
                 auto& d3dFlipSwitcher = YADAW::UI::d3dFlipSwitcher();
                 d3dFlipSwitcher.addWindow(*YADAW::UI::mainWindow);
-                auto gc = YADAW::UI::mainWindow->graphicsConfiguration();
-                gc.setDebugLayer(true);
-                YADAW::UI::mainWindow->setGraphicsConfiguration(gc);
 #endif
             }
         },

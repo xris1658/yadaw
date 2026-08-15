@@ -15,12 +15,27 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(ENABLE_PRECOMPILE "Enable precompile" ON)
 
+if(WIN32)
+    option(BUILD_MODIFIED_QRHID3D11 "Build modified `QRhiD3D11`" OFF)
+endif()
+
 # Prerequisites and dependencies
 find_package(Qt6 6.9 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 if(WIN32 AND Qt6_FOUND)
     # also find GuiPrivate for Qt versions since 6.10.1
     if(Qt6_VERSION VERSION_GREATER_EQUAL 6.10.1)
         find_package(Qt6 6.9 COMPONENTS GuiPrivate)
+    endif()
+    if(BUILD_MODIFIED_QRHID3D11)
+        set(QD3D11_DIR ${PROJECT_SOURCE_DIR}/src/ui/win/qd3d11/qt-${Qt6_VERSION})
+        if(EXISTS ${QD3D11_DIR})
+            include(${QD3D11_DIR}/sources.cmake)
+            include_directories(${QD3D11_DIR})
+        else()
+            message(AUTHOR_WARNING "Could not find modified sources of QRhiD3D11, setting BUILD_MODIFIED_QRHID3D11 to OFF")
+            set(BUILD_MODIFIED_QRHID3D11 OFF)
+            unset(QD3D11_DIR)
+        endif()
     endif()
 endif()
 
@@ -134,6 +149,12 @@ set(WIN32_NATIVE_SOURCES
     src/ui/win/D3DFlipSwitcher.hpp
     src/ui/win/WindowResizeEvents.cpp
 )
+
+if(BUILD_MODIFIED_QRHID3D11)
+    foreach(QD3D11_SOURCE IN LISTS QD3D11_SOURCES)
+        set(WIN32_NATIVE_SOURCES ${WIN32_NATIVE_SOURCES} ${QD3D11_DIR}/${QD3D11_SOURCE})
+    endforeach()
+endif()
 
 set(MAC_NATIVE_SOURCES
     src/audio/backend/CoreAudioBackend.hpp
@@ -607,6 +628,9 @@ qt_add_executable(YADAW
                   src/main.cpp
                   ${YADAW_COMMON_SOURCES}
                   )
+if(BUILD_MODIFIED_QRHID3D11)
+    target_compile_definitions(YADAW PRIVATE YADAW_BUILD_MODIFIED_QRHID3D11)
+endif()
 
 add_executable(CLAPTest
                src/audio/host/CLAPEventList.cpp

@@ -3,7 +3,7 @@
 
 #include <QTimer>
 
-#if _WIN32
+#if _WIN32 && defined(YADAW_BUILD_MODIFIED_QRHID3D11)
 #include "ui/win/D3DFlipSwitcher.hpp"
 #endif
 
@@ -19,7 +19,7 @@ extern QQuickWindow* mainWindow;
 
 QTimer& idleProcessTimer();
 
-#if _WIN32
+#if _WIN32 && defined(YADAW_BUILD_MODIFIED_QRHID3D11)
 YADAW::UI::D3DFlipSwitcher& d3dFlipSwitcher();
 #endif
 }

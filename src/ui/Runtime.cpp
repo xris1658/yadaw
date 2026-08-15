@@ -24,7 +24,7 @@ QTimer& idleProcessTimer()
     return timer;
 }
 
-#if _WIN32
+#if _WIN32 && defined(YADAW_BUILD_MODIFIED_QRHID3D11)
 YADAW::UI::D3DFlipSwitcher& d3dFlipSwitcher()
 {
     static YADAW::UI::D3DFlipSwitcher ret;

@@ -1,17 +1,18 @@
 #ifndef YADAW_SRC_UI_WIN_D3DFLIPSWITCHER
 #define YADAW_SRC_UI_WIN_D3DFLIPSWITCHER
 
-#if _WIN32
+#if _WIN32 && defined(YADAW_BUILD_MODIFIED_QRHID3D11)
 
 #include <QAbstractNativeEventFilter>
 #include <QFlags>
 #include <QQuickWindow>
 
-#include <rhi/qrhi.h>
+#include <qrhi.h>
 
 #include <windows.h>
 #include <winuser.h>
 
+#include <atomic>
 #include <map>
 
 namespace YADAW::UI
@@ -25,13 +26,16 @@ namespace YADAW::UI
 //     TODO: Add functions to switch to/away from flip mode on demand since
 //           windows can be resized/moved programmatically (like applying
 //           `PropertyAnimation` on geometries of a `Window`)
-class D3DFlipSwitcher: public QAbstractNativeEventFilter
+class D3DFlipSwitcher: public QObject, public QAbstractNativeEventFilter
 {
+    Q_OBJECT
 public:
-    D3DFlipSwitcher();
+    D3DFlipSwitcher(QObject* parent = nullptr);
 public:
-    void addWindow(QQuickWindow& window);
+    void addWindow(QQuickWindow& window, bool enableDebugLayer = false);
     void removeWindow(QQuickWindow& window);
+public slots:
+    void onWindowFrameSwapped();
 public:
     bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
 private:
@@ -39,9 +43,11 @@ private:
     struct WindowData
     {
         QQuickWindow* window;
-        QRhi* rhi = nullptr;
-        QRhiSwapChain* swapChain = nullptr;
+        ModifiedRhi::QRhi* rhi = nullptr;
+        ModifiedRhi::QRhiSwapChain* swapChain = nullptr;
+        alignas(std::atomic_ref<bool>::required_alignment) bool pendingRecreatingSC = false;
         void fillRhiIfNeeded();
+        std::atomic_ref<bool> pendingRecreatingSwapChain();
     };
     std::map<HWND, WindowData> windows_;
 };
