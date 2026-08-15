@@ -90,6 +90,13 @@ void PluginWindow::setGUI(YADAW::Audio::Plugin::IPluginGUI& pluginGUI)
         pluginGUI_->detachWithWindow();
     }
     pluginGUI_ = &pluginGUI;
+#if _WIN32
+    // Set this before attaching GUI since windows not resizable by user (i.e.
+    // with WS_THICKFRAME disabled) has different title bar height while building
+    // with MinGW, and calling this after `attachToWindow` somehow places the
+    // plugin window slightly off.
+    YADAW::Native::setWindowResizableByUser(*this, pluginGUI.resizableByUser());
+#endif
     resizeOps_ ^= ResizeOp::FromWithinSetGUI;
     pluginGUI.attachToWindow(&pluginFrame_);
     resizeOps_ ^= ResizeOp::FromWithinSetGUI;
@@ -130,7 +137,9 @@ void PluginWindow::setGUI(YADAW::Audio::Plugin::IPluginGUI& pluginGUI)
             resize(pluginFrameSize.width(), pluginFrameSize.height() + topBarHeight);
         }
     }
+#if !_WIN32
     YADAW::Native::setWindowResizableByUser(*this, pluginGUI.resizableByUser());
+#endif
     resizeOps_ ^= Repositioning;
 }
 
