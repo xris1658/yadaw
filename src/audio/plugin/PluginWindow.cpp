@@ -109,9 +109,12 @@ void PluginWindow::setGUI(YADAW::Audio::Plugin::IPluginGUI& pluginGUI)
             YADAW::Native::setPhysicalGeometry(
                 pluginFrame_, QRect(QPoint(0, topBarHeight), pluginFrameSize)
             );
-            YADAW::Native::setPhysicalSize(
-                *topBar_, QSize(pluginFrameSize.width(), topBarHeight)
-            );
+            if(topBar_)
+            {
+                YADAW::Native::setPhysicalSize(
+                    *topBar_, QSize(pluginFrameSize.width(), topBarHeight)
+                );
+            }
             YADAW::Native::setPhysicalSize(
                 *this, QSize(pluginFrameSize.width(), pluginFrameSize.height() + topBarHeight)
             );
@@ -120,7 +123,10 @@ void PluginWindow::setGUI(YADAW::Audio::Plugin::IPluginGUI& pluginGUI)
         {
             auto topBarHeight = topBar_? topBar_->height(): 0;
             pluginFrame_.setGeometry(QRect(QPoint(0, topBarHeight), pluginFrameSize));
-            topBar_->resize(pluginFrameSize.width(), topBarHeight);
+            if(topBar_)
+            {
+                topBar_->resize(pluginFrameSize.width(), topBarHeight);                
+            }
             resize(pluginFrameSize.width(), pluginFrameSize.height() + topBarHeight);
         }
     }
@@ -308,7 +314,10 @@ void PluginWindow::onResized(QRect rect)
                         {
                             pluginGUI_->resize(size);
                             pluginFrame_.resize(size);
-                            topBar_->setWidth(size.width());
+                            if(topBar_)
+                            {
+                                topBar_->setWidth(size.width());
+                            }
                         }
                     }
                     else
