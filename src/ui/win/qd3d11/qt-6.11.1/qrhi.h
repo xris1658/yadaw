@@ -842,7 +842,7 @@ Q_DECLARE_TYPEINFO(ModifiedRhi::QRhiReadbackDescription, Q_RELOCATABLE_TYPE);
 namespace ModifiedRhi
 {
 
-struct Q_GUI_EXPORT QRhiNativeHandles
+struct QRhiNativeHandles
 {
 };
 
@@ -1811,7 +1811,7 @@ protected:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QRhiCommandBuffer::BeginPassFlags)
 
-struct Q_GUI_EXPORT QRhiReadbackResult
+struct QRhiReadbackResult
 {
     std::function<void()> completed = nullptr;
     QRhiTexture::Format format;
@@ -1850,7 +1850,7 @@ private:
     friend class QRhi;
 };
 
-struct Q_GUI_EXPORT QRhiDriverInfo
+struct QRhiDriverInfo
 {
     enum DeviceType {
         UnknownDevice,
@@ -1876,7 +1876,7 @@ namespace ModifiedRhi
 QDebug operator<<(QDebug, const QRhiDriverInfo &);
 #endif
 
-struct Q_GUI_EXPORT QRhiStats
+struct QRhiStats
 {
     qint64 totalPipelineCreationTime = 0;
     // Vulkan or D3D12 memory allocator statistics
@@ -1904,7 +1904,7 @@ public:
     virtual QRhiDriverInfo info() const = 0;
 };
 
-struct Q_GUI_EXPORT QRhiInitParams
+struct QRhiInitParams
 {
 };
 

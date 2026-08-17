@@ -1,7 +1,7 @@
 #ifndef YADAW_SRC_UI_WIN_D3DFLIPSWITCHER
 #define YADAW_SRC_UI_WIN_D3DFLIPSWITCHER
 
-#if _WIN32 && defined(YADAW_BUILD_MODIFIED_QRHID3D11)
+#ifdef YADAW_BUILD_MODIFIED_QRHID3D11
 
 #include <QAbstractNativeEventFilter>
 #include <QFlags>

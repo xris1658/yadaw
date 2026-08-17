@@ -34,11 +34,11 @@ class QWindow;
 namespace ModifiedRhi
 {
 
-struct Q_GUI_EXPORT QRhiNullInitParams : public QRhiInitParams
+struct QRhiNullInitParams : public QRhiInitParams
 {
 };
 
-struct Q_GUI_EXPORT QRhiNullNativeHandles : public QRhiNativeHandles
+struct QRhiNullNativeHandles : public QRhiNativeHandles
 {
 };
 
@@ -48,7 +48,7 @@ class QOpenGLContext;
 class QOffscreenSurface;
 class QSurface;
 
-struct Q_GUI_EXPORT QRhiGles2InitParams : public QRhiInitParams
+struct QRhiGles2InitParams : public QRhiInitParams
 {
     QRhiGles2InitParams();
 
@@ -60,7 +60,7 @@ struct Q_GUI_EXPORT QRhiGles2InitParams : public QRhiInitParams
     static QOffscreenSurface *newFallbackSurface(const QSurfaceFormat &format = QSurfaceFormat::defaultFormat());
 };
 
-struct Q_GUI_EXPORT QRhiGles2NativeHandles : public QRhiNativeHandles
+struct QRhiGles2NativeHandles : public QRhiNativeHandles
 {
     QOpenGLContext *context = nullptr;
 };
@@ -69,7 +69,7 @@ struct Q_GUI_EXPORT QRhiGles2NativeHandles : public QRhiNativeHandles
 
 #if (QT_CONFIG(vulkan) && __has_include(<vulkan/vulkan.h>)) || defined(Q_QDOC)
 
-struct Q_GUI_EXPORT QRhiVulkanInitParams : public QRhiInitParams
+struct QRhiVulkanInitParams : public QRhiInitParams
 {
     QVulkanInstance *inst = nullptr;
     QWindow *window = nullptr;
@@ -79,7 +79,7 @@ struct Q_GUI_EXPORT QRhiVulkanInitParams : public QRhiInitParams
     static QByteArrayList preferredExtensionsForImportedDevice();
 };
 
-struct Q_GUI_EXPORT QRhiVulkanNativeHandles : public QRhiNativeHandles
+struct QRhiVulkanNativeHandles : public QRhiNativeHandles
 {
     // to import a physical device (always required)
     VkPhysicalDevice physDev = VK_NULL_HANDLE;
@@ -95,17 +95,17 @@ struct Q_GUI_EXPORT QRhiVulkanNativeHandles : public QRhiNativeHandles
     QVulkanInstance *inst = nullptr;
 };
 
-struct Q_GUI_EXPORT QRhiVulkanCommandBufferNativeHandles : public QRhiNativeHandles
+struct QRhiVulkanCommandBufferNativeHandles : public QRhiNativeHandles
 {
     VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
 };
 
-struct Q_GUI_EXPORT QRhiVulkanRenderPassNativeHandles : public QRhiNativeHandles
+struct QRhiVulkanRenderPassNativeHandles : public QRhiNativeHandles
 {
     VkRenderPass renderPass = VK_NULL_HANDLE;
 };
 
-struct Q_GUI_EXPORT QRhiVulkanQueueSubmitParams : public QRhiNativeHandles
+struct QRhiVulkanQueueSubmitParams : public QRhiNativeHandles
 {
     uint32_t waitSemaphoreCount;
     VkSemaphore *waitSemaphores;
@@ -121,12 +121,12 @@ struct Q_GUI_EXPORT QRhiVulkanQueueSubmitParams : public QRhiNativeHandles
 
 // no d3d includes here, to prevent precompiled header mess due to COM, hence the void pointers
 
-struct Q_GUI_EXPORT QRhiD3D11InitParams : public QRhiInitParams
+struct QRhiD3D11InitParams : public QRhiInitParams
 {
     bool enableDebugLayer = false;
 };
 
-struct Q_GUI_EXPORT QRhiD3D11NativeHandles : public QRhiNativeHandles
+struct QRhiD3D11NativeHandles : public QRhiNativeHandles
 {
     // to import a device and a context
     void *dev = nullptr;
@@ -137,12 +137,12 @@ struct Q_GUI_EXPORT QRhiD3D11NativeHandles : public QRhiNativeHandles
     qint32 adapterLuidHigh = 0;
 };
 
-struct Q_GUI_EXPORT QRhiD3D12InitParams : public QRhiInitParams
+struct QRhiD3D12InitParams : public QRhiInitParams
 {
     bool enableDebugLayer = false;
 };
 
-struct Q_GUI_EXPORT QRhiD3D12NativeHandles : public QRhiNativeHandles
+struct QRhiD3D12NativeHandles : public QRhiNativeHandles
 {
     // to import a device
     void *dev = nullptr;
@@ -154,7 +154,7 @@ struct Q_GUI_EXPORT QRhiD3D12NativeHandles : public QRhiNativeHandles
     void *commandQueue = nullptr;
 };
 
-struct Q_GUI_EXPORT QRhiD3D12CommandBufferNativeHandles : public QRhiNativeHandles
+struct QRhiD3D12CommandBufferNativeHandles : public QRhiNativeHandles
 {
     void *commandList = nullptr; // ID3D12GraphicsCommandList1
 };
@@ -163,17 +163,17 @@ struct Q_GUI_EXPORT QRhiD3D12CommandBufferNativeHandles : public QRhiNativeHandl
 
 #if QT_CONFIG(metal) || defined(Q_QDOC)
 
-struct Q_GUI_EXPORT QRhiMetalInitParams : public QRhiInitParams
+struct QRhiMetalInitParams : public QRhiInitParams
 {
 };
 
-struct Q_GUI_EXPORT QRhiMetalNativeHandles : public QRhiNativeHandles
+struct QRhiMetalNativeHandles : public QRhiNativeHandles
 {
     MTLDevice *dev = nullptr;
     MTLCommandQueue *cmdQueue = nullptr;
 };
 
-struct Q_GUI_EXPORT QRhiMetalCommandBufferNativeHandles : public QRhiNativeHandles
+struct QRhiMetalCommandBufferNativeHandles : public QRhiNativeHandles
 {
     MTLCommandBuffer *commandBuffer = nullptr;
     MTLRenderCommandEncoder *encoder = nullptr;

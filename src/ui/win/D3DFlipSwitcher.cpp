@@ -1,4 +1,4 @@
-#if _WIN32 && defined(YADAW_BUILD_MODIFIED_QRHID3D11)
+#ifdef YADAW_BUILD_MODIFIED_QRHID3D11
 
 #include "D3DFlipSwitcher.hpp"
 
