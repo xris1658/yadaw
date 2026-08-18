@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
             else if(fileName == mainWindowName)
             {
                 YADAW::UI::mainWindow = qobject_cast<QQuickWindow*>(obj);
-#if _WIN32
+#ifdef YADAW_BUILD_MODIFIED_QRHID3D11
                 auto& d3dFlipSwitcher = YADAW::UI::d3dFlipSwitcher();
                 d3dFlipSwitcher.addWindow(*YADAW::UI::mainWindow);
 #endif
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
     // engine.load(url);
     // eventHandler.setQtVersion(QString(qVersion()));
     auto ret = app.exec();
-#if _WIN32
+#ifdef YADAW_BUILD_MODIFIED_QRHID3D11
     if(d3dFlipSwitcher)
     {
         app.removeNativeEventFilter(d3dFlipSwitcher);
