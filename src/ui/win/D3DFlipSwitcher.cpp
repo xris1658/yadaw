@@ -75,7 +75,7 @@ void D3DFlipSwitcher::onWindowFrameSwapped()
         {
             auto usingFlip = it->second.usingFlipMode();
             if(auto flip = usingFlip.load(std::memory_order_acquire);
-                flip != sc->useFlipMode())
+                static_cast<bool>(flip) != sc->useFlipMode())
             {
                 sc->destroy();
                 sc->setFlipMode(flip);
