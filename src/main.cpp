@@ -40,9 +40,7 @@ int main(int argc, char *argv[])
     //     This is the 3rd of a 3-part workaround of `QQuickWindow` with D3D11
     //     RHI failing [the smooth resize test by Raph Levien](https://raphlinus.github.io/rust/gui/2019/06/21/smooth-resize-test.html).
     //     This workaround is almost blatantly copied from [xi-editor/xi-win #21 also by Raph Levien](https://github.com/xi-editor/xi-win/pull/21).
-    //     See part 1 in src/ui/win/D3DFlipSwitcher.hpp and part 2 in tools/d3d11-rhi-changes
-    //     TODO: Refactor the modified D3D11 support into a plugin since
-    //           not everyone wants to build Qt on thier own.
+    //     See part 1 in src/ui/win/D3DFlipSwitcher.hpp and part 2 in src/ui/win/qd3d11/README.md
     if(auto quickBackend = std::getenv("QT_QUICK_BACKEND");
         !quickBackend || std::strcmp(quickBackend, "rhi") == 0)
     {
