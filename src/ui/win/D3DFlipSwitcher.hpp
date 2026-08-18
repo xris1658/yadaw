@@ -45,9 +45,9 @@ private:
         QQuickWindow* window;
         ModifiedRhi::QRhi* rhi = nullptr;
         ModifiedRhi::QRhiSwapChain* swapChain = nullptr;
-        alignas(std::atomic_ref<bool>::required_alignment) bool pendingRecreatingSC = false;
+        alignas(std::atomic_ref<std::uint_fast8_t>::required_alignment) std::uint_fast8_t usingFlip {1U};
         void fillRhiIfNeeded();
-        std::atomic_ref<bool> pendingRecreatingSwapChain();
+        std::atomic_ref<std::uint_fast8_t> usingFlipMode();
     };
     std::map<HWND, WindowData> windows_;
 };

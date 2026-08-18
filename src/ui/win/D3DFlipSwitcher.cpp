@@ -63,16 +63,18 @@ void D3DFlipSwitcher::onWindowFrameSwapped()
     auto hwnd = reinterpret_cast<HWND>(window->winId());
     if(auto it = windows_.find(hwnd); it != windows_.end())
     {
-        if(auto pending = it->second.pendingRecreatingSwapChain();
-            pending.load(std::memory_order::acquire))
+        if(auto sc = static_cast<ModifiedRhi::QD3D11SwapChain*>(
+            it->second.swapChain
+        ))
         {
-            it->second.swapChain->destroy();
-            static_cast<ModifiedRhi::QD3D11SwapChain*>(
-                it->second.swapChain
-            )->toggleFlipMode();
-            it->second.swapChain->createOrResize();
-            pending.store(false, std::memory_order::release);
-            pending.notify_one();
+            auto usingFlip = it->second.usingFlipMode();
+            if(auto flip = usingFlip.load(std::memory_order_acquire);
+                flip != sc->useFlipMode())
+            {
+                sc->destroy();
+                sc->setFlipMode(flip);
+                sc->createOrResize();
+            }
         }
     }
 }
@@ -90,9 +92,8 @@ bool D3DFlipSwitcher::nativeEventFilter(
                 it->second.fillRhiIfNeeded();
                 if(it->second.swapChain)
                 {
-                    auto pending = it->second.pendingRecreatingSwapChain();
-                    pending.wait(true, std::memory_order::acquire);
-                    pending.store(true, std::memory_order::release);
+                    auto usingFlip = it->second.usingFlipMode();
+                    usingFlip.fetch_xor(1U, std::memory_order_acq_rel);
                 }
             }
         }
@@ -115,9 +116,9 @@ void D3DFlipSwitcher::WindowData::fillRhiIfNeeded()
     }
 }
 
-std::atomic_ref<bool> D3DFlipSwitcher::WindowData::pendingRecreatingSwapChain()
+std::atomic_ref<std::uint_fast8_t> D3DFlipSwitcher::WindowData::usingFlipMode()
 {
-    return std::atomic_ref<bool>(pendingRecreatingSC);
+    return std::atomic_ref<std::uint_fast8_t>(usingFlip);
 }
 }
 
