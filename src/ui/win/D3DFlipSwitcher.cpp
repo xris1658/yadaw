@@ -14,7 +14,13 @@ namespace YADAW::UI
 {
 D3DFlipSwitcher::D3DFlipSwitcher(QObject* parent):
     QObject(parent),
-    neverFlip(qEnvironmentVariableIntegerValue("QT_D3D_NO_FLIP").value_or(0))
+    neverFlip(
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+        qEnvironmentVariableIntegerValue("QT_D3D_NO_FLIP").value_or(0)
+#else
+        qEnvironmentVariableIntValue("QT_D3D_NO_FLIP")
+#endif
+    )
 {}
 
 void D3DFlipSwitcher::addWindow(QQuickWindow& window, bool enableDebugLayer)
