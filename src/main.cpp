@@ -35,26 +35,14 @@ int main(int argc, char *argv[])
     YADAW::Model::initializeModel();
 #ifdef YADAW_BUILD_MODIFIED_QRHID3D11
     YADAW::UI::D3DFlipSwitcher* d3dFlipSwitcher = nullptr;
-    // [*] Force enable PreMulAlpha on D3D11 swap chain so that
-    //     DirectComposition is used.
-    //     This is the 3rd of a 3-part workaround of `QQuickWindow` with D3D11
-    //     RHI failing [the smooth resize test by Raph Levien](https://raphlinus.github.io/rust/gui/2019/06/21/smooth-resize-test.html).
-    //     This workaround is almost blatantly copied from [xi-editor/xi-win #21 also by Raph Levien](https://github.com/xi-editor/xi-win/pull/21).
-    //     See part 1 in src/ui/win/D3DFlipSwitcher.hpp and part 2 in src/ui/win/qd3d11/README.md
     if(auto quickBackend = std::getenv("QT_QUICK_BACKEND");
         !quickBackend || std::strcmp(quickBackend, "rhi") == 0)
     {
         if(auto rhiBackend = std::getenv("QSG_RHI_BACKEND");
             !rhiBackend || std::strcmp(rhiBackend, "d3d11") == 0)
         {
-            auto defaultFormat = QSurfaceFormat::defaultFormat();
-            if(defaultFormat.alphaBufferSize() <= 0)
-            {
-                defaultFormat.setAlphaBufferSize(8);
-                QSurfaceFormat::setDefaultFormat(defaultFormat);
-                d3dFlipSwitcher = &YADAW::UI::d3dFlipSwitcher();
-                app.installNativeEventFilter(d3dFlipSwitcher);
-            }
+            d3dFlipSwitcher = &YADAW::UI::d3dFlipSwitcher();
+            app.installNativeEventFilter(d3dFlipSwitcher);
         }
     }
 #endif

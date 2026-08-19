@@ -28,6 +28,18 @@ void D3DFlipSwitcher::addWindow(QQuickWindow& window, bool enableDebugLayer)
     if(auto rendererInterface = window.rendererInterface();
         rendererInterface->graphicsApi() == QSGRendererInterface::GraphicsApi::Direct3D11)
     {
+        // [*] Force enable PreMulAlpha on D3D11 swap chain so that
+        //     DirectComposition is used.
+        //     This is the 3rd of a 3-part workaround of `QQuickWindow` with
+        //     D3D11 RHI failing [the smooth resize test by Raph Levien](https://raphlinus.github.io/rust/gui/2019/06/21/smooth-resize-test.html).
+        //     This workaround is almost blatantly copied from [xi-editor/xi-win #21 also by Raph Levien](https://github.com/xi-editor/xi-win/pull/21).
+        //     See part 1 in src/ui/win/D3DFlipSwitcher.hpp and part 2 in src/ui/win/qd3d11/README.md
+        auto format = window.format();
+        if(format.alphaBufferSize() <= 0)
+        {
+            format.setAlphaBufferSize(8);
+            window.setFormat(format);
+        }
         ModifiedRhi::QRhiD3D11InitParams params {
             .enableDebugLayer = enableDebugLayer
         };
