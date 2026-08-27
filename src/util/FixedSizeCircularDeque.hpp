@@ -24,6 +24,8 @@ public:
         friend class FixedSizeCircularDeque<T, Capacity>;
         friend class ConstIterator;
     public:
+        using value_type = T;
+    public:
         Iterator() : container_(nullptr), index_(0) {}
     private:
         Iterator(Self& container, std::size_t index) : container_(&container), index_(index) {}
@@ -67,9 +69,11 @@ public:
     {
         friend class FixedSizeCircularDeque<T, Capacity>;
     public:
+        using value_type = const T;
+    public:
         ConstIterator() : container_(nullptr), index_(0) {}
     private:
-        ConstIterator(Self& container, std::size_t index) : container_(&container), index_(index) {}
+        ConstIterator(const Self& container, std::size_t index) : container_(&container), index_(index) {}
     public:
         ConstIterator(const ConstIterator&) = default;
         ConstIterator(const Iterator& rhs): container_(rhs.container_), index_(rhs.index_) {}
@@ -108,7 +112,7 @@ public:
         const ConstIterator  operator-(std::size_t offset) const { return { container_, index_ - offset }; }
         std::ptrdiff_t       operator-(const Iterator& rhs) const { return index_ - rhs.index_; } // FIXME: Deal with overflow
     private:
-        Self* container_;
+        const Self* container_;
         std::size_t index_;
     };
 public:

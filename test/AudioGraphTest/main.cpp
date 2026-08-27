@@ -175,13 +175,13 @@ int main()
                     auto inputNode = graph.addNode(YADAW::Audio::Engine::AudioDeviceProcess(*inputBusses_[i]));
                     graph.connect(inputNode, summingNode, 0U, i);
                 }
-                auto topo = graph.topologicalSort();
+                auto topo = graph.topologicalSortWithPrev();
                 topoEntities.reserve(topo.size());
                 for(auto& row: topo)
                 {
                     auto& rowEntities = topoEntities.emplace_back();
                     rowEntities.reserve(row.size());
-                    for(auto& cell: row)
+                    for(auto& [cell, prev]: row)
                     {
                         auto& cellEntities = rowEntities.emplace_back();
                         cellEntities.reserve(cell.size());

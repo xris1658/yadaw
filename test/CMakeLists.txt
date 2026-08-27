@@ -226,6 +226,10 @@ add_executable(AudioEngineWorkerThreadPoolTest
                ../src/audio/engine/AudioDeviceGraphProcess.hpp
                ../src/audio/engine/AudioEngineWorkerThreadPool.cpp
                ../src/audio/engine/AudioEngineWorkerThreadPool.hpp
+               ../src/native/linux/AudioEngineWorkerThreadScheduler.cpp
+               ../src/native/mac/AudioEngineWorkerThreadScheduler.cpp
+               ../src/native/win/AudioEngineWorkerThreadScheduler.cpp
+               ../src/native/AudioEngineWorkerThreadScheduler.hpp
                ../src/audio/util/AudioBufferPool.cpp
                ../src/audio/util/AudioBufferPool.hpp
                ../src/native/CPU.hpp
@@ -311,6 +315,10 @@ target_link_libraries(AudioDeviceGraphTest PRIVATE ade Qt6::Core)
 target_link_libraries(AudioDeviceGraphWithPDCTest PRIVATE ade Qt6::Core)
 
 target_link_libraries(AudioEngineWorkerThreadPoolTest PRIVATE ade Qt6::Core)
+
+if(WIN32)
+    target_link_libraries(AudioEngineWorkerThreadPoolTest PRIVATE avrt)
+endif()
 
 target_link_libraries(ADEUtilsTest PRIVATE ade)
 

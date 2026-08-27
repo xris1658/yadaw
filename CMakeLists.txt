@@ -732,6 +732,8 @@ add_executable(MIDIInputDeviceTest
 add_executable(PluginDirectoryScanTest
                src/audio/base/Automation.cpp
                src/audio/base/Automation.hpp
+               src/audio/host/CLAPEventList.cpp
+               src/audio/host/CLAPEventList.hpp
                src/audio/host/CLAPHost.cpp
                src/audio/host/CLAPHost.hpp
                src/audio/host/CLAPTimerSupport.cpp
@@ -797,8 +799,8 @@ add_executable(PluginDirectoryScanTest
                src/audio/util/VestifalHelper.hpp
                src/concurrent/AtomicMutex.cpp
                src/concurrent/AtomicMutex.hpp
-               src/controller/LibraryPluginMap.cpp
-               src/controller/LibraryPluginMap.hpp
+               src/controller/LibraryPluginPool.cpp
+               src/controller/LibraryPluginPool.hpp
                src/controller/PluginController.cpp
                src/controller/PluginController.hpp
                src/dao/DAOBase.cpp

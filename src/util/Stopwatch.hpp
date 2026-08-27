@@ -10,7 +10,7 @@ namespace YADAW::Util
 template<typename ReturnType, typename... Args>
 using Function = ReturnType(Args...);
 
-template<typename Function, typename... Args, typename ReturnType = std::result_of_t<Function(Args...)>>
+template<typename Function, typename... Args, typename ReturnType = std::invoke_result_t<Function(Args...)>>
 std::tuple<ReturnType, std::int64_t> stopwatch(Function&& function, Args&&... args)
 {
     auto start = YADAW::Util::currentTimeValueInNanosecond();
