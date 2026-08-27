@@ -6,6 +6,8 @@
 #include <ade/node.hpp>
 #include <ade/handle.hpp>
 
+#include <variant>
+
 namespace YADAW::Audio::Engine
 {
 // `NodeSet` manages part of an `AudioDeviceGraphBase` and provide extra
@@ -25,8 +27,22 @@ namespace YADAW::Audio::Engine
 //   device, which is an error-prone way (unless we use a wrapper of the graph
 //   like `AudioDeviceGraphWithPDC`, also error-prone in its own right).
 // `NodeSet` can be nested, but not intersected.
-class NodeSet // TODO
+class NodeSet
 {
+public:
+    struct NodePosition { ade::NodeHandle node; std::uint32_t index; };
+    using Passthrough = std::monostate;
+    using Position = std::variant<Passthrough, NodePosition>;
+public:
+    NodeSet(YADAW::Audio::Engine::AudioDeviceGraphBase& graph): graph_(&graph) {}
+    virtual ~NodeSet() {}
+public:
+    virtual std::uint32_t inputCount() const = 0;
+    virtual std::uint32_t outputCount() const = 0;
+    virtual std::optional<Position> inputAt(std::uint32_t index) const = 0;
+    virtual std::optional<Position> outputAt(std::uint32_t index) const = 0;
+protected:
+    YADAW::Audio::Engine::AudioDeviceGraphBase* graph_;
 };
 }
 
