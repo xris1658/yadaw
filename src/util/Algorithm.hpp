@@ -77,6 +77,10 @@ std::optional<std::vector<std::size_t>> permutationNotation(
                         ret.emplace_back(std::distance(first2, it));
                         break;
                     }
+                    else
+                    {
+                        std::advance(it, 1);
+                    }
                 }
                 else
                 {
