@@ -41,6 +41,23 @@ int main(int argc, char *argv[])
         if(auto rhiBackend = std::getenv("QSG_RHI_BACKEND");
             !rhiBackend || std::strcmp(rhiBackend, "d3d11") == 0)
         {
+            if(
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+        qEnvironmentVariableIntegerValue("QSG_USE_SIMPLE_ANIMATION_DRIVER").value_or(0)
+#else
+        qEnvironmentVariableIntValue("QSG_USE_SIMPLE_ANIMATION_DRIVER")
+#endif
+            == 0
+            )
+            {
+                // Use simple animation driver that always advance animations
+                // based on actual timer instead of frame index since frame rate
+                // can get much higher than the refresh rate in bitblt mode
+                // (~160FPS under 60Hz on my machine while resizing the window,
+                // seems like vsync-based throttling does not work).
+                // See https://doc.qt.io/qt-6/qtquick-visualcanvas-scenegraph.html#:~:text=occur%2E-,Note,moment
+                _putenv_s("QSG_USE_SIMPLE_ANIMATION_DRIVER", "1");
+            }
             d3dFlipSwitcher = &YADAW::UI::d3dFlipSwitcher();
             app.installNativeEventFilter(d3dFlipSwitcher);
         }
