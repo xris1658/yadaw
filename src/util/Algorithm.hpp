@@ -67,7 +67,7 @@ std::optional<std::vector<std::size_t>> permutationNotation(
             while(true)
             {
                 it = std::find_if(
-                    it, last2, [i](const auto& rhs) { return *i == rhs; }
+                    it, last2, [i, &predicate](const auto& rhs) { return predicate(*i, rhs); }
                 );
                 if(it != last2)
                 {
@@ -114,8 +114,8 @@ std::optional<std::vector<std::size_t>> permutationNotation(
 {
     return permutationNotation(
         first1, last1, first2,
-        [](std::add_const_t<typename std::iterator_traits<Iterator1>::reference> lhs,
-           std::add_const_t<typename std::iterator_traits<Iterator2>::reference> rhs)
+        [](std::add_lvalue_reference_t<std::add_const_t<typename std::iterator_traits<Iterator1>::value_type>> lhs,
+           std::add_lvalue_reference_t<std::add_const_t<typename std::iterator_traits<Iterator2>::value_type>> rhs)
         {
             return lhs == rhs;
         }
