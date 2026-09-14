@@ -104,11 +104,11 @@ void SortFilterProxyListModel::setSourceModel(ISortFilterListModel* model)
             connections_[5] = QObject::connect(
                 sourceModel_, &ISortFilterListModel::modelReset,
                 this, &SortFilterProxyListModel::sourceModelReset);
-            YADAW::Util::IntegerRange<int> insertRange(model->rowCount());
-            srcToDst_.reserve(*insertRange.end());
-            dstToSrc_.reserve(*insertRange.end());
-            std::copy(insertRange.begin(), insertRange.end(), std::back_inserter(srcToDst_));
-            std::copy(insertRange.begin(), insertRange.end(), std::back_inserter(dstToSrc_));
+            auto rowCount = model->rowCount();
+            srcToDst_.reserve(rowCount);
+            dstToSrc_.reserve(rowCount);
+            std::ranges::copy(std::ranges::iota_view(0, rowCount), std::back_inserter(srcToDst_));
+            std::ranges::copy(std::ranges::iota_view(0, rowCount), std::back_inserter(dstToSrc_));
             auto newItemCount = itemCount();
             if(newItemCount != 0)
             {
@@ -294,10 +294,9 @@ void SortFilterProxyListModel::sourceModelRowsInserted(const QModelIndex& parent
     {
         dstToSrc_[srcToDst_[i]] += newItemCount;
     }
-    YADAW::Util::IntegerRange<int> dstInsertRange(first, last + 1);
     srcToDst_.insert(srcToDst_.begin() + first, newItemCount, -1);
-    dstToSrc_.insert(dstToSrc_.begin() + acceptedItemCount_,
-        dstInsertRange.begin(), dstInsertRange.end()
+    std::ranges::copy(std::ranges::iota_view(first, last + 1),
+        std::inserter(dstToSrc_, dstToSrc_.begin() + acceptedItemCount_)
     );
     auto filteredOutFirst = std::partition(
         dstToSrc_.begin() + acceptedItemCount_,
