@@ -2,7 +2,7 @@
 #define YADAW_SRC_AUDIO_MIXER_INSERTS
 
 #include "audio/engine/AudioDeviceGraphBase.hpp"
-
+#include "audio/engine/NodeSet.hpp"
 #include "audio/mixer/Common.hpp"
 #include "util/BatchUpdater.hpp"
 #include "util/PolymorphicDeleter.hpp"
@@ -20,7 +20,7 @@ concept IsDetachContextCallback = std::invocable<Func, Context&&>;
 // TODO: Figure out how to add `NodeSet` into the insert slot.
 //       (Since `NodeSet` is not derived from `IAudioDevice`, we have to change
 //       how we manage nodes.)
-class Inserts
+class Inserts: public YADAW::Audio::Engine::NodeSet
 {
 public:
     using InsertAddedCallback = void(Inserts&, std::uint32_t);
@@ -55,6 +55,11 @@ public:
     std::uint32_t outChannelGroupIndex() const;
     bool setInNode(const ade::NodeHandle& inNode, std::uint32_t inChannelGroupIndex);
     bool setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChannelGroupIndex);
+public:
+    std::uint32_t inputCount() const override;
+    std::uint32_t outputCount() const override;
+    std::optional<Position> inputAt(std::uint32_t index) const override;
+    std::optional<Position> outputAt(std::uint32_t index) const override;
 public:
     bool insert(const ade::NodeHandle& nodeHandle, Context&& context, std::uint32_t position);
     bool append(const ade::NodeHandle& nodeHandle, Context&& context);
