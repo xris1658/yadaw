@@ -13,9 +13,6 @@ Rectangle {
     property alias outputModel: outputChannels.model
     property alias channelsModel: channels.model
     property alias showIO: ioButton.checked
-    property alias showInsert: insertButton.checked
-    property alias showSend: sendButton.checked
-    property alias showFader: faderButton.checked
     property alias showInputBus: showInputBusButton.checked
     property alias showOutputBus: showOutputBusButton.checked
 
@@ -47,48 +44,6 @@ Rectangle {
                 width: 16
                 height: 16
                 IOIcon {
-                    path.fillColor: parent.contentItem.color
-                    anchors.centerIn: parent
-                    scale: parent.width / originalWidth
-                }
-            }
-            Button {
-                id: insertButton
-                checkable: true
-                checked: true
-                flat: true
-                width: 16
-                height: 16
-                enabled: showSend | showFader
-                InsertIcon {
-                    path.fillColor: parent.contentItem.color
-                    anchors.centerIn: parent
-                    scale: parent.width / originalWidth
-                }
-            }
-            Button {
-                id: sendButton
-                checkable: true
-                checked: false
-                flat: true
-                width: 16
-                height: 16
-                enabled: showInsert | showFader
-                SendIcon {
-                    path.fillColor: parent.contentItem.color
-                    anchors.centerIn: parent
-                    scale: parent.width / originalWidth
-                }
-            }
-            Button {
-                id: faderButton
-                checkable: true
-                checked: true
-                flat: true
-                width: 16
-                height: 16
-                enabled: showInsert | showSend
-                FaderIcon {
                     path.fillColor: parent.contentItem.color
                     anchors.centerIn: parent
                     scale: parent.width / originalWidth
@@ -163,16 +118,12 @@ Rectangle {
             MixerChannel {
                 id: inputMixerChannel
                 height: root.height
-                insertModel: mclm_inserts
                 inputAvailable: false
                 outputAvailable: false
                 channelColor: mclm_color
                 name: mclm_name
                 showIO: root.showIO
                 hasInstrumentSlot: false
-                showInsertSlot: root.showInsert
-                showSendSlot: root.showSend
-                showFader: root.showFader
                 audioIOSelectorWindow: root.audioIOSelectorWindow
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
@@ -218,7 +169,6 @@ Rectangle {
             MixerChannel {
                 id: mixerChannel
                 height: root.height
-                insertModel: mclm_inserts
                 inputAvailable:
                     mclm_channel_type == IMixerChannelListModel.ChannelTypeAudio
                     || mclm_channel_type == IMixerChannelListModel.ChannelTypeInstrument
@@ -239,9 +189,6 @@ Rectangle {
                 instrumentAudioOutputs: mclm_instrument_audio_outputs
                 instrumentAudioAuxInputs: mclm_instrument_audio_aux_input_source
                 instrumentAudioAuxOutputs: mclm_instrument_audio_aux_output_destination
-                showInsertSlot: root.showInsert
-                showSendSlot: root.showSend
-                showFader: root.showFader
                 audioIOSelectorWindow: root.audioIOSelectorWindow
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
@@ -348,16 +295,12 @@ Rectangle {
             MixerChannel {
                 id: outputMixerChannel
                 height: root.height
-                insertModel: mclm_inserts
                 inputAvailable: false
                 outputAvailable: false
                 channelColor: mclm_color
                 name: mclm_name
                 showIO: root.showIO
                 hasInstrumentSlot: false
-                showInsertSlot: root.showInsert
-                showSendSlot: root.showSend
-                showFader: root.showFader
                 audioIOSelectorWindow: root.audioIOSelectorWindow
                 pluginSelectorWindow: root.pluginSelectorWindow
                 pluginRouteEditorWindow: root.pluginRouteEditorWindow
