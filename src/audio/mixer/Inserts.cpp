@@ -3,8 +3,12 @@
 #include "audio/util/AudioDeviceUtil.hpp"
 #include "util/IntegerRange.hpp"
 
+#include <ranges>
+
 namespace YADAW::Audio::Mixer
 {
+using YADAW::Audio::Engine::NodeSet;
+
 void blankConnectionUpdatedCallback(const Inserts&) {}
 void blankInsertAddedCallback(Inserts& sender, std::uint32_t index) {}
 void blankInsertAboutToBeRemovedCallback(Inserts& sender, std::uint32_t index, std::uint32_t removeCount) {}
@@ -15,6 +19,7 @@ Inserts::Inserts(YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
     ade::NodeHandle inNode, ade::NodeHandle outNode,
     std::uint32_t inChannelGroupIndex, std::uint32_t outChannelGroupIndex,
     YADAW::Util::BatchUpdater* batchUpdater):
+    NodeSet(graph),
     graph_(graph),
     inNode_(std::move(inNode)), outNode_(std::move(outNode)),
     inChannelGroupIndex_(inChannelGroupIndex), outChannelGroupIndex_(outChannelGroupIndex),
@@ -285,6 +290,56 @@ bool Inserts::setOutNode(const ade::NodeHandle& outNode, std::uint32_t outChanne
         }
     }
     return false;
+}
+
+std::uint32_t Inserts::inputCount() const
+{
+    return 1;
+}
+
+std::uint32_t Inserts::outputCount() const
+{
+    return 1;
+}
+
+std::optional<NodeSet::Position> Inserts::inputAt(std::uint32_t index) const
+{
+    if(index != 0)
+    {
+        return std::nullopt;
+    }
+    if(auto it = std::ranges::find(bypassed_, false); it == bypassed_.end())
+    {
+        return NodeSet::Passthrough();
+    }
+    else
+    {
+        return NodeSet::NodePosition {
+            .node = nodes_[std::distance(bypassed_.begin(), it)],
+            .index = channelGroupIndices_[std::distance(bypassed_.begin(), it)].first
+        };
+    }
+}
+
+std::optional<NodeSet::Position> Inserts::outputAt(std::uint32_t index) const
+{
+    if(index != 0)
+    {
+        return std::nullopt;
+    }
+    if(auto it = std::find(bypassed_.rbegin(), bypassed_.rend(), false); it == bypassed_.rend())
+    {
+        return NodeSet::Passthrough();
+    }
+    else
+    {
+        return NodeSet::NodePosition {
+            .node = nodes_[bypassed_.size() - 1 - std::distance(bypassed_.rbegin(), it)],
+            .index = channelGroupIndices_[
+                bypassed_.size() - 1 - std::distance(bypassed_.rbegin(), it)
+            ].first
+        };
+    }
 }
 
 bool Inserts::insert(const ade::NodeHandle& nodeHandle,
