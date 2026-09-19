@@ -14,7 +14,6 @@
 #include "model/ICLAPAudioBusConfigurationListModel.hpp"
 #include "model/IFileTreeModel.hpp"
 #include "model/ILocalizationListModel.hpp"
-#include "model/IMixerChannelInsertListModel.hpp"
 #include "model/IMixerChannelListModel.hpp"
 #include "model/IParameterValueAndTextListModel.hpp"
 #include "model/IPluginCategoryListModel.hpp"
@@ -52,7 +51,6 @@ void initializeModel()
     QML_REGISTER_UNCREATABLE_TYPE(ICLAPAudioBusConfigurationListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IFileTreeModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(ILocalizationListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
-    QML_REGISTER_UNCREATABLE_TYPE(IMixerChannelInsertListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IMixerChannelListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IParameterValueAndTextListModel, YADAW.Models, 1, 0, modelIsInterfaceText);
     QML_REGISTER_UNCREATABLE_TYPE(IPluginCategoryListModel, YADAW.Models, 1, 0, modelIsInterfaceText);

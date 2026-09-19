@@ -470,8 +470,6 @@ set(YADAW_COMMON_SOURCES
     src/entity/EntityInitializer.hpp
     src/entity/HardwareAudioIOPosition.cpp
     src/entity/HardwareAudioIOPosition.hpp
-    src/entity/PluginAuxAudioIOPosition.cpp
-    src/entity/PluginAuxAudioIOPosition.hpp
     src/entity/PluginFormatSupport.cpp
     src/entity/RegularAudioInputPosition.cpp
     src/entity/RegularAudioInputPosition.hpp
@@ -505,14 +503,6 @@ set(YADAW_COMMON_SOURCES
     src/model/AudioDeviceIOGroupListModel.hpp
     src/model/AutomationModel.cpp
     src/model/AutomationModel.hpp
-    src/model/AuxIOTargetListModel.cpp
-    src/model/AuxIOTargetListModel.hpp
-    src/model/AuxInputSourceListModel.cpp
-    src/model/AuxInputSourceListModel.hpp
-    src/model/AuxOutputDestinationListModel.cpp
-    src/model/AuxOutputDestinationListModel.hpp
-    src/model/AuxOutputDestinationModel.cpp
-    src/model/AuxOutputDestinationModel.hpp
     src/model/CLAPAudioBusConfigurationListModel.cpp
     src/model/CLAPAudioBusConfigurationListModel.hpp
     src/model/FileTreeModel.cpp
@@ -521,10 +511,6 @@ set(YADAW_COMMON_SOURCES
     src/model/LocalizationListModel.cpp
     src/model/LocalizationListModel.hpp
     src/model/MessageDialogButtonBoxModel.cpp
-    src/model/MixerAudioIOPositionItemModel.cpp
-    src/model/MixerAudioIOPositionItemModel.hpp
-    src/model/MixerChannelInsertListModel.cpp
-    src/model/MixerChannelInsertListModel.hpp
     src/model/MixerChannelListModel.cpp
     src/model/MixerChannelListModel.hpp
     src/model/ModelInitializer.cpp

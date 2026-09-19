@@ -32,7 +32,6 @@ set(CONTENT_CPP_FILES
     model/ICLAPAudioBusConfigurationListModel.hpp
     model/IFileTreeModel.hpp
     model/ILocalizationListModel.hpp
-    model/IMixerChannelInsertListModel.hpp
     model/IMixerChannelListModel.hpp
     model/MessageDialogButtonBoxModel.hpp
     model/ModelBase.hpp

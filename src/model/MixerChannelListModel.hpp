@@ -83,7 +83,6 @@ private:
     void updateInstrumentConnections(std::uint32_t from);
 private:
     YADAW::Audio::Mixer::Mixer& mixer_;
-    std::vector<std::unique_ptr<YADAW::Model::MixerChannelInsertListModel>> insertModels_;
     std::variant<
         std::monostate,
         std::vector<std::unique_ptr<YADAW::Entity::RegularAudioInputPosition>>,
