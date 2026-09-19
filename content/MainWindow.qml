@@ -992,18 +992,10 @@ ApplicationWindow {
                 }
             }
             if(trackType === AddTrackWindow.Instrument && instrumentEnabled) {
-                for(let i = 0; i < count; ++i) {
-                    mixerChannelModel.setInstrument(position + i, instrument);
-                }
+                // TODO
             }
             else if(trackType === AddTrackWindow.AudioEffect && audioEffectEnabled) {
-                for(let i = 0; i < count; ++i) {
-                    let index = mixerChannelModel.index(position + i, 0);
-                    // See comments in ctor of `MixerChannelInsertListModel`
-                    mixerChannelModel.data(
-                        index, IMixerChannelListModel.Inserts
-                    ).append(audioEffect);
-                }
+                // TODO
             }
             EventSender.commitBatchUpdate();
         }

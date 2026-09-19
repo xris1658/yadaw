@@ -21,7 +21,6 @@
 #include "controller/PluginWindowController.hpp"
 #include "entity/ChannelConfigHelper.hpp"
 #include "event/EventBase.hpp"
-#include "model/MixerChannelInsertListModel.hpp"
 #include "model/MixerChannelListModel.hpp"
 #include "native/Native.hpp"
 #include "native/Shell.hpp"
@@ -320,10 +319,6 @@ void EventHandler::onOpenMainWindow()
         auto& bus = audioBusConfiguration.getInputBusAt(i)->get();
         auto node = appGraphWithPDC.addNode(YADAW::Audio::Engine::AudioDeviceProcess(bus));
         mixer.appendAudioInputChannel(node, 0);
-        auto& preFaderInserts = mixer.preFaderInsertsAt(YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList, i)->get();
-        preFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
-        auto& postFaderInserts = mixer.postFaderInsertsAt(YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList, i)->get();
-        postFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
         auto& channelInfo = mixer.channelInfoAt(YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList, i)->get();
         channelInfo.name = appAudioBusInputConfigurationModel.data(
             appAudioBusInputConfigurationModel.index(i),
@@ -336,10 +331,6 @@ void EventHandler::onOpenMainWindow()
         auto& bus = audioBusConfiguration.getOutputBusAt(i)->get();
         auto node = appGraphWithPDC.addNode(YADAW::Audio::Engine::AudioDeviceProcess(bus));
         mixer.appendAudioOutputChannel(node, 0);
-        auto& preFaderInserts = mixer.preFaderInsertsAt(YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList, i)->get();
-        preFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
-        auto& postFaderInserts = mixer.postFaderInsertsAt(YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList, i)->get();
-        postFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
         auto& channelInfo = mixer.channelInfoAt(YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList, i)->get();
         channelInfo.name = appAudioBusOutputConfigurationModel.data(
             appAudioBusOutputConfigurationModel.index(i),
@@ -426,12 +417,6 @@ void EventHandler::onOpenMainWindow()
         QVariant::fromValue<QObject*>(
             &mixerChannelListModels.mixerChannels[YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareOutputList]
         )
-    );
-    YADAW::UI::mainWindow->setProperty("pluginAuxInModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().audioInputPositionModel)
-    );
-    YADAW::UI::mainWindow->setProperty("pluginAuxOutModel",
-        QVariant::fromValue<QObject*>(&YADAW::Controller::appMixerChannelListModels().audioOutputPositionModel)
     );
     QObject::connect(
         &appAudioBusInputConfigurationModel,

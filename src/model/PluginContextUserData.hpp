@@ -4,8 +4,6 @@
 #include "controller/PluginContext.hpp"
 #include "model/PluginParameterListModel.hpp"
 #include "model/AudioDeviceIOGroupListModel.hpp"
-#include "model/AuxInputSourceListModel.hpp"
-#include "model/AuxOutputDestinationListModel.hpp"
 
 #include <QMetaObject>
 #include <QString>
@@ -19,8 +17,6 @@ struct PluginContextUserData
     YADAW::Model::PluginParameterListModel paramListModel;
     YADAW::Model::AudioDeviceIOGroupListModel audioInputs;
     YADAW::Model::AudioDeviceIOGroupListModel audioOutputs;
-    std::unique_ptr<YADAW::Model::AuxInputSourceListModel> audioAuxInputSources;
-    std::unique_ptr<YADAW::Model::AuxOutputDestinationListModel> audioAuxOutputDestinations;
     QString name;
     PluginContextUserData(
         const YADAW::Controller::PluginContext& pluginContext,

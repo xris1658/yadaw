@@ -17,9 +17,7 @@
 #include "dao/PluginTable.hpp"
 #include "entity/ChannelConfigHelper.hpp"
 #include "entity/HardwareAudioIOPosition.hpp"
-#include "entity/PluginAuxAudioIOPosition.hpp"
 #include "event/EventBase.hpp"
-#include "model/MixerChannelInsertListModel.hpp"
 #include "util/Base.hpp"
 #include "util/IntegerRange.hpp"
 #include "util/QmlUtil.hpp"
@@ -117,20 +115,8 @@ MixerChannelListModel::MixerChannelListModel(
             }
         );
     }
-    insertModels_.reserve(count);
     polarityInverterModels_.reserve(count);
     editingVolume_.resize(count, false);
-    std::generate_n(
-        std::back_inserter(insertModels_), count,
-        [this, i = 0U]() mutable
-        {
-            auto index = i++;
-            return std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
-                mixer_.preFaderInsertsAt(channelListType_, index)->get(),
-                channelListType_, index, true, 0
-            );
-        }
-    );
     std::generate_n(
         std::back_inserter(polarityInverterModels_), count,
         [this, i = 0U]() mutable
@@ -388,36 +374,6 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
             }
             return {};
         }
-        case Role::InstrumentAudioAuxInputSource:
-        {
-            if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
-            {
-                auto context = mixer_.getInstrumentContext(row);
-                if(context.has_value())
-                {
-                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
-                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
-                    return QVariant::fromValue(instrumentContext.audioAuxInputSources.get());
-                }
-            }
-            return {};
-        }
-        case Role::InstrumentAudioAuxOutputDestination:
-        {
-            if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
-                && mixer_.channelInfoAt(channelListType_, row)->get().channelType == YADAW::Audio::Mixer::Mixer::ChannelType::Instrument)
-            {
-                auto context = mixer_.getInstrumentContext(row);
-                if(context.has_value())
-                {
-                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
-                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
-                    return QVariant::fromValue(instrumentContext.audioAuxOutputDestinations.get());
-                }
-            }
-            return {};
-        }
         case Role::InstrumentHasUI:
         {
             if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList
@@ -475,10 +431,6 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
             }
             return {};
         }
-        case Role::Inserts:
-        {
-            return QVariant::fromValue<QObject*>(insertModels_[row].get());
-        }
         case Role::Mute:
         {
             const auto& mute = mixer_.muteAt(channelListType_, row)->get();
@@ -501,18 +453,18 @@ QVariant MixerChannelListModel::data(const QModelIndex& index, int role) const
         }
         case Role::Monitor:
         {
-            if(data(index, Role::MonitorExist).value<bool>())
-            {
-                auto multiInput = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
-                    mixer_.graph().graph().getNodeData(
-                        mixer_.preFaderInsertsAt(channelListType_, row)->get().inNode()->inNodes().front()
-                    ).process.device()
-                );
-                auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
-                    multiInput->process().device()
-                );
-                return QVariant::fromValue<bool>(inputSwitcher->getInputIndex());
-            }
+            // if(data(index, Role::MonitorExist).value<bool>())
+            // {
+            //     auto multiInput = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
+            //         mixer_.graph().graph().getNodeData(
+            //             mixer_.preFaderInsertsAt(channelListType_, row)->get().inNode()->inNodes().front()
+            //         ).process.device()
+            //     );
+            //     auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
+            //         multiInput->process().device()
+            //     );
+            //     return QVariant::fromValue<bool>(inputSwitcher->getInputIndex());
+            // }
             break;
         }
         case Role::Volume:
@@ -597,15 +549,6 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                         );
                         break;
                     }
-                    case YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO:
-                    {
-                        const auto& auxOutputPosition = static_cast<const YADAW::Entity::PluginAuxAudioIOPosition&>(*pPosition);
-                        ret = mixer_.setMainInputAt(
-                            row,
-                            static_cast<YADAW::Audio::Mixer::Mixer::Position>(auxOutputPosition)
-                        );
-                        break;
-                    }
                     }
                 }
             }
@@ -646,15 +589,6 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
                         ret = mixer_.setMainOutputAt(
                             row,
                             static_cast<YADAW::Audio::Mixer::Mixer::Position>(regularAudioIOPosition)
-                        );
-                        break;
-                    }
-                    case YADAW::Entity::IAudioIOPosition::Type::PluginAuxIO:
-                    {
-                        const auto& pluginAuxIOPosition = static_cast<const YADAW::Entity::PluginAuxAudioIOPosition&>(*pPosition);
-                        ret = mixer_.setMainOutputAt(
-                            row,
-                            static_cast<YADAW::Audio::Mixer::Mixer::Position>(pluginAuxIOPosition)
                         );
                         break;
                     }
@@ -721,29 +655,29 @@ bool MixerChannelListModel::setData(const QModelIndex& index, const QVariant& va
         case Role::Monitor:
         {
             auto ret = false;
-            if(data(index, Role::MonitorExist).value<bool>())
-            {
-                auto multiInput = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
-                    mixer_.graph().graph().getNodeData(
-                        mixer_.preFaderInsertsAt(channelListType_, row)->get().inNode()->inNodes().front()
-                    ).process.device()
-                );
-                auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
-                    multiInput->process().device()
-                );
-                auto inputIndex = static_cast<std::uint32_t>(value.value<bool>());
-                if(static_cast<bool>(inputSwitcher->getInputIndex()) != inputIndex)
-                {
-                    ret = inputSwitcher->setInputIndex(inputIndex);
-                    if(ret)
-                    {
-                        dataChanged(
-                            this->index(row), this->index(row),
-                            { Role::Monitor }
-                        );
-                    }
-                }
-            }
+            // if(data(index, Role::MonitorExist).value<bool>())
+            // {
+            //     auto multiInput = static_cast<YADAW::Audio::Engine::MultiInputDeviceWithPDC*>(
+            //         mixer_.graph().graph().getNodeData(
+            //             mixer_.preFaderInsertsAt(channelListType_, row)->get().inNode()->inNodes().front()
+            //         ).process.device()
+            //     );
+            //     auto inputSwitcher = static_cast<YADAW::Audio::Util::InputSwitcher*>(
+            //         multiInput->process().device()
+            //     );
+            //     auto inputIndex = static_cast<std::uint32_t>(value.value<bool>());
+            //     if(static_cast<bool>(inputSwitcher->getInputIndex()) != inputIndex)
+            //     {
+            //         ret = inputSwitcher->setInputIndex(inputIndex);
+            //         if(ret)
+            //         {
+            //             dataChanged(
+            //                 this->index(row), this->index(row),
+            //                 { Role::Monitor }
+            //             );
+            //         }
+            //     }
+            // }
             return ret;
         }
         case Role::Volume:
@@ -801,11 +735,6 @@ bool MixerChannelListModel::insert(int position, int count,
         );
         if(ret)
         {
-            FOR_RANGE(i, position, position + count)
-            {
-                mixer_.preFaderInsertsAt(channelListType_, i)->get().setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
-                mixer_.postFaderInsertsAt(channelListType_, i)->get().setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
-            }
             auto& inputs = std::get<YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList>(inputPositions_);
             std::generate_n(
                 std::inserter(inputs, inputs.begin() + position), count,
@@ -841,39 +770,8 @@ bool MixerChannelListModel::insert(int position, int count,
                 auto& position = *static_cast<YADAW::Entity::RegularAudioOutputPosition*>(outputs[i].get());
                 position.updateIndex(i);
             }
-            std::generate_n(
-                std::inserter(insertModels_, insertModels_.begin() + position),
-                count,
-                [this, position, offset = 0]() mutable
-                {
-                    auto index = position + (offset++);
-                    auto ret = std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
-                        mixer_.preFaderInsertsAt(channelListType_, index)->get(),
-                        channelListType_,
-                        index,
-                        true,
-                        0
-                    );
-                    return ret;
-                }
-            );
             if(fillPluginContextCallback_ != &Impl::blankFillPluginContext)
             {
-                FOR_RANGE(i, position, position + count)
-                {
-                    insertModels_[i]->setFillPluginContextCallback(fillPluginContextCallback_);
-                }
-            }
-            FOR_RANGE(i, position + count, insertModels_.size())
-            {
-                if(auto context = mixer_.getInstrumentContext(i); context.has_value())
-                {
-                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
-                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
-                    instrumentContext.audioAuxInputSources->updateChannelIndex(i);
-                    instrumentContext.audioAuxOutputDestinations->updateChannelIndex(i);
-                }
-                insertModels_[i]->setChannelIndex(i);
             }
             updateInstrumentConnections(position + count);
             std::fill_n(
@@ -902,28 +800,6 @@ bool MixerChannelListModel::insert(int position, int count,
             )
         );
         (mixer_.*insertChannelsFunc[channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList])(position, inNode, 0);
-        auto& preFaderInserts = mixer_.preFaderInsertsAt(channelListType_, position)->get();
-        auto& postFaderInserts = mixer_.postFaderInsertsAt(channelListType_, position)->get();
-        preFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
-        postFaderInserts.setConnectionUpdatedCallback(&YADAW::Controller::AudioEngine::insertsConnectionUpdatedCallback);
-        insertModels_.emplace(
-            insertModels_.begin() + position,
-            std::make_unique<YADAW::Model::MixerChannelInsertListModel>(
-                (mixer_.preFaderInsertsAt(channelListType_, position))->get(),
-                channelListType_,
-                position,
-                true,
-                0
-            )
-        );
-        FOR_RANGE(i, position + 1, insertModels_.size())
-        {
-            insertModels_[i]->setChannelIndex(i);
-        }
-        if(position + count < insertModels_.size())
-        {
-            dataChanged(index(position + count), index(itemCount() - 1), {Role::NameWithIndex});
-        }
         if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList)
         {
             auto& outputs = std::get<YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList>(outputPositions_);
@@ -1033,34 +909,15 @@ bool MixerChannelListModel::remove(int position, int removeCount)
         }
         FOR_RANGE(i, position, position + removeCount)
         {
-            insertModels_[i]->clear();
             removeInstrument(i); // TODO
         }
         mixer_.remove(channelListType_, position, removeCount);
-        insertModels_.erase(
-            insertModels_.begin() + position,
-            insertModels_.begin() + position + removeCount
-        );
         polarityInverterModels_.erase(
             polarityInverterModels_.begin() + position,
             polarityInverterModels_.begin() + position + removeCount
         );
-        FOR_RANGE(i, position, insertModels_.size())
-        {
-            insertModels_[i]->setChannelIndex(i);
-        }
         if(channelListType_ == YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList)
         {
-            FOR_RANGE(i, position, insertModels_.size())
-            {
-                if(auto context = mixer_.getInstrumentContext(i); context.has_value())
-                {
-                    auto& pluginContext = *static_cast<YADAW::Controller::PluginContext*>(context->get().get());
-                    auto& instrumentContext = *static_cast<PluginContextUserData*>(pluginContext.userData.get());
-                    instrumentContext.audioAuxInputSources->updateChannelIndex(i);
-                    instrumentContext.audioAuxOutputDestinations->updateChannelIndex(i);
-                }
-            }
             mainInput_.erase(
                 mainInput_.begin() + position,
                 mainInput_.begin() + position + removeCount
@@ -1226,12 +1083,6 @@ bool MixerChannelListModel::setInstrument(int position, int pluginId)
                 node,
                 std::move(mixerContext),
                 firstOutput
-            );
-            userData.audioAuxInputSources = std::make_unique<YADAW::Model::AuxInputSourceListModel>(
-                mixer_, channelListType_, position, true, false, 0
-            );
-            userData.audioAuxOutputDestinations = std::make_unique<YADAW::Model::AuxOutputDestinationListModel>(
-                mixer_, channelListType_, position, true, false, 0
             );
             if(auto optionalBatchUpdater = mixer_.batchUpdater(); optionalBatchUpdater.has_value())
             {
@@ -1513,19 +1364,13 @@ void MixerChannelListModel::setFillPluginContextCallback(
     FillPluginContextCallback* callback)
 {
     fillPluginContextCallback_ = callback;
-    for(auto& insertModel: insertModels_)
-    {
-        insertModel->setFillPluginContextCallback(callback);
-    }
+    // TODO
 }
 
 void MixerChannelListModel::resetFillPluginContextCallback()
 {
     fillPluginContextCallback_ = &Impl::blankFillPluginContext;
-    for(auto& insertModel: insertModels_)
-    {
-        insertModel->resetFillPluginContextCallback();
-    }
+    // TODO
 }
 
 void MixerChannelListModel::instrumentLatencyUpdated(std::uint32_t index) const
