@@ -32,7 +32,7 @@ ProcessSequenceWithPrev getProcessSequenceWithPrev(
                 auto& tijk = link[k];
                 retLink.emplace_back(
                     graph.getNodeData(tijk).process,
-                    bufferExt.getData(tijk).container
+                    bufferExt.getNodeData(tijk).container
                 );
             }
             FOR_RANGE0(k, prev.size())

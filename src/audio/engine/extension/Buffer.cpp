@@ -6,16 +6,14 @@ namespace YADAW::Audio::Engine::Extension
 {
 using YADAW::Audio::Util::AudioBufferPool;
 
-Buffer::Buffer(AudioDeviceGraphBase& graph,
-    Buffer::DataType& (* getData)(AudioDeviceGraphBase&, const ade::NodeHandle&)):
-    graph_(graph),
-    getData_(getData)
+Buffer::Buffer(AudioDeviceGraphBase& graph):
+    graph_(graph)
 {}
 
 void Buffer::onNodeAdded(const ade::NodeHandle& nodeHandle)
 {
     auto& device = *(graph_.getNodeData(nodeHandle).process.device());
-    auto& container = getData_(graph_, nodeHandle).container;
+    auto& container = getNodeData_(graph_, nodeHandle).container;
     container.setSingleBufferSize(bufferSize());
     const auto inputGroupCount = device.audioInputGroupCount();
     container.setInputGroupCount(inputGroupCount);
@@ -25,7 +23,7 @@ void Buffer::onNodeAdded(const ade::NodeHandle& nodeHandle)
         container.setInputCount(i, inputCount);
         FOR_RANGE0(j, inputCount)
         {
-            container.setInputBuffer(i, j, dummyInput_);
+            container.setInputBuffer(i, j, getGraphData_(graph_).dummyInput);
         }
     }
     const auto outputGroupCount = device.audioOutputGroupCount();
@@ -37,7 +35,9 @@ void Buffer::onNodeAdded(const ade::NodeHandle& nodeHandle)
         FOR_RANGE0(j, outputCount)
         {
             container.setOutputBuffer(
-                i, j, std::make_shared<YADAW::Audio::Util::AudioBufferPool::Buffer>(pool_->lend())
+                i, j, std::make_shared<YADAW::Audio::Util::AudioBufferPool::Buffer>(
+                    getGraphData_(graph_).pool->lend()
+                )
             );
         }
     }
@@ -50,10 +50,10 @@ void Buffer::onConnected(const ade::EdgeHandle& edgeHandle)
 {
     const auto& fromNode = edgeHandle->srcNode();
     auto fromChannel = graph_.getEdgeData(edgeHandle).fromChannel;
-    auto& fromNodeContainer = getData_(graph_, fromNode).container;
+    auto& fromNodeContainer = getNodeData_(graph_, fromNode).container;
     const auto& toNode = edgeHandle->dstNode();
     auto toChannel = graph_.getEdgeData(edgeHandle).toChannel;
-    auto& toNodeContainer = getData_(graph_, toNode).container;
+    auto& toNodeContainer = getNodeData_(graph_, toNode).container;
     auto channelCount = toNodeContainer.audioProcessData().inputCounts[toChannel];
     FOR_RANGE0(i, channelCount)
     {
@@ -66,29 +66,30 @@ void Buffer::onAboutToBeDisconnected(const ade::EdgeHandle& edgeHandle)
 {
     const auto& toNode = edgeHandle->dstNode();
     auto toChannel = graph_.getEdgeData(edgeHandle).toChannel;
-    auto& toNodeContainer = getData_(graph_, toNode).container;
+    auto& toNodeContainer = getNodeData_(graph_, toNode).container;
     auto channelCount = toNodeContainer.audioProcessData().inputCounts[toChannel];
     FOR_RANGE0(i, channelCount)
     {
-        toNodeContainer.setInputBuffer(toChannel, i, dummyInput_);
+        toNodeContainer.setInputBuffer(toChannel, i, getGraphData_(graph_).dummyInput);
     }
 }
 
 std::uint32_t Buffer::bufferSize() const
 {
-    return bufferSize_;
+    return getGraphData_(graph_).bufferSize;
 }
 
 void Buffer::setBufferSize(std::uint32_t bufferSize)
 {
-    if((!pool_) || bufferSize * sizeof(float) > pool_->singleBufferByteSize())
+    auto& pool = getGraphData_(graph_).pool;
+    if((!pool) || bufferSize * sizeof(float) > pool->singleBufferByteSize())
     {
-        auto pool = AudioBufferPool::createPool<float>(bufferSize);
-        auto dummyInput = std::make_shared<AudioBufferPool::Buffer>(pool->lend());
-        std::memset(dummyInput->pointer(), 0, bufferSize * sizeof(float));
+        auto newPool = AudioBufferPool::createPool<float>(bufferSize);
+        auto newDummyInput = std::make_shared<AudioBufferPool::Buffer>(newPool->lend());
+        std::memset(newDummyInput->pointer(), 0, bufferSize * sizeof(float));
         for(const auto& nodeHandle: graph_.nodes())
         {
-            auto& container = getData_(graph_, nodeHandle).container;
+            auto& container = getNodeData_(graph_, nodeHandle).container;
             const auto& processData = container.audioProcessData();
             std::vector<bool> isDummyInput(processData.inputGroupCount, true);
             std::vector<std::optional<ade::EdgeHandle>> outputs(processData.outputGroupCount, std::nullopt);
@@ -106,7 +107,7 @@ void Buffer::setBufferSize(std::uint32_t bufferSize)
                 {
                     FOR_RANGE0(j, processData.inputCounts[i])
                     {
-                        container.setInputBuffer(i, j, dummyInput);
+                        container.setInputBuffer(i, j, newDummyInput);
                     }
                 }
             }
@@ -115,44 +116,44 @@ void Buffer::setBufferSize(std::uint32_t bufferSize)
                 if(oEdge.has_value())
                 {
                     auto dstNode = (*oEdge)->dstNode();
-                    auto& destContainer = getData_(graph_, dstNode).container;
+                    auto& destContainer = getNodeData_(graph_, dstNode).container;
                     auto& [fromChannel, toChannel, data] = graph_.getEdgeData(*oEdge);
                     auto channelCount = processData.outputCounts[fromChannel];
                     FOR_RANGE0(i, channelCount)
                     {
-                        auto buffer = std::make_shared<AudioBufferPool::Buffer>(pool->lend());
+                        auto buffer = std::make_shared<AudioBufferPool::Buffer>(newPool->lend());
                         container.setOutputBuffer(fromChannel, i, buffer);
                         destContainer.setInputBuffer(toChannel, i, buffer);
                     }
                 }
             }
         }
-        pool_ = pool;
-        dummyInput_ = dummyInput;
+        pool = newPool;
+        getGraphData_(graph_).dummyInput = newDummyInput;
     }
     for(const auto& nodeHandle: graph_.nodes())
     {
-        getData_(graph_, nodeHandle).container.setSingleBufferSize(bufferSize);
-        if(auto& callback = getData_(graph_, nodeHandle).bufferSizeChangedCallback)
+        getNodeData_(graph_, nodeHandle).container.setSingleBufferSize(bufferSize);
+        if(auto& callback = getNodeData_(graph_, nodeHandle).bufferSizeChangedCallback)
         {
             callback(bufferSize);
         }
     }
-    bufferSize_ = bufferSize;
+    getGraphData_(graph_).bufferSize = bufferSize;
 }
 
 void Buffer::resetBufferSizeChangedCallback(const ade::NodeHandle& nodeHandle)
 {
-    getData(nodeHandle).bufferSizeChangedCallback = nullptr;
+    getNodeData(nodeHandle).bufferSizeChangedCallback = nullptr;
 }
 
-const Buffer::DataType& Buffer::getData(const ade::NodeHandle& nodeHandle) const
+const Buffer::NodeData& Buffer::getNodeData(const ade::NodeHandle& nodeHandle) const
 {
-    return getData_(graph_, nodeHandle);
+    return getNodeData_(graph_, nodeHandle);
 }
 
-Buffer::DataType& Buffer::getData(const ade::NodeHandle& nodeHandle)
+Buffer::NodeData& Buffer::getNodeData(const ade::NodeHandle& nodeHandle)
 {
-    return getData_(graph_, nodeHandle);
+    return getNodeData_(graph_, nodeHandle);
 }
 }

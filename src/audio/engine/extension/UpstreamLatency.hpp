@@ -8,15 +8,24 @@ namespace YADAW::Audio::Engine::Extension
 class UpstreamLatency
 {
 public:
-    struct DataType
+    class NodeData
     {
+        friend class UpstreamLatency;
         std::uint32_t upstreamLatency;
         std::vector<std::uint32_t> upstreamLatencies;
     };
     using LatencyOfNodeUpdatedCallback = void(const UpstreamLatency& sender, const ade::NodeHandle& nodeHandle);
+private:
+    UpstreamLatency(AudioDeviceGraphBase& graph);
 public:
-    UpstreamLatency(AudioDeviceGraphBase& graph,
-        DataType&(*getData)(AudioDeviceGraphBase&, const ade::NodeHandle&));
+    template<typename... Extensions>
+    UpstreamLatency(AudioDeviceGraph<Extensions...>& graph):
+        UpstreamLatency(static_cast<AudioDeviceGraphBase&>(graph))
+    {
+        getNodeData_ = static_cast<decltype(getNodeData_)>(
+            AudioDeviceGraph<Extensions...>::template getExtensionNodeData<UpstreamLatency>
+        );
+    }
 private:
     std::uint32_t sumLatency(const ade::NodeHandle& nodeHandle) const;
 public:
@@ -39,7 +48,7 @@ private:
         std::uint32_t audioInputGroupIndex);
 private:
     AudioDeviceGraphBase& graph_;
-    DataType&(*getData_)(AudioDeviceGraphBase&, const ade::NodeHandle&);
+    NodeData&(*getNodeData_)(AudioDeviceGraphBase&, const ade::NodeHandle&);
     std::function<LatencyOfNodeUpdatedCallback> callback_;
 };
 }

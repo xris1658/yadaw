@@ -12,15 +12,21 @@ namespace YADAW::Audio::Engine::Extension
 class NodeSetWrapping
 {
 public:
-    struct DataType
+    struct NodeData
     {
-        // TODO: Add a tree-like structure here... maybe use `TreeNode`?
+        std::vector<NodeSet*> wrappings_;
     };
+private:
+    NodeSetWrapping(AudioDeviceGraphBase& graph);
 public:
-    NodeSetWrapping(AudioDeviceGraphBase& graph,
-    DataType&(*getData)(AudioDeviceGraphBase&, const ade::NodeHandle&));
-public:
-
+    template<typename... Extensions>
+    NodeSetWrapping(AudioDeviceGraph<Extensions...>& graph):
+        NodeSetWrapping(static_cast<AudioDeviceGraphBase&>(graph))
+    {
+        getNodeData_ = static_cast<decltype(getNodeData_)>(
+            AudioDeviceGraph<Extensions...>::template getExtensionNodeData<NodeSetWrapping>
+        );
+    }
 public:
     void onNodeAdded(const ade::NodeHandle& nodeHandle);
     void onNodeAboutToBeRemoved(const ade::NodeHandle& nodeHandle);
@@ -28,7 +34,7 @@ public:
     void onAboutToBeDisconnected(const ade::EdgeHandle& edgeHandle);
 private:
     AudioDeviceGraphBase& graph_;
-    DataType&(*getData_)(AudioDeviceGraphBase&, const ade::NodeHandle&);
+    NodeData&(*getNodeData_)(AudioDeviceGraphBase&, const ade::NodeHandle&);
 };
 }
 
