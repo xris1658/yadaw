@@ -30,7 +30,9 @@ AudioDeviceGraphBase::AudioDeviceGraphBase():
     beforeRemoveNodeCallback_(blankBeforeRemoveNodeCallback),
     afterConnectCallback_(blankAfterConnectCallback),
     beforeDisconnectCallback_(blankBeforeDisconnectCallback)
-{}
+{
+    typedGraph_.metadata().set<GraphData>(GraphData{});
+}
 
 AudioDeviceGraphBase::~AudioDeviceGraphBase()
 {
