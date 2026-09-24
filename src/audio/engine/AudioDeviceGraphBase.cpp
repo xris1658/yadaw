@@ -61,6 +61,16 @@ AudioDeviceGraphBase::EdgeData& AudioDeviceGraphBase::getEdgeData(
     return typedGraph_.metadata(edgeHandle).get<EdgeData>();
 }
 
+const AudioDeviceGraphBase::GraphData& AudioDeviceGraphBase::getGraphData() const
+{
+    return typedGraph_.metadata().get<GraphData>();
+}
+
+AudioDeviceGraphBase::GraphData& AudioDeviceGraphBase::getGraphData()
+{
+    return typedGraph_.metadata().get<GraphData>();
+}
+
 ade::NodeHandle AudioDeviceGraphBase::addNode(AudioDeviceProcess process)
 {
     auto ret = typedGraph_.createNode();

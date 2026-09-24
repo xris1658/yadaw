@@ -41,6 +41,11 @@ public:
         void* data;
         static const char* name() { return "EdgeData"; }
     };
+    struct GraphData
+    {
+        void* data;
+        static const char* name() { return "GraphData"; }
+    };
 public:
     explicit AudioDeviceGraphBase();
     AudioDeviceGraphBase(const AudioDeviceGraphBase&) = delete;
@@ -50,6 +55,8 @@ public:
     NodeData& getNodeData(const ade::NodeHandle& nodeHandle);
     const EdgeData& getEdgeData(const ade::EdgeHandle& edgeHandle) const;
     EdgeData& getEdgeData(const ade::EdgeHandle& edgeHandle);
+    const GraphData& getGraphData() const;
+    GraphData& getGraphData();
 public:
     ade::NodeHandle addNode(
         YADAW::Audio::Engine::AudioDeviceProcess process);
@@ -87,7 +94,7 @@ public:
     Vec<Vec<Vec<ade::NodeHandle>, Vec<std::uint32_t, std::uint32_t>>> topologicalSortWithPrev() const;
 private:
     ade::Graph graph_;
-    ade::TypedGraph<NodeData, EdgeData> typedGraph_;
+    ade::TypedGraph<NodeData, EdgeData, GraphData> typedGraph_;
     AfterAddNodeCallback* afterAddNodeCallback_;
     BeforeRemoveNodeCallback* beforeRemoveNodeCallback_;
     AfterConnectCallback* afterConnectCallback_;

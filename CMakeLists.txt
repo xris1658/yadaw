@@ -619,6 +619,7 @@ set(YADAW_COMMON_SOURCES
     src/util/SineFunction.hpp
     src/util/StatefulCoroutine.hpp
     src/util/Stopwatch.hpp
+    src/util/TupleUtil.hpp
     src/util/Util.cpp
     src/util/Util.hpp
     src/util/VectorTypes.hpp

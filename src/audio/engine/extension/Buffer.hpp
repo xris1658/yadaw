@@ -12,14 +12,32 @@ class Buffer
 {
 public:
     using BufferSizeChangedCallback = void(std::uint32_t newBufferSize);
-    struct DataType
+    class GraphData
+    {
+        friend class Buffer;
+        std::uint32_t bufferSize = 0U;
+        YADAW::Util::IntrusivePointer<YADAW::Audio::Util::AudioBufferPool> pool;
+        std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer> dummyInput;
+    };
+    struct NodeData
     {
         YADAW::Audio::Engine::AudioProcessDataBufferContainer<float> container;
         std::function<BufferSizeChangedCallback> bufferSizeChangedCallback;
     };
+private:
+    Buffer(AudioDeviceGraphBase& graph);
 public:
-    Buffer(AudioDeviceGraphBase& graph,
-        DataType&(*getData)(AudioDeviceGraphBase&, const ade::NodeHandle&));
+    template<typename... Extensions>
+    Buffer(AudioDeviceGraph<Extensions...>& graph):
+        Buffer(static_cast<AudioDeviceGraphBase&>(graph))
+    {
+        getNodeData_  = static_cast<decltype(getNodeData_) >(
+            AudioDeviceGraph<Extensions...>::template getExtensionNodeData <Buffer>
+        );
+        getGraphData_ = static_cast<decltype(getGraphData_)>(
+            AudioDeviceGraph<Extensions...>::template getExtensionGraphData<Buffer>
+        );
+    }
 public:
     void onNodeAdded(const ade::NodeHandle& nodeHandle);
     void onNodeAboutToBeRemoved(const ade::NodeHandle& nodeHandle);
@@ -31,18 +49,16 @@ public:
     template<typename Func>
     void setBufferSizeChangedCallback(const ade::NodeHandle& nodeHandle, Func&& callback)
     {
-        getData(nodeHandle).bufferSizeChangedCallback = std::forward<Func>(callback);
+        getNodeData(nodeHandle).bufferSizeChangedCallback = std::forward<Func>(callback);
     }
     void resetBufferSizeChangedCallback(const ade::NodeHandle& nodeHandle);
 public:
-    const DataType& getData(const ade::NodeHandle& nodeHandle) const;
-    DataType& getData(const ade::NodeHandle& nodeHandle);
+    const NodeData& getNodeData(const ade::NodeHandle& nodeHandle) const;
+    NodeData& getNodeData(const ade::NodeHandle& nodeHandle);
 private:
     AudioDeviceGraphBase& graph_;
-    DataType&(*getData_)(AudioDeviceGraphBase&, const ade::NodeHandle&);
-    std::uint32_t bufferSize_ = 0U;
-    YADAW::Util::IntrusivePointer<YADAW::Audio::Util::AudioBufferPool> pool_;
-    std::shared_ptr<YADAW::Audio::Util::AudioBufferPool::Buffer> dummyInput_;
+    NodeData& (*getNodeData_) (AudioDeviceGraphBase&, const ade::NodeHandle&);
+    GraphData&(*getGraphData_)(AudioDeviceGraphBase&);
 };
 }
 

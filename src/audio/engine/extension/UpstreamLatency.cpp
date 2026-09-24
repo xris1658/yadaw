@@ -22,10 +22,8 @@ struct OutNodeElement
 void blankCallback(const UpstreamLatency& sender, const ade::NodeHandle& nodeHandle)
 {}
 
-UpstreamLatency::UpstreamLatency(AudioDeviceGraphBase& graph,
-    UpstreamLatency::DataType& (* getData)(AudioDeviceGraphBase&, const ade::NodeHandle&)):
+UpstreamLatency::UpstreamLatency(AudioDeviceGraphBase& graph):
     graph_(graph),
-    getData_(getData),
     callback_(&blankCallback)
 {}
 
@@ -37,8 +35,8 @@ std::uint32_t UpstreamLatency::sumLatency(const ade::NodeHandle& nodeHandle) con
 
 void UpstreamLatency::onNodeAdded(const ade::NodeHandle& nodeHandle)
 {
-    getData_(graph_, nodeHandle).upstreamLatency = 0U;
-    auto& upstreamLatencies = getData_(graph_, nodeHandle).upstreamLatencies;
+    getNodeData_(graph_, nodeHandle).upstreamLatency = 0U;
+    auto& upstreamLatencies = getNodeData_(graph_, nodeHandle).upstreamLatencies;
     auto device = graph_.getNodeData(nodeHandle).process.device();
     auto inputCount = device->audioInputGroupCount();
     upstreamLatencies.resize(inputCount);
@@ -61,7 +59,7 @@ void UpstreamLatency::onAboutToBeDisconnected(const ade::EdgeHandle& edgeHandle)
 std::optional<std::uint32_t> UpstreamLatency::getUpstreamLatency(
     const ade::NodeHandle& nodeHandle, std::uint32_t audioInputGroupIndex) const
 {
-    const auto& upstreamLatencies = getData_(graph_, nodeHandle).upstreamLatencies;
+    const auto& upstreamLatencies = getNodeData_(graph_, nodeHandle).upstreamLatencies;
     if(audioInputGroupIndex < upstreamLatencies.size())
     {
         return {upstreamLatencies[audioInputGroupIndex]};
@@ -72,7 +70,7 @@ std::optional<std::uint32_t> UpstreamLatency::getUpstreamLatency(
 std::uint32_t UpstreamLatency::getMaxUpstreamLatency(
     const ade::NodeHandle& nodeHandle) const
 {
-    const auto& upstreamLatencies = getData_(graph_, nodeHandle).upstreamLatencies;
+    const auto& upstreamLatencies = getNodeData_(graph_, nodeHandle).upstreamLatencies;
     auto it = std::max_element(upstreamLatencies.begin(), upstreamLatencies.end());
     if(it == upstreamLatencies.end())
     {
@@ -110,7 +108,7 @@ void UpstreamLatency::onLatencyOfNodeUpdated(const ade::NodeHandle& nodeHandle)
             {
                 latencyUpdatedNodes.emplace_hint(it, outNode);
             }
-            getData_(graph_, outNode).upstreamLatencies[audioInputGroupIndex] = latency;
+            getNodeData_(graph_, outNode).upstreamLatencies[audioInputGroupIndex] = latency;
             for(const auto& outEdge: outNode->outEdges())
             {
                 queue.emplace(outEdge->dstNode(), graph_.getEdgeData(outEdge).toChannel, sumLatency(outNode));
@@ -144,7 +142,7 @@ void UpstreamLatency::updateUpstreamLatency(
             {
                 latencyUpdatedNodes.emplace_hint(it, outNode);
             }
-            getData_(graph_, outNode).upstreamLatencies[audioInputGroupIndex] = latency;
+            getNodeData_(graph_, outNode).upstreamLatencies[audioInputGroupIndex] = latency;
             for(const auto& outEdge: outNode->outEdges())
             {
                 queue.emplace(outEdge->dstNode(), graph_.getEdgeData(outEdge).toChannel, sumLatency(outNode));
