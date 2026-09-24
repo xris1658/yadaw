@@ -1,0 +1,14 @@
+set(QD3D11_SOURCES
+    qdxgihdrinfo_p.h
+    qdxgihdrinfo.cpp
+    qdxgivsyncservice_p.h
+    qdxgivsyncservice.cpp
+    qrhi_p.h
+    qrhi_platform.h
+    qrhi.cpp
+    qrhi.h
+    qrhid3d11_p.h
+    qrhid3d11.cpp
+    qrhid3dhelpers_p.h
+    qrhid3dhelpers.cpp
+)
