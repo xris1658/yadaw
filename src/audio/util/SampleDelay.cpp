@@ -75,6 +75,11 @@ SampleDelay::~SampleDelay() noexcept
     stopProcessing();
 }
 
+std::uint32_t SampleDelay::delay() const
+{
+    return delay_;
+}
+
 bool SampleDelay::setDelay(std::uint32_t delay)
 {
     if(delay_ == delay)
@@ -175,7 +180,7 @@ YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
 
 uint32_t SampleDelay::latencyInSamples() const
 {
-    return delay_;
+    return 0U;
 }
 
 void SampleDelay::process(const Device::AudioProcessData<float>& audioProcessData)
