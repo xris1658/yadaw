@@ -129,7 +129,7 @@ std::optional<std::uint32_t> MultiInputDeviceWithPDC::getDelayOfPDC(
 {
     if(audioInputGroupIndex < pdcs_.size())
     {
-        return {pdcs_[audioInputGroupIndex].latencyInSamples()};
+        return {pdcs_[audioInputGroupIndex].delay()};
     }
     return std::nullopt;
 }
@@ -145,7 +145,7 @@ MultiInputDeviceWithPDC::getPDCIndexOfMaximumDelay() const
     return std::max_element(pdcs_.begin(), pdcs_.end(),
         [](const SampleDelay& lhs, const SampleDelay& rhs)
         {
-            return lhs.latencyInSamples() < rhs.latencyInSamples();
+            return lhs.delay() < rhs.delay();
         }
     ) - pdcs_.begin();
 }

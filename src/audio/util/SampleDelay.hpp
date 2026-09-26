@@ -21,6 +21,7 @@ public:
     SampleDelay& operator=(SampleDelay&& rhs) noexcept;
     ~SampleDelay() noexcept;
 public:
+    std::uint32_t delay() const;
     bool setDelay(std::uint32_t delay);
     bool isProcessing() const;
     bool startProcessing();
