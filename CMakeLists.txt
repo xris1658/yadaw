@@ -56,12 +56,14 @@ elseif(APPLE)
     endif()
 endif()
 find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
+find_path(PLF_HIVE_INCLUDE_DIRS "plf_hive.h")
 find_package(yaml-cpp CONFIG REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/content
                     ${PROJECT_SOURCE_DIR}/src
                     ${CLAP_SOURCE_DIR}/include # CLAP
-                    ${SQLITE_MODERN_CPP_INCLUDE_DIRS}) # sqlite-modern-cpp
+                    ${SQLITE_MODERN_CPP_INCLUDE_DIRS} # sqlite-modern-cpp
+                    ${PLF_HIVE_INCLUDE_DIRS}) # plf-hive
 
 ## VST3
 set(SMTG_ADD_VSTGUI OFF)
@@ -272,6 +274,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/engine/extension/NameTag.hpp
     src/audio/engine/extension/UpstreamLatency.cpp
     src/audio/engine/extension/UpstreamLatency.hpp
+    src/audio/engine/PDC.cpp
+    src/audio/engine/PDC.hpp
     src/audio/event/IEventBusInfo.hpp
     src/audio/event/IEventProcessor.hpp
     src/audio/host/CLAPEventList.cpp

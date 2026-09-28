@@ -291,6 +291,42 @@ add_executable(PassDataToRealtimeThreadTest
                ../src/concurrent/PassDataToRealtimeThread.hpp
                PassDataToRealtimeThreadTest/main.cpp)
 
+add_executable(PDCTest
+               ../src/audio/device/IAudioChannelGroup.cpp
+               ../src/audio/device/IAudioChannelGroup.hpp
+               ../src/audio/engine/AudioDeviceGraph.hpp
+               ../src/audio/engine/AudioDeviceGraphBase.cpp
+               ../src/audio/engine/AudioDeviceGraphBase.hpp
+               ../src/audio/engine/AudioProcessDataBufferContainer.hpp
+               ../src/audio/engine/extension/Buffer.cpp
+               ../src/audio/engine/extension/Buffer.hpp
+               ../src/audio/engine/extension/UpstreamLatency.cpp
+               ../src/audio/engine/extension/UpstreamLatency.hpp
+               ../src/audio/engine/PDC.cpp
+               ../src/audio/engine/PDC.hpp
+               ../src/audio/mixer/PolarityInverter.cpp
+               ../src/audio/mixer/PolarityInverter.hpp
+               ../src/audio/util/AudioBufferPool.cpp
+               ../src/audio/util/AudioBufferPool.hpp
+               ../src/audio/util/AudioChannelGroup.cpp
+               ../src/audio/util/AudioChannelGroup.hpp
+               ../src/audio/util/AudioProcessDataPointerContainer.hpp
+               ../src/audio/util/SampleDelay.cpp
+               ../src/audio/util/SampleDelay.hpp
+               ../src/audio/util/Summing.cpp
+               ../src/audio/util/Summing.hpp
+               ../src/util/ADEUtil.cpp
+               ../src/util/ADEUtil.hpp
+               ../src/util/IntrusivePointer.hpp
+               ../src/util/IntrusivePointer.hpp
+               ../src/util/IntrusiveRefCounter.cpp
+               ../src/util/IntrusiveRefCounter.hpp
+               ../src/util/Util.cpp
+               ../src/util/Util.hpp
+               common/SineWaveGenerator.cpp
+               common/SineWaveGenerator.hpp
+               PDCTest/main.cpp)
+
 add_executable(QStringConversionTest
                QStringConversionTest/main.cpp)
 
@@ -329,6 +365,8 @@ if(WIN32)
 elseif(LINUX)
     target_link_libraries(BadMemoryAccessHandlerTest Qt6::Core)
 endif()
+
+target_link_libraries(PDCTest PRIVATE ade Qt6::Core)
 
 target_link_libraries(QStringConversionTest PRIVATE Qt6::Core)
 
