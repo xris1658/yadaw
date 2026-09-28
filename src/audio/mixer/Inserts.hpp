@@ -60,7 +60,14 @@ public:
     std::uint32_t outputCount() const override;
     std::optional<Position> inputAt(std::uint32_t index) const override;
     std::optional<Position> outputAt(std::uint32_t index) const override;
-public:
+    YADAW::Util::PMRUniquePtr<void> dismiss() override
+    {
+        return NodeSet::dismiss(); // TODO
+    }
+    bool dismissed() const override
+    {
+        return false;
+    }
     bool insert(const ade::NodeHandle& nodeHandle, Context&& context, std::uint32_t position);
     bool append(const ade::NodeHandle& nodeHandle, Context&& context);
     template<IsDetachContextCallback Callback>
