@@ -334,6 +334,8 @@ target_link_libraries(QStringConversionTest PRIVATE Qt6::Core)
 
 target_link_libraries(SampleDelayTest PRIVATE Qt6::Core)
 
+add_subdirectory(AlgorithmTest)
+
 add_subdirectory(FileTreeModelTest)
 
 add_subdirectory(SortFilterTest)
