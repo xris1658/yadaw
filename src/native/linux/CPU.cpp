@@ -11,15 +11,16 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <ranges>
 #include <set>
 #include <string_view>
 
 namespace YADAW::Native
 {
 // Parse range expression like "0-10,15".
-Vec<YADAW::Util::IntegerRange<int>> parseRangesFromStream(std::istream& ifs)
+Vec<std::ranges::iota_view<int, int>> parseRangesFromStream(std::istream& ifs)
 {
-    Vec<YADAW::Util::IntegerRange<int>> ret;
+    Vec<std::ranges::iota_view<int, int>> ret;
     while(true)
     {
         int index = -1;
