@@ -283,6 +283,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/engine/extension/NameTag.hpp
     src/audio/engine/extension/UpstreamLatency.cpp
     src/audio/engine/extension/UpstreamLatency.hpp
+    src/audio/engine/PDC.cpp
+    src/audio/engine/PDC.hpp
     src/audio/event/IEventBusInfo.hpp
     src/audio/event/IEventProcessor.hpp
     src/audio/host/CLAPEventList.cpp
