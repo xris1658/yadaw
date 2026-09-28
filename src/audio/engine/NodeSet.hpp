@@ -2,6 +2,7 @@
 #define YADAW_SRC_AUDIO_ENGINE_NODESET
 
 #include "audio/engine/AudioDeviceGraphBase.hpp"
+#include "util/PolymorphicDeleter.hpp"
 
 #include <ade/node.hpp>
 #include <ade/handle.hpp>
@@ -41,6 +42,23 @@ public:
     virtual std::uint32_t outputCount() const = 0;
     virtual std::optional<Position> inputAt(std::uint32_t index) const = 0;
     virtual std::optional<Position> outputAt(std::uint32_t index) const = 0;
+    virtual YADAW::Util::PMRUniquePtr<void> dismiss()
+    {
+        return YADAW::Util::createUniquePtr(nullptr);
+    }
+    virtual bool dismissed() const = 0;
+    virtual std::uint32_t innerNodeSetCount() const
+    {
+        return 0U;
+    }
+    virtual OptionalRef<NodeSet> innerNodeSetAt(std::uint32_t index)
+    {
+        return std::nullopt;
+    }
+    virtual OptionalRef<const NodeSet> innerNodeSetAt(std::uint32_t index) const
+    {
+        return std::nullopt;
+    }
 protected:
     YADAW::Audio::Engine::AudioDeviceGraphBase* graph_;
 };
