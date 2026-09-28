@@ -19,19 +19,19 @@ namespace YADAW::Audio::Engine
 // and apply delays to align incoming signals.
 // `PDC` consists of the device node with multi inputs and its incoming
 // `SampleDelay`s:
-//
-// +-------------+   +--------+
-// | SampleDelay +-->|        |
-// +-------------+   |        |
-//                   |        |
-// +-------------+   |        |
-// | SampleDelay +-->| Device |
-// +-------------+   |        |
-//                   |        |
-// +-------------+   |        |
-// | SampleDelay +-->|        |
-// +-------------+   +--------+
-//
+//    +-----------------------------------+
+//    |    +-------------+   +--------+   |
+// ---+--->| SampleDelay +-->|        |   |
+//    |    +-------------+   |        |   |
+//    |                      |        |   |
+//    |    +-------------+   |        |   |
+// ---+--->| SampleDelay +-->| Device |---+--->
+//    |    +-------------+   |        |   |
+//    |                      |        |   |
+//    |    +-------------+   |        |   |
+// ---+--->| SampleDelay +-->|        |   |
+//    |    +-------------+   +--------+   |
+//    +-----------------------------------+
 class PDC: public YADAW::Audio::Engine::NodeSet
 {
 public:
