@@ -140,6 +140,42 @@ std::optional<std::vector<std::size_t>> permutationNotation(
         permutationNotation(first1, last1, first2):
         std::nullopt;
 }
+
+template<typename InIt, typename OutIt>
+OutIt rotateCopyAndTake(InIt first, InIt middle, InIt last, std::size_t takeCount, OutIt out)
+{
+    if(auto distance = std::distance(middle, last); distance >= takeCount)
+    {
+        return std::copy(middle, last, out);
+    }
+    else
+    {
+        return std::copy_n(
+            first, takeCount - distance,
+            std::copy(middle, last, out)
+        );
+    }
+}
+
+template<typename InIt, typename OutIt>
+OutIt rotateDropAndCopy(InIt first, InIt middle, InIt last, std::size_t dropCount, OutIt out)
+{
+    if(dropCount == 0)
+    {
+        return std::rotate_copy(first, middle, last, out);
+    }
+    if(auto distance = std::distance(middle, last); distance > dropCount)
+    {
+        return std::copy(
+            first, middle,
+            std::copy(std::next(middle, dropCount), last, out)
+        );
+    }
+    else
+    {
+        return std::copy(first + (dropCount - distance), middle, out);
+    }
+}
 }
 
 #endif // YADAW_SRC_UTIL_ALGORITHM

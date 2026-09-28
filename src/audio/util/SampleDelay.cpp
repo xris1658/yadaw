@@ -1,27 +1,7 @@
 #include "SampleDelay.hpp"
+#include "util/Algorithm.hpp"
 
-#include <array>
 #include <algorithm>
-#include <ranges>
-
-template<typename T>
-auto rotateAndTakeLast(
-    const std::vector<T>& from,
-    std::size_t offset, std::size_t itemCount,
-    std::vector<T>& to
-)
-{
-    auto sizes = itemCount > offset?
-        std::array{itemCount - offset, offset}:
-        std::array{static_cast<std::size_t>(0), itemCount};
-    auto copyFrom = {
-        std::ranges::views::counted(from.end() - sizes[0], sizes[0]),
-        std::ranges::views::counted(from.begin() + offset - sizes[1], sizes[1])
-    };
-    return std::ranges::copy(
-        std::ranges::views::join(copyFrom), to.begin()
-    ).out;
-}
 
 namespace YADAW::Audio::Util
 {
@@ -100,7 +80,13 @@ bool SampleDelay::setDelay(std::uint32_t delay)
         {
             for(std::size_t i = 0; i < buffers_.size(); ++i)
             {
-                rotateAndTakeLast(buffers_[i], offset_, delay, buffers[i]);
+                YADAW::Util::rotateDropAndCopy(
+                    buffers_[i].begin(),
+                    buffers_[i].begin() + offset_,
+                    buffers_[i].end(),
+                    delay_ - delay,
+                    buffers[i].begin()
+                );
             }
         }
         // 3 -> 5:
