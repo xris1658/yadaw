@@ -11,17 +11,30 @@
 namespace YADAW::Audio::Engine
 {
 template<typename T>
-concept HasNodeDataConcept  = requires() { std::declval<typename T::NodeData>();  };
+concept IsExtension = requires(
+    T& extension,
+    const ade::NodeHandle& nodeHandle,
+    const ade::EdgeHandle& edgeHandle
+)
+{
+    extension.onNodeAdded(nodeHandle);
+    extension.onNodeAboutToBeRemoved(nodeHandle);
+    extension.onConnected(edgeHandle);
+    extension.onAboutToBeDisconnected(edgeHandle);
+};
+
+template<typename T>
+concept HasNodeDataConcept  = IsExtension<T> && requires() { std::declval<typename T::NodeData>();  };
 template<typename T>
 struct HasNodeDataHelper  { static constexpr bool Value = HasNodeDataConcept<T>;  };
 
 template<typename T>
-concept HasEdgeDataConcept  = requires() { std::declval<typename T::EdgeData>();  };
+concept HasEdgeDataConcept  = IsExtension<T> && requires() { std::declval<typename T::EdgeData>();  };
 template<typename T>
 struct HasEdgeDataHelper  { static constexpr bool Value = HasEdgeDataConcept<T>;  };
 
 template<typename T>
-concept HasGraphDataConcept = requires() { std::declval<typename T::GraphData>(); };
+concept HasGraphDataConcept = IsExtension<T> && requires() { std::declval<typename T::GraphData>(); };
 template<typename T>
 struct HasGraphDataHelper { static constexpr bool Value = HasGraphDataConcept<T>; };
 
@@ -32,7 +45,7 @@ using EdgeDataInside  = typename T::EdgeData;
 template<HasGraphDataConcept T>
 using GraphDataInside = typename T::GraphData;
 
-template<typename... Extensions>
+template<IsExtension... Extensions>
 class AudioDeviceGraph: public YADAW::Audio::Engine::AudioDeviceGraphBase
 {
 private:
