@@ -77,8 +77,6 @@ public:
         PDC::Extension& pdcExt,
         YADAW::Audio::Engine::AudioDeviceProcess process
     );
-    ~PDC();
-public:
     template<IsExtension... Extensions>
     requires requires(YADAW::Audio::Engine::AudioDeviceGraph<Extensions...>& graph)
     {
