@@ -233,8 +233,8 @@ void VolumeFader::process(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
     auto currentPluginIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
-    auto valueSeq = valueSeq_[currentPluginIndex];
-    auto valuePoints = valuePoints_[currentPluginIndex];
+    auto& valueSeq = valueSeq_[currentPluginIndex];
+    auto& valuePoints = valuePoints_[currentPluginIndex];
     auto valuePointCount = valuePoints.size();
     if(valuePointCount > 0)
     {
