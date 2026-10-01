@@ -336,6 +336,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/mixer/Passthrough.hpp
     src/audio/mixer/PolarityInverter.cpp
     src/audio/mixer/PolarityInverter.hpp
+    src/audio/mixer/PluginHostBypass.cpp
+    src/audio/mixer/PluginHostBypass.hpp
     src/audio/mixer/VolumeFader.cpp
     src/audio/mixer/VolumeFader.hpp
     src/audio/plugin/AudioPluginBase.hpp
