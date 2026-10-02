@@ -4,7 +4,6 @@
 #include "audio/device/IAudioDevice.hpp"
 #include "audio/engine/NodeSet.hpp"
 #include "audio/engine/PDC.hpp"
-#include "audio/host/HostContext.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -83,15 +82,27 @@ public:
     public:
         std::uint32_t audioInputGroupCount() const override;
         std::uint32_t audioOutputGroupCount() const override;
+        // Inputs of `BypassSwitcher` are non-interleaved. Given a plugin with x
+        // outputs, the plugin's outputs are connected to the former x inputs of
+        // `BypassSwitcher`, and the `PassthroughDevice`'s outputs are connected
+        // to the latter x inputs.
         OptionalAudioChannelGroup audioInputGroupAt(std::uint32_t index) const override;
         OptionalAudioChannelGroup audioOutputGroupAt(std::uint32_t index) const override;
         std::uint32_t latencyInSamples() const override;
         void process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData) override;
+    public:
+        bool getValue() const;
+        void setValue(bool value);
+        void onBufferSwitched(std::uint64_t switchTimestampInNanosecond);
     private:
         YADAW::Audio::Device::IAudioDevice* plugin_;
         std::vector<std::uint32_t> timePoints_[2];
+        // true  -> bypassed, use inputs from passthrough
+        // false -> not bypassed, use inputs from plugin
         std::vector<bool> values_[2];
+        bool lastValue_;
         std::uint32_t bufferSize_ = 0U;
+        std::int64_t switchTimestampInNanosecond_ = 0;
         double sampleRate_;
     };
 private:

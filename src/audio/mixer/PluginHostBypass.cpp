@@ -1,5 +1,8 @@
 #include "PluginHostBypass.hpp"
 
+#include "audio/host/HostContext.hpp"
+#include "util/Util.hpp"
+
 namespace YADAW::Audio::Mixer
 {
 // PluginHostBypass::PassthroughDevice
@@ -89,17 +92,68 @@ std::uint32_t PluginHostBypass::PassthroughDevice::latencyInSamples() const
 void PluginHostBypass::PassthroughDevice::process(
     const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    // TODO
+    if(routePair_)
+    {
+        auto& [from, to] = *routePair_;
+        FOR_RANGE0(i, to)
+        {
+            FOR_RANGE0(j, audioProcessData.outputCounts[i])
+            {
+                std::fill_n(
+                    audioProcessData.outputs[i][j],
+                    audioProcessData.singleBufferSize,
+                    0.0f
+                );
+            }
+        }
+        FOR_RANGE0(i, audioProcessData.outputCounts[to])
+        {
+            std::copy_n(
+                audioProcessData.inputs[from][i],
+                audioProcessData.singleBufferSize,
+                audioProcessData.outputs[to][i]
+            );
+        }
+        FOR_RANGE(i, to, audioProcessData.outputGroupCount)
+        {
+            FOR_RANGE0(j, audioProcessData.outputCounts[i])
+            {
+                std::fill_n(
+                    audioProcessData.outputs[i][j],
+                    audioProcessData.singleBufferSize,
+                    0.0f
+                );
+            }
+        }
+    }
+    else
+    {
+        auto& [from, to] = *routePair_;
+        FOR_RANGE0(i, audioProcessData.outputGroupCount)
+        {
+            FOR_RANGE0(j, audioProcessData.outputCounts[i])
+            {
+                std::fill_n(
+                    audioProcessData.outputs[i][j],
+                    audioProcessData.singleBufferSize,
+                    0.0f
+                );
+            }
+        }
+    }
 }
 
 // PluginHostBypass::BypassSwitcher
 PluginHostBypass::BypassSwitcher::BypassSwitcher(
     YADAW::Audio::Device::IAudioDevice& plugin):
-    plugin_(&plugin)
+    plugin_(&plugin),
+    sampleRate_(0.0)
 {}
 
 PluginHostBypass::BypassSwitcher::~BypassSwitcher()
-{}
+{
+    uninitialize();
+}
 
 bool PluginHostBypass::BypassSwitcher::initialize(double sampleRate, std::uint32_t maxSampleCount)
 {
@@ -123,6 +177,7 @@ void PluginHostBypass::BypassSwitcher::uninitialize()
     values_[0].shrink_to_fit();
     values_[1].clear();
     values_[1].shrink_to_fit();
+    sampleRate_ = 0.0;
 }
 
 std::uint32_t PluginHostBypass::BypassSwitcher::audioInputGroupCount() const
@@ -156,9 +211,101 @@ std::uint32_t PluginHostBypass::BypassSwitcher::latencyInSamples() const
     return 0U;
 }
 
-void PluginHostBypass::BypassSwitcher::process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
+void PluginHostBypass::BypassSwitcher::process(
+    const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
 {
-    // TODO
+    if(sampleRate_ == 0.0)
+    {
+        return;
+    }
+    auto pluginBufferIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
+    if(auto size = this->timePoints_[pluginBufferIndex].size(); size == 0)
+    {
+        auto offset = lastValue_ * audioProcessData.outputGroupCount;
+        FOR_RANGE0(i, audioProcessData.outputGroupCount)
+        {
+            FOR_RANGE0(j, audioProcessData.outputCounts[i])
+            {
+                std::copy_n(
+                    audioProcessData.inputs[i + offset][j],
+                    audioProcessData.singleBufferSize,
+                    audioProcessData.outputs[i][j]
+                );
+            }
+        }
+    }
+    else
+    {
+        //    ----o----o--o----o------
+        // 1) ----
+        auto inputOffset = lastValue_ * audioProcessData.outputGroupCount;
+        FOR_RANGE0(i, audioProcessData.outputGroupCount)
+        {
+            FOR_RANGE0(j, audioProcessData.outputCounts[i])
+            {
+                std::copy_n(
+                    audioProcessData.inputs[i + inputOffset][j]/* + 0 */,
+                    timePoints_[pluginBufferIndex].front()/* - 0 */,
+                    audioProcessData.outputs[i][j]/* +0 */
+                );
+            }
+        }
+        // 2)     o----o--o----
+        FOR_RANGE0(h, timePoints_[pluginBufferIndex].size() - 1)
+        {
+            inputOffset = values_[pluginBufferIndex][h] * audioProcessData.outputGroupCount;
+            FOR_RANGE0(i, audioProcessData.outputGroupCount)
+            {
+                FOR_RANGE0(j, audioProcessData.outputCounts[i])
+                {
+                    std::copy_n(
+                        audioProcessData.inputs[i + inputOffset][j] + timePoints_[pluginBufferIndex][h],
+                        timePoints_[pluginBufferIndex][h + 1] - timePoints_[pluginBufferIndex][h],
+                        audioProcessData.outputs[i][j] + timePoints_[pluginBufferIndex][h]
+                    );
+                }
+            }
+        }
+        // 3)                  o------
+        inputOffset = timePoints_[pluginBufferIndex].back();
+        FOR_RANGE0(i, audioProcessData.outputGroupCount)
+        {
+            FOR_RANGE0(j, audioProcessData.outputCounts[i])
+            {
+                std::copy_n(
+                    audioProcessData.inputs[i + inputOffset][j] + timePoints_[pluginBufferIndex].back(),
+                    audioProcessData.singleBufferSize - timePoints_[pluginBufferIndex].back(),
+                    audioProcessData.outputs[i][j] + timePoints_[pluginBufferIndex].back()
+                );
+            }
+        }
+        lastValue_ = values_[pluginBufferIndex].back();
+    }
+}
+
+bool PluginHostBypass::BypassSwitcher::getValue() const
+{
+    auto& hostBuffer = values_[YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get() ^ 1];
+    return hostBuffer.empty()? lastValue_: hostBuffer.back();
+}
+
+void PluginHostBypass::BypassSwitcher::setValue(bool value)
+{
+    auto hostIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get() ^ 1;
+    std::uint32_t sampleOffset = std::round(
+        (YADAW::Util::currentTimeValueInNanosecond() - switchTimestampInNanosecond_) / (sampleRate_ * std::giga::num)
+    );
+    timePoints_[hostIndex].emplace_back(sampleOffset);
+    values_[hostIndex].emplace_back(value);
+}
+
+void PluginHostBypass::BypassSwitcher::onBufferSwitched(std::uint64_t switchTimestampInNanosecond)
+{
+    auto currentPluginBufferIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
+    switchTimestampInNanosecond_ = switchTimestampInNanosecond;
+    auto currentHostBufferIndex = currentPluginBufferIndex ^ 1;
+    timePoints_[currentHostBufferIndex].clear();
+    values_[currentHostBufferIndex].clear();
 }
 
 // PluginHostBypass
