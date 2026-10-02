@@ -92,6 +92,7 @@ public:
         std::vector<std::uint32_t> timePoints_[2];
         std::vector<bool> values_[2];
         std::uint32_t bufferSize_ = 0U;
+        double sampleRate_;
     };
 private:
     template<typename CreatePDCFunc>
