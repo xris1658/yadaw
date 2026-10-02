@@ -302,7 +302,7 @@ std::uint32_t Inserts::outputCount() const
     return 1;
 }
 
-std::optional<NodeSet::Position> Inserts::inputAt(std::uint32_t index) const
+std::optional<NodeSet::InputPosition> Inserts::inputAt(std::uint32_t index) const
 {
     if(index != 0)
     {
@@ -314,14 +314,16 @@ std::optional<NodeSet::Position> Inserts::inputAt(std::uint32_t index) const
     }
     else
     {
-        return NodeSet::NodePosition {
-            .node = nodes_[std::distance(bypassed_.begin(), it)],
-            .index = channelGroupIndices_[std::distance(bypassed_.begin(), it)].first
+        return std::vector<NodeSet::NodePosition> {
+            NodeSet::NodePosition {
+                .node = nodes_[std::distance(bypassed_.begin(), it)],
+                .index = channelGroupIndices_[std::distance(bypassed_.begin(), it)].first
+            }
         };
     }
 }
 
-std::optional<NodeSet::Position> Inserts::outputAt(std::uint32_t index) const
+std::optional<NodeSet::OutputPosition> Inserts::outputAt(std::uint32_t index) const
 {
     if(index != 0)
     {

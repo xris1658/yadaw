@@ -128,11 +128,11 @@ std::uint32_t PDC::outputCount() const
     return graph_->getNodeData(deviceNode_).process.device()->audioOutputGroupCount();
 }
 
-std::optional<NodeSet::Position> PDC::inputAt(std::uint32_t index) const
+std::optional<NodeSet::InputPosition> PDC::inputAt(std::uint32_t index) const
 {
     if(index < inputCount())
     {
-        return {NodeSet::NodePosition{
+        return std::vector<NodeSet::NodePosition>{NodeSet::NodePosition{
             .node = pdcNodes_[index],
             .index = 0
         }};
@@ -140,7 +140,7 @@ std::optional<NodeSet::Position> PDC::inputAt(std::uint32_t index) const
     return std::nullopt;
 }
 
-std::optional<NodeSet::Position> PDC::outputAt(std::uint32_t index) const
+std::optional<NodeSet::OutputPosition> PDC::outputAt(std::uint32_t index) const
 {
     if(index < outputCount())
     {

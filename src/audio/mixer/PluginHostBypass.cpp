@@ -326,16 +326,18 @@ std::uint32_t PluginHostBypass::outputCount() const
     return switcherPDC_->outputCount();
 }
 
-std::optional<YADAW::Audio::Engine::NodeSet::Position>
-PluginHostBypass::inputAt(std::uint32_t index) const
+std::optional<Engine::NodeSet::InputPosition>
+    PluginHostBypass::inputAt(std::uint32_t index) const
 {
     if(plugin_.index() == 0)
     {
         if(index < inputCount())
         {
-            return YADAW::Audio::Engine::NodeSet::NodePosition {
-                .node = std::get<0>(plugin_),
-                .index = index
+            return std::vector<YADAW::Audio::Engine::NodeSet::NodePosition>{
+                YADAW::Audio::Engine::NodeSet::NodePosition {
+                    .node = std::get<0>(plugin_),
+                    .index = index
+                }
             };
         }
         else
@@ -349,7 +351,7 @@ PluginHostBypass::inputAt(std::uint32_t index) const
     }
 }
 
-std::optional<YADAW::Audio::Engine::NodeSet::Position>
+std::optional<YADAW::Audio::Engine::NodeSet::OutputPosition>
 PluginHostBypass::outputAt(std::uint32_t index) const
 {
     return switcherPDC_->outputAt(index);

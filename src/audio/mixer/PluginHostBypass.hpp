@@ -194,8 +194,8 @@ public:
 public:
     std::uint32_t inputCount() const override;
     std::uint32_t outputCount() const override;
-    std::optional<Position> inputAt(std::uint32_t index) const override;
-    std::optional<Position> outputAt(std::uint32_t index) const override;
+    std::optional<InputPosition> inputAt(std::uint32_t index) const override;
+    std::optional<OutputPosition> outputAt(std::uint32_t index) const override;
     YADAW::Util::PMRUniquePtr<void> dismiss() override;
     bool dismissed() const override;
     std::uint32_t innerNodeSetCount() const override;
