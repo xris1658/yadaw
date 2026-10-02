@@ -684,7 +684,6 @@ add_executable(CLAPTest
                src/native/mac/CLAPNative.cpp
                src/native/mac/Library.cpp
                src/native/mac/Native.cpp
-               src/native/mac/Window.mm
                src/native/win/CLAPNative.cpp
                src/native/win/Library.cpp
                src/native/win/Native.cpp
@@ -697,11 +696,16 @@ add_executable(CLAPTest
                src/ui/WindowResizeEvents.hpp
                src/ui/win/WindowResizeEvents.cpp
                src/ui/linux/WindowResizeEvents.cpp
-               src/ui/mac/WindowResizeEvents.mm
                src/util/Util.cpp
                src/util/Util.hpp
                test/CLAPTest/main.cpp
 )
+
+if(APPLE)
+    target_sources(CLAPTest PRIVATE
+                   src/native/mac/Window.mm
+                   src/ui/mac/WindowResizeEvents.mm)
+endif()
 
 # Do this so since `EventFileDescriptorSupport` supports both VST3 and CLAP
 # but we don't actually use VST3 support
@@ -1057,7 +1061,6 @@ add_executable(VST3Test
                src/native/mac/Library.cpp
                src/native/mac/Native.cpp
                src/native/mac/VST3Native.cpp
-               src/native/mac/Window.mm
                src/native/win/Library.cpp
                src/native/win/MIDIInputDeviceImpl.cpp
                src/native/win/MIDIInputDeviceImpl.hpp
@@ -1075,7 +1078,6 @@ add_executable(VST3Test
                src/ui/WindowResizeEvents.cpp
                src/ui/win/WindowResizeEvents.cpp
                src/ui/linux/WindowResizeEvents.cpp
-               src/ui/mac/WindowResizeEvents.mm
                src/ui/WindowResizeEvents.hpp
                src/util/QuadraticFunction.cpp
                src/util/QuadraticFunction.hpp
@@ -1083,6 +1085,12 @@ add_executable(VST3Test
                src/util/Util.hpp
                test/VST3Test/main.cpp
 )
+
+if(APPLE)
+    target_sources(VST3Test PRIVATE
+                   src/native/mac/Window.mm
+                   src/ui/mac/WindowResizeEvents.mm)
+endif()
 
 if(${ENABLE_PRECOMPILE})
     target_precompile_headers(YADAW PRIVATE src/pch.hpp)
