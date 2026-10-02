@@ -33,15 +33,16 @@ class NodeSet
 public:
     struct NodePosition { ade::NodeHandle node; std::uint32_t index; };
     using Passthrough = std::monostate;
-    using Position = std::variant<Passthrough, NodePosition>;
+    using InputPosition  = std::variant<Passthrough, std::vector<NodePosition>>;
+    using OutputPosition = std::variant<Passthrough, NodePosition>;
 public:
     NodeSet(YADAW::Audio::Engine::AudioDeviceGraphBase& graph): graph_(&graph) {}
     virtual ~NodeSet() {}
 public:
     virtual std::uint32_t inputCount() const = 0;
     virtual std::uint32_t outputCount() const = 0;
-    virtual std::optional<Position> inputAt(std::uint32_t index) const = 0;
-    virtual std::optional<Position> outputAt(std::uint32_t index) const = 0;
+    virtual std::optional<InputPosition>  inputAt(std::uint32_t index) const = 0;
+    virtual std::optional<OutputPosition> outputAt(std::uint32_t index) const = 0;
     virtual YADAW::Util::PMRUniquePtr<void> dismiss()
     {
         return YADAW::Util::createUniquePtr(nullptr);

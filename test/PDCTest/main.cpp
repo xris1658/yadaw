@@ -44,12 +44,18 @@ int main()
     auto summingPDC = PDC::createIfNeeded(graph, AudioDeviceProcess(summing));
     auto summingNode = summingPDC->deviceNode();
     graph.connect(sineNode, sampleDelayNode1, 0, 0);
-    auto summingInput1 = std::get<NodeSet::NodePosition>(*summingPDC->inputAt(0));
-    auto summingInput2 = std::get<NodeSet::NodePosition>(*summingPDC->inputAt(1));
+    auto summingInput1 = std::get<std::vector<NodeSet::NodePosition>>(*summingPDC->inputAt(0));
+    auto summingInput2 = std::get<std::vector<NodeSet::NodePosition>>(*summingPDC->inputAt(1));
     graph.connect(sineNode, polarityInverterNode, 0, 0);
     graph.connect(polarityInverterNode, sampleDelayNode2, 0, 0);
-    graph.connect(sampleDelayNode1, summingInput1.node, 0, summingInput1.index);
-    graph.connect(sampleDelayNode2, summingInput2.node, 0, summingInput2.index);
+    for(const auto& summingInput: summingInput1)
+    {
+        graph.connect(sampleDelayNode1, summingInput.node, 0, summingInput.index);
+    }
+    for(const auto& summingInput: summingInput2)
+    {
+        graph.connect(sampleDelayNode1, summingInput.node, 0, summingInput.index);
+    }
     sine.startProcessing();
     summingPDC->startProcessing();
     FOR_RANGE0(i, 10)
