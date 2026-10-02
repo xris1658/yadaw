@@ -38,7 +38,7 @@ PluginHostBypass::PassthroughDevice::PassthroughDevice(
             channelGroups_.begin() + inputCount_, channelGroups_.end(),
             [](const YADAW::Audio::Util::AudioChannelGroup& group) { return group.isMain(); }
         ); firstMainOutput != channelGroups_.end()
-        && firstMainInput->type() == firstMainOutput->type()
+        && firstMainInput->type() == firstMainOutput->type())
         {
             routePair_ = std::pair(
                 std::distance(channelGroups_.begin(), firstMainInput),
@@ -93,74 +93,175 @@ void PluginHostBypass::PassthroughDevice::process(
 }
 
 // PluginHostBypass::BypassSwitcher
-PluginHostBypass::BypassSwitcher::BypassSwitcher(YADAW::Audio::Device::IAudioDevice& plugin)
+PluginHostBypass::BypassSwitcher::BypassSwitcher(
+    YADAW::Audio::Device::IAudioDevice& plugin):
+    plugin_(&plugin)
 {}
 
 PluginHostBypass::BypassSwitcher::~BypassSwitcher()
 {}
 
 bool PluginHostBypass::BypassSwitcher::initialize(double sampleRate, std::uint32_t maxSampleCount)
-{}
+{
+    {
+        if(sampleRate > 0
+            && maxSampleCount > 0
+            && maxSampleCount < values_[0].max_size())
+        {
+            sampleRate_ = sampleRate;
+            values_[0].resize(maxSampleCount, false);
+            values_[1].resize(maxSampleCount, false);
+            return true;
+        }
+        return false;
+    }
+}
 
 void PluginHostBypass::BypassSwitcher::uninitialize()
-{}
+{
+    values_[0].clear();
+    values_[0].shrink_to_fit();
+    values_[1].clear();
+    values_[1].shrink_to_fit();
+}
 
 std::uint32_t PluginHostBypass::BypassSwitcher::audioInputGroupCount() const
-{}
+{
+    return plugin_->audioOutputGroupCount() * 2;
+}
 
 std::uint32_t PluginHostBypass::BypassSwitcher::audioOutputGroupCount() const
-{}
+{
+    return plugin_->audioOutputGroupCount();
+}
 
-Device::IAudioDevice::OptionalAudioChannelGroup PluginHostBypass::BypassSwitcher::audioInputGroupAt(
-    std::uint32_t index) const
-{}
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
+PluginHostBypass::BypassSwitcher::audioInputGroupAt(std::uint32_t index) const
+{
+    if(index < audioInputGroupCount())
+    {
+        return plugin_->audioOutputGroupAt(index % plugin_->audioOutputGroupCount());
+    }
+    return std::nullopt;
+}
 
-Device::IAudioDevice::OptionalAudioChannelGroup PluginHostBypass::BypassSwitcher::audioOutputGroupAt(
-    std::uint32_t index) const
-{}
+YADAW::Audio::Device::IAudioDevice::OptionalAudioChannelGroup
+PluginHostBypass::BypassSwitcher::audioOutputGroupAt(std::uint32_t index) const
+{
+    return plugin_->audioOutputGroupAt(index);
+}
 
 std::uint32_t PluginHostBypass::BypassSwitcher::latencyInSamples() const
-{}
+{
+    return 0U;
+}
 
 void PluginHostBypass::BypassSwitcher::process(const YADAW::Audio::Device::AudioProcessData<float>& audioProcessData)
-{}
+{
+    // TODO
+}
 
 // PluginHostBypass
 ade::NodeHandle PluginHostBypass::pluginNode() const
-{}
+{
+    return plugin_.index() == 0?
+        std::get<0>(plugin_):
+        std::get<1>(plugin_)->deviceNode();
+}
 
 std::uint32_t PluginHostBypass::inputCount() const
-{}
+{
+    return graph_->getNodeData(pluginNode()).process.device()->audioInputGroupCount();
+}
 
 std::uint32_t PluginHostBypass::outputCount() const
-{}
+{
+    return switcherPDC_->outputCount();
+}
 
-std::optional<Engine::NodeSet::Position> PluginHostBypass::inputAt(std::uint32_t index) const
-{}
+std::optional<YADAW::Audio::Engine::NodeSet::Position>
+PluginHostBypass::inputAt(std::uint32_t index) const
+{
+    if(plugin_.index() == 0)
+    {
+        if(index < inputCount())
+        {
+            return YADAW::Audio::Engine::NodeSet::NodePosition {
+                .node = std::get<0>(plugin_),
+                .index = index
+            };
+        }
+        else
+        {
+            return std::nullopt;
+        }
+    }
+    else
+    {
+        return std::get<1>(plugin_)->inputAt(index);
+    }
+}
 
-std::optional<Engine::NodeSet::Position> PluginHostBypass::outputAt(std::uint32_t index) const
-{}
+std::optional<YADAW::Audio::Engine::NodeSet::Position>
+PluginHostBypass::outputAt(std::uint32_t index) const
+{
+    return switcherPDC_->outputAt(index);
+}
 
 YADAW::Util::PMRUniquePtr<void> PluginHostBypass::dismiss()
 {
-    return NodeSet::dismiss();
+    return NodeSet::dismiss(); // TODO
 }
 
 bool PluginHostBypass::dismissed() const
-{}
+{
+    return false; // TODO
+}
 
 std::uint32_t PluginHostBypass::innerNodeSetCount() const
 {
-    return NodeSet::innerNodeSetCount();
+    return (plugin_.index() == 1) + (hostBypass_.index() == 1) + 1;
 }
 
-OptionalRef<Engine::NodeSet> PluginHostBypass::innerNodeSetAt(std::uint32_t index)
+OptionalRef<YADAW::Audio::Engine::NodeSet>
+PluginHostBypass::innerNodeSetAt(std::uint32_t index)
 {
-    return NodeSet::innerNodeSetAt(index);
+    if(index == innerNodeSetCount() - 1)
+    {
+        return *switcherPDC_;
+    }
+    if(innerNodeSetCount() == 3)
+    {
+        if(index == 0)
+        {
+            return *std::get<1>(plugin_);
+        }
+        else if(index == 1)
+        {
+            return *std::get<1>(hostBypass_);
+        }
+    }
+    return std::nullopt;
 }
 
-OptionalRef<const Engine::NodeSet> PluginHostBypass::innerNodeSetAt(std::uint32_t index) const
+OptionalRef<const YADAW::Audio::Engine::NodeSet>
+PluginHostBypass::innerNodeSetAt(std::uint32_t index) const
 {
-    return NodeSet::innerNodeSetAt(index);
+    if(index == innerNodeSetCount() - 1)
+    {
+        return *switcherPDC_;
+    }
+    if(innerNodeSetCount() == 3)
+    {
+        if(index == 0)
+        {
+            return *std::get<1>(plugin_);
+        }
+        else if(index == 1)
+        {
+            return *std::get<1>(hostBypass_);
+        }
+    }
+    return std::nullopt;
 }
 }
