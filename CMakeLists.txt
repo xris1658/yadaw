@@ -57,6 +57,15 @@ elseif(APPLE)
 endif()
 find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
 find_path(PLF_HIVE_INCLUDE_DIRS "plf_hive.h")
+message(NOTICE ${PLF_HIVE_INCLUDE_DIRS})
+if(PLF_HIVE_INCLUDE_DIRS)
+    file(STRINGS ${PLF_HIVE_INCLUDE_DIRS}/plf_hive.h USE_PLF_FROM_RANGE REGEX "plf::ranges::from_range_t")
+    if(NOT USE_PLF_FROM_RANGE)
+        message(AUTHOR_WARNING "plf_hive.h uses std::from_range_t, setting standard to C++23")
+        set(CMAKE_CXX_STANDARD 23)
+    endif()
+endif()
+
 find_package(yaml-cpp CONFIG REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/content
