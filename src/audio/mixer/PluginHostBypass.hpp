@@ -5,6 +5,8 @@
 #include "audio/engine/NodeSet.hpp"
 #include "audio/engine/PDC.hpp"
 
+#include <plf_hive.h>
+
 #include <cstdint>
 #include <optional>
 
@@ -134,24 +136,24 @@ public:
                 graph.addNode(process)
             )
         ),
-        passthroughDevice_(*process.device()),
+        passthroughDevice_(&*passthroughDevicePool_.emplace(*process.device())),
         hostBypass_(
-            passthroughDevice_.audioInputGroupCount() > 1?
+            passthroughDevice_->audioInputGroupCount() > 1?
             decltype(hostBypass_)(
                 std::forward<CreatePDCFunc>(func)(
                     graph,
-                    YADAW::Audio::Engine::AudioDeviceProcess(passthroughDevice_)
+                    YADAW::Audio::Engine::AudioDeviceProcess(*passthroughDevice_)
                 )
             ):
             decltype(hostBypass_)(graph.addNode(
-                YADAW::Audio::Engine::AudioDeviceProcess(passthroughDevice_)
+                YADAW::Audio::Engine::AudioDeviceProcess(*passthroughDevice_)
             ))
         ),
-        bypassSwitcher_(*process.device()),
+        bypassSwitcher_(&*bypassSwitcherPool_.emplace(*process.device())),
         switcherPDC_(
             std::forward<CreatePDCFunc>(func)(
                 graph,
-                YADAW::Audio::Engine::AudioDeviceProcess(bypassSwitcher_)
+                YADAW::Audio::Engine::AudioDeviceProcess(*bypassSwitcher_)
             )
         )
     {}
@@ -208,9 +210,11 @@ public:
     void uninitialize();
 private:
     std::variant<ade::NodeHandle, std::optional<YADAW::Audio::Engine::PDC>> plugin_;
-    PassthroughDevice passthroughDevice_;
+    static plf::hive<PassthroughDevice> passthroughDevicePool_;
+    static plf::hive<BypassSwitcher> bypassSwitcherPool_;
+    PassthroughDevice* passthroughDevice_;
     std::variant<ade::NodeHandle, std::optional<YADAW::Audio::Engine::PDC>> hostBypass_;
-    BypassSwitcher bypassSwitcher_;
+    BypassSwitcher* bypassSwitcher_;
     std::optional<YADAW::Audio::Engine::PDC> switcherPDC_;
 };
 }
