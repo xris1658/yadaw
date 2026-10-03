@@ -131,7 +131,6 @@ void PluginHostBypass::PassthroughDevice::process(
     }
     else
     {
-        auto& [from, to] = *routePair_;
         FOR_RANGE0(i, audioProcessData.outputGroupCount)
         {
             FOR_RANGE0(j, audioProcessData.outputCounts[i])
@@ -312,6 +311,25 @@ void PluginHostBypass::BypassSwitcher::onBufferSwitched(std::uint64_t switchTime
 }
 
 // PluginHostBypass
+PluginHostBypass::~PluginHostBypass()
+{
+    if(plugin_.index() == 0)
+    {
+        graph_->removeNode(std::get<0>(plugin_));
+    }
+    if(hostBypass_.index() == 0)
+    {
+        graph_->removeNode(std::get<0>(hostBypass_));
+    }
+    if(!PluginHostBypass::dismissed())
+    {
+        bypassSwitcher_->uninitialize();
+        std::vector<YADAW::Util::PMRUniquePtr<void>> dismissedData;
+        dismissedData.reserve(3);
+        dismissRecursively(*this, std::back_inserter(dismissedData));
+    }
+}
+
 ade::NodeHandle PluginHostBypass::pluginNode() const
 {
     return plugin_.index() == 0?
@@ -340,6 +358,10 @@ std::optional<Engine::NodeSet::InputPosition>
                 YADAW::Audio::Engine::NodeSet::NodePosition {
                     .node = std::get<0>(plugin_),
                     .index = index
+                },
+                YADAW::Audio::Engine::NodeSet::NodePosition {
+                    .node = std::get<0>(hostBypass_),
+                    .index = index
                 }
             };
         }
@@ -350,7 +372,17 @@ std::optional<Engine::NodeSet::InputPosition>
     }
     else
     {
-        return std::get<1>(plugin_)->inputAt(index);
+        if(index < inputCount())
+        {
+            auto ret1 = std::get<1>(*(std::get<1>(plugin_)->inputAt(index)));
+            auto ret2 = std::get<1>(*(std::get<1>(hostBypass_)->inputAt(index)));
+            std::ranges::copy(ret2, std::back_inserter(ret1));
+            return ret1;
+        }
+        else
+        {
+            return std::nullopt;
+        }
     }
 }
 
@@ -362,12 +394,40 @@ PluginHostBypass::outputAt(std::uint32_t index) const
 
 YADAW::Util::PMRUniquePtr<void> PluginHostBypass::dismiss()
 {
-    return NodeSet::dismiss(); // TODO
+    struct DismissedData
+    {
+        decltype(PluginHostBypass::passthroughDevicePool_)::iterator passthroughDevice;
+        decltype(PluginHostBypass::bypassSwitcherPool_)::iterator bypassSwitcher;
+        DismissedData(PluginHostBypass& phb):
+            passthroughDevice(
+                PluginHostBypass::passthroughDevicePool_.get_iterator(
+                    phb.passthroughDevice_
+                )
+            ),
+            bypassSwitcher(
+                PluginHostBypass::bypassSwitcherPool_.get_iterator(
+                    phb.bypassSwitcher_
+                )
+            )
+        {
+            phb.passthroughDevice_ = nullptr;
+            phb.bypassSwitcher_ = nullptr;
+        }
+        ~DismissedData()
+        {
+            bypassSwitcher->uninitialize();
+            PluginHostBypass::passthroughDevicePool_.erase(passthroughDevice);
+            PluginHostBypass::bypassSwitcherPool_.erase(bypassSwitcher);
+        }
+    };
+    return YADAW::Util::createPMRUniquePtr(
+        std::make_unique<DismissedData>(*this)
+    );
 }
 
 bool PluginHostBypass::dismissed() const
 {
-    return false; // TODO
+    return passthroughDevice_ == nullptr && bypassSwitcher_ == nullptr;
 }
 
 std::uint32_t PluginHostBypass::innerNodeSetCount() const
