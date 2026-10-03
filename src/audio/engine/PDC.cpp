@@ -88,7 +88,7 @@ PDC::PDC(
                 {
                     auto& pdcDeviceNodes = pdcExt_->getGraphData().pdcDeviceNodes;
                     auto it = pdcDeviceNodes.find(nodeHandle);
-                    if(it != pdcDeviceNodes.end())
+                    if(it != pdcDeviceNodes.end() && !it->second->dismissed())
                     {
                         it->second->onUpstreamLatencyChanged();
                     }
