@@ -9,7 +9,7 @@ using ProcessSequence = Vector3D<
 >;
 
 ProcessSequenceWithPrev getProcessSequenceWithPrev(
-    const YADAW::Audio::Engine::AudioDeviceGraphBase& graph, YADAW::Audio::Engine::Extension::Buffer& bufferExt)
+    const YADAW::Audio::Engine::AudioDeviceGraphBase& graph, const YADAW::Audio::Engine::Extension::Buffer& bufferExt)
 {
     auto topoSequenceWithPrev = graph.topologicalSortWithPrev();
     ProcessSequenceWithPrev ret;

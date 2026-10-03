@@ -32,7 +32,7 @@ ProcessSequenceWithPrev getProcessSequenceWithPrev(const YADAW::Audio::Engine::A
 
 ProcessSequenceWithPrev getProcessSequenceWithPrev(
     const YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
-    YADAW::Audio::Engine::Extension::Buffer& bufferExt);
+    const YADAW::Audio::Engine::Extension::Buffer& bufferExt);
 
 enum CreateWorkloadFlags
 {
