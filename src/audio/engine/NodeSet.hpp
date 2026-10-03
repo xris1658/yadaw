@@ -60,6 +60,16 @@ public:
     {
         return std::nullopt;
     }
+    template<std::output_iterator<YADAW::Util::PMRUniquePtr<void>> OutputIt>
+    static OutputIt dismissRecursively(NodeSet& nodeSet, OutputIt out)
+    {
+        *out++ = nodeSet.dismiss();
+        FOR_RANGE0(i, nodeSet.innerNodeSetCount())
+        {
+            out = dismissRecursively(nodeSet.innerNodeSetAt(i)->get(), out);
+        }
+        return out;
+    }
 protected:
     YADAW::Audio::Engine::AudioDeviceGraphBase* graph_;
 };
