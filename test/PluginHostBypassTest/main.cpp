@@ -83,4 +83,5 @@ int main()
     std::this_thread::sleep_for(std::chrono::seconds(1));
     running.clear(std::memory_order_release);
     audioThread.join();
+    optPHB.reset();
 }
