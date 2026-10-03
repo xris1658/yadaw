@@ -105,7 +105,7 @@ public:
         std::int64_t switchTimestampInNanosecond_ = 0;
         double sampleRate_;
     };
-private:
+public:
     template<typename CreatePDCFunc>
     requires std::invocable<
         CreatePDCFunc,
@@ -173,8 +173,9 @@ public:
         if(true)
         {
             return std::optional<PluginHostBypass>(
-                std::in_place_t {},
+                std::in_place_t(),
                 graph,
+                process,
                 [](
                     YADAW::Audio::Engine::AudioDeviceGraphBase& graph,
                     YADAW::Audio::Engine::AudioDeviceProcess process
@@ -183,8 +184,7 @@ public:
                     return YADAW::Audio::Engine::PDC::createIfNeeded(
                         static_cast<GraphRef>(graph), process
                     );
-                },
-                process
+                }
             );
         }
         return std::nullopt;
@@ -201,6 +201,11 @@ public:
     std::uint32_t innerNodeSetCount() const override;
     OptionalRef<NodeSet> innerNodeSetAt(std::uint32_t index) override;
     OptionalRef<const NodeSet> innerNodeSetAt(std::uint32_t index) const override;
+public:
+    const BypassSwitcher& bypassSwitcher() const;
+    BypassSwitcher& bypassSwitcher();
+    bool initialize(double sampleRate, std::uint32_t maxSampleCount);
+    void uninitialize();
 private:
     std::variant<ade::NodeHandle, std::optional<YADAW::Audio::Engine::PDC>> plugin_;
     PassthroughDevice passthroughDevice_;

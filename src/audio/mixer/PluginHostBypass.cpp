@@ -413,4 +413,24 @@ PluginHostBypass::innerNodeSetAt(std::uint32_t index) const
     }
     return std::nullopt;
 }
+
+const PluginHostBypass::BypassSwitcher& PluginHostBypass::bypassSwitcher() const
+{
+    return bypassSwitcher_;
+}
+
+PluginHostBypass::BypassSwitcher& PluginHostBypass::bypassSwitcher()
+{
+    return bypassSwitcher_;
+}
+
+bool PluginHostBypass::initialize(double sampleRate, std::uint32_t maxSampleCount)
+{
+    return bypassSwitcher_.initialize(sampleRate, maxSampleCount);
+}
+
+void PluginHostBypass::uninitialize()
+{
+    bypassSwitcher_.uninitialize();
+}
 }
