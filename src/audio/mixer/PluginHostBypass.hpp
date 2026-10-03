@@ -73,7 +73,7 @@ public:
     class BypassSwitcher: public YADAW::Audio::Device::IAudioDevice
     {
         friend class PluginHostBypass;
-    private:
+    public:
         BypassSwitcher(
             YADAW::Audio::Device::IAudioDevice& plugin
         );
@@ -102,7 +102,7 @@ public:
         // true  -> bypassed, use inputs from passthrough
         // false -> not bypassed, use inputs from plugin
         std::vector<bool> values_[2];
-        bool lastValue_;
+        bool lastValue_ = false;
         std::uint32_t bufferSize_ = 0U;
         std::int64_t switchTimestampInNanosecond_ = 0;
         double sampleRate_;
@@ -156,7 +156,49 @@ public:
                 YADAW::Audio::Engine::AudioDeviceProcess(*bypassSwitcher_)
             )
         )
-    {}
+    {
+        if(plugin_.index() == 0)
+        {
+            auto pluginNode = std::get<0>(plugin_);
+            auto passthroughDeviceNode = std::get<0>(hostBypass_);
+            auto outputCount = graph_->getNodeData(pluginNode).process.device()->audioOutputGroupCount();
+            FOR_RANGE0(i, outputCount)
+            {
+                auto pluginDests = std::get<1>(*switcherPDC_->inputAt(i));
+                auto passthroughDests = std::get<1>(*switcherPDC_->inputAt(i + outputCount));
+                for(const auto& pluginDest: pluginDests)
+                {
+                    graph_->connect(pluginNode, pluginDest.node, i, pluginDest.index);
+                }
+                for(const auto& passthroughDest: passthroughDests)
+                {
+                    graph_->connect(passthroughDeviceNode, passthroughDest.node, i, passthroughDest.index);
+                }
+            }
+        }
+        else
+        {
+            auto& pluginPDC = *std::get<1>(plugin_);
+            auto& passthroughDevicePDC = *std::get<1>(hostBypass_);
+            auto outputCount = pluginPDC.outputCount();
+            FOR_RANGE0(i, outputCount)
+            {
+                auto pluginOutput = std::get<1>(*pluginPDC.outputAt(i));
+                auto passthroughDeviceOutput = std::get<1>(*passthroughDevicePDC.outputAt(i));
+                auto pluginDests = std::get<1>(*switcherPDC_->inputAt(i));
+                auto passthroughDests = std::get<1>(*switcherPDC_->inputAt(i + outputCount));
+                for(const auto& input: pluginDests)
+                {
+                    graph_->connect(pluginOutput.node, input.node, pluginOutput.index, input.index);
+                }
+                for(const auto& input: passthroughDests)
+                {
+                    graph_->connect(passthroughDeviceOutput.node, input.node, passthroughDeviceOutput.index, input.index);
+                }
+            }
+        }
+    }
+    ~PluginHostBypass() override;
 public:
     template<YADAW::Audio::Engine::IsExtension... Extensions>
     requires requires(
@@ -198,7 +240,7 @@ public:
     std::uint32_t outputCount() const override;
     std::optional<InputPosition> inputAt(std::uint32_t index) const override;
     std::optional<OutputPosition> outputAt(std::uint32_t index) const override;
-    YADAW::Util::PMRUniquePtr<void> dismiss() override;
+    [[nodiscard]] YADAW::Util::PMRUniquePtr<void> dismiss() override;
     bool dismissed() const override;
     std::uint32_t innerNodeSetCount() const override;
     OptionalRef<NodeSet> innerNodeSetAt(std::uint32_t index) override;
