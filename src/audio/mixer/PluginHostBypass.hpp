@@ -36,7 +36,7 @@ namespace YADAW::Audio::Mixer
 //   be an instrument), then all I/Os are ignored.
 // - If the plugin I/O meets none of those conditions above, then all I/Os are
 //   ignored.
-// TODO: Make signal flows customizable if needed
+// TODO: Make signal flows in `PassthroughDevice` customizable if needed
 // `PluginHostBypass` consists of:
 //    + -----------------------------------------------------------+
 //    |             +--------+                                     |
