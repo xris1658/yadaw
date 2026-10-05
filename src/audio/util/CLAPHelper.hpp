@@ -34,6 +34,12 @@ void getExtension(const clap_plugin* plugin, const char* id, To** to)
 
 namespace YADAW::Audio::Util
 {
+template<typename T>
+concept IsCLAPEvent = requires(T t)
+{
+    { t.header } -> std::same_as<clap_event_header_t&>;
+};
+
 YADAW::Audio::Plugin::CLAPPlugin createCLAPFromLibrary(const YADAW::Native::Library& library);
 }
 

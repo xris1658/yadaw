@@ -3,6 +3,8 @@
 
 #include <pluginterfaces/vst/ivstattributes.h>
 
+#include <plf_hive.h>
+
 #include <atomic>
 #include <map>
 #include <string>
@@ -16,9 +18,11 @@ using namespace Steinberg::Vst;
 class VST3AttributeList final: public IAttributeList
 {
     using Variant = std::variant<int64, double, std::u16string, std::vector<char>>;
-private:
-    VST3AttributeList();
+    class PrivateInner {};
+    static PrivateInner privateInner;
+    static plf::hive<VST3AttributeList> pool_;
 public:
+    VST3AttributeList(PrivateInner&);
     static VST3AttributeList* createAttributeList();
     VST3AttributeList(const VST3AttributeList&) = delete;
     VST3AttributeList(VST3AttributeList&&) = delete;

@@ -9,16 +9,18 @@ namespace YADAW::Audio::Host
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
-VST3Message::VST3Message()
+VST3Message::PrivateInner VST3Message::privateInner;
+plf::hive<VST3Message> VST3Message::pool_;
+
+VST3Message::VST3Message(VST3Message::PrivateInner&)
 {
 }
 
 VST3Message* VST3Message::createMessage()
 {
-    // TODO: Use memory pool
     try
     {
-        return new VST3Message;
+        return &*pool_.emplace(privateInner);
     }
     catch(...)
     {
@@ -41,7 +43,7 @@ uint32 VST3Message::release()
     auto ret = refCount_.fetch_sub(1, std::memory_order_acq_rel) - 1;
     if(ret == 0)
     {
-        delete this;
+        pool_.erase(pool_.get_iterator(this));
     }
     return ret;
 }

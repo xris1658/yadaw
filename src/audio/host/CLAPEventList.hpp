@@ -1,14 +1,13 @@
 #ifndef YADAW_SRC_AUDIO_HOST_CLAPEVENTLIST
 #define YADAW_SRC_AUDIO_HOST_CLAPEVENTLIST
 
-#include "util/CDeleter.hpp"
+#include "audio/util/CLAPHelper.hpp"
 #include "util/FixedSizeCircularDeque.hpp"
 
 #include <clap/events.h>
 #include <clap/process.h>
 
 #include <atomic>
-#include <cstdlib>
 #include <memory>
 
 namespace YADAW::Audio::Host
@@ -19,9 +18,41 @@ namespace YADAW::Audio::Host
 //  Output buffer (plugin): Enqueue events -> read queue             -> GC
 class CLAPEventList
 {
-public:
-    using EventUniquePointer = YADAW::Util::UniquePtrWithCDeleter<clap_event_header>;
-    using CircularDequeType = YADAW::Util::FixedSizeCircularDeque<EventUniquePointer, 4096>;
+private:
+    struct Event
+    {
+        using Deleter = void(clap_event_header_t*);
+        clap_event_header_t* header = nullptr;
+        Deleter* deleter = nullptr;
+        Event(clap_event_header_t* header, Deleter* deleter):
+            header(header), deleter(deleter) {}
+        Event(const Event&) = delete;
+        Event& operator=(const Event&) = delete;
+        Event(Event&& rhs) noexcept:
+            header(rhs.header), deleter(rhs.deleter)
+        {
+            rhs.deleter = nullptr;
+        }
+        Event& operator=(Event&& rhs) noexcept
+        {
+            header = rhs.header;
+            deleter = rhs.deleter;
+            rhs.deleter = nullptr;
+            return *this;
+        }
+        ~Event() noexcept
+        {
+            if(deleter)
+            {
+                deleter(header);
+            }
+        }
+    };
+    using CircularDequeType = YADAW::Util::FixedSizeCircularDeque<Event, 4096>;
+    template<YADAW::Audio::Util::IsCLAPEvent T>
+    friend Event copyKnownEvent(const clap_event_header_t* header);
+    friend Event copyUnknownEvent(const clap_event_header_t* header);
+    static Event copyEvent(const clap_event_header_t* event);
 public:
     CLAPEventList();
     ~CLAPEventList();

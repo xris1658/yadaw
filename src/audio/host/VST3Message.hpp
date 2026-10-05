@@ -5,8 +5,9 @@
 
 #include <pluginterfaces/vst/ivstmessage.h>
 
+#include <plf_hive.h>
+
 #include <atomic>
-#include <vector>
 
 namespace YADAW::Audio::Host
 {
@@ -14,9 +15,11 @@ using namespace Steinberg;
 using namespace Steinberg::Vst;
 class VST3Message final: public IMessage
 {
-private:
-    VST3Message();
+    class PrivateInner {};
+    static PrivateInner privateInner;
+    static plf::hive<VST3Message> pool_;
 public:
+    VST3Message(PrivateInner&);
     static VST3Message* createMessage();
     VST3Message(const VST3Message&) = delete;
     VST3Message(VST3Message&&) = delete;
