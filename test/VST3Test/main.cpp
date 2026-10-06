@@ -21,6 +21,15 @@
 struct PluginRuntime
 {
     std::unique_ptr<YADAW::Audio::Plugin::VST3Plugin> plugin;
+    std::aligned_storage_t<sizeof(YADAW::Audio::Host::VST3ComponentHandler), alignof(YADAW::Audio::Host::VST3ComponentHandler)> chStorage;
+    YADAW::Audio::Host::VST3ComponentHandler* createCH()
+    {
+        return new(std::launder(reinterpret_cast<YADAW::Audio::Host::VST3ComponentHandler*>(&chStorage))) YADAW::Audio::Host::VST3ComponentHandler(*plugin);
+    }
+    void destroyCH()
+    {
+        std::launder(reinterpret_cast<YADAW::Audio::Host::VST3ComponentHandler*>(&chStorage))->~VST3ComponentHandler();
+    }
     std::atomic_flag runAudioThread;
     std::thread audioThread;
     void finish()
@@ -30,6 +39,7 @@ struct PluginRuntime
         plugin->stopProcessing();
         plugin->deactivate();
         plugin->uninitialize();
+        destroyCH();
         plugin->destroyPlugin();
         plugin.reset();
     }
@@ -119,10 +129,10 @@ void testPlugin(YADAW::Audio::Plugin::PluginWindow& pluginWindow)
     auto& plugin = *runtime.plugin;
     auto sampleRate = 48000;
     auto bufferSize = 480;
+    auto ch = runtime.createCH();
     if(plugin.initialize(sampleRate, bufferSize))
     {
-        YADAW::Audio::Host::VST3ComponentHandler componentHandler(plugin);
-        componentHandler.setLatencyChangedCallback(&latencyChanged);
+        ch->setLatencyChangedCallback(&latencyChanged);
         if(plugin.activate())
         {
             if(plugin.startProcessing())
