@@ -122,9 +122,9 @@ tresult VST3AttributeList::getString(IAttributeList::AttrID id, TChar* string, u
         auto ptrToValue = std::get_if<std::u16string>(&(it->second));
         if(ptrToValue)
         {
-            if(sizeInBytes < ptrToValue->length() * sizeof(char16_t) + 2)
+            if(sizeInBytes <= (ptrToValue->length() + 1) * sizeof(char16_t))
             {
-                std::copy(ptrToValue->begin(), ptrToValue->end(), string);
+                std::copy_n(ptrToValue->data(), ptrToValue->length() + 1, string);
                 return kResultOk;
             }
             return kInvalidArgument;
