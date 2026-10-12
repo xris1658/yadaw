@@ -87,7 +87,7 @@ CLAPPlugin::CLAPPlugin(const clap_plugin_entry* entry, const QString& path):
     entry_(entry)
 {
     auto pathAsUtf8 = path.toUtf8();
-    auto initResult = entry_->init(reinterpret_cast<const char*>(path.data()));
+    auto initResult = entry_->init(pathAsUtf8.data());
     if(!initResult)
     {
         entry_ = nullptr;
