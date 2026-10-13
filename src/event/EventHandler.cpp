@@ -863,16 +863,19 @@ bool fillPluginContext(
         auto componentHandler = std::make_unique<YADAW::Audio::Host::VST3ComponentHandler>(
             vst3Plugin
         );
+        componentHandler->initializeParamChanges(engine.bufferSize());
         componentHandler->setLatencyChangedCallback(
             &YADAW::Controller::latencyUpdated<YADAW::Audio::Plugin::VST3Plugin>
         );
         componentHandler->setIOChangedCallback(
             &YADAW::Controller::ioConfigUpdated<YADAW::Audio::Plugin::VST3Plugin>
         );
+        auto componentHandlerPtr = componentHandler.get();
         context.hostContext = YADAW::Util::createPMRUniquePtr(
             std::move(componentHandler)
         );
-        plugin.initialize(engine.sampleRate(), engine.bufferSize());
+        vst3Plugin.initialize(engine.sampleRate(), engine.bufferSize());
+        componentHandlerPtr->reserve();
         if(initPluginArgs.mainInputChannelGroup.first == initPluginArgs.mainOutputChannelGroup.first
             // No main audio input channel group (e.g. an instrument)
             || initPluginArgs.mainInputChannelGroup.first == YADAW::Audio::Base::ChannelGroupType::eInvalid)

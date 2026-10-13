@@ -77,6 +77,7 @@ private:
     double sampleRate_ = 0.0;
     std::uint32_t bufferSize_ = 0U;
     bool running_ = false;
+    std::uint64_t sampleOffset_ = 0U;
     std::atomic<std::int64_t> processTime_;
     YADAW::Audio::Mixer::Mixer mixer_;
     YADAW::Audio::Engine::AudioEngineWorkerThreadPool workerThreadPool_;

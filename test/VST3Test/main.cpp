@@ -1,5 +1,6 @@
 #include "audio/host/EventFileDescriptorSupport.hpp"
 #include "audio/host/VST3ComponentHandler.hpp"
+#include "audio/host/VST3EventDoubleBuffer.hpp"
 #include "audio/plugin/PluginWindow.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "audio/util/AudioProcessDataPointerContainer.hpp"
@@ -21,7 +22,9 @@
 struct PluginRuntime
 {
     std::unique_ptr<YADAW::Audio::Plugin::VST3Plugin> plugin;
-    std::aligned_storage_t<sizeof(YADAW::Audio::Host::VST3ComponentHandler), alignof(YADAW::Audio::Host::VST3ComponentHandler)> chStorage;
+    YADAW::Util::AlignedStorage<YADAW::Audio::Host::VST3ComponentHandler> chStorage;
+    YADAW::Util::AlignedStorage<YADAW::Audio::Host::VST3EventDoubleBuffer> edbStorage;
+    std::uint64_t sampleOffset = 0;
     YADAW::Audio::Host::VST3ComponentHandler* createCH()
     {
         return new(std::launder(reinterpret_cast<YADAW::Audio::Host::VST3ComponentHandler*>(&chStorage))) YADAW::Audio::Host::VST3ComponentHandler(*plugin);
@@ -30,18 +33,28 @@ struct PluginRuntime
     {
         std::launder(reinterpret_cast<YADAW::Audio::Host::VST3ComponentHandler*>(&chStorage))->~VST3ComponentHandler();
     }
+    YADAW::Audio::Host::VST3EventDoubleBuffer* createEDB()
+    {
+        return new(std::launder(reinterpret_cast<YADAW::Audio::Host::VST3EventDoubleBuffer*>(&edbStorage))) YADAW::Audio::Host::VST3EventDoubleBuffer();
+    }
+    void destroyEDB()
+    {
+        std::launder(reinterpret_cast<YADAW::Audio::Host::VST3EventDoubleBuffer*>(&edbStorage))->~VST3EventDoubleBuffer();
+    }
     std::atomic_flag runAudioThread;
     std::thread audioThread;
     void finish()
     {
         runAudioThread.clear();
         audioThread.join();
+        destroyEDB();
         plugin->stopProcessing();
         plugin->deactivate();
         plugin->uninitialize();
         destroyCH();
         plugin->destroyPlugin();
         plugin.reset();
+        sampleOffset = 0;
     }
 };
 
@@ -137,6 +150,7 @@ void testPlugin(YADAW::Audio::Plugin::PluginWindow& pluginWindow)
         {
             if(plugin.startProcessing())
             {
+                auto edb = runtime.createEDB();
                 pluginWindow.show();
                 auto gui = plugin.pluginGUI();
                 if(gui)
@@ -161,7 +175,7 @@ void testPlugin(YADAW::Audio::Plugin::PluginWindow& pluginWindow)
                     }
                     YADAW::Native::setWindowResizableByUser(pluginWindow, gui->resizableByUser());
                 }
-                runtime.audioThread = std::thread([&plugin, sampleRate, bufferSize]()
+                runtime.audioThread = std::thread([&plugin, sampleRate, bufferSize, ch, edb]()
                 {
                     runtime.runAudioThread.test_and_set(std::memory_order_acq_rel);
                     YADAW::Audio::Util::AudioProcessDataPointerContainer<float> container;
@@ -194,16 +208,26 @@ void testPlugin(YADAW::Audio::Plugin::PluginWindow& pluginWindow)
                             container.setOutput(i, j, output[i][j].data());
                         }
                     }
+                    ch->initializeParamChanges(bufferSize);
+                    ch->reserve();
                     while(runtime.runAudioThread.test(std::memory_order_acquire))
                     {
-                        auto due = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000 * bufferSize / sampleRate);
+                        auto due = std::chrono::steady_clock::now();
+                        edb->bufferSwitched();
+                        ch->bufferSwitched(due.time_since_epoch().count(), runtime.sampleOffset);
+                        due += std::chrono::milliseconds(1000 * bufferSize / sampleRate);
+                        auto [iel, oel] = edb->pluginSideEventList();
+                        oel.clear();
+                        plugin.setEventList(&iel, &oel);
                         plugin.process(container.audioProcessData());
+                        runtime.sampleOffset += container.audioProcessData().singleBufferSize;
                         while(std::chrono::steady_clock::now() < due)
                         {
                             std::this_thread::yield();
                         }
                     }
                     plugin.stopProcessing();
+                    ch->uninitializeParamChanges();
                     runtime.runAudioThread.clear();
                 });
             }

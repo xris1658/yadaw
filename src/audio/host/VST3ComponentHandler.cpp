@@ -3,9 +3,13 @@
 #include "audio/host/HostContext.hpp"
 #include "audio/plugin/VST3Plugin.hpp"
 #include "util/IntegerRange.hpp"
+#include "util/Base.hpp"
 #include "util/Util.hpp"
 
+#include <cinttypes>
 #include <mutex>
+
+// #define VST3_CHLOG
 
 void blankLatencyChangedCallback(YADAW::Audio::Plugin::VST3Plugin&) {}
 
@@ -35,8 +39,6 @@ void blankParameterEndEditCallback(
 
 namespace YADAW::Audio::Host
 {
-constexpr auto nanosecondCount = 1000000000;
-
 VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin& plugin):
     plugin_(&plugin),
     latencyChangedCallback_(&blankLatencyChangedCallback),
@@ -47,9 +49,7 @@ VST3ComponentHandler::VST3ComponentHandler(YADAW::Audio::Plugin::VST3Plugin& plu
     parameterPerformEditCallback_(&blankParameterPerformEditCallback),
     parameterEndEditCallback_(&blankParameterEndEditCallback),
     timestamp_(0),
-    inputParameterChanges_{},
-    outputParameterChanges_{},
-    mappings_{{}, {}}
+    outputParameterChanges_{}
 {
     plugin.setComponentHandler(*this);
 }
@@ -76,33 +76,51 @@ tresult VST3ComponentHandler::queryInterface(const char* _iid, void** obj)
     return Steinberg::kNoInterface;
 }
 
-int32 VST3ComponentHandler::doBeginEdit(int hostBufferIndex, ParamID id, std::int64_t timestampInNanosecond)
+std::pair<int32, VST3InputParameterChanges::ParamValueQueue*>
+VST3ComponentHandler::doBeginEdit(ParamID id, std::int64_t timestampInNanosecond)
 {
-    // std::printf("|---doBeginEdit(%u) ", id);
-    int index = -1;
-    inputParameterChanges_[hostBufferIndex].addParameterData(id, index);
-    if(index != -1)
-    {
-        parameterBeginEditCallback_(*plugin_, id, timestampInNanosecond);
-    }
-    // std::printf("return %d\n", index);
-    return index;
+#ifdef VST3_CHLOG
+    std::fprintf(stderr, "|---doBeginEdit(%u) ", id);
+#endif
+    auto [index, pvq] = inputParamChanges().emplaceParameterData(id);
+#ifdef VST3_CHLOG
+    std::fprintf(stderr, "return %d\n", index);
+#endif
+    return {index, pvq};
 }
 
-tresult VST3ComponentHandler::doPerformEdit(int hostBufferIndex, int32 index,
+tresult VST3ComponentHandler::doPerformEdit(int32 index,
     ParamValue normalizedValue, std::int64_t timestamp)
 {
-    // std::printf("|---doPerformEdit(%d, %lf) ", index, normalizedValue);
-    int32 sampleOffset = std::round((timestamp - timestamp_) / (sampleRate() * nanosecondCount));
-    int32 pointIndex = -1;
-    auto ret = inputParameterChanges_[hostBufferIndex].getParameterData(index)->addPoint(sampleOffset, normalizedValue, pointIndex);
-    // std::printf("return 0x%x\n", ret);
+    int32 sampleOffset = std::round((timestamp - timestamp_) * sampleRate() / std::nano::den);
+#ifdef VST3_CHLOG
+    std::fprintf(stderr, "|---doPerformEdit(%d, %lf, %" PRId64")\n"
+                         "|realTimestamp = %" PRId64"\n"
+                         "|timestamp_    = %" PRId64"\n"
+                         "|sampleOffset  = %" PRId32"\n"
+                         "|point offset  = %" PRId32"\n",
+                         index, normalizedValue, timestamp,
+                         YADAW::Util::currentTimeValueInNanosecond(),
+                         timestamp,
+                         sampleOffset,
+                         sampleOffset + sampleOffset_
+    );
+#endif
+    auto pointAdded = inputParamChanges().getParameterData(index)->addPoint(
+        sampleOffset_ + sampleOffset, normalizedValue
+    );
+    auto ret = pointAdded? kResultOk: kOutOfMemory;
+#ifdef VST3_CHLOG
+    std::fprintf(stderr, "|returns %" PRIu32"\n", YADAW::Util::underlyingValue(ret));
+#endif
     return ret;
 }
 
 tresult VST3ComponentHandler::doEndEdit(ParamID id, std::int64_t timestampInNanosecond)
 {
-    // std::printf("|---doEndEdit(%u) return 0x0\n", id);
+#ifdef VST3_CHLOG
+    std::fprintf(stderr, "|---doEndEdit(%u) return 0x0\n", id);
+#endif
     editingParameters_.erase(id);
     parameterEndEditCallback_(*plugin_, id, timestampInNanosecond);
     return kResultOk;
@@ -110,12 +128,14 @@ tresult VST3ComponentHandler::doEndEdit(ParamID id, std::int64_t timestampInNano
 
 tresult VST3ComponentHandler::beginEdit(ParamID id)
 {
-    // std::printf("beginEdit(%u)\n", id);
-    auto hostBufferIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
+#ifdef VST3_CHLOG
+    std::fprintf(stderr, "beginEdit(%u)\n", id);
+#endif
     auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
-    if(auto index = doBeginEdit(hostBufferIndex, id, timestamp); index != -1)
+    auto [index, pvq] = doBeginEdit(id, timestamp);
+    if(index != -1)
     {
-        mappings_[hostBufferIndex].emplace_back(id, index);
+        mappings_.emplace_back(id, index);
         editingParameters_.emplace(id, nullptr);
         return kResultOk;
     }
@@ -124,8 +144,10 @@ tresult VST3ComponentHandler::beginEdit(ParamID id)
 
 tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue)
 {
-    auto hostBufferIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
     auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
+#ifdef VST3_CHLOG
+    std::fprintf(stderr, "performEdit(%u, %lf)\n", id, normalizedValue);
+#endif
     auto editingIt = editingParameters_.find(id);
     int32 mappingIndex = -1;
     if(editingIt == editingParameters_.end())
@@ -152,7 +174,8 @@ tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue
                 doEndEdit(id, YADAW::Util::currentTimeValueInNanosecond());
             }
         );
-        mappingIndex = doBeginEdit(hostBufferIndex, id, timestamp);
+        mappingIndex = doBeginEdit(id, timestamp).first;
+        mappings_.emplace_back(id, mappingIndex);
     }
     else
     {
@@ -161,30 +184,35 @@ tresult VST3ComponentHandler::performEdit(ParamID id, ParamValue normalizedValue
         {
             timer->start(std::chrono::milliseconds(500));
         }
-        auto& mapping = mappings_[hostBufferIndex];
-        auto mappingIt = std::find_if(mapping.begin(), mapping.end(),
+        auto mappingIt = std::find_if(mappings_.begin(), mappings_.end(),
             [id](const auto& mapping)
             {
                 const auto& [mappingId, index] = mapping;
                 return mappingId == id;
             }
         );
-        if(mappingIt == mapping.end())
+        if(mappingIt == mappings_.end())
         {
-            inputParameterChanges_[hostBufferIndex].addParameterData(id, mappingIndex);
-            mapping.emplace_back(id, mappingIndex);
+            YADAW::Util::AlignHelper<
+                YADAW::Audio::Host::VST3InputParameterChanges
+            >::fromAligned(&inputParamChanges_)->emplaceParameterData(
+                id
+            );
+            mappings_.emplace_back(id, mappingIndex);
         }
         else
         {
             mappingIndex = mappingIt->second;
         }
     }
-    return doPerformEdit(hostBufferIndex, mappingIndex, normalizedValue, timestamp);    
+    return doPerformEdit(mappingIndex, normalizedValue, timestamp);
 }
 
 tresult VST3ComponentHandler::endEdit(ParamID id)
 {
-    // std::printf("endEdit(%u)\n", id);
+#ifdef VST3_CHLOG
+    std::fprintf(stderr, "endEdit(%u)\n", id);
+#endif
     auto timestamp = YADAW::Util::currentTimeValueInNanosecond();
     return doEndEdit(id, timestamp);
 }
@@ -260,18 +288,41 @@ tresult VST3ComponentHandler::restartComponent(int32 flags)
     return kNotImplemented;
 }
 
-void VST3ComponentHandler::bufferSwitched(std::int64_t switchTimestampInNanosecond)
+void VST3ComponentHandler::initializeParamChanges(std::uint32_t intervalInSampleCount)
 {
+    auto ptr = new(YADAW::Util::AlignHelper<
+        YADAW::Audio::Host::VST3InputParameterChanges
+    >::fromAligned(
+        &inputParamChanges_
+    )) YADAW::Audio::Host::VST3InputParameterChanges(
+        0, intervalInSampleCount
+    );
+}
+
+void VST3ComponentHandler::uninitializeParamChanges()
+{
+    YADAW::Util::AlignHelper<
+        YADAW::Audio::Host::VST3InputParameterChanges
+    >::fromAligned(
+        &inputParamChanges_
+    )->~VST3InputParameterChanges();
+}
+
+void VST3ComponentHandler::bufferSwitched(
+    std::int64_t switchTimestampInNanosecond,
+    std::uint64_t sampleOffset)
+{
+#ifdef VST3_CHLOG
+    std::fprintf(stderr, "VST3ComponentHandler::bufferSwitched(%" PRId64", %" PRIu64")\n", switchTimestampInNanosecond, sampleOffset);
+#endif
     timestamp_ = switchTimestampInNanosecond;
+    sampleOffset_ = sampleOffset;
     auto hostBufferIndex = YADAW::Audio::Host::HostContext::instance().doubleBufferSwitch.get();
     // TODO: Use this in `consumeOutputParameterChanges`
     outputParameterChanges_[hostBufferIndex].reset();
-    // FIXME: Sync with `doPerformEdit`
-    inputParameterChanges_[hostBufferIndex].reset();
-    mappings_[hostBufferIndex].clear();
+    inputParamChanges().prepareQueueForAudioThreadAndConsume(sampleOffset);
     auto pluginBufferIndex = hostBufferIndex ^ 1;
-    auto& inputParameterChanges = inputParameterChanges_[pluginBufferIndex];
-    plugin_->setParameterChanges(inputParameterChanges,
+    plugin_->setParameterChanges(inputParamChanges(),
         outputParameterChanges_ + pluginBufferIndex);
 }
 
@@ -305,16 +356,11 @@ double VST3ComponentHandler::sampleRate() const
 
 void VST3ComponentHandler::reserve()
 {
-    if(plugin_)
+    if(auto parameter = plugin_->pluginParameter())
     {
-        if(auto parameter = plugin_->parameter())
-        {
-            auto parameterCount = parameter->parameterCount();
-            inputParameterChanges_[0].reserve(parameterCount);
-            inputParameterChanges_[1].reserve(parameterCount);
-            mappings_[0].reserve(parameterCount);
-            mappings_[1].reserve(parameterCount);
-        }
+        auto parameterCount = parameter->parameterCount();
+        inputParamChanges().reserveParamCount(plugin_->pluginParameter()->parameterCount());
+        mappings_.reserve(parameterCount);
     }
 }
 

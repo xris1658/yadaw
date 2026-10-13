@@ -1,6 +1,7 @@
 #ifndef YADAW_SRC_AUDIO_HOST_VST3COMPONENTHANDLER
 #define YADAW_SRC_AUDIO_HOST_VST3COMPONENTHANDLER
 
+#include "audio/host/VST3InputParameterChanges.hpp"
 #include "audio/host/VST3ParameterChanges.hpp"
 #include "concurrent/AtomicMutex.hpp"
 
@@ -59,8 +60,9 @@ public:
     uint32 addRef() override;
     uint32 release() override;
 private:
-    int32 doBeginEdit(int hostBufferIndex, ParamID id, std::int64_t timestampInNanosecond);
-    tresult doPerformEdit(int hostBufferIndex, int32 index, ParamValue normalizedValue,
+    std::pair<int32, VST3InputParameterChanges::ParamValueQueue*>
+    doBeginEdit(ParamID id, std::int64_t timestampInNanosecond);
+    tresult doPerformEdit(int32 index, ParamValue normalizedValue,
         std::int64_t timestampInNanosecond);
     tresult doEndEdit(ParamID id, std::int64_t timestampInNanosecond);
 public:
@@ -69,7 +71,9 @@ public:
     tresult PLUGIN_API endEdit(ParamID id) override;
     tresult PLUGIN_API restartComponent(int32 flags) override;
 public:
-    void bufferSwitched(std::int64_t switchTimestampInNanosecond);
+    void initializeParamChanges(std::uint32_t intervalInSampleCount);
+    void uninitializeParamChanges();
+    void bufferSwitched(std::int64_t switchTimestampInNanosecond, std::uint64_t sampleOffset);
     // TODO: Use timestamp
     void consumeOutputParameterChanges(std::int64_t timestampInNanosecond);
     double sampleRate() const;
@@ -91,6 +95,18 @@ public:
     void resetParameterPerformEditCallback();
     void resetParameterEndEditCallback();
 private:
+    YADAW::Audio::Host::VST3InputParameterChanges& inputParamChanges()
+    {
+        return *YADAW::Util::AlignHelper<
+            YADAW::Audio::Host::VST3InputParameterChanges
+        >::fromAligned(&inputParamChanges_);
+    }
+    const YADAW::Audio::Host::VST3InputParameterChanges& inputParamChanges() const
+    {
+        return *YADAW::Util::AlignHelper<
+            YADAW::Audio::Host::VST3InputParameterChanges
+        >::fromAligned(&inputParamChanges_);
+    }
     YADAW::Audio::Plugin::VST3Plugin* plugin_;
     LatencyChangedCallback* latencyChangedCallback_;
     IOChangedCallback* ioChangedCallback_;
@@ -102,11 +118,12 @@ private:
 
     // Set on switchBuffer
     std::int64_t timestamp_;
+    std::uint64_t sampleOffset_;
     std::map<ParamID, std::unique_ptr<QTimer>> editingParameters_;
     std::forward_list<std::unique_ptr<QTimer>> availableTimers_;
-    YADAW::Audio::Host::VST3ParameterChanges inputParameterChanges_[2];
+    YADAW::Util::AlignedStorage<YADAW::Audio::Host::VST3InputParameterChanges> inputParamChanges_;
     YADAW::Audio::Host::VST3ParameterChanges outputParameterChanges_[2];
-    std::vector<std::pair<ParamID, int32>> mappings_[2];
+    std::vector<std::pair<ParamID, int32>> mappings_;
 };
 
 }

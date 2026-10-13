@@ -155,11 +155,9 @@ void AudioEngine::process()
     );
     clapPluginPool_.swapIfNeeded();
     YADAW::Controller::fillVST3InputParameterChanges(
-        *(vst3PluginPool_.get()),
-        YADAW::Util::currentTimeValueInNanosecond()
+        *(vst3PluginPool_.get()), now, sampleOffset_
     );
-    YADAW::Controller::fillCLAPInputParameterChanges(*(clapPluginPool_.get()),
-    YADAW::Util::currentTimeValueInNanosecond());
+    YADAW::Controller::fillCLAPInputParameterChanges(*(clapPluginPool_.get()), now);
     for(auto channelListType: {
         YADAW::Audio::Mixer::Mixer::ChannelListType::AudioHardwareInputList,
         YADAW::Audio::Mixer::Mixer::ChannelListType::RegularList,
@@ -176,6 +174,7 @@ void AudioEngine::process()
         YADAW::Util::currentTimeValueInNanosecond() - now,
         std::memory_order_release
     );
+    sampleOffset_ += bufferSize();
 }
 
 void AudioEngine::updateProcessSequence()

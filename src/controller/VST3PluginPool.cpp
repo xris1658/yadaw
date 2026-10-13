@@ -22,13 +22,14 @@ VST3PluginPoolVector createPoolVector(VST3PluginPool& pool)
 }
 
 void fillVST3InputParameterChanges(VST3PluginPoolVector& pool,
-    std::int64_t callbackTimestampInNanosecond)
+    std::int64_t callbackTimestampInNanosecond,
+    std::uint64_t sampleOffset)
 {
     for(auto* ptr: pool)
     {
         auto& [plugin, context] = *ptr;
         context.componentHandler->bufferSwitched(
-            callbackTimestampInNanosecond
+            callbackTimestampInNanosecond, sampleOffset
         );
     }
 }

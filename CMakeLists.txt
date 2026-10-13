@@ -305,6 +305,8 @@ set(YADAW_COMMON_SOURCES
     src/audio/host/VST3EventList.hpp
     src/audio/host/VST3Host.cpp
     src/audio/host/VST3Host.hpp
+    src/audio/host/VST3InputParameterChanges.cpp
+    src/audio/host/VST3InputParameterChanges.hpp
     src/audio/host/VST3Message.cpp
     src/audio/host/VST3Message.hpp
     src/audio/host/VST3ParameterChanges.cpp
@@ -871,6 +873,8 @@ add_executable(PluginScanTest
                src/audio/host/VST3ComponentHandler.hpp
                src/audio/host/VST3Host.cpp
                src/audio/host/VST3Host.hpp
+               src/audio/host/VST3InputParameterChanges.cpp
+               src/audio/host/VST3InputParameterChanges.hpp
                src/audio/host/VST3Message.cpp
                src/audio/host/VST3Message.hpp
                src/audio/host/VST3ParameterChanges.cpp
@@ -1011,6 +1015,8 @@ add_executable(VST3Test
                src/audio/host/VST3EventList.hpp
                src/audio/host/VST3Host.cpp
                src/audio/host/VST3Host.hpp
+               src/audio/host/VST3InputParameterChanges.cpp
+               src/audio/host/VST3InputParameterChanges.hpp
                src/audio/host/VST3Message.cpp
                src/audio/host/VST3Message.hpp
                src/audio/host/VST3ParameterChanges.cpp
