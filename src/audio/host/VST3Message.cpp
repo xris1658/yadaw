@@ -1,6 +1,7 @@
 #include "VST3Message.hpp"
 
 #include "audio/util/VST3Helper.hpp"
+#include "concurrent/AtomicMutex.hpp"
 
 #include <atomic>
 
@@ -11,6 +12,7 @@ using namespace Steinberg::Vst;
 
 VST3Message::PrivateInner VST3Message::privateInner;
 plf::hive<VST3Message> VST3Message::pool_;
+YADAW::Concurrent::AtomicMutex accessingVMPool;
 
 VST3Message::VST3Message(VST3Message::PrivateInner&)
 {
@@ -20,6 +22,7 @@ VST3Message* VST3Message::createMessage()
 {
     try
     {
+        auto lg = std::lock_guard(accessingVMPool);
         return &*pool_.emplace(privateInner);
     }
     catch(...)
@@ -43,6 +46,7 @@ uint32 VST3Message::release()
     auto ret = refCount_.fetch_sub(1, std::memory_order_acq_rel) - 1;
     if(ret == 0)
     {
+        auto lg = std::lock_guard(accessingVMPool);
         pool_.erase(pool_.get_iterator(this));
     }
     return ret;
