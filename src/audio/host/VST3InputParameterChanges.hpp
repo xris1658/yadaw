@@ -109,6 +109,7 @@ public:
         std::uint64_t consumeSampleOffset_ = 0; // always read/write in audio thread
         std::uint64_t consumeNextSampleOffset_ = 0; // always read/write in audio thread
         std::uint64_t consumeEndSampleOffset_ = 0; // always read/write in audio thread
+        Steinberg::Vst::ParamValue prevLastParamValue_;
     };
 public:
     VST3InputParameterChanges(std::uint64_t sampleOffset, std::uint16_t singleBufferSize);

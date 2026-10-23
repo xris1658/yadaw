@@ -191,6 +191,12 @@ void VST3InputParameterChanges::ParamValueQueue::consumeNext(std::uint16_t consu
             }
         }
     }
+    // A workaround for Ozone 11 Equalizer. This plugin always gets the last
+    // point from the `IParamValueQueue` as long as the queue (returned from
+    // `IParameterChanges::getParameterData`) exists, even if the queue is
+    // empty, in which case `getPoint` with an index of -1 (getPointCount() - 1)
+    // will be called.
+    prevLastParamValue_ = points_[(consumerNextBegin_? consumerNextBegin_ : capacity_) - 1].value;
 #ifdef VST3_PVQLOG
     std::fprintf(stderr, "consuming sample count: %" PRIu16"\n", consumerNextBegin_ - bam.begin);
 #endif
@@ -255,6 +261,12 @@ Steinberg::tresult VST3InputParameterChanges::ParamValueQueue::getPoint(
         std::fprintf(stderr, "Point #%" PRId32": %" PRId32" - %" PRId32", %lf\n", index, point.sampleOffset, consumeSampleOffset_, value);
 #endif
         return Steinberg::kResultOk;
+    }
+    // See comments in `consumeNext`
+    if(index < 0)
+    {
+        sampleOffset = 0;
+        value = prevLastParamValue_;
     }
     return Steinberg::kInvalidArgument;
 }
