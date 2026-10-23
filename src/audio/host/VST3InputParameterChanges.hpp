@@ -132,7 +132,7 @@ public:
 private:
     static plf::hive<ParamValueQueue> paramValueQueuePool_;
     std::vector<ParamValueQueue*> paramValueQueues_;
-    ParamValueQueue** doNotConsumeNextFromHere_ = nullptr;
+    std::size_t consumeCount_ = 0;
     YADAW::Concurrent::AtomicMutex accessingParamValueQueue_;
     std::uint64_t sampleOffset_;
     std::uint16_t singleBufferSize_;

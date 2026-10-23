@@ -286,7 +286,6 @@ VST3InputParameterChanges::~VST3InputParameterChanges()
 void VST3InputParameterChanges::reserveParamCount(std::uint32_t count)
 {
     paramValueQueues_.reserve(count);
-    doNotConsumeNextFromHere_ = paramValueQueues_.data();
 }
 
 std::pair<int, VST3InputParameterChanges::ParamValueQueue*>
@@ -316,10 +315,13 @@ VST3InputParameterChanges::emplaceParameterData(
 void VST3InputParameterChanges::prepareQueueForAudioThreadAndConsume(
     std::uint64_t consumeSampleOffset, std::uint16_t consumeSampleCount)
 {
-    doNotConsumeNextFromHere_ = paramValueQueues_.data() + paramValueQueues_.size();
-    for(auto ptrParamValueQueue: paramValueQueues_)
     {
-        ptrParamValueQueue->prepareQueueForAudioThreadAndConsume(
+        auto lg = std::lock_guard(accessingParamValueQueue_);
+        consumeCount_ = paramValueQueues_.size();
+    }
+    for(std::size_t i = 0; i < consumeCount_; ++i)
+    {
+        paramValueQueues_[i]->prepareQueueForAudioThreadAndConsume(
             consumeSampleOffset, consumeSampleCount
         );
     }
@@ -327,21 +329,17 @@ void VST3InputParameterChanges::prepareQueueForAudioThreadAndConsume(
 
 void VST3InputParameterChanges::consumeNext(std::uint16_t consumeSampleCount)
 {
-    for(auto it = paramValueQueues_.begin();
-        it != paramValueQueues_.end() && &*it != doNotConsumeNextFromHere_;
-        ++it)
+    for(std::size_t i = 0; i < consumeCount_; ++i)
     {
-        (*it)->consumeNext(consumeSampleCount);
+        paramValueQueues_[i]->consumeNext(consumeSampleCount);
     }
 }
 
 void VST3InputParameterChanges::endConsuming()
 {
-    for(auto it = paramValueQueues_.begin();
-        it != paramValueQueues_.end() && &*it != doNotConsumeNextFromHere_;
-        ++it)
+    for(std::size_t i = 0; i < consumeCount_; ++i)
     {
-        (*it)->endConsuming();
+        paramValueQueues_[i]->endConsuming();
     }
 }
 
