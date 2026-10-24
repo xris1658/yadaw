@@ -106,14 +106,21 @@ tresult VST3ComponentHandler::doPerformEdit(int32 index,
                          sampleOffset + sampleOffset_
     );
 #endif
-    auto pointAdded = inputParamChanges().getParameterData(index)->addPoint(
-        sampleOffset_ + sampleOffset, normalizedValue
-    );
-    auto ret = pointAdded? kResultOk: kOutOfMemory;
+    if(auto* pvq = inputParamChanges().getParameterData(index))
+    {
+        auto pointAdded = pvq->addPoint(
+            sampleOffset_ + sampleOffset, normalizedValue
+        );
+        auto ret = pointAdded? kResultOk: kOutOfMemory;
 #ifdef VST3_CHLOG
-    std::fprintf(stderr, "|returns %" PRIu32"\n", YADAW::Util::underlyingValue(ret));
+        std::fprintf(stderr, "|returns %" PRIu32"\n", YADAW::Util::underlyingValue(ret));
 #endif
-    return ret;
+        return ret;
+    }
+#ifdef VST3_CHLOG
+    std::fprintf(stderr, "|param value queue does not exist\n");
+#endif
+    return kNotInitialized;
 }
 
 tresult VST3ComponentHandler::doEndEdit(ParamID id, std::int64_t timestampInNanosecond)
