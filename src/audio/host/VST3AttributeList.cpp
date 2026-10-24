@@ -2,6 +2,8 @@
 
 #include "concurrent/AtomicMutex.hpp"
 
+#include <mutex>
+
 namespace YADAW::Audio::Host
 {
 VST3AttributeList::PrivateInner VST3AttributeList::privateInner;

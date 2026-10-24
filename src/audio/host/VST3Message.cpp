@@ -4,6 +4,7 @@
 #include "concurrent/AtomicMutex.hpp"
 
 #include <atomic>
+#include <mutex>
 
 namespace YADAW::Audio::Host
 {
