@@ -136,7 +136,8 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                             {
                                 isInstrument = true;
                             }
-                            else if(std::strcmp(subCategoryCollection[j], kFx) == 0)
+                            else if(std::strcmp(subCategoryCollection[j], kFx) == 0
+                                 || std::strcmp(subCategoryCollection[j], "Effect") == 0)
                             {
                                 isAudioEffect = true;
                             }
