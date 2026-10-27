@@ -24,8 +24,8 @@ public:
 public:
     AEffect* effect();
 public:
-    bool initialize(double sampleRate, std::int32_t maxSampleCount) override;
-    bool uninitialize() override;
+    bool initialize(double sampleRate, std::int32_t maxSampleCount);
+    bool uninitialize();
     bool activate() override;
     bool deactivate() override;
     bool startProcessing() override;

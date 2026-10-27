@@ -39,8 +39,8 @@ public:
 public:
     bool setChannelGroups(YADAW::Audio::Base::ChannelGroupType* inputs, std::uint32_t inputCount,
         YADAW::Audio::Base::ChannelGroupType* outputs, std::uint32_t outputCount);
-    bool initialize(double sampleRate, std::int32_t maxSampleCount) override;
-    bool uninitialize() override;
+    bool initialize(double sampleRate, std::int32_t maxSampleCount);
+    bool uninitialize();
     bool activate() override;
     bool deactivate() override;
     bool startProcessing() override;
