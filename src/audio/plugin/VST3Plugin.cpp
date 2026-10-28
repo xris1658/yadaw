@@ -294,7 +294,6 @@ bool VST3Plugin::uninitialize()
         status_ = IAudioPlugin::Status::Created;
         audioInputBusActivated_.clear();
         audioOutputBusActivated_.clear();
-        status_ = IAudioPlugin::Status::Created;
         destroyEditController();
         return true;
     }
