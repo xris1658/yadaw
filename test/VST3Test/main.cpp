@@ -143,7 +143,13 @@ void testPlugin(YADAW::Audio::Plugin::PluginWindow& pluginWindow)
     auto sampleRate = 48000;
     auto bufferSize = 480;
     auto ch = runtime.createCH();
-    if(plugin.initialize(sampleRate, bufferSize))
+    Steinberg::Vst::ProcessSetup processSetup {
+        .processMode = Steinberg::Vst::ProcessModes::kRealtime,
+        .symbolicSampleSize = Steinberg::Vst::SymbolicSampleSizes::kSample32,
+        .maxSamplesPerBlock = static_cast<Steinberg::int32>(bufferSize),
+        .sampleRate = static_cast<Steinberg::Vst::SampleRate>(sampleRate)
+    };
+    if(plugin.initialize() && plugin.setupProcessing(processSetup))
     {
         ch->setLatencyChangedCallback(&latencyChanged);
         if(plugin.activate())
