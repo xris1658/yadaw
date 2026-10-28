@@ -197,13 +197,12 @@ bool VST3Plugin::setChannelGroups(YADAW::Audio::Base::ChannelGroupType* inputs, 
     if(ret == Steinberg::kResultOk)
     {
         prepareAudioRelatedInfo();
-        prepareProcessData(processSetup_.processMode);
         return true;
     }
     return false;
 }
 
-bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
+bool VST3Plugin::initialize()
 {
     if(component_->initialize(&YADAW::Audio::Host::VST3Host::instance()) != Steinberg::kResultOk)
     {
@@ -220,18 +219,16 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         componentPoint_->connect(editControllerPoint_);
         editControllerPoint_->connect(componentPoint_);
     }
-    if(audioProcessor_->canProcessSampleSize(Steinberg::Vst::SymbolicSampleSizes::kSample32) != Steinberg::kResultTrue)
+    return true;
+}
+
+bool VST3Plugin::setupProcessing(Steinberg::Vst::ProcessSetup& processSetup)
+{
+    if(audioProcessor_->setupProcessing(processSetup) != Steinberg::kResultOk)
     {
         return false;
     }
-    processSetup_.sampleRate = sampleRate;
-    processSetup_.maxSamplesPerBlock = maxSampleCount;
-    processSetup_.symbolicSampleSize = Steinberg::Vst::SymbolicSampleSizes::kSample32;
-    processSetup_.processMode = Steinberg::Vst::ProcessModes::kRealtime;
-    if(audioProcessor_->setupProcessing(processSetup_) != Steinberg::kResultOk)
-    {
-        return false;
-    }
+    processSetup_ = processSetup;
     status_ = IAudioPlugin::Status::Initialized;
     eventProcessor_ = std::make_unique<VST3EventProcessor>(*component_);
     // TODO: Replace this with self-implemented `IBStream` (not started yet)
@@ -253,7 +250,6 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         // component_->setState(&stream);
         editController_->setComponentState(&stream);
     }
-    // TODO: negotiate bus arrangement
     prepareAudioRelatedInfo();
     audioInputBusActivated_.resize(audioInputGroupCount(), false);
     audioOutputBusActivated_.resize(audioOutputGroupCount(), false);
@@ -265,8 +261,27 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
     {
         activateAudioOutputGroup(i, true);
     }
-    prepareProcessData(processSetup_.processMode);
+    prepareProcessData();
     return true;
+}
+
+bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
+{
+    if(!initialize())
+    {
+        return false;
+    }
+    if(audioProcessor_->canProcessSampleSize(Steinberg::Vst::SymbolicSampleSizes::kSample32) != Steinberg::kResultTrue)
+    {
+        return false;
+    }
+    ProcessSetup processSetup {
+        .processMode = Steinberg::Vst::ProcessModes::kRealtime,
+        .symbolicSampleSize = Steinberg::Vst::SymbolicSampleSizes::kSample32,
+        .maxSamplesPerBlock = maxSampleCount,
+        .sampleRate = sampleRate
+    };
+    return setupProcessing(processSetup_) == Steinberg::kResultOk;
 }
 
 bool VST3Plugin::uninitialize()
@@ -538,7 +553,6 @@ YADAW::Audio::Plugin::VST3EventProcessor* VST3Plugin::eventProcessor()
 
 void VST3Plugin::prepareAudioRelatedInfo()
 {
-    assert(status_ == IAudioPlugin::Status::Initialized);
     auto audioInputGroupCount = this->audioInputGroupCount();
     auto audioOutputGroupCount = this->audioOutputGroupCount();
     audioInputChannelGroup_ = std::vector<VST3AudioChannelGroup>(audioInputGroupCount);
@@ -571,10 +585,10 @@ void VST3Plugin::clearAudioRelatedInfo()
     audioOutputChannelGroup_.clear();
 }
 
-void VST3Plugin::prepareProcessData(Steinberg::int32 processMode)
+void VST3Plugin::prepareProcessData()
 {
-    processData_.processMode = processMode;
-    processData_.symbolicSampleSize = Steinberg::Vst::SymbolicSampleSizes::kSample32;
+    processData_.processMode = processSetup_.processMode;
+    processData_.symbolicSampleSize = processSetup_.symbolicSampleSize;
     processData_.numInputs = audioInputGroupCount();
     processData_.numOutputs = audioOutputGroupCount();
     processData_.inputs = inputBuffers_.data();

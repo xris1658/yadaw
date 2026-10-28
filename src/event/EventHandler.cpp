@@ -874,8 +874,9 @@ bool fillPluginContext(
         context.hostContext = YADAW::Util::createPMRUniquePtr(
             std::move(componentHandler)
         );
-        vst3Plugin.initialize(engine.sampleRate(), engine.bufferSize());
+        vst3Plugin.initialize();
         componentHandlerPtr->reserve();
+        // Negotiate bus arrangement
         if(initPluginArgs.mainInputChannelGroup.first == initPluginArgs.mainOutputChannelGroup.first
             // No main audio input channel group (e.g. an instrument)
             || initPluginArgs.mainInputChannelGroup.first == YADAW::Audio::Base::ChannelGroupType::eInvalid)
@@ -943,7 +944,14 @@ bool fillPluginContext(
                 }
             }
         }
-        if(ret && vst3Plugin.activate() && vst3Plugin.startProcessing())
+        // Negotiation done
+        Steinberg::Vst::ProcessSetup processSetup {
+            .processMode = Steinberg::Vst::ProcessModes::kRealtime,
+            .symbolicSampleSize = Steinberg::Vst::SymbolicSampleSizes::kSample32,
+            .maxSamplesPerBlock = static_cast<std::int32_t>(engine.bufferSize()),
+            .sampleRate = engine.sampleRate()
+        };
+        if(ret && vst3Plugin.setupProcessing(processSetup) && vst3Plugin.activate() && vst3Plugin.startProcessing())
         {
             auto& pool = YADAW::Controller::appVST3PluginPool();
             pool.emplace(

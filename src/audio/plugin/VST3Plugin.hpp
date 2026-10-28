@@ -39,6 +39,8 @@ public:
 public:
     bool setChannelGroups(YADAW::Audio::Base::ChannelGroupType* inputs, std::uint32_t inputCount,
         YADAW::Audio::Base::ChannelGroupType* outputs, std::uint32_t outputCount);
+    bool initialize();
+    bool setupProcessing(Steinberg::Vst::ProcessSetup& processSetup);
     bool initialize(double sampleRate, std::int32_t maxSampleCount);
     bool uninitialize();
     bool activate() override;
@@ -77,7 +79,7 @@ public:
 private:
     void prepareAudioRelatedInfo();
     void clearAudioRelatedInfo();
-    void prepareProcessData(Steinberg::int32 processMode);
+    void prepareProcessData();
     void resetProcessData();
     bool createEditController();
     bool initializeEditController();
