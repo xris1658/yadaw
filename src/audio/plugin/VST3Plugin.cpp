@@ -281,7 +281,7 @@ bool VST3Plugin::initialize(double sampleRate, std::int32_t maxSampleCount)
         .maxSamplesPerBlock = maxSampleCount,
         .sampleRate = sampleRate
     };
-    return setupProcessing(processSetup_) == Steinberg::kResultOk;
+    return setupProcessing(processSetup_);
 }
 
 bool VST3Plugin::uninitialize()
