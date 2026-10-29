@@ -277,6 +277,20 @@ std::vector<PluginScanResult> scanSingleLibraryFile(const QString& path)
                     && std::strcmp(classInfo.category, kVstAudioEffectClass) == 0)
                     {
                         if(plugin.createPlugin(classInfo.cid)
+                        // Seems like this can be replaced with `initialize()`
+                        // since `getBusCount` and `getBusInfo` doesn't need the
+                        // plugin to be at the "setup done" state according to
+                        // the documentation, just "initialized" is okay.
+                        // But since some older versions of the workflow diagram
+                        // in the Dev Portal still places `getBusCount` in the
+                        // "setup done" state (changed at https://github.com/steinbergmedia/vst3_dev_portal/commit/70a77e9e6fd81972035aa24b5c09f8a73e692c68),
+                        // and some plugin vendors might decide to make
+                        // `getBusCount` only callable in "setup done" after
+                        // checked the workflow diagram only, I guess I'll leave
+                        // this call as-is.
+                        // (Seriously, the inconsistency between the dev portal
+                        // and the documentation is a serious mistake that
+                        // should not exist in the first place.)
                         && plugin.initialize(44100, 1024))
                         {
                             std::vector<char> uid(16, 0);
