@@ -88,7 +88,7 @@ private:
 public:
     void refreshParameterInfo();
     void setComponentHandler(Steinberg::Vst::IComponentHandler& componentHandler);
-    void setProcessContext(Steinberg::Vst::ProcessContext& processContext);
+    Steinberg::Vst::ProcessContext& processContext() const;
     void setParameterChanges(Steinberg::Vst::IParameterChanges& inputParameterChanges, Steinberg::Vst::IParameterChanges* outputParameterChanges);
     void setEventList(Steinberg::Vst::IEventList* inputEventList, Steinberg::Vst::IEventList* outputEventList);
 private:
@@ -110,6 +110,12 @@ private:
     std::vector<bool> audioOutputBusActivated_;
     Steinberg::Vst::ProcessSetup processSetup_ = {};
     Steinberg::Vst::ProcessData processData_ = {};
+    mutable Steinberg::Vst::ProcessContext processContext_ = {
+        .state = 0U,
+        .sampleRate = 0.0,
+        .projectTimeSamples = 0,
+        .systemTime = 0
+    };
     std::vector<Steinberg::Vst::AudioBusBuffers> inputBuffers_;
     std::vector<Steinberg::Vst::AudioBusBuffers> outputBuffers_;
     mutable std::unique_ptr<VST3PluginGUI> gui_;

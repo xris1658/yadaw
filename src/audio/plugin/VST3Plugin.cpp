@@ -342,6 +342,10 @@ bool VST3Plugin::startProcessing()
     auto result = audioProcessor_->setProcessing(true);
     if(result == Steinberg::kResultOk || result == Steinberg::kNotImplemented)
     {
+        processData_.processContext = &processContext_;
+        // TODO: Remove this after implementing arrangement info
+        processContext_.state = Steinberg::Vst::ProcessContext::StatesAndFlags::kTempoValid;
+        processContext_.tempo = 120.0;
         status_ = IAudioPlugin::Status::Processing;
         return true;
     }
@@ -598,6 +602,7 @@ void VST3Plugin::prepareProcessData()
 void VST3Plugin::resetProcessData()
 {
     processData_ = {};
+    processData_.processContext = &processContext_;
 }
 
 bool VST3Plugin::createEditController()
@@ -689,9 +694,9 @@ void VST3Plugin::setComponentHandler(IComponentHandler& componentHandler)
     componentHandler_ = &componentHandler;
 }
 
-void VST3Plugin::setProcessContext(Steinberg::Vst::ProcessContext& processContext)
+Steinberg::Vst::ProcessContext& VST3Plugin::processContext() const
 {
-    processData_.processContext = &processContext;
+    return processContext_;
 }
 
 void VST3Plugin::setParameterChanges(IParameterChanges& inputParameterChanges,
