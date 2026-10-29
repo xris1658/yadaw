@@ -13,6 +13,7 @@
 #include <pluginterfaces/vst/ivstaudioprocessor.h>
 #include <pluginterfaces/vst/ivsteditcontroller.h>
 #include <pluginterfaces/vst/ivstmessage.h>
+#include <pluginterfaces/vst/ivstprocesscontext.h>
 
 #include <vector>
 
